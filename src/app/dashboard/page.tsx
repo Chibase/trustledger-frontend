@@ -1,9 +1,4 @@
-import Link from "next/link";
-import { isUserRole, USER_ROLES, type UserRole } from "@/types/rbac";
-
-type DashboardPageProps = {
-  searchParams: Promise<{ view?: string }>;
-};
+import { getCurrentUser, type UserRole } from "@/lib/auth";
 
 const ROLE_CONTENT: Record<
   UserRole,
@@ -43,37 +38,33 @@ const ROLE_CONTENT: Record<
   },
 };
 
-function resolveView(view: string | undefined): UserRole {
-  if (view && isUserRole(view)) {
-    return view;
-  }
-  return "client";
-}
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
 
-export default async function DashboardPage({ searchParams }: DashboardPageProps) {
-  const { view } = await searchParams;
-  const activeRole = resolveView(view);
-  const content = ROLE_CONTENT[activeRole];
+  if (!user) {
+    return (
+      <main className="p-6 max-w-3xl">
+        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+        <section className="rounded-lg border p-4 text-sm text-gray-700">
+          <p className="font-medium text-gray-900 mb-2">Please sign in</p>
+          <p>You need to be signed in to view your role-based dashboard.</p>
+        </section>
+      </main>
+    );
+  }
+
+  const content = ROLE_CONTENT[user.role];
 
   return (
     <main className="p-6 max-w-3xl">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
 
-      <nav className="flex flex-wrap gap-2 mb-6">
-        {USER_ROLES.map((role) => (
-          <Link
-            key={role}
-            href={`/dashboard?view=${role}`}
-            className={`rounded-md border px-3 py-1 text-sm capitalize ${
-              role === activeRole
-                ? "bg-gray-900 text-white border-gray-900"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            {role}
-          </Link>
-        ))}
-      </nav>
+      <p className="text-sm text-gray-600 mb-6">
+        Signed in as:{" "}
+        <span className="font-medium text-gray-900">
+          {user.name} ({user.role})
+        </span>
+      </p>
 
       <section className="rounded-lg border p-4">
         <h2 className="text-xl font-semibold mb-3">{content.title}</h2>

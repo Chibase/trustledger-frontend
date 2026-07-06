@@ -16,6 +16,19 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Role-based dashboard (dev)
+
+The dashboard uses a placeholder auth layer until a real provider is integrated. Set the signed-in user's role via environment variable:
+
+```bash
+# .env.local
+NEXT_PUBLIC_DEV_ROLE=client
+```
+
+Available roles: `client`, `contractor`, `community`, `admin`. If unset or invalid, the app defaults to `client`.
+
+Restart the dev server after changing env values, then open [http://localhost:3000/dashboard](http://localhost:3000/dashboard).
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
