@@ -18,16 +18,18 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Role-based dashboard (dev)
 
-The dashboard uses a placeholder auth layer until a real provider is integrated. Set the signed-in user's role via environment variable:
+The dashboard requires a signed-in user. Without a session, `/dashboard` redirects to `/login?next=/dashboard`.
+
+Use the login page to pick a role (`client`, `contractor`, `community`, `admin`). That sets a `session-role` cookie and sends you back to the dashboard.
+
+Alternatively, set a default role via environment variable (skips login when middleware sees a valid dev role):
 
 ```bash
 # .env.local
 NEXT_PUBLIC_DEV_ROLE=client
 ```
 
-Available roles: `client`, `contractor`, `community`, `admin`. If unset or invalid, the app defaults to `client`.
-
-Restart the dev server after changing env values, then open [http://localhost:3000/dashboard](http://localhost:3000/dashboard).
+Restart the dev server after changing env values.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
