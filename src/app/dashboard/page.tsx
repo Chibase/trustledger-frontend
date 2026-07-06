@@ -1,4 +1,5 @@
 import { getCurrentUser, type UserRole } from "@/lib/auth";
+import { SignOutButton } from "@/app/dashboard/sign-out-button";
 
 const ROLE_CONTENT: Record<
   UserRole,
@@ -59,12 +60,15 @@ export default async function DashboardPage() {
     <main className="p-6 max-w-3xl">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
 
-      <p className="text-sm text-gray-600 mb-6">
-        Signed in as:{" "}
-        <span className="font-medium text-gray-900">
-          {user.name} ({user.role})
-        </span>
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <p className="text-sm text-gray-600">
+          Signed in as:{" "}
+          <span className="font-medium text-gray-900">
+            {user.name} ({user.role})
+          </span>
+        </p>
+        <SignOutButton />
+      </div>
 
       <section className="rounded-lg border p-4">
         <h2 className="text-xl font-semibold mb-3">{content.title}</h2>

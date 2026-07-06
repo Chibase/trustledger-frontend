@@ -16,6 +16,10 @@ function hasUserSignal(request: NextRequest): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === "/login" && hasUserSignal(request)) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
     if (!hasUserSignal(request)) {
       const loginUrl = new URL("/login", request.url);
@@ -28,5 +32,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard", "/dashboard/:path*"],
+  matcher: ["/login", "/dashboard", "/dashboard/:path*"],
 };
