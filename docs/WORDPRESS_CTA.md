@@ -1,53 +1,30 @@
-# WordPress CTA → TrustLedger Demo
+# WordPress CTA → TrustLedger product links
 
-Paste these into the Webway WordPress site (`trustledger.co.za`) so visitors reach the Vercel Demo.
+Marketing site: `https://trustledger.co.za`  
+Product (Vercel): `https://trustledger-frontend-pi.vercel.app`  
+Desk (Interserv): `https://app.trustledger.co.za`
 
-## Recommended URLs
-
-Replace the host if your Vercel production domain differs:
+## Link map
 
 | CTA | URL |
 |-----|-----|
-| Primary | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo` |
-| Home | `https://trustledger-frontend-pi.vercel.app/?utm_source=wordpress&utm_medium=cta&utm_campaign=home` |
+| Try demo / 14-day trial | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo` |
+| Open dashboard | `https://trustledger-frontend-pi.vercel.app/app/dashboard?utm_source=wordpress&utm_medium=cta&utm_campaign=dashboard` |
+| Sign in (live) | `https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&utm_medium=cta&utm_campaign=live_login` |
+| App home | `https://trustledger-frontend-pi.vercel.app/?utm_source=wordpress&utm_medium=cta&utm_campaign=home` |
+| SRM assessment (full page) | `https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic` |
+| SRM assessment (embed) | `https://trustledger-frontend-pi.vercel.app/assessment?embed=1&utm_source=wordpress&utm_medium=embed&utm_campaign=srm_diagnostic` |
+| Team desk (Frappe) | `https://app.trustledger.co.za` |
+| Chibase Consulting | `https://chibaseconsulting.co.za` |
+| Contact | `mailto:info@trustledger.co.za` |
 
-When custom domain is ready: `https://app.trustledger.co.za/demo?...`
+## Behaviour notes
 
-## Button block (HTML)
+- **Open dashboard** → `/app/dashboard`. Guests are redirected to demo/login by middleware.
+- **Sign in** → live BFF login against Interserv.
+- **Team desk** → Frappe desk for internal users (not the public demo).
+- **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Optional `ASSESSMENT_WEBHOOK_URL` receives the lead payload.
 
-```html
-<p class="tl-cta">
-  <a class="tl-cta__btn"
-     href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo"
-     target="_blank"
-     rel="noopener noreferrer">
-    Try the interactive demo
-  </a>
-</p>
-```
+## WordPress Assessment page embed
 
-## Optional CSS (Customizer → Additional CSS)
-
-```css
-.tl-cta { margin: 1.5rem 0; }
-.tl-cta__btn {
-  display: inline-block;
-  background: #0e7c66;
-  color: #fff !important;
-  text-decoration: none;
-  font-weight: 600;
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
-}
-.tl-cta__btn:hover { background: #085f4d; }
-```
-
-## Where to place
-
-1. Homepage hero — primary CTA  
-2. Pricing / Pilot page — “See it first”  
-3. Assessment thank-you — “Explore the product”  
-
-## Tracking
-
-UTM params above show up in Vercel/analytics. Lead emails from the in-app soft-gate are stored in browser `localStorage` until a CRM endpoint is wired.
+Replace the placeholder on `/assessment/` with the HTML in [`docs/wordpress/assessment-embed.html`](wordpress/assessment-embed.html) (Custom HTML block). Purge SpeedyCache after paste.

@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-11 — SRM Readiness Assessment
+
+- Public `/assessment` wizard (16 Likert items across 6 governance dimensions)
+- Lead gate (name + work email) before score / risk / top 3 / 90-day plan
+- `POST /api/assessment/lead` with optional `ASSESSMENT_WEBHOOK_URL`
+- CSP `frame-ancestors` allowlist for WordPress embed (`trustledger.co.za`)
+- WordPress embed snippet: `docs/wordpress/assessment-embed.html`
+
 ## 2026-07-11 — Phase 4 Packets 19–22
 
 - UTM capture on `/demo` + lead payload attribution
