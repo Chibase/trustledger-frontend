@@ -23,7 +23,7 @@ export function ShellSignOut() {
       type="button"
       onClick={handleSignOut}
       disabled={pending}
-      className="text-sm font-medium text-tl-trust-ink underline-offset-2 hover:underline disabled:opacity-50"
+      className="text-xs font-medium text-tl-ink-muted hover:text-tl-trust-ink disabled:opacity-50"
     >
       {pending ? "Signing out…" : "Sign out"}
     </button>

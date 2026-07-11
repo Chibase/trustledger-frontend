@@ -29,29 +29,44 @@ export function AppShell({
         {showLeadGate ? <DemoLeadGate /> : null}
         <MobileNav role={role} userName={userName} />
 
-        <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-6xl flex-col md:flex-row">
-          <aside className="hidden border-tl-line bg-tl-surface md:block md:w-56 md:shrink-0 md:border-r">
-            <div className="px-4 py-4">
+        <div className="mx-auto flex min-h-[calc(100vh-2.25rem)] max-w-6xl md:min-h-[calc(100vh-2.25rem)]">
+          <aside className="sticky top-0 hidden h-[calc(100vh-2.25rem)] w-60 shrink-0 flex-col border-r border-tl-line bg-tl-surface md:flex">
+            <div className="border-b border-tl-line px-4 py-4">
               <Link
                 href="/app/dashboard"
-                className="font-display text-lg font-semibold text-tl-ink"
+                className="font-display text-lg font-semibold tracking-tight text-tl-ink"
               >
                 TrustLedger
               </Link>
               <p className="mt-1 text-xs text-tl-ink-muted">
-                {userName} · {role}
-                {!showDemoBanner ? " · live" : ""}
+                Resolution you can audit
               </p>
-              <div className="mt-4">
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-2 py-3">
+              <p className="mb-2 px-2 text-[0.65rem] font-medium uppercase tracking-wider text-tl-ink-muted">
+                Workspace
+              </p>
+              <AppNav role={role} />
+            </div>
+
+            <div className="border-t border-tl-line px-4 py-3">
+              <p className="truncate text-sm font-medium text-tl-ink">
+                {userName}
+              </p>
+              <p className="mt-0.5 text-xs capitalize text-tl-ink-muted">
+                {role}
+                {!showDemoBanner ? " · live" : " · demo"}
+              </p>
+              <div className="mt-2">
                 <ShellSignOut />
               </div>
             </div>
-            <div className="px-2 pb-4">
-              <AppNav role={role} />
-            </div>
           </aside>
 
-          <div className="min-w-0 flex-1 px-4 py-6 md:px-8">{children}</div>
+          <div className="min-w-0 flex-1 px-4 py-5 md:px-8 md:py-7">
+            {children}
+          </div>
         </div>
       </div>
     </ToastProvider>
