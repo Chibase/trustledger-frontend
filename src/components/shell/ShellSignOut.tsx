@@ -3,7 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function ShellSignOut() {
+type ShellSignOutProps = {
+  variant?: "light" | "ink";
+};
+
+export function ShellSignOut({ variant = "light" }: ShellSignOutProps) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
@@ -18,12 +22,17 @@ export function ShellSignOut() {
     }
   }
 
+  const className =
+    variant === "ink"
+      ? "text-xs font-medium text-white/60 hover:text-white disabled:opacity-50"
+      : "text-xs font-medium text-tl-ink-muted hover:text-tl-trust-ink disabled:opacity-50";
+
   return (
     <button
       type="button"
       onClick={handleSignOut}
       disabled={pending}
-      className="text-xs font-medium text-tl-ink-muted hover:text-tl-trust-ink disabled:opacity-50"
+      className={className}
     >
       {pending ? "Signing out…" : "Sign out"}
     </button>

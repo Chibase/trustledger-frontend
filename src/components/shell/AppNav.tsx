@@ -85,30 +85,36 @@ function NavIcon({ name }: { name: NavItem["icon"] }) {
 
 type AppNavProps = {
   role: UserRole;
+  variant?: "light" | "ink";
 };
 
-export function AppNav({ role }: AppNavProps) {
+export function AppNav({ role, variant = "light" }: AppNavProps) {
   const pathname = usePathname();
   const items = NAV.filter(
     (item) => !item.roles || item.roles.includes(role),
   );
+  const ink = variant === "ink";
 
   return (
     <nav aria-label="App" className="space-y-0.5">
       {items.map((item) => {
         const active =
           pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const className = ink
+          ? active
+            ? "bg-tl-trust text-white"
+            : "text-white/70 hover:bg-white/10 hover:text-white"
+          : active
+            ? "bg-tl-trust/10 text-tl-trust-ink ring-1 ring-inset ring-tl-trust/20"
+            : "text-tl-ink-muted hover:bg-tl-paper hover:text-tl-ink";
+
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors ${
-              active
-                ? "bg-tl-trust/10 text-tl-trust-ink ring-1 ring-inset ring-tl-trust/20"
-                : "text-tl-ink-muted hover:bg-tl-paper hover:text-tl-ink"
-            }`}
+            className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors ${className}`}
           >
-            <span className={active ? "text-tl-trust" : "text-tl-ink-muted"}>
+            <span className={ink ? (active ? "text-white" : "text-white/55") : active ? "text-tl-trust" : "text-tl-ink-muted"}>
               <NavIcon name={item.icon} />
             </span>
             {item.label}

@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-11 — Stronger product chrome
+
+- Ink (`#12202a`) full-height sidebar with teal active nav
+- Full-bleed app layout (content still max-width)
+- KPI cards with accent bar + larger type; framed page header; table elevation
+
 ## 2026-07-11 — App shell & dashboard polish
 
 - Refined AppShell sidebar (sticky, workspace label, user footer)
