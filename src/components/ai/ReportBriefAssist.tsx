@@ -29,12 +29,12 @@ export function ReportBriefAssist() {
   }
 
   return (
-    <section className="space-y-3 rounded-lg border p-4">
+    <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-lg font-semibold">AI compliance brief</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Draft a board-ready summary from open incidents. Review before download.
+          <p className="mt-1 text-sm text-tl-ink-muted">
+            Draft a board-ready summary from open incidents. Review before sharing.
           </p>
         </div>
         <AiAssistButton
@@ -70,7 +70,7 @@ export function ReportBriefAssist() {
                 ))}
               </ul>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tl-ink-muted">
               Cited: {brief.citedIncidentIds.join(", ")}
             </p>
           </div>

@@ -6,28 +6,28 @@ const currency = new Intl.NumberFormat("en-ZA", {
   maximumFractionDigits: 0,
 });
 
-export default async function ProjectsPage() {
+export default async function AppProjectsPage() {
   const projects = await projectService.list();
 
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Projects</h1>
+    <div className="space-y-4">
+      <h1 className="font-display text-2xl font-semibold">Projects</h1>
 
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border border-tl-line bg-tl-surface">
         <table className="min-w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="border-b border-tl-line bg-tl-paper text-tl-ink-muted">
             <tr>
-              <th className="text-left p-3">ID</th>
-              <th className="text-left p-3">Name</th>
-              <th className="text-left p-3">Client/Funder</th>
-              <th className="text-left p-3">Budget</th>
-              <th className="text-left p-3">Ward</th>
-              <th className="text-left p-3">Status</th>
+              <th className="p-3 text-left font-medium">ID</th>
+              <th className="p-3 text-left font-medium">Name</th>
+              <th className="p-3 text-left font-medium">Client/Funder</th>
+              <th className="p-3 text-left font-medium">Budget</th>
+              <th className="p-3 text-left font-medium">Ward</th>
+              <th className="p-3 text-left font-medium">Status</th>
             </tr>
           </thead>
           <tbody>
             {projects.map((p) => (
-              <tr key={p.id} className="border-t">
+              <tr key={p.id} className="border-t border-tl-line">
                 <td className="p-3">{p.id}</td>
                 <td className="p-3">{p.name}</td>
                 <td className="p-3">{p.clientFunder}</td>
@@ -39,6 +39,6 @@ export default async function ProjectsPage() {
           </tbody>
         </table>
       </div>
-    </main>
+    </div>
   );
 }

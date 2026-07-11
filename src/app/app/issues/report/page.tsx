@@ -7,7 +7,7 @@ import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { aiService } from "@/services/aiService";
 import type { AiSuggestionStatus, IncidentTriageSuggestion } from "@/types/ai";
 
-export default function ReportIssuePage() {
+export default function AppReportIssuePage() {
   const [description, setDescription] = useState("");
   const [ward, setWard] = useState("Ward 12");
   const [category, setCategory] = useState("");
@@ -54,40 +54,37 @@ export default function ReportIssuePage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl space-y-6 p-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <p className="text-sm text-gray-500">
-          <Link href="/dashboard" className="underline">
-            Dashboard
-          </Link>{" "}
-          / Report issue
-        </p>
-        <h1 className="mt-2 text-2xl font-bold">Report an issue</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="font-display text-2xl font-semibold">Report an issue</h1>
+        <p className="mt-2 text-sm text-tl-ink-muted">
           Describe what happened. AI can suggest category, area, and priority —
           you confirm before submit.
           {aiService.isMockMode() ? (
-            <span className="ml-1 text-gray-500">(mock AI mode)</span>
+            <span className="ml-1">(mock AI)</span>
           ) : null}
         </p>
       </div>
 
       {submitted ? (
-        <section className="rounded-lg border p-4 text-sm text-gray-700">
-          <p className="font-medium text-gray-900">Issue captured (local draft)</p>
-          <p className="mt-2">
-            In production this posts to srm-core as an SRM Incident. AI metadata
-            (model, prompt version, confidence) should be stored on the timeline.
+        <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
+          <p className="font-medium">Issue captured (demo draft)</p>
+          <p className="mt-2 text-tl-ink-muted">
+            In live mode this creates an SRM Incident in Frappe with AI metadata
+            on the timeline.
           </p>
           <Link
-            href="/incidents"
-            className="mt-4 inline-block text-sm font-medium underline"
+            href="/app/incidents"
+            className="mt-4 inline-block text-sm font-medium text-tl-trust-ink underline"
           >
             View sample incidents
           </Link>
         </section>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4"
+        >
           <div>
             <label htmlFor="description" className="mb-1 block text-sm font-medium">
               What is the concern?
@@ -98,8 +95,8 @@ export default function ReportIssuePage() {
               rows={5}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              placeholder="Example: Burst pipe is flooding the clinic access road and people are upset..."
+              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              placeholder="Example: Burst pipe is flooding the clinic access road..."
             />
           </div>
 
@@ -112,7 +109,7 @@ export default function ReportIssuePage() {
                 id="ward"
                 value={ward}
                 onChange={(event) => setWard(event.target.value)}
-                className="w-full rounded-md border px-3 py-2 text-sm"
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               />
             </div>
             <div>
@@ -123,7 +120,7 @@ export default function ReportIssuePage() {
                 id="category"
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
-                className="w-full rounded-md border px-3 py-2 text-sm"
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
                 placeholder="Optional — or apply AI suggestion"
               />
             </div>
@@ -137,7 +134,7 @@ export default function ReportIssuePage() {
               id="priority"
               value={priority}
               onChange={(event) => setPriority(event.target.value)}
-              className="w-full rounded-md border px-3 py-2 text-sm"
+              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               placeholder="Filled when you apply an AI suggestion"
             />
           </div>
@@ -150,7 +147,7 @@ export default function ReportIssuePage() {
             />
             <button
               type="submit"
-              className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+              className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
             >
               Submit issue
             </button>
@@ -192,6 +189,6 @@ export default function ReportIssuePage() {
           </AiSuggestionPanel>
         </form>
       )}
-    </main>
+    </div>
   );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getCurrentUser, type UserRole } from "@/lib/auth";
-import { SignOutButton } from "@/app/dashboard/sign-out-button";
 import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
 
 const ROLE_CONTENT: Record<
@@ -20,12 +19,12 @@ const ROLE_CONTENT: Record<
     ],
     aiLinks: [
       {
-        href: "/incidents",
+        href: "/app/incidents",
         label: "Review incidents",
         note: "Open cases feeding risk and SLA pressure",
       },
       {
-        href: "/projects",
+        href: "/app/projects",
         label: "Projects",
         note: "Budget and ward context for briefs",
       },
@@ -40,12 +39,12 @@ const ROLE_CONTENT: Record<
     ],
     aiLinks: [
       {
-        href: "/incidents",
+        href: "/app/incidents",
         label: "Site-linked incidents",
         note: "Draft updates and evidence follow-ups",
       },
       {
-        href: "/issues/report",
+        href: "/app/issues/report",
         label: "Log a field concern",
         note: "AI triage before it becomes a formal case",
       },
@@ -60,12 +59,12 @@ const ROLE_CONTENT: Record<
     ],
     aiLinks: [
       {
-        href: "/issues/report",
+        href: "/app/issues/report",
         label: "Report an issue",
         note: "AI helps categorize and prioritize — you confirm",
       },
       {
-        href: "/incidents",
+        href: "/app/incidents",
         label: "View open concerns",
         note: "Track status of reported issues",
       },
@@ -80,12 +79,12 @@ const ROLE_CONTENT: Record<
     ],
     aiLinks: [
       {
-        href: "/incidents",
+        href: "/app/incidents",
         label: "Incident desk",
         note: "Sentiment, drafts, and escalation context",
       },
       {
-        href: "/issues/report",
+        href: "/app/issues/report",
         label: "Assisted intake",
         note: "Test triage hooks end-to-end",
       },
@@ -93,67 +92,54 @@ const ROLE_CONTENT: Record<
   },
 };
 
-export default async function DashboardPage() {
+export default async function AppDashboardPage() {
   const user = await getCurrentUser();
-
-  if (!user) {
-    return (
-      <main className="mx-auto max-w-3xl p-6">
-        <h1 className="mb-4 text-2xl font-bold">Dashboard</h1>
-        <section className="rounded-lg border p-4 text-sm text-gray-700">
-          <p className="mb-2 font-medium text-gray-900">Please sign in</p>
-          <p>You need to be signed in to view your role-based dashboard.</p>
-        </section>
-      </main>
-    );
-  }
+  if (!user) return null;
 
   const content = ROLE_CONTENT[user.role];
   const showBrief = user.role === "client" || user.role === "admin";
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-6">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-gray-600">
-            Signed in as:{" "}
-            <span className="font-medium text-gray-900">
-              {user.name} ({user.role})
-            </span>
-          </p>
-          <SignOutButton />
-        </div>
+        <h1 className="font-display text-2xl font-semibold text-tl-ink">
+          {content.title}
+        </h1>
+        <p className="mt-1 text-sm text-tl-ink-muted">
+          Role workspace for {user.name}
+        </p>
       </div>
 
-      <section className="rounded-lg border p-4">
-        <h2 className="mb-3 text-xl font-semibold">{content.title}</h2>
-        <ul className="list-disc space-y-2 pl-5 text-sm text-gray-700">
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <h2 className="mb-3 text-lg font-semibold">Focus areas</h2>
+        <ul className="list-disc space-y-2 pl-5 text-sm text-tl-ink-muted">
           {content.items.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
       </section>
 
-      <section className="rounded-lg border p-4">
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
         <h2 className="mb-1 text-lg font-semibold">AI-assisted workflows</h2>
-        <p className="mb-4 text-sm text-gray-600">
-          UI hooks for continuous Grok capabilities. Suggestions are never
-          auto-applied to the system of record.
+        <p className="mb-4 text-sm text-tl-ink-muted">
+          Suggestions only — confirm before anything is treated as saved.
         </p>
         <ul className="space-y-3">
           {content.aiLinks.map((link) => (
             <li key={link.href} className="text-sm">
-              <Link href={link.href} className="font-medium underline">
+              <Link
+                href={link.href}
+                className="font-medium text-tl-trust-ink underline-offset-2 hover:underline"
+              >
                 {link.label}
               </Link>
-              <p className="text-gray-600">{link.note}</p>
+              <p className="text-tl-ink-muted">{link.note}</p>
             </li>
           ))}
         </ul>
       </section>
 
       {showBrief ? <ReportBriefAssist /> : null}
-    </main>
+    </div>
   );
 }

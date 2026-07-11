@@ -1,26 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --tl-ink: #12202a;
+  --tl-ink-muted: #5b6b76;
+  --tl-paper: #f3f5f7;
+  --tl-surface: #ffffff;
+  --tl-line: #d7dee4;
+  --tl-trust: #0e7c66;
+  --tl-trust-ink: #085f4d;
+  --tl-amber: #c47a10;
+  --tl-danger: #b42318;
+  --tl-demo: #1f4b7a;
+  --background: var(--tl-paper);
+  --foreground: var(--tl-ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-tl-ink: var(--tl-ink);
+  --color-tl-ink-muted: var(--tl-ink-muted);
+  --color-tl-paper: var(--tl-paper);
+  --color-tl-surface: var(--tl-surface);
+  --color-tl-line: var(--tl-line);
+  --color-tl-trust: var(--tl-trust);
+  --color-tl-trust-ink: var(--tl-trust-ink);
+  --color-tl-amber: var(--tl-amber);
+  --color-tl-danger: var(--tl-danger);
+  --color-tl-demo: var(--tl-demo);
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-source-serif), ui-serif, Georgia, serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--tl-paper);
+  color: var(--tl-ink);
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
 }

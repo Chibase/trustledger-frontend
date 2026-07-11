@@ -30,47 +30,47 @@ export function AiSuggestionPanel({
 
   return (
     <section
-      className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4"
+      className="rounded-lg border border-dashed border-tl-line bg-tl-paper p-4"
       aria-live="polite"
     >
       <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-          <p className="mt-1 text-xs text-gray-500">
+          <h3 className="text-sm font-semibold text-tl-ink">{title}</h3>
+          <p className="mt-1 text-xs text-tl-ink-muted">
             Suggestion only — review before saving to the case record.
           </p>
         </div>
         {typeof confidence === "number" && status === "ready" ? (
-          <span className="text-xs text-gray-600">
+          <span className="text-xs text-tl-ink-muted">
             Confidence {(confidence * 100).toFixed(0)}%
           </span>
         ) : null}
       </div>
 
       {status === "loading" ? (
-        <p className="text-sm text-gray-600">Running AI assist…</p>
+        <p className="text-sm text-tl-ink-muted">Running AI assist…</p>
       ) : null}
 
       {status === "error" ? (
-        <p className="text-sm text-red-700">
+        <p className="text-sm text-tl-danger">
           {error || "AI assist failed. Try again or continue manually."}
         </p>
       ) : null}
 
       {status === "ready" ? (
         <div className="space-y-3">
-          <div className="text-sm text-gray-800">{children}</div>
+          <div className="text-sm text-tl-ink">{children}</div>
           {onApply ? (
             <button
               type="button"
               onClick={onApply}
-              className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
+              className="rounded-md bg-tl-trust px-3 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
             >
               {applyLabel}
             </button>
           ) : null}
           {(model || promptVersion) && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tl-ink-muted">
               {model ? `Model: ${model}` : null}
               {model && promptVersion ? " · " : null}
               {promptVersion ? `Prompt: ${promptVersion}` : null}

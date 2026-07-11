@@ -17,18 +17,22 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/login" && hasUserSignal(request)) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/app/dashboard", request.url));
   }
 
-  const protectedPrefixes = ["/dashboard", "/issues", "/incidents"];
+  if (pathname === "/demo" && hasUserSignal(request)) {
+    return NextResponse.redirect(new URL("/app/dashboard", request.url));
+  }
+
+  const protectedPrefixes = ["/app", "/dashboard", "/issues", "/incidents"];
   const isProtected = protectedPrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 
   if (isProtected && !hasUserSignal(request)) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    const demoUrl = new URL("/demo", request.url);
+    demoUrl.searchParams.set("next", pathname.startsWith("/app") ? pathname : "/app/dashboard");
+    return NextResponse.redirect(demoUrl);
   }
 
   return NextResponse.next();
@@ -37,6 +41,9 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/login",
+    "/demo",
+    "/app",
+    "/app/:path*",
     "/dashboard",
     "/dashboard/:path*",
     "/issues",

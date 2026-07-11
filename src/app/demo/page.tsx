@@ -13,11 +13,11 @@ function sanitizeNext(value: string | null): string {
   return "/app/dashboard";
 }
 
-function LoginForm() {
+function DemoForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = sanitizeNext(searchParams.get("next"));
-  const [role, setRole] = useState<UserRole>("client");
+  const [role, setRole] = useState<UserRole>("community");
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,23 +27,23 @@ function LoginForm() {
   }
 
   return (
-    <main className="mx-auto max-w-md p-6">
-      <h1 className="font-display text-2xl font-semibold">Sign in</h1>
-      <p className="mt-2 text-sm text-tl-ink-muted">
-        Dev/demo role picker. Prefer{" "}
-        <a href="/demo" className="text-tl-trust-ink underline">
-          /demo
-        </a>{" "}
-        for the public entry.
+    <main className="mx-auto flex min-h-full max-w-lg flex-col justify-center px-4 py-12">
+      <p className="text-sm font-medium text-tl-trust">TrustLedger Demo</p>
+      <h1 className="mt-2 font-display text-3xl font-semibold text-tl-ink">
+        Try the product with sample data
+      </h1>
+      <p className="mt-3 text-sm text-tl-ink-muted">
+        Pick a stakeholder role. Nothing here writes to a live project — use it
+        to explore dashboards and AI assist, then book a real demo.
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="mt-6 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4"
+        className="mt-8 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-5"
       >
         <div>
           <label htmlFor="role" className="mb-1 block text-sm font-medium">
-            Role
+            Enter as
           </label>
           <select
             id="role"
@@ -61,25 +61,35 @@ function LoginForm() {
 
         <button
           type="submit"
-          className="w-full rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+          className="w-full rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink"
         >
-          Continue
+          Start demo
         </button>
       </form>
+
+      <p id="book" className="mt-6 text-sm text-tl-ink-muted">
+        Ready for your own projects?{" "}
+        <a
+          href="mailto:hello@trustledger.co.za?subject=TrustLedger%20demo%20request"
+          className="font-medium text-tl-trust-ink underline"
+        >
+          Book a live demo
+        </a>
+      </p>
     </main>
   );
 }
 
-export default function LoginPage() {
+export default function DemoPage() {
   return (
     <Suspense
       fallback={
         <main className="p-6">
-          <h1 className="font-display text-2xl font-semibold">Sign in</h1>
+          <h1 className="font-display text-2xl font-semibold">TrustLedger Demo</h1>
         </main>
       }
     >
-      <LoginForm />
+      <DemoForm />
     </Suspense>
   );
 }

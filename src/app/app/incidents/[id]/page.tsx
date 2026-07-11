@@ -16,7 +16,9 @@ type IncidentDetailPageProps = {
   params: Promise<{ id: string }>;
 };
 
-export default function IncidentDetailPage({ params }: IncidentDetailPageProps) {
+export default function AppIncidentDetailPage({
+  params,
+}: IncidentDetailPageProps) {
   const { id } = use(params);
   const incident = getMockIncident(id);
 
@@ -31,12 +33,15 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
 
   if (!incident) {
     return (
-      <main className="mx-auto max-w-2xl p-6">
-        <h1 className="text-2xl font-bold">Incident not found</h1>
-        <Link href="/incidents" className="mt-4 inline-block text-sm underline">
+      <div>
+        <h1 className="font-display text-2xl font-semibold">Incident not found</h1>
+        <Link
+          href="/app/incidents"
+          className="mt-4 inline-block text-sm text-tl-trust-ink underline"
+        >
           Back to incidents
         </Link>
-      </main>
+      </div>
     );
   }
 
@@ -82,28 +87,30 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
   }
 
   return (
-    <main className="mx-auto max-w-2xl space-y-6 p-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <p className="text-sm text-gray-500">
-          <Link href="/incidents" className="underline">
+        <p className="text-sm text-tl-ink-muted">
+          <Link href="/app/incidents" className="underline">
             Incidents
           </Link>{" "}
           / {caseRecord.id}
         </p>
-        <h1 className="mt-2 text-2xl font-bold">{caseRecord.title}</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="mt-2 font-display text-2xl font-semibold">
+          {caseRecord.title}
+        </h1>
+        <p className="mt-2 text-sm text-tl-ink-muted">
           {caseRecord.priority} · {caseRecord.status} · {caseRecord.ward}
         </p>
       </div>
 
-      <section className="rounded-lg border p-4 text-sm text-gray-700">
-        <h2 className="mb-2 font-semibold text-gray-900">Description</h2>
-        <p>{caseRecord.description}</p>
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
+        <h2 className="mb-2 font-semibold">Description</h2>
+        <p className="text-tl-ink-muted">{caseRecord.description}</p>
       </section>
 
-      <section className="space-y-3 rounded-lg border p-4">
+      <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold text-gray-900">Community response</h2>
+          <h2 className="font-semibold">Community response</h2>
           <AiAssistButton
             label="Draft reply"
             onClick={handleDraft}
@@ -114,7 +121,7 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
           rows={6}
           value={responseText}
           onChange={(event) => setResponseText(event.target.value)}
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
           placeholder="Write or apply an AI draft. Nothing is sent automatically."
         />
         <AiSuggestionPanel
@@ -136,17 +143,17 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
         </AiSuggestionPanel>
       </section>
 
-      <section className="space-y-3 rounded-lg border p-4">
+      <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold text-gray-900">Sentiment capture</h2>
+          <h2 className="font-semibold">Sentiment capture</h2>
           <AiAssistButton
             label="Estimate sentiment"
             onClick={handleSentiment}
             loading={sentimentStatus === "loading"}
           />
         </div>
-        <p className="text-sm text-gray-600">
-          Feeds srm-core priority blend (impact 70% + sentiment intensity 30%).
+        <p className="text-sm text-tl-ink-muted">
+          Feeds priority blend (impact 70% + sentiment intensity 30%).
         </p>
         <AiSuggestionPanel
           title="Sentiment suggestion"
@@ -170,6 +177,6 @@ export default function IncidentDetailPage({ params }: IncidentDetailPageProps) 
           ) : null}
         </AiSuggestionPanel>
       </section>
-    </main>
+    </div>
   );
 }

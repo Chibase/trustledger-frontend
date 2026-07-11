@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function SignOutButton() {
+export function ShellSignOut() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
@@ -11,7 +11,8 @@ export function SignOutButton() {
     setPending(true);
     try {
       await fetch("/auth/logout", { method: "POST" });
-      router.push("/login");
+      router.push("/demo");
+      router.refresh();
     } finally {
       setPending(false);
     }
@@ -22,7 +23,7 @@ export function SignOutButton() {
       type="button"
       onClick={handleSignOut}
       disabled={pending}
-      className="rounded-md border px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+      className="text-sm font-medium text-tl-trust-ink underline-offset-2 hover:underline disabled:opacity-50"
     >
       {pending ? "Signing out…" : "Sign out"}
     </button>
