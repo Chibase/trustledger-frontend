@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-11 — Launch hardening
+
+- Demo lead gate posts to HubSpot via `/api/demo/lead`
+- Shared HubSpot helper; production fails closed without CRM config
+- Unified `info@trustledger.co.za`; privacy links on lead forms
+- Disable `NEXT_PUBLIC_DEV_ROLE` bypass in Vercel production
+- Dynamic robots; `/reports` redirect; launch checklist doc
+
 ## 2026-07-11 — Stronger product chrome
 
 - Ink (`#12202a`) full-height sidebar with teal active nav

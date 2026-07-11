@@ -63,7 +63,11 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   }
 
   const envRole = process.env.NEXT_PUBLIC_DEV_ROLE;
-  if (envRole && isUserRole(envRole)) {
+  if (
+    envRole &&
+    isUserRole(envRole) &&
+    process.env.VERCEL_ENV !== "production"
+  ) {
     return userFromRole(envRole, displayNameForRole(envRole), "demo");
   }
 

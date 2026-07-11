@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import type { AssessmentLeadPayload } from "@/types/assessment";
 import { isWorkEmail } from "@/data/assessment";
+import {
+  hubspotConfigured,
+  isProductionRuntime,
+  siteBaseUrl,
+  submitHubSpotLead,
+} from "@/lib/hubspot";
 
 function isValidPayload(body: unknown): body is AssessmentLeadPayload {
   if (!body || typeof body !== "object") return false;
@@ -19,17 +25,6 @@ function isValidPayload(body: unknown): body is AssessmentLeadPayload {
     b.dimensionScores !== null &&
     Array.isArray(b.topPriorities)
   );
-}
-
-function firstNameFrom(fullName: string): string {
-  const parts = fullName.trim().split(/\s+/);
-  return parts[0] || fullName;
-}
-
-function lastNameFrom(fullName: string): string | undefined {
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length < 2) return undefined;
-  return parts.slice(1).join(" ");
 }
 
 function buildAssessmentMessage(payload: AssessmentLeadPayload): string {
@@ -52,47 +47,6 @@ function buildAssessmentMessage(payload: AssessmentLeadPayload): string {
   ]
     .filter(Boolean)
     .join(" ");
-}
-
-async function submitToHubSpot(payload: AssessmentLeadPayload): Promise<Response> {
-  const portalId = process.env.HUBSPOT_PORTAL_ID;
-  const formId = process.env.HUBSPOT_FORM_ID;
-  const region = (process.env.HUBSPOT_REGION || "eu1").toLowerCase();
-
-  if (!portalId || !formId) {
-    throw new Error("HubSpot portal/form not configured");
-  }
-
-  const host =
-    region === "na1" || region === "us1"
-      ? "api.hsforms.com"
-      : `api-${region}.hsforms.com`;
-
-  const url = `https://${host}/submissions/v3/integration/submit/${portalId}/${formId}`;
-
-  const fields: { name: string; value: string }[] = [
-    { name: "email", value: payload.email },
-    { name: "firstname", value: firstNameFrom(payload.name) },
-  ];
-
-  const lastname = lastNameFrom(payload.name);
-  if (lastname) fields.push({ name: "lastname", value: lastname });
-  if (payload.organization) {
-    fields.push({ name: "company", value: payload.organization });
-  }
-  fields.push({ name: "message", value: buildAssessmentMessage(payload) });
-
-  return fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      fields,
-      context: {
-        pageUri: `https://trustledger-frontend-pi.vercel.app${payload.landingPath}`,
-        pageName: "SRM Readiness Assessment",
-      },
-    }),
-  });
 }
 
 export async function POST(request: Request) {
@@ -128,14 +82,18 @@ export async function POST(request: Request) {
     sector: body.sector?.trim() || undefined,
   };
 
-  const hubspotReady =
-    Boolean(process.env.HUBSPOT_PORTAL_ID) &&
-    Boolean(process.env.HUBSPOT_FORM_ID);
   const webhook = process.env.ASSESSMENT_WEBHOOK_URL;
 
-  if (hubspotReady) {
+  if (hubspotConfigured()) {
     try {
-      const res = await submitToHubSpot(payload);
+      const res = await submitHubSpotLead({
+        email: payload.email,
+        name: payload.name,
+        company: payload.organization,
+        message: buildAssessmentMessage(payload),
+        pageUri: `${siteBaseUrl()}${payload.landingPath}`,
+        pageName: "SRM Readiness Assessment",
+      });
       if (!res.ok) {
         console.error(
           "[assessment/lead] HubSpot failed",
@@ -179,17 +137,20 @@ export async function POST(request: Request) {
         { status: 502 },
       );
     }
+  } else if (isProductionRuntime()) {
+    console.error("[assessment/lead] no HubSpot/webhook configured in production");
+    return NextResponse.json(
+      { error: "Lead capture is temporarily unavailable." },
+      { status: 503 },
+    );
   } else {
     console.info(
-      "[assessment/lead] accepted (no HubSpot / webhook configured)",
+      "[assessment/lead] accepted (local — no HubSpot / webhook)",
       JSON.stringify({
         name: payload.name,
         email: payload.email,
-        organization: payload.organization,
         overallScore: payload.overallScore,
         riskBand: payload.riskBand,
-        topPriorities: payload.topPriorities,
-        utm: payload.utm,
       }),
     );
   }

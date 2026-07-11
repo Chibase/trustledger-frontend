@@ -436,6 +436,20 @@ export function AssessmentWizard() {
               </p>
             )}
 
+            <p className="text-xs text-tl-ink-muted">
+              By unlocking results you agree we may contact you about TrustLedger.
+              See our{" "}
+              <a
+                href="https://trustledger.co.za/privacy/"
+                className="underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
+              .
+            </p>
+
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"

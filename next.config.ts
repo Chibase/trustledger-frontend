@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
         destination: "/app/issues/report",
         permanent: false,
       },
+      { source: "/reports", destination: "/app/reports", permanent: false },
     ];
   },
   async headers() {

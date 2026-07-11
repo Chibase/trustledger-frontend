@@ -108,8 +108,7 @@
           <p class="site-footer__brand">TrustLedger</p>
           <p class="site-footer__parent">by Chibase Consulting</p>
           <p class="site-footer__contact">
-            <a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a><br>
-            +00 000 000 0000
+            <a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a>
           </p>
         </div>
         <div>

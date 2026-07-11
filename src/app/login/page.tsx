@@ -30,15 +30,15 @@ function LoginForm() {
     <main className="mx-auto max-w-md p-6">
       <h1 className="font-display text-2xl font-semibold">Sign in</h1>
       <p className="mt-2 text-sm text-tl-ink-muted">
-        Dev/demo role picker. Prefer{" "}
+        Choose a demo role to explore sample data, or use{" "}
         <a href="/demo" className="text-tl-trust-ink underline">
-          /demo
-        </a>{" "}
-        for sample data, or{" "}
+          the demo entry
+        </a>
+        . For a live Frappe session, go to{" "}
         <a href="/login/live" className="text-tl-trust-ink underline">
-          /login/live
-        </a>{" "}
-        for a real Frappe session.
+          live sign-in
+        </a>
+        .
       </p>
 
       <form

@@ -9,6 +9,11 @@ function hasUserSignal(request: NextRequest): boolean {
     return true;
   }
 
+  // Local-only bypass — never honour in Vercel production
+  if (process.env.VERCEL_ENV === "production") {
+    return false;
+  }
+
   const envRole = process.env.NEXT_PUBLIC_DEV_ROLE;
   return Boolean(envRole && isUserRole(envRole));
 }
