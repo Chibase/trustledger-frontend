@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL, isLiveMode } from "@/config/api";
 
 export class FrappeApiError extends Error {
   status: number;
@@ -15,19 +15,27 @@ export class FrappeApiError extends Error {
 type FrappeEnvelope<T> = {
   message?: T;
   exc?: string;
+  error?: string;
   _server_messages?: string;
 };
 
 /**
  * Call a Frappe whitelisted method.
- * Expects JSON body; returns `message` from the standard Frappe envelope when present.
+ * In live mode, routes through the same-origin BFF (`/api/frappe`) so the
+ * httpOnly Frappe sid cookie stays on the Vercel host.
  */
 export async function callFrappeMethod<T>(
   methodPath: string,
   body?: Record<string, unknown>,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${methodPath}`, {
+  const useProxy = isLiveMode();
+  const url = useProxy ? "/api/frappe" : `${API_BASE_URL}${methodPath}`;
+  const payload = useProxy
+    ? { method: methodPath, ...(body ?? {}) }
+    : (body ?? {});
+
+  const response = await fetch(url, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -35,22 +43,26 @@ export async function callFrappeMethod<T>(
       Accept: "application/json",
       ...(init?.headers ?? {}),
     },
-    body: JSON.stringify(body ?? {}),
+    body: JSON.stringify(payload),
     ...init,
   });
 
   const text = await response.text();
-  let payload: FrappeEnvelope<T> | T | null = null;
+  let parsed: FrappeEnvelope<T> | T | null = null;
   try {
-    payload = text ? (JSON.parse(text) as FrappeEnvelope<T> | T) : null;
+    parsed = text ? (JSON.parse(text) as FrappeEnvelope<T> | T) : null;
   } catch {
-    payload = null;
+    parsed = null;
   }
 
   if (!response.ok) {
     const detail =
-      payload && typeof payload === "object" && "exc" in payload && payload.exc
-        ? String(payload.exc)
+      parsed && typeof parsed === "object"
+        ? "error" in parsed && parsed.error
+          ? String(parsed.error)
+          : "exc" in parsed && parsed.exc
+            ? String(parsed.exc)
+            : text.slice(0, 200) || response.statusText
         : text.slice(0, 200) || response.statusText;
     throw new FrappeApiError(
       `Frappe call failed (${response.status}): ${detail}`,
@@ -60,13 +72,13 @@ export async function callFrappeMethod<T>(
   }
 
   if (
-    payload &&
-    typeof payload === "object" &&
-    "message" in payload &&
-    payload.message !== undefined
+    parsed &&
+    typeof parsed === "object" &&
+    "message" in parsed &&
+    parsed.message !== undefined
   ) {
-    return payload.message as T;
+    return parsed.message as T;
   }
 
-  return payload as T;
+  return parsed as T;
 }

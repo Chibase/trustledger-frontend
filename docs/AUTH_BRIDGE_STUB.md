@@ -1,26 +1,49 @@
-# Auth bridge stub (Phase 2 Packet 14)
+# Auth bridge (Step 3)
 
 ## Goal
 
-Replace the Demo role-cookie picker with Frappe session auth for live pilots,
-without breaking `/demo`.
+Live pilots sign in with Frappe credentials without breaking `/demo`.
 
-## Planned approach
+## Approach (BFF)
 
-1. Keep `/demo` on cookie role + mock data.
-2. Add `/login/live` (or reuse `/login?mode=live`) that redirects to Frappe
-   `/api/method/login` or OAuth / desk session cookie on the API host.
-3. Frontend sends `credentials: "include"` (already in `frappeClient`).
-4. Map Frappe roles / custom fields → TrustLedger `UserRole`.
-5. Middleware: `/app` allows either Demo cookie **or** live session signal.
+Vercel (`*.vercel.app`) and Frappe (`app.trustledger.co.za`) are different sites,
+so the browser cannot share Frappe’s `sid` cookie reliably.
 
-## Not in this packet
+1. Keep `/demo` on cookie role + mock data (`tl-mode=demo`).
+2. `/login/live` posts to **`POST /auth/live/login`** (Next.js).
+3. The route logs into Frappe server-side, stores `tl-frappe-sid` (httpOnly),
+   sets `session-role`, `tl-mode=live`, `tl-user-name`.
+4. Live API calls use **`POST /api/frappe`** which forwards with the sid.
+5. `get_session` on srm-core maps Frappe roles → TrustLedger role.
 
-- Storing Frappe passwords in Vercel
-- Implementing Interserv CORS (ops on Frappe site)
-- Grok API keys (server-side on `srm-core` only)
+## Role map
 
-## Blockers requiring human input
+| Frappe roles | TrustLedger |
+|--------------|-------------|
+| System Manager, SRM Admin | `admin` |
+| SRM Lead, SRM Case Manager | `client` |
+| SRM Analyst | `contractor` |
+| Other / SRM Viewer | `community` |
 
-- Interserv site URL + CORS allowlist for the Vercel domain
-- Which Frappe roles map to community / contractor / client / admin
+## Routes
+
+| Path | Purpose |
+|------|---------|
+| `/login/live` | Live login UI |
+| `/auth/live/login` | BFF login |
+| `/auth/live/logout` | BFF logout (also cleared by `/auth/logout`) |
+| `/api/frappe` | Authenticated method proxy |
+
+## Env
+
+```
+NEXT_PUBLIC_API_BASE_URL=https://app.trustledger.co.za
+FRAPPE_BASE_URL=https://app.trustledger.co.za   # optional server override
+NEXT_PUBLIC_DATA_MODE=live                      # Step 4
+NEXT_PUBLIC_AI_MOCK=false                       # when AI methods ready
+```
+
+## Not required for this bridge
+
+- Cross-site `SameSite=None` on Frappe cookies
+- Storing passwords in Vercel env

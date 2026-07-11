@@ -34,7 +34,11 @@ function LoginForm() {
         <a href="/demo" className="text-tl-trust-ink underline">
           /demo
         </a>{" "}
-        for the public entry.
+        for sample data, or{" "}
+        <a href="/login/live" className="text-tl-trust-ink underline">
+          /login/live
+        </a>{" "}
+        for a real Frappe session.
       </p>
 
       <form

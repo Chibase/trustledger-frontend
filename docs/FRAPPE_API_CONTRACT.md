@@ -21,6 +21,9 @@ Envelope: standard Frappe `{ "message": <payload> }`
 | `suggestSentiment` | `/api/method/srm_core.api.ai.suggest_sentiment` | sentiment request | sentiment suggestion |
 | `draftResponse` | `/api/method/srm_core.api.ai.draft_response` | draft request | draft suggestion |
 | `generateReportBrief` | `/api/method/srm_core.api.ai.generate_report_brief` | brief request | brief suggestion |
+| `getSession` | `/api/method/srm_core.api.auth.get_session` | (session cookie) | `{ user, fullName, roles, trustLedgerRole }` |
+
+Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH_BRIDGE_STUB.md`).
 
 ## Type sources (frontend)
 

@@ -33,4 +33,5 @@ export const FRAPPE_METHODS = {
   suggestSentiment: "/api/method/srm_core.api.ai.suggest_sentiment",
   draftResponse: "/api/method/srm_core.api.ai.draft_response",
   generateReportBrief: "/api/method/srm_core.api.ai.generate_report_brief",
+  getSession: "/api/method/srm_core.api.auth.get_session",
 } as const;

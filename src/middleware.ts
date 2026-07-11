@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_ROLE_COOKIE } from "@/lib/auth.constants";
+import { SESSION_ROLE_COOKIE, TL_MODE_COOKIE } from "@/lib/auth.constants";
 import { isUserRole } from "@/types/rbac";
 
 function hasUserSignal(request: NextRequest): boolean {
@@ -15,12 +15,15 @@ function hasUserSignal(request: NextRequest): boolean {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const mode = request.cookies.get(TL_MODE_COOKIE)?.value;
+  const signedIn = hasUserSignal(request);
 
-  if (pathname === "/login" && hasUserSignal(request)) {
+  if ((pathname === "/login" || pathname === "/login/live") && signedIn) {
     return NextResponse.redirect(new URL("/app/dashboard", request.url));
   }
 
-  if (pathname === "/demo" && hasUserSignal(request)) {
+  // Demo picker only auto-skips in demo mode; live users may revisit /demo intentionally.
+  if (pathname === "/demo" && signedIn && mode !== "live") {
     return NextResponse.redirect(new URL("/app/dashboard", request.url));
   }
 
@@ -29,10 +32,14 @@ export function middleware(request: NextRequest) {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 
-  if (isProtected && !hasUserSignal(request)) {
-    const demoUrl = new URL("/demo", request.url);
-    demoUrl.searchParams.set("next", pathname.startsWith("/app") ? pathname : "/app/dashboard");
-    return NextResponse.redirect(demoUrl);
+  if (isProtected && !signedIn) {
+    const entry = mode === "live" ? "/login/live" : "/demo";
+    const dest = new URL(entry, request.url);
+    dest.searchParams.set(
+      "next",
+      pathname.startsWith("/app") ? pathname : "/app/dashboard",
+    );
+    return NextResponse.redirect(dest);
   }
 
   return NextResponse.next();
@@ -41,6 +48,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/login",
+    "/login/live",
     "/demo",
     "/app",
     "/app/:path*",

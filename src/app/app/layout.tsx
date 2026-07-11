@@ -14,7 +14,11 @@ export default async function ProductLayout({
   }
 
   return (
-    <AppShell role={user.role} userName={user.name} showDemoBanner>
+    <AppShell
+      role={user.role}
+      userName={user.name}
+      showDemoBanner={user.mode !== "live"}
+    >
       {children}
     </AppShell>
   );
