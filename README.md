@@ -27,9 +27,23 @@ Alternatively, set a default role via environment variable (skips login when mid
 ```bash
 # .env.local
 NEXT_PUBLIC_DEV_ROLE=client
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+NEXT_PUBLIC_AI_MOCK=true
 ```
 
 Restart the dev server after changing env values.
+
+## AI assist hooks (Grok-ready)
+
+Continuous AI UI is sketched against future `srm-core` methods. The browser never calls xAI directly — `src/services/aiService.ts` either mocks responses or posts to Frappe.
+
+| Route | Role focus | AI hook |
+|-------|------------|---------|
+| `/issues/report` | community, contractor | Triage suggestion (category, area, priority) |
+| `/incidents/[id]` | all signed-in roles | Draft community reply + sentiment estimate |
+| `/dashboard` | client, admin | Compliance / board brief draft |
+
+Flow: **suggest → human apply/confirm → save**. Mock mode is on by default (`NEXT_PUBLIC_AI_MOCK=true`).
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

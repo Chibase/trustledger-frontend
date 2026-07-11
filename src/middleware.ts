@@ -20,17 +20,28 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
-    if (!hasUserSignal(request)) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("next", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+  const protectedPrefixes = ["/dashboard", "/issues", "/incidents"];
+  const isProtected = protectedPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+
+  if (isProtected && !hasUserSignal(request)) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/login", "/dashboard", "/dashboard/:path*"],
+  matcher: [
+    "/login",
+    "/dashboard",
+    "/dashboard/:path*",
+    "/issues",
+    "/issues/:path*",
+    "/incidents",
+    "/incidents/:path*",
+  ],
 };
