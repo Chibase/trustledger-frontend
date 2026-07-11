@@ -24,18 +24,29 @@ export function DemoLeadGate() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [utmLabel, setUtmLabel] = useState("None");
 
   useEffect(() => {
-    setUtmLabel(formatUtmSummary(readUtm()));
+    const timer = window.setTimeout(() => {
+      setUtmLabel(formatUtmSummary(readUtm()));
+      const dismissed = window.localStorage.getItem("tl-lead-dismissed");
+      if (dismissed === "1") return;
+      if (readCount() >= THRESHOLD) setOpen(true);
+    }, 0);
+
     function evaluate() {
       const dismissed = window.localStorage.getItem("tl-lead-dismissed");
       if (dismissed === "1") return;
       if (readCount() >= THRESHOLD) setOpen(true);
     }
-    evaluate();
+
     window.addEventListener("tl-demo-action", evaluate);
-    return () => window.removeEventListener("tl-demo-action", evaluate);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("tl-demo-action", evaluate);
+    };
   }, []);
 
   if (!open) return null;
@@ -45,20 +56,32 @@ export function DemoLeadGate() {
     setOpen(false);
   }
 
-  function submit(event: React.FormEvent) {
+  async function submit(event: React.FormEvent) {
     event.preventDefault();
+    setError(null);
+    setSubmitting(true);
     const utm = readUtm();
-    window.localStorage.setItem("tl-lead-email", email);
-    window.localStorage.setItem(
-      "tl-lead-payload",
-      JSON.stringify({
-        email,
-        utm,
-        capturedAt: new Date().toISOString(),
-      }),
-    );
-    window.localStorage.setItem("tl-lead-dismissed", "1");
-    setSent(true);
+
+    try {
+      const res = await fetch("/api/demo/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, utm }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setError(data.error ?? "Could not submit. Try again.");
+        return;
+      }
+
+      window.localStorage.setItem("tl-lead-email", email);
+      window.localStorage.setItem("tl-lead-dismissed", "1");
+      setSent(true);
+    } catch {
+      setError("Network error. Check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -75,8 +98,7 @@ export function DemoLeadGate() {
               Thanks — we will follow up
             </h2>
             <p className="mt-2 text-sm text-tl-ink-muted">
-              Your demo interest is saved locally for now. Connect a form endpoint
-              later for CRM capture.
+              Our team will contact you about a live TrustLedger walkthrough.
             </p>
             <button
               type="button"
@@ -92,8 +114,8 @@ export function DemoLeadGate() {
               Want this for your projects?
             </h2>
             <p className="mt-2 text-sm text-tl-ink-muted">
-              You have explored the demo. Leave an email to book a live TrustLedger
-              walkthrough.
+              You have explored the demo. Leave a work email to book a live
+              TrustLedger walkthrough.
             </p>
             <p className="mt-2 text-xs text-tl-ink-muted">Source: {utmLabel}</p>
             <form onSubmit={submit} className="mt-4 space-y-3">
@@ -105,12 +127,31 @@ export function DemoLeadGate() {
                 placeholder="you@organisation.co.za"
                 className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               />
+              {error ? (
+                <p className="text-sm text-tl-danger" role="alert">
+                  {error}
+                </p>
+              ) : null}
+              <p className="text-xs text-tl-ink-muted">
+                By submitting you agree we may contact you about TrustLedger. See
+                our{" "}
+                <a
+                  href="https://trustledger.co.za/privacy/"
+                  className="underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Privacy Policy
+                </a>
+                .
+              </p>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="submit"
-                  className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+                  disabled={submitting}
+                  className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
                 >
-                  Book a demo
+                  {submitting ? "Sending…" : "Book a demo"}
                 </button>
                 <button
                   type="button"

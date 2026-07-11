@@ -22,11 +22,14 @@ function DemoForm() {
   const [utmLabel, setUtmLabel] = useState("None");
 
   useEffect(() => {
-    const captured = captureUtmFromSearchParams(
-      new URLSearchParams(searchParams.toString()),
-      "/demo",
-    );
-    setUtmLabel(formatUtmSummary(captured ?? readUtm()));
+    const timer = window.setTimeout(() => {
+      const captured = captureUtmFromSearchParams(
+        new URLSearchParams(searchParams.toString()),
+        "/demo",
+      );
+      setUtmLabel(formatUtmSummary(captured ?? readUtm()));
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [searchParams]);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -82,7 +85,7 @@ function DemoForm() {
       <p id="book" className="mt-6 text-sm text-tl-ink-muted">
         Ready for your own projects?{" "}
         <a
-          href="mailto:hello@trustledger.co.za?subject=TrustLedger%20demo%20request"
+          href="mailto:info@trustledger.co.za?subject=TrustLedger%20demo%20request"
           className="font-medium text-tl-trust-ink underline"
         >
           Book a live demo
