@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-11 — Demo entry lead capture
+
+- `/demo` requires name + work email before start (same bar as assessment)
+- Posts to HubSpot with `[Source: demo_entry]` for marketing segmentation
+- Soft gate remains as backup (`demo_soft_gate`) if entry was skipped
+
 ## 2026-07-11 — Launch hardening
 
 - Demo lead gate posts to HubSpot via `/api/demo/lead`
