@@ -12,14 +12,14 @@ export function PageHeader({
   actions,
 }: PageHeaderProps) {
   return (
-    <header className="flex flex-col gap-4 border-b border-tl-line pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <header className="flex flex-col gap-4 rounded-xl border border-tl-line bg-tl-surface px-5 py-5 shadow-sm sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         {eyebrow ? (
-          <p className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-tl-trust">
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight text-tl-ink sm:text-[1.65rem]">
+        <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight text-tl-ink sm:text-[1.75rem]">
           {title}
         </h1>
         {description ? (

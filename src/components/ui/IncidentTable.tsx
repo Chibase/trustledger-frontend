@@ -22,9 +22,9 @@ export function IncidentTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-tl-line bg-tl-surface">
+    <div className="overflow-x-auto rounded-xl border border-tl-line bg-tl-surface shadow-sm">
       <table className="min-w-full text-left text-sm">
-        <thead className="border-b border-tl-line bg-tl-paper/80 text-xs uppercase tracking-wide text-tl-ink-muted">
+        <thead className="border-b border-tl-line bg-tl-ink/[0.03] text-xs uppercase tracking-wide text-tl-ink-muted">
           <tr>
             <th className="px-4 py-2.5 font-medium">ID</th>
             <th className="px-4 py-2.5 font-medium">Title</th>

@@ -11,6 +11,15 @@ export function KpiCard({
   hint,
   tone = "default",
 }: KpiCardProps) {
+  const accent =
+    tone === "attention"
+      ? "border-l-tl-amber"
+      : tone === "danger"
+        ? "border-l-tl-danger"
+        : tone === "trust"
+          ? "border-l-tl-trust"
+          : "border-l-tl-trust";
+
   const valueTone =
     tone === "attention"
       ? "text-tl-amber"
@@ -21,12 +30,14 @@ export function KpiCard({
           : "text-tl-ink";
 
   return (
-    <div className="rounded-lg border border-tl-line bg-tl-surface px-4 py-3.5">
+    <div
+      className={`rounded-lg border border-tl-line border-l-4 bg-tl-surface px-4 py-4 shadow-sm ${accent}`}
+    >
       <p className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
         {label}
       </p>
       <p
-        className={`mt-1.5 font-display text-2xl font-semibold tabular-nums tracking-tight ${valueTone}`}
+        className={`mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight ${valueTone}`}
       >
         {value}
       </p>
