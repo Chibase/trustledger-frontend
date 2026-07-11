@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
+import { trackDemoAction } from "@/components/shell/DemoLeadGate";
 import { aiService } from "@/services/aiService";
 import type { AiSuggestionStatus, ReportBriefSuggestion } from "@/types/ai";
 
@@ -21,6 +22,7 @@ export function ReportBriefAssist() {
       });
       setBrief(result);
       setStatus("ready");
+      trackDemoAction();
     } catch (err) {
       setBrief(null);
       setError(err instanceof Error ? err.message : "Brief generation failed.");

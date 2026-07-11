@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { aiService } from "@/services/aiService";
+import { trackDemoAction } from "@/components/shell/DemoLeadGate";
 import type { AiSuggestionStatus, IncidentTriageSuggestion } from "@/types/ai";
 
 export default function AppReportIssuePage() {
@@ -46,11 +47,13 @@ export default function AppReportIssuePage() {
     if (suggestion.geographicAreaHint) {
       setWard(suggestion.geographicAreaHint);
     }
+    trackDemoAction();
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitted(true);
+    trackDemoAction();
   }
 
   return (

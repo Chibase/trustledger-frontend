@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DemoBanner } from "@/components/shell/DemoBanner";
+import { DemoLeadGate } from "@/components/shell/DemoLeadGate";
 import { AppNav } from "@/components/shell/AppNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
 import type { UserRole } from "@/types/rbac";
@@ -20,6 +21,7 @@ export function AppShell({
   return (
     <div className="min-h-full bg-tl-paper text-tl-ink">
       {showDemoBanner ? <DemoBanner /> : null}
+      <DemoLeadGate />
 
       <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-6xl flex-col md:flex-row">
         <aside className="border-b border-tl-line bg-tl-surface md:w-56 md:shrink-0 md:border-b-0 md:border-r">

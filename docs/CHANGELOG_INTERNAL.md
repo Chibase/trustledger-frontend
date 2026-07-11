@@ -1,13 +1,18 @@
 # Internal changelog
 
+## 2026-07-11 — Packets 08–10
+
+- Incident list filters (status, SLA, search)
+- Demo lead soft-gate after 3 meaningful actions
+- `docs/VERCEL_SMOKE.md` deploy checklist
+
+## 2026-07-11 — Packets 03–07
+
+- Expanded mock domain: projects, incidents (SLA/escalation/timeline), meeting notes, evidence
+- Added `projectService`, `incidentService`, `noteService`, `evidenceService`
+- Role dashboards now render real widgets (community/contractor/client/admin)
+- Incident detail loads via services with timeline + evidence
+
 ## 2026-07-11 — Packets 00–02
 
-- Added Demo-first BUILD_PLAN, DECISIONS, DESIGN_SYSTEM, agent autonomy rules
-- Applied design tokens (Source Sans 3 / Source Serif 4, trust teal)
-- Added AppShell, DemoBanner, role nav under `/app/*`
-- Added `/demo` entry (role picker + book-demo CTA) and marketing-lite home
-- Legacy routes redirect to `/app/...`
-
-## 2026-07-11 — Packet 00 (initial)
-
-- Docs scaffold for Demo-on-Vercel phase
+- Demo-first docs, design system, `/demo` entry, `/app` shell

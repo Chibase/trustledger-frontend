@@ -11,6 +11,12 @@ export interface Project {
   name: string;
   clientFunder: string;
   budgetTotal: number;
+  budgetSpent: number;
   ward: string;
+  municipality: string;
   status: ProjectStatus;
+  contractorName: string;
+  startDate: string;
+  targetEndDate: string;
+  publicSummary: string;
 }

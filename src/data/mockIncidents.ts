@@ -1,27 +1,46 @@
-import type { ProjectStatus } from "@/types/project";
+import type { Incident } from "@/types/incident";
 
-export type MockIncident = {
-  id: string;
-  title: string;
-  description: string;
-  ward: string;
-  status: "Open" | "Investigating" | "Escalated" | "Closed";
-  priority: "P4-Low" | "P3-Medium" | "P2-High" | "P1-Critical";
-  projectName: string;
-  projectStatus: ProjectStatus;
-};
-
-export const mockIncidents: MockIncident[] = [
+export const mockIncidents: Incident[] = [
   {
     id: "INC-1001",
     title: "Burst pipe near clinic access road",
     description:
       "Community members report a burst pipe flooding the access road to the clinic. People are angry and say the contractor has not responded for two days.",
     ward: "Ward 12",
+    geographicArea: "Ward 12 — Clinic corridor",
     status: "Escalated",
     priority: "P1-Critical",
-    projectName: "Road Repair",
-    projectStatus: "Active",
+    projectId: "PRJ-001",
+    projectName: "Ward 12 Access Road Repair",
+    reportedByRole: "community",
+    reportedAt: "2026-07-08T09:20:00+02:00",
+    slaDueBy: "2026-07-08T13:20:00+02:00",
+    slaBreached: true,
+    escalationLevel: "L3",
+    ownerName: "N. Mokoena",
+    category: "Water / utilities disruption",
+    impactScore: 82,
+    sentimentScore: -75,
+    timeline: [
+      {
+        id: "ev-1",
+        type: "CREATED",
+        summary: "Incident logged from community intake",
+        at: "2026-07-08T09:20:00+02:00",
+      },
+      {
+        id: "ev-2",
+        type: "PRIORITY_SET",
+        summary: "Priority set to P1-Critical",
+        at: "2026-07-08T09:25:00+02:00",
+      },
+      {
+        id: "ev-3",
+        type: "ESCALATED",
+        summary: "Escalated to L3 — SLA breach + critical impact",
+        at: "2026-07-08T14:00:00+02:00",
+      },
+    ],
   },
   {
     id: "INC-1004",
@@ -29,13 +48,131 @@ export const mockIncidents: MockIncident[] = [
     description:
       "Residents are concerned about dust and continuous noise from night construction near homes.",
     ward: "Ward 12",
+    geographicArea: "Ward 12 — Residential strip",
     status: "Investigating",
     priority: "P2-High",
-    projectName: "Road Repair",
-    projectStatus: "Active",
+    projectId: "PRJ-001",
+    projectName: "Ward 12 Access Road Repair",
+    reportedByRole: "community",
+    reportedAt: "2026-07-09T18:05:00+02:00",
+    slaDueBy: "2026-07-10T06:05:00+02:00",
+    slaBreached: false,
+    escalationLevel: "L1",
+    ownerName: "S. Dlamini",
+    category: "Construction nuisance",
+    impactScore: 58,
+    sentimentScore: -45,
+    timeline: [
+      {
+        id: "ev-4",
+        type: "CREATED",
+        summary: "Incident logged",
+        at: "2026-07-09T18:05:00+02:00",
+      },
+      {
+        id: "ev-5",
+        type: "TASK_ADDED",
+        summary: "Investigation task: verify night-work permit window",
+        at: "2026-07-09T19:10:00+02:00",
+      },
+    ],
+  },
+  {
+    id: "INC-1007",
+    title: "Incomplete trench backfill on side street",
+    description:
+      "Contractor left an open trench overnight without barriers. Pedestrians at risk.",
+    ward: "Ward 12",
+    geographicArea: "Ward 12 — Side street B",
+    status: "Open",
+    priority: "P1-Critical",
+    projectId: "PRJ-001",
+    projectName: "Ward 12 Access Road Repair",
+    reportedByRole: "community",
+    reportedAt: "2026-07-10T07:40:00+02:00",
+    slaDueBy: "2026-07-10T11:40:00+02:00",
+    slaBreached: false,
+    escalationLevel: "None",
+    ownerName: "Unassigned",
+    category: "Safety / access hazard",
+    impactScore: 76,
+    sentimentScore: -60,
+    timeline: [
+      {
+        id: "ev-6",
+        type: "CREATED",
+        summary: "Incident logged from assisted intake",
+        at: "2026-07-10T07:40:00+02:00",
+      },
+    ],
+  },
+  {
+    id: "INC-1010",
+    title: "Water pressure drop after main tie-in",
+    description:
+      "Households report low pressure since Phase 2 tie-in works began.",
+    ward: "Ward 7",
+    geographicArea: "Ward 7 — East bank",
+    status: "Investigating",
+    priority: "P2-High",
+    projectId: "PRJ-002",
+    projectName: "Community Water Reticulation Phase 2",
+    reportedByRole: "community",
+    reportedAt: "2026-07-07T11:15:00+02:00",
+    slaDueBy: "2026-07-07T23:15:00+02:00",
+    slaBreached: true,
+    escalationLevel: "L2",
+    ownerName: "T. Naidoo",
+    category: "Water / utilities disruption",
+    impactScore: 64,
+    sentimentScore: -40,
+    timeline: [
+      {
+        id: "ev-7",
+        type: "CREATED",
+        summary: "Incident logged",
+        at: "2026-07-07T11:15:00+02:00",
+      },
+      {
+        id: "ev-8",
+        type: "SLA_BREACH",
+        summary: "SLA due time passed without status change",
+        at: "2026-07-07T23:20:00+02:00",
+      },
+    ],
+  },
+  {
+    id: "INC-1012",
+    title: "Invoice supporting photos missing",
+    description:
+      "Client desk flagged missing site photos for June progress claim.",
+    ward: "Ward 12",
+    geographicArea: "Ward 12 — Project office",
+    status: "Open",
+    priority: "P3-Medium",
+    projectId: "PRJ-001",
+    projectName: "Ward 12 Access Road Repair",
+    reportedByRole: "client",
+    reportedAt: "2026-07-06T14:00:00+02:00",
+    slaDueBy: "2026-07-07T14:00:00+02:00",
+    slaBreached: true,
+    escalationLevel: "L1",
+    ownerName: "Thari Civils PM",
+    category: "Documentation / evidence",
+    impactScore: 28,
+    sentimentScore: null,
+    timeline: [
+      {
+        id: "ev-9",
+        type: "CREATED",
+        summary: "Compliance gap logged by client",
+        at: "2026-07-06T14:00:00+02:00",
+      },
+    ],
   },
 ];
 
-export function getMockIncident(id: string): MockIncident | undefined {
+/** @deprecated use incidentService.get */
+export function getMockIncident(id: string): Incident | undefined {
   return mockIncidents.find((incident) => incident.id === id);
 }

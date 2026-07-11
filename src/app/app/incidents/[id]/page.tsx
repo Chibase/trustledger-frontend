@@ -1,11 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
-import { getMockIncident } from "@/data/mockIncidents";
+import { evidenceService } from "@/services/noteService";
+import { incidentService } from "@/services/incidentService";
+import { trackDemoAction } from "@/components/shell/DemoLeadGate";
 import { aiService } from "@/services/aiService";
+import type { EvidenceStub } from "@/types/engagement";
+import type { Incident } from "@/types/incident";
 import type {
   AiSuggestionStatus,
   DraftResponseSuggestion,
@@ -20,7 +24,10 @@ export default function AppIncidentDetailPage({
   params,
 }: IncidentDetailPageProps) {
   const { id } = use(params);
-  const incident = getMockIncident(id);
+  const [incident, setIncident] = useState<Incident | null | undefined>(
+    undefined,
+  );
+  const [evidence, setEvidence] = useState<EvidenceStub[]>([]);
 
   const [draftStatus, setDraftStatus] = useState<AiSuggestionStatus>("idle");
   const [sentimentStatus, setSentimentStatus] =
@@ -30,6 +37,24 @@ export default function AppIncidentDetailPage({
   const [draft, setDraft] = useState<DraftResponseSuggestion | null>(null);
   const [sentiment, setSentiment] = useState<SentimentSuggestion | null>(null);
   const [responseText, setResponseText] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([incidentService.get(id), evidenceService.listForIncident(id)]).then(
+      ([caseRecord, files]) => {
+        if (cancelled) return;
+        setIncident(caseRecord);
+        setEvidence(files);
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (incident === undefined) {
+    return <p className="text-sm text-tl-ink-muted">Loading incident…</p>;
+  }
 
   if (!incident) {
     return (
@@ -99,14 +124,67 @@ export default function AppIncidentDetailPage({
           {caseRecord.title}
         </h1>
         <p className="mt-2 text-sm text-tl-ink-muted">
-          {caseRecord.priority} · {caseRecord.status} · {caseRecord.ward}
+          {caseRecord.priority} · {caseRecord.status} · {caseRecord.ward} ·{" "}
+          {caseRecord.escalationLevel}
+          {caseRecord.slaBreached ? " · SLA breached" : ""}
         </p>
       </div>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
         <h2 className="mb-2 font-semibold">Description</h2>
         <p className="text-tl-ink-muted">{caseRecord.description}</p>
+        <dl className="mt-4 grid gap-2 sm:grid-cols-2">
+          <div>
+            <dt className="text-xs text-tl-ink-muted">Category</dt>
+            <dd>{caseRecord.category}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-tl-ink-muted">Owner</dt>
+            <dd>{caseRecord.ownerName}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-tl-ink-muted">Project</dt>
+            <dd>{caseRecord.projectName}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-tl-ink-muted">Impact score</dt>
+            <dd>{caseRecord.impactScore}</dd>
+          </div>
+        </dl>
       </section>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
+        <h2 className="mb-3 font-semibold">Timeline</h2>
+        <ol className="space-y-3">
+          {caseRecord.timeline.map((event) => (
+            <li key={event.id} className="border-l-2 border-tl-line pl-3">
+              <p className="font-medium">{event.type}</p>
+              <p className="text-tl-ink-muted">{event.summary}</p>
+              <p className="text-xs text-tl-ink-muted">
+                {new Date(event.at).toLocaleString("en-ZA")}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {evidence.length > 0 ? (
+        <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
+          <h2 className="mb-3 font-semibold">Evidence</h2>
+          <ul className="space-y-2">
+            {evidence.map((file) => (
+              <li key={file.id}>
+                {file.fileName}
+                <span className="text-tl-ink-muted">
+                  {" "}
+                  · {file.classification}
+                  {file.isPrimary ? " · primary" : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -134,6 +212,7 @@ export default function AppIncidentDetailPage({
             draft
               ? () => {
                   setResponseText(draft.draft);
+                  trackDemoAction();
                 }
               : undefined
           }

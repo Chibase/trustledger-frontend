@@ -93,14 +93,14 @@ Meaningful actions: submit issue, apply AI suggestion, generate brief, open inci
 | 00 | Docs & agent rails | BUILD_PLAN, DECISIONS, DESIGN_SYSTEM, AGENTS, CHANGELOG | **Done** |
 | 01 | Design system + shell | Tokens, fonts, AppShell, Demo banner, nav | **Done** |
 | 02 | Demo entry + session | `/demo`, mode cookie, redirects, lead CTA stub | **Done** |
-| 03 | Mock domain layer | Expand projects/incidents/notes; service APIs | **Active** |
-| 04 | Community dashboard + intake | Full community home; polish report issue | Planned |
-| 05 | Contractor dashboard | Site ops home + evidence stub | Planned |
-| 06 | Client dashboard + reports | KPIs + brief page | Planned |
-| 07 | Admin dashboard | Queue, SLA, escalations | Planned |
-| 08 | Incident desk polish | List filters, detail timeline UI, AI panels | Planned |
-| 09 | Demo funnel + empty/loading | Soft gate, toasts, responsive QA | Planned |
-| 10 | Vercel harden | README deploy, env example, smoke checklist | Planned |
+| 03 | Mock domain layer | Expand projects/incidents/notes; service APIs | **Done** |
+| 04 | Community dashboard + intake | Full community home; polish report issue | **Done** |
+| 05 | Contractor dashboard | Site ops home + evidence stub | **Done** |
+| 06 | Client dashboard + reports | KPIs + brief page | **Done** |
+| 07 | Admin dashboard | Queue, SLA, escalations | **Done** |
+| 08 | Incident desk polish | List filters, detail timeline UI, AI panels | **Done** |
+| 09 | Demo funnel + empty/loading | Soft gate, toasts, responsive QA | **Done** |
+| 10 | Vercel harden | README deploy, env example, smoke checklist | **Done** |
 
 **Out of scope until post-Demo:** Frappe auth, real API, Cloudflare, WordPress CTAs, Grok API keys.
 

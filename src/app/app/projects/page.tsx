@@ -11,7 +11,12 @@ export default async function AppProjectsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="font-display text-2xl font-semibold">Projects</h1>
+      <div>
+        <h1 className="font-display text-2xl font-semibold">Projects</h1>
+        <p className="mt-1 text-sm text-tl-ink-muted">
+          Demo portfolio aligned to future Frappe project records.
+        </p>
+      </div>
 
       <div className="overflow-x-auto rounded-lg border border-tl-line bg-tl-surface">
         <table className="min-w-full text-sm">
@@ -21,7 +26,9 @@ export default async function AppProjectsPage() {
               <th className="p-3 text-left font-medium">Name</th>
               <th className="p-3 text-left font-medium">Client/Funder</th>
               <th className="p-3 text-left font-medium">Budget</th>
+              <th className="p-3 text-left font-medium">Spent</th>
               <th className="p-3 text-left font-medium">Ward</th>
+              <th className="p-3 text-left font-medium">Contractor</th>
               <th className="p-3 text-left font-medium">Status</th>
             </tr>
           </thead>
@@ -32,7 +39,9 @@ export default async function AppProjectsPage() {
                 <td className="p-3">{p.name}</td>
                 <td className="p-3">{p.clientFunder}</td>
                 <td className="p-3">{currency.format(p.budgetTotal)}</td>
+                <td className="p-3">{currency.format(p.budgetSpent)}</td>
                 <td className="p-3">{p.ward}</td>
+                <td className="p-3">{p.contractorName}</td>
                 <td className="p-3">{p.status}</td>
               </tr>
             ))}

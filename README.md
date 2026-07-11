@@ -41,7 +41,9 @@ NEXT_PUBLIC_AI_MOCK=true
 
 ## Deploy
 
-Push to GitHub; Vercel builds from `master`. Demo does not require Frappe.
+Push `master` to GitHub; Vercel auto-builds. See `docs/VERCEL_SMOKE.md`.
+
+Demo does **not** require Frappe.
 
 ## Phase
 
