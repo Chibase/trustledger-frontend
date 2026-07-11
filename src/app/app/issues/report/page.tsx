@@ -4,11 +4,30 @@ import { useState } from "react";
 import Link from "next/link";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
-import { aiService } from "@/services/aiService";
 import { trackDemoAction } from "@/components/shell/DemoLeadGate";
+import { useToast } from "@/components/ui/Toast";
+import {
+  createDemoIncidentId,
+  saveDemoIncident,
+} from "@/lib/demoStore";
+import { aiService } from "@/services/aiService";
 import type { AiSuggestionStatus, IncidentTriageSuggestion } from "@/types/ai";
+import type { Incident, IncidentPriority } from "@/types/incident";
+
+function asPriority(value: string): IncidentPriority {
+  if (
+    value === "P1-Critical" ||
+    value === "P2-High" ||
+    value === "P3-Medium" ||
+    value === "P4-Low"
+  ) {
+    return value;
+  }
+  return "P3-Medium";
+}
 
 export default function AppReportIssuePage() {
+  const { pushToast } = useToast();
   const [description, setDescription] = useState("");
   const [ward, setWard] = useState("Ward 12");
   const [category, setCategory] = useState("");
@@ -18,7 +37,7 @@ export default function AppReportIssuePage() {
   const [suggestion, setSuggestion] = useState<IncidentTriageSuggestion | null>(
     null,
   );
-  const [submitted, setSubmitted] = useState(false);
+  const [submittedId, setSubmittedId] = useState<string | null>(null);
 
   async function handleAssist() {
     if (!description.trim()) {
@@ -48,12 +67,45 @@ export default function AppReportIssuePage() {
       setWard(suggestion.geographicAreaHint);
     }
     trackDemoAction();
+    pushToast("AI suggestion applied", "success");
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
+    const now = new Date().toISOString();
+    const id = createDemoIncidentId();
+    const incident: Incident = {
+      id,
+      title: description.trim().slice(0, 80) || "Community concern",
+      description: description.trim(),
+      ward,
+      geographicArea: ward,
+      status: "Open",
+      priority: asPriority(priority),
+      projectId: "PRJ-001",
+      projectName: "Ward 12 Access Road Repair",
+      reportedByRole: "community",
+      reportedAt: now,
+      slaDueBy: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      slaBreached: false,
+      escalationLevel: "None",
+      ownerName: "Unassigned",
+      category: category || "General grievance",
+      impactScore: 40,
+      sentimentScore: null,
+      timeline: [
+        {
+          id: `${id}-created`,
+          type: "CREATED",
+          summary: "Logged from demo assisted intake",
+          at: now,
+        },
+      ],
+    };
+    saveDemoIncident(incident);
+    setSubmittedId(id);
     trackDemoAction();
+    pushToast("Issue saved in this browser (demo)", "success");
   }
 
   return (
@@ -69,18 +121,18 @@ export default function AppReportIssuePage() {
         </p>
       </div>
 
-      {submitted ? (
+      {submittedId ? (
         <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
-          <p className="font-medium">Issue captured (demo draft)</p>
+          <p className="font-medium">Issue captured — {submittedId}</p>
           <p className="mt-2 text-tl-ink-muted">
-            In live mode this creates an SRM Incident in Frappe with AI metadata
-            on the timeline.
+            Saved locally for this Demo session. It now appears in Incidents.
+            Live mode will post to Frappe instead.
           </p>
           <Link
-            href="/app/incidents"
+            href={`/app/incidents/${submittedId}`}
             className="mt-4 inline-block text-sm font-medium text-tl-trust-ink underline"
           >
-            View sample incidents
+            Open the new case
           </Link>
         </section>
       ) : (

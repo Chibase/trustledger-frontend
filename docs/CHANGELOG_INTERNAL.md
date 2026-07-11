@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-11 — Phase 3 Packets 15–18
+
+- WordPress CTA paste guide (`docs/WORDPRESS_CTA.md`)
+- Demo localStorage for submitted issues + evidence stubs
+- Toast provider for apply/submit feedback
+
 ## 2026-07-11 — Phase 2 Packets 11–14
 
 - `NEXT_PUBLIC_DATA_MODE` + Frappe client (`callFrappeMethod`)

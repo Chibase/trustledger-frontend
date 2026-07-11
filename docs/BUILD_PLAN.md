@@ -103,7 +103,17 @@ Meaningful actions: submit issue, apply AI suggestion, generate brief, open inci
 | 13 | Live service adapters | Services call Frappe when live; mock fallback | **Done** |
 | 14 | Auth bridge stub | Document + stub session for Frappe login (no secrets) | **Done** |
 
-**Still external (not this repo):** Cloudflare DNS, WordPress CTAs, Grok API keys on Interserv.
+**Still external (not this repo):** Cloudflare DNS, Grok API keys on Interserv.
+WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
+
+### Phase 3 — Demo depth + marketing handoff
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| 15 | WordPress CTA guide | Paste-ready buttons/UTM for trustledger.co.za | **Done** |
+| 16 | Evidence upload stub | Demo local evidence add on incident desk | **Done** |
+| 17 | Demo issue persistence | localStorage intake → appears in incident list | **Done** |
+| 18 | Toast feedback | Light success/error toasts on key actions | **Done** |
 
 ## 8. Quality gates (every packet)
 

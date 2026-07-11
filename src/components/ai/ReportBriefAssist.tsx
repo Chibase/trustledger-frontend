@@ -4,10 +4,12 @@ import { useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { trackDemoAction } from "@/components/shell/DemoLeadGate";
+import { useToast } from "@/components/ui/Toast";
 import { aiService } from "@/services/aiService";
 import type { AiSuggestionStatus, ReportBriefSuggestion } from "@/types/ai";
 
 export function ReportBriefAssist() {
+  const { pushToast } = useToast();
   const [status, setStatus] = useState<AiSuggestionStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [brief, setBrief] = useState<ReportBriefSuggestion | null>(null);
@@ -23,6 +25,7 @@ export function ReportBriefAssist() {
       setBrief(result);
       setStatus("ready");
       trackDemoAction();
+      pushToast("Brief draft ready", "success");
     } catch (err) {
       setBrief(null);
       setError(err instanceof Error ? err.message : "Brief generation failed.");

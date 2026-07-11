@@ -7,6 +7,12 @@ import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { evidenceService } from "@/services/noteService";
 import { incidentService } from "@/services/incidentService";
 import { trackDemoAction } from "@/components/shell/DemoLeadGate";
+import { useToast } from "@/components/ui/Toast";
+import {
+  listDemoEvidence,
+  listDemoIncidents,
+  saveDemoEvidence,
+} from "@/lib/demoStore";
 import { aiService } from "@/services/aiService";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
@@ -24,10 +30,12 @@ export default function AppIncidentDetailPage({
   params,
 }: IncidentDetailPageProps) {
   const { id } = use(params);
+  const { pushToast } = useToast();
   const [incident, setIncident] = useState<Incident | null | undefined>(
     undefined,
   );
   const [evidence, setEvidence] = useState<EvidenceStub[]>([]);
+  const [fileName, setFileName] = useState("");
 
   const [draftStatus, setDraftStatus] = useState<AiSuggestionStatus>("idle");
   const [sentimentStatus, setSentimentStatus] =
@@ -43,14 +51,39 @@ export default function AppIncidentDetailPage({
     Promise.all([incidentService.get(id), evidenceService.listForIncident(id)]).then(
       ([caseRecord, files]) => {
         if (cancelled) return;
-        setIncident(caseRecord);
-        setEvidence(files);
+        const localCase = listDemoIncidents().find((row) => row.id === id);
+        setIncident(localCase ?? caseRecord);
+        const localFiles = listDemoEvidence(id);
+        const byId = new Map<string, EvidenceStub>();
+        for (const file of [...localFiles, ...files]) {
+          byId.set(file.id, file);
+        }
+        setEvidence([...byId.values()]);
       },
     );
     return () => {
       cancelled = true;
     };
   }, [id]);
+
+  function handleEvidenceSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!fileName.trim() || !incident) return;
+    const stub: EvidenceStub = {
+      id: `EVD-D${Date.now().toString().slice(-5)}`,
+      incidentId: incident.id,
+      fileName: fileName.trim(),
+      classification: "General",
+      uploadedBy: "Demo user",
+      uploadedAt: new Date().toISOString(),
+      isPrimary: evidence.length === 0,
+    };
+    saveDemoEvidence(stub);
+    setEvidence((prev) => [stub, ...prev]);
+    setFileName("");
+    trackDemoAction();
+    pushToast("Evidence recorded in demo store", "success");
+  }
 
   if (incident === undefined) {
     return <p className="text-sm text-tl-ink-muted">Loading incident…</p>;
@@ -168,10 +201,12 @@ export default function AppIncidentDetailPage({
         </ol>
       </section>
 
-      {evidence.length > 0 ? (
-        <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
-          <h2 className="mb-3 font-semibold">Evidence</h2>
-          <ul className="space-y-2">
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
+        <h2 className="mb-3 font-semibold">Evidence</h2>
+        {evidence.length === 0 ? (
+          <p className="mb-3 text-tl-ink-muted">No evidence attached yet.</p>
+        ) : (
+          <ul className="mb-4 space-y-2">
             {evidence.map((file) => (
               <li key={file.id}>
                 {file.fileName}
@@ -183,8 +218,25 @@ export default function AppIncidentDetailPage({
               </li>
             ))}
           </ul>
-        </section>
-      ) : null}
+        )}
+        <form onSubmit={handleEvidenceSubmit} className="flex flex-wrap gap-2">
+          <input
+            value={fileName}
+            onChange={(event) => setFileName(event.target.value)}
+            placeholder="Filename stub e.g. site-photo.jpg"
+            className="min-w-[12rem] flex-1 rounded-md border border-tl-line px-3 py-2 text-sm"
+          />
+          <button
+            type="submit"
+            className="rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm font-medium hover:bg-tl-surface"
+          >
+            Add evidence (demo)
+          </button>
+        </form>
+        <p className="mt-2 text-xs text-tl-ink-muted">
+          Demo stores the filename only — no binary upload until Frappe live mode.
+        </p>
+      </section>
 
       <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -213,6 +265,7 @@ export default function AppIncidentDetailPage({
               ? () => {
                   setResponseText(draft.draft);
                   trackDemoAction();
+                  pushToast("Draft inserted", "success");
                 }
               : undefined
           }

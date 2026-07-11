@@ -45,7 +45,6 @@ Push `master` to GitHub; Vercel auto-builds. See `docs/VERCEL_SMOKE.md`.
 
 Demo does **not** require Frappe.
 
-## Phase
+## Marketing handoff
 
-**Current:** Demo-complete frontend (mock data + mock AI).  
-**Later:** Frappe live API, Cloudflare DNS, WordPress CTAs.
+Paste Demo CTAs into WordPress using `docs/WORDPRESS_CTA.md`.
