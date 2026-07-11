@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-11 — Assessment → HubSpot
+
+- `/api/assessment/lead` submits to HubSpot Forms API (EU) when `HUBSPOT_PORTAL_ID` + `HUBSPOT_FORM_ID` are set
+- Maps name/email/company + assessment summary into the form `message` field
+- Generic `ASSESSMENT_WEBHOOK_URL` remains as fallback
+
 ## 2026-07-11 — SRM Readiness Assessment
 
 - Public `/assessment` wizard (16 Likert items across 6 governance dimensions)

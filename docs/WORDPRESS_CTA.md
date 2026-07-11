@@ -23,7 +23,7 @@ Desk (Interserv): `https://app.trustledger.co.za`
 - **Open dashboard** → `/app/dashboard`. Guests are redirected to demo/login by middleware.
 - **Sign in** → live BFF login against Interserv.
 - **Team desk** → Frappe desk for internal users (not the public demo).
-- **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Optional `ASSESSMENT_WEBHOOK_URL` receives the lead payload.
+- **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Leads go to **HubSpot** via Forms API when `HUBSPOT_PORTAL_ID` / `HUBSPOT_FORM_ID` / `HUBSPOT_REGION` are set (fallback: `ASSESSMENT_WEBHOOK_URL`).
 
 ## WordPress Assessment page embed
 
