@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /demo
+Disallow: /app/
+Disallow: /login
+Disallow: /auth/
+
+Sitemap: https://trustledger-frontend-pi.vercel.app/sitemap.xml

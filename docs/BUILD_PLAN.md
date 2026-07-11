@@ -115,6 +115,15 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 | 17 | Demo issue persistence | localStorage intake → appears in incident list | **Done** |
 | 18 | Toast feedback | Light success/error toasts on key actions | **Done** |
 
+### Phase 4 — Attribution, mobile, backend contract
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| 19 | UTM capture | Store campaign params from `/demo` for lead handoff | **Done** |
+| 20 | Mobile nav | Compact responsive navigation in AppShell | **Done** |
+| 21 | SEO basics | robots.txt, sitemap, Open Graph metadata | **Done** |
+| 22 | Frappe API contract | Doc of methods/payloads `srm-core` must expose | **Done** |
+
 ## 8. Quality gates (every packet)
 
 ```bash

@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-11 — Phase 4 Packets 19–22
+
+- UTM capture on `/demo` + lead payload attribution
+- Mobile menu nav for small screens
+- robots.txt, sitemap, Open Graph metadata
+- `docs/FRAPPE_API_CONTRACT.md` for Interserv / srm-core
+
 ## 2026-07-11 — Phase 3 Packets 15–18
 
 - WordPress CTA paste guide (`docs/WORDPRESS_CTA.md`)

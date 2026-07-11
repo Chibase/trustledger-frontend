@@ -48,3 +48,7 @@ Demo does **not** require Frappe.
 ## Marketing handoff
 
 Paste Demo CTAs into WordPress using `docs/WORDPRESS_CTA.md`.
+
+## Backend handoff
+
+Interserv implementers: follow `docs/FRAPPE_API_CONTRACT.md`.

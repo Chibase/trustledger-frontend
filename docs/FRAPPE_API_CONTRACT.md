@@ -1,0 +1,44 @@
+# Frappe / srm-core API contract (TrustLedger frontend)
+
+The Vercel app calls these whitelisted methods when `NEXT_PUBLIC_DATA_MODE=live`.
+Until they exist, services fall back to Demo mocks.
+
+Base URL: `NEXT_PUBLIC_API_BASE_URL` (Interserv site)  
+Transport: `POST` JSON, `credentials: include`  
+Envelope: standard Frappe `{ "message": <payload> }`
+
+## Methods
+
+| Frontend constant | Path | Request body | Response `message` |
+|-------------------|------|--------------|--------------------|
+| `listProjects` | `/api/method/srm_core.api.projects.list_projects` | `{ ward?, status?, contractorName? }` | `Project[]` |
+| `getProject` | `/api/method/srm_core.api.projects.get_project` | `{ name }` | `Project \| null` |
+| `listIncidents` | `/api/method/srm_core.api.incidents.list_incidents` | filters object | `Incident[]` |
+| `getIncident` | `/api/method/srm_core.api.incidents.get_incident` | `{ name }` | `Incident \| null` |
+| `listNotes` | `/api/method/srm_core.api.engagements.list_meeting_notes` | `{ ward?, projectId? }` | `MeetingNote[]` |
+| `listEvidence` | `/api/method/srm_core.api.incidents.list_evidence` | `{ incident }` | `EvidenceStub[]` |
+| `suggestTriage` | `/api/method/srm_core.api.ai.suggest_triage` | triage request | triage suggestion |
+| `suggestSentiment` | `/api/method/srm_core.api.ai.suggest_sentiment` | sentiment request | sentiment suggestion |
+| `draftResponse` | `/api/method/srm_core.api.ai.draft_response` | draft request | draft suggestion |
+| `generateReportBrief` | `/api/method/srm_core.api.ai.generate_report_brief` | brief request | brief suggestion |
+
+## Type sources (frontend)
+
+- `src/types/project.ts`
+- `src/types/incident.ts`
+- `src/types/engagement.ts`
+- `src/types/ai.ts`
+
+## Ops requirements on Interserv
+
+1. CORS allow `https://trustledger-frontend-pi.vercel.app` (and later `app.trustledger.co.za`)
+2. Cookie / session auth for live users (see `docs/AUTH_BRIDGE_STUB.md`)
+3. Grok / xAI key only on server (`srm_core` site config) — never returned to browser
+4. AI responses must include `model` + `promptVersion` for audit
+
+## Suggested implementation order on srm-core
+
+1. `list_incidents` / `get_incident` (maps existing SRM Incident DocType)
+2. `list_projects` / `get_project` (or temporary stub DocType)
+3. AI methods wrapping xAI with JSON schema validation
+4. Notes + evidence list endpoints

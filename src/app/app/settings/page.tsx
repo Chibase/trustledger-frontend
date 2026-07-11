@@ -1,4 +1,5 @@
 import { API_BASE_URL, getDataMode } from "@/config/api";
+import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
 import { getCurrentUser } from "@/lib/auth";
 import { aiService } from "@/services/aiService";
 
@@ -53,11 +54,12 @@ export default async function AppSettingsPage() {
               {API_BASE_URL}
             </dd>
           </div>
+          <SettingsUtmRow />
         </dl>
         <p className="mt-4 text-xs text-tl-ink-muted">
           Set <code>NEXT_PUBLIC_DATA_MODE=live</code> and point{" "}
           <code>NEXT_PUBLIC_API_BASE_URL</code> at Interserv Frappe when ready.
-          Demo stays the default.
+          Demo stays the default. See <code>docs/FRAPPE_API_CONTRACT.md</code>.
         </p>
       </section>
     </div>

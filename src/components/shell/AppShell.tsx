@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DemoBanner } from "@/components/shell/DemoBanner";
 import { DemoLeadGate } from "@/components/shell/DemoLeadGate";
 import { AppNav } from "@/components/shell/AppNav";
+import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
 import { ToastProvider } from "@/components/ui/Toast";
 import type { UserRole } from "@/types/rbac";
@@ -24,20 +25,21 @@ export function AppShell({
       <div className="min-h-full bg-tl-paper text-tl-ink">
         {showDemoBanner ? <DemoBanner /> : null}
         <DemoLeadGate />
+        <MobileNav role={role} userName={userName} />
 
         <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-6xl flex-col md:flex-row">
-          <aside className="border-b border-tl-line bg-tl-surface md:w-56 md:shrink-0 md:border-b-0 md:border-r">
-            <div className="flex items-center justify-between gap-3 px-4 py-4 md:block">
+          <aside className="hidden border-tl-line bg-tl-surface md:block md:w-56 md:shrink-0 md:border-r">
+            <div className="px-4 py-4">
               <Link
                 href="/app/dashboard"
                 className="font-display text-lg font-semibold text-tl-ink"
               >
                 TrustLedger
               </Link>
-              <p className="hidden text-xs text-tl-ink-muted md:mt-1 md:block">
+              <p className="mt-1 text-xs text-tl-ink-muted">
                 {userName} · {role}
               </p>
-              <div className="md:mt-4">
+              <div className="mt-4">
                 <ShellSignOut />
               </div>
             </div>

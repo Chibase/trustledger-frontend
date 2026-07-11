@@ -1,7 +1,8 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { captureUtmFromSearchParams, formatUtmSummary, readUtm } from "@/lib/utm";
 import { USER_ROLES, type UserRole } from "@/types/rbac";
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
@@ -18,6 +19,15 @@ function DemoForm() {
   const searchParams = useSearchParams();
   const next = sanitizeNext(searchParams.get("next"));
   const [role, setRole] = useState<UserRole>("community");
+  const [utmLabel, setUtmLabel] = useState("None");
+
+  useEffect(() => {
+    const captured = captureUtmFromSearchParams(
+      new URLSearchParams(searchParams.toString()),
+      "/demo",
+    );
+    setUtmLabel(formatUtmSummary(captured ?? readUtm()));
+  }, [searchParams]);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,6 +76,8 @@ function DemoForm() {
           Start demo
         </button>
       </form>
+
+      <p className="mt-4 text-xs text-tl-ink-muted">Campaign: {utmLabel}</p>
 
       <p id="book" className="mt-6 text-sm text-tl-ink-muted">
         Ready for your own projects?{" "}

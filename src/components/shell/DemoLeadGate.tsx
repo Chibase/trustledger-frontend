@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatUtmSummary, readUtm } from "@/lib/utm";
 
 const STORAGE_KEY = "tl-demo-actions";
 const THRESHOLD = 3;
@@ -23,8 +24,10 @@ export function DemoLeadGate() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [utmLabel, setUtmLabel] = useState("None");
 
   useEffect(() => {
+    setUtmLabel(formatUtmSummary(readUtm()));
     function evaluate() {
       const dismissed = window.localStorage.getItem("tl-lead-dismissed");
       if (dismissed === "1") return;
@@ -44,7 +47,16 @@ export function DemoLeadGate() {
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
+    const utm = readUtm();
     window.localStorage.setItem("tl-lead-email", email);
+    window.localStorage.setItem(
+      "tl-lead-payload",
+      JSON.stringify({
+        email,
+        utm,
+        capturedAt: new Date().toISOString(),
+      }),
+    );
     window.localStorage.setItem("tl-lead-dismissed", "1");
     setSent(true);
   }
@@ -83,6 +95,7 @@ export function DemoLeadGate() {
               You have explored the demo. Leave an email to book a live TrustLedger
               walkthrough.
             </p>
+            <p className="mt-2 text-xs text-tl-ink-muted">Source: {utmLabel}</p>
             <form onSubmit={submit} className="mt-4 space-y-3">
               <input
                 type="email"
