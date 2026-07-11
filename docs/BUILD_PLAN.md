@@ -50,6 +50,7 @@ When implementing:
 ```
 /                     Marketing-lite app home → CTA to /demo
 /demo                 Demo landing: role picker + “Demo data” notice + lead CTA
+/assessment           Public SRM Readiness & Risk Diagnostic (lead-gated results)
 /login                Dev/demo role session (cookie) — same as today, restyled
 /app                  Authenticated shell (sidebar + topbar)
 /app/dashboard        Role home (real widgets, not bullet lists)

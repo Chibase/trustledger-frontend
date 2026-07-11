@@ -1,0 +1,30 @@
+<!--
+  WORDPRESS: paste into Assessment page Custom HTML block
+  (replace the old embed-placeholder). Keep TrustLedger nav/footer as-is.
+-->
+<div class="tl-assessment-embed" style="margin:1.5rem 0;">
+  <div style="position:relative;width:100%;min-height:720px;border:1px solid #d7dee4;border-radius:8px;overflow:hidden;background:#f3f5f7;">
+    <iframe
+      title="TrustLedger SRM Readiness Assessment"
+      src="https://trustledger-frontend-pi.vercel.app/assessment?embed=1&utm_source=wordpress&utm_medium=embed&utm_campaign=srm_diagnostic"
+      style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+      loading="lazy"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allow="clipboard-write"
+    ></iframe>
+  </div>
+  <p style="margin-top:0.75rem;font-size:0.875rem;">
+    <a
+      href="https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic"
+      target="_blank"
+      rel="noopener noreferrer"
+    >Open assessment in a new tab</a>
+    if the tool does not load above.
+  </p>
+</div>
+<style>
+  .tl-assessment-embed > div { height: min(90vh, 920px); min-height: 720px; }
+  @media (max-width: 640px) {
+    .tl-assessment-embed > div { min-height: 640px; height: 85vh; }
+  }
+</style>

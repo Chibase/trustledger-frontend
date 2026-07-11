@@ -12,6 +12,8 @@ Desk (Interserv): `https://app.trustledger.co.za`
 | Open dashboard | `https://trustledger-frontend-pi.vercel.app/app/dashboard?utm_source=wordpress&utm_medium=cta&utm_campaign=dashboard` |
 | Sign in (live) | `https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&utm_medium=cta&utm_campaign=live_login` |
 | App home | `https://trustledger-frontend-pi.vercel.app/?utm_source=wordpress&utm_medium=cta&utm_campaign=home` |
+| SRM assessment (full page) | `https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic` |
+| SRM assessment (embed) | `https://trustledger-frontend-pi.vercel.app/assessment?embed=1&utm_source=wordpress&utm_medium=embed&utm_campaign=srm_diagnostic` |
 | Team desk (Frappe) | `https://app.trustledger.co.za` |
 | Chibase Consulting | `https://chibaseconsulting.co.za` |
 | Contact | `mailto:info@trustledger.co.za` |
@@ -21,5 +23,8 @@ Desk (Interserv): `https://app.trustledger.co.za`
 - **Open dashboard** → `/app/dashboard`. Guests are redirected to demo/login by middleware.
 - **Sign in** → live BFF login against Interserv.
 - **Team desk** → Frappe desk for internal users (not the public demo).
+- **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Optional `ASSESSMENT_WEBHOOK_URL` receives the lead payload.
 
-Paste files under `accordbridge-marketing/wordpress/` already use this map in nav/footer CTAs. Re-paste pages after pulling updates, or edit links in WP to match the table above.
+## WordPress Assessment page embed
+
+Replace the placeholder on `/assessment/` with the HTML in [`docs/wordpress/assessment-embed.html`](wordpress/assessment-embed.html) (Custom HTML block). Purge SpeedyCache after paste.

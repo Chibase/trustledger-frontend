@@ -18,6 +18,30 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: "/assessment",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self' https://trustledger.co.za https://www.trustledger.co.za",
+          },
+        ],
+      },
+      {
+        source: "/assessment/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self' https://trustledger.co.za https://www.trustledger.co.za",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
