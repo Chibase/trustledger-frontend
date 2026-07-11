@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-11 — App shell & dashboard polish
+
+- Refined AppShell sidebar (sticky, workspace label, user footer)
+- Soft active nav with stroke icons; tighter demo banner motion
+- Shared `PageHeader`, `KpiCard`, `StatusChip`, `IncidentTable`
+- Role dashboards: KPI strips, status chips, concern tables (Field ledger tokens)
+
 ## 2026-07-11 — Assessment → HubSpot
 
 - `/api/assessment/lead` submits to HubSpot Forms API (EU) when `HUBSPOT_PORTAL_ID` + `HUBSPOT_FORM_ID` are set
