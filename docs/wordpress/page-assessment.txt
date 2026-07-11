@@ -60,6 +60,15 @@
         </ul>
         <p class="mt-4" style="color:var(--color-slate-600);font-size:0.9375rem">Developed by TrustLedger with implementation advisory from Chibase Consulting.</p>
 
+        <p class="mt-4" style="margin-bottom:1rem;">
+          <a
+            href="https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic"
+            class="btn btn--primary btn--lg"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Start assessment</a>
+        </p>
+
         <!-- Live assessment form (Vercel) — results unlock after work email → HubSpot -->
         <div class="tl-assessment-embed" style="margin:1.5rem 0;">
           <div style="position:relative;width:100%;min-height:720px;border:1px solid #d7dee4;border-radius:8px;overflow:hidden;background:#f3f5f7;">
@@ -72,13 +81,13 @@
               allow="clipboard-write"
             ></iframe>
           </div>
-          <p style="margin-top:0.75rem;font-size:0.875rem;">
+          <p style="margin-top:0.75rem;font-size:0.875rem;color:var(--color-slate-600);">
+            Prefer a full page?
             <a
               href="https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic"
               target="_blank"
               rel="noopener noreferrer"
             >Open assessment in a new tab</a>
-            if the tool does not load above.
           </p>
         </div>
         <style>
