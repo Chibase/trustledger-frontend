@@ -84,3 +84,13 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Decision:** Implement only the active packet in BUILD_PLAN; do not ask preference questions already decided; stop only on true blockers.
 - **Consequences:** Predictable progress; requires BUILD_PLAN discipline.
 - **Alternatives considered:** Open-ended “make it nice” prompts each session.
+
+### ADR-010: Phase 2 keeps Demo as default
+
+- **Date:** 2026-07-11
+- **Status:** Accepted
+- **Context:** Demo is live on Vercel; Interserv Frappe is not required for every visitor.
+- **Decision:** `NEXT_PUBLIC_DATA_MODE` defaults to `demo`. Live Frappe calls only when explicitly set to `live`. AI mock remains independent via `NEXT_PUBLIC_AI_MOCK`.
+- **Consequences:** Safe public Demo; pilots can flip env without code forks.
+- **Alternatives considered:** Always-on live API (breaks Demo without VPN/backend).
+

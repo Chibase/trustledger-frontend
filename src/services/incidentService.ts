@@ -1,4 +1,6 @@
 import { mockIncidents } from "@/data/mockIncidents";
+import { FRAPPE_METHODS, isLiveMode } from "@/config/api";
+import { callFrappeMethod } from "@/lib/frappeClient";
 import type {
   Incident,
   IncidentPriority,
@@ -18,36 +20,69 @@ export type IncidentListFilters = {
   escalatedOnly?: boolean;
 };
 
+function filterIncidents(
+  rows: Incident[],
+  filters: IncidentListFilters,
+): Incident[] {
+  let next = [...rows];
+  if (filters.ward) next = next.filter((i) => i.ward === filters.ward);
+  if (filters.projectId) {
+    next = next.filter((i) => i.projectId === filters.projectId);
+  }
+  if (filters.status) next = next.filter((i) => i.status === filters.status);
+  if (filters.priority) {
+    next = next.filter((i) => i.priority === filters.priority);
+  }
+  if (typeof filters.slaBreached === "boolean") {
+    next = next.filter((i) => i.slaBreached === filters.slaBreached);
+  }
+  if (filters.escalatedOnly) {
+    next = next.filter((i) => i.escalationLevel !== "None");
+  }
+  return next;
+}
+
+async function listDemo(filters: IncidentListFilters): Promise<Incident[]> {
+  return delay(filterIncidents(mockIncidents, filters));
+}
+
+async function listLive(filters: IncidentListFilters): Promise<Incident[]> {
+  try {
+    const rows = await callFrappeMethod<Incident[]>(
+      FRAPPE_METHODS.listIncidents,
+      { ...filters },
+    );
+    return Array.isArray(rows) ? filterIncidents(rows, filters) : [];
+  } catch {
+    return listDemo(filters);
+  }
+}
+
 export const incidentService = {
   async list(filters: IncidentListFilters = {}): Promise<Incident[]> {
-    let rows = [...mockIncidents];
-    if (filters.ward) rows = rows.filter((i) => i.ward === filters.ward);
-    if (filters.projectId) {
-      rows = rows.filter((i) => i.projectId === filters.projectId);
-    }
-    if (filters.status) rows = rows.filter((i) => i.status === filters.status);
-    if (filters.priority) {
-      rows = rows.filter((i) => i.priority === filters.priority);
-    }
-    if (typeof filters.slaBreached === "boolean") {
-      rows = rows.filter((i) => i.slaBreached === filters.slaBreached);
-    }
-    if (filters.escalatedOnly) {
-      rows = rows.filter((i) => i.escalationLevel !== "None");
-    }
-    return delay(rows);
+    return isLiveMode() ? listLive(filters) : listDemo(filters);
   },
 
   async get(id: string): Promise<Incident | null> {
+    if (isLiveMode()) {
+      try {
+        const row = await callFrappeMethod<Incident | null>(
+          FRAPPE_METHODS.getIncident,
+          { name: id },
+        );
+        return row ?? null;
+      } catch {
+        return delay(mockIncidents.find((i) => i.id === id) ?? null);
+      }
+    }
     return delay(mockIncidents.find((i) => i.id === id) ?? null);
   },
 
   async intakeQueue(): Promise<Incident[]> {
-    return this.list({}).then((rows) =>
-      rows
-        .filter((i) => i.status === "Open" || i.status === "Escalated")
-        .sort((a, b) => a.reportedAt.localeCompare(b.reportedAt)),
-    );
+    const rows = await this.list();
+    return rows
+      .filter((i) => i.status === "Open" || i.status === "Escalated")
+      .sort((a, b) => a.reportedAt.localeCompare(b.reportedAt));
   },
 
   async slaBreaches(): Promise<Incident[]> {

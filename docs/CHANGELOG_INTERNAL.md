@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-11 — Phase 2 Packets 11–14
+
+- `NEXT_PUBLIC_DATA_MODE` + Frappe client (`callFrappeMethod`)
+- Live adapters on project/incident/note/AI services with mock fallback
+- `/app/settings`, `/app/projects/[id]`, auth bridge stub doc
+
 ## 2026-07-11 — Packets 08–10
 
 - Incident list filters (status, SLA, search)

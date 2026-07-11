@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { projectService } from "@/services/projectService";
 
 const currency = new Intl.NumberFormat("en-ZA", {
@@ -35,7 +36,14 @@ export default async function AppProjectsPage() {
           <tbody>
             {projects.map((p) => (
               <tr key={p.id} className="border-t border-tl-line">
-                <td className="p-3">{p.id}</td>
+                <td className="p-3">
+                  <Link
+                    href={`/app/projects/${p.id}`}
+                    className="font-medium text-tl-trust-ink underline-offset-2 hover:underline"
+                  >
+                    {p.id}
+                  </Link>
+                </td>
                 <td className="p-3">{p.name}</td>
                 <td className="p-3">{p.clientFunder}</td>
                 <td className="p-3">{currency.format(p.budgetTotal)}</td>

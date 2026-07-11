@@ -1,8 +1,8 @@
 # TrustLedger Frontend — Build Plan
 
 > **Single source of truth** for scope, locked decisions, packet order, and agent behaviour.
-> Goal: **full functional Demo on Vercel** with minimal human interruption.
-> Frappe live wiring, Cloudflare, and WordPress funnel polish come **after** Demo is shippable.
+> **Phase 1 (Done):** full functional Demo on Vercel.
+> **Phase 2 (Active):** Frappe-ready wiring in the frontend (still mock-default); WordPress/Cloudflare remain external.
 
 ## 1. Product
 
@@ -11,11 +11,11 @@
 | Official name | **TrustLedger** |
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
-| Backend (later) | Frappe `srm-core` on Interserv |
-| Marketing (later) | WordPress `trustledger.co.za` on Webway |
-| Runtime AI (later) | Grok via `srm-core` only — never from browser |
+| Backend | Frappe `srm-core` on Interserv (live path in Phase 2) |
+| Marketing | WordPress `trustledger.co.za` on Webway (CTA later) |
+| Runtime AI | Grok via `srm-core` only — never from browser |
 
-**Current phase:** Demo-complete SaaS frontend (mock data + mock AI). No Frappe required to use or deploy.
+**Current phase:** Phase 2 — API client + live-mode switches. Demo remains default and must keep working without Interserv.
 
 ## 2. Locked decisions (do not re-ask)
 
@@ -38,7 +38,7 @@ When implementing:
 
 1. **Follow this file** and the active packet only.
 2. **Do not ask** for preference on colours, fonts, IA, or stack — already locked.
-3. **Do not** add Frappe auth, Cloudflare, or WordPress changes in this phase.
+3. **Do not** change Cloudflare or WordPress in this repo (different hosts). Frappe client scaffolding is allowed; do not require live Interserv for Demo.
 4. **Do** update `docs/CHANGELOG_INTERNAL.md` when a packet completes.
 5. **Do** run `npm run lint` and `npm run build` before considering a packet done.
 6. **Only stop and ask** if: secrets/credentials needed, destructive prod action, or BUILD_PLAN contradiction.
@@ -73,7 +73,7 @@ Legacy routes (`/dashboard`, `/incidents`, …) **redirect** into `/app/...` so 
 | AI | `NEXT_PUBLIC_AI_MOCK=true` (default) |
 | Lead capture | Soft gate modal after N meaningful actions (default 3) OR “Book a demo” in shell |
 | Persistence | localStorage for demo actions optional; no server writes |
-| Live mode | Out of scope this phase (`tl-mode=live` stub only) |
+| Live mode | `NEXT_PUBLIC_DATA_MODE=live` + API base; falls back to mock if unset |
 
 Meaningful actions: submit issue, apply AI suggestion, generate brief, open incident assist.
 
@@ -88,21 +88,22 @@ Meaningful actions: submit issue, apply AI suggestion, generate brief, open inci
 
 ## 7. Packet roadmap
 
+### Phase 1 — Demo on Vercel
+
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| 00 | Docs & agent rails | BUILD_PLAN, DECISIONS, DESIGN_SYSTEM, AGENTS, CHANGELOG | **Done** |
-| 01 | Design system + shell | Tokens, fonts, AppShell, Demo banner, nav | **Done** |
-| 02 | Demo entry + session | `/demo`, mode cookie, redirects, lead CTA stub | **Done** |
-| 03 | Mock domain layer | Expand projects/incidents/notes; service APIs | **Done** |
-| 04 | Community dashboard + intake | Full community home; polish report issue | **Done** |
-| 05 | Contractor dashboard | Site ops home + evidence stub | **Done** |
-| 06 | Client dashboard + reports | KPIs + brief page | **Done** |
-| 07 | Admin dashboard | Queue, SLA, escalations | **Done** |
-| 08 | Incident desk polish | List filters, detail timeline UI, AI panels | **Done** |
-| 09 | Demo funnel + empty/loading | Soft gate, toasts, responsive QA | **Done** |
-| 10 | Vercel harden | README deploy, env example, smoke checklist | **Done** |
+| 00–10 | Demo complete | Shell, mock domain, role dashboards, lead gate, Vercel docs | **Done** |
 
-**Out of scope until post-Demo:** Frappe auth, real API, Cloudflare, WordPress CTAs, Grok API keys.
+### Phase 2 — Frappe-ready frontend
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| 11 | App mode + Frappe client | `dataMode`, fetch wrapper, method paths, env | **Done** |
+| 12 | Settings + project detail | `/app/settings`, `/app/projects/[id]` | **Done** |
+| 13 | Live service adapters | Services call Frappe when live; mock fallback | **Done** |
+| 14 | Auth bridge stub | Document + stub session for Frappe login (no secrets) | **Done** |
+
+**Still external (not this repo):** Cloudflare DNS, WordPress CTAs, Grok API keys on Interserv.
 
 ## 8. Quality gates (every packet)
 

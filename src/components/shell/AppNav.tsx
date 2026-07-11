@@ -24,6 +24,7 @@ const NAV: NavItem[] = [
     label: "Reports",
     roles: ["client", "admin"],
   },
+  { href: "/app/settings", label: "Settings" },
 ];
 
 type AppNavProps = {

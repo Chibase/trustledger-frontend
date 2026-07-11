@@ -1,4 +1,5 @@
-import { API_BASE_URL } from "@/config/api";
+import { FRAPPE_METHODS } from "@/config/api";
+import { callFrappeMethod } from "@/lib/frappeClient";
 import type {
   DraftResponseRequest,
   DraftResponseSuggestion,
@@ -16,20 +17,6 @@ const USE_MOCK =
 
 const MODEL = "grok-4.5";
 const PROMPT_VERSION = "srm-ai-v0";
-
-async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    throw new Error(`AI request failed (${response.status})`);
-  }
-
-  return response.json() as Promise<T>;
-}
 
 function delay(ms = 650) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -141,7 +128,7 @@ export const aiService = {
       await delay();
       return mockTriage(input);
     }
-    return postJson("/api/method/srm_core.api.ai.suggest_triage", input);
+    return callFrappeMethod(FRAPPE_METHODS.suggestTriage, { ...input });
   },
 
   async suggestSentiment(input: SentimentRequest): Promise<SentimentSuggestion> {
@@ -149,7 +136,7 @@ export const aiService = {
       await delay();
       return mockSentiment(input);
     }
-    return postJson("/api/method/srm_core.api.ai.suggest_sentiment", input);
+    return callFrappeMethod(FRAPPE_METHODS.suggestSentiment, { ...input });
   },
 
   async draftResponse(
@@ -159,7 +146,7 @@ export const aiService = {
       await delay();
       return mockDraft(input);
     }
-    return postJson("/api/method/srm_core.api.ai.draft_response", input);
+    return callFrappeMethod(FRAPPE_METHODS.draftResponse, { ...input });
   },
 
   async generateReportBrief(
@@ -169,6 +156,6 @@ export const aiService = {
       await delay();
       return mockReportBrief(input);
     }
-    return postJson("/api/method/srm_core.api.ai.generate_report_brief", input);
+    return callFrappeMethod(FRAPPE_METHODS.generateReportBrief, { ...input });
   },
 };
