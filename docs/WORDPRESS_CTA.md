@@ -25,6 +25,10 @@ Desk (Interserv): `https://app.trustledger.co.za`
 - **Team desk** → Frappe desk for internal users (not the public demo).
 - **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Leads go to **HubSpot** via Forms API when `HUBSPOT_PORTAL_ID` / `HUBSPOT_FORM_ID` / `HUBSPOT_REGION` are set (fallback: `ASSESSMENT_WEBHOOK_URL`).
 
-## WordPress Assessment page embed
+## WordPress Assessment page
 
-Replace the placeholder on `/assessment/` with the HTML in [`docs/wordpress/assessment-embed.html`](wordpress/assessment-embed.html) (Custom HTML block). Purge SpeedyCache after paste.
+**Prefer full-page paste:** replace the Assessment page Custom HTML with [`docs/wordpress/page-assessment.txt`](wordpress/page-assessment.txt) (includes the live quiz iframe + HubSpot-backed lead gate on Vercel).
+
+Embed-only snippet (if you only swap the placeholder): [`docs/wordpress/assessment-embed.html`](wordpress/assessment-embed.html).
+
+Purge SpeedyCache after paste.
