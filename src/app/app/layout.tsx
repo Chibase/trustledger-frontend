@@ -18,6 +18,7 @@ export default async function ProductLayout({
       role={user.role}
       userName={user.name}
       showDemoBanner={user.mode !== "live"}
+      showLeadGate={user.mode !== "live"}
     >
       {children}
     </AppShell>

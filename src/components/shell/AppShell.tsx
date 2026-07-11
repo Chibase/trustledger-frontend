@@ -12,6 +12,7 @@ type AppShellProps = {
   userName: string;
   children: React.ReactNode;
   showDemoBanner?: boolean;
+  showLeadGate?: boolean;
 };
 
 export function AppShell({
@@ -19,12 +20,13 @@ export function AppShell({
   userName,
   children,
   showDemoBanner = true,
+  showLeadGate = true,
 }: AppShellProps) {
   return (
     <ToastProvider>
       <div className="min-h-full bg-tl-paper text-tl-ink">
         {showDemoBanner ? <DemoBanner /> : null}
-        <DemoLeadGate />
+        {showLeadGate ? <DemoLeadGate /> : null}
         <MobileNav role={role} userName={userName} />
 
         <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-6xl flex-col md:flex-row">
@@ -38,6 +40,7 @@ export function AppShell({
               </Link>
               <p className="mt-1 text-xs text-tl-ink-muted">
                 {userName} · {role}
+                {!showDemoBanner ? " · live" : ""}
               </p>
               <div className="mt-4">
                 <ShellSignOut />

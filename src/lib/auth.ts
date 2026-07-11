@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import {
+  FRAPPE_SID_COOKIE,
   SESSION_ROLE_COOKIE,
   TL_MODE_COOKIE,
   TL_USER_NAME_COOKIE,
@@ -30,11 +31,20 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   const cookieStore = await cookies();
   const sessionRole = cookieStore.get(SESSION_ROLE_COOKIE)?.value;
   const modeRaw = cookieStore.get(TL_MODE_COOKIE)?.value;
-  const mode = modeRaw === "live" ? "live" : "demo";
+  const hasLiveSid = Boolean(cookieStore.get(FRAPPE_SID_COOKIE)?.value);
+  // Prefer explicit live cookie; also treat httpOnly Frappe sid as live
+  // so a leftover tl-mode=demo cannot keep the demo banner after live login.
+  const mode: "demo" | "live" =
+    modeRaw === "live" || hasLiveSid ? "live" : "demo";
   const name = cookieStore.get(TL_USER_NAME_COOKIE)?.value || "Dev User";
 
   if (sessionRole && isUserRole(sessionRole)) {
-    return userFromRole(sessionRole, name, mode, mode === "live" ? "live-user" : "dev-1");
+    return userFromRole(
+      sessionRole,
+      name,
+      mode,
+      mode === "live" ? "live-user" : "dev-1",
+    );
   }
 
   const envRole = process.env.NEXT_PUBLIC_DEV_ROLE;

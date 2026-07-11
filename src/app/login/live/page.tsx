@@ -34,6 +34,8 @@ function LiveLoginForm() {
       if (!response.ok) {
         throw new Error(payload.error || "Login failed");
       }
+      // Clear any leftover demo-mode cookie from a prior /demo visit
+      document.cookie = "tl-mode=live; path=/; max-age=604800; samesite=lax";
       router.push(next.startsWith("/app") ? next : "/app/dashboard");
       router.refresh();
     } catch (err) {

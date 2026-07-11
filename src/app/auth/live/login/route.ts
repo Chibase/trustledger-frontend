@@ -48,16 +48,20 @@ export async function POST(request: Request) {
       path: "/",
       maxAge: SESSION_MAX_AGE_SECONDS,
       sameSite: "lax" as const,
+      secure: process.env.NODE_ENV === "production",
     };
 
     response.cookies.set(FRAPPE_SID_COOKIE, sid, {
       ...cookieBase,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
     });
     response.cookies.set(SESSION_ROLE_COOKIE, session.trustLedgerRole, cookieBase);
     response.cookies.set(TL_MODE_COOKIE, "live", cookieBase);
-    response.cookies.set(TL_USER_NAME_COOKIE, session.fullName, cookieBase);
+    response.cookies.set(
+      TL_USER_NAME_COOKIE,
+      session.fullName.replace(/[;\r\n]/g, "").slice(0, 80),
+      cookieBase,
+    );
 
     return response;
   } catch (error) {
