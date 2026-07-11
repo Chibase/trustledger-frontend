@@ -66,7 +66,7 @@ export function DemoLeadGate() {
       const res = await fetch("/api/demo/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, utm }),
+        body: JSON.stringify({ email, utm, source: "demo_soft_gate" }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {

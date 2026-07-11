@@ -11,6 +11,9 @@ import type { UtmAttribution } from "@/lib/utm";
 type DemoLeadBody = {
   email: string;
   name?: string;
+  organization?: string;
+  role?: string;
+  source?: "demo_entry" | "demo_soft_gate";
   utm?: Partial<UtmAttribution>;
 };
 
@@ -34,6 +37,9 @@ export async function POST(request: Request) {
 
   const email = body.email.trim().toLowerCase();
   const name = body.name?.trim();
+  const organization = body.organization?.trim();
+  const role = body.role?.trim();
+  const source = body.source === "demo_soft_gate" ? "demo_soft_gate" : "demo_entry";
 
   if (!isWorkEmail(email)) {
     return NextResponse.json(
@@ -45,22 +51,41 @@ export async function POST(request: Request) {
     );
   }
 
+  if (source === "demo_entry" && (!name || name.length < 2)) {
+    return NextResponse.json(
+      { error: "Please enter your name." },
+      { status: 400 },
+    );
+  }
+
   const utm = body.utm
     ? [body.utm.source, body.utm.medium, body.utm.campaign]
         .filter(Boolean)
         .join("/")
     : "none";
 
-  const message = `Demo interest from product app. UTM: ${utm}. Captured: ${new Date().toISOString()}.`;
+  const message = [
+    `[Source: ${source}] TrustLedger interactive demo lead.`,
+    role ? `Demo role: ${role}.` : null,
+    organization ? `Organization: ${organization}.` : null,
+    `UTM: ${utm}.`,
+    `Captured: ${new Date().toISOString()}.`,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   if (hubspotConfigured()) {
     try {
       const res = await submitHubSpotLead({
         email,
         name: name || email.split("@")[0],
+        company: organization,
         message,
         pageUri: `${siteBaseUrl()}/demo`,
-        pageName: "TrustLedger Demo lead gate",
+        pageName:
+          source === "demo_entry"
+            ? "TrustLedger Demo entry"
+            : "TrustLedger Demo soft gate",
       });
       if (!res.ok) {
         console.error(
@@ -86,7 +111,7 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   } else {
-    console.info("[demo/lead] accepted (local)", { email, utm });
+    console.info("[demo/lead] accepted (local)", { email, source, role, utm });
   }
 
   return NextResponse.json({ ok: true });
