@@ -103,3 +103,12 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
 
+### ADR-012: Plan Owner admin + Owner-confirmed lower seats
+
+- **Date:** 2026-07-12
+- **Status:** Accepted
+- **Context:** After payment, buyers need login issued by plan. Solo ops cannot manually invent access rules per deal. Purchaser (e.g. lead consultant on lower tier) must own the plan with admin access and invite others only at lower levels they confirm.
+- **Decision:** Payment/commitment provisions exactly one **Plan Owner** as org-scoped `admin` (dashboard, reporting, login, invites). Additional users are created only via Owner-confirmed invites at `client` | `contractor` | `community`. Seat limits follow plan (Practitioner ≈ owner-only; Project = unlimited per project; Institutional = custom). See `docs/ACCESS_MODEL.md`.
+- **Consequences:** Clear post-Peach provisioning; no auto-admin for teammates; HubSpot never issues product logins.
+- **Alternatives considered:** All seats created by Chibase staff; auto-admin for anyone on the invoice domain (rejected).
+

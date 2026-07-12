@@ -60,8 +60,9 @@ After handoff, day-to-day relationship work (calls logged, renewals, support) ha
 
 ## Later automation (not launch-critical)
 
-- Button/script: “Provision from HubSpot deal” → Frappe Customer/Contact/User  
-- Peach webhook → entitlement + Customer  
+- Button/script: “Provision from HubSpot deal” → Frappe Customer/Contact/**Owner admin User** (see `docs/ACCESS_MODEL.md`)
+- Peach webhook → entitlement + Owner login email
+- Owner-confirmed invites for lower roles (`client` / `contractor` / `community`)
 - Sync only **Closed Won**; never bi-directional full CRM sync  
 
 ## Decision
