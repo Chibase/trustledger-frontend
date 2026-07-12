@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-07-12 — Post-payment access model
+
+- ADR-012 + `docs/ACCESS_MODEL.md`: Plan Owner = org admin; Owner confirms lower-role invites by plan seats
+
 ## 2026-07-12 — CRM handoff model
 
 - ADR-011 + `docs/CRM_HANDOFF.md`: HubSpot Free = lead magnet; Frappe owns relationships after commitment
