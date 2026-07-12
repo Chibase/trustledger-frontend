@@ -94,3 +94,12 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Safe public Demo; pilots can flip env without code forks.
 - **Alternatives considered:** Always-on live API (breaks Demo without VPN/backend).
 
+### ADR-011: HubSpot lead magnet → Frappe after commitment
+
+- **Date:** 2026-07-12
+- **Status:** Accepted
+- **Context:** Solo operator; HubSpot Free is already wired for assessment/demo/support intake but is limited for ongoing customer management. Frappe on Interserv is the product system of record.
+- **Decision:** Use HubSpot Free only for acquisition (leads, light tickets, early pipeline). At commitment (pilot signed, paid, or Closed Won), hand off to Frappe Customer/Contact/(User). No dual full-CRM maintenance.
+- **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
+- **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
+

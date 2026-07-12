@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-07-12 — CRM handoff model
+
+- ADR-011 + `docs/CRM_HANDOFF.md`: HubSpot Free = lead magnet; Frappe owns relationships after commitment
+
 ## 2026-07-12 — Support Phase A
 
 - In-app Support drawer (self-serve + HubSpot tickets)
