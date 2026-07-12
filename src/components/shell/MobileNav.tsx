@@ -4,14 +4,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { AppNav } from "@/components/shell/AppNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
+import { SupportDrawer } from "@/components/shell/SupportDrawer";
 import type { UserRole } from "@/types/rbac";
 
 type MobileNavProps = {
   role: UserRole;
   userName: string;
+  mode: "demo" | "live";
 };
 
-export function MobileNav({ role, userName }: MobileNavProps) {
+export function MobileNav({ role, userName, mode }: MobileNavProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -41,6 +43,14 @@ export function MobileNav({ role, userName }: MobileNavProps) {
       {open ? (
         <div id="mobile-nav-panel" className="space-y-3 px-2 pb-4">
           <AppNav role={role} />
+          <div className="px-2">
+            <SupportDrawer
+              userName={userName}
+              role={role}
+              mode={mode}
+              variant="light"
+            />
+          </div>
           <div className="border-t border-tl-line px-2 pt-3">
             <ShellSignOut />
           </div>

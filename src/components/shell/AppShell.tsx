@@ -4,12 +4,14 @@ import { DemoLeadGate } from "@/components/shell/DemoLeadGate";
 import { AppNav } from "@/components/shell/AppNav";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
+import { SupportDrawer } from "@/components/shell/SupportDrawer";
 import { ToastProvider } from "@/components/ui/Toast";
 import type { UserRole } from "@/types/rbac";
 
 type AppShellProps = {
   role: UserRole;
   userName: string;
+  mode: "demo" | "live";
   children: React.ReactNode;
   showDemoBanner?: boolean;
   showLeadGate?: boolean;
@@ -18,6 +20,7 @@ type AppShellProps = {
 export function AppShell({
   role,
   userName,
+  mode,
   children,
   showDemoBanner = true,
   showLeadGate = true,
@@ -27,7 +30,7 @@ export function AppShell({
       <div className="min-h-full bg-tl-paper text-tl-ink">
         {showDemoBanner ? <DemoBanner /> : null}
         {showLeadGate ? <DemoLeadGate /> : null}
-        <MobileNav role={role} userName={userName} />
+        <MobileNav role={role} userName={userName} mode={mode} />
 
         <div className="flex min-h-[calc(100vh-2.25rem)]">
           <aside className="sticky top-0 hidden h-[calc(100vh-2.25rem)] w-64 shrink-0 flex-col bg-tl-ink text-white md:flex">
@@ -50,16 +53,24 @@ export function AppShell({
               <AppNav role={role} variant="ink" />
             </div>
 
-            <div className="border-t border-white/10 px-5 py-4">
-              <p className="truncate text-sm font-medium text-white">
-                {userName}
-              </p>
-              <p className="mt-0.5 text-xs capitalize text-white/55">
-                {role}
-                {!showDemoBanner ? " · live" : " · demo"}
-              </p>
-              <div className="mt-3">
-                <ShellSignOut variant="ink" />
+            <div className="space-y-3 border-t border-white/10 px-4 py-4">
+              <SupportDrawer
+                userName={userName}
+                role={role}
+                mode={mode}
+                variant="ink"
+              />
+              <div>
+                <p className="truncate text-sm font-medium text-white">
+                  {userName}
+                </p>
+                <p className="mt-0.5 text-xs capitalize text-white/55">
+                  {role}
+                  {mode === "live" ? " · live" : " · demo"}
+                </p>
+                <div className="mt-3">
+                  <ShellSignOut variant="ink" />
+                </div>
               </div>
             </div>
           </aside>

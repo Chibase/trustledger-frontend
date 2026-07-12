@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-12 — Support Phase A
+
+- In-app Support drawer (self-serve + HubSpot tickets)
+- `/status` + `/api/health` (Vercel + Interserv probes)
+- Issue catalog + allowlist in `docs/SUPPORT_OPS.md`
+- Repair session + live sign-in shortcuts
+
 ## 2026-07-11 — Demo entry lead capture
 
 - `/demo` requires name + work email before start (same bar as assessment)
