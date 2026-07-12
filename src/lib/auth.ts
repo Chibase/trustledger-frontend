@@ -3,6 +3,7 @@ import {
   FRAPPE_SID_COOKIE,
   SESSION_ROLE_COOKIE,
   TL_MODE_COOKIE,
+  TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
 } from "@/lib/auth.constants";
 import { isUserRole, type UserRole } from "@/types/rbac";
@@ -12,6 +13,7 @@ export type { UserRole };
 export type AppUser = {
   id: string;
   name: string;
+  email: string | null;
   role: UserRole;
   mode: "demo" | "live";
 };
@@ -23,8 +25,9 @@ function userFromRole(
   name: string,
   mode: "demo" | "live",
   id = "session-user",
+  email: string | null = null,
 ): AppUser {
-  return { id, name, role, mode };
+  return { id, name, email, role, mode };
 }
 
 function displayNameForRole(role: UserRole): string {
@@ -49,6 +52,8 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   // so a leftover tl-mode=demo cannot keep the demo banner after live login.
   const mode: "demo" | "live" =
     modeRaw === "live" || hasLiveSid ? "live" : "demo";
+  const emailRaw = cookieStore.get(TL_USER_EMAIL_COOKIE)?.value;
+  const email = emailRaw ? emailRaw.trim().toLowerCase() : null;
 
   if (sessionRole && isUserRole(sessionRole)) {
     const name =
@@ -59,6 +64,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       name,
       mode,
       mode === "live" ? "live-user" : "demo-user",
+      email,
     );
   }
 

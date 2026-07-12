@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-12 — Platform Operator sole live control
+
+- ADR-013 + `docs/PLATFORM_OPERATOR.md`: live login / `/app` / Frappe BFF limited to `PLATFORM_OPERATOR_EMAILS` when `PLATFORM_OPERATOR_ONLY=1`
+- Email session cookie; operator banner + Settings access panel
+- Demo remains public unless `PLATFORM_OPERATOR_LOCK_PUBLIC=1`
+
 ## 2026-07-12 — Post-payment access model
 
 - ADR-012 + `docs/ACCESS_MODEL.md`: Plan Owner = org admin; Owner confirms lower-role invites by plan seats

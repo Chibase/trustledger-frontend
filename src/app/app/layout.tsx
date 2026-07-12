@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { getCurrentUser } from "@/lib/auth";
+import {
+  assertLiveOperatorAccess,
+  isPlatformOperatorOnly,
+} from "@/lib/platformOperator";
 
 export default async function ProductLayout({
   children,
@@ -13,6 +17,16 @@ export default async function ProductLayout({
     redirect("/demo");
   }
 
+  if (user.mode === "live" && isPlatformOperatorOnly()) {
+    const gate = assertLiveOperatorAccess(user.email);
+    if (!gate.ok) {
+      redirect(`/login/live?error=${gate.reason}`);
+    }
+  }
+
+  const showOperatorBanner =
+    user.mode === "live" && isPlatformOperatorOnly();
+
   return (
     <AppShell
       role={user.role}
@@ -20,6 +34,7 @@ export default async function ProductLayout({
       mode={user.mode}
       showDemoBanner={user.mode !== "live"}
       showLeadGate={user.mode !== "live"}
+      showOperatorBanner={showOperatorBanner}
     >
       {children}
     </AppShell>

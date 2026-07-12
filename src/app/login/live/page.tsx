@@ -11,13 +11,24 @@ function sanitizeNext(value: string | null): string {
   return "/app/dashboard";
 }
 
+function gateErrorCopy(code: string | null): string | null {
+  if (code === "lockdown_misconfigured") {
+    return "Live access is locked to the Platform Operator, but the allowlist is not configured on the server.";
+  }
+  if (code === "not_operator") {
+    return "Live access is limited to the Platform Operator. Customer and staff logins are paused until lockdown is lifted.";
+  }
+  return null;
+}
+
 function LiveLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = sanitizeNext(searchParams.get("next"));
+  const gateError = gateErrorCopy(searchParams.get("error"));
   const [usr, setUsr] = useState("");
   const [pwd, setPwd] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(gateError);
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

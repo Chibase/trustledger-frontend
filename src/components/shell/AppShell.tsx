@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DemoBanner } from "@/components/shell/DemoBanner";
 import { DemoLeadGate } from "@/components/shell/DemoLeadGate";
+import { OperatorBanner } from "@/components/shell/OperatorBanner";
 import { AppNav } from "@/components/shell/AppNav";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
@@ -15,6 +16,7 @@ type AppShellProps = {
   children: React.ReactNode;
   showDemoBanner?: boolean;
   showLeadGate?: boolean;
+  showOperatorBanner?: boolean;
 };
 
 export function AppShell({
@@ -24,11 +26,13 @@ export function AppShell({
   children,
   showDemoBanner = true,
   showLeadGate = true,
+  showOperatorBanner = false,
 }: AppShellProps) {
   return (
     <ToastProvider>
       <div className="min-h-full bg-tl-paper text-tl-ink">
         {showDemoBanner ? <DemoBanner /> : null}
+        {showOperatorBanner ? <OperatorBanner /> : null}
         {showLeadGate ? <DemoLeadGate /> : null}
         <MobileNav role={role} userName={userName} mode={mode} />
 
@@ -67,6 +71,7 @@ export function AppShell({
                 <p className="mt-0.5 text-xs capitalize text-white/55">
                   {role}
                   {mode === "live" ? " · live" : " · demo"}
+                  {showOperatorBanner ? " · operator" : ""}
                 </p>
                 <div className="mt-3">
                   <ShellSignOut variant="ink" />

@@ -1,6 +1,11 @@
 import { API_BASE_URL, getDataMode } from "@/config/api";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
 import { getCurrentUser } from "@/lib/auth";
+import {
+  isPlatformOperatorIdentity,
+  isPlatformOperatorLockPublic,
+  isPlatformOperatorOnly,
+} from "@/lib/platformOperator";
 import { aiService } from "@/services/aiService";
 
 export default async function AppSettingsPage() {
@@ -9,6 +14,9 @@ export default async function AppSettingsPage() {
 
   const dataMode = getDataMode();
   const aiMock = aiService.isMockMode();
+  const operatorOnly = isPlatformOperatorOnly();
+  const isOperator =
+    user.mode === "live" && isPlatformOperatorIdentity(user.email);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
@@ -26,6 +34,12 @@ export default async function AppSettingsPage() {
             <dt className="text-tl-ink-muted">Name</dt>
             <dd>{user.name}</dd>
           </div>
+          {user.email ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-tl-ink-muted">Email</dt>
+              <dd className="font-mono text-xs">{user.email}</dd>
+            </div>
+          ) : null}
           <div className="flex justify-between gap-4">
             <dt className="text-tl-ink-muted">Role</dt>
             <dd>{user.role}</dd>
@@ -35,6 +49,29 @@ export default async function AppSettingsPage() {
             <dd className="font-mono text-xs">{user.id}</dd>
           </div>
         </dl>
+      </section>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
+        <h2 className="font-semibold">Access control</h2>
+        <dl className="mt-3 space-y-2">
+          <div className="flex justify-between gap-4">
+            <dt className="text-tl-ink-muted">Platform Operator lockdown</dt>
+            <dd>{operatorOnly ? "on" : "off"}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-tl-ink-muted">You are Platform Operator</dt>
+            <dd>{isOperator ? "yes" : "no"}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-tl-ink-muted">Public demo lock</dt>
+            <dd>{isPlatformOperatorLockPublic() ? "on" : "off"}</dd>
+          </div>
+        </dl>
+        <p className="mt-4 text-xs text-tl-ink-muted">
+          Live product access is limited to the Platform Operator until you lift{" "}
+          <code>PLATFORM_OPERATOR_ONLY</code>. See{" "}
+          <code>docs/PLATFORM_OPERATOR.md</code>.
+        </p>
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">

@@ -22,6 +22,7 @@
 7. **Demo banner** — keep for sample-data honesty, or hide only for live users (already the case).
 8. **Revoke any Vercel tokens** shared in chat.
 9. **Support Phase A** — smoke `/status`, Repair session, and one Support ticket from `/app` (HubSpot message starts with `[Source: support_ticket]`).
+10. **Platform Operator lockdown** — on Vercel set `PLATFORM_OPERATOR_ONLY=1` and `PLATFORM_OPERATOR_EMAILS` to your live login email (e.g. `admin@chibaseconsulting.co.za`). Confirm only you can `/login/live`. See `docs/PLATFORM_OPERATOR.md`.
 
 ## Recommended launch mode
 

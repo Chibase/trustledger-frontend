@@ -112,3 +112,12 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear post-Peach provisioning; no auto-admin for teammates; HubSpot never issues product logins.
 - **Alternatives considered:** All seats created by Chibase staff; auto-admin for anyone on the invoice domain (rejected).
 
+### ADR-013: Platform Operator sole live control (until lifted)
+
+- **Date:** 2026-07-12
+- **Status:** Accepted
+- **Context:** Solo founder/operator controls strategy, CRM, ops, and product end-to-end until advised otherwise. Customer Plan Owner (`admin`) must not be confused with platform-wide control.
+- **Decision:** While `PLATFORM_OPERATOR_ONLY=1`, only identities in `PLATFORM_OPERATOR_EMAILS` may use live login, live `/app`, and the Frappe BFF. Demo/assessment stay public for leads unless `PLATFORM_OPERATOR_LOCK_PUBLIC=1`. Customer seat issuance stays paused until lockdown is lifted. See `docs/PLATFORM_OPERATOR.md`.
+- **Consequences:** Clear sole-control posture for launch; env flip opens Plan Owner flow later.
+- **Alternatives considered:** Hardcode a single email in source (rejected — use env allowlist); lock demo too by default (rejected — keep Wednesday lead funnel unless explicitly locked).
+

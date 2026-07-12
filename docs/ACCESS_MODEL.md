@@ -1,6 +1,8 @@
 # Post-payment access & seats
 
 **Locked with ADR-012.**  
+**Override while active:** ADR-013 Platform Operator lockdown — see `docs/PLATFORM_OPERATOR.md`. Until lockdown is lifted, **do not** issue customer Plan Owner logins; only the Platform Operator uses live product access.
+
 After payment (or confirmed commitment), TrustLedger issues logins from **plan entitlements**. The **purchaser is Plan Owner**; they alone hold org **admin** and may invite others at **lower** roles.
 
 ```text
@@ -25,7 +27,7 @@ Invitee accepts → User created at that role
 | **contractor** | Delivery / site teams | Assigned projects, incidents, field report | No |
 | **community** | Community liaison / ward users | Ward-scoped status, report issue, limited case view | No |
 
-There is **no** second “super-admin” above Owner for a customer org. Chibase staff use Interserv desk separately.
+There is **no** second “super-admin” above Owner for a customer org. **Platform Operator** (Chibase / you) is a separate, env-gated control plane for the whole product — not an org role. See ADR-013.
 
 ## Plan → seats (entitlements)
 
