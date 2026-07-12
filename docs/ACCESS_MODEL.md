@@ -39,7 +39,75 @@ Aligned to marketing tiers (prices unchanged on site until you say otherwise):
 
 **Rule:** Only the Plan Owner is created automatically at payment. Everyone else is **invited by the Owner** with an explicit lower role.
 
-## Owner confirmation of user level
+## Plan entitlement matrix (what we limit)
+
+| Limit | Practitioner | Project | Institutional |
+|-------|--------------|---------|---------------|
+| **Owner seats** | 1 admin | 1 admin | Custom |
+| **Team seats** | 0 (owner only) | Unlimited **per project** | Custom |
+| **Active projects** | Up to **2** | 1+ (per purchased project env) | Multi-region / many |
+| **Roles invitees may get** | — (no invites) | client, contractor, community | Custom + extra admins if sold |
+| **Reports / briefs** | Standard | Full project + predictive views | Deep / custom analytics |
+| **AI assist** | Standard sentiment / triage | Full assist set | Custom / higher limits |
+| **API / integrations** | No | No (or light) | Yes (custom) |
+| **Hosting / compliance** | Shared | Shared | Dedicated options |
+| **Support** | In-app + HubSpot | In-app + HubSpot | Named + Helpdesk |
+
+Demo mode ignores paid entitlements (sample data only).
+
+## How enforcement works (two layers)
+
+```text
+Frappe Customer.entitlement  ← source of truth (plan, seats, project_cap, flags)
+        ↓
+Session / get_session returns { role, customer, plan, entitlements }
+        ↓
+┌─────────────────────┬──────────────────────────────┐
+│ UI (Vercel)         │ API (Frappe whitelisted)     │
+│ Hide/disable nav,   │ Reject create/invite/report  │
+│ upgrade CTAs        │ if over cap or flag off      │
+└─────────────────────┴──────────────────────────────┘
+```
+
+1. **Source of truth (Interserv)**  
+   On Customer (or Subscription DocType): `plan_code`, `seat_limit`, `project_limit`, `features` (JSON flags), `status` (active/past_due/cancelled).
+
+2. **Session**  
+   `get_session` (or BFF) includes entitlements so the app knows the plan without trusting the browser.
+
+3. **UI gates**  
+   - Practitioner: hide Team invites; block “3rd project” with upgrade message.  
+   - Project: allow invites; scope users to project membership.  
+   - Feature flags hide Reports depth / API settings if not entitled.
+
+4. **API gates (must have — UI alone is not enough)**  
+   Before `create_project`, `invite_user`, `generate_report_brief`, etc.:  
+   `assert_entitlement(customer, action)`.  
+   Over limit → `403` + `{ code: "PLAN_LIMIT", upgrade: "project" }`.
+
+5. **Billing state**  
+   Peach webhook sets `status`. `past_due` / `cancelled` → read-only or login blocked after grace period (Owner still sees billing CTA).
+
+## Practical checks (examples)
+
+| Action | Practitioner | Project |
+|--------|--------------|---------|
+| Owner logs in | Allow | Allow |
+| Invite teammate | **Deny** + upgrade | Allow if under seat rules |
+| Create project #3 | **Deny** | Allow if within purchased project envs |
+| Open Reports | Standard only | Full |
+| Call custom API | Deny | Deny (unless sold) |
+
+## Manual control before Peach automation
+
+Until webhooks exist, you set on the Customer in Frappe:
+
+- `plan_code = practitioner | project | institutional`  
+- `project_limit = 2` (practitioner) or N  
+- `seat_limit = 1` or unlimited flag  
+- `status = active`  
+
+Owner login still works; limits are enforced as soon as API/UI checks read those fields.
 
 1. Owner opens **Settings → Team / Seats** (to build).  
 2. Enters name + work email + **suggested role** (`client` \| `contractor` \| `community`).  
