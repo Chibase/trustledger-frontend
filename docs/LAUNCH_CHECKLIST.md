@@ -21,6 +21,7 @@
 6. **Phone / Calendly** — add when ready (removed fake phone from paste kit).
 7. **Demo banner** — keep for sample-data honesty, or hide only for live users (already the case).
 8. **Revoke any Vercel tokens** shared in chat.
+9. **Support Phase A** — smoke `/status`, Repair session, and one Support ticket from `/app` (HubSpot message starts with `[Source: support_ticket]`).
 
 ## Recommended launch mode
 
