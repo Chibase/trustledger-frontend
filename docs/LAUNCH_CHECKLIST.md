@@ -16,7 +16,7 @@
 1. **Hard-refresh / re-paste WP Assessment** if footer still shows `+00 000 000 0000` — use updated `docs/wordpress/page-assessment.txt`.
 2. **Confirm HubSpot** receives demo-gate + assessment leads (check Contacts after a test).
 3. **Decide final product domain** (keep `*.vercel.app` or attach custom domain) and set `NEXT_PUBLIC_SITE_URL` to match; update Interserv CORS if domain changes.
-4. **Interserv / `app.trustledger.co.za`** — root currently returns 404; confirm desk URL and live login for pilots (`/login/live`).
+4. **Frappe Cloud / `app.trustledger.co.za`** — domain Active; set Vercel `NEXT_PUBLIC_API_BASE_URL` + `FRAPPE_BASE_URL`; CORS + API keys per `docs/FRAPPE_CLOUD_SETUP.md`.
 5. **Legal** — confirm Privacy + Terms on `trustledger.co.za` have real entity name/address (placeholders remain).
 6. **Phone / Calendly** — add when ready (removed fake phone from paste kit).
 7. **Demo banner** — keep for sample-data honesty, or hide only for live users (already the case).

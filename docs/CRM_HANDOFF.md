@@ -2,7 +2,7 @@
 
 **Locked operating model (solo / launch):**  
 HubSpot Free = **lead magnet** (acquisition only).  
-Frappe (Interserv) = **relationship system of record** after commitment.
+Frappe (**Cloud** `app.trustledger.co.za`) = **relationship system of record** after commitment.
 
 ```text
 Website / Assessment / Demo

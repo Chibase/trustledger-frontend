@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const INTERSERV =
+const FRAPPE_SITE =
   process.env.FRAPPE_BASE_URL ||
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "https://app.trustledger.co.za";
@@ -31,7 +31,7 @@ async function probe(
 export async function GET() {
   const [app, frappe] = await Promise.all([
     probe("vercel_app", `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app"}/`),
-    probe("interserv", `${INTERSERV.replace(/\/$/, "")}/api/method/frappe.ping`),
+    probe("frappe_cloud", `${FRAPPE_SITE.replace(/\/$/, "")}/api/method/frappe.ping`),
   ]);
 
   const checks = [app, frappe];

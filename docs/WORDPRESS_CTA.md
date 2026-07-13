@@ -2,7 +2,7 @@
 
 Marketing site: `https://trustledger.co.za`  
 Product (Vercel): `https://trustledger-frontend-pi.vercel.app`  
-Desk (Interserv): `https://app.trustledger.co.za`
+Desk (Frappe Cloud): `https://app.trustledger.co.za`
 
 ## Link map
 
@@ -15,6 +15,7 @@ Desk (Interserv): `https://app.trustledger.co.za`
 | SRM assessment (full page) | `https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic` |
 | SRM assessment (embed) | `https://trustledger-frontend-pi.vercel.app/assessment?embed=1&utm_source=wordpress&utm_medium=embed&utm_campaign=srm_diagnostic` |
 | Team desk (Frappe) | `https://app.trustledger.co.za` |
+
 | Chibase Consulting | `https://chibaseconsulting.co.za` |
 | Contact | `mailto:info@trustledger.co.za` |
 

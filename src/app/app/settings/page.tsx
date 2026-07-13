@@ -95,8 +95,9 @@ export default async function AppSettingsPage() {
         </dl>
         <p className="mt-4 text-xs text-tl-ink-muted">
           Set <code>NEXT_PUBLIC_DATA_MODE=live</code> and point{" "}
-          <code>NEXT_PUBLIC_API_BASE_URL</code> at Interserv Frappe when ready.
-          Demo stays the default. See <code>docs/FRAPPE_API_CONTRACT.md</code>.
+          <code>NEXT_PUBLIC_API_BASE_URL</code> at{" "}
+          <code>https://app.trustledger.co.za</code> when ready. Demo stays the
+          default. See <code>docs/FRAPPE_CLOUD_SETUP.md</code>.
         </p>
       </section>
     </div>

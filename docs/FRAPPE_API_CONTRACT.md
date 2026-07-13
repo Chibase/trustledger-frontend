@@ -3,7 +3,7 @@
 The Vercel app calls these whitelisted methods when `NEXT_PUBLIC_DATA_MODE=live`.
 Until they exist, services fall back to Demo mocks.
 
-Base URL: `NEXT_PUBLIC_API_BASE_URL` (Interserv site)  
+Base URL: `NEXT_PUBLIC_API_BASE_URL` (Frappe Cloud — `https://app.trustledger.co.za`)  
 Transport: `POST` JSON, `credentials: include`  
 Envelope: standard Frappe `{ "message": <payload> }`
 
@@ -32,12 +32,13 @@ Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH
 - `src/types/engagement.ts`
 - `src/types/ai.ts`
 
-## Ops requirements on Interserv
+## Ops requirements on Frappe Cloud
 
-1. CORS allow `https://trustledger-frontend-pi.vercel.app` (and later `app.trustledger.co.za`)
+1. CORS allow `https://trustledger-frontend-pi.vercel.app` (see `docs/FRAPPE_CLOUD_SETUP.md`)
 2. Cookie / session auth for live users (see `docs/AUTH_BRIDGE_STUB.md`)
 3. Grok / xAI key only on server (`srm_core` site config) — never returned to browser
 4. AI responses must include `model` + `promptVersion` for audit
+5. Lead intake: API key user may create **Lead** (or custom `FRAPPE_LEAD_METHOD`)
 
 ## Suggested implementation order on srm-core
 

@@ -4,12 +4,11 @@ import {
   assertLeadFormGuards,
   normalizeComment,
 } from "@/lib/formGuard";
+import { isProductionRuntime, siteBaseUrl } from "@/lib/hubspot";
 import {
-  hubspotConfigured,
-  isProductionRuntime,
-  siteBaseUrl,
-  submitHubSpotLead,
-} from "@/lib/hubspot";
+  leadCaptureConfigured,
+  submitProductLead,
+} from "@/lib/leadCapture";
 import type { UtmAttribution } from "@/lib/utm";
 
 type DemoLeadBody = {
@@ -60,7 +59,9 @@ export async function POST(request: Request) {
   const organization = body.organization?.trim();
   const role = body.role?.trim();
   const comment =
-    source === "demo_entry" ? normalizeComment(body.comment, 10) : normalizeComment(body.comment ?? "", 0);
+    source === "demo_entry"
+      ? normalizeComment(body.comment, 10)
+      : normalizeComment(body.comment ?? "", 0);
 
   if (!isWorkEmail(email)) {
     return NextResponse.json(
@@ -106,32 +107,20 @@ export async function POST(request: Request) {
     .filter(Boolean)
     .join(" ");
 
-  if (hubspotConfigured()) {
-    try {
-      const res = await submitHubSpotLead({
-        email,
-        name: name || email.split("@")[0],
-        company: organization,
-        message,
-        pageUri: `${siteBaseUrl()}/demo`,
-        pageName:
-          source === "demo_entry"
-            ? "TrustLedger Demo entry"
-            : "TrustLedger Demo soft gate",
-      });
-      if (!res.ok) {
-        console.error(
-          "[demo/lead] HubSpot failed",
-          res.status,
-          await res.text().catch(() => ""),
-        );
-        return NextResponse.json(
-          { error: "Lead delivery failed. Please try again." },
-          { status: 502 },
-        );
-      }
-    } catch (err) {
-      console.error("[demo/lead] HubSpot error", err);
+  if (leadCaptureConfigured()) {
+    const result = await submitProductLead({
+      email,
+      name: name || email.split("@")[0],
+      company: organization,
+      message,
+      pageUri: `${siteBaseUrl()}/demo`,
+      pageName:
+        source === "demo_entry"
+          ? "TrustLedger Demo entry"
+          : "TrustLedger Demo soft gate",
+      sourceTag: source,
+    });
+    if (!result.ok) {
       return NextResponse.json(
         { error: "Lead delivery failed. Please try again." },
         { status: 502 },

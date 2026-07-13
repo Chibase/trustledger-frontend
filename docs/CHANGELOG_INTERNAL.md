@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-13 — Frappe Cloud cutover wiring
+
+- Lead APIs prefer Frappe CRM Lead (`FRAPPE_API_KEY`/`SECRET`) with HubSpot fallback
+- Docs: `docs/FRAPPE_CLOUD_SETUP.md` (Vercel env, CORS, smoke)
+- Copy/defaults point at `https://app.trustledger.co.za`
+
 ## 2026-07-13 — Lead form spam + required comments
 
 - Honeypot + rate limit + optional reCAPTCHA v3 on demo/assessment/support APIs

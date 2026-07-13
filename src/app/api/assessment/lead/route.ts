@@ -1,13 +1,12 @@
 import {
-  hubspotConfigured,
-  isProductionRuntime,
-  siteBaseUrl,
-  submitHubSpotLead,
-} from "@/lib/hubspot";
-import {
   assertLeadFormGuards,
   normalizeComment,
 } from "@/lib/formGuard";
+import { isProductionRuntime, siteBaseUrl } from "@/lib/hubspot";
+import {
+  leadCaptureConfigured,
+  submitProductLead,
+} from "@/lib/leadCapture";
 import type { AssessmentLeadPayload } from "@/types/assessment";
 import { isWorkEmail } from "@/data/assessment";
 import { NextResponse } from "next/server";
@@ -119,29 +118,17 @@ export async function POST(request: Request) {
 
   const webhook = process.env.ASSESSMENT_WEBHOOK_URL;
 
-  if (hubspotConfigured()) {
-    try {
-      const res = await submitHubSpotLead({
-        email: payload.email,
-        name: payload.name,
-        company: payload.organization,
-        message: buildAssessmentMessage(payload, comment),
-        pageUri: `${siteBaseUrl()}${payload.landingPath}`,
-        pageName: "SRM Readiness Assessment",
-      });
-      if (!res.ok) {
-        console.error(
-          "[assessment/lead] HubSpot failed",
-          res.status,
-          await res.text().catch(() => ""),
-        );
-        return NextResponse.json(
-          { error: "Lead delivery failed. Please try again." },
-          { status: 502 },
-        );
-      }
-    } catch (err) {
-      console.error("[assessment/lead] HubSpot error", err);
+  if (leadCaptureConfigured()) {
+    const result = await submitProductLead({
+      email: payload.email,
+      name: payload.name,
+      company: payload.organization,
+      message: buildAssessmentMessage(payload, comment),
+      pageUri: `${siteBaseUrl()}${payload.landingPath}`,
+      pageName: "SRM Readiness Assessment",
+      sourceTag: "assessment",
+    });
+    if (!result.ok) {
       return NextResponse.json(
         { error: "Lead delivery failed. Please try again." },
         { status: 502 },
@@ -173,14 +160,14 @@ export async function POST(request: Request) {
       );
     }
   } else if (isProductionRuntime()) {
-    console.error("[assessment/lead] no HubSpot/webhook configured in production");
+    console.error("[assessment/lead] no Frappe/HubSpot/webhook in production");
     return NextResponse.json(
       { error: "Lead capture is temporarily unavailable." },
       { status: 503 },
     );
   } else {
     console.info(
-      "[assessment/lead] accepted (local — no HubSpot / webhook)",
+      "[assessment/lead] accepted (local — no lead backend)",
       JSON.stringify({
         name: payload.name,
         email: payload.email,

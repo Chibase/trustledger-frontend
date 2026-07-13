@@ -5,12 +5,11 @@ import {
 } from "@/data/supportCatalog";
 import { isWorkEmail } from "@/data/assessment";
 import { assertLeadFormGuards } from "@/lib/formGuard";
+import { isProductionRuntime, siteBaseUrl } from "@/lib/hubspot";
 import {
-  hubspotConfigured,
-  isProductionRuntime,
-  siteBaseUrl,
-  submitHubSpotLead,
-} from "@/lib/hubspot";
+  leadCaptureConfigured,
+  submitProductLead,
+} from "@/lib/leadCapture";
 
 type SupportTicketBody = {
   email: string;
@@ -101,28 +100,16 @@ export async function POST(request: Request) {
     .filter(Boolean)
     .join("\n");
 
-  if (hubspotConfigured()) {
-    try {
-      const res = await submitHubSpotLead({
-        email,
-        name: body.name?.trim(),
-        message,
-        pageUri: `${siteBaseUrl()}${body.path || "/app/dashboard"}`,
-        pageName: "TrustLedger in-app support",
-      });
-      if (!res.ok) {
-        console.error(
-          "[support/ticket] HubSpot failed",
-          res.status,
-          await res.text().catch(() => ""),
-        );
-        return NextResponse.json(
-          { error: "Could not submit ticket. Try again." },
-          { status: 502 },
-        );
-      }
-    } catch (err) {
-      console.error("[support/ticket] HubSpot error", err);
+  if (leadCaptureConfigured()) {
+    const result = await submitProductLead({
+      email,
+      name: body.name?.trim(),
+      message,
+      pageUri: `${siteBaseUrl()}${body.path || "/app/dashboard"}`,
+      pageName: "TrustLedger in-app support",
+      sourceTag: "support_ticket",
+    });
+    if (!result.ok) {
       return NextResponse.json(
         { error: "Could not submit ticket. Try again." },
         { status: 502 },
