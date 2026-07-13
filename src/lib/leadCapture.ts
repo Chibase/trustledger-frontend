@@ -105,7 +105,7 @@ export async function verifyFrappeApiAuth(): Promise<{
       `${base}/api/method/frappe.auth.get_logged_user`,
       {
         method: "GET",
-        headers: frappeAuthHeaders(pair.key, pair.secret, mode),
+        headers: frappeAuthHeaders(pair!.key, pair!.secret, mode),
         cache: "no-store",
       },
     );
