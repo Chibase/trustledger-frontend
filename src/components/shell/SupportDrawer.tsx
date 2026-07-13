@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
 import {
   SUPPORT_CATEGORIES,
   type SupportCategoryCode,
@@ -29,11 +30,13 @@ export function SupportDrawer({
 }: SupportDrawerProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { getToken } = useRecaptcha("support_ticket");
   const [open, setOpen] = useState(false);
   const [category, setCategory] =
     useState<SupportCategoryCode>("SESSION_EXPIRED");
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [health, setHealth] = useState<HealthSnapshot | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,6 +90,7 @@ export function SupportDrawer({
     }
 
     setSubmitting(true);
+    const captchaToken = await getToken();
     try {
       const res = await fetch("/api/support/ticket", {
         method: "POST",
@@ -101,6 +105,8 @@ export function SupportDrawer({
           mode,
           userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
           health,
+          company_url: honeypot,
+          captchaToken,
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -223,7 +229,8 @@ export function SupportDrawer({
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={submitTicket} className="space-y-3">
+                  <form onSubmit={submitTicket} className="relative space-y-3">
+                    <HoneypotField value={honeypot} onChange={setHoneypot} />
                     <p className="text-xs font-semibold uppercase tracking-wide text-tl-ink-muted">
                       Escalate to support
                     </p>

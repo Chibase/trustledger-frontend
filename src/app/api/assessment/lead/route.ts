@@ -1,14 +1,22 @@
-import { NextResponse } from "next/server";
-import type { AssessmentLeadPayload } from "@/types/assessment";
-import { isWorkEmail } from "@/data/assessment";
 import {
   hubspotConfigured,
   isProductionRuntime,
   siteBaseUrl,
   submitHubSpotLead,
 } from "@/lib/hubspot";
+import {
+  assertLeadFormGuards,
+  normalizeComment,
+} from "@/lib/formGuard";
+import type { AssessmentLeadPayload } from "@/types/assessment";
+import { isWorkEmail } from "@/data/assessment";
+import { NextResponse } from "next/server";
 
-function isValidPayload(body: unknown): body is AssessmentLeadPayload {
+function isValidPayload(body: unknown): body is AssessmentLeadPayload & {
+  company_url?: string;
+  captchaToken?: string;
+  comment?: string;
+} {
   if (!body || typeof body !== "object") return false;
   const b = body as Record<string, unknown>;
   return (
@@ -27,7 +35,10 @@ function isValidPayload(body: unknown): body is AssessmentLeadPayload {
   );
 }
 
-function buildAssessmentMessage(payload: AssessmentLeadPayload): string {
+function buildAssessmentMessage(
+  payload: AssessmentLeadPayload,
+  comment: string,
+): string {
   const scores = Object.entries(payload.dimensionScores)
     .map(([id, score]) => `${id}:${score}`)
     .join(", ");
@@ -38,7 +49,8 @@ function buildAssessmentMessage(payload: AssessmentLeadPayload): string {
     : "none";
 
   return [
-    `SRM Assessment score ${payload.overallScore}/100 (${payload.riskBand}).`,
+    `[Source: assessment] SRM Assessment score ${payload.overallScore}/100 (${payload.riskBand}).`,
+    `Comment: ${comment}`,
     `Top priorities: ${payload.topPriorities.join(", ") || "n/a"}.`,
     `Dimension scores: ${scores || "n/a"}.`,
     payload.sector ? `Sector: ${payload.sector}.` : null,
@@ -61,8 +73,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
+  const guard = await assertLeadFormGuards(request, {
+    routeKey: "assessment-lead",
+    honeypot: body.company_url,
+    captchaToken: body.captchaToken,
+    captchaAction: "assessment_lead",
+  });
+  if (!guard.ok) {
+    if (guard.silent) return NextResponse.json({ ok: true });
+    return NextResponse.json({ error: guard.error }, { status: guard.status });
+  }
+
   const name = body.name.trim();
   const email = body.email.trim().toLowerCase();
+  const comment = normalizeComment(body.comment, 10);
 
   if (!isWorkEmail(email)) {
     return NextResponse.json(
@@ -74,12 +98,23 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!comment) {
+    return NextResponse.json(
+      {
+        error:
+          "Please share a short comment on what you need help with (at least 10 characters).",
+      },
+      { status: 400 },
+    );
+  }
+
   const payload: AssessmentLeadPayload = {
     ...body,
     name,
     email,
     organization: body.organization?.trim() || undefined,
     sector: body.sector?.trim() || undefined,
+    comment,
   };
 
   const webhook = process.env.ASSESSMENT_WEBHOOK_URL;
@@ -90,7 +125,7 @@ export async function POST(request: Request) {
         email: payload.email,
         name: payload.name,
         company: payload.organization,
-        message: buildAssessmentMessage(payload),
+        message: buildAssessmentMessage(payload, comment),
         pageUri: `${siteBaseUrl()}${payload.landingPath}`,
         pageName: "SRM Readiness Assessment",
       });

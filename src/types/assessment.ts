@@ -68,4 +68,6 @@ export type AssessmentLeadPayload = {
   };
   landingPath: string;
   completedAt: string;
+  /** Required visitor note / intent (anti-spam + sales context). */
+  comment?: string;
 };

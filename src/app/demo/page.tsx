@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
 import { isWorkEmail } from "@/data/assessment";
 import { captureUtmFromSearchParams, formatUtmSummary, readUtm } from "@/lib/utm";
 import { USER_ROLES, type UserRole } from "@/types/rbac";
@@ -19,10 +20,13 @@ function DemoForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = sanitizeNext(searchParams.get("next"));
+  const { getToken } = useRecaptcha("demo_entry");
   const [role, setRole] = useState<UserRole>("community");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
+  const [comment, setComment] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [utmLabel, setUtmLabel] = useState("None");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,9 +56,16 @@ function DemoForm() {
       );
       return;
     }
+    if (comment.trim().length < 10) {
+      setError(
+        "Please share a short note on what you want to see or solve (at least 10 characters).",
+      );
+      return;
+    }
 
     setSubmitting(true);
     const utm = readUtm();
+    const captchaToken = await getToken();
 
     try {
       const res = await fetch("/api/demo/lead", {
@@ -64,6 +75,9 @@ function DemoForm() {
           name: name.trim(),
           email: email.trim().toLowerCase(),
           organization: organization.trim() || undefined,
+          comment: comment.trim(),
+          company_url: honeypot,
+          captchaToken,
           role,
           source: "demo_entry",
           utm: utm
@@ -83,7 +97,6 @@ function DemoForm() {
         return;
       }
 
-      // Mark captured so the in-app soft gate does not re-ask immediately
       window.localStorage.setItem("tl-lead-email", email.trim().toLowerCase());
       window.localStorage.setItem("tl-lead-dismissed", "1");
       window.localStorage.setItem("tl-demo-lead-source", "demo_entry");
@@ -112,8 +125,9 @@ function DemoForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="mt-8 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-5"
+        className="relative mt-8 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-5"
       >
+        <HoneypotField value={honeypot} onChange={setHoneypot} />
         <div>
           <label htmlFor="demo-name" className="mb-1 block text-sm font-medium">
             Name
@@ -154,6 +168,22 @@ function DemoForm() {
             autoComplete="organization"
             value={organization}
             onChange={(e) => setOrganization(e.target.value)}
+            className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label htmlFor="demo-comment" className="mb-1 block text-sm font-medium">
+            What do you want to see or solve?
+          </label>
+          <textarea
+            id="demo-comment"
+            name="comment"
+            required
+            minLength={10}
+            rows={3}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="e.g. Ward grievance intake and SLA reporting for two pilot projects"
             className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
           />
         </div>

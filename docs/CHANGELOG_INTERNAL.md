@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-13 — Lead form spam + required comments
+
+- Honeypot + rate limit + optional reCAPTCHA v3 on demo/assessment/support APIs
+- Required intent comment on demo entry + assessment unlock
+- `docs/LEAD_FORMS.md` for incentives/follow-up (CRM-side, not form-side)
+
 ## 2026-07-12 — Platform Operator sole live control
 
 - ADR-013 + `docs/PLATFORM_OPERATOR.md`: live login / `/app` / Frappe BFF limited to `PLATFORM_OPERATOR_EMAILS` when `PLATFORM_OPERATOR_ONLY=1`

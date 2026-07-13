@@ -13,6 +13,7 @@ import {
   isWorkEmail,
   scoreAssessment,
 } from "@/data/assessment";
+import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
 import { captureUtmFromSearchParams, readUtm } from "@/lib/utm";
 import type {
   AssessmentAnswers,
@@ -63,10 +64,13 @@ export function AssessmentWizard() {
   const [answers, setAnswers] = useState<AssessmentAnswers>({});
   const [result, setResult] = useState<AssessmentResult | null>(null);
 
+  const { getToken } = useRecaptcha("assessment_lead");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
   const [sector, setSector] = useState("");
+  const [comment, setComment] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [leadError, setLeadError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -156,6 +160,12 @@ export function AssessmentWizard() {
       );
       return;
     }
+    if (comment.trim().length < 10) {
+      setLeadError(
+        "Please share a short comment on what you need help with (at least 10 characters).",
+      );
+      return;
+    }
     if (!result) {
       setLeadError("Complete the questions before requesting results.");
       return;
@@ -165,12 +175,17 @@ export function AssessmentWizard() {
     const dimensionScores = Object.fromEntries(
       result.dimensions.map((d) => [d.id, d.score]),
     ) as AssessmentLeadPayload["dimensionScores"];
+    const captchaToken = await getToken();
 
-    const payload: AssessmentLeadPayload = {
+    const payload: AssessmentLeadPayload & {
+      company_url?: string;
+      captchaToken?: string;
+    } = {
       name: name.trim(),
       email: email.trim().toLowerCase(),
       organization: organization.trim() || undefined,
       sector: sector || undefined,
+      comment: comment.trim(),
       overallScore: result.overallScore,
       riskBand: result.riskBand,
       dimensionScores,
@@ -187,6 +202,8 @@ export function AssessmentWizard() {
         : undefined,
       landingPath: "/assessment",
       completedAt: result.completedAt,
+      company_url: honeypot,
+      captchaToken,
     };
 
     setSubmitting(true);
@@ -227,6 +244,8 @@ export function AssessmentWizard() {
     setEmail("");
     setOrganization("");
     setSector("");
+    setComment("");
+    setHoneypot("");
     setIndex(0);
     setStep("intro");
   }
@@ -357,8 +376,9 @@ export function AssessmentWizard() {
 
           <form
             onSubmit={submitLead}
-            className="mt-6 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-5"
+            className="relative mt-6 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-5"
           >
+            <HoneypotField value={honeypot} onChange={setHoneypot} />
             <div>
               <label htmlFor="lead-name" className="mb-1 block text-sm font-medium">
                 Name
@@ -428,6 +448,25 @@ export function AssessmentWizard() {
                   </option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label
+                htmlFor="lead-comment"
+                className="mb-1 block text-sm font-medium"
+              >
+                What prompted this assessment?
+              </label>
+              <textarea
+                id="lead-comment"
+                name="comment"
+                required
+                minLength={10}
+                rows={3}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="e.g. Escalating community complaints and weak SLA visibility on current projects"
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              />
             </div>
 
             {leadError && (

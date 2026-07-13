@@ -4,6 +4,7 @@ import {
   type SupportCategoryCode,
 } from "@/data/supportCatalog";
 import { isWorkEmail } from "@/data/assessment";
+import { assertLeadFormGuards } from "@/lib/formGuard";
 import {
   hubspotConfigured,
   isProductionRuntime,
@@ -21,6 +22,8 @@ type SupportTicketBody = {
   mode?: string;
   userAgent?: string;
   health?: unknown;
+  company_url?: string;
+  captchaToken?: string;
 };
 
 function isCategory(value: string): value is SupportCategoryCode {
@@ -52,6 +55,22 @@ export async function POST(request: Request) {
       { error: "Provide a work email, category, and short description." },
       { status: 400 },
     );
+  }
+
+  const guard = await assertLeadFormGuards(request, {
+    routeKey: "support-ticket",
+    honeypot: body.company_url,
+    captchaToken: body.captchaToken,
+    captchaAction: "support_ticket",
+  });
+  if (!guard.ok) {
+    if (guard.silent) {
+      return NextResponse.json({
+        ok: true,
+        ticketId: `TL-SUP-${Date.now().toString(36).toUpperCase()}`,
+      });
+    }
+    return NextResponse.json({ error: guard.error }, { status: guard.status });
   }
 
   const email = body.email.trim().toLowerCase();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
 import { formatUtmSummary, readUtm } from "@/lib/utm";
 
 const STORAGE_KEY = "tl-demo-actions";
@@ -21,8 +22,10 @@ export function trackDemoAction() {
 }
 
 export function DemoLeadGate() {
+  const { getToken } = useRecaptcha("demo_soft_gate");
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,12 +64,19 @@ export function DemoLeadGate() {
     setError(null);
     setSubmitting(true);
     const utm = readUtm();
+    const captchaToken = await getToken();
 
     try {
       const res = await fetch("/api/demo/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, utm, source: "demo_soft_gate" }),
+        body: JSON.stringify({
+          email,
+          utm,
+          source: "demo_soft_gate",
+          company_url: honeypot,
+          captchaToken,
+        }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
@@ -118,7 +128,8 @@ export function DemoLeadGate() {
               TrustLedger walkthrough.
             </p>
             <p className="mt-2 text-xs text-tl-ink-muted">Source: {utmLabel}</p>
-            <form onSubmit={submit} className="mt-4 space-y-3">
+            <form onSubmit={submit} className="relative mt-4 space-y-3">
+              <HoneypotField value={honeypot} onChange={setHoneypot} />
               <input
                 type="email"
                 required

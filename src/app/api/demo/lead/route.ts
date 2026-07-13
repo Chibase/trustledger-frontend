@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { isWorkEmail } from "@/data/assessment";
 import {
+  assertLeadFormGuards,
+  normalizeComment,
+} from "@/lib/formGuard";
+import {
   hubspotConfigured,
   isProductionRuntime,
   siteBaseUrl,
@@ -13,6 +17,9 @@ type DemoLeadBody = {
   name?: string;
   organization?: string;
   role?: string;
+  comment?: string;
+  company_url?: string;
+  captchaToken?: string;
   source?: "demo_entry" | "demo_soft_gate";
   utm?: Partial<UtmAttribution>;
 };
@@ -35,11 +42,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
+  const source = body.source === "demo_soft_gate" ? "demo_soft_gate" : "demo_entry";
+
+  const guard = await assertLeadFormGuards(request, {
+    routeKey: "demo-lead",
+    honeypot: body.company_url,
+    captchaToken: body.captchaToken,
+    captchaAction: source === "demo_entry" ? "demo_entry" : "demo_soft_gate",
+  });
+  if (!guard.ok) {
+    if (guard.silent) return NextResponse.json({ ok: true });
+    return NextResponse.json({ error: guard.error }, { status: guard.status });
+  }
+
   const email = body.email.trim().toLowerCase();
   const name = body.name?.trim();
   const organization = body.organization?.trim();
   const role = body.role?.trim();
-  const source = body.source === "demo_soft_gate" ? "demo_soft_gate" : "demo_entry";
+  const comment =
+    source === "demo_entry" ? normalizeComment(body.comment, 10) : normalizeComment(body.comment ?? "", 0);
 
   if (!isWorkEmail(email)) {
     return NextResponse.json(
@@ -58,6 +79,16 @@ export async function POST(request: Request) {
     );
   }
 
+  if (source === "demo_entry" && !comment) {
+    return NextResponse.json(
+      {
+        error:
+          "Please share a short note on what you want to see or solve (at least 10 characters).",
+      },
+      { status: 400 },
+    );
+  }
+
   const utm = body.utm
     ? [body.utm.source, body.utm.medium, body.utm.campaign]
         .filter(Boolean)
@@ -68,6 +99,7 @@ export async function POST(request: Request) {
     `[Source: ${source}] TrustLedger interactive demo lead.`,
     role ? `Demo role: ${role}.` : null,
     organization ? `Organization: ${organization}.` : null,
+    comment ? `Comment: ${comment}` : null,
     `UTM: ${utm}.`,
     `Captured: ${new Date().toISOString()}.`,
   ]
@@ -111,7 +143,13 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   } else {
-    console.info("[demo/lead] accepted (local)", { email, source, role, utm });
+    console.info("[demo/lead] accepted (local)", {
+      email,
+      source,
+      role,
+      utm,
+      comment,
+    });
   }
 
   return NextResponse.json({ ok: true });
