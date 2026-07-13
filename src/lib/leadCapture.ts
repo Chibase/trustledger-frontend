@@ -18,6 +18,14 @@ function frappeBase(): string {
   ).replace(/\/$/, "");
 }
 
+function frappeAuthHeaders(key: string, secret: string): HeadersInit {
+  return {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `token ${key}:${secret}`,
+  };
+}
+
 export function frappeLeadConfigured(): boolean {
   return Boolean(
     process.env.FRAPPE_API_KEY && process.env.FRAPPE_API_SECRET,
@@ -30,9 +38,21 @@ function leadBackendPreference(): "frappe" | "hubspot" | "auto" {
   return "auto";
 }
 
+function firstNameFrom(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/);
+  return parts[0] || fullName;
+}
+
+function lastNameFrom(fullName: string): string | undefined {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length < 2) return undefined;
+  return parts.slice(1).join(" ");
+}
+
 /**
- * Create a CRM Lead on Frappe Cloud via Resource API.
- * Requires CRM (or ERPNext) Lead DocType + API key with Lead create rights.
+ * Create a Frappe CRM "CRM Lead" via Resource API.
+ * Payload is kept minimal — Link fields (source) are optional and only set
+ * when FRAPPE_LEAD_SOURCE exists as a CRM Lead Source name.
  */
 export async function submitFrappeLead(
   input: ProductLeadInput,
@@ -44,7 +64,7 @@ export async function submitFrappeLead(
   }
 
   const customMethod = process.env.FRAPPE_LEAD_METHOD?.trim();
-  const source =
+  const sourceTag =
     input.sourceTag ||
     input.pageName ||
     "Website";
@@ -60,71 +80,78 @@ export async function submitFrappeLead(
       : `/api/method/${customMethod}`;
     return fetch(`${frappeBase()}${path}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `token ${key}:${secret}`,
-      },
+      headers: frappeAuthHeaders(key, secret),
       body: JSON.stringify({
         email: input.email,
         name: leadName,
         company: input.company,
         message: input.message,
-        source,
+        source: sourceTag,
         page_uri: input.pageUri,
         page_name: input.pageName,
       }),
     });
   }
 
-  // Default: Frappe CRM "CRM Lead" (not ERPNext "Lead")
-  const doctype = (
-    process.env.FRAPPE_LEAD_DOCTYPE ||
-    "CRM Lead"
-  ).trim();
+  const doctype = (process.env.FRAPPE_LEAD_DOCTYPE || "CRM Lead").trim();
   const encoded = encodeURIComponent(doctype);
+  const status = (process.env.FRAPPE_LEAD_STATUS || "New").trim();
+  const leadSource = process.env.FRAPPE_LEAD_SOURCE?.trim();
 
   const first = firstNameFrom(leadName);
   const last = lastNameFrom(leadName);
 
-  return fetch(`${frappeBase()}/api/resource/${encoded}`, {
+  const body: Record<string, unknown> = {
+    doctype,
+    first_name: first.slice(0, 140),
+    email: input.email,
+    status,
+  };
+
+  if (last) body.last_name = last.slice(0, 140);
+  if (input.company?.trim()) {
+    body.organization = input.company.trim().slice(0, 140);
+  }
+  if (leadSource) {
+    body.source = leadSource;
+  }
+
+  const res = await fetch(`${frappeBase()}/api/resource/${encoded}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      Authorization: `token ${key}:${secret}`,
-    },
-    body: JSON.stringify({
-      doctype,
-      first_name: first.slice(0, 140),
-      last_name: last?.slice(0, 140),
-      lead_name: leadName.slice(0, 140),
-      email: input.email,
-      organization: input.company?.slice(0, 140) || undefined,
-      company_name: input.company?.slice(0, 140) || undefined,
-      source: "Website",
-      status: "New",
-      // Extra context for sales — field may be ignored if not on DocType
-      description: [
-        `Source: ${source}`,
-        `Page: ${input.pageName} (${input.pageUri})`,
-        input.message,
-      ]
-        .filter(Boolean)
-        .join("\n"),
-    }),
+    headers: frappeAuthHeaders(key, secret),
+    body: JSON.stringify(body),
   });
-}
 
-function firstNameFrom(fullName: string): string {
-  const parts = fullName.trim().split(/\s+/);
-  return parts[0] || fullName;
-}
+  if (!res.ok) return res;
 
-function lastNameFrom(fullName: string): string | undefined {
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length < 2) return undefined;
-  return parts.slice(1).join(" ");
+  // Attach intake notes as a Comment (CRM Lead has no description field)
+  try {
+    const payload = (await res.clone().json()) as {
+      data?: { name?: string };
+    };
+    const docname = payload.data?.name;
+    if (docname && input.message?.trim()) {
+      await fetch(`${frappeBase()}/api/resource/Comment`, {
+        method: "POST",
+        headers: frappeAuthHeaders(key, secret),
+        body: JSON.stringify({
+          doctype: "Comment",
+          comment_type: "Comment",
+          reference_doctype: doctype,
+          reference_name: docname,
+          content: [
+            `<p><b>${sourceTag}</b> · ${input.pageName}</p>`,
+            `<p>${input.pageUri}</p>`,
+            `<p>${input.message.replace(/</g, "&lt;")}</p>`,
+          ].join(""),
+        }),
+      });
+    }
+  } catch (err) {
+    console.error("[lead] Frappe comment attach failed", err);
+  }
+
+  return res;
 }
 
 export type LeadSubmitResult = {
@@ -154,18 +181,18 @@ export async function submitProductLead(
         return { ok: true, backend: "frappe", status: res.status };
       }
       const detail = await res.text().catch(() => "");
-      console.error("[lead] Frappe failed", res.status, detail.slice(0, 400));
-      if (!tryHubspot) {
+      console.error("[lead] Frappe failed", res.status, detail.slice(0, 800));
+      if (!tryHubspot || pref === "frappe") {
         return {
           ok: false,
           backend: "frappe",
           status: res.status,
-          detail: detail.slice(0, 200),
+          detail: detail.slice(0, 400),
         };
       }
     } catch (err) {
       console.error("[lead] Frappe error", err);
-      if (!tryHubspot) {
+      if (!tryHubspot || pref === "frappe") {
         return {
           ok: false,
           backend: "frappe",

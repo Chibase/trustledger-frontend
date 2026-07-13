@@ -130,10 +130,16 @@ export async function POST(request: Request) {
     });
     if (!result.ok) {
       return NextResponse.json(
-        { error: "Lead delivery failed. Please try again." },
+        {
+          error: "Lead delivery failed. Please try again.",
+          backend: result.backend,
+          detail:
+            process.env.LEAD_DEBUG === "1" ? result.detail : undefined,
+        },
         { status: 502 },
       );
     }
+    return NextResponse.json({ ok: true, backend: result.backend });
   } else if (webhook) {
     try {
       const res = await fetch(webhook, {

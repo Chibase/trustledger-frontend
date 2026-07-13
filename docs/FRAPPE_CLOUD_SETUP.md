@@ -102,6 +102,17 @@ Save / reload site after change.
 
 Keep desk links as `https://app.trustledger.co.za` (already aligned).
 
-## 5. What stays on HubSpot until you flip
+## Troubleshooting: lead not in CRM
 
-If `FRAPPE_API_*` is unset, HubSpot Free remains the lead path. After Frappe lead smoke, set `LEAD_BACKEND=frappe` and retire HubSpot forms when ready.
+If the demo form returns OK but nothing appears in **CRM → Leads**:
+
+1. Vercel likely fell back to HubSpot (`LEAD_BACKEND=auto`). Set temporarily:
+   ```bash
+   LEAD_BACKEND=frappe
+   LEAD_DEBUG=1
+   ```
+   Redeploy, submit again — you should get a **502** with `detail` if Frappe rejects the create.
+2. API user roles: add **Sales User** or **System Manager** (must **create** CRM Lead).
+3. Desk → **CRM Lead Status**: ensure a status named **`New`** exists (default).
+4. Do **not** set `FRAPPE_LEAD_SOURCE` until Desk → **CRM Lead Source** has that exact name (e.g. create `Website` first).
+5. Frappe Desk → **Error Log** after a failed submit.
