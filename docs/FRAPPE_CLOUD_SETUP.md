@@ -9,9 +9,24 @@
 |-------|------|------|
 | Marketing + email | Webway | `trustledger.co.za` |
 | Product UI | Vercel | demo / assessment / `/app` |
-| Backend + CRM | **Frappe Cloud** | Desk, later Helpdesk / `srm-core`. **Lead intake needs CRM app or HubSpot until then.** |
+| Backend + CRM | **Frappe Cloud** | Desk + **Frappe CRM** (install) + later Helpdesk / `srm-core` |
 
-## 1. Vercel env (do now — works without CRM)
+## 0. Install Frappe CRM (do this on Cloud)
+
+You install from the **Frappe Cloud dashboard** (not from this Vercel repo).
+
+### If the site is on a shared/public bench
+1. Open [site Domains/Overview](https://cloud.frappe.io/dashboard/sites/erpnext-ruy-goy.jh.frappe.cloud) → **Apps** tab.  
+2. **Install App** → choose **CRM** (or open [Marketplace CRM](https://cloud.frappe.io/marketplace/apps/crm) → Install on this site).  
+3. Wait until status is **Installed / Active**.  
+4. Open Desk `https://app.trustledger.co.za` → you should see a **CRM** workspace.
+
+### If the site is on a **private bench group**
+1. Bench Group → **Apps** → **Add App** → **CRM**.  
+2. **Update Available** → deploy/update including this site.  
+3. Site → **Apps** → **Install App** → **CRM**.
+
+After install, tell me — we wire API keys and confirm Lead create from the demo form.
 
 Production → Settings → Environment Variables:
 
@@ -27,16 +42,17 @@ Redeploy. Live login BFF and `/status` will hit Frappe Cloud.
 ### Option A (now): keep HubSpot Free
 No Frappe CRM required. Leave `FRAPPE_API_KEY` unset. Demo/assessment/support keep posting to HubSpot.
 
-### Option B: install **Frappe CRM** on this site
-Cloud dashboard → site → **Apps** (or Marketplace) → install **CRM**.  
-Then Desk shows **Lead** / CRM workspace.
+### Option B: install **Frappe CRM** on this site (recommended)
+See **§0** above. Frappe CRM uses DocType **`CRM Lead`** (our API defaults to that).
 
-1. User → API Access → **API Key + Secret** (user must create Lead).
+1. User → API Access → **API Key + Secret** (user must create **CRM Lead**).
 2. Vercel:
    ```bash
    FRAPPE_API_KEY=...
    FRAPPE_API_SECRET=...
    LEAD_BACKEND=auto
+   # optional override:
+   # FRAPPE_LEAD_DOCTYPE=CRM Lead
    ```
    `auto` = Frappe first, HubSpot fallback.  
    After smoke: `LEAD_BACKEND=frappe` to stop HubSpot.

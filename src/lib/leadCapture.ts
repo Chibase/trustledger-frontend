@@ -77,8 +77,17 @@ export async function submitFrappeLead(
     });
   }
 
-  // Default: CRM Lead resource
-  return fetch(`${frappeBase()}/api/resource/Lead`, {
+  // Default: Frappe CRM "CRM Lead" (not ERPNext "Lead")
+  const doctype = (
+    process.env.FRAPPE_LEAD_DOCTYPE ||
+    "CRM Lead"
+  ).trim();
+  const encoded = encodeURIComponent(doctype);
+
+  const first = firstNameFrom(leadName);
+  const last = lastNameFrom(leadName);
+
+  return fetch(`${frappeBase()}/api/resource/${encoded}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -86,13 +95,17 @@ export async function submitFrappeLead(
       Authorization: `token ${key}:${secret}`,
     },
     body: JSON.stringify({
-      doctype: "Lead",
+      doctype,
+      first_name: first.slice(0, 140),
+      last_name: last?.slice(0, 140),
       lead_name: leadName.slice(0, 140),
-      email_id: input.email,
+      email: input.email,
+      organization: input.company?.slice(0, 140) || undefined,
       company_name: input.company?.slice(0, 140) || undefined,
       source: "Website",
-      status: "Lead",
-      notes: [
+      status: "New",
+      // Extra context for sales — field may be ignored if not on DocType
+      description: [
         `Source: ${source}`,
         `Page: ${input.pageName} (${input.pageUri})`,
         input.message,
@@ -101,6 +114,17 @@ export async function submitFrappeLead(
         .join("\n"),
     }),
   });
+}
+
+function firstNameFrom(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/);
+  return parts[0] || fullName;
+}
+
+function lastNameFrom(fullName: string): string | undefined {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length < 2) return undefined;
+  return parts.slice(1).join(" ");
 }
 
 export type LeadSubmitResult = {
