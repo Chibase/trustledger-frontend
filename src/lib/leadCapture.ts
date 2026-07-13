@@ -182,7 +182,7 @@ export async function submitProductLead(
       }
       const detail = await res.text().catch(() => "");
       console.error("[lead] Frappe failed", res.status, detail.slice(0, 800));
-      if (!tryHubspot || pref === "frappe") {
+      if (!tryHubspot) {
         return {
           ok: false,
           backend: "frappe",
@@ -192,7 +192,7 @@ export async function submitProductLead(
       }
     } catch (err) {
       console.error("[lead] Frappe error", err);
-      if (!tryHubspot || pref === "frappe") {
+      if (!tryHubspot) {
         return {
           ok: false,
           backend: "frappe",
