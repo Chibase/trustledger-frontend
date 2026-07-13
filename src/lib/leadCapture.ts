@@ -10,12 +10,27 @@ export type ProductLeadInput = HubSpotLeadInput & {
   sourceTag?: string;
 };
 
-function frappeBase(): string {
+export function frappeBase(): string {
   return (
     process.env.FRAPPE_BASE_URL ||
     process.env.NEXT_PUBLIC_API_BASE_URL ||
     API_BASE_URL
   ).replace(/\/$/, "");
+}
+
+/** Trim + strip accidental quotes/newlines from Vercel paste. */
+export function cleanSecret(raw: string | undefined): string {
+  return (raw || "")
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .replace(/\r?\n/g, "");
+}
+
+export function frappeKeyPair(): { key: string; secret: string } | null {
+  const key = cleanSecret(process.env.FRAPPE_API_KEY);
+  const secret = cleanSecret(process.env.FRAPPE_API_SECRET);
+  if (!key || !secret) return null;
+  return { key, secret };
 }
 
 function frappeAuthHeaders(key: string, secret: string): HeadersInit {
@@ -27,9 +42,7 @@ function frappeAuthHeaders(key: string, secret: string): HeadersInit {
 }
 
 export function frappeLeadConfigured(): boolean {
-  return Boolean(
-    process.env.FRAPPE_API_KEY && process.env.FRAPPE_API_SECRET,
-  );
+  return Boolean(frappeKeyPair());
 }
 
 function leadBackendPreference(): "frappe" | "hubspot" | "auto" {
@@ -49,6 +62,69 @@ function lastNameFrom(fullName: string): string | undefined {
   return parts.slice(1).join(" ");
 }
 
+/** Server-side auth probe — never returns key/secret values. */
+export async function verifyFrappeApiAuth(): Promise<{
+  configured: boolean;
+  base: string;
+  keyLength: number;
+  secretLength: number;
+  ok: boolean;
+  user?: string;
+  status?: number;
+  detail?: string;
+}> {
+  const pair = frappeKeyPair();
+  const base = frappeBase();
+  if (!pair) {
+    return {
+      configured: false,
+      base,
+      keyLength: 0,
+      secretLength: 0,
+      ok: false,
+      detail: "FRAPPE_API_KEY / FRAPPE_API_SECRET missing on this deployment",
+    };
+  }
+
+  try {
+    const res = await fetch(
+      `${base}/api/method/frappe.auth.get_logged_user`,
+      {
+        method: "GET",
+        headers: frappeAuthHeaders(pair.key, pair.secret),
+        cache: "no-store",
+      },
+    );
+    const text = await res.text();
+    let user: string | undefined;
+    try {
+      const json = JSON.parse(text) as { message?: string };
+      user = typeof json.message === "string" ? json.message : undefined;
+    } catch {
+      /* ignore */
+    }
+    return {
+      configured: true,
+      base,
+      keyLength: pair.key.length,
+      secretLength: pair.secret.length,
+      ok: res.ok && Boolean(user) && user !== "Guest",
+      user: user && user !== "Guest" ? user : undefined,
+      status: res.status,
+      detail: res.ok ? undefined : text.slice(0, 300),
+    };
+  } catch (err) {
+    return {
+      configured: true,
+      base,
+      keyLength: pair.key.length,
+      secretLength: pair.secret.length,
+      ok: false,
+      detail: err instanceof Error ? err.message : "Network error",
+    };
+  }
+}
+
 /**
  * Create a Frappe CRM "CRM Lead" via Resource API.
  * Payload is kept minimal — Link fields (source) are optional and only set
@@ -57,11 +133,11 @@ function lastNameFrom(fullName: string): string | undefined {
 export async function submitFrappeLead(
   input: ProductLeadInput,
 ): Promise<Response> {
-  const key = process.env.FRAPPE_API_KEY;
-  const secret = process.env.FRAPPE_API_SECRET;
-  if (!key || !secret) {
+  const pair = frappeKeyPair();
+  if (!pair) {
     throw new Error("Frappe API key/secret not configured");
   }
+  const { key, secret } = pair;
 
   const customMethod = process.env.FRAPPE_LEAD_METHOD?.trim();
   const sourceTag =
