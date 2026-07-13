@@ -76,7 +76,7 @@ function DemoForm() {
           email: email.trim().toLowerCase(),
           organization: organization.trim() || undefined,
           comment: comment.trim(),
-          company_url: honeypot,
+          tl_hp: honeypot,
           captchaToken,
           role,
           source: "demo_entry",

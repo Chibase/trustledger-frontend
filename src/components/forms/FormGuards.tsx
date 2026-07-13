@@ -78,7 +78,11 @@ export function useRecaptcha(action: string) {
   return { enabled, ready, getToken };
 }
 
-/** Invisible honeypot — leave empty. Bots often fill it. */
+/**
+ * Invisible honeypot — leave empty.
+ * Avoid names like company_url / website: browsers and password managers
+ * autofill those and silently drop real leads (fake API success).
+ */
 export function HoneypotField({
   value,
   onChange,
@@ -91,13 +95,20 @@ export function HoneypotField({
       aria-hidden="true"
       className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
     >
-      <label htmlFor="tl-company-url">Company website</label>
+      <label htmlFor="tl-hp-field">Leave blank</label>
       <input
-        id="tl-company-url"
-        name="company_url"
+        id="tl-hp-field"
+        name="tl_hp"
         type="text"
         tabIndex={-1}
-        autoComplete="off"
+        autoComplete="new-password"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        data-lpignore="true"
+        data-1p-ignore="true"
+        data-bwignore="true"
+        data-form-type="other"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

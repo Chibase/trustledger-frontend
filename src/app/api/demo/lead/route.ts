@@ -3,6 +3,7 @@ import { isWorkEmail } from "@/data/assessment";
 import {
   assertLeadFormGuards,
   normalizeComment,
+  readHoneypot,
 } from "@/lib/formGuard";
 import { isProductionRuntime, siteBaseUrl } from "@/lib/hubspot";
 import {
@@ -18,6 +19,7 @@ type DemoLeadBody = {
   role?: string;
   comment?: string;
   company_url?: string;
+  tl_hp?: string;
   captchaToken?: string;
   source?: "demo_entry" | "demo_soft_gate";
   utm?: Partial<UtmAttribution>;
@@ -45,12 +47,15 @@ export async function POST(request: Request) {
 
   const guard = await assertLeadFormGuards(request, {
     routeKey: "demo-lead",
-    honeypot: body.company_url,
+    honeypot: readHoneypot(body as unknown as Record<string, unknown>),
     captchaToken: body.captchaToken,
     captchaAction: source === "demo_entry" ? "demo_entry" : "demo_soft_gate",
   });
   if (!guard.ok) {
-    if (guard.silent) return NextResponse.json({ ok: true });
+    if (guard.silent) {
+      console.warn("[demo/lead] honeypot tripped — lead not written");
+      return NextResponse.json({ ok: true });
+    }
     return NextResponse.json({ error: guard.error }, { status: guard.status });
   }
 

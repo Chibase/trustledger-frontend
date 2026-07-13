@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-13 — Honeypot autofill fix
+
+- Renamed lead honeypot from `company_url` → `tl_hp` (password managers were autofilling website fields and silently dropping real leads)
+- Server still accepts legacy `company_url`; logs when honeypot trips
+
 ## 2026-07-13 — Frappe Cloud cutover wiring
 
 - Lead APIs prefer Frappe CRM Lead (`FRAPPE_API_KEY`/`SECRET`) with HubSpot fallback

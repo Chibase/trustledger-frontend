@@ -4,7 +4,7 @@ import {
   type SupportCategoryCode,
 } from "@/data/supportCatalog";
 import { isWorkEmail } from "@/data/assessment";
-import { assertLeadFormGuards } from "@/lib/formGuard";
+import { assertLeadFormGuards, readHoneypot } from "@/lib/formGuard";
 import { isProductionRuntime, siteBaseUrl } from "@/lib/hubspot";
 import {
   leadCaptureConfigured,
@@ -22,6 +22,7 @@ type SupportTicketBody = {
   userAgent?: string;
   health?: unknown;
   company_url?: string;
+  tl_hp?: string;
   captchaToken?: string;
 };
 
@@ -58,12 +59,13 @@ export async function POST(request: Request) {
 
   const guard = await assertLeadFormGuards(request, {
     routeKey: "support-ticket",
-    honeypot: body.company_url,
+    honeypot: readHoneypot(body as unknown as Record<string, unknown>),
     captchaToken: body.captchaToken,
     captchaAction: "support_ticket",
   });
   if (!guard.ok) {
     if (guard.silent) {
+      console.warn("[support/ticket] honeypot tripped — ticket not written");
       return NextResponse.json({
         ok: true,
         ticketId: `TL-SUP-${Date.now().toString(36).toUpperCase()}`,

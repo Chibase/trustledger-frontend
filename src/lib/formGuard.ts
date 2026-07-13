@@ -6,6 +6,15 @@ export function honeypotFilled(value: unknown): boolean {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+/** Prefer `tl_hp`; still accept legacy `company_url` from older clients. */
+export function readHoneypot(
+  body: Record<string, unknown> | null | undefined,
+): unknown {
+  if (!body) return undefined;
+  if ("tl_hp" in body) return body.tl_hp;
+  return body.company_url;
+}
+
 export function normalizeComment(value: unknown, min = 10): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim().replace(/\s+/g, " ");
