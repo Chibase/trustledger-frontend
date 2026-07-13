@@ -18,12 +18,13 @@ export function frappeBase(): string {
   ).replace(/\/$/, "");
 }
 
-/** Trim + strip accidental quotes/newlines from Vercel paste. */
+/** Trim + strip accidental quotes/whitespace/invisible chars from Vercel paste. */
 export function cleanSecret(raw: string | undefined): string {
   return (raw || "")
+    .replace(/^\uFEFF/, "")
     .trim()
     .replace(/^["']|["']$/g, "")
-    .replace(/\r?\n/g, "");
+    .replace(/[\s\u200B-\u200D\uFEFF]/g, "");
 }
 
 export function frappeKeyPair(): { key: string; secret: string } | null {
@@ -33,7 +34,19 @@ export function frappeKeyPair(): { key: string; secret: string } | null {
   return { key, secret };
 }
 
-function frappeAuthHeaders(key: string, secret: string): HeadersInit {
+function frappeAuthHeaders(
+  key: string,
+  secret: string,
+  mode: "token" | "basic" = "token",
+): HeadersInit {
+  if (mode === "basic") {
+    const encoded = Buffer.from(`${key}:${secret}`).toString("base64");
+    return {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Basic ${encoded}`,
+    };
+  }
   return {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -71,6 +84,7 @@ export async function verifyFrappeApiAuth(): Promise<{
   ok: boolean;
   user?: string;
   status?: number;
+  mode?: "token" | "basic";
   detail?: string;
 }> {
   const pair = frappeKeyPair();
@@ -86,12 +100,12 @@ export async function verifyFrappeApiAuth(): Promise<{
     };
   }
 
-  try {
+  async function probe(mode: "token" | "basic") {
     const res = await fetch(
       `${base}/api/method/frappe.auth.get_logged_user`,
       {
         method: "GET",
-        headers: frappeAuthHeaders(pair.key, pair.secret),
+        headers: frappeAuthHeaders(pair.key, pair.secret, mode),
         cache: "no-store",
       },
     );
@@ -104,14 +118,32 @@ export async function verifyFrappeApiAuth(): Promise<{
       /* ignore */
     }
     return {
-      configured: true,
-      base,
-      keyLength: pair.key.length,
-      secretLength: pair.secret.length,
       ok: res.ok && Boolean(user) && user !== "Guest",
       user: user && user !== "Guest" ? user : undefined,
       status: res.status,
       detail: res.ok ? undefined : text.slice(0, 300),
+      mode,
+    };
+  }
+
+  try {
+    const tokenProbe = await probe("token");
+    if (tokenProbe.ok) {
+      return {
+        configured: true,
+        base,
+        keyLength: pair.key.length,
+        secretLength: pair.secret.length,
+        ...tokenProbe,
+      };
+    }
+    const basicProbe = await probe("basic");
+    return {
+      configured: true,
+      base,
+      keyLength: pair.key.length,
+      secretLength: pair.secret.length,
+      ...(basicProbe.ok ? basicProbe : tokenProbe),
     };
   } catch (err) {
     return {
@@ -139,6 +171,30 @@ export async function submitFrappeLead(
   }
   const { key, secret } = pair;
 
+  async function authedFetch(
+    url: string,
+    init: RequestInit,
+  ): Promise<Response> {
+    const tokenRes = await fetch(url, {
+      ...init,
+      headers: {
+        ...frappeAuthHeaders(key, secret, "token"),
+        ...(init.headers || {}),
+      },
+    });
+    if (tokenRes.status !== 401 && tokenRes.status !== 403) {
+      return tokenRes;
+    }
+    // Retry once with Basic auth (some proxies mishandle token header)
+    return fetch(url, {
+      ...init,
+      headers: {
+        ...frappeAuthHeaders(key, secret, "basic"),
+        ...(init.headers || {}),
+      },
+    });
+  }
+
   const customMethod = process.env.FRAPPE_LEAD_METHOD?.trim();
   const sourceTag =
     input.sourceTag ||
@@ -154,9 +210,8 @@ export async function submitFrappeLead(
     const path = customMethod.startsWith("/")
       ? customMethod
       : `/api/method/${customMethod}`;
-    return fetch(`${frappeBase()}${path}`, {
+    return authedFetch(`${frappeBase()}${path}`, {
       method: "POST",
-      headers: frappeAuthHeaders(key, secret),
       body: JSON.stringify({
         email: input.email,
         name: leadName,
@@ -192,9 +247,8 @@ export async function submitFrappeLead(
     body.source = leadSource;
   }
 
-  const res = await fetch(`${frappeBase()}/api/resource/${encoded}`, {
+  const res = await authedFetch(`${frappeBase()}/api/resource/${encoded}`, {
     method: "POST",
-    headers: frappeAuthHeaders(key, secret),
     body: JSON.stringify(body),
   });
 
@@ -207,9 +261,8 @@ export async function submitFrappeLead(
     };
     const docname = payload.data?.name;
     if (docname && input.message?.trim()) {
-      await fetch(`${frappeBase()}/api/resource/Comment`, {
+      await authedFetch(`${frappeBase()}/api/resource/Comment`, {
         method: "POST",
-        headers: frappeAuthHeaders(key, secret),
         body: JSON.stringify({
           doctype: "Comment",
           comment_type: "Comment",
