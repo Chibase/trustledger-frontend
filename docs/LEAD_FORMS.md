@@ -1,6 +1,6 @@
 # Lead forms — spam, feedback, follow-ups
 
-Applies to `/demo`, `/assessment`, soft-gate, and in-app Support tickets.
+Applies to `/demo`, `/assessment`, `/contact`, soft-gate, product feedback, and in-app Support tickets.
 
 ## 1. Spam control (shipped)
 
@@ -33,9 +33,15 @@ Without keys, honeypot + rate limit + work-email still run.
 | Demo entry | “What do you want to see or solve?” (min 10 chars) |
 | Assessment unlock | “What prompted this assessment?” (min 10 chars) |
 | Soft gate | Email only (backup; entry already captured intent) |
+| Contact (`/contact`) | Message (min 10 chars) → CRM Lead `contact` |
+| Product feedback | Rating 1–5 + note (min 10 chars) → CRM Lead `product_feedback` |
 | Support | Description already required |
 
-Comments are appended into the HubSpot/Frappe message body for sales context.
+Comments are appended into the CRM / HubSpot message body for sales context.
+
+**Where feedback appears:** assessment results screen; demo shell sidebar **Feedback** (desktop + mobile).
+
+**CRM viewing:** each submission sets **Job Title** (e.g. `Feedback · 4/5 · /assessment`) + **Source**, and stores the full note on the lead Comment. Setup + saved filters: `docs/CRM_VIEWS.md`.
 
 ## 3. Automated follow-up + discount (CRM — not in the Next form)
 

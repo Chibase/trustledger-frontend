@@ -110,6 +110,7 @@ export async function POST(request: Request) {
       pageUri: `${siteBaseUrl()}${body.path || "/app/dashboard"}`,
       pageName: "TrustLedger in-app support",
       sourceTag: "support_ticket",
+      jobTitle: `Support · ${body.category}`,
     });
     if (!result.ok) {
       return NextResponse.json(

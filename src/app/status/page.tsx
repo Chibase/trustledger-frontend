@@ -25,7 +25,7 @@ export default function StatusPage() {
       <p className="text-sm font-medium text-tl-trust">TrustLedger</p>
       <h1 className="mt-2 font-display text-3xl font-semibold">System status</h1>
       <p className="mt-2 text-sm text-tl-ink-muted">
-        Live checks for the product app and Frappe Cloud backend.
+        Live checks for the product app and TrustLedger Cloud backend.
       </p>
 
       {error ? <p className="mt-6 text-sm text-tl-danger">{error}</p> : null}

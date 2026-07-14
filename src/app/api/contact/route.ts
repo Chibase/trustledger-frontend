@@ -10,22 +10,23 @@ import {
   leadCaptureConfigured,
   submitProductLead,
 } from "@/lib/leadCapture";
-import type { UtmAttribution } from "@/lib/utm";
 
-type DemoLeadBody = {
+type ContactKind = "contact" | "feedback";
+
+type ContactBody = {
   email: string;
   name?: string;
   organization?: string;
-  role?: string;
-  comment?: string;
-  company_url?: string;
+  message?: string;
+  kind?: ContactKind;
+  rating?: number;
+  path?: string;
   tl_hp?: string;
+  company_url?: string;
   captchaToken?: string;
-  source?: "demo_entry" | "demo_soft_gate";
-  utm?: Partial<UtmAttribution>;
 };
 
-function isValid(body: unknown): body is DemoLeadBody {
+function isValid(body: unknown): body is ContactBody {
   if (!body || typeof body !== "object") return false;
   const b = body as Record<string, unknown>;
   return typeof b.email === "string";
@@ -43,17 +44,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  const source = body.source === "demo_soft_gate" ? "demo_soft_gate" : "demo_entry";
+  const kind: ContactKind = body.kind === "feedback" ? "feedback" : "contact";
+  const captchaAction = kind === "feedback" ? "product_feedback" : "contact";
 
   const guard = await assertLeadFormGuards(request, {
-    routeKey: "demo-lead",
+    routeKey: `contact-${kind}`,
     honeypot: readHoneypot(body as unknown as Record<string, unknown>),
     captchaToken: body.captchaToken,
-    captchaAction: source === "demo_entry" ? "demo_entry" : "demo_soft_gate",
+    captchaAction,
   });
   if (!guard.ok) {
     if (guard.silent) {
-      console.warn("[demo/lead] honeypot tripped — lead not written");
+      console.warn(`[contact] honeypot tripped (${kind})`);
       return NextResponse.json({ ok: true });
     }
     return NextResponse.json({ error: guard.error }, { status: guard.status });
@@ -62,11 +64,8 @@ export async function POST(request: Request) {
   const email = body.email.trim().toLowerCase();
   const name = body.name?.trim();
   const organization = body.organization?.trim();
-  const role = body.role?.trim();
-  const comment =
-    source === "demo_entry"
-      ? normalizeComment(body.comment, 10)
-      : normalizeComment(body.comment ?? "", 0);
+  const message = normalizeComment(body.message, 10);
+  const path = typeof body.path === "string" ? body.path : undefined;
 
   if (!isWorkEmail(email)) {
     return NextResponse.json(
@@ -78,61 +77,77 @@ export async function POST(request: Request) {
     );
   }
 
-  if (source === "demo_entry" && (!name || name.length < 2)) {
+  if (kind === "contact" && (!name || name.length < 2)) {
     return NextResponse.json(
       { error: "Please enter your name." },
       { status: 400 },
     );
   }
 
-  if (source === "demo_entry" && !comment) {
+  if (!message) {
     return NextResponse.json(
       {
         error:
-          "Please share a short note on what you want to see or solve (at least 10 characters).",
+          kind === "feedback"
+            ? "Please share a short note on what worked or what we should improve (at least 10 characters)."
+            : "Please include a short message (at least 10 characters).",
       },
       { status: 400 },
     );
   }
 
-  const utm = body.utm
-    ? [body.utm.source, body.utm.medium, body.utm.campaign]
-        .filter(Boolean)
-        .join("/")
-    : "none";
+  const rating =
+    typeof body.rating === "number" &&
+    Number.isFinite(body.rating) &&
+    body.rating >= 1 &&
+    body.rating <= 5
+      ? Math.round(body.rating)
+      : undefined;
 
-  const message = [
-    `[Source: ${source}] TrustLedger interactive demo lead.`,
-    role ? `Demo role: ${role}.` : null,
+  if (kind === "feedback" && rating === undefined) {
+    return NextResponse.json(
+      { error: "Please choose a rating from 1 to 5." },
+      { status: 400 },
+    );
+  }
+
+  const composed = [
+    kind === "feedback"
+      ? "TrustLedger experience feedback (user view)."
+      : "TrustLedger contact form enquiry.",
+    rating !== undefined ? `Rating: ${rating}/5.` : null,
     organization ? `Organization: ${organization}.` : null,
-    comment ? `Comment: ${comment}` : null,
-    `UTM: ${utm}.`,
+    `Message: ${message}`,
+    path ? `Path: ${path}.` : null,
     `Captured: ${new Date().toISOString()}.`,
   ]
     .filter(Boolean)
-    .join(" ");
+    .join("\n");
+
+  const jobTitle =
+    kind === "feedback"
+      ? `Feedback · ${rating}/5${path ? ` · ${path}` : ""}`
+      : `Contact enquiry${path ? ` · ${path}` : ""}`;
 
   if (leadCaptureConfigured()) {
     const result = await submitProductLead({
       email,
       name: name || email.split("@")[0],
       company: organization,
-      message,
-      pageUri: `${siteBaseUrl()}/demo`,
+      message: composed,
+      pageUri: `${siteBaseUrl()}${path || (kind === "feedback" ? "/feedback" : "/contact")}`,
       pageName:
-        source === "demo_entry"
-          ? "TrustLedger Demo entry"
-          : "TrustLedger Demo soft gate",
-      sourceTag: source,
-      jobTitle:
-        source === "demo_entry"
-          ? "Demo entry lead"
-          : "Demo soft-gate lead",
+        kind === "feedback"
+          ? "TrustLedger product feedback"
+          : "TrustLedger contact",
+      sourceTag: kind === "feedback" ? "product_feedback" : "contact",
+      jobTitle,
+      rating,
     });
     if (!result.ok) {
       return NextResponse.json(
         {
-          error: "Lead delivery failed. Please try again.",
+          error: "Could not send your message. Please try again.",
           backend: result.backend,
           detail:
             process.env.LEAD_DEBUG === "1" ? result.detail : undefined,
@@ -141,20 +156,15 @@ export async function POST(request: Request) {
       );
     }
     return NextResponse.json({ ok: true, backend: result.backend });
-  } else if (isProductionRuntime()) {
-    return NextResponse.json(
-      { error: "Lead capture is temporarily unavailable." },
-      { status: 503 },
-    );
-  } else {
-    console.info("[demo/lead] accepted (local)", {
-      email,
-      source,
-      role,
-      utm,
-      comment,
-    });
   }
 
+  if (isProductionRuntime()) {
+    return NextResponse.json(
+      { error: "Contact is temporarily unavailable." },
+      { status: 503 },
+    );
+  }
+
+  console.info("[contact] accepted (local)", { kind, email, rating });
   return NextResponse.json({ ok: true });
 }

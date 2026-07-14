@@ -131,6 +131,7 @@ export async function POST(request: Request) {
       pageUri: `${siteBaseUrl()}${payload.landingPath}`,
       pageName: "SRM Readiness Assessment",
       sourceTag: "assessment",
+      jobTitle: `Assessment · ${payload.riskBand} · ${payload.overallScore}/100`,
     });
     if (!result.ok) {
       return NextResponse.json(

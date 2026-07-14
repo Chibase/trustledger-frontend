@@ -13,6 +13,7 @@ import {
   isWorkEmail,
   scoreAssessment,
 } from "@/data/assessment";
+import { ExperienceFeedbackForm } from "@/components/forms/ExperienceFeedbackForm";
 import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
 import { captureUtmFromSearchParams, readUtm } from "@/lib/utm";
 import type {
@@ -650,13 +651,21 @@ export function AssessmentWizard() {
                 Open dashboard
               </a>
               <a
-                href="mailto:info@trustledger.co.za?subject=TrustLedger%20assessment%20follow-up"
+                href="/contact"
                 className="inline-flex justify-center rounded-md border border-tl-line px-4 py-2.5 text-center text-sm font-medium text-tl-ink hover:bg-tl-paper"
               >
                 Contact us
               </a>
             </div>
           </div>
+
+          <ExperienceFeedbackForm
+            contextPath="/assessment"
+            defaultEmail={email}
+            defaultName={name}
+            heading="How was this assessment?"
+            description="Your notes shape launch readiness — what was clear, missing, or useful."
+          />
 
           <button
             type="button"

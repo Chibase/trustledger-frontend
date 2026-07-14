@@ -8,6 +8,15 @@ import {
 export type ProductLeadInput = HubSpotLeadInput & {
   /** Short source tag e.g. assessment | demo_entry | support_ticket */
   sourceTag?: string;
+  /** Shown on CRM Lead as Job Title — scannable in list views */
+  jobTitle?: string;
+  /** 1–5 experience rating when kind is product feedback */
+  rating?: number;
+  /**
+   * Override CRM Lead Source name for this submission.
+   * Must already exist in Desk → CRM Lead Source.
+   */
+  crmSource?: string;
 };
 
 export function frappeBase(): string {
@@ -157,10 +166,72 @@ export async function verifyFrappeApiAuth(): Promise<{
   }
 }
 
+/** Map website sourceTag → Desk CRM Lead Source name (must exist). */
+function resolveCrmSource(
+  sourceTag: string,
+  explicit?: string,
+): string | undefined {
+  if (explicit?.trim()) return explicit.trim();
+  const envKey = `FRAPPE_LEAD_SOURCE_${sourceTag
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_")}`;
+  const perTag = process.env[envKey]?.trim();
+  if (perTag) return perTag;
+  // Sensible defaults — create these exact names in Desk (see docs/CRM_VIEWS.md)
+  const defaults: Record<string, string> = {
+    product_feedback: "Product Feedback",
+    contact: "Website Contact",
+    demo_entry: "Website Demo",
+    demo_soft_gate: "Website Demo",
+    assessment: "Website Assessment",
+    support_ticket: "Support Ticket",
+  };
+  return defaults[sourceTag] || process.env.FRAPPE_LEAD_SOURCE?.trim();
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function buildLeadCommentHtml(input: ProductLeadInput, sourceTag: string): string {
+  const rating =
+    typeof input.rating === "number" &&
+    input.rating >= 1 &&
+    input.rating <= 5
+      ? Math.round(input.rating)
+      : undefined;
+  const relevance =
+    rating === undefined
+      ? "Review note for sales relevance"
+      : rating <= 2
+        ? "High attention — weak experience"
+        : rating === 3
+          ? "Mixed — triage for product gaps"
+          : "Positive — candidate quote / case study";
+
+  return [
+    `<p><b>TrustLedger intake</b> · ${escapeHtml(sourceTag)} · ${escapeHtml(input.pageName || "")}</p>`,
+    rating !== undefined
+      ? `<p><b>Rating:</b> ${rating}/5 &nbsp;|&nbsp; <b>Relevance:</b> ${relevance}</p>`
+      : `<p><b>Relevance:</b> ${relevance}</p>`,
+    input.jobTitle
+      ? `<p><b>List label:</b> ${escapeHtml(input.jobTitle)}</p>`
+      : "",
+    `<p><b>Page:</b> ${escapeHtml(input.pageUri || "")}</p>`,
+    `<p><b>User view:</b></p><p>${escapeHtml(input.message || "").replace(/\n/g, "<br/>")}</p>`,
+    `<p style="font-size:11px;opacity:.7">TL_META kind=${escapeHtml(sourceTag)}${rating !== undefined ? ` rating=${rating}` : ""}</p>`,
+  ]
+    .filter(Boolean)
+    .join("");
+}
+
 /**
  * Create a Frappe CRM "CRM Lead" via Resource API.
- * Payload is kept minimal — Link fields (source) are optional and only set
- * when FRAPPE_LEAD_SOURCE exists as a CRM Lead Source name.
+ * Job Title + Source make list views filterable; full user views go on Comment.
  */
 export async function submitFrappeLead(
   input: ProductLeadInput,
@@ -220,6 +291,8 @@ export async function submitFrappeLead(
         source: sourceTag,
         page_uri: input.pageUri,
         page_name: input.pageName,
+        job_title: input.jobTitle,
+        rating: input.rating,
       }),
     });
   }
@@ -227,7 +300,7 @@ export async function submitFrappeLead(
   const doctype = (process.env.FRAPPE_LEAD_DOCTYPE || "CRM Lead").trim();
   const encoded = encodeURIComponent(doctype);
   const status = (process.env.FRAPPE_LEAD_STATUS || "New").trim();
-  const leadSource = process.env.FRAPPE_LEAD_SOURCE?.trim();
+  const leadSource = resolveCrmSource(sourceTag, input.crmSource);
 
   const first = firstNameFrom(leadName);
   const last = lastNameFrom(leadName);
@@ -243,14 +316,33 @@ export async function submitFrappeLead(
   if (input.company?.trim()) {
     body.organization = input.company.trim().slice(0, 140);
   }
+  if (input.jobTitle?.trim()) {
+    body.job_title = input.jobTitle.trim().slice(0, 140);
+  }
   if (leadSource) {
     body.source = leadSource;
   }
 
-  const res = await authedFetch(`${frappeBase()}/api/resource/${encoded}`, {
+  let res = await authedFetch(`${frappeBase()}/api/resource/${encoded}`, {
     method: "POST",
     body: JSON.stringify(body),
   });
+
+  // If CRM Lead Source name is missing in Desk, retry without source so intake still lands
+  if (!res.ok && leadSource && body.source) {
+    const detail = await res.clone().text().catch(() => "");
+    if (/source|Link|CRM Lead Source/i.test(detail)) {
+      console.warn(
+        "[lead] CRM Lead Source missing; retrying without source:",
+        leadSource,
+      );
+      delete body.source;
+      res = await authedFetch(`${frappeBase()}/api/resource/${encoded}`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+    }
+  }
 
   if (!res.ok) return res;
 
@@ -268,11 +360,7 @@ export async function submitFrappeLead(
           comment_type: "Comment",
           reference_doctype: doctype,
           reference_name: docname,
-          content: [
-            `<p><b>${sourceTag}</b> · ${input.pageName}</p>`,
-            `<p>${input.pageUri}</p>`,
-            `<p>${input.message.replace(/</g, "&lt;")}</p>`,
-          ].join(""),
+          content: buildLeadCommentHtml(input, sourceTag),
         }),
       });
     }
