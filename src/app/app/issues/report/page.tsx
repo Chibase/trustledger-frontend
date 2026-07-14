@@ -116,7 +116,7 @@ export default function AppReportIssuePage() {
           Describe what happened. AI can suggest category, area, and priority —
           you confirm before submit.
           {aiService.isMockMode() ? (
-            <span className="ml-1">(mock AI)</span>
+            <span className="ml-1">(demo AI)</span>
           ) : null}
         </p>
       </div>
@@ -126,7 +126,7 @@ export default function AppReportIssuePage() {
           <p className="font-medium">Issue captured — {submittedId}</p>
           <p className="mt-2 text-tl-ink-muted">
             Saved locally for this Demo session. It now appears in Incidents.
-            Live mode will post to Frappe instead.
+            Live mode will post to TrustLedger Cloud instead.
           </p>
           <Link
             href={`/app/incidents/${submittedId}`}

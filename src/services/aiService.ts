@@ -74,7 +74,7 @@ function mockSentiment(input: SentimentRequest): SentimentSuggestion {
     sentimentScore,
     confidenceScore: 0.72,
     rationale:
-      "Mock intensity estimate from wording cues. Replace with Grok scoring in srm-core.",
+      "Demo intensity estimate from wording cues. Live mode uses TrustLedger Cloud AI.",
     sourceType: input.sourceType ?? "Other",
     model: MODEL,
     promptVersion: PROMPT_VERSION,

@@ -34,7 +34,7 @@ function LoginForm() {
         <a href="/demo" className="text-tl-trust-ink underline">
           the demo entry
         </a>
-        . For a live Frappe session, go to{" "}
+        . For a live TrustLedger session, go to{" "}
         <a href="/login/live" className="text-tl-trust-ink underline">
           live sign-in
         </a>

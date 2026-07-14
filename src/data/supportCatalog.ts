@@ -49,7 +49,8 @@ export const SUPPORT_CATEGORIES: SupportCategory[] = [
   {
     code: "AI_ASSIST_FAIL",
     label: "AI assist not working",
-    selfServe: "Retry the suggestion. Demo mode uses mock AI until live AI is enabled.",
+    selfServe:
+      "Retry the suggestion. Demo mode uses sample AI until TrustLedger Cloud AI is enabled.",
   },
   {
     code: "UPLOAD_FAIL",
