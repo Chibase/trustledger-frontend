@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-07-14 — CRM Desk bootstrap
+
+- `/api/frappe/crm-setup` (token-gated) creates Lead Sources, default Job Title/Source columns, pinned views
+
 ## 2026-07-14 — Contact + launch feedback
 
 - User-facing API errors say **TrustLedger** (not Frappe)
