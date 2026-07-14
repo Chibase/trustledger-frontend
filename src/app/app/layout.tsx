@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
+import { isLiveMode } from "@/config/api";
 import { getCurrentUser } from "@/lib/auth";
 import {
   assertLiveOperatorAccess,
@@ -14,7 +15,11 @@ export default async function ProductLayout({
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/demo");
+    redirect(
+      isLiveMode()
+        ? "/login/live?next=/app/dashboard"
+        : "/demo?next=/app/dashboard",
+    );
   }
 
   if (user.mode === "live" && isPlatformOperatorOnly()) {

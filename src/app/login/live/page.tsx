@@ -38,6 +38,7 @@ function LiveLoginForm() {
     try {
       const response = await fetch("/auth/live/login", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ usr, pwd }),
       });
@@ -63,11 +64,8 @@ function LiveLoginForm() {
         Sign in with TrustLedger
       </h1>
       <p className="mt-2 text-sm text-tl-ink-muted">
-        Sign in with your TrustLedger Cloud account. Prefer the{" "}
-        <Link href="/demo" className="text-tl-trust-ink underline">
-          demo
-        </Link>{" "}
-        if you only want sample data.
+        Use your TrustLedger Cloud email and password (Administrator or System
+        Manager for admin). This opens the live product, not the sample demo.
       </p>
 
       <form
@@ -115,6 +113,13 @@ function LiveLoginForm() {
           {pending ? "Signing in…" : "Sign in"}
         </button>
       </form>
+      <p className="mt-4 text-xs text-tl-ink-muted">
+        Want sample data only?{" "}
+        <Link href="/demo" className="text-tl-trust-ink underline">
+          Open the demo
+        </Link>
+        .
+      </p>
     </main>
   );
 }

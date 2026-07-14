@@ -8,6 +8,7 @@ import {
   TL_USER_NAME_COOKIE,
 } from "@/lib/auth.constants";
 import { isUserRole } from "@/types/rbac";
+import { getDataMode } from "@/config/api";
 import {
   assertLiveOperatorAccess,
   isPlatformOperatorIdentity,
@@ -81,7 +82,9 @@ export function middleware(request: NextRequest) {
       );
       return NextResponse.redirect(dest);
     }
-    const entry = mode === "live" ? "/login/live" : "/demo";
+    // Live product mode (or an existing live cookie) → live sign-in, not demo.
+    const entry =
+      mode === "live" || getDataMode() === "live" ? "/login/live" : "/demo";
     const dest = new URL(entry, request.url);
     dest.searchParams.set(
       "next",
