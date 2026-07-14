@@ -2,6 +2,20 @@
 
 Website contact, product feedback, demo, assessment, and support all create **Frappe CRM → CRM Lead** records. Structure them so you can scan **relevance** without opening every email.
 
+## 0. Automated bootstrap (preferred)
+
+Production can create sources, default Lead columns, and pinned filters via:
+
+```bash
+# set once in Vercel Production, then remove after success
+CRM_SETUP_TOKEN=<random>
+
+curl -sS -X POST "https://trustledger-frontend-pi.vercel.app/api/frappe/crm-setup" \
+  -H "x-tl-crm-setup: $CRM_SETUP_TOKEN"
+```
+
+Hard-refresh Frappe CRM afterward. Remove `CRM_SETUP_TOKEN` from Vercel when done.
+
 ## 1. Create Lead Sources (once in Desk)
 
 **CRM Lead Source** (exact names — used by the app by default):
