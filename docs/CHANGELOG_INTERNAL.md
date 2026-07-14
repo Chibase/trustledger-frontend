@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-14 — Live login without srm-core
+
+- Live sign-in falls back to TrustLedger Cloud session/roles when `srm_core.get_session` is missing
+- Unauthenticated `/app` in live data mode goes to `/login/live` (not demo)
+
 ## 2026-07-14 — UI branding sweep
 
 - Removed user-facing “Frappe” / vendor doc paths; Settings, login, status, support, AI copy use TrustLedger (Cloud) / Chibase Consulting
