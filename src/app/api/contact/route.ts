@@ -113,8 +113,8 @@ export async function POST(request: Request) {
 
   const composed = [
     kind === "feedback"
-      ? `[Source: product_feedback] TrustLedger experience feedback.`
-      : `[Source: contact] TrustLedger contact form.`,
+      ? "TrustLedger experience feedback (user view)."
+      : "TrustLedger contact form enquiry.",
     rating !== undefined ? `Rating: ${rating}/5.` : null,
     organization ? `Organization: ${organization}.` : null,
     `Message: ${message}`,
@@ -122,7 +122,12 @@ export async function POST(request: Request) {
     `Captured: ${new Date().toISOString()}.`,
   ]
     .filter(Boolean)
-    .join(" ");
+    .join("\n");
+
+  const jobTitle =
+    kind === "feedback"
+      ? `Feedback · ${rating}/5${path ? ` · ${path}` : ""}`
+      : `Contact enquiry${path ? ` · ${path}` : ""}`;
 
   if (leadCaptureConfigured()) {
     const result = await submitProductLead({
@@ -136,6 +141,8 @@ export async function POST(request: Request) {
           ? "TrustLedger product feedback"
           : "TrustLedger contact",
       sourceTag: kind === "feedback" ? "product_feedback" : "contact",
+      jobTitle,
+      rating,
     });
     if (!result.ok) {
       return NextResponse.json(

@@ -114,5 +114,9 @@ If the demo form returns OK but nothing appears in **CRM → Leads**:
    Redeploy, submit again — you should get a **502** with `detail` if Frappe rejects the create.
 2. API user roles: add **Sales User** or **System Manager** (must **create** CRM Lead).
 3. Desk → **CRM Lead Status**: ensure a status named **`New`** exists (default).
-4. Do **not** set `FRAPPE_LEAD_SOURCE` until Desk → **CRM Lead Source** has that exact name (e.g. create `Website` first).
+4. Create Desk **CRM Lead Source** names listed in `docs/CRM_VIEWS.md` (Product Feedback, Website Contact, …) before relying on Source filters.
 5. Frappe Desk → **Error Log** after a failed submit.
+
+## Viewing user feedback & relevance
+
+See **`docs/CRM_VIEWS.md`**: Job Title + Source columns, saved filters, and rating triage.

@@ -41,6 +41,8 @@ Comments are appended into the CRM / HubSpot message body for sales context.
 
 **Where feedback appears:** assessment results screen; demo shell sidebar **Feedback** (desktop + mobile).
 
+**CRM viewing:** each submission sets **Job Title** (e.g. `Feedback · 4/5 · /assessment`) + **Source**, and stores the full note on the lead Comment. Setup + saved filters: `docs/CRM_VIEWS.md`.
+
 ## 3. Automated follow-up + discount (CRM — not in the Next form)
 
 Do **not** auto-send discounts from the Vercel form. That needs email identity, unsubscribe, and offer control.

@@ -124,6 +124,10 @@ export async function POST(request: Request) {
           ? "TrustLedger Demo entry"
           : "TrustLedger Demo soft gate",
       sourceTag: source,
+      jobTitle:
+        source === "demo_entry"
+          ? "Demo entry lead"
+          : "Demo soft-gate lead",
     });
     if (!result.ok) {
       return NextResponse.json(

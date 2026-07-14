@@ -5,6 +5,7 @@
 - User-facing API errors say **TrustLedger** (not Frappe)
 - `/contact` form replaces mailto bounce; posts to CRM Lead
 - Post-assessment feedback form + demo shell **Feedback** drawer (rating + note → CRM)
+- CRM Lead **Job Title** + **Source** + structured Comment for relevance triage (`docs/CRM_VIEWS.md`)
 
 ## 2026-07-13 — Honeypot autofill fix
 
