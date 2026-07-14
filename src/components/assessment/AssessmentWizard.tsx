@@ -178,7 +178,7 @@ export function AssessmentWizard() {
     const captchaToken = await getToken();
 
     const payload: AssessmentLeadPayload & {
-      company_url?: string;
+      tl_hp?: string;
       captchaToken?: string;
     } = {
       name: name.trim(),
@@ -202,7 +202,7 @@ export function AssessmentWizard() {
         : undefined,
       landingPath: "/assessment",
       completedAt: result.completedAt,
-      company_url: honeypot,
+      tl_hp: honeypot,
       captchaToken,
     };
 

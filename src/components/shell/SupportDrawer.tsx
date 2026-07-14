@@ -105,7 +105,7 @@ export function SupportDrawer({
           mode,
           userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
           health,
-          company_url: honeypot,
+          tl_hp: honeypot,
           captchaToken,
         }),
       });

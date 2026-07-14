@@ -74,7 +74,7 @@ export function DemoLeadGate() {
           email,
           utm,
           source: "demo_soft_gate",
-          company_url: honeypot,
+          tl_hp: honeypot,
           captchaToken,
         }),
       });

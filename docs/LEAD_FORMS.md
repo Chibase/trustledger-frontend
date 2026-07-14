@@ -7,7 +7,7 @@ Applies to `/demo`, `/assessment`, soft-gate, and in-app Support tickets.
 | Layer | Behaviour |
 |-------|-----------|
 | Work-email allowlist | Rejects common free-mail domains |
-| Honeypot (`company_url`) | Hidden field; bots that fill it get a fake success (no CRM write) |
+| Honeypot (`tl_hp`) | Hidden field; bots that fill it get a fake success (no CRM write). Avoids `company_url` / website names that password managers autofill. |
 | Rate limit | ~8 posts / 15 min / IP / route (best-effort on serverless) |
 | **reCAPTCHA v3** (optional) | When env keys are set, token verified server-side |
 
