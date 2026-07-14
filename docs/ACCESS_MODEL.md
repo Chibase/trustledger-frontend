@@ -151,7 +151,7 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 | Payment or Commitment | Frappe Customer + **Owner admin** user |
 | Ongoing team | Owner invites in-app → Frappe Users |
 
-## Build sequence (after Peach sandbox)
+## Build sequence (after Paystack sandbox)
 
 1. Entitlement DocType / fields on Customer (`plan`, `seat_limit`, `owner_user`)  
 2. Payment webhook → provision Owner  
@@ -159,4 +159,4 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 4. Invite accept + password set  
 5. Seat enforcement middleware  
 
-Launch week can still be **manual**: you create Owner in Frappe after Peach/commitment using this model; automate next.
+Launch week can still be **manual**: you create Owner in Frappe after Paystack/commitment using this model; automate next. See `docs/PAYMENTS_SETUP.md`.
