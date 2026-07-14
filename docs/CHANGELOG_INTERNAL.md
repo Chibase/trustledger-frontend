@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-14 — Contact + launch feedback
+
+- User-facing API errors say **TrustLedger** (not Frappe)
+- `/contact` form replaces mailto bounce; posts to CRM Lead
+- Post-assessment feedback form + demo shell **Feedback** drawer (rating + note → CRM)
+
 ## 2026-07-13 — Honeypot autofill fix
 
 - Renamed lead honeypot from `company_url` → `tl_hp` (password managers were autofilling website fields and silently dropping real leads)

@@ -25,12 +25,12 @@ export default function Home() {
         >
           Take readiness assessment
         </Link>
-        <a
-          href="mailto:info@trustledger.co.za?subject=TrustLedger%20enquiry"
+        <Link
+          href="/contact"
           className="rounded-md border border-tl-line bg-tl-surface px-5 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
         >
           Contact us
-        </a>
+        </Link>
       </div>
     </main>
   );

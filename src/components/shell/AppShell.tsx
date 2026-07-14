@@ -5,6 +5,7 @@ import { OperatorBanner } from "@/components/shell/OperatorBanner";
 import { AppNav } from "@/components/shell/AppNav";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
+import { FeedbackDrawer } from "@/components/shell/FeedbackDrawer";
 import { SupportDrawer } from "@/components/shell/SupportDrawer";
 import { ToastProvider } from "@/components/ui/Toast";
 import type { UserRole } from "@/types/rbac";
@@ -58,6 +59,7 @@ export function AppShell({
             </div>
 
             <div className="space-y-3 border-t border-white/10 px-4 py-4">
+              <FeedbackDrawer variant="ink" />
               <SupportDrawer
                 userName={userName}
                 role={role}

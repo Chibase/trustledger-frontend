@@ -54,7 +54,7 @@ export async function frappeLogin(
   if (!response.ok || !sid) {
     const text = await response.text();
     throw new Error(
-      `Frappe login failed (${response.status}): ${text.slice(0, 200) || response.statusText}`,
+      `TrustLedger sign-in failed (${response.status}): ${text.slice(0, 200) || response.statusText}`,
     );
   }
 
@@ -99,7 +99,7 @@ export async function frappeCallWithSid<T>(
 
   if (!response.ok) {
     const detail = payload?.exc || text.slice(0, 200) || response.statusText;
-    throw new Error(`Frappe call failed (${response.status}): ${detail}`);
+    throw new Error(`TrustLedger call failed (${response.status}): ${detail}`);
   }
 
   if (payload && "message" in payload && payload.message !== undefined) {

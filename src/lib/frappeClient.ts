@@ -65,7 +65,7 @@ export async function callFrappeMethod<T>(
             : text.slice(0, 200) || response.statusText
         : text.slice(0, 200) || response.statusText;
     throw new FrappeApiError(
-      `Frappe call failed (${response.status}): ${detail}`,
+      `TrustLedger call failed (${response.status}): ${detail}`,
       response.status,
       methodPath,
     );
