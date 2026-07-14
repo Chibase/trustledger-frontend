@@ -68,9 +68,8 @@ export default async function AppSettingsPage() {
           </div>
         </dl>
         <p className="mt-4 text-xs text-tl-ink-muted">
-          Live product access is limited to the Platform Operator until you lift{" "}
-          <code>PLATFORM_OPERATOR_ONLY</code>. See{" "}
-          <code>docs/PLATFORM_OPERATOR.md</code>.
+          Live product access is limited to the Platform Operator until lockdown
+          is lifted by Chibase Consulting / TrustLedger ops.
         </p>
       </section>
 
@@ -82,8 +81,10 @@ export default async function AppSettingsPage() {
             <dd className="font-medium">{dataMode}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-tl-ink-muted">AI mock</dt>
-            <dd>{aiMock ? "on" : "off (Frappe AI methods)"}</dd>
+            <dt className="text-tl-ink-muted">AI assist</dt>
+            <dd>
+              {aiMock ? "demo suggestions" : "TrustLedger Cloud AI"}
+            </dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-tl-ink-muted">API base</dt>
@@ -94,10 +95,8 @@ export default async function AppSettingsPage() {
           <SettingsUtmRow />
         </dl>
         <p className="mt-4 text-xs text-tl-ink-muted">
-          Set <code>NEXT_PUBLIC_DATA_MODE=live</code> and point{" "}
-          <code>NEXT_PUBLIC_API_BASE_URL</code> at{" "}
-          <code>https://app.trustledger.co.za</code> when ready. Demo stays the
-          default. See <code>docs/FRAPPE_CLOUD_SETUP.md</code>.
+          Demo mode uses sample data. Live mode connects this app to TrustLedger
+          Cloud at <code>https://app.trustledger.co.za</code>.
         </p>
       </section>
     </div>

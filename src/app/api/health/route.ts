@@ -29,12 +29,18 @@ async function probe(
 }
 
 export async function GET() {
-  const [app, frappe] = await Promise.all([
-    probe("vercel_app", `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app"}/`),
-    probe("frappe_cloud", `${FRAPPE_SITE.replace(/\/$/, "")}/api/method/frappe.ping`),
+  const [app, cloud] = await Promise.all([
+    probe(
+      "TrustLedger app",
+      `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app"}/`,
+    ),
+    probe(
+      "TrustLedger Cloud",
+      `${FRAPPE_SITE.replace(/\/$/, "")}/api/method/frappe.ping`,
+    ),
   ]);
 
-  const checks = [app, frappe];
+  const checks = [app, cloud];
   const ok = checks.every((c) => c.ok);
 
   return NextResponse.json(

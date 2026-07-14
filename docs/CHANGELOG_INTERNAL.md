@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-07-14 — UI branding sweep
+
+- Removed user-facing “Frappe” / vendor doc paths; Settings, login, status, support, AI copy use TrustLedger (Cloud) / Chibase Consulting
+
 ## 2026-07-14 — CRM Desk bootstrap
 
 - `/api/frappe/crm-setup` (token-gated) creates Lead Sources, default Job Title/Source columns, pinned views

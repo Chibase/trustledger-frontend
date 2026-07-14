@@ -63,7 +63,7 @@ function LiveLoginForm() {
         Sign in with TrustLedger
       </h1>
       <p className="mt-2 text-sm text-tl-ink-muted">
-        Uses your Frappe account on TrustLedger Cloud. Prefer the{" "}
+        Sign in with your TrustLedger Cloud account. Prefer the{" "}
         <Link href="/demo" className="text-tl-trust-ink underline">
           demo
         </Link>{" "}

@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const session = await fetchSessionContext(sid);
     if (!isUserRole(session.trustLedgerRole)) {
       return NextResponse.json(
-        { error: "Could not map Frappe roles to TrustLedger role" },
+        { error: "Could not map your TrustLedger Cloud roles" },
         { status: 403 },
       );
     }
