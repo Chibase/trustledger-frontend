@@ -25,7 +25,7 @@
 | `UPLOAD_FAIL` | Evidence / file upload fails | Ticket | Retry + size/type validation message |
 | `PERMISSION_DENIED` | Sees 403 / wrong role screens | Explain role + ticket | **No auto role change** — escalate |
 | `PERF_SLOW` | Pages hang / timeouts | Ticket + request timing | Cache warm / degrade non-critical |
-| `BILLING_ACCESS` | Paid but still demo / locked | Ticket (priority) | Sync entitlement from Peach (later) |
+| `BILLING_ACCESS` | Paid but still demo / locked | Ticket (priority) | Sync entitlement from Paystack (later) |
 | `BROWSER_CACHE` | Odd UI after deploy | Safe-mode checklist | — |
 | `NOTIFY_FAIL` | Not receiving email alerts | Ticket | Resend verification / check bounce |
 

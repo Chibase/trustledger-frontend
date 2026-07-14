@@ -109,8 +109,17 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Status:** Accepted
 - **Context:** After payment, buyers need login issued by plan. Solo ops cannot manually invent access rules per deal. Purchaser (e.g. lead consultant on lower tier) must own the plan with admin access and invite others only at lower levels they confirm.
 - **Decision:** Payment/commitment provisions exactly one **Plan Owner** as org-scoped `admin` (dashboard, reporting, login, invites). Additional users are created only via Owner-confirmed invites at `client` | `contractor` | `community`. Seat limits follow plan (Practitioner ≈ owner-only; Project = unlimited per project; Institutional = custom). See `docs/ACCESS_MODEL.md`.
-- **Consequences:** Clear post-Peach provisioning; no auto-admin for teammates; HubSpot never issues product logins.
+- **Consequences:** Clear post-payment provisioning; no auto-admin for teammates; HubSpot never issues product logins.
 - **Alternatives considered:** All seats created by Chibase staff; auto-admin for anyone on the invoice domain (rejected).
+
+### ADR-014: Paystack as SA payment gateway on Frappe Cloud
+
+- **Date:** 2026-07-14
+- **Status:** Accepted
+- **Context:** Soft launch needs ZAR collection on TrustLedger Cloud. Stripe not usable for this entity path; Peach Payments closed new merchant intake. Frappe stock **Payments** app has no native SA PSP; Marketplace **Frappe Paystack** supports ZAR and ERPNext Sales Invoice links.
+- **Decision:** Use **Paystack** (test → live) with **Frappe Paystack** on `app.trustledger.co.za`. Soft launch may collect via invoice payment links and **manual** Plan Owner provisioning per ADR-012. See `docs/PAYMENTS_SETUP.md`.
+- **Consequences:** Peach references in older docs are superseded for gateway choice; entitlement webhook automation remains a later `srm-core` packet.
+- **Alternatives considered:** PayFast/Ozow direct custom apps (more build); wait for Peach (blocked); Stripe (unavailable).
 
 ### ADR-013: Platform Operator sole live control (until lifted)
 

@@ -6,7 +6,7 @@
 After payment (or confirmed commitment), TrustLedger issues logins from **plan entitlements**. The **purchaser is Plan Owner**; they alone hold org **admin** and may invite others at **lower** roles.
 
 ```text
-Peach payment success / Commitment
+Paystack payment success / Commitment
         ↓
 Create Frappe Customer + Contact
         ↓
@@ -17,6 +17,8 @@ Owner invites people + chooses lower role
         ↓
 Invitee accepts → User created at that role
 ```
+
+Gateway setup: `docs/PAYMENTS_SETUP.md` (Paystack + Frappe Paystack on Cloud).
 
 ## Roles (existing four — org-scoped)
 
@@ -88,7 +90,7 @@ Session / get_session returns { role, customer, plan, entitlements }
    Over limit → `403` + `{ code: "PLAN_LIMIT", upgrade: "project" }`.
 
 5. **Billing state**  
-   Peach webhook sets `status`. `past_due` / `cancelled` → read-only or login blocked after grace period (Owner still sees billing CTA).
+   Paystack webhook sets `status`. `past_due` / `cancelled` → read-only or login blocked after grace period (Owner still sees billing CTA).
 
 ## Practical checks (examples)
 
@@ -100,7 +102,7 @@ Session / get_session returns { role, customer, plan, entitlements }
 | Open Reports | Standard only | Full |
 | Call custom API | Deny | Deny (unless sold) |
 
-## Manual control before Peach automation
+## Manual control before Paystack automation
 
 Until webhooks exist, you set on the Customer in Frappe:
 

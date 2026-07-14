@@ -29,7 +29,7 @@ Website / Assessment / Demo
 
 ## What moves to Frappe at commitment
 
-**Trigger (any one):** signed pilot, paid Peach invoice/checkout, written “yes” to paid plan, or you set HubSpot deal stage = **Commitment / Closed Won**.
+**Trigger (any one):** signed pilot, paid Paystack invoice/checkout, written “yes” to paid plan, or you set HubSpot deal stage = **Commitment / Closed Won**.
 
 **Create on Interserv (manual at first, automate later):**
 
