@@ -48,14 +48,23 @@ function LiveLoginForm() {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ usr, pwd }),
       });
-      const payload = (await response.json()) as { error?: string; role?: string };
+      const payload = (await response.json()) as {
+        error?: string;
+        role?: string;
+        home?: string;
+        platformOperator?: boolean;
+      };
       if (!response.ok) {
         throw new Error(payload.error || "Login failed");
       }
       // Clear any leftover demo-mode cookie from a prior /demo visit
       document.cookie = "tl-mode=live; path=/; max-age=604800; samesite=lax";
-      // Operators default to /ops; product inspect only when next is /app...
-      router.push(next);
+      // Server decides operator home (/ops). Never fall through to customer desk.
+      const dest =
+        payload.home ||
+        (payload.platformOperator ? "/ops" : null) ||
+        (next.startsWith("/ops") || next.startsWith("/app") ? next : "/ops");
+      router.push(dest);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

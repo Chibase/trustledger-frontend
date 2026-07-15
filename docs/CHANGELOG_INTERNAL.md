@@ -3,6 +3,7 @@
 ## 2026-07-15 — Ops = client activity (not product desk)
 
 - Operator live login defaults to `/ops` (not `/app/dashboard`)
+- Login API returns `home: /ops`; middleware bounces operators off `/app/dashboard` → `/ops`
 - `/ops` + `/ops/activity` show demos / assessments / feedback / contact / support — not projects or issues
 - Nav no longer treats the customer product desk as the operator home; Cloud CRM remains for record detail
 

@@ -122,6 +122,18 @@ export function middleware(request: NextRequest) {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 
+  // Operators belong in /ops — bounce the customer dashboard entry points.
+  if (
+    signedIn &&
+    isLiveSession &&
+    assertOpsAccess(email).ok &&
+    (pathname === "/app" ||
+      pathname === "/app/dashboard" ||
+      pathname === "/dashboard")
+  ) {
+    return NextResponse.redirect(new URL("/ops", request.url));
+  }
+
   if (isProtected && !signedIn) {
     if (isPlatformOperatorLockPublic()) {
       const dest = new URL("/login/live", request.url);
