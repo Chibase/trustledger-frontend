@@ -12,17 +12,23 @@ export function PayCheckoutForm({
   plans,
   initialPlan,
   configured,
+  initialEmail = "",
+  initialName = "",
+  initialOrganization = "",
 }: {
   plans: PaystackPlan[];
   initialPlan: PaystackPlanId;
   configured: boolean;
+  initialEmail?: string;
+  initialName?: string;
+  initialOrganization?: string;
 }) {
   const [planId, setPlanId] = useState<PaystackPlanId>(
     plans.some((p) => p.id === initialPlan) ? initialPlan : plans[0]?.id || "practitioner",
   );
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [organization, setOrganization] = useState("");
+  const [email, setEmail] = useState(initialEmail);
+  const [name, setName] = useState(initialName);
+  const [organization, setOrganization] = useState(initialOrganization);
   const [error, setError] = useState<string | null>(
     configured ? null : "Paystack keys are not configured on this deployment yet.",
   );

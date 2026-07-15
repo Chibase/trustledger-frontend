@@ -14,22 +14,28 @@ export default function Home() {
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
-          href="/demo"
+          href="/trial"
           className="rounded-md bg-tl-trust px-5 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink"
         >
-          Try the demo
+          Start trial
+        </Link>
+        <Link
+          href="/pay"
+          className="rounded-md border border-tl-trust bg-tl-surface px-5 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
+        >
+          Subscribe / pay
+        </Link>
+        <Link
+          href="/demo"
+          className="rounded-md border border-tl-line bg-tl-surface px-5 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
+        >
+          Demo only
         </Link>
         <Link
           href="/assessment"
           className="rounded-md border border-tl-line bg-tl-surface px-5 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
         >
-          Take readiness assessment
-        </Link>
-        <Link
-          href="/contact"
-          className="rounded-md border border-tl-line bg-tl-surface px-5 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
-        >
-          Contact us
+          Assessment
         </Link>
       </div>
     </main>

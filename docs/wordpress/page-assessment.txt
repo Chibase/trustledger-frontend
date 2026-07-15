@@ -21,8 +21,8 @@
           </ul>
         </nav>
         <div class="nav-actions">
-          <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo" class="btn btn--secondary btn--sm" target="_blank" rel="noopener noreferrer">Try demo</a>
-          <a href="https://trustledger-frontend-pi.vercel.app/app/dashboard?utm_source=wordpress&utm_medium=cta&utm_campaign=dashboard" class="btn btn--primary btn--sm" target="_blank" rel="noopener noreferrer">Open dashboard</a>
+          <a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial" class="btn btn--secondary btn--sm" target="_blank" rel="noopener noreferrer">Start trial</a>
+          <a href="https://trustledger-frontend-pi.vercel.app/pay?utm_source=wordpress&utm_medium=cta&utm_campaign=subscribe" class="btn btn--primary btn--sm" target="_blank" rel="noopener noreferrer">Subscribe</a>
         </div>
         <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-mobile" aria-label="Open menu">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
@@ -36,8 +36,8 @@
         <a href="https://trustledger.co.za/#resources">Resources</a>
         <a href="https://trustledger.co.za/#faq">FAQ</a>
         <a href="https://trustledger.co.za/assessment/" class="btn btn--secondary btn--block">Take Assessment</a>
-        <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Try demo</a>
-        <a href="https://trustledger-frontend-pi.vercel.app/app/dashboard?utm_source=wordpress&utm_medium=cta&utm_campaign=dashboard" class="btn btn--primary btn--block" target="_blank" rel="noopener noreferrer">Open dashboard</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Start trial</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?utm_source=wordpress&utm_medium=cta&utm_campaign=subscribe" class="btn btn--primary btn--block" target="_blank" rel="noopener noreferrer">Subscribe</a>
         <a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&utm_medium=cta&utm_campaign=live_login" class="btn btn--ghost btn--block" target="_blank" rel="noopener noreferrer">Sign in</a>
       </div>
     </div>
@@ -144,7 +144,7 @@
   <!-- SHARED FOOTER END -->
 
   <div class="sticky-cta" id="sticky-cta" role="complementary" aria-label="Quick actions">
-    <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo" class="btn btn--primary btn--block" target="_blank" rel="noopener noreferrer">Try demo</a>
+    <a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial" class="btn btn--primary btn--block" target="_blank" rel="noopener noreferrer">Start trial</a>
   </div>
 
   <div class="modal-overlay" id="lead-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">

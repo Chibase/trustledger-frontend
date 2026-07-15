@@ -8,7 +8,8 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 
 | CTA | URL |
 |-----|-----|
-| Try demo / 14-day trial | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo` |
+| Start trial (capture → demo **or** subscribe) | `https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial` |
+| Try demo only | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo` |
 | Open dashboard | `https://trustledger-frontend-pi.vercel.app/app/dashboard?utm_source=wordpress&utm_medium=cta&utm_campaign=dashboard` |
 | Sign in (live) | `https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&utm_medium=cta&utm_campaign=live_login` |
 | App home | `https://trustledger-frontend-pi.vercel.app/?utm_source=wordpress&utm_medium=cta&utm_campaign=home` |
@@ -28,7 +29,12 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 - **Sign in** → live BFF login against Frappe Cloud (`app.trustledger.co.za`).
 - **Team desk** → Frappe desk for internal users (not the public demo).
 - **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Leads go to **HubSpot** via Forms API when `HUBSPOT_PORTAL_ID` / `HUBSPOT_FORM_ID` / `HUBSPOT_REGION` are set (fallback: `ASSESSMENT_WEBHOOK_URL`).
-- **Buy** → Vercel `/pay` → Paystack. Ops Finance is notified; you update CRM Customer manually (`docs/PAYMENTS_SETUP.md` §D).
+- **Start trial** → Vercel `/trial` → capture details → **Explore demo** or **Subscribe** (Paystack).
+- **Buy / Subscribe** → Vercel `/pay` → Paystack. Ops Finance is notified; you update CRM Customer manually (`docs/PAYMENTS_SETUP.md` §D).
+
+**WordPress action required:** point every “Start trial” button to  
+`https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial`  
+(not `/demo`). Re-paste assessment nav from `docs/wordpress/page-assessment.txt` if needed.
 
 ## WordPress Assessment page
 

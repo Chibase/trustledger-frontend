@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-15 — Trial funnel with subscribe path
+
+- `/trial`: capture details → choose Explore demo **or** Subscribe (Paystack)
+- Demo banner + soft-gate offer Subscribe / pay; WP Start trial → `/trial`
+
 ## 2026-07-15 — Vercel Paystack checkout (23g)
 
 - ADR-019: `/pay` → Paystack hosted checkout while Desk marketplace app is blocked
