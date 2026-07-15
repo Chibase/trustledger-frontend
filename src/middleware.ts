@@ -67,15 +67,28 @@ export function middleware(request: NextRequest) {
       }
     }
     const next = safeNextPath(request.nextUrl.searchParams.get("next"));
-    if (next?.startsWith("/ops")) {
-      const opsGate = assertOpsAccess(email);
-      if (!opsGate.ok) {
-        const dest = new URL("/login/live", request.url);
-        dest.searchParams.set("error", opsGate.reason);
-        dest.searchParams.set("next", "/ops");
-        return NextResponse.redirect(dest);
+    const opsGate = assertOpsAccess(email);
+
+    // Platform operators land in /ops (command centre), not the customer /app desk.
+    if (isLiveSession && opsGate.ok) {
+      if (next?.startsWith("/ops")) {
+        return NextResponse.redirect(new URL(next, request.url));
       }
-      return NextResponse.redirect(new URL(next, request.url));
+      // Explicit product inspect only when next is /app...
+      if (next?.startsWith("/app")) {
+        return NextResponse.redirect(new URL(next, request.url));
+      }
+      return NextResponse.redirect(new URL("/ops", request.url));
+    }
+
+    if (next?.startsWith("/ops")) {
+      const dest = new URL("/login/live", request.url);
+      dest.searchParams.set(
+        "error",
+        opsGate.ok ? "not_operator" : opsGate.reason,
+      );
+      dest.searchParams.set("next", "/ops");
+      return NextResponse.redirect(dest);
     }
     return NextResponse.redirect(
       new URL(next && next.startsWith("/app") ? next : "/app/dashboard", request.url),

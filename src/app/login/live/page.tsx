@@ -13,7 +13,8 @@ function sanitizeNext(value: string | null): string {
   ) {
     return value;
   }
-  return "/app/dashboard";
+  // Operators are redirected to /ops by middleware; customers use /app.
+  return "/ops";
 }
 
 function gateErrorCopy(code: string | null): string | null {
@@ -53,7 +54,8 @@ function LiveLoginForm() {
       }
       // Clear any leftover demo-mode cookie from a prior /demo visit
       document.cookie = "tl-mode=live; path=/; max-age=604800; samesite=lax";
-      router.push(next.startsWith("/app") ? next : "/app/dashboard");
+      // Operators default to /ops; product inspect only when next is /app...
+      router.push(next);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

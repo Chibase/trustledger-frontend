@@ -1,5 +1,13 @@
 import { frappeBase, frappeKeyPair } from "@/lib/leadCapture";
 
+export type OpsActivityKind =
+  | "demo"
+  | "assessment"
+  | "feedback"
+  | "contact"
+  | "support"
+  | "other";
+
 export type OpsLeadRow = {
   name: string;
   lead_name?: string;
@@ -9,6 +17,13 @@ export type OpsLeadRow = {
   source?: string;
   status?: string;
   modified?: string;
+};
+
+export type OpsActivityRow = OpsLeadRow & {
+  activity: OpsActivityKind;
+  intent: string;
+  rating: number | null;
+  readiness: string | null;
 };
 
 export type OpsOverview = {
@@ -23,12 +38,15 @@ export type OpsOverview = {
   intake: {
     totalRecent: number;
     bySource: Record<string, number>;
+    byActivity: Record<OpsActivityKind, number>;
     feedbackRated: number;
     feedbackAvgRating: number | null;
     weakFeedback: number;
     assessmentLeads: number;
     contactLeads: number;
-    recent: OpsLeadRow[];
+    demoLeads: number;
+    supportTickets: number;
+    recent: OpsActivityRow[];
   };
 };
 
@@ -44,6 +62,76 @@ function parseRating(jobTitle: string | undefined): number | null {
   const m = jobTitle.match(/Feedback\s*·\s*([1-5])\s*\/\s*5/i);
   if (!m) return null;
   return Number(m[1]);
+}
+
+function parseReadiness(jobTitle: string | undefined): string | null {
+  if (!jobTitle) return null;
+  const m = jobTitle.match(/Assessment\s*·\s*([^·]+)/i);
+  return m?.[1]?.trim() || null;
+}
+
+export function classifyActivity(row: OpsLeadRow): OpsActivityKind {
+  const title = (row.job_title || "").toLowerCase();
+  const source = (row.source || "").toLowerCase();
+  if (title.includes("feedback") || source.includes("feedback")) return "feedback";
+  if (title.includes("support") || source.includes("support")) return "support";
+  if (title.includes("assessment") || source.includes("assessment")) {
+    return "assessment";
+  }
+  if (title.includes("contact") || source.includes("contact")) return "contact";
+  if (title.includes("demo") || source.includes("demo")) return "demo";
+  return "other";
+}
+
+export function activityLabel(kind: OpsActivityKind): string {
+  switch (kind) {
+    case "demo":
+      return "Demo interest";
+    case "assessment":
+      return "Assessment / readiness";
+    case "feedback":
+      return "Experience feedback";
+    case "contact":
+      return "Contact enquiry";
+    case "support":
+      return "Support ticket";
+    default:
+      return "Other activity";
+  }
+}
+
+function toActivityRow(row: OpsLeadRow): OpsActivityRow {
+  const activity = classifyActivity(row);
+  const rating = parseRating(row.job_title);
+  const readiness = parseReadiness(row.job_title);
+  const intent =
+    row.job_title?.trim() ||
+    row.source ||
+    "Website activity";
+  return { ...row, activity, intent, rating, readiness };
+}
+
+function emptyIntake(): OpsOverview["intake"] {
+  return {
+    totalRecent: 0,
+    bySource: {},
+    byActivity: {
+      demo: 0,
+      assessment: 0,
+      feedback: 0,
+      contact: 0,
+      support: 0,
+      other: 0,
+    },
+    feedbackRated: 0,
+    feedbackAvgRating: null,
+    weakFeedback: 0,
+    assessmentLeads: 0,
+    contactLeads: 0,
+    demoLeads: 0,
+    supportTickets: 0,
+    recent: [],
+  };
 }
 
 async function fetchRecentLeads(
@@ -105,47 +193,36 @@ export async function buildOpsOverview(): Promise<OpsOverview> {
       ok: false,
       generatedAt,
       configured: false,
-      detail: "FRAPPE_API_KEY / SECRET missing — intake intel unavailable",
+      detail: "FRAPPE_API_KEY / SECRET missing — activity intel unavailable",
       health,
-      intake: {
-        totalRecent: 0,
-        bySource: {},
-        feedbackRated: 0,
-        feedbackAvgRating: null,
-        weakFeedback: 0,
-        assessmentLeads: 0,
-        contactLeads: 0,
-        recent: [],
-      },
+      intake: emptyIntake(),
     };
   }
 
   try {
-    const recent = await fetchRecentLeads(pair.key, pair.secret);
+    const rows = await fetchRecentLeads(pair.key, pair.secret);
+    const recent = rows.map(toActivityRow);
     const bySource: Record<string, number> = {};
+    const byActivity: Record<OpsActivityKind, number> = {
+      demo: 0,
+      assessment: 0,
+      feedback: 0,
+      contact: 0,
+      support: 0,
+      other: 0,
+    };
     let ratingSum = 0;
     let ratingCount = 0;
     let weakFeedback = 0;
-    let assessmentLeads = 0;
-    let contactLeads = 0;
 
     for (const row of recent) {
       const source = row.source || "Unsourced";
       bySource[source] = (bySource[source] || 0) + 1;
-      const rating = parseRating(row.job_title);
-      if (rating !== null) {
+      byActivity[row.activity] += 1;
+      if (row.rating !== null) {
         ratingCount += 1;
-        ratingSum += rating;
-        if (rating <= 2) weakFeedback += 1;
-      }
-      if ((row.job_title || "").toLowerCase().includes("assessment")) {
-        assessmentLeads += 1;
-      }
-      if (
-        source === "Website Contact" ||
-        (row.job_title || "").toLowerCase().includes("contact")
-      ) {
-        contactLeads += 1;
+        ratingSum += row.rating;
+        if (row.rating <= 2) weakFeedback += 1;
       }
     }
 
@@ -157,15 +234,18 @@ export async function buildOpsOverview(): Promise<OpsOverview> {
       intake: {
         totalRecent: recent.length,
         bySource,
+        byActivity,
         feedbackRated: ratingCount,
         feedbackAvgRating:
           ratingCount > 0
             ? Math.round((ratingSum / ratingCount) * 10) / 10
             : null,
         weakFeedback,
-        assessmentLeads,
-        contactLeads,
-        recent: recent.slice(0, 25),
+        assessmentLeads: byActivity.assessment,
+        contactLeads: byActivity.contact,
+        demoLeads: byActivity.demo,
+        supportTickets: byActivity.support,
+        recent: recent.slice(0, 40),
       },
     };
   } catch (err) {
@@ -175,16 +255,7 @@ export async function buildOpsOverview(): Promise<OpsOverview> {
       configured: true,
       detail: err instanceof Error ? err.message : "Ops intel failed",
       health,
-      intake: {
-        totalRecent: 0,
-        bySource: {},
-        feedbackRated: 0,
-        feedbackAvgRating: null,
-        weakFeedback: 0,
-        assessmentLeads: 0,
-        contactLeads: 0,
-        recent: [],
-      },
+      intake: emptyIntake(),
     };
   }
 }

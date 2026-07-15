@@ -21,10 +21,12 @@ Allowlist: `PLATFORM_OPERATOR_EMAILS` (same env as ADR-013).
 
 ## What Ops is for
 
+Ops captures **client and visitor activity across the platform**, not customer project work.
+
 | Pillar | Examples |
 |--------|----------|
-| **Overview** | Health, intake volume, feedback ratings, readiness bands |
-| **Visitor intelligence** | Interest, UTM, comments, assessment scores, commit stage (from CRM Lead fields — deep work stays in CRM) |
+| **Activity overview** | Demos, assessments, feedback, contact, support volume + health |
+| **Client activity feed** | Who did what (interest, readiness, ratings) — deep edit stays in CRM |
 | **Reports** | Pull full slices: intake, feedback, assessment, support, billing (export/analysis) |
 | **Accounts** | Client/Customer plan status, seats, suspend (after entitlements) |
 | **Support** | Ticket/context pack for a person or org |
@@ -32,9 +34,11 @@ Allowlist: `PLATFORM_OPERATOR_EMAILS` (same env as ADR-013).
 
 ## What Ops is not
 
-- Duplicate lead pipeline UI (use CRM pinned views for day-to-day lead work)  
-- Customer product (`/app`)  
+- Customer product desk (`/app` dashboards, projects, incidents, issues)  
+- Duplicate day-to-day CRM pipeline (use Cloud CRM for record editing)  
 - Marketing CMS  
+
+**Operator login default:** allowlisted live users land on **`/ops`**, not `/app/dashboard`.
 
 ## Data sources
 

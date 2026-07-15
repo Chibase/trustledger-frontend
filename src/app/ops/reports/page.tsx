@@ -7,8 +7,9 @@ export default function OpsReportsPage() {
         <p className="text-sm font-medium text-tl-trust">Command centre</p>
         <h1 className="mt-1 font-display text-3xl font-semibold">Reports</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Full analytical pulls for intake, feedback, readiness, support, and
-          billing. Packet 23b will add filters and CSV export here.
+          Analytical pulls of client/visitor activity — intake, feedback,
+          readiness, support, billing. Not project or issue reports. Packet 23b
+          adds filters and CSV export.
         </p>
       </header>
 
