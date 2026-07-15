@@ -17,6 +17,14 @@ export type ProductLeadInput = HubSpotLeadInput & {
    * Must already exist in Desk → CRM Lead Source.
    */
   crmSource?: string;
+  /** Exact visitor words (stored distinctly for executive quote banks) */
+  userQuote?: string;
+  /** Industry / sector */
+  industry?: string;
+  /** Stakeholder / demo role for influence classification */
+  role?: string;
+  /** Attribution string e.g. source/medium/campaign */
+  utm?: string;
 };
 
 export function frappeBase(): string {
@@ -213,6 +221,11 @@ function buildLeadCommentHtml(input: ProductLeadInput, sourceTag: string): strin
           ? "Mixed — triage for product gaps"
           : "Positive — candidate quote / case study";
 
+  const quote = (input.userQuote || "").trim();
+  const industry = (input.industry || "").trim();
+  const role = (input.role || "").trim();
+  const utm = (input.utm || "").trim();
+
   return [
     `<p><b>TrustLedger intake</b> · ${escapeHtml(sourceTag)} · ${escapeHtml(input.pageName || "")}</p>`,
     rating !== undefined
@@ -221,9 +234,18 @@ function buildLeadCommentHtml(input: ProductLeadInput, sourceTag: string): strin
     input.jobTitle
       ? `<p><b>List label:</b> ${escapeHtml(input.jobTitle)}</p>`
       : "",
+    industry ? `<p><b>Sector:</b> ${escapeHtml(industry)}</p>` : "",
+    role ? `<p><b>Demo role:</b> ${escapeHtml(role)}</p>` : "",
+    utm ? `<p><b>UTM:</b> ${escapeHtml(utm)}</p>` : "",
+    input.company
+      ? `<p><b>Organization:</b> ${escapeHtml(input.company)}</p>`
+      : "",
     `<p><b>Page:</b> ${escapeHtml(input.pageUri || "")}</p>`,
+    quote
+      ? `<p><b>Comment:</b> ${escapeHtml(quote).replace(/\n/g, "<br/>")}</p>`
+      : "",
     `<p><b>User view:</b></p><p>${escapeHtml(input.message || "").replace(/\n/g, "<br/>")}</p>`,
-    `<p style="font-size:11px;opacity:.7">TL_META kind=${escapeHtml(sourceTag)}${rating !== undefined ? ` rating=${rating}` : ""}</p>`,
+    `<p style="font-size:11px;opacity:.7">TL_META kind=${escapeHtml(sourceTag)}${rating !== undefined ? ` rating=${rating}` : ""}${industry ? ` sector=${escapeHtml(industry)}` : ""}${role ? ` role=${escapeHtml(role)}` : ""}${utm ? ` utm=${escapeHtml(utm)}` : ""}</p>`,
   ]
     .filter(Boolean)
     .join("");

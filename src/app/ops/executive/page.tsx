@@ -27,7 +27,10 @@ export default async function ExecutiveBoardPage() {
           </p>
           <p className="mt-2 text-xs text-tl-ink-muted">As of {asOf}</p>
         </div>
-        <ExecutiveActions talkingPoints={brief.talkingPoints} />
+        <ExecutiveActions
+          talkingPoints={brief.talkingPoints}
+          quotes={brief.voice.quotes.slice(0, 5).map((q) => q.quote)}
+        />
       </header>
 
       {!brief.ok ? (
@@ -152,6 +155,96 @@ export default async function ExecutiveBoardPage() {
               </ul>
             </div>
           ) : null}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="font-display text-xl font-semibold">
+            Who is engaging
+          </h2>
+          <p className="mt-1 text-sm text-tl-ink-muted">
+            Demographics for board packs — origin, industry, and influence.
+          </p>
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-tl-ink-muted">
+              Where they come from
+            </h3>
+            <div className="mt-4">
+              <HorizontalBarChart bars={brief.voice.origins} />
+            </div>
+          </div>
+          <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-tl-ink-muted">
+              Industry / sector
+            </h3>
+            <div className="mt-4">
+              <HorizontalBarChart bars={brief.voice.industries} />
+            </div>
+          </div>
+          <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-tl-ink-muted">
+              Influence level
+            </h3>
+            <div className="mt-4">
+              <HorizontalBarChart bars={brief.voice.influence} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-5">
+        <div className="rounded-lg border border-tl-line bg-tl-surface p-5 lg:col-span-2">
+          <h2 className="font-display text-lg font-semibold">
+            Sentiment & perception
+          </h2>
+          <p className="mt-1 text-sm text-tl-ink-muted">
+            How visitors experience TrustLedger in use.
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-tl-ink">
+            {brief.voice.perceptionSummary}
+          </p>
+          <div className="mt-4">
+            <HorizontalBarChart bars={brief.voice.sentiments} />
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-tl-line bg-tl-surface p-5 lg:col-span-3">
+          <h2 className="font-display text-lg font-semibold">
+            Exact words
+          </h2>
+          <p className="mt-1 text-sm text-tl-ink-muted">
+            Verbatim comments for investor and board narrative — not paraphrased.
+          </p>
+          <ul className="mt-4 space-y-4">
+            {brief.voice.quotes.length ? (
+              brief.voice.quotes.map((q) => (
+                <li
+                  key={`${q.leadName}-${q.quote.slice(0, 24)}`}
+                  className="border-l-2 border-tl-trust pl-3"
+                >
+                  <blockquote className="text-sm leading-relaxed text-tl-ink">
+                    “{q.quote}”
+                  </blockquote>
+                  <p className="mt-2 text-xs text-tl-ink-muted">
+                    <span className="font-medium text-tl-ink">{q.person}</span>
+                    {q.organization ? ` · ${q.organization}` : ""}
+                    {q.industry ? ` · ${q.industry}` : ""}
+                    {" · "}
+                    {q.activityLabel}
+                    {q.rating != null ? ` · ${q.rating}/5` : ""}
+                    {q.origin ? ` · ${q.origin}` : ""}
+                  </p>
+                </li>
+              ))
+            ) : (
+              <li className="text-sm text-tl-ink-muted">
+                No verbatim comments in the latest window yet.
+              </li>
+            )}
+          </ul>
         </div>
       </section>
 

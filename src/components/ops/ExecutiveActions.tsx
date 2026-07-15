@@ -2,11 +2,21 @@
 
 import { useState } from "react";
 
-export function ExecutiveActions({ talkingPoints }: { talkingPoints: string[] }) {
+export function ExecutiveActions({
+  talkingPoints,
+  quotes = [],
+}: {
+  talkingPoints: string[];
+  quotes?: string[];
+}) {
   const [copied, setCopied] = useState(false);
 
   async function copyPoints() {
-    const text = talkingPoints.map((p, i) => `${i + 1}. ${p}`).join("\n");
+    const points = talkingPoints.map((p, i) => `${i + 1}. ${p}`).join("\n");
+    const voice = quotes.length
+      ? `\n\nExact words:\n${quotes.map((q) => `“${q}”`).join("\n")}`
+      : "";
+    const text = `${points}${voice}`;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

@@ -128,6 +128,9 @@ export async function POST(request: Request) {
         source === "demo_entry"
           ? "Demo entry lead"
           : "Demo soft-gate lead",
+      userQuote: comment || undefined,
+      role,
+      utm: utm === "none" ? undefined : utm,
     });
     if (!result.ok) {
       return NextResponse.json(
