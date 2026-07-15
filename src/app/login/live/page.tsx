@@ -13,8 +13,8 @@ function sanitizeNext(value: string | null): string {
   ) {
     return value;
   }
-  // Operators are redirected to /ops by middleware; customers use /app.
-  return "/ops";
+  // Operators home to Executive Board; customers use /app.
+  return "/ops/executive";
 }
 
 function gateErrorCopy(code: string | null): string | null {
@@ -59,11 +59,13 @@ function LiveLoginForm() {
       }
       // Clear any leftover demo-mode cookie from a prior /demo visit
       document.cookie = "tl-mode=live; path=/; max-age=604800; samesite=lax";
-      // Server decides operator home (/ops). Never fall through to customer desk.
+      // Server decides operator home (/ops/executive). Never fall to customer desk.
       const dest =
         payload.home ||
-        (payload.platformOperator ? "/ops" : null) ||
-        (next.startsWith("/ops") || next.startsWith("/app") ? next : "/ops");
+        (payload.platformOperator ? "/ops/executive" : null) ||
+        (next.startsWith("/ops") || next.startsWith("/app")
+          ? next
+          : "/ops/executive");
       router.push(dest);
       router.refresh();
     } catch (err) {

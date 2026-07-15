@@ -129,12 +129,13 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| 23a | Ops overview | `/ops` shell, allowlist gate, client/visitor activity (not /app projects) | **Active** → activity feed done; reports next |
+| 23a | Ops overview | `/ops` shell, allowlist gate, client/visitor activity (not /app projects) | **Done** |
+| 23e | Executive Board | `/ops/executive` C-suite brief — KPIs, graphs, talking points, print | **Active** |
 | 23b | Ops reports | Filterable intake/feedback/assessment reports + CSV | Planned |
 | 23c | Ops accounts | Customer plan/status/seat controls | Planned |
 | 23d | Ops support packs | Per-person/org context for support | Planned |
 
-See `docs/PLATFORM_OPS.md` and ADR-015.
+See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016.
 
 ## 8. Quality gates (every packet)
 
