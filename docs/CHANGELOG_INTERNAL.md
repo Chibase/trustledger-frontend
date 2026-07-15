@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-15 — Vercel Paystack checkout (23g)
+
+- ADR-019: `/pay` → Paystack hosted checkout while Desk marketplace app is blocked
+- Webhook + verify log CRM Lead `Paystack Payment`; Ops Finance + Executive show notifications
+- WP buy CTAs documented; amounts via `PAYSTACK_AMOUNT_*_CENTS`
+
 ## 2026-07-15 — Interserv retired (ADR-018)
 
 - Sole backend host is Frappe Cloud `app.trustledger.co.za`

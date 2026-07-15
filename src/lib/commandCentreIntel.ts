@@ -13,8 +13,8 @@ export const CONTROL_PILLARS: ControlPillarLink[] = [
   {
     href: "/ops/finance",
     title: "Finance",
-    blurb: "Budget, burn, and resource utilisation.",
-    status: "planned",
+    blurb: "Paystack checkout notifications + budget scaffold.",
+    status: "partial",
   },
   {
     href: "/ops/staff",

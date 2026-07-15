@@ -94,38 +94,95 @@ Only after that: switch Gateway Setting to **live** keys and repeat one tiny liv
 
 ---
 
-## D. Soft-launch operating model (no code yet)
+## D. Vercel Paystack checkout (active while Desk app blocked)
 
-Until webhook → entitlement is built:
+Use this path on the **shared Frappe Cloud bench** (no Marketplace Paystack install required).
 
-1. Buyer pays via Paystack link on Sales Invoice.  
-2. You see Paid in Desk.  
-3. Manually create Plan Owner per `docs/ACCESS_MODEL.md` (after Platform Operator lockdown is lifted).  
-4. Log handoff in CRM Lead / Customer note: `Paid Paystack ref … · Plan …`.
+```text
+WordPress product CTA
+  → https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner
+  → Paystack hosted checkout
+  → webhook + verify → CRM Lead (source Paystack Payment)
+  → Ops Finance + Executive payment notifications
+  → you update Customer / Plan Owner manually
+```
+
+### D1. Vercel env (Production)
+
+```bash
+PAYSTACK_SECRET_KEY=sk_test_…
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_…
+# Amounts in ZAR cents (R500.00 = 50000)
+PAYSTACK_AMOUNT_PRACTITIONER_CENTS=50000
+PAYSTACK_AMOUNT_PROJECT_CENTS=150000
+# Institutional stays contact-sales unless you set an amount
+# PAYSTACK_AMOUNT_INSTITUTIONAL_CENTS=0
+```
+
+Redeploy after saving.
+
+### D2. Paystack webhook
+
+Dashboard → **Settings → API Keys & Webhooks**:
+
+`https://trustledger-frontend-pi.vercel.app/api/paystack/webhook`
+
+Event: `charge.success` (signature verified with the secret key).
+
+### D3. WordPress CTAs
+
+| Plan | URL |
+|------|-----|
+| Practitioner | `…/pay?plan=practitioner&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_practitioner` |
+| Project | `…/pay?plan=project&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_project` |
+| Institutional | `…/contact` (sales-led) |
+
+### D4. Soft-launch ops
+
+1. Buyer pays on `/pay`.  
+2. Payment appears under **Ops → Finance** and on **Executive Board**.  
+3. Confirm in Paystack Dashboard.  
+4. Manually update CRM Customer + Plan Owner when lockdown allows (`docs/ACCESS_MODEL.md`).  
 
 Do **not** auto-create customer logins from HubSpot.
 
 ---
 
-## E. Later (product automation)
+## E. Soft-launch via Frappe Desk (after private bench)
+
+Until Desk Paystack + entitlement automation:
+
+1. Buyer pays via Paystack link on Sales Invoice.  
+2. You see Paid in Desk.  
+3. Manually create Plan Owner per `docs/ACCESS_MODEL.md`.  
+4. Log handoff: `Paid Paystack ref … · Plan …`.
+
+---
+
+## F. Later (product automation)
 
 | Step | Owner |
 |------|--------|
 | Webhook handler → entitlement DocType | `srm-core` on Cloud |
 | Email Owner invite / magic link | Frappe Notification + Vercel `/login/live` |
-| Marketing “Buy” CTA → invoice or hosted Paystack checkout | WordPress or TrustLedger `/contact` |
-| Vercel env for public key (never secret) | Optional hosted checkout |
+| Desk `frappe_paystack` on private bench | When you upgrade FC plan |
+| Live keys | After test checkout passes |
 
 ---
 
-## F. Checklist
+## G. Checklist
 
-- [ ] Paystack SA business + test keys  
-- [ ] `frappe_paystack` installed on `app.trustledger.co.za`  
-- [ ] Mode of Payment `Paystack` + clearing account  
-- [ ] Paystack Gateway Setting enabled (test)  
-- [ ] Webhook URL saved in Paystack  
-- [ ] Test invoice paid end-to-end  
+### Vercel path (now)
+- [ ] Paystack SA business + **test** keys on Vercel  
+- [ ] Plan amounts (`*_CENTS`) set  
+- [ ] Webhook → `/api/paystack/webhook`  
+- [ ] Test `/pay?plan=practitioner` end-to-end  
+- [ ] Payment visible in Ops Finance  
 - [ ] Live keys only after test passes  
 
-**Blocked on you:** Paystack signup/KYC + Marketplace install + pasting keys in Desk (secrets stay with you).
+### Desk path (later)
+- [ ] Private bench + `frappe_paystack`  
+- [ ] Mode of Payment + Gateway Setting  
+- [ ] Test Sales Invoice paid  
+
+**Blocked on you:** Paystack keys + Vercel env amounts (secrets stay with you).

@@ -15,6 +15,9 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 | SRM assessment (full page) | `https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic` |
 | SRM assessment (embed) | `https://trustledger-frontend-pi.vercel.app/assessment?embed=1&utm_source=wordpress&utm_medium=embed&utm_campaign=srm_diagnostic` |
 | Team desk (Frappe) | `https://app.trustledger.co.za` |
+| Buy Practitioner | `https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_practitioner` |
+| Buy Project | `https://trustledger-frontend-pi.vercel.app/pay?plan=project&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_project` |
+| Institutional / contact | `https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&utm_medium=cta&utm_campaign=buy_institutional` |
 
 | Chibase Consulting | `https://chibaseconsulting.co.za` |
 | Contact | `mailto:info@trustledger.co.za` |
@@ -25,6 +28,7 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 - **Sign in** → live BFF login against Frappe Cloud (`app.trustledger.co.za`).
 - **Team desk** → Frappe desk for internal users (not the public demo).
 - **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Leads go to **HubSpot** via Forms API when `HUBSPOT_PORTAL_ID` / `HUBSPOT_FORM_ID` / `HUBSPOT_REGION` are set (fallback: `ASSESSMENT_WEBHOOK_URL`).
+- **Buy** → Vercel `/pay` → Paystack. Ops Finance is notified; you update CRM Customer manually (`docs/PAYMENTS_SETUP.md` §D).
 
 ## WordPress Assessment page
 

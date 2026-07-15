@@ -157,6 +157,15 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Docs/config must not require Interserv; cancel checklist is owner-facing; no dual-host support.
 - **Alternatives considered:** Keep Interserv until `srm-core` lands (rejected — Cloud already serves CRM/auth/payments; `srm-core` can be built on Cloud).
 
+### ADR-019: Vercel Paystack checkout until Desk marketplace unlock
+
+- **Date:** 2026-07-15
+- **Status:** Accepted
+- **Context:** Shared Frappe Cloud benches cannot install third-party **Frappe Paystack**. Soft launch still needs ZAR collection and Ops visibility.
+- **Decision:** Collect via **Vercel `/pay`** → Paystack hosted checkout + webhook. Log payments as CRM Lead (`Paystack Payment`) for Executive/Finance notifications. CRM Customer / Plan Owner stay **manual**. Desk `frappe_paystack` remains the later path after private bench. See `docs/PAYMENTS_SETUP.md` §D.
+- **Consequences:** WP CTAs point at Vercel; secrets only on Vercel; no auto-login from payment.
+- **Alternatives considered:** Paystack Payment Pages only (rejected — weaker Ops feed); wait for private bench (rejected — blocks revenue).
+
 ### ADR-013: Platform Operator sole live control (until lifted)
 
 - **Date:** 2026-07-12
