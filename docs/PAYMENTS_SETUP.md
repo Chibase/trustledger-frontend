@@ -24,14 +24,29 @@ Keep keys out of chat and git. Store only in Frappe Desk / password manager.
 
 ## B. Frappe Cloud — install Paystack app
 
-On [https://app.trustledger.co.za](https://app.trustledger.co.za) (Frappe Cloud site):
+**Frappe Paystack is a third-party Marketplace app.** On a **shared / public bench** it will **not** appear under Site → Apps → Install App (only featured Frappe apps show). That is why the Marketplace page’s “install” guidance feels broken.
 
-1. Cloud dashboard → your site → **Apps** / **Install from Marketplace**.
-2. Install **Frappe Paystack** (`frappe_paystack`) — *not* only the generic **Payments** app.
-3. Wait for install + migrate to finish; reload Desk.
+### B1. Put the site on a private bench (required)
 
-If Marketplace install is blocked, ask Frappe Cloud support to install  
-`https://github.com/mymi14s/frappe_paystack` on the site.
+1. [https://cloud.frappe.io](https://cloud.frappe.io) → open site `app.trustledger.co.za`.
+2. If you see **Upgrade Plan** / private-bench banner: upgrade to a plan that allows private benches (**USD 25+/month** class — confirm on FC pricing).
+3. Then use **Move to Private Bench** (or create a private **Bench Group**, add apps, migrate site).  
+   Docs: [Move site from shared to private bench](https://docs.frappe.io/cloud/site/site-migrations/move-site-from-shared-to-private-bench).
+
+### B2. Add Paystack to the **bench**, then install on the **site**
+
+1. Cloud → your **Bench Group** (not only the site) → **Apps** → **Add App**.
+2. Choose **Frappe Paystack** from Marketplace, or GitHub `https://github.com/mymi14s/frappe_paystack` (Version **15**).
+3. **Update Available** → deploy/update including this site.
+4. Site → **Apps** → **Install App** → **Frappe Paystack**.
+5. Wait for migrate; open Desk `https://app.trustledger.co.za` and hard-refresh.
+
+Also confirm **ERPNext** is installed on the site (Sales Invoice / Mode of Payment). CRM-only sites cannot complete the Paystack invoice flow.
+
+### B3. If still blocked
+
+Open a Frappe Cloud support ticket: ask them to add `frappe_paystack` to your private bench / site `app.trustledger.co.za`.  
+App page: [Marketplace — Frappe Paystack](https://cloud.frappe.io/marketplace/apps/frappe_paystack).
 
 ---
 
