@@ -10,19 +10,14 @@ import { USER_ROLES, type UserRole } from "@/types/rbac";
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
-function sanitizeNext(value: string | null): string {
-  if (value && value.startsWith("/") && !value.startsWith("//")) {
-    return value;
-  }
-  return "/app/dashboard";
-}
+type Step = "capture" | "choose";
 
-function DemoForm() {
+function TrialForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = sanitizeNext(searchParams.get("next"));
   const { getToken } = useRecaptcha("demo_entry");
-  const [role, setRole] = useState<UserRole>("community");
+  const [step, setStep] = useState<Step>("capture");
+  const [role, setRole] = useState<UserRole>("admin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
@@ -36,14 +31,14 @@ function DemoForm() {
     const timer = window.setTimeout(() => {
       const captured = captureUtmFromSearchParams(
         new URLSearchParams(searchParams.toString()),
-        "/demo",
+        "/trial",
       );
       setUtmLabel(formatUtmSummary(captured ?? readUtm()));
     }, 0);
     return () => window.clearTimeout(timer);
   }, [searchParams]);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleCapture(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
@@ -94,17 +89,19 @@ function DemoForm() {
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
-        setError(data.error ?? "Could not start demo. Try again.");
+        setError(data.error ?? "Could not start trial. Try again.");
         return;
       }
 
       window.localStorage.setItem("tl-lead-email", email.trim().toLowerCase());
+      window.localStorage.setItem("tl-lead-name", name.trim());
+      window.localStorage.setItem(
+        "tl-lead-org",
+        organization.trim() || "",
+      );
       window.localStorage.setItem("tl-lead-dismissed", "1");
-      window.localStorage.setItem("tl-demo-lead-source", "demo_entry");
-
-      document.cookie = `session-role=${role}; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-      document.cookie = `tl-mode=demo; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-      router.push(next.startsWith("/app") ? next : "/app/dashboard");
+      window.localStorage.setItem("tl-demo-lead-source", "trial_entry");
+      setStep("choose");
     } catch {
       setError("Network error. Check your connection and try again.");
     } finally {
@@ -112,35 +109,108 @@ function DemoForm() {
     }
   }
 
+  function enterDemo() {
+    document.cookie = `session-role=${role}; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
+    document.cookie = `tl-mode=demo; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
+    router.push("/app/dashboard");
+  }
+
+  function payUrl(plan: "practitioner" | "project") {
+    const params = new URLSearchParams({
+      plan,
+      email: email.trim().toLowerCase(),
+      name: name.trim(),
+      utm_source: "trial",
+      utm_medium: "funnel",
+      utm_campaign: `buy_${plan}`,
+    });
+    if (organization.trim()) params.set("organization", organization.trim());
+    return `/pay?${params.toString()}`;
+  }
+
+  if (step === "choose") {
+    return (
+      <main className="mx-auto flex min-h-full max-w-lg flex-col justify-center px-4 py-12">
+        <p className="text-sm font-medium text-tl-trust">Trial started</p>
+        <h1 className="mt-2 font-display text-3xl font-semibold text-tl-ink">
+          What would you like to do next?
+        </h1>
+        <p className="mt-3 text-sm text-tl-ink-muted">
+          Thanks, {name.split(" ")[0] || "there"}. Explore sample data, or
+          subscribe now with Paystack — Ops will see the payment and we
+          provision access manually for soft launch.
+        </p>
+
+        <div className="mt-8 space-y-3">
+          <button
+            type="button"
+            onClick={enterDemo}
+            className="w-full rounded-md border border-tl-line bg-tl-surface px-4 py-3 text-left hover:border-tl-trust/40"
+          >
+            <span className="block font-semibold">Explore the demo</span>
+            <span className="mt-0.5 block text-sm text-tl-ink-muted">
+              Sample dashboards and AI assist — no live project data
+            </span>
+          </button>
+
+          <Link
+            href={payUrl("practitioner")}
+            className="block w-full rounded-md bg-tl-trust px-4 py-3 text-left text-white hover:bg-tl-trust-ink"
+          >
+            <span className="block font-semibold">Subscribe · Practitioner</span>
+            <span className="mt-0.5 block text-sm text-white/80">
+              Pay with Paystack — single Plan Owner seat
+            </span>
+          </Link>
+
+          <Link
+            href={payUrl("project")}
+            className="block w-full rounded-md border border-tl-trust bg-tl-surface px-4 py-3 text-left hover:bg-tl-paper"
+          >
+            <span className="block font-semibold text-tl-ink">
+              Subscribe · Project
+            </span>
+            <span className="mt-0.5 block text-sm text-tl-ink-muted">
+              Pay with Paystack — owner + per-project seats
+            </span>
+          </Link>
+
+          <Link
+            href="/contact?utm_source=trial&utm_medium=funnel&utm_campaign=institutional"
+            className="block w-full rounded-md border border-tl-line px-4 py-3 text-left text-sm hover:bg-tl-paper"
+          >
+            <span className="font-semibold">Institutional / custom</span>
+            <span className="mt-0.5 block text-tl-ink-muted">
+              Contact sales — not self-serve checkout
+            </span>
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto flex min-h-full max-w-lg flex-col justify-center px-4 py-12">
-      <p className="text-sm font-medium text-tl-trust">TrustLedger Demo</p>
+      <p className="text-sm font-medium text-tl-trust">Start trial</p>
       <h1 className="mt-2 font-display text-3xl font-semibold text-tl-ink">
-        Try the product with sample data
+        Begin with TrustLedger
       </h1>
       <p className="mt-3 text-sm text-tl-ink-muted">
-        Enter your work details, pick a stakeholder role, then explore
-        dashboards and AI assist on sample data — nothing writes to a live
-        project. For trial + subscribe options, use{" "}
-        <Link href="/trial" className="font-medium text-tl-trust-ink underline">
-          Start trial
-        </Link>
-        .
+        Share your details once. Next you can explore the sample demo or
+        subscribe with Paystack.
       </p>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleCapture}
         className="relative mt-8 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-5"
       >
         <HoneypotField value={honeypot} onChange={setHoneypot} />
         <div>
-          <label htmlFor="demo-name" className="mb-1 block text-sm font-medium">
+          <label htmlFor="trial-name" className="mb-1 block text-sm font-medium">
             Name
           </label>
           <input
-            id="demo-name"
-            name="name"
-            autoComplete="name"
+            id="trial-name"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -148,14 +218,12 @@ function DemoForm() {
           />
         </div>
         <div>
-          <label htmlFor="demo-email" className="mb-1 block text-sm font-medium">
+          <label htmlFor="trial-email" className="mb-1 block text-sm font-medium">
             Work email
           </label>
           <input
-            id="demo-email"
-            name="email"
+            id="trial-email"
             type="email"
-            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -163,43 +231,42 @@ function DemoForm() {
           />
         </div>
         <div>
-          <label htmlFor="demo-org" className="mb-1 block text-sm font-medium">
+          <label htmlFor="trial-org" className="mb-1 block text-sm font-medium">
             Organization{" "}
             <span className="font-normal text-tl-ink-muted">(optional)</span>
           </label>
           <input
-            id="demo-org"
-            name="organization"
-            autoComplete="organization"
+            id="trial-org"
             value={organization}
             onChange={(e) => setOrganization(e.target.value)}
             className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
           />
         </div>
         <div>
-          <label htmlFor="demo-comment" className="mb-1 block text-sm font-medium">
+          <label
+            htmlFor="trial-comment"
+            className="mb-1 block text-sm font-medium"
+          >
             What do you want to see or solve?
           </label>
           <textarea
-            id="demo-comment"
-            name="comment"
+            id="trial-comment"
             required
             minLength={10}
             rows={3}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="e.g. Ward grievance intake and SLA reporting for two pilot projects"
             className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
           />
         </div>
         <div>
-          <label htmlFor="role" className="mb-1 block text-sm font-medium">
-            Enter as
+          <label htmlFor="trial-role" className="mb-1 block text-sm font-medium">
+            Demo role (if you explore sample data)
           </label>
           <select
-            id="role"
+            id="trial-role"
             value={role}
-            onChange={(event) => setRole(event.target.value as UserRole)}
+            onChange={(e) => setRole(e.target.value as UserRole)}
             className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
           >
             {USER_ROLES.map((option) => (
@@ -217,8 +284,7 @@ function DemoForm() {
         ) : null}
 
         <p className="text-xs text-tl-ink-muted">
-          By starting the demo you agree we may contact you about TrustLedger.
-          See our{" "}
+          By continuing you agree we may contact you about TrustLedger.{" "}
           <a
             href="https://trustledger.co.za/privacy/"
             className="underline"
@@ -235,25 +301,32 @@ function DemoForm() {
           disabled={submitting}
           className="w-full rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
         >
-          {submitting ? "Starting…" : "Start demo"}
+          {submitting ? "Saving…" : "Continue"}
         </button>
       </form>
 
-      <p className="mt-4 text-xs text-tl-ink-muted">Campaign: {utmLabel}</p>
+      <p className="mt-4 text-xs text-tl-ink-muted">
+        Already decided?{" "}
+        <Link href="/pay" className="font-medium text-tl-trust-ink underline">
+          Go straight to checkout
+        </Link>
+        {" · "}
+        Campaign: {utmLabel}
+      </p>
     </main>
   );
 }
 
-export default function DemoPage() {
+export default function TrialPage() {
   return (
     <Suspense
       fallback={
         <main className="p-6">
-          <h1 className="font-display text-2xl font-semibold">TrustLedger Demo</h1>
+          <h1 className="font-display text-2xl font-semibold">Start trial</h1>
         </main>
       }
     >
-      <DemoForm />
+      <TrialForm />
     </Suspense>
   );
 }

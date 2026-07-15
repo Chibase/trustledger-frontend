@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
 import { formatUtmSummary, readUtm } from "@/lib/utm";
@@ -105,18 +106,26 @@ export function DemoLeadGate() {
         {sent ? (
           <>
             <h2 id="lead-title" className="font-display text-xl font-semibold">
-              Thanks — we will follow up
+              Thanks — choose your next step
             </h2>
             <p className="mt-2 text-sm text-tl-ink-muted">
-              Our team will contact you about a live TrustLedger walkthrough.
+              Keep exploring sample data, or subscribe now with Paystack.
             </p>
-            <button
-              type="button"
-              onClick={dismiss}
-              className="mt-4 rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white"
-            >
-              Continue exploring
-            </button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href="/pay?utm_source=demo_gate&utm_medium=modal&utm_campaign=upgrade"
+                className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white"
+              >
+                Subscribe / pay
+              </Link>
+              <button
+                type="button"
+                onClick={dismiss}
+                className="rounded-md border border-tl-line px-4 py-2 text-sm"
+              >
+                Continue exploring
+              </button>
+            </div>
           </>
         ) : (
           <>
@@ -124,8 +133,8 @@ export function DemoLeadGate() {
               Want this for your projects?
             </h2>
             <p className="mt-2 text-sm text-tl-ink-muted">
-              You have explored the demo. Leave a work email to book a live
-              TrustLedger walkthrough.
+              You have explored the demo. Leave a work email — then you can
+              subscribe or keep exploring.
             </p>
             <p className="mt-2 text-xs text-tl-ink-muted">Source: {utmLabel}</p>
             <form onSubmit={submit} className="relative mt-4 space-y-3">
@@ -162,8 +171,14 @@ export function DemoLeadGate() {
                   disabled={submitting}
                   className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
                 >
-                  {submitting ? "Sending…" : "Book a demo"}
+                  {submitting ? "Sending…" : "Continue"}
                 </button>
+                <Link
+                  href="/pay?utm_source=demo_gate&utm_medium=modal&utm_campaign=pay_now"
+                  className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium"
+                >
+                  Pay now
+                </Link>
                 <button
                   type="button"
                   onClick={dismiss}
