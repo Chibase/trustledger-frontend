@@ -37,7 +37,7 @@
 - Show status from health checks
 - Create/update support ticket with diagnostics
 - Send password-reset email (Frappe) when requested by the same user
-- Switch UI to “degraded mode” messaging when Interserv is down
+- Switch UI to “degraded mode” messaging when Frappe Cloud is down
 
 **Never auto (always escalate)**
 - Change roles / permissions / tenant scope

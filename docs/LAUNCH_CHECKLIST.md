@@ -15,8 +15,8 @@
 
 1. **Hard-refresh / re-paste WP Assessment** if footer still shows `+00 000 000 0000` — use updated `docs/wordpress/page-assessment.txt`.
 2. **Confirm HubSpot** receives demo-gate + assessment leads (check Contacts after a test).
-3. **Decide final product domain** (keep `*.vercel.app` or attach custom domain) and set `NEXT_PUBLIC_SITE_URL` to match; update Interserv CORS if domain changes.
-4. **Frappe Cloud / `app.trustledger.co.za`** — domain Active; set Vercel `NEXT_PUBLIC_API_BASE_URL` + `FRAPPE_BASE_URL`; CORS + API keys per `docs/FRAPPE_CLOUD_SETUP.md`.
+3. **Decide final product domain** (keep `*.vercel.app` or attach custom domain) and set `NEXT_PUBLIC_SITE_URL` to match; update Frappe Cloud CORS if domain changes.
+4. **Frappe Cloud / `app.trustledger.co.za`** — domain Active; set Vercel `NEXT_PUBLIC_API_BASE_URL` + `FRAPPE_BASE_URL`; CORS + API keys per `docs/FRAPPE_CLOUD_SETUP.md`. Interserv is retired — see `docs/INTERSERV_CANCEL.md`.
 5. **Legal** — confirm Privacy + Terms on `trustledger.co.za` have real entity name/address (placeholders remain).
 6. **Phone / Calendly** — add when ready (removed fake phone from paste kit).
 7. **Demo banner** — keep for sample-data honesty, or hide only for live users (already the case).
@@ -26,4 +26,4 @@
 
 ## Recommended launch mode
 
-**Marketing + interactive demo + assessment** (current default `NEXT_PUBLIC_DATA_MODE=demo`) is safest for public launch. Turn on live Frappe only for named pilots after Interserv smoke passes.
+**Marketing + interactive demo + assessment** (current default `NEXT_PUBLIC_DATA_MODE=demo`) is safest for public launch. Turn on live product DocTypes only for named pilots after Frappe Cloud smoke passes.

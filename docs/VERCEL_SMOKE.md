@@ -30,13 +30,13 @@ Then **Deployments → latest `master` → Redeploy** (required: `NEXT_PUBLIC_*`
 - [ ] `/demo` still works (sample data path)
 - [ ] `/login/live` accepts a Frappe user/password
 - [ ] After login, `/app/dashboard` loads **without** demo banner
-- [ ] Incidents list shows Interserv data (not only mock titles)
+- [ ] Incidents list shows Frappe Cloud / live data (not only mock titles) when live mode is on
 - [ ] Sign out clears the session
 - [ ] AI assist returns heuristic suggestions (`srm-heuristic-v0`) for an SRM-privileged user
 
 ### If live login fails
 
-1. Confirm Interserv CORS includes the Vercel origin (Step 2)
+1. Confirm Frappe Cloud CORS includes the Vercel origin (Step 2)
 2. Confirm `srm_core.api.auth.get_session` is on the site
 3. Check Vercel function logs for `/auth/live/login`
 4. Temporarily set `NEXT_PUBLIC_DATA_MODE=demo` to restore the public demo

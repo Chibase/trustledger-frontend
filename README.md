@@ -51,4 +51,6 @@ Paste Demo CTAs into WordPress using `docs/WORDPRESS_CTA.md`.
 
 ## Backend handoff
 
-Interserv implementers: follow `docs/FRAPPE_API_CONTRACT.md`.
+Frappe Cloud (`app.trustledger.co.za`) is the sole backend host.  
+API contract for future `srm-core` on Cloud: `docs/FRAPPE_API_CONTRACT.md`.  
+Interserv retirement: `docs/INTERSERV_CANCEL.md`.

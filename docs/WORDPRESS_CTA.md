@@ -22,7 +22,7 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 ## Behaviour notes
 
 - **Open dashboard** → `/app/dashboard`. Guests are redirected to demo/login by middleware.
-- **Sign in** → live BFF login against Interserv.
+- **Sign in** → live BFF login against Frappe Cloud (`app.trustledger.co.za`).
 - **Team desk** → Frappe desk for internal users (not the public demo).
 - **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Leads go to **HubSpot** via Forms API when `HUBSPOT_PORTAL_ID` / `HUBSPOT_FORM_ID` / `HUBSPOT_REGION` are set (fallback: `ASSESSMENT_WEBHOOK_URL`).
 

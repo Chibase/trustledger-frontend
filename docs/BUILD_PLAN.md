@@ -11,11 +11,11 @@
 | Official name | **TrustLedger** |
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
-| Backend | Frappe `srm-core` on Interserv (live path in Phase 2) |
+| Backend | **Frappe Cloud** `app.trustledger.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
 | Marketing | WordPress `trustledger.co.za` on Webway (CTA later) |
-| Runtime AI | Grok via `srm-core` only — never from browser |
+| Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
-**Current phase:** Phase 2 — API client + live-mode switches. Demo remains default and must keep working without Interserv.
+**Current phase:** Phase 2 — Frappe-ready on **Frappe Cloud**. Demo remains default and must keep working without live product DocTypes. Interserv is retired (ADR-018).
 
 ## 2. Locked decisions (do not re-ask)
 
@@ -38,7 +38,7 @@ When implementing:
 
 1. **Follow this file** and the active packet only.
 2. **Do not ask** for preference on colours, fonts, IA, or stack — already locked.
-3. **Do not** change Cloudflare or WordPress in this repo (different hosts). Frappe client scaffolding is allowed; do not require live Interserv for Demo.
+3. **Do not** change Cloudflare or WordPress in this repo (different hosts). Frappe client scaffolding targets **Frappe Cloud** only; do not require live product DocTypes for Demo.
 4. **Do** update `docs/CHANGELOG_INTERNAL.md` when a packet completes.
 5. **Do** run `npm run lint` and `npm run build` before considering a packet done.
 6. **Only stop and ask** if: secrets/credentials needed, destructive prod action, or BUILD_PLAN contradiction.
@@ -104,7 +104,7 @@ Meaningful actions: submit issue, apply AI suggestion, generate brief, open inci
 | 13 | Live service adapters | Services call Frappe when live; mock fallback | **Done** |
 | 14 | Auth bridge stub | Document + stub session for Frappe login (no secrets) | **Done** |
 
-**Still external (not this repo):** Cloudflare DNS, Grok API keys on Interserv.
+**Still external (not this repo):** Cloudflare DNS (if used), Grok API keys on Frappe Cloud site config when `srm-core` lands.
 WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 
 ### Phase 3 — Demo depth + marketing handoff

@@ -73,7 +73,7 @@ Session / get_session returns { role, customer, plan, entitlements }
 └─────────────────────┴──────────────────────────────┘
 ```
 
-1. **Source of truth (Interserv)**  
+1. **Source of truth (Frappe Cloud)**  
    On Customer (or Subscription DocType): `plan_code`, `seat_limit`, `project_limit`, `features` (JSON flags), `status` (active/past_due/cancelled).
 
 2. **Session**  

@@ -31,13 +31,13 @@ Website / Assessment / Demo
 
 **Trigger (any one):** signed pilot, paid Paystack invoice/checkout, written “yes” to paid plan, or you set HubSpot deal stage = **Commitment / Closed Won**.
 
-**Create on Interserv (manual at first, automate later):**
+**Create on Frappe Cloud (manual at first, automate later):**
 
 1. **Customer** (organisation)  
 2. **Contact** (buyer / champion) linked to Customer  
 3. **User** + roles when they need product access  
 4. Optional **CRM Lead/Deal** closed against that Customer  
-5. Link **Project(s)** in `srm-core` to Customer  
+5. Link **Project(s)** in `srm-core` (on Cloud) to Customer  
 
 After handoff, day-to-day relationship work (calls logged, renewals, support) happens in **Frappe**, not HubSpot.
 
@@ -53,7 +53,7 @@ After handoff, day-to-day relationship work (calls logged, renewals, support) ha
 ## Solo checklist when someone commits
 
 1. HubSpot: stage → **Commitment** (note plan + ZAR amount).  
-2. Interserv: Customer + Contact (+ User if access needed).  
+2. Frappe Cloud: Customer + Contact (+ User if access needed).  
 3. Email credentials / `/login/live` link.  
 4. HubSpot contact note: `Handed to Frappe Customer: <name>`.  
 5. Stop nurturing that contact in HubSpot sequences.

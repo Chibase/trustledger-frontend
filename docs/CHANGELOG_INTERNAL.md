@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-15 — Interserv retired (ADR-018)
+
+- Sole backend host is Frappe Cloud `app.trustledger.co.za`
+- Docs/config scrubbed of Interserv runtime dependency
+- `docs/INTERSERV_CANCEL.md` owner checklist to cancel before next deduction
+
 ## 2026-07-15 — Command control pillars (23f)
 
 - ADR-017: `/ops/finance`, `/ops/staff`, `/ops/ai`, `/ops/issues`
@@ -89,7 +95,7 @@
 ## 2026-07-12 — Support Phase A
 
 - In-app Support drawer (self-serve + HubSpot tickets)
-- `/status` + `/api/health` (Vercel + Interserv probes)
+- `/status` + `/api/health` (Vercel + Frappe Cloud probes)
 - Issue catalog + allowlist in `docs/SUPPORT_OPS.md`
 - Repair session + live sign-in shortcuts
 
@@ -139,7 +145,7 @@
 - UTM capture on `/demo` + lead payload attribution
 - Mobile menu nav for small screens
 - robots.txt, sitemap, Open Graph metadata
-- `docs/FRAPPE_API_CONTRACT.md` for Interserv / srm-core
+- `docs/FRAPPE_API_CONTRACT.md` for Frappe Cloud / srm-core
 
 ## 2026-07-11 — Phase 3 Packets 15–18
 

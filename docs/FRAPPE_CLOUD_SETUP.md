@@ -1,7 +1,8 @@
 # Frappe Cloud cutover — TrustLedger
 
 **Primary site URL:** `https://app.trustledger.co.za`  
-**Cloud hostnames:** `trustledger.jh.frappe.cloud` (also active)
+**Cloud hostnames:** `trustledger.jh.frappe.cloud` (also active)  
+**Interserv:** retired for this product — cancel checklist in `docs/INTERSERV_CANCEL.md` (ADR-018).
 
 ## Stack (3 layers)
 
