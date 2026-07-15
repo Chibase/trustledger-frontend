@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   HorizontalBarChart,
   VerticalBarChart,
@@ -5,6 +6,10 @@ import {
 import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { TrendChart } from "@/components/ops/charts/TrendChart";
 import { ExecutiveActions } from "@/components/ops/ExecutiveActions";
+import {
+  CONTROL_PILLARS,
+  pillarStatusLabel,
+} from "@/lib/commandCentreIntel";
 import { buildExecutiveBrief } from "@/lib/executiveIntel";
 
 export const dynamic = "force-dynamic";
@@ -73,6 +78,34 @@ export default async function ExecutiveBoardPage() {
           }
           tone={brief.kpis.weakFeedback > 0 ? "attention" : "default"}
         />
+      </section>
+
+      <section className="space-y-3">
+        <div>
+          <h2 className="font-display text-lg font-semibold">
+            Command control
+          </h2>
+          <p className="mt-1 text-sm text-tl-ink-muted">
+            Finance, staff, AI governance, and client issue turnaround.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {CONTROL_PILLARS.map((pillar) => (
+            <Link
+              key={pillar.href}
+              href={pillar.href}
+              className="block rounded-lg border border-tl-line bg-tl-surface p-4 hover:border-tl-trust/40"
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <h3 className="font-semibold">{pillar.title}</h3>
+                <span className="text-[11px] uppercase tracking-wide text-tl-ink-muted">
+                  {pillarStatusLabel(pillar.status)}
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-tl-ink-muted">{pillar.blurb}</p>
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-5">
