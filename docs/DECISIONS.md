@@ -8,7 +8,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 
 - **Date:** 2026-07-11
 - **Status:** Accepted
-- **Context:** Need a full functional frontend stakeholders can try before Frappe/Interserv wiring and Cloudflare DNS work.
+- **Context:** Need a full functional frontend stakeholders can try before Frappe Cloud wiring and Cloudflare DNS work.
 - **Decision:** Ship a complete Demo experience on Vercel using mock data and mock AI. Defer live Frappe integration to a later phase.
 - **Consequences:** Faster public proof; services must be shaped like future Frappe APIs to avoid rewrite.
 - **Alternatives considered:** Block UI on backend readiness; build WordPress-only demo.
@@ -44,7 +44,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 
 - **Date:** 2026-07-11
 - **Status:** Accepted
-- **Context:** Interserv Frappe (`srm-core`) is the future system of record.
+- **Context:** Frappe (`srm-core` on the product backend host) is the future system of record for live product DocTypes.
 - **Decision:** TypeScript types and service methods use names/fields compatible with SRM Incident, projects, sentiment, etc. `NEXT_PUBLIC_AI_MOCK` / API base switch later without UI rewrite.
 - **Consequences:** Slightly more structured mocks now; less churn later.
 - **Alternatives considered:** Disposable demo-only schemas.
@@ -89,7 +89,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 
 - **Date:** 2026-07-11
 - **Status:** Accepted
-- **Context:** Demo is live on Vercel; Interserv Frappe is not required for every visitor.
+- **Context:** Demo is live on Vercel; Frappe Cloud live DocTypes are not required for every visitor.
 - **Decision:** `NEXT_PUBLIC_DATA_MODE` defaults to `demo`. Live Frappe calls only when explicitly set to `live`. AI mock remains independent via `NEXT_PUBLIC_AI_MOCK`.
 - **Consequences:** Safe public Demo; pilots can flip env without code forks.
 - **Alternatives considered:** Always-on live API (breaks Demo without VPN/backend).
@@ -98,7 +98,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 
 - **Date:** 2026-07-12
 - **Status:** Accepted
-- **Context:** Solo operator; HubSpot Free is already wired for assessment/demo/support intake but is limited for ongoing customer management. Frappe on Interserv is the product system of record.
+- **Context:** Solo operator; HubSpot Free is already wired for assessment/demo/support intake but is limited for ongoing customer management. Frappe Cloud is the product system of record.
 - **Decision:** Use HubSpot Free only for acquisition (leads, light tickets, early pipeline). At commitment (pilot signed, paid, or Closed Won), hand off to Frappe Customer/Contact/(User). No dual full-CRM maintenance.
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
@@ -147,6 +147,15 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Decision:** Add allowlisted control surfaces under `/ops`: **`/ops/finance`**, **`/ops/staff`**, **`/ops/ai`**, **`/ops/issues`**. Issues may read Support Ticket CRM signals now; finance books, staff HR/wellbeing telemetry, AI invocation metrics, and post-resolution client feeling land in later packets. **Staff wellbeing** is explicitly deferred (UI placeholder only). See `docs/PLATFORM_OPS.md`.
 - **Consequences:** Command centre gains four control pillars with honest empty-states; no fabricated finance/HR numbers in production views.
 - **Alternatives considered:** Fold into Executive Board only (rejected — too dense for board print); put inside customer `/app` (rejected — wrong audience).
+
+### ADR-018: Interserv retired — Frappe Cloud is the only backend host
+
+- **Date:** 2026-07-15
+- **Status:** Accepted
+- **Context:** Backend previously planned/hosted via Interserv. Marketing email and web were always on Webway. Product UI is on Vercel. Owner needs to cancel Interserv before the next deduction; runtime already points at `app.trustledger.co.za`.
+- **Decision:** **Frappe Cloud** (`https://app.trustledger.co.za`) is the sole TrustLedger backend host. Interserv is retired for this product. Future `srm-core` work installs on Cloud only. See `docs/INTERSERV_CANCEL.md` and `docs/FRAPPE_CLOUD_SETUP.md`.
+- **Consequences:** Docs/config must not require Interserv; cancel checklist is owner-facing; no dual-host support.
+- **Alternatives considered:** Keep Interserv until `srm-core` lands (rejected — Cloud already serves CRM/auth/payments; `srm-core` can be built on Cloud).
 
 ### ADR-013: Platform Operator sole live control (until lifted)
 
