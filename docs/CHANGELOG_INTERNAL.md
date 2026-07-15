@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-15 — Platform Ops command centre (23a)
+
+- ADR-015 + `docs/PLATFORM_OPS.md`: `/ops` allowlist-only overview (not a CRM)
+- Health + CRM Lead intake intel; Reports/Accounts stubs for later packets
+
 ## 2026-07-14 — Paystack payments setup (Frappe Cloud)
 
 - ADR-014: Paystack + Frappe Paystack for ZAR collection

@@ -121,6 +121,15 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Peach references in older docs are superseded for gateway choice; entitlement webhook automation remains a later `srm-core` packet.
 - **Alternatives considered:** PayFast/Ozow direct custom apps (more build); wait for Peach (blocked); Stripe (unavailable).
 
+### ADR-015: Platform Ops command centre (not a CRM)
+
+- **Date:** 2026-07-15
+- **Status:** Accepted
+- **Context:** Operator needs a full-platform overview and analysis surface (visitors, intent, readiness, accounts, support packs) without building a second CRM. Customer Plan Owner `admin` must stay org-scoped.
+- **Decision:** Ship a separate **Platform Ops** area at `/ops`, allowlist-only (`PLATFORM_OPERATOR_EMAILS`). Frappe CRM/Customer/Paystack remain systems of record; Ops is the command centre for overview, reports, and controls. See `docs/PLATFORM_OPS.md`.
+- **Consequences:** Clear split: CRM for relationship records, Ops for operator intelligence and control; no visitor intel inside customer `/app`.
+- **Alternatives considered:** Ops-only inside Frappe Desk (rejected as daily cockpit — Desk stays SoR); fold into `/app/settings` (rejected — wrong audience).
+
 ### ADR-013: Platform Operator sole live control (until lifted)
 
 - **Date:** 2026-07-12

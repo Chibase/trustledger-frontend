@@ -68,6 +68,23 @@ export function assertLiveOperatorAccess(
   return { ok: true };
 }
 
+/**
+ * Platform Ops (`/ops`) — always allowlist-gated.
+ * Fail closed if PLATFORM_OPERATOR_EMAILS is empty.
+ */
+export function assertOpsAccess(
+  ...candidates: Array<string | null | undefined>
+): OperatorGateResult {
+  const allow = getPlatformOperatorEmails();
+  if (allow.length === 0) {
+    return { ok: false, reason: "lockdown_misconfigured" };
+  }
+  if (!isPlatformOperatorIdentity(...candidates)) {
+    return { ok: false, reason: "not_operator" };
+  }
+  return { ok: true };
+}
+
 export function operatorGateMessage(
   reason: "lockdown_misconfigured" | "not_operator",
 ): string {
