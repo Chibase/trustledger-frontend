@@ -33,6 +33,8 @@ Presentation-first overview for boards and investors:
 - Headline KPIs (pipeline, demos, assessments, experience score)
 - Activity trend + mix charts
 - Conversion funnel
+- Demographics: origin (UTM/source), industry/sector, influence level
+- Sentiment / tool-usage perception + verbatim visitor quotes
 - Auto talking points (copy / print)
 
 ## Ops activity desk (`/ops`)

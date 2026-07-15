@@ -5,6 +5,7 @@ import {
   type OpsActivityRow,
   type OpsOverview,
 } from "@/lib/opsIntel";
+import { buildVoiceIntel, type VoiceIntel } from "@/lib/voiceIntel";
 
 export type WeeklyPoint = {
   key: string;
@@ -41,6 +42,7 @@ export type ExecutiveBrief = {
   readiness: { band: string; count: number }[];
   talkingPoints: string[];
   sampleNote: string | null;
+  voice: VoiceIntel;
 };
 
 function emptyWeekActivity(): Record<OpsActivityKind, number> {
@@ -148,7 +150,7 @@ function buildTalkingPoints(
   } else if (healthOk === false) {
     points.push("Platform health has a failing check — resolve before board walkthrough.");
   }
-  return points.slice(0, 6);
+  return points.slice(0, 7);
 }
 
 export async function buildExecutiveBrief(): Promise<ExecutiveBrief> {
@@ -202,7 +204,23 @@ export async function buildExecutiveBrief(): Promise<ExecutiveBrief> {
     .sort((a, b) => b.count - a.count);
 
   const healthOk = overview.health ? overview.health.ok : null;
+  const voice = await buildVoiceIntel(rows);
   const talkingPoints = buildTalkingPoints(overview.intake, weekly, healthOk);
+  if (voice.origins[0]) {
+    talkingPoints.push(
+      `Top acquisition origin: ${voice.origins[0].label} (${voice.origins[0].value} signals).`,
+    );
+  }
+  if (voice.industries[0] && voice.industries[0].label !== "Not stated") {
+    talkingPoints.push(
+      `Leading industry/sector signal: ${voice.industries[0].label}.`,
+    );
+  }
+  if (voice.quotes.length) {
+    talkingPoints.push(
+      `${voice.quotes.length} verbatim visitor quotes ready for board/investor packs.`,
+    );
+  }
 
   return {
     ok: overview.ok,
@@ -222,10 +240,11 @@ export async function buildExecutiveBrief(): Promise<ExecutiveBrief> {
     funnel,
     ratings: ratingCounts,
     readiness,
-    talkingPoints,
+    talkingPoints: talkingPoints.slice(0, 8),
     sampleNote:
       overview.intake.totalRecent < 5
         ? "Early signal set — charts reflect the latest CRM Lead window and will strengthen with volume."
         : null,
+    voice,
   };
 }

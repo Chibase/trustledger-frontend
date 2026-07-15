@@ -143,6 +143,7 @@ export async function POST(request: Request) {
       sourceTag: kind === "feedback" ? "product_feedback" : "contact",
       jobTitle,
       rating,
+      userQuote: message,
     });
     if (!result.ok) {
       return NextResponse.json(

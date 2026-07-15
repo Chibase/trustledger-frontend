@@ -111,6 +111,8 @@ export async function POST(request: Request) {
       pageName: "TrustLedger in-app support",
       sourceTag: "support_ticket",
       jobTitle: `Support · ${body.category}`,
+      userQuote: body.description.trim(),
+      role: body.role,
     });
     if (!result.ok) {
       return NextResponse.json(

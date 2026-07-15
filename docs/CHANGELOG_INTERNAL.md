@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-15 — Executive demographics + voice
+
+- `/ops/executive` adds origin, industry/sector, influence, sentiment/perception, and verbatim quotes from CRM Comments
+- Lead intake stores structured Sector / Demo role / UTM / Comment for cleaner future parsing
+
 ## 2026-07-15 — Executive Board brief (23e)
 
 - ADR-016: `/ops/executive` is the C-suite board/investor surface; `/ops` stays junior day-to-day activity

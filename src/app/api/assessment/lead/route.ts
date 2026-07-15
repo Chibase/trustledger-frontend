@@ -123,6 +123,11 @@ export async function POST(request: Request) {
   const webhook = process.env.ASSESSMENT_WEBHOOK_URL;
 
   if (leadCaptureConfigured()) {
+    const utm = payload.utm
+      ? [payload.utm.source, payload.utm.medium, payload.utm.campaign]
+          .filter(Boolean)
+          .join("/")
+      : undefined;
     const result = await submitProductLead({
       email: payload.email,
       name: payload.name,
@@ -132,6 +137,9 @@ export async function POST(request: Request) {
       pageName: "SRM Readiness Assessment",
       sourceTag: "assessment",
       jobTitle: `Assessment · ${payload.riskBand} · ${payload.overallScore}/100`,
+      userQuote: comment,
+      industry: payload.sector,
+      utm,
     });
     if (!result.ok) {
       return NextResponse.json(
