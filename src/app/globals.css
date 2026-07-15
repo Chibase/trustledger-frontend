@@ -38,6 +38,16 @@ body {
   font-family: var(--font-sans);
 }
 
+@media print {
+  body {
+    background: white;
+  }
+
+  a[href]::after {
+    content: none !important;
+  }
+}
+
 .font-display {
   font-family: var(--font-display);
 }

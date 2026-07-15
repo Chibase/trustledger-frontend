@@ -69,7 +69,7 @@ export function middleware(request: NextRequest) {
     const next = safeNextPath(request.nextUrl.searchParams.get("next"));
     const opsGate = assertOpsAccess(email);
 
-    // Platform operators land in /ops (command centre), not the customer /app desk.
+    // Platform operators land on Executive Board, not the customer /app desk.
     if (isLiveSession && opsGate.ok) {
       if (next?.startsWith("/ops")) {
         return NextResponse.redirect(new URL(next, request.url));
@@ -78,7 +78,7 @@ export function middleware(request: NextRequest) {
       if (next?.startsWith("/app")) {
         return NextResponse.redirect(new URL(next, request.url));
       }
-      return NextResponse.redirect(new URL("/ops", request.url));
+      return NextResponse.redirect(new URL("/ops/executive", request.url));
     }
 
     if (next?.startsWith("/ops")) {
@@ -87,7 +87,7 @@ export function middleware(request: NextRequest) {
         "error",
         opsGate.ok ? "not_operator" : opsGate.reason,
       );
-      dest.searchParams.set("next", "/ops");
+      dest.searchParams.set("next", "/ops/executive");
       return NextResponse.redirect(dest);
     }
     return NextResponse.redirect(
@@ -99,14 +99,17 @@ export function middleware(request: NextRequest) {
   if (pathname === "/ops" || pathname.startsWith("/ops/")) {
     if (!signedIn || !isLiveSession) {
       const dest = new URL("/login/live", request.url);
-      dest.searchParams.set("next", pathname.startsWith("/ops") ? pathname : "/ops");
+      dest.searchParams.set(
+        "next",
+        pathname.startsWith("/ops") ? pathname : "/ops/executive",
+      );
       return NextResponse.redirect(dest);
     }
     const opsGate = assertOpsAccess(email);
     if (!opsGate.ok) {
       const dest = new URL("/login/live", request.url);
       dest.searchParams.set("error", opsGate.reason);
-      dest.searchParams.set("next", "/ops");
+      dest.searchParams.set("next", "/ops/executive");
       const response = NextResponse.redirect(dest);
       return response;
     }
@@ -122,7 +125,7 @@ export function middleware(request: NextRequest) {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 
-  // Operators belong in /ops — bounce the customer dashboard entry points.
+  // Operators belong on Executive Board — bounce customer dashboard entry points.
   if (
     signedIn &&
     isLiveSession &&
@@ -131,7 +134,7 @@ export function middleware(request: NextRequest) {
       pathname === "/app/dashboard" ||
       pathname === "/dashboard")
   ) {
-    return NextResponse.redirect(new URL("/ops", request.url));
+    return NextResponse.redirect(new URL("/ops/executive", request.url));
   }
 
   if (isProtected && !signedIn) {

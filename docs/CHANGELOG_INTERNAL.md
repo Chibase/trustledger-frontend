@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-15 — Executive Board brief (23e)
+
+- ADR-016: `/ops/executive` is the C-suite board/investor surface; `/ops` stays junior day-to-day activity
+- KPIs, weekly trend, activity mix, funnel, rating charts, talking points + print/copy
+- Operator live login homes to `/ops/executive`
+
 ## 2026-07-15 — Ops = client activity (not product desk)
 
 - Operator live login defaults to `/ops` (not `/app/dashboard`)

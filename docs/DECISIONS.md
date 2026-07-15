@@ -130,6 +130,15 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear split: CRM for relationship records, Ops for operator intelligence and control; no visitor intel inside customer `/app`.
 - **Alternatives considered:** Ops-only inside Frappe Desk (rejected as daily cockpit — Desk stays SoR); fold into `/app/settings` (rejected — wrong audience).
 
+### ADR-016: Executive Board brief vs Ops activity desk
+
+- **Date:** 2026-07-15
+- **Status:** Accepted
+- **Context:** Platform Owner needs a C-suite surface for board/investor overviews (insights + graphs). The `/ops` activity desk is suited to day-to-day junior ops, not executive presentation.
+- **Decision:** Ship **`/ops/executive`** as the Executive Board brief (KPIs, trends, funnel, talking points, print-ready). Keep `/ops` + `/ops/activity` as the operational activity desk. Allowlisted operator login homes to **`/ops/executive`**. Same allowlist gate as ADR-015.
+- **Consequences:** Two audiences under `/ops` without mixing customer product desks; junior staff can live in activity; owner presents from Executive.
+- **Alternatives considered:** Replace Ops overview entirely (rejected — juniors still need the feed); put charts only in Reports (rejected — not presentation-first).
+
 ### ADR-013: Platform Operator sole live control (until lifted)
 
 - **Date:** 2026-07-12

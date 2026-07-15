@@ -52,9 +52,9 @@ export async function POST(request: Request) {
     }
 
     const email = normalizeIdentity(session.user || usr);
-    // Operators always home to the command centre — never the customer desk.
+    // Operators home to Executive Board — never the customer desk.
     const opsGate = assertOpsAccess(usr, session.user, email);
-    const home = opsGate.ok ? "/ops" : "/app/dashboard";
+    const home = opsGate.ok ? "/ops/executive" : "/app/dashboard";
 
     const response = NextResponse.json({
       ok: true,

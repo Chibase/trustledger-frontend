@@ -12,12 +12,12 @@ export default async function OpsLayout({
 }) {
   const user = await getCurrentUser();
   if (!user || user.mode !== "live") {
-    redirect("/login/live?next=/ops");
+    redirect("/login/live?next=/ops/executive");
   }
 
   const gate = assertOpsAccess(user.email);
   if (!gate.ok) {
-    redirect(`/login/live?error=${gate.reason}&next=/ops`);
+    redirect(`/login/live?error=${gate.reason}&next=/ops/executive`);
   }
 
   return (

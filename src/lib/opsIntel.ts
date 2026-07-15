@@ -245,7 +245,7 @@ export async function buildOpsOverview(): Promise<OpsOverview> {
         contactLeads: byActivity.contact,
         demoLeads: byActivity.demo,
         supportTickets: byActivity.support,
-        recent: recent.slice(0, 40),
+        recent,
       },
     };
   } catch (err) {
