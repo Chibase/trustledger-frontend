@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-15 — Command control pillars (23f)
+
+- ADR-017: `/ops/finance`, `/ops/staff`, `/ops/ai`, `/ops/issues`
+- Finance + staff scaffolds (no fabricated numbers); **staff wellbeing deferred** placeholder
+- AI tools registry with upgrade/watch/discharge framing; issues from Support Ticket CRM + TAT/feeling placeholders
+- Executive Board links the four control pillars
+
 ## 2026-07-15 — Executive demographics + voice
 
 - `/ops/executive` adds origin, industry/sector, influence, sentiment/perception, and verbatim quotes from CRM Comments

@@ -139,6 +139,15 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Two audiences under `/ops` without mixing customer product desks; junior staff can live in activity; owner presents from Executive.
 - **Alternatives considered:** Replace Ops overview entirely (rejected — juniors still need the feed); put charts only in Reports (rejected — not presentation-first).
 
+### ADR-017: Command-centre control pillars (finance, staff, AI, issues)
+
+- **Date:** 2026-07-15
+- **Status:** Accepted
+- **Context:** Platform Owner needs operational control beyond visitor intel — budget/resource utilisation, staff capacity, AI tool governance, and client issue turnaround — without mixing these into the customer `/app` desk.
+- **Decision:** Add allowlisted control surfaces under `/ops`: **`/ops/finance`**, **`/ops/staff`**, **`/ops/ai`**, **`/ops/issues`**. Issues may read Support Ticket CRM signals now; finance books, staff HR/wellbeing telemetry, AI invocation metrics, and post-resolution client feeling land in later packets. **Staff wellbeing** is explicitly deferred (UI placeholder only). See `docs/PLATFORM_OPS.md`.
+- **Consequences:** Command centre gains four control pillars with honest empty-states; no fabricated finance/HR numbers in production views.
+- **Alternatives considered:** Fold into Executive Board only (rejected — too dense for board print); put inside customer `/app` (rejected — wrong audience).
+
 ### ADR-013: Platform Operator sole live control (until lifted)
 
 - **Date:** 2026-07-12
