@@ -192,6 +192,7 @@ function resolveCrmSource(
     demo_entry: "Website Demo",
     demo_soft_gate: "Website Demo",
     assessment: "Website Assessment",
+    paystack_payment: "Paystack Payment",
     support_ticket: "Support Ticket",
   };
   return defaults[sourceTag] || process.env.FRAPPE_LEAD_SOURCE?.trim();

@@ -11,11 +11,15 @@ import {
   pillarStatusLabel,
 } from "@/lib/commandCentreIntel";
 import { buildExecutiveBrief } from "@/lib/executiveIntel";
+import { listRecentPayments } from "@/lib/paymentIntel";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExecutiveBoardPage() {
-  const brief = await buildExecutiveBrief();
+  const [brief, payments] = await Promise.all([
+    buildExecutiveBrief(),
+    listRecentPayments(5),
+  ]);
   const asOf = new Date(brief.generatedAt).toLocaleString();
 
   return (
@@ -79,6 +83,41 @@ export default async function ExecutiveBoardPage() {
           tone={brief.kpis.weakFeedback > 0 ? "attention" : "default"}
         />
       </section>
+
+      {payments.recent.length ? (
+        <section className="rounded-lg border border-tl-trust/30 bg-tl-surface p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-display text-lg font-semibold">
+              Payment notifications
+            </h2>
+            <Link
+              href="/ops/finance"
+              className="text-xs font-medium text-tl-trust-ink underline"
+            >
+              Finance desk
+            </Link>
+          </div>
+          <ul className="mt-3 space-y-2 text-sm">
+            {payments.recent.map((p) => (
+              <li
+                key={p.name}
+                className="flex flex-wrap items-baseline justify-between gap-2 border-b border-tl-line pb-2 last:border-0 last:pb-0"
+              >
+                <span>
+                  <span className="font-medium">{p.person}</span>
+                  <span className="text-tl-ink-muted">
+                    {" "}
+                    · {p.planLabel} · {p.amountLabel}
+                  </span>
+                </span>
+                <span className="text-xs text-tl-ink-muted">
+                  {p.modified ? new Date(p.modified).toLocaleString() : "—"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="space-y-3">
         <div>

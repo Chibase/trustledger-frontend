@@ -5,6 +5,7 @@ import {
 } from "@/lib/leadCapture";
 
 const LEAD_SOURCES = [
+  "Paystack Payment",
   "Product Feedback",
   "Website Contact",
   "Website Demo",
