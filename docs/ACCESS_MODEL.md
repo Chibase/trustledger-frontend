@@ -6,7 +6,7 @@
 After payment (or confirmed commitment), TrustLedger issues logins from **plan entitlements**. The **purchaser is Plan Owner**; they alone hold org **admin** and may invite others at **lower** roles.
 
 ```text
-Peach payment success / Commitment
+Paystack payment success / Commitment
         ↓
 Create Frappe Customer + Contact
         ↓
@@ -17,6 +17,8 @@ Owner invites people + chooses lower role
         ↓
 Invitee accepts → User created at that role
 ```
+
+Gateway setup: `docs/PAYMENTS_SETUP.md` (Paystack + Frappe Paystack on Cloud).
 
 ## Roles (existing four — org-scoped)
 
@@ -88,7 +90,7 @@ Session / get_session returns { role, customer, plan, entitlements }
    Over limit → `403` + `{ code: "PLAN_LIMIT", upgrade: "project" }`.
 
 5. **Billing state**  
-   Peach webhook sets `status`. `past_due` / `cancelled` → read-only or login blocked after grace period (Owner still sees billing CTA).
+   Paystack webhook sets `status`. `past_due` / `cancelled` → read-only or login blocked after grace period (Owner still sees billing CTA).
 
 ## Practical checks (examples)
 
@@ -100,7 +102,7 @@ Session / get_session returns { role, customer, plan, entitlements }
 | Open Reports | Standard only | Full |
 | Call custom API | Deny | Deny (unless sold) |
 
-## Manual control before Peach automation
+## Manual control before Paystack automation
 
 Until webhooks exist, you set on the Customer in Frappe:
 
@@ -149,7 +151,7 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 | Payment or Commitment | Frappe Customer + **Owner admin** user |
 | Ongoing team | Owner invites in-app → Frappe Users |
 
-## Build sequence (after Peach sandbox)
+## Build sequence (after Paystack sandbox)
 
 1. Entitlement DocType / fields on Customer (`plan`, `seat_limit`, `owner_user`)  
 2. Payment webhook → provision Owner  
@@ -157,4 +159,4 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 4. Invite accept + password set  
 5. Seat enforcement middleware  
 
-Launch week can still be **manual**: you create Owner in Frappe after Peach/commitment using this model; automate next.
+Launch week can still be **manual**: you create Owner in Frappe after Paystack/commitment using this model; automate next. See `docs/PAYMENTS_SETUP.md`.

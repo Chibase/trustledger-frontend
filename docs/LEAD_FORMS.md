@@ -53,7 +53,7 @@ Do **not** auto-send discounts from the Vercel form. That needs email identity, 
 2. Email Alert / Newsletter / Notification:
    - Day 0: thank-you + link to demo/assessment summary  
    - Day 2–3: soft offer (e.g. launch week % or fixed pilot credit) **only** if tagged `incentive_eligible`
-3. Peach coupon / manual invoice note for the discount — never a public unauthenticated “claim” URL without expiry.
+3. Paystack / manual invoice note for the discount — never a public unauthenticated “claim” URL without expiry.
 
 Until Frappe email is ready, send follow-ups manually from HubSpot sequences or your Webway mailbox using the new **Comment** field.
 

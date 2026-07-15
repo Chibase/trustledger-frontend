@@ -29,7 +29,7 @@ Website / Assessment / Demo
 
 ## What moves to Frappe at commitment
 
-**Trigger (any one):** signed pilot, paid Peach invoice/checkout, written “yes” to paid plan, or you set HubSpot deal stage = **Commitment / Closed Won**.
+**Trigger (any one):** signed pilot, paid Paystack invoice/checkout, written “yes” to paid plan, or you set HubSpot deal stage = **Commitment / Closed Won**.
 
 **Create on Interserv (manual at first, automate later):**
 
@@ -61,7 +61,7 @@ After handoff, day-to-day relationship work (calls logged, renewals, support) ha
 ## Later automation (not launch-critical)
 
 - Button/script: “Provision from HubSpot deal” → Frappe Customer/Contact/**Owner admin User** (see `docs/ACCESS_MODEL.md`)
-- Peach webhook → entitlement + Owner login email
+- Paystack webhook → entitlement + Owner login email (see `docs/PAYMENTS_SETUP.md`)
 - Owner-confirmed invites for lower roles (`client` / `contractor` / `community`)
 - Sync only **Closed Won**; never bi-directional full CRM sync  
 

@@ -5,7 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 function sanitizeNext(value: string | null): string {
-  if (value && value.startsWith("/") && !value.startsWith("//")) {
+  if (
+    value &&
+    value.startsWith("/") &&
+    !value.startsWith("//") &&
+    (value.startsWith("/app") || value.startsWith("/ops"))
+  ) {
     return value;
   }
   return "/app/dashboard";

@@ -1,5 +1,15 @@
 # Internal changelog
 
+## 2026-07-15 — Platform Ops command centre (23a)
+
+- ADR-015 + `docs/PLATFORM_OPS.md`: `/ops` allowlist-only overview (not a CRM)
+- Health + CRM Lead intake intel; Reports/Accounts stubs for later packets
+
+## 2026-07-14 — Paystack payments setup (Frappe Cloud)
+
+- ADR-014: Paystack + Frappe Paystack for ZAR collection
+- `docs/PAYMENTS_SETUP.md` Desk/Marketplace checklist; Peach superseded for gateway choice
+
 ## 2026-07-14 — Live login without srm-core
 
 - Live sign-in falls back to TrustLedger Cloud session/roles when `srm_core.get_session` is missing

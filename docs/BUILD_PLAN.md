@@ -125,6 +125,17 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 | 21 | SEO basics | robots.txt, sitemap, Open Graph metadata | **Done** |
 | 22 | Frappe API contract | Doc of methods/payloads `srm-core` must expose | **Done** |
 
+### Phase 5 — Platform Ops command centre
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| 23a | Ops overview | `/ops` shell, allowlist gate, health + intake intel | **Active** |
+| 23b | Ops reports | Filterable intake/feedback/assessment reports + CSV | Planned |
+| 23c | Ops accounts | Customer plan/status/seat controls | Planned |
+| 23d | Ops support packs | Per-person/org context for support | Planned |
+
+See `docs/PLATFORM_OPS.md` and ADR-015.
+
 ## 8. Quality gates (every packet)
 
 ```bash

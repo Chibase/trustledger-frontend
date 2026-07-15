@@ -11,10 +11,17 @@ import { isUserRole } from "@/types/rbac";
 import { getDataMode } from "@/config/api";
 import {
   assertLiveOperatorAccess,
+  assertOpsAccess,
   isPlatformOperatorIdentity,
   isPlatformOperatorLockPublic,
   isPlatformOperatorOnly,
 } from "@/lib/platformOperator";
+
+function safeNextPath(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+  return raw;
+}
 
 function hasUserSignal(request: NextRequest): boolean {
   const sessionRole = request.cookies.get(SESSION_ROLE_COOKIE)?.value;
@@ -59,7 +66,37 @@ export function middleware(request: NextRequest) {
         return response;
       }
     }
-    return NextResponse.redirect(new URL("/app/dashboard", request.url));
+    const next = safeNextPath(request.nextUrl.searchParams.get("next"));
+    if (next?.startsWith("/ops")) {
+      const opsGate = assertOpsAccess(email);
+      if (!opsGate.ok) {
+        const dest = new URL("/login/live", request.url);
+        dest.searchParams.set("error", opsGate.reason);
+        dest.searchParams.set("next", "/ops");
+        return NextResponse.redirect(dest);
+      }
+      return NextResponse.redirect(new URL(next, request.url));
+    }
+    return NextResponse.redirect(
+      new URL(next && next.startsWith("/app") ? next : "/app/dashboard", request.url),
+    );
+  }
+
+  // Platform Ops command centre — always allowlist + live session
+  if (pathname === "/ops" || pathname.startsWith("/ops/")) {
+    if (!signedIn || !isLiveSession) {
+      const dest = new URL("/login/live", request.url);
+      dest.searchParams.set("next", pathname.startsWith("/ops") ? pathname : "/ops");
+      return NextResponse.redirect(dest);
+    }
+    const opsGate = assertOpsAccess(email);
+    if (!opsGate.ok) {
+      const dest = new URL("/login/live", request.url);
+      dest.searchParams.set("error", opsGate.reason);
+      dest.searchParams.set("next", "/ops");
+      const response = NextResponse.redirect(dest);
+      return response;
+    }
   }
 
   // Demo picker only auto-skips in demo mode; live users may revisit /demo intentionally.
@@ -121,6 +158,8 @@ export const config = {
     "/login",
     "/login/live",
     "/demo",
+    "/ops",
+    "/ops/:path*",
     "/app",
     "/app/:path*",
     "/dashboard",
