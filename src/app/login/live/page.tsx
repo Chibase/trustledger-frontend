@@ -13,7 +13,8 @@ function sanitizeNext(value: string | null): string {
   ) {
     return value;
   }
-  return "/app/dashboard";
+  // Operators are redirected to /ops by middleware; customers use /app.
+  return "/ops";
 }
 
 function gateErrorCopy(code: string | null): string | null {
@@ -47,13 +48,23 @@ function LiveLoginForm() {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ usr, pwd }),
       });
-      const payload = (await response.json()) as { error?: string; role?: string };
+      const payload = (await response.json()) as {
+        error?: string;
+        role?: string;
+        home?: string;
+        platformOperator?: boolean;
+      };
       if (!response.ok) {
         throw new Error(payload.error || "Login failed");
       }
       // Clear any leftover demo-mode cookie from a prior /demo visit
       document.cookie = "tl-mode=live; path=/; max-age=604800; samesite=lax";
-      router.push(next.startsWith("/app") ? next : "/app/dashboard");
+      // Server decides operator home (/ops). Never fall through to customer desk.
+      const dest =
+        payload.home ||
+        (payload.platformOperator ? "/ops" : null) ||
+        (next.startsWith("/ops") || next.startsWith("/app") ? next : "/ops");
+      router.push(dest);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

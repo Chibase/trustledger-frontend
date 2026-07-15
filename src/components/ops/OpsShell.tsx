@@ -2,10 +2,10 @@ import Link from "next/link";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
 
 const NAV = [
-  { href: "/ops", label: "Overview" },
+  { href: "/ops", label: "Activity overview" },
+  { href: "/ops/activity", label: "Client activity" },
   { href: "/ops/reports", label: "Reports" },
   { href: "/ops/accounts", label: "Accounts" },
-  { href: "/app/dashboard", label: "Product (live)" },
 ];
 
 type OpsShellProps = {
@@ -28,7 +28,7 @@ export function OpsShell({
               TrustLedger Ops
             </p>
             <p className="text-xs text-white/55">
-              Platform command centre · not CRM
+              Platform command centre · client activity · not the product desk
             </p>
           </div>
           <div className="text-right text-xs text-white/70">
@@ -39,7 +39,7 @@ export function OpsShell({
       </div>
 
       <div className="mx-auto flex max-w-6xl gap-8 px-4 py-6 md:px-8">
-        <aside className="hidden w-48 shrink-0 md:block">
+        <aside className="hidden w-52 shrink-0 md:block">
           <nav className="space-y-1 text-sm">
             {NAV.map((item) => (
               <Link
@@ -55,14 +55,15 @@ export function OpsShell({
             <ShellSignOut variant="light" />
           </div>
           <p className="mt-4 text-xs text-tl-ink-muted">
-            Deep lead work stays in{" "}
+            No projects or site issues here — those belong to customer{" "}
+            <code className="text-tl-ink">/app</code> accounts. Record detail:{" "}
             <a
               href="https://app.trustledger.co.za"
               className="font-medium text-tl-trust-ink underline"
               target="_blank"
               rel="noopener noreferrer"
             >
-              TrustLedger Cloud CRM
+              Cloud CRM
             </a>
             .
           </p>

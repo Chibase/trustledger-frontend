@@ -11,6 +11,7 @@ import {
 import { fetchSessionContext, frappeLogin } from "@/lib/frappeServer";
 import {
   assertLiveOperatorAccess,
+  assertOpsAccess,
   normalizeIdentity,
   operatorGateMessage,
 } from "@/lib/platformOperator";
@@ -51,6 +52,9 @@ export async function POST(request: Request) {
     }
 
     const email = normalizeIdentity(session.user || usr);
+    // Operators always home to the command centre — never the customer desk.
+    const opsGate = assertOpsAccess(usr, session.user, email);
+    const home = opsGate.ok ? "/ops" : "/app/dashboard";
 
     const response = NextResponse.json({
       ok: true,
@@ -58,7 +62,8 @@ export async function POST(request: Request) {
       fullName: session.fullName,
       role: session.trustLedgerRole,
       roles: session.roles,
-      platformOperator: true,
+      platformOperator: opsGate.ok,
+      home,
     });
 
     const cookieBase = {
