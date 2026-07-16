@@ -103,6 +103,11 @@ Save / reload site after change.
 
 Keep desk links as `https://app.trustledger.co.za` (already aligned).
 
+## 4b. Jinja render security (Public Bench)
+
+Frappe is rolling out safer Jinja rendering on **v15/v16 Public Benches** (PR #37924).  
+TrustLedger’s Vercel app is unaffected. If Desk emails/prints break after a Cloud update, see **`docs/FRAPPE_JINJA_SAFE_RENDER.md`** — do not disable the protection unless Support advises.
+
 ## Troubleshooting: lead not in CRM
 
 If the demo form returns OK but nothing appears in **CRM → Leads**:
