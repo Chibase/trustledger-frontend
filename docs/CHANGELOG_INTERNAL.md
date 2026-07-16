@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-16 — Frappe Jinja render hardening notice
+
+- Documented Frappe PR #37924 Public Bench Jinja lockdown impact
+- Vercel app unaffected; Desk template audit + smoke checklist in `docs/FRAPPE_JINJA_SAFE_RENDER.md`
+
 ## 2026-07-15 — Trial funnel with subscribe path
 
 - `/trial`: capture details → choose Explore demo **or** Subscribe (Paystack)
