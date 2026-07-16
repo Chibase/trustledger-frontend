@@ -1,0 +1,59 @@
+/* Add to Appearance → Customize → Additional CSS
+   Uses your uploaded TrustLedger logo from Media Library. */
+
+.site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0 !important;
+  font-weight: 700;
+  color: transparent !important;
+  text-decoration: none;
+  white-space: nowrap;
+  width: 10.5rem;
+  height: 2.75rem;
+  background-image: url("https://trustledger.co.za/wp-content/uploads/2026/07/TrustLedger-Logo-1-1.png");
+  background-size: contain;
+  background-position: left center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  text-indent: -9999px;
+  flex-shrink: 0;
+}
+
+.site-header__logo:hover {
+  text-decoration: none;
+  opacity: 0.92;
+}
+
+.site-header__logo br {
+  display: none !important;
+}
+
+.site-header__logo img {
+  height: 2.5rem;
+  width: auto;
+  display: block;
+}
+
+/* Kadence theme title → logo */
+.site-branding .brand {
+  display: inline-block;
+  width: 10.5rem;
+  height: 2.75rem;
+  background-image: url("https://trustledger.co.za/wp-content/uploads/2026/07/TrustLedger-Logo-1-1.png");
+  background-size: contain;
+  background-position: left center;
+  background-repeat: no-repeat;
+  text-decoration: none;
+}
+
+.site-branding .site-title,
+.site-branding .site-title-wrap {
+  font-size: 0 !important;
+  color: transparent !important;
+  line-height: 0 !important;
+  width: 10.5rem;
+  height: 2.75rem;
+  overflow: hidden;
+}
