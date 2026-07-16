@@ -133,7 +133,8 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 | 23e | Executive Board | `/ops/executive` C-suite brief — KPIs, graphs, demographics, voice quotes, print | **Done** |
 | 23f | Command control | Finance, staff, AI tools, issues control pillars | **Done** |
 | 23g | Vercel Paystack | `/pay` checkout + webhook → Ops Finance/Executive; manual CRM | **Done** |
-| 23h | Trial → pay funnel | `/trial` capture then demo or subscribe; banner/WP CTAs | **Active** |
+| 23h | Trial → pay funnel | `/trial` capture then demo or subscribe; banner/WP CTAs | **Done** |
+| 23i | Quote + EFT bridge | `/quote` CRM Lead; Ops Confirm EFT paid; trial/WP CTAs | **Done** |
 | 23b | Ops reports | Filterable intake/feedback/assessment reports + CSV | Planned |
 | 23c | Ops accounts | Customer plan/status/seat controls | Planned |
 | 23d | Ops support packs | Per-person/org context for support | Planned |

@@ -109,14 +109,14 @@ export function DemoLeadGate() {
               Thanks — choose your next step
             </h2>
             <p className="mt-2 text-sm text-tl-ink-muted">
-              Keep exploring sample data, or subscribe now with Paystack.
+              Keep exploring sample data, or request a quote for EFT / invoice.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
-                href="/pay?utm_source=demo_gate&utm_medium=modal&utm_campaign=upgrade"
+                href="/quote?utm_source=demo_gate&utm_medium=modal&utm_campaign=upgrade"
                 className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white"
               >
-                Subscribe / pay
+                Request quote
               </Link>
               <button
                 type="button"
@@ -134,7 +134,7 @@ export function DemoLeadGate() {
             </h2>
             <p className="mt-2 text-sm text-tl-ink-muted">
               You have explored the demo. Leave a work email — then you can
-              subscribe or keep exploring.
+              request a quote or keep exploring.
             </p>
             <p className="mt-2 text-xs text-tl-ink-muted">Source: {utmLabel}</p>
             <form onSubmit={submit} className="relative mt-4 space-y-3">
@@ -174,10 +174,10 @@ export function DemoLeadGate() {
                   {submitting ? "Sending…" : "Continue"}
                 </button>
                 <Link
-                  href="/pay?utm_source=demo_gate&utm_medium=modal&utm_campaign=pay_now"
+                  href="/quote?utm_source=demo_gate&utm_medium=modal&utm_campaign=quote_now"
                   className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium"
                 >
-                  Pay now
+                  Quote now
                 </Link>
                 <button
                   type="button"

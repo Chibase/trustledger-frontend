@@ -166,6 +166,15 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** WP CTAs point at Vercel; secrets only on Vercel; no auto-login from payment.
 - **Alternatives considered:** Paystack Payment Pages only (rejected — weaker Ops feed); wait for private bench (rejected — blocks revenue).
 
+### ADR-020: Quote + EFT bridge while Paystack finalises
+
+- **Date:** 2026-07-16
+- **Status:** Accepted
+- **Context:** Paystack KYC/go-live can stall; solo operator cannot manually chase every deal. Plan structure (Practitioner / Project / Institutional) and Plan Owner admin model stay locked (ADR-012). Lockdown still pauses auto customer logins (ADR-013).
+- **Decision:** Soft-launch revenue path is **`/quote` → Desk quotation/invoice → EFT → Ops Confirm EFT paid** → CRM Lead `EFT Payment` for Finance/Executive. Website CTAs prefer quote over `/pay` until Paystack is live. Optional `OPS_ALERT_WEBHOOK_URL` for operator ping. **No** auto Plan Owner from quote or EFT confirm.
+- **Consequences:** Pricing page amounts stay as list prices; collection is offline until Paystack flips back; CRM sources `Quote Request` + `EFT Payment` required.
+- **Alternatives considered:** Wait only on Paystack (rejected — blocks revenue); auto-provision Owner on EFT confirm (rejected — integrity + lockdown).
+
 ### ADR-013: Platform Operator sole live control (until lifted)
 
 - **Date:** 2026-07-12
