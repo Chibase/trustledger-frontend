@@ -11,10 +11,10 @@ export function DemoBanner() {
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <Link
-            href="/pay?utm_source=demo_banner&utm_medium=cta&utm_campaign=upgrade"
+            href="/quote?utm_source=demo_banner&utm_medium=cta&utm_campaign=upgrade"
             className="font-medium underline underline-offset-2 hover:opacity-90"
           >
-            Subscribe / upgrade
+            Request quote
           </Link>
           <Link
             href="/trial?utm_source=demo_banner&utm_medium=cta&utm_campaign=trial"

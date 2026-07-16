@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConfirmEftPaidForm } from "@/components/ops/ConfirmEftPaidForm";
 import { PillarBanner } from "@/components/ops/PillarBanner";
 import { buildFinanceOverview } from "@/lib/commandCentreIntel";
 import { listRecentPayments } from "@/lib/paymentIntel";
@@ -15,32 +16,48 @@ export default async function OpsFinancePage() {
         <p className="text-sm font-medium text-tl-trust">Command control</p>
         <h1 className="mt-1 font-display text-3xl font-semibold">Finance</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Budget placeholders plus live Paystack checkout notifications from
-          Vercel. CRM Customer update stays manual for soft launch.
+          Quote / EFT confirmations and Paystack checkout signals. CRM Customer
+          and Plan Owner stay manual while lockdown is on.
         </p>
       </header>
 
       <PillarBanner status={payments.total > 0 ? "partial" : data.status}>
         {payments.total > 0
-          ? `${payments.total} Paystack payment signal(s) in the latest CRM window.`
+          ? `${payments.total} payment signal(s) in the latest CRM window (EFT + Paystack).`
           : data.summary}
       </PillarBanner>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
+        <h2 className="font-display text-lg font-semibold">
+          Confirm EFT paid
+        </h2>
+        <p className="mt-1 text-sm text-tl-ink-muted">
+          After bank clearance on a quote / invoice, log it here. Creates a CRM
+          Lead (`EFT Payment`) for Executive + Finance. Does{" "}
+          <strong>not</strong> auto-create Plan Owner logins.
+        </p>
+        <div className="mt-4">
+          <ConfirmEftPaidForm />
+        </div>
+      </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-display text-lg font-semibold">
             Payment notifications
           </h2>
-          <Link
-            href="/pay"
-            className="text-xs font-medium text-tl-trust-ink underline"
-          >
-            Open checkout
-          </Link>
+          <div className="flex flex-wrap gap-3 text-xs font-medium">
+            <Link href="/quote" className="text-tl-trust-ink underline">
+              Quote form
+            </Link>
+            <Link href="/pay" className="text-tl-trust-ink underline">
+              Paystack checkout
+            </Link>
+          </div>
         </div>
         <p className="mt-1 text-sm text-tl-ink-muted">
-          From WordPress → Vercel `/pay` → Paystack. Action: confirm in Paystack,
-          then update CRM Customer / Plan Owner manually.
+          EFT (operator confirm) and Paystack (`/pay`). Next: update CRM Customer
+          / Plan Owner manually when lockdown allows.
         </p>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[44rem] text-left text-sm">
@@ -78,7 +95,7 @@ export default async function OpsFinancePage() {
               {!payments.recent.length ? (
                 <tr>
                   <td colSpan={5} className="py-6 text-tl-ink-muted">
-                    No Paystack checkout payments logged yet.
+                    No EFT or Paystack payments logged yet.
                   </td>
                 </tr>
               ) : null}

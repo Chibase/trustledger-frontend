@@ -6,6 +6,8 @@ import {
 
 const LEAD_SOURCES = [
   "Paystack Payment",
+  "EFT Payment",
+  "Quote Request",
   "Product Feedback",
   "Website Contact",
   "Website Demo",

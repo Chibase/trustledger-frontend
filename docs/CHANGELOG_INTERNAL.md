@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-16 — Quote + EFT soft-launch bridge (23i)
+
+- `/quote` → CRM Lead `Quote Request` (+ optional `OPS_ALERT_WEBHOOK_URL`)
+- Ops → Finance → **Confirm EFT paid** → CRM Lead `EFT Payment` for Finance/Executive
+- Trial / demo CTAs prefer quote over Paystack while KYC finalises
+- ADR-020; Plan Owner still manual under lockdown
+
 ## 2026-07-16 — Frappe Jinja render hardening notice
 
 - Documented Frappe PR #37924 Public Bench Jinja lockdown impact

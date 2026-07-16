@@ -94,6 +94,33 @@ Only after that: switch Gateway Setting to **live** keys and repeat one tiny liv
 
 ---
 
+## D0. Quote + EFT bridge (active soft-launch path)
+
+While Paystack KYC / go-live is pending, use **quote → invoice → EFT**:
+
+```text
+WordPress / trial CTA
+  → https://trustledger-frontend-pi.vercel.app/quote?plan=practitioner
+  → CRM Lead (source Quote Request) + optional OPS_ALERT_WEBHOOK_URL
+  → you send Quotation / Sales Invoice from Frappe Desk
+  → buyer pays EFT
+  → Ops → Finance → Confirm EFT paid
+  → CRM Lead (source EFT Payment) → Finance / Executive
+  → you create Customer + Plan Owner manually when lockdown allows
+```
+
+| Piece | Detail |
+|-------|--------|
+| Public form | `/quote` (also linked from `/trial`) |
+| CRM sources | `Quote Request`, `EFT Payment` — create via crm-setup or Desk |
+| Ops action | `/ops/finance` → **Confirm EFT paid** (allowlist only) |
+| Optional alert | Vercel `OPS_ALERT_WEBHOOK_URL` (Slack/Discord/Make) |
+| Integrity | No auto Plan Owner; lockdown still applies |
+
+Plan prices on the quote form use the same `PAYSTACK_AMOUNT_*_CENTS` list prices when set (indicative on the Lead).
+
+---
+
 ## D. Vercel Paystack checkout (active while Desk app blocked)
 
 Use this path on the **shared Frappe Cloud bench** (no Marketplace Paystack install required).

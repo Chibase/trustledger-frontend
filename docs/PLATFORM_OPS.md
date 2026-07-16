@@ -43,7 +43,7 @@ Presentation-first overview for boards and investors:
 
 | Pillar | URL | Now | Later |
 |--------|-----|-----|-------|
-| **Finance** | `/ops/finance` | Vercel Paystack payment notifications + budget scaffold | Books / burn actuals; Desk Paystack later |
+| **Finance** | `/ops/finance` | Confirm EFT paid + Paystack/EFT payment notifications + budget scaffold | Books / burn actuals; Desk Paystack later |
 | **Staff** | `/ops/staff` | Capacity & performance scaffold | HR signals; **wellbeing deferred** (placeholder only) |
 | **AI tools** | `/ops/ai` | Registry of platform AI tools + governance actions | Invocation metrics, fail rates, upgrade/discharge workflow |
 | **Issues** | `/ops/issues` | Support Ticket CRM overview | SLA/TAT clocks, post-resolution client feeling |

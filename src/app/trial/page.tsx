@@ -115,17 +115,17 @@ function TrialForm() {
     router.push("/app/dashboard");
   }
 
-  function payUrl(plan: "practitioner" | "project") {
+  function quoteUrl(plan: "practitioner" | "project" | "institutional") {
     const params = new URLSearchParams({
       plan,
       email: email.trim().toLowerCase(),
       name: name.trim(),
       utm_source: "trial",
       utm_medium: "funnel",
-      utm_campaign: `buy_${plan}`,
+      utm_campaign: `quote_${plan}`,
     });
     if (organization.trim()) params.set("organization", organization.trim());
-    return `/pay?${params.toString()}`;
+    return `/quote?${params.toString()}`;
   }
 
   if (step === "choose") {
@@ -137,8 +137,8 @@ function TrialForm() {
         </h1>
         <p className="mt-3 text-sm text-tl-ink-muted">
           Thanks, {name.split(" ")[0] || "there"}. Explore sample data, or
-          subscribe now with Paystack — Ops will see the payment and we
-          provision access manually for soft launch.
+          request a quote (EFT / invoice). Ops confirms payment; Plan Owner
+          access is provisioned manually while lockdown is on.
         </p>
 
         <div className="mt-8 space-y-3">
@@ -154,34 +154,36 @@ function TrialForm() {
           </button>
 
           <Link
-            href={payUrl("practitioner")}
+            href={quoteUrl("practitioner")}
             className="block w-full rounded-md bg-tl-trust px-4 py-3 text-left text-white hover:bg-tl-trust-ink"
           >
-            <span className="block font-semibold">Subscribe · Practitioner</span>
+            <span className="block font-semibold">
+              Request quote · Practitioner
+            </span>
             <span className="mt-0.5 block text-sm text-white/80">
-              Pay with Paystack — single Plan Owner seat
+              Quote + EFT — single Plan Owner seat
             </span>
           </Link>
 
           <Link
-            href={payUrl("project")}
+            href={quoteUrl("project")}
             className="block w-full rounded-md border border-tl-trust bg-tl-surface px-4 py-3 text-left hover:bg-tl-paper"
           >
             <span className="block font-semibold text-tl-ink">
-              Subscribe · Project
+              Request quote · Project
             </span>
             <span className="mt-0.5 block text-sm text-tl-ink-muted">
-              Pay with Paystack — owner + per-project seats
+              Quote + EFT — owner + per-project seats
             </span>
           </Link>
 
           <Link
-            href="/contact?utm_source=trial&utm_medium=funnel&utm_campaign=institutional"
+            href={quoteUrl("institutional")}
             className="block w-full rounded-md border border-tl-line px-4 py-3 text-left text-sm hover:bg-tl-paper"
           >
             <span className="font-semibold">Institutional / custom</span>
             <span className="mt-0.5 block text-tl-ink-muted">
-              Contact sales — not self-serve checkout
+              Request quote — sales-scoped
             </span>
           </Link>
         </div>
@@ -197,7 +199,7 @@ function TrialForm() {
       </h1>
       <p className="mt-3 text-sm text-tl-ink-muted">
         Share your details once. Next you can explore the sample demo or
-        subscribe with Paystack.
+        request a quote for EFT / invoice.
       </p>
 
       <form
@@ -307,8 +309,12 @@ function TrialForm() {
 
       <p className="mt-4 text-xs text-tl-ink-muted">
         Already decided?{" "}
+        <Link href="/quote" className="font-medium text-tl-trust-ink underline">
+          Request a quote
+        </Link>
+        {" · "}
         <Link href="/pay" className="font-medium text-tl-trust-ink underline">
-          Go straight to checkout
+          Paystack checkout
         </Link>
         {" · "}
         Campaign: {utmLabel}
