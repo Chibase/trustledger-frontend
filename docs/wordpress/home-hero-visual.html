@@ -1,0 +1,46 @@
+<!--
+  TrustLedger Home — hero visual (replace the PLACEHOLDER block only)
+
+  1. Capture a screenshot of:
+     https://trustledger-frontend-pi.vercel.app/demo
+     or https://trustledger-frontend-pi.vercel.app/app/dashboard (demo role)
+  2. WordPress → Media → Add New → upload the PNG/JPG
+  3. Copy the file URL
+  4. Paste this whole <div class="hero__visual">…</div> over the existing
+     placeholder block on the Home page Custom HTML
+  5. Replace PASTE_MEDIA_URL_HERE with your uploaded image URL
+  6. Update / Publish → hard refresh
+-->
+<div class="hero__visual">
+  <img
+    class="hero__visual-img"
+    src="PASTE_MEDIA_URL_HERE"
+    alt="TrustLedger dashboard — grievance and trust operations overview"
+    width="1200"
+    height="900"
+    loading="eager"
+    decoding="async"
+  />
+</div>
+
+<!--
+  Optional CSS (add once in Appearance → Customize → Additional CSS,
+  or in your Custom HTML <style> block on Home):
+
+  .hero__visual {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-xl, 1rem);
+    border: 1px solid var(--color-slate-200, #e2e8f0);
+    overflow: hidden;
+    background: #0f172a;
+    padding: 0;
+  }
+  .hero__visual-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .hero__visual-text { display: none; }
+-->
