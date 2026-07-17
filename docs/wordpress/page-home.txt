@@ -1,0 +1,274 @@
+<!--
+  TRUSTLEDGER HOME — conversion page (Custom HTML)
+  Paste into: Pages → Home → Custom HTML (replace entire block)
+  Requires: Appearance → Customize → Additional CSS = docs/wordpress/additional-css.css
+  After paste: Publish → purge SpeedyCache → hard refresh
+-->
+
+<!-- HEADER -->
+<header class="site-header is-scrolled" role="banner">
+  <div class="container">
+    <div class="site-header__inner">
+      <a href="https://trustledger.co.za/" class="site-header__logo" aria-label="TrustLedger home">
+        <img src="https://trustledger.co.za/wp-content/uploads/2026/07/TrustLedger-Logo-1-1.png" alt="TrustLedger" width="168" height="44" />
+      </a>
+      <nav aria-label="Main navigation">
+        <ul class="nav-links">
+          <li><a href="#solutions">Solutions</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#sectors">Sectors</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#resources">Resources</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=admin_login" class="nav-utility">Admin login</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=book_walkthrough" class="btn btn--secondary btn--sm">Book walkthrough</a>
+      </div>
+      <button type="button" class="nav-toggle" aria-label="Open menu" onclick="var m=document.getElementById('tl-nav-mobile'); if(m){ m.classList.toggle('is-open'); }">
+        <span aria-hidden="true">&#9776;</span>
+      </button>
+    </div>
+    <div id="tl-nav-mobile" class="nav-mobile" aria-label="Mobile navigation">
+      <a href="#solutions">Solutions</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#sectors">Sectors</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#resources">Resources</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=book_walkthrough" class="btn btn--secondary btn--block">Book walkthrough</a>
+      <a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=admin_login" class="nav-utility">Admin login</a>
+    </div>
+  </div>
+</header>
+
+<!-- 1. HERO — left messaging + right product visual (do not relocate visual) -->
+<section class="hero section" aria-labelledby="hero-title">
+  <div class="container">
+    <div class="hero__grid">
+      <div>
+        <p class="hero__eyebrow">Trust &amp; governance for the Global South</p>
+        <h1 id="hero-title" class="hero__title">Turn Community Risk into Measurable Trust Outcomes</h1>
+        <p class="hero__desc">
+          Operationalise grievance resolution and governance-grade ESG reporting for low-connectivity, multilingual field environments — where social licence decides whether projects move.
+        </p>
+        <div class="hero__actions hero__actions--single">
+          <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=hero&amp;utm_campaign=live_walkthrough" class="btn btn--primary btn--lg">Run 2-minute live walkthrough</a>
+        </div>
+        <p class="hero__micro">No signup required to preview. Email only needed to save/export results.</p>
+        <p class="hero__assessment-link">
+          <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=hero&amp;utm_campaign=pilot_walkthrough" class="btn btn--link">Book a 20-minute pilot walkthrough</a>
+        </p>
+      </div>
+      <div class="hero__visual" role="img" aria-label="TrustLedger dashboard showing grievance cases and trust score">
+        <img class="hero__visual-img" src="https://trustledger-frontend-pi.vercel.app/marketing/trustledger-hero-dashboard.png" alt="TrustLedger product dashboard overview" width="1200" height="800" loading="eager" decoding="async" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. BENEFIT STRIP -->
+<section class="section section--white" aria-label="Key outcomes">
+  <div class="container">
+    <div class="grid grid--3">
+      <article class="card">
+        <h2 class="card__title">Faster grievance resolution</h2>
+        <p class="card__desc">Route cases with clear ownership and SLA visibility from ward to board.</p>
+      </article>
+      <article class="card">
+        <h2 class="card__title">Trust score visibility</h2>
+        <p class="card__desc">See community trust signals before delays and shutdown risk escalate.</p>
+      </article>
+      <article class="card">
+        <h2 class="card__title">Audit-ready ESG evidence</h2>
+        <p class="card__desc">Capture defensible records for funders, regulators, and assurance teams.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 3. HOW IT WORKS -->
+<section id="how-it-works" class="section section--light" aria-labelledby="how-title">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-header__eyebrow">How it works</p>
+      <h2 id="how-title" class="section-header__title">A clear path from preview to proof</h2>
+      <p class="section-header__desc">Know exactly what happens after each click — preview first, commit only when you need the output.</p>
+    </div>
+    <ol class="workflow">
+      <li class="workflow__item">
+        <p class="workflow__step">Step 1</p>
+        <h3 class="workflow__title">Preview walkthrough</h3>
+        <p class="workflow__desc">Open the live product path on sample data — no signup required.</p>
+      </li>
+      <li class="workflow__item">
+        <p class="workflow__step">Step 2</p>
+        <h3 class="workflow__title">Run your scenario</h3>
+        <p class="workflow__desc">Walk intake, resolution, and reporting the way your teams actually work.</p>
+      </li>
+      <li class="workflow__item">
+        <p class="workflow__step">Step 3</p>
+        <h3 class="workflow__title">Save / export report</h3>
+        <p class="workflow__desc">Email is only asked when you want to keep or export full results.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- 4. TRUST / SOCIAL PROOF -->
+<section class="section section--white" aria-labelledby="trust-title">
+  <div class="container text-center">
+    <h2 id="trust-title" class="section-header__title" style="margin-bottom:1.5rem">Trusted by operators in high-stakes community environments</h2>
+    <ul class="trust-badges" aria-label="Trust assurances" style="justify-content:center">
+      <li class="trust-badge">Privacy-first lead capture</li>
+      <li class="trust-badge">No spam</li>
+      <li class="trust-badge">Secure data handling</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 5. SECTORS -->
+<section id="sectors" class="section section--light" aria-labelledby="sectors-title">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-header__eyebrow">Sectors</p>
+      <h2 id="sectors-title" class="section-header__title">Built for environments where trust is operational risk</h2>
+    </div>
+    <div class="grid grid--2">
+      <article class="card">
+        <h3 class="card__title">Mining</h3>
+        <p class="card__desc">Cut grievance backlog days with ward-to-site escalation clarity.</p>
+      </article>
+      <article class="card">
+        <h3 class="card__title">Energy</h3>
+        <p class="card__desc">Keep host-community commitments visible before outage risk rises.</p>
+      </article>
+      <article class="card">
+        <h3 class="card__title">Public Sector</h3>
+        <p class="card__desc">Produce audit-ready engagement evidence for oversight and funding.</p>
+      </article>
+      <article class="card">
+        <h3 class="card__title">Infrastructure</h3>
+        <p class="card__desc">Protect delivery timelines with early trust-signal monitoring.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 6. FINAL CTA -->
+<section id="solutions" class="section">
+  <div class="container">
+    <div class="cta-block">
+      <h2 class="cta-block__title">See measurable trust outcomes in two minutes</h2>
+      <p class="cta-block__desc">Preview grievance resolution, trust visibility, and ESG evidence on sample data — then save results when you are ready.</p>
+      <div class="hero__actions" style="justify-content:center;margin-top:2rem">
+        <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=live_walkthrough" class="btn btn--primary btn--lg">Run 2-minute live walkthrough</a>
+      </div>
+      <p style="margin-top:1rem">
+        <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=guided_demo" class="btn btn--link" style="color:#fff">Book a guided demo</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 7. PRICING / RESOURCES / FAQ anchors -->
+<section id="pricing" class="section section--white">
+  <div class="container">
+    <div class="section-header section-header--center">
+      <p class="section-header__eyebrow">Pricing</p>
+      <h2 class="section-header__title">Plans for practitioners, projects, and institutions</h2>
+      <p class="section-header__desc">List pricing available on request. Soft launch uses quote + EFT while card checkout finalises.</p>
+      <div class="hero__actions" style="justify-content:center;margin-top:1.5rem">
+        <a href="https://trustledger-frontend-pi.vercel.app/quote?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=request_quote" class="btn btn--secondary btn--lg">Request a quote</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="resources" class="section section--light">
+  <div class="container">
+    <div class="section-header section-header--center">
+      <p class="section-header__eyebrow">Resources</p>
+      <h2 class="section-header__title">Start where you are</h2>
+    </div>
+    <div class="grid grid--3">
+      <article class="card">
+        <h3 class="card__title">Live walkthrough</h3>
+        <p class="card__desc">2-minute product preview — no signup.</p>
+        <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=walkthrough">Open walkthrough</a></p>
+      </article>
+      <article class="card">
+        <h3 class="card__title">Readiness assessment</h3>
+        <p class="card__desc">Optional deeper diagnostic when you want scored results.</p>
+        <p class="mt-4"><a class="btn btn--link" href="https://trustledger.co.za/assessment/">Go to assessment</a></p>
+      </article>
+      <article class="card">
+        <h3 class="card__title">Start trial</h3>
+        <p class="card__desc">Capture details, then demo or request a quote.</p>
+        <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=start_trial">Start trial</a></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="section section--white" aria-labelledby="faq-title">
+  <div class="container" style="max-width:48rem">
+    <div class="section-header section-header--center">
+      <p class="section-header__eyebrow">FAQ</p>
+      <h2 id="faq-title" class="section-header__title">What happens when I click?</h2>
+    </div>
+    <details class="faq__item" open>
+      <summary class="faq__button">Do I need an account for the walkthrough?</summary>
+      <div class="faq__panel">No. Preview needs no signup. Email is only required to save or export full results.</div>
+    </details>
+    <details class="faq__item">
+      <summary class="faq__button">What is Admin login?</summary>
+      <div class="faq__panel">Admin login is for provisioned operators and Plan Owners — not the public preview path.</div>
+    </details>
+    <details class="faq__item">
+      <summary class="faq__button">How do I buy a plan?</summary>
+      <div class="faq__panel">Request a quote for EFT / invoice, or use card checkout when Paystack go-live is ready.</div>
+    </details>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div>
+        <p class="site-footer__brand">TrustLedger</p>
+        <p class="site-footer__parent">A Chibase Consulting product</p>
+        <p class="site-footer__contact"><a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a></p>
+      </div>
+      <div>
+        <p class="site-footer__heading">Product</p>
+        <ul class="site-footer__links">
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#sectors">Sectors</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=walkthrough">Live walkthrough</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="site-footer__heading">Company</p>
+        <ul class="site-footer__links">
+          <li><a href="https://chibaseconsulting.co.za" target="_blank" rel="noopener noreferrer">Chibase Consulting</a></li>
+          <li><a href="https://trustledger.co.za/privacy/">Privacy</a></li>
+          <li><a href="https://trustledger.co.za/terms/">Terms</a></li>
+          <li><a href="mailto:info@trustledger.co.za">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="site-footer__heading">Access</p>
+        <ul class="site-footer__links">
+          <li><a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=admin_login">Admin login</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/quote?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=request_quote">Request a quote</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=start_trial">Start trial</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="site-footer__bottom">© TrustLedger · Chibase Consulting</p>
+  </div>
+</footer>
