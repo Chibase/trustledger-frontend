@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-17 — Conversion homepage (Vercel `/`)
+
+- New marketing homepage: single primary CTA, preserved left-copy / right-dashboard hero
+- Admin login de-emphasized; Book walkthrough secondary; analytics hooks stubbed
+- Components under `src/components/marketing/*`
+
 ## 2026-07-16 — Quote + EFT soft-launch bridge (23i)
 
 - `/quote` → CRM Lead `Quote Request` (+ optional `OPS_ALERT_WEBHOOK_URL`)
