@@ -1,43 +1,60 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+import { HomeBenefitStrip } from "@/components/marketing/HomeBenefitStrip";
+import { HomeFinalCta } from "@/components/marketing/HomeFinalCta";
+import { HomeFooter } from "@/components/marketing/HomeFooter";
+import { HomeHeader } from "@/components/marketing/HomeHeader";
+import { HomeHero } from "@/components/marketing/HomeHero";
+import { HomeHowItWorks } from "@/components/marketing/HomeHowItWorks";
+import { HomeSectors } from "@/components/marketing/HomeSectors";
+import { HomeTrustProof } from "@/components/marketing/HomeTrustProof";
 
-export default function Home() {
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app";
+
+export const metadata: Metadata = {
+  title: "Turn Community Risk into Measurable Trust Outcomes",
+  description:
+    "TrustLedger helps operators run grievance resolution and governance-grade ESG reporting in low-connectivity, multilingual field environments. Preview in 2 minutes — no signup required.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "TrustLedger — Measurable Trust Outcomes",
+    description:
+      "Preview grievance resolution, trust visibility, and audit-ready ESG evidence. No signup required to walk through the product.",
+    url: siteUrl,
+    siteName: "TrustLedger",
+    locale: "en_ZA",
+    type: "website",
+    images: [
+      {
+        url: "/marketing/trustledger-hero-dashboard.png",
+        width: 1536,
+        height: 1024,
+        alt: "TrustLedger dashboard overview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TrustLedger — Measurable Trust Outcomes",
+    description:
+      "Run a 2-minute live walkthrough. No signup required to preview.",
+    images: ["/marketing/trustledger-hero-dashboard.png"],
+  },
+};
+
+export default function HomePage() {
   return (
-    <main className="mx-auto flex min-h-full max-w-3xl flex-col justify-center px-4 py-16">
-      <p className="text-sm font-medium text-tl-trust">TrustLedger</p>
-      <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-tl-ink">
-        Stakeholder trust you can operationalise
-      </h1>
-      <p className="mt-4 max-w-xl text-base text-tl-ink-muted">
-        Role-based dashboards for community, contractors, clients, and admins —
-        with assisted intake and governance briefs. Explore the interactive demo
-        on sample data.
-      </p>
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Link
-          href="/trial"
-          className="rounded-md bg-tl-trust px-5 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink"
-        >
-          Start trial
-        </Link>
-        <Link
-          href="/pay"
-          className="rounded-md border border-tl-trust bg-tl-surface px-5 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
-        >
-          Subscribe / pay
-        </Link>
-        <Link
-          href="/demo"
-          className="rounded-md border border-tl-line bg-tl-surface px-5 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
-        >
-          Demo only
-        </Link>
-        <Link
-          href="/assessment"
-          className="rounded-md border border-tl-line bg-tl-surface px-5 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
-        >
-          Assessment
-        </Link>
-      </div>
-    </main>
+    <>
+      <HomeHeader />
+      <main>
+        <HomeHero />
+        <HomeBenefitStrip />
+        <HomeHowItWorks />
+        <HomeTrustProof />
+        <HomeSectors />
+        <HomeFinalCta />
+      </main>
+      <HomeFooter />
+    </>
   );
 }
