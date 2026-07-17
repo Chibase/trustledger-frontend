@@ -233,14 +233,14 @@
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- FOOTER: paste this whole block; do not edit Contact links piecemeal (breaks the grid) -->
 <footer class="site-footer" role="contentinfo">
   <div class="container">
     <div class="site-footer__grid">
       <div>
         <p class="site-footer__brand">TrustLedger</p>
         <p class="site-footer__parent">A Chibase Consulting product</p>
-        <p class="site-footer__contact"><a href="https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a> · <a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a></p>
+        <p class="site-footer__contact"><a href="https://trustledger-frontend-pi.vercel.app/contact" target="_blank" rel="noopener noreferrer">Contact</a> · <a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a></p>
       </div>
       <div>
         <p class="site-footer__heading">Product</p>
@@ -248,7 +248,7 @@
           <li><a href="#how-it-works">How it works</a></li>
           <li><a href="#sectors">Sectors</a></li>
           <li><a href="#pricing">Pricing</a></li>
-          <li><a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=walkthrough">Live walkthrough</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/demo" target="_blank" rel="noopener noreferrer">Live walkthrough</a></li>
         </ul>
       </div>
       <div>
@@ -257,15 +257,15 @@
           <li><a href="https://chibaseconsulting.co.za" target="_blank" rel="noopener noreferrer">Chibase Consulting</a></li>
           <li><a href="https://trustledger.co.za/privacy/">Privacy</a></li>
           <li><a href="https://trustledger.co.za/terms/">Terms</a></li>
-          <li><a href="https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/contact" target="_blank" rel="noopener noreferrer">Contact</a></li>
         </ul>
       </div>
       <div>
         <p class="site-footer__heading">Access</p>
         <ul class="site-footer__links">
-          <li><a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=admin_login">Admin login</a></li>
-          <li><a href="https://trustledger-frontend-pi.vercel.app/quote?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=request_quote">Request a quote</a></li>
-          <li><a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=start_trial">Start trial</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/login/live" target="_blank" rel="noopener noreferrer">Admin login</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/quote" target="_blank" rel="noopener noreferrer">Request a quote</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/trial" target="_blank" rel="noopener noreferrer">Start trial</a></li>
         </ul>
       </div>
     </div>
