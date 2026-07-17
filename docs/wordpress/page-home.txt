@@ -24,7 +24,7 @@
       </nav>
       <div class="nav-actions">
         <a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=admin_login" class="nav-utility">Admin login</a>
-        <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=book_walkthrough" class="btn btn--secondary btn--sm">Book walkthrough</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=book_walkthrough" class="btn btn--secondary btn--sm" target="_blank" rel="noopener noreferrer">Book walkthrough</a>
       </div>
       <button type="button" class="nav-toggle" aria-label="Open menu" onclick="var m=document.getElementById('tl-nav-mobile'); if(m){ m.classList.toggle('is-open'); }">
         <span aria-hidden="true">&#9776;</span>
@@ -37,7 +37,7 @@
       <a href="#pricing">Pricing</a>
       <a href="#resources">Resources</a>
       <a href="#faq">FAQ</a>
-      <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=book_walkthrough" class="btn btn--secondary btn--block">Book walkthrough</a>
+      <a href="https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=book_walkthrough" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Book walkthrough</a>
       <a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=admin_login" class="nav-utility">Admin login</a>
     </div>
   </div>
@@ -58,7 +58,7 @@
         </div>
         <p class="hero__micro">No signup required to preview. Email only needed to save/export results.</p>
         <p class="hero__assessment-link">
-          <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=hero&amp;utm_campaign=pilot_walkthrough" class="btn btn--link">Book a 20-minute pilot walkthrough</a>
+          <a href="https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&amp;utm_medium=hero&amp;utm_campaign=pilot_walkthrough" class="btn btn--link" target="_blank" rel="noopener noreferrer">Book a 20-minute pilot walkthrough</a>
         </p>
       </div>
       <div class="hero__visual" role="img" aria-label="TrustLedger dashboard showing grievance cases and trust score">
@@ -166,7 +166,7 @@
         <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=live_walkthrough" class="btn btn--primary btn--lg">Run 2-minute live walkthrough</a>
       </div>
       <p style="margin-top:1rem">
-        <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=guided_demo" class="btn btn--link" style="color:#fff">Book a guided demo</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=guided_demo" class="btn btn--link" style="color:#fff" target="_blank" rel="noopener noreferrer">Book a guided demo</a>
       </p>
     </div>
   </div>
@@ -240,7 +240,7 @@
       <div>
         <p class="site-footer__brand">TrustLedger</p>
         <p class="site-footer__parent">A Chibase Consulting product</p>
-        <p class="site-footer__contact"><a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a></p>
+        <p class="site-footer__contact"><a href="https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a> · <a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a></p>
       </div>
       <div>
         <p class="site-footer__heading">Product</p>
@@ -257,7 +257,7 @@
           <li><a href="https://chibaseconsulting.co.za" target="_blank" rel="noopener noreferrer">Chibase Consulting</a></li>
           <li><a href="https://trustledger.co.za/privacy/">Privacy</a></li>
           <li><a href="https://trustledger.co.za/terms/">Terms</a></li>
-          <li><a href="mailto:info@trustledger.co.za">Contact</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a></li>
         </ul>
       </div>
       <div>

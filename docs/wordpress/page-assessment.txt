@@ -126,7 +126,7 @@
           <h3 class="site-footer__heading">Company</h3>
           <ul class="site-footer__links">
             <li><a href="https://chibaseconsulting.co.za" target="_blank" rel="noopener noreferrer">Chibase Consulting</a></li>
-            <li><a href="mailto:info@trustledger.co.za">Contact</a></li>
+            <li><a href="https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a></li>
             <li><a href="https://app.trustledger.co.za" target="_blank" rel="noopener noreferrer">Team desk login</a></li>
           </ul>
         </div>

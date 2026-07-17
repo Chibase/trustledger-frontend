@@ -23,9 +23,11 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 | Buy Practitioner (Paystack, when live) | `https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_practitioner` |
 | Buy Project (Paystack, when live) | `https://trustledger-frontend-pi.vercel.app/pay?plan=project&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_project` |
 | Institutional / contact | `https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&utm_medium=cta&utm_campaign=buy_institutional` |
-
+| Contact / Book walkthrough | `https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&utm_medium=nav&utm_campaign=book_walkthrough` |
 | Chibase Consulting | `https://chibaseconsulting.co.za` |
-| Contact | `mailto:info@trustledger.co.za` |
+| Email (optional secondary) | `mailto:info@trustledger.co.za` |
+
+**Do not** use relative `/contact` on WordPress — that URL is a 404 search page. Always use the absolute Vercel contact URL above.
 
 ## Behaviour notes
 
@@ -51,6 +53,8 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 
 Primary CTA: **Run 2-minute live walkthrough** → Vercel `/demo`.  
 Admin login is a utility link (not a competing CTA).
+
+**Contact fix (if footer still opens mail/search):** replace every footer Contact `mailto:info@trustledger.co.za` with the Contact URL in the link map, or re-paste full `page-home.txt`. Purge SpeedyCache after.
 
 ## WordPress Assessment page
 

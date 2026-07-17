@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-17 — WP Contact → Vercel `/contact`
+
+- Footer/nav Contact and Book walkthrough CTAs point to absolute Vercel contact (not WP `/contact` 404, not mailto-as-primary)
+- `docs/wordpress/page-home.txt`, `page-assessment.txt`, `WORDPRESS_CTA.md` updated — re-paste Home HTML on live WP
+
 ## 2026-07-17 — Conversion homepage (Vercel `/`)
 
 - New marketing homepage: single primary CTA, preserved left-copy / right-dashboard hero
