@@ -41,6 +41,17 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 `https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial`  
 (not `/demo`). Re-paste assessment nav from `docs/wordpress/page-assessment.txt` if needed.
 
+## WordPress Home page (conversion)
+
+**Full-page paste:** replace the Home page Custom HTML with [`docs/wordpress/page-home.txt`](wordpress/page-home.txt).
+
+1. Ensure Additional CSS is the latest [`docs/wordpress/additional-css.css`](wordpress/additional-css.css) (or append [`home-conversion-css-patch.css`](wordpress/home-conversion-css-patch.css)).
+2. Pages → Home → paste Custom HTML from `page-home.txt` → Update.
+3. Purge SpeedyCache → hard refresh `https://trustledger.co.za/`.
+
+Primary CTA: **Run 2-minute live walkthrough** → Vercel `/demo`.  
+Admin login is a utility link (not a competing CTA).
+
 ## WordPress Assessment page
 
 **Prefer full-page paste:** replace the Assessment page Custom HTML with [`docs/wordpress/page-assessment.txt`](wordpress/page-assessment.txt) (includes the live quiz iframe + HubSpot-backed lead gate on Vercel).
