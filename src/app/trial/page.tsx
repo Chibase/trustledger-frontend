@@ -10,13 +10,10 @@ import { USER_ROLES, type UserRole } from "@/types/rbac";
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
-type Step = "capture" | "choose";
-
 function TrialForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { getToken } = useRecaptcha("demo_entry");
-  const [step, setStep] = useState<Step>("capture");
   const [role, setRole] = useState<UserRole>("admin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -37,6 +34,12 @@ function TrialForm() {
     }, 0);
     return () => window.clearTimeout(timer);
   }, [searchParams]);
+
+  function enterTrial(selectedRole: UserRole) {
+    document.cookie = `session-role=${selectedRole}; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
+    document.cookie = `tl-mode=demo; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
+    router.push("/app/dashboard");
+  }
 
   async function handleCapture(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -101,94 +104,12 @@ function TrialForm() {
       );
       window.localStorage.setItem("tl-lead-dismissed", "1");
       window.localStorage.setItem("tl-demo-lead-source", "trial_entry");
-      setStep("choose");
+      enterTrial(role);
     } catch {
       setError("Network error. Check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function enterDemo() {
-    document.cookie = `session-role=${role}; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-    document.cookie = `tl-mode=demo; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-    router.push("/app/dashboard");
-  }
-
-  function quoteUrl(plan: "practitioner" | "project" | "institutional") {
-    const params = new URLSearchParams({
-      plan,
-      email: email.trim().toLowerCase(),
-      name: name.trim(),
-      utm_source: "trial",
-      utm_medium: "funnel",
-      utm_campaign: `quote_${plan}`,
-    });
-    if (organization.trim()) params.set("organization", organization.trim());
-    return `/quote?${params.toString()}`;
-  }
-
-  if (step === "choose") {
-    return (
-      <main className="mx-auto flex min-h-full max-w-lg flex-col justify-center px-4 py-12">
-        <p className="text-sm font-medium text-tl-trust">Trial started</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-tl-ink">
-          What would you like to do next?
-        </h1>
-        <p className="mt-3 text-sm text-tl-ink-muted">
-          Thanks, {name.split(" ")[0] || "there"}. Explore sample data, or
-          request a quote (EFT / invoice). Ops confirms payment; Plan Owner
-          access is provisioned manually while lockdown is on.
-        </p>
-
-        <div className="mt-8 space-y-3">
-          <button
-            type="button"
-            onClick={enterDemo}
-            className="w-full rounded-md border border-tl-line bg-tl-surface px-4 py-3 text-left hover:border-tl-trust/40"
-          >
-            <span className="block font-semibold">Explore the demo</span>
-            <span className="mt-0.5 block text-sm text-tl-ink-muted">
-              Sample dashboards and AI assist — no live project data
-            </span>
-          </button>
-
-          <Link
-            href={quoteUrl("practitioner")}
-            className="block w-full rounded-md bg-tl-trust px-4 py-3 text-left text-white hover:bg-tl-trust-ink"
-          >
-            <span className="block font-semibold">
-              Request quote · Practitioner
-            </span>
-            <span className="mt-0.5 block text-sm text-white/80">
-              Quote + EFT — single Plan Owner seat
-            </span>
-          </Link>
-
-          <Link
-            href={quoteUrl("project")}
-            className="block w-full rounded-md border border-tl-trust bg-tl-surface px-4 py-3 text-left hover:bg-tl-paper"
-          >
-            <span className="block font-semibold text-tl-ink">
-              Request quote · Project
-            </span>
-            <span className="mt-0.5 block text-sm text-tl-ink-muted">
-              Quote + EFT — owner + per-project seats
-            </span>
-          </Link>
-
-          <Link
-            href={quoteUrl("institutional")}
-            className="block w-full rounded-md border border-tl-line px-4 py-3 text-left text-sm hover:bg-tl-paper"
-          >
-            <span className="font-semibold">Institutional / custom</span>
-            <span className="mt-0.5 block text-tl-ink-muted">
-              Request quote — sales-scoped
-            </span>
-          </Link>
-        </div>
-      </main>
-    );
   }
 
   return (
@@ -198,8 +119,8 @@ function TrialForm() {
         Begin with TrustLedger
       </h1>
       <p className="mt-3 text-sm text-tl-ink-muted">
-        Share your details once. Next you can explore the sample demo or
-        request a quote for EFT / invoice.
+        Share your details once to open a guided trial with sample data. No
+        commitment required to explore.
       </p>
 
       <form
@@ -263,7 +184,7 @@ function TrialForm() {
         </div>
         <div>
           <label htmlFor="trial-role" className="mb-1 block text-sm font-medium">
-            Demo role (if you explore sample data)
+            Explore the trial as
           </label>
           <select
             id="trial-role"
@@ -303,18 +224,14 @@ function TrialForm() {
           disabled={submitting}
           className="w-full rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
         >
-          {submitting ? "Saving…" : "Continue"}
+          {submitting ? "Starting trial…" : "Start trial"}
         </button>
       </form>
 
       <p className="mt-4 text-xs text-tl-ink-muted">
-        Already decided?{" "}
-        <Link href="/quote" className="font-medium text-tl-trust-ink underline">
-          Request a quote
-        </Link>
-        {" · "}
-        <Link href="/pay" className="font-medium text-tl-trust-ink underline">
-          Paystack checkout
+        Prefer a conversation first?{" "}
+        <Link href="/contact" className="font-medium text-tl-trust-ink underline">
+          Contact us
         </Link>
         {" · "}
         Campaign: {utmLabel}

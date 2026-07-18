@@ -28,7 +28,7 @@ Hard-refresh Frappe CRM afterward. Remove `CRM_SETUP_TOKEN` from Vercel when don
 | `Website Assessment` | Assessment unlock lead |
 | `Support Ticket` | In-app Support escalate |
 | `Paystack Payment` | Vercel `/pay` successful checkout |
-| `Quote Request` | `/quote` and trial “Request quote” |
+| `Quote Request` | `/quote` (separate from `/trial`) |
 | `EFT Payment` | Ops → Finance → Confirm EFT paid |
 
 If a source name is missing, intake still saves (source omitted) and Vercel logs a warning.

@@ -106,17 +106,18 @@ export function DemoLeadGate() {
         {sent ? (
           <>
             <h2 id="lead-title" className="font-display text-xl font-semibold">
-              Thanks — choose your next step
+              Thanks — keep exploring
             </h2>
             <p className="mt-2 text-sm text-tl-ink-muted">
-              Keep exploring sample data, or request a quote for EFT / invoice.
+              When you are ready for a live pilot walkthrough, tell us what
+              matters for your sites.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
-                href="/quote?utm_source=demo_gate&utm_medium=modal&utm_campaign=upgrade"
+                href="/contact?utm_source=demo_gate&utm_medium=modal&utm_campaign=talk_to_us"
                 className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white"
               >
-                Request quote
+                Talk to us
               </Link>
               <button
                 type="button"
@@ -133,8 +134,8 @@ export function DemoLeadGate() {
               Want this for your projects?
             </h2>
             <p className="mt-2 text-sm text-tl-ink-muted">
-              You have explored the demo. Leave a work email — then you can
-              request a quote or keep exploring.
+              You have explored the trial. Leave a work email so we can follow
+              up when you are ready — or keep exploring sample data.
             </p>
             <p className="mt-2 text-xs text-tl-ink-muted">Source: {utmLabel}</p>
             <form onSubmit={submit} className="relative mt-4 space-y-3">
@@ -174,10 +175,10 @@ export function DemoLeadGate() {
                   {submitting ? "Sending…" : "Continue"}
                 </button>
                 <Link
-                  href="/quote?utm_source=demo_gate&utm_medium=modal&utm_campaign=quote_now"
+                  href="/contact?utm_source=demo_gate&utm_medium=modal&utm_campaign=talk_to_us"
                   className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium"
                 >
-                  Quote now
+                  Talk to us
                 </Link>
                 <button
                   type="button"

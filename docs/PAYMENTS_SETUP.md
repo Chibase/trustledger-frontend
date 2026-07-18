@@ -111,7 +111,7 @@ WordPress / trial CTA
 
 | Piece | Detail |
 |-------|--------|
-| Public form | `/quote` (also linked from `/trial`) |
+| Public form | `/quote` (separate from `/trial`; trial stays commitment-free) |
 | CRM sources | `Quote Request`, `EFT Payment` — create via crm-setup or Desk |
 | Ops action | `/ops/finance` → **Confirm EFT paid** (allowlist only) |
 | Optional alert | Vercel `OPS_ALERT_WEBHOOK_URL` (Slack/Discord/Make) |

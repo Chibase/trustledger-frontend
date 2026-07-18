@@ -205,7 +205,7 @@
       </article>
       <article class="card">
         <h3 class="card__title">Start trial</h3>
-        <p class="card__desc">Capture details, then demo or request a quote.</p>
+        <p class="card__desc">Share details once, then explore the guided trial with sample data.</p>
         <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=start_trial">Start trial</a></p>
       </article>
     </div>

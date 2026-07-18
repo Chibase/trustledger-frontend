@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-18 — Trial form: trial-only copy (no quote/pay)
+
+- `/trial` is capture → enter guided trial only; removed quote/EFT/Paystack CTAs from the form
+- Demo banner + soft-gate ask for conversation (`/contact`), not quote/payment
+- WP Resources “Start trial” blurb + WORDPRESS_CTA updated
+
 ## 2026-07-17 — WP Contact → Vercel `/contact`
 
 - Footer/nav Contact and Book walkthrough CTAs point to absolute Vercel contact (not WP `/contact` 404, not mailto-as-primary)

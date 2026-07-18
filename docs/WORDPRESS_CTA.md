@@ -8,7 +8,7 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 
 | CTA | URL |
 |-----|-----|
-| Start trial (capture → demo **or** quote) | `https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial` |
+| Start trial (capture → guided trial / sample demo) | `https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial` |
 | Try demo only | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo` |
 | Open dashboard | `https://trustledger-frontend-pi.vercel.app/app/dashboard?utm_source=wordpress&utm_medium=cta&utm_campaign=dashboard` |
 | Sign in (live) | `https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&utm_medium=cta&utm_campaign=live_login` |
@@ -35,8 +35,8 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 - **Sign in** → live BFF login against Frappe Cloud (`app.trustledger.co.za`).
 - **Team desk** → Frappe desk for internal users (not the public demo).
 - **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Leads go to **HubSpot** via Forms API when `HUBSPOT_PORTAL_ID` / `HUBSPOT_FORM_ID` / `HUBSPOT_REGION` are set (fallback: `ASSESSMENT_WEBHOOK_URL`).
-- **Start trial** → Vercel `/trial` → capture details → **Explore demo** or **Request quote** (EFT / invoice).
-- **Request quote** → Vercel `/quote` → CRM Lead `Quote Request`. You send Quotation/Invoice from Desk; confirm EFT in **Ops → Finance**.
+- **Start trial** → Vercel `/trial` → capture details → enter guided trial (`/app/dashboard` sample data). No quote/payment wording on that form; commitment is requested later (contact / ops follow-up).
+- **Request quote** → Vercel `/quote` → CRM Lead `Quote Request` (separate path from trial). You send Quotation/Invoice from Desk; confirm EFT in **Ops → Finance**.
 - **Buy / Paystack** (optional while KYC finishes) → Vercel `/pay`. Ops Finance is notified; Customer / Plan Owner stay manual (`docs/PAYMENTS_SETUP.md`).
 
 **WordPress action required:** point every “Start trial” button to  
