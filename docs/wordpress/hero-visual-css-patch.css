@@ -1,0 +1,42 @@
+/* Paste/replace these rules in Appearance → Customize → Additional CSS
+   (or re-copy the full docs/wordpress/additional-css.css file). */
+
+.hero__grid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .hero__grid {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+    gap: 2rem;
+  }
+}
+
+.hero__visual {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-slate-200);
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  background-color: #f8fafc;
+  background-image: url("https://trustledger-frontend-pi.vercel.app/marketing/trustledger-hero-dashboard.png");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  min-height: 18rem;
+}
+
+@media (min-width: 1024px) {
+  .hero__visual {
+    min-height: 22rem;
+  }
+}
+
+.hero__visual > *,
+.hero__visual-text {
+  display: none !important;
+}

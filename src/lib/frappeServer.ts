@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/config/api";
+import { mapFrappeRolesToTrustLedger } from "@/lib/roleMap";
 
 export type FrappeSessionContext = {
   user: string;
@@ -54,7 +55,7 @@ export async function frappeLogin(
   if (!response.ok || !sid) {
     const text = await response.text();
     throw new Error(
-      `Frappe login failed (${response.status}): ${text.slice(0, 200) || response.statusText}`,
+      `TrustLedger sign-in failed (${response.status}): ${text.slice(0, 200) || response.statusText}`,
     );
   }
 
@@ -99,7 +100,7 @@ export async function frappeCallWithSid<T>(
 
   if (!response.ok) {
     const detail = payload?.exc || text.slice(0, 200) || response.statusText;
-    throw new Error(`Frappe call failed (${response.status}): ${detail}`);
+    throw new Error(`TrustLedger call failed (${response.status}): ${detail}`);
   }
 
   if (payload && "message" in payload && payload.message !== undefined) {
@@ -108,11 +109,82 @@ export async function frappeCallWithSid<T>(
   return payload as T;
 }
 
+async function fetchRolesForUser(sid: string, user: string): Promise<string[]> {
+  const base = getFrappeBaseUrl();
+  const fields = encodeURIComponent(JSON.stringify(["role"]));
+  const filters = encodeURIComponent(
+    JSON.stringify([["parent", "=", user]]),
+  );
+  const res = await fetch(
+    `${base}/api/resource/Has%20Role?fields=${fields}&filters=${filters}&limit_page_length=100`,
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Cookie: `sid=${sid}`,
+      },
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) return [];
+  const json = (await res.json()) as { data?: Array<{ role?: string }> };
+  return (json.data || [])
+    .map((row) => row.role)
+    .filter((role): role is string => Boolean(role));
+}
+
+/** Session without srm-core — works on stock TrustLedger Cloud (Administrator, etc.). */
+async function fetchSessionContextFallback(
+  sid: string,
+): Promise<FrappeSessionContext> {
+  const user = await frappeCallWithSid<string>(
+    sid,
+    "/api/method/frappe.auth.get_logged_user",
+  );
+  if (!user || user === "Guest") {
+    throw new Error("TrustLedger Cloud session is not active");
+  }
+
+  let fullName = user;
+  try {
+    const doc = await frappeCallWithSid<{
+      full_name?: string;
+      first_name?: string;
+    }>(sid, "/api/method/frappe.client.get", {
+      doctype: "User",
+      name: user,
+    });
+    fullName = doc.full_name || doc.first_name || user;
+  } catch {
+    /* keep login id */
+  }
+
+  let roles = await fetchRolesForUser(sid, user);
+  if (user === "Administrator" && !roles.includes("System Manager")) {
+    roles = [...roles, "System Manager"];
+  }
+
+  return {
+    user,
+    fullName,
+    roles,
+    trustLedgerRole: mapFrappeRolesToTrustLedger(roles),
+  };
+}
+
 export async function fetchSessionContext(
   sid: string,
 ): Promise<FrappeSessionContext> {
-  return frappeCallWithSid<FrappeSessionContext>(
-    sid,
-    "/api/method/srm_core.api.auth.get_session",
-  );
+  try {
+    const session = await frappeCallWithSid<FrappeSessionContext>(
+      sid,
+      "/api/method/srm_core.api.auth.get_session",
+    );
+    if (session?.user && session.trustLedgerRole) {
+      return session;
+    }
+  } catch {
+    /* srm-core not installed yet — use Cloud fallback */
+  }
+  return fetchSessionContextFallback(sid);
 }

@@ -11,11 +11,11 @@
 | Official name | **TrustLedger** |
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
-| Backend | Frappe `srm-core` on Interserv (live path in Phase 2) |
+| Backend | **Frappe Cloud** `app.trustledger.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
 | Marketing | WordPress `trustledger.co.za` on Webway (CTA later) |
-| Runtime AI | Grok via `srm-core` only — never from browser |
+| Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
-**Current phase:** Phase 2 — API client + live-mode switches. Demo remains default and must keep working without Interserv.
+**Current phase:** Phase 2 — Frappe-ready on **Frappe Cloud**. Demo remains default and must keep working without live product DocTypes. Interserv is retired (ADR-018).
 
 ## 2. Locked decisions (do not re-ask)
 
@@ -38,7 +38,7 @@ When implementing:
 
 1. **Follow this file** and the active packet only.
 2. **Do not ask** for preference on colours, fonts, IA, or stack — already locked.
-3. **Do not** change Cloudflare or WordPress in this repo (different hosts). Frappe client scaffolding is allowed; do not require live Interserv for Demo.
+3. **Do not** change Cloudflare or WordPress in this repo (different hosts). Frappe client scaffolding targets **Frappe Cloud** only; do not require live product DocTypes for Demo.
 4. **Do** update `docs/CHANGELOG_INTERNAL.md` when a packet completes.
 5. **Do** run `npm run lint` and `npm run build` before considering a packet done.
 6. **Only stop and ask** if: secrets/credentials needed, destructive prod action, or BUILD_PLAN contradiction.
@@ -50,6 +50,7 @@ When implementing:
 ```
 /                     Marketing-lite app home → CTA to /demo
 /demo                 Demo landing: role picker + “Demo data” notice + lead CTA
+/assessment           Public SRM Readiness & Risk Diagnostic (lead-gated results)
 /login                Dev/demo role session (cookie) — same as today, restyled
 /app                  Authenticated shell (sidebar + topbar)
 /app/dashboard        Role home (real widgets, not bullet lists)
@@ -103,7 +104,7 @@ Meaningful actions: submit issue, apply AI suggestion, generate brief, open inci
 | 13 | Live service adapters | Services call Frappe when live; mock fallback | **Done** |
 | 14 | Auth bridge stub | Document + stub session for Frappe login (no secrets) | **Done** |
 
-**Still external (not this repo):** Cloudflare DNS, Grok API keys on Interserv.
+**Still external (not this repo):** Cloudflare DNS (if used), Grok API keys on Frappe Cloud site config when `srm-core` lands.
 WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 
 ### Phase 3 — Demo depth + marketing handoff
@@ -124,11 +125,22 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 | 21 | SEO basics | robots.txt, sitemap, Open Graph metadata | **Done** |
 | 22 | Frappe API contract | Doc of methods/payloads `srm-core` must expose | **Done** |
 
-### Phase 5 — Launch trial + billing prep
+### Phase 5 — Platform Ops command centre
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| 23 | Open trial + plans lock | No-login trial; email on print/save; plan catalogue + Paystack ops docs | **Done** |
+| 23a | Ops overview | `/ops` shell, allowlist gate, client/visitor activity (not /app projects) | **Done** |
+| 23e | Executive Board | `/ops/executive` C-suite brief — KPIs, graphs, demographics, voice quotes, print | **Done** |
+| 23f | Command control | Finance, staff, AI tools, issues control pillars | **Done** |
+| 23g | Vercel Paystack | `/pay` checkout + webhook → Ops Finance/Executive; manual CRM | **Done** |
+| 23h | Trial → pay funnel | `/trial` capture then demo or subscribe; banner/WP CTAs | **Done** |
+| 23i | Quote + EFT bridge | `/quote` CRM Lead; Ops Confirm EFT paid; trial/WP CTAs | **Done** |
+| 23j | Open trial explore | No-login `/demo`→`/app`; email on print/save; plan catalogue docs | **Done** |
+| 23b | Ops reports | Filterable intake/feedback/assessment reports + CSV | Planned |
+| 23c | Ops accounts | Customer plan/status/seat controls | Planned |
+| 23d | Ops support packs | Per-person/org context for support | Planned |
+
+See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 
 ## 8. Quality gates (every packet)
 
@@ -167,5 +179,4 @@ src/
 
 | Date | Change |
 |------|--------|
-| 2026-07-20 | Packet 23: open trial, plans lock, Paystack prep docs |
 | 2026-07-11 | Initial Demo-first BUILD_PLAN (Packet 00) |

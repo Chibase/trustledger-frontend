@@ -1,6 +1,6 @@
 /**
  * Runtime mode and Frappe API configuration.
- * Demo remains default so Vercel works without Interserv.
+ * Demo remains default so Vercel works without Frappe Cloud.
  */
 
 export type DataMode = "demo" | "live";

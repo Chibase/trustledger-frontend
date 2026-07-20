@@ -5,19 +5,36 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 function sanitizeNext(value: string | null): string {
-  if (value && value.startsWith("/") && !value.startsWith("//")) {
+  if (
+    value &&
+    value.startsWith("/") &&
+    !value.startsWith("//") &&
+    (value.startsWith("/app") || value.startsWith("/ops"))
+  ) {
     return value;
   }
-  return "/app/dashboard";
+  // Operators home to Executive Board; customers use /app.
+  return "/ops/executive";
+}
+
+function gateErrorCopy(code: string | null): string | null {
+  if (code === "lockdown_misconfigured") {
+    return "Live access is locked to the Platform Operator, but the allowlist is not configured on the server.";
+  }
+  if (code === "not_operator") {
+    return "Live access is limited to the Platform Operator. Customer and staff logins are paused until lockdown is lifted.";
+  }
+  return null;
 }
 
 function LiveLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = sanitizeNext(searchParams.get("next"));
+  const gateError = gateErrorCopy(searchParams.get("error"));
   const [usr, setUsr] = useState("");
   const [pwd, setPwd] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(gateError);
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -27,16 +44,29 @@ function LiveLoginForm() {
     try {
       const response = await fetch("/auth/live/login", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ usr, pwd }),
       });
-      const payload = (await response.json()) as { error?: string; role?: string };
+      const payload = (await response.json()) as {
+        error?: string;
+        role?: string;
+        home?: string;
+        platformOperator?: boolean;
+      };
       if (!response.ok) {
         throw new Error(payload.error || "Login failed");
       }
       // Clear any leftover demo-mode cookie from a prior /demo visit
       document.cookie = "tl-mode=live; path=/; max-age=604800; samesite=lax";
-      router.push(next.startsWith("/app") ? next : "/app/dashboard");
+      // Server decides operator home (/ops/executive). Never fall to customer desk.
+      const dest =
+        payload.home ||
+        (payload.platformOperator ? "/ops/executive" : null) ||
+        (next.startsWith("/ops") || next.startsWith("/app")
+          ? next
+          : "/ops/executive");
+      router.push(dest);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -52,11 +82,8 @@ function LiveLoginForm() {
         Sign in with TrustLedger
       </h1>
       <p className="mt-2 text-sm text-tl-ink-muted">
-        Uses your Frappe account on Interserv. Prefer the{" "}
-        <Link href="/demo" className="text-tl-trust-ink underline">
-          demo
-        </Link>{" "}
-        if you only want sample data.
+        Use your TrustLedger Cloud email and password (Administrator or System
+        Manager for admin). This opens the live product, not the sample demo.
       </p>
 
       <form
@@ -104,6 +131,13 @@ function LiveLoginForm() {
           {pending ? "Signing in…" : "Sign in"}
         </button>
       </form>
+      <p className="mt-4 text-xs text-tl-ink-muted">
+        Want sample data only?{" "}
+        <Link href="/demo" className="text-tl-trust-ink underline">
+          Open the demo
+        </Link>
+        .
+      </p>
     </main>
   );
 }

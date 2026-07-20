@@ -45,7 +45,11 @@ function TrialEntry() {
       </h1>
       <p className="mt-3 text-sm text-tl-ink-muted">
         No login required. Explore sample data freely — we only ask for an email
-        when you print or save.
+        when you print or save. Prefer plan options?{" "}
+        <a href="/trial" className="font-medium text-tl-trust-ink underline">
+          Start trial / subscribe
+        </a>
+        .
       </p>
     </main>
   );

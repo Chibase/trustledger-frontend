@@ -5,9 +5,16 @@ import {
   SESSION_MAX_AGE_SECONDS,
   SESSION_ROLE_COOKIE,
   TL_MODE_COOKIE,
+  TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
 } from "@/lib/auth.constants";
 import { fetchSessionContext, frappeLogin } from "@/lib/frappeServer";
+import {
+  assertLiveOperatorAccess,
+  assertOpsAccess,
+  normalizeIdentity,
+  operatorGateMessage,
+} from "@/lib/platformOperator";
 
 export async function POST(request: Request) {
   let body: { usr?: string; pwd?: string };
@@ -31,10 +38,23 @@ export async function POST(request: Request) {
     const session = await fetchSessionContext(sid);
     if (!isUserRole(session.trustLedgerRole)) {
       return NextResponse.json(
-        { error: "Could not map Frappe roles to TrustLedger role" },
+        { error: "Could not map your TrustLedger Cloud roles" },
         { status: 403 },
       );
     }
+
+    const gate = assertLiveOperatorAccess(usr, session.user);
+    if (!gate.ok) {
+      return NextResponse.json(
+        { error: operatorGateMessage(gate.reason) },
+        { status: 403 },
+      );
+    }
+
+    const email = normalizeIdentity(session.user || usr);
+    // Operators home to Executive Board — never the customer desk.
+    const opsGate = assertOpsAccess(usr, session.user, email);
+    const home = opsGate.ok ? "/ops/executive" : "/app/dashboard";
 
     const response = NextResponse.json({
       ok: true,
@@ -42,6 +62,8 @@ export async function POST(request: Request) {
       fullName: session.fullName,
       role: session.trustLedgerRole,
       roles: session.roles,
+      platformOperator: opsGate.ok,
+      home,
     });
 
     const cookieBase = {
@@ -60,6 +82,11 @@ export async function POST(request: Request) {
     response.cookies.set(
       TL_USER_NAME_COOKIE,
       session.fullName.replace(/[;\r\n]/g, "").slice(0, 80),
+      cookieBase,
+    );
+    response.cookies.set(
+      TL_USER_EMAIL_COOKIE,
+      email.replace(/[;\r\n]/g, "").slice(0, 120),
       cookieBase,
     );
 

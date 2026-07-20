@@ -15,7 +15,7 @@ export default async function AppProjectsPage() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Projects</h1>
         <p className="mt-1 text-sm text-tl-ink-muted">
-          Demo portfolio aligned to future Frappe project records.
+          Demo portfolio aligned to TrustLedger Cloud project records.
         </p>
       </div>
 

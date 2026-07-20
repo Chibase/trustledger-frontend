@@ -235,7 +235,7 @@ export default function AppIncidentDetailPage({
           </button>
         </form>
         <p className="mt-2 text-xs text-tl-ink-muted">
-          Demo stores the filename only — no binary upload until Frappe live mode.
+          Demo stores the filename only — binary upload arrives with TrustLedger Cloud live mode.
         </p>
       </section>
 

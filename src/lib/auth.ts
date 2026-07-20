@@ -4,6 +4,7 @@ import {
   SESSION_ROLE_COOKIE,
   TL_MODE_COOKIE,
   TL_TRIAL_PLAN_COOKIE,
+  TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
   TRIAL_DEFAULT_ROLE,
 } from "@/lib/auth.constants";
@@ -15,6 +16,7 @@ export type { UserRole };
 export type AppUser = {
   id: string;
   name: string;
+  email: string | null;
   role: UserRole;
   mode: "demo" | "live";
   /** Open trial guest (no login). */
@@ -24,14 +26,28 @@ export type AppUser = {
 
 export { SESSION_ROLE_COOKIE } from "@/lib/auth.constants";
 
+function displayNameForRole(role: UserRole): string {
+  switch (role) {
+    case "community":
+      return "Community member";
+    case "contractor":
+      return "Contractor";
+    case "client":
+      return "Client";
+    case "admin":
+      return "Administrator";
+  }
+}
+
 function userFromRole(
   role: UserRole,
   name: string,
   mode: "demo" | "live",
-  id = "dev-1",
+  id = "session-user",
+  email: string | null = null,
   extras?: Pick<AppUser, "isGuest" | "trialPlan">,
 ): AppUser {
-  return { id, name, role, mode, ...extras };
+  return { id, name, email, role, mode, ...extras };
 }
 
 export async function getCurrentUser(): Promise<AppUser | null> {
@@ -41,25 +57,39 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   const hasLiveSid = Boolean(cookieStore.get(FRAPPE_SID_COOKIE)?.value);
   const mode: "demo" | "live" =
     modeRaw === "live" || hasLiveSid ? "live" : "demo";
-  const name = cookieStore.get(TL_USER_NAME_COOKIE)?.value || "Dev User";
+  const emailRaw = cookieStore.get(TL_USER_EMAIL_COOKIE)?.value;
+  const email = emailRaw ? emailRaw.trim().toLowerCase() : null;
   const planRaw = cookieStore.get(TL_TRIAL_PLAN_COOKIE)?.value;
   const trialPlan = planRaw && isPlanId(planRaw) ? planRaw : undefined;
 
   if (sessionRole && isUserRole(sessionRole)) {
+    const name =
+      cookieStore.get(TL_USER_NAME_COOKIE)?.value ||
+      displayNameForRole(sessionRole);
     return userFromRole(
       sessionRole,
       name,
       mode,
-      mode === "live" ? "live-user" : "dev-1",
+      mode === "live" ? "live-user" : "demo-user",
+      email,
       trialPlan ? { trialPlan } : undefined,
     );
   }
 
   const envRole = process.env.NEXT_PUBLIC_DEV_ROLE;
-  if (envRole && isUserRole(envRole)) {
-    return userFromRole(envRole, "Dev User", "demo", "dev-1", {
-      trialPlan: trialPlan ?? "starter",
-    });
+  if (
+    envRole &&
+    isUserRole(envRole) &&
+    process.env.VERCEL_ENV !== "production"
+  ) {
+    return userFromRole(
+      envRole,
+      displayNameForRole(envRole),
+      "demo",
+      "dev-user",
+      email,
+      { trialPlan: trialPlan ?? "starter" },
+    );
   }
 
   // Open trial: no login required for demo product UI.
@@ -69,6 +99,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       "Trial guest",
       "demo",
       "trial-guest",
+      email,
       { isGuest: true, trialPlan: trialPlan ?? "starter" },
     );
   }

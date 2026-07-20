@@ -1,0 +1,202 @@
+<!--
+  WORDPRESS PAGE: ASSESSMENT
+  1. Pages → Assessment → replace the entire Custom HTML block with ALL below
+  2. Update/Publish → purge SpeedyCache
+  Includes the live Vercel assessment form (iframe).
+-->
+<div class="trustledger-wrap">
+<!-- SHARED NAV START -->
+  <header class="site-header" role="banner">
+    <div class="container">
+      <div class="site-header__inner">
+        <a href="https://trustledger.co.za/" class="site-header__logo" aria-label="TrustLedger home">TrustLedger</a>
+        <nav aria-label="Main navigation">
+          <ul class="nav-links">
+            <li><a href="https://trustledger.co.za/#solutions">Solutions</a></li>
+            <li><a href="https://trustledger.co.za/#how-it-works">How It Works</a></li>
+            <li><a href="https://trustledger.co.za/#sectors">Sectors</a></li>
+            <li><a href="https://trustledger.co.za/#pricing">Pricing</a></li>
+            <li><a href="https://trustledger.co.za/#resources">Resources</a></li>
+            <li><a href="https://trustledger.co.za/#faq">FAQ</a></li>
+          </ul>
+        </nav>
+        <div class="nav-actions">
+          <a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial" class="btn btn--secondary btn--sm" target="_blank" rel="noopener noreferrer">Start trial</a>
+          <a href="https://trustledger-frontend-pi.vercel.app/pay?utm_source=wordpress&utm_medium=cta&utm_campaign=subscribe" class="btn btn--primary btn--sm" target="_blank" rel="noopener noreferrer">Subscribe</a>
+        </div>
+        <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-mobile" aria-label="Open menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+      </div>
+      <div class="nav-mobile" id="nav-mobile">
+        <a href="https://trustledger.co.za/#solutions">Solutions</a>
+        <a href="https://trustledger.co.za/#how-it-works">How It Works</a>
+        <a href="https://trustledger.co.za/#sectors">Sectors</a>
+        <a href="https://trustledger.co.za/#pricing">Pricing</a>
+        <a href="https://trustledger.co.za/#resources">Resources</a>
+        <a href="https://trustledger.co.za/#faq">FAQ</a>
+        <a href="https://trustledger.co.za/assessment/" class="btn btn--secondary btn--block">Take Assessment</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Start trial</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?utm_source=wordpress&utm_medium=cta&utm_campaign=subscribe" class="btn btn--primary btn--block" target="_blank" rel="noopener noreferrer">Subscribe</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&utm_medium=cta&utm_campaign=live_login" class="btn btn--ghost btn--block" target="_blank" rel="noopener noreferrer">Sign in</a>
+      </div>
+    </div>
+  </header>
+  <!-- SHARED NAV END -->
+
+  <main>
+    <section class="page-hero section section--light">
+      <div class="container page-content">
+        <div class="section-header">
+          <p class="section-header__eyebrow">Free Diagnostic</p>
+          <h1 class="section-header__title">SRM Readiness &amp; Risk Diagnostic</h1>
+          <p class="section-header__desc">A 5&ndash;8 minute assessment to evaluate your grievance management, community engagement, and governance reporting maturity &mdash; designed for organizations operating in the Global South.</p>
+        </div>
+        <ul class="content-list">
+          <li>Readiness score across 6 governance dimensions</li>
+          <li>Risk level classification</li>
+          <li>Top 3 priority actions</li>
+          <li>90-day action plan outline</li>
+        </ul>
+        <p class="mt-4" style="color:var(--color-slate-600);font-size:0.9375rem">Developed by TrustLedger with implementation advisory from Chibase Consulting.</p>
+
+        <p class="mt-4" style="margin-bottom:1rem;">
+          <a
+            href="https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic"
+            class="btn btn--primary btn--lg"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Start assessment</a>
+        </p>
+
+        <!-- Live assessment form (Vercel) — results unlock after work email → HubSpot -->
+        <div class="tl-assessment-embed" style="margin:1.5rem 0;">
+          <div style="position:relative;width:100%;min-height:720px;border:1px solid #d7dee4;border-radius:8px;overflow:hidden;background:#f3f5f7;">
+            <iframe
+              title="TrustLedger SRM Readiness Assessment"
+              src="https://trustledger-frontend-pi.vercel.app/assessment?embed=1&utm_source=wordpress&utm_medium=embed&utm_campaign=srm_diagnostic"
+              style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="clipboard-write"
+            ></iframe>
+          </div>
+          <p style="margin-top:0.75rem;font-size:0.875rem;color:var(--color-slate-600);">
+            Prefer a full page?
+            <a
+              href="https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Open assessment in a new tab</a>
+          </p>
+        </div>
+        <style>
+          .tl-assessment-embed > div { height: min(90vh, 920px); min-height: 720px; }
+          @media (max-width: 640px) {
+            .tl-assessment-embed > div { min-height: 640px; height: 85vh; }
+          }
+        </style>
+      </div>
+    </section>
+  </main>
+
+  <!-- SHARED FOOTER START -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__grid">
+        <div>
+          <p class="site-footer__brand">TrustLedger</p>
+          <p class="site-footer__parent">by Chibase Consulting</p>
+          <p class="site-footer__contact">
+            <a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a>
+          </p>
+        </div>
+        <div>
+          <h3 class="site-footer__heading">Product</h3>
+          <ul class="site-footer__links">
+            <li><a href="https://trustledger.co.za/#solutions">Solutions</a></li>
+            <li><a href="https://trustledger.co.za/#pricing">Pricing</a></li>
+            <li><a href="https://trustledger.co.za/assessment/">Assessment</a></li>
+            <li><a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo" target="_blank" rel="noopener noreferrer">Interactive demo</a></li>
+            <li><a href="https://trustledger-frontend-pi.vercel.app/app/dashboard?utm_source=wordpress&utm_medium=cta&utm_campaign=dashboard" target="_blank" rel="noopener noreferrer">Open dashboard</a></li>
+            <li><a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&utm_medium=cta&utm_campaign=live_login" target="_blank" rel="noopener noreferrer">Sign in</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="site-footer__heading">Company</h3>
+          <ul class="site-footer__links">
+            <li><a href="https://chibaseconsulting.co.za" target="_blank" rel="noopener noreferrer">Chibase Consulting</a></li>
+            <li><a href="mailto:info@trustledger.co.za">Contact</a></li>
+            <li><a href="https://app.trustledger.co.za" target="_blank" rel="noopener noreferrer">Team desk login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="site-footer__heading">Legal</h3>
+          <ul class="site-footer__links">
+            <li><a href="https://trustledger.co.za/privacy/">Privacy Policy</a></li>
+            <li><a href="https://trustledger.co.za/terms/">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="site-footer__bottom">&copy; 2026 TrustLedger. All rights reserved.</p>
+    </div>
+  </footer>
+  <!-- SHARED FOOTER END -->
+
+  <div class="sticky-cta" id="sticky-cta" role="complementary" aria-label="Quick actions">
+    <a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial" class="btn btn--primary btn--block" target="_blank" rel="noopener noreferrer">Start trial</a>
+  </div>
+
+  <div class="modal-overlay" id="lead-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title" id="modal-title">Book a Demo</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="Close dialog">&times;</button>
+      </div>
+      <div id="form-panel">
+        <form id="lead-form" novalidate>
+          <div class="form-group">
+            <label for="lead-name">Name</label>
+            <input type="text" id="lead-name" name="name" autocomplete="name" required>
+          </div>
+          <div class="form-group">
+            <label for="lead-org">Organization</label>
+            <input type="text" id="lead-org" name="org" autocomplete="organization" required>
+          </div>
+          <div class="form-group">
+            <label for="lead-email">Email</label>
+            <input type="email" id="lead-email" name="email" autocomplete="email" required>
+          </div>
+          <div class="form-group">
+            <label for="lead-sector">Sector</label>
+            <select id="lead-sector" name="sector" required>
+              <option value="">Select sector</option>
+              <option value="Mining &amp; Extractives">Mining &amp; Extractives</option>
+              <option value="Energy &amp; Infrastructure">Energy &amp; Infrastructure</option>
+              <option value="Municipal / Public Sector">Municipal / Public Sector</option>
+              <option value="Large Community-Impact Projects">Large Community-Impact Projects</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="lead-country">Country</label>
+            <input type="text" id="lead-country" name="country" autocomplete="country-name" required>
+          </div>
+          <div class="form-group">
+            <label for="lead-message">Message (optional)</label>
+            <textarea id="lead-message" name="message" rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary btn--block btn--lg">Submit</button>
+        </form>
+      </div>
+      <div id="success-panel" hidden>
+        <div class="modal__success">
+          <div class="modal__success-icon" aria-hidden="true">OK</div>
+          <h3 class="modal__success-title">Thank you</h3>
+          <p class="modal__success-desc">Our team will respond within one business day.</p>
+          <button type="button" class="btn btn--primary mt-4" data-modal-close>Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

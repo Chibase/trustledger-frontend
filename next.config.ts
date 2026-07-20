@@ -16,6 +16,31 @@ const nextConfig: NextConfig = {
         destination: "/app/issues/report",
         permanent: false,
       },
+      { source: "/reports", destination: "/app/reports", permanent: false },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/assessment",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self' https://trustledger.co.za https://www.trustledger.co.za",
+          },
+        ],
+      },
+      {
+        source: "/assessment/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self' https://trustledger.co.za https://www.trustledger.co.za",
+          },
+        ],
+      },
     ];
   },
 };
