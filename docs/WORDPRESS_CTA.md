@@ -1,6 +1,8 @@
-# WordPress CTA → TrustLedger Demo
+# WordPress CTA → TrustLedger Trial
 
-Paste these into the Webway WordPress site (`trustledger.co.za`) so visitors reach the Vercel Demo.
+Paste these into the Webway WordPress site (`trustledger.co.za`) so visitors start the **14-day open trial** (no login).
+
+Plans / Paystack: see `docs/LAUNCH_PLANS.md` and `docs/PAYSTACK_SETUP.md`. Until Paystack is live, CTAs open the trial app only.
 
 ## Recommended URLs
 
@@ -8,7 +10,9 @@ Replace the host if your Vercel production domain differs:
 
 | CTA | URL |
 |-----|-----|
-| Primary | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo` |
+| Primary trial | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=trial_14day` |
+| Starter trial | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=trial_starter` |
+| Growth trial | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=trial_growth` |
 | Home | `https://trustledger-frontend-pi.vercel.app/?utm_source=wordpress&utm_medium=cta&utm_campaign=home` |
 
 When custom domain is ready: `https://app.trustledger.co.za/demo?...`
@@ -18,10 +22,10 @@ When custom domain is ready: `https://app.trustledger.co.za/demo?...`
 ```html
 <p class="tl-cta">
   <a class="tl-cta__btn"
-     href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo"
+     href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=trial_14day"
      target="_blank"
      rel="noopener noreferrer">
-    Try the interactive demo
+    Start 14-day trial
   </a>
 </p>
 ```

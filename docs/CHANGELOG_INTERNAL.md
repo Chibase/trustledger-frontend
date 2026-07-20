@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-20 — Packet 23 Launch trial + plans
+
+- Locked Starter / Growth / Enterprise catalogue (`src/config/plans.ts`, `docs/LAUNCH_PLANS.md`)
+- Paystack ops checklist (`docs/PAYSTACK_SETUP.md`) — gateway not wired yet (no keys in repo)
+- Open trial: `/demo` auto-enters `/app` without role login; guest default role `client`
+- Email gate only on print/save (reports, issue save, evidence)
+- Soft lead gate after 3 actions retired (ADR-011); staff live login kept at `/login/live`
+
 ## 2026-07-11 — Phase 4 Packets 19–22
 
 - UTM capture on `/demo` + lead payload attribution

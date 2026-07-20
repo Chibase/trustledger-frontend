@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_ROLE_COOKIE, TL_MODE_COOKIE } from "@/lib/auth.constants";
+import {
+  FRAPPE_SID_COOKIE,
+  SESSION_ROLE_COOKIE,
+  TL_MODE_COOKIE,
+} from "@/lib/auth.constants";
 import { isUserRole } from "@/types/rbac";
 
 function hasUserSignal(request: NextRequest): boolean {
@@ -13,17 +17,24 @@ function hasUserSignal(request: NextRequest): boolean {
   return Boolean(envRole && isUserRole(envRole));
 }
 
+function isLiveRequest(request: NextRequest): boolean {
+  const mode = request.cookies.get(TL_MODE_COOKIE)?.value;
+  const hasSid = Boolean(request.cookies.get(FRAPPE_SID_COOKIE)?.value);
+  return mode === "live" || hasSid;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const mode = request.cookies.get(TL_MODE_COOKIE)?.value;
   const signedIn = hasUserSignal(request);
+  const live = isLiveRequest(request);
 
+  // Staff live session: skip login pages when already signed in.
   if ((pathname === "/login" || pathname === "/login/live") && signedIn) {
     return NextResponse.redirect(new URL("/app/dashboard", request.url));
   }
 
-  // Demo picker only auto-skips in demo mode; live users may revisit /demo intentionally.
-  if (pathname === "/demo" && signedIn && mode !== "live") {
+  // Open trial: /demo always proceeds (page auto-enters). Live staff may revisit.
+  if (pathname === "/demo" && signedIn && live) {
     return NextResponse.redirect(new URL("/app/dashboard", request.url));
   }
 
@@ -32,9 +43,9 @@ export function middleware(request: NextRequest) {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 
-  if (isProtected && !signedIn) {
-    const entry = mode === "live" ? "/login/live" : "/demo";
-    const dest = new URL(entry, request.url);
+  // Live mode still requires a Frappe session (staff). Demo/trial is open.
+  if (isProtected && live && !request.cookies.get(FRAPPE_SID_COOKIE)?.value) {
+    const dest = new URL("/login/live", request.url);
     dest.searchParams.set(
       "next",
       pathname.startsWith("/app") ? pathname : "/app/dashboard",

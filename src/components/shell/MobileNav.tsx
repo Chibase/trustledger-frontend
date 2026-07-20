@@ -9,9 +9,10 @@ import type { UserRole } from "@/types/rbac";
 type MobileNavProps = {
   role: UserRole;
   userName: string;
+  isGuest?: boolean;
 };
 
-export function MobileNav({ role, userName }: MobileNavProps) {
+export function MobileNav({ role, userName, isGuest = false }: MobileNavProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -39,7 +40,7 @@ export function MobileNav({ role, userName }: MobileNavProps) {
             <AppNav role={role} />
           </div>
           <div className="px-2">
-            <ShellSignOut />
+            <ShellSignOut isGuest={isGuest} />
           </div>
         </div>
       ) : null}

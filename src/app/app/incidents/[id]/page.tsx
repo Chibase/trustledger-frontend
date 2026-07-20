@@ -6,7 +6,7 @@ import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { evidenceService } from "@/services/noteService";
 import { incidentService } from "@/services/incidentService";
-import { trackDemoAction } from "@/components/shell/DemoLeadGate";
+import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { useToast } from "@/components/ui/Toast";
 import {
   listDemoEvidence,
@@ -69,20 +69,21 @@ export default function AppIncidentDetailPage({
   function handleEvidenceSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!fileName.trim() || !incident) return;
-    const stub: EvidenceStub = {
-      id: `EVD-D${Date.now().toString().slice(-5)}`,
-      incidentId: incident.id,
-      fileName: fileName.trim(),
-      classification: "General",
-      uploadedBy: "Demo user",
-      uploadedAt: new Date().toISOString(),
-      isPrimary: evidence.length === 0,
-    };
-    saveDemoEvidence(stub);
-    setEvidence((prev) => [stub, ...prev]);
-    setFileName("");
-    trackDemoAction();
-    pushToast("Evidence recorded in demo store", "success");
+    requireEmailThen("save", () => {
+      const stub: EvidenceStub = {
+        id: `EVD-D${Date.now().toString().slice(-5)}`,
+        incidentId: incident.id,
+        fileName: fileName.trim(),
+        classification: "General",
+        uploadedBy: "Trial guest",
+        uploadedAt: new Date().toISOString(),
+        isPrimary: evidence.length === 0,
+      };
+      saveDemoEvidence(stub);
+      setEvidence((prev) => [stub, ...prev]);
+      setFileName("");
+      pushToast("Evidence saved in this browser", "success");
+    });
   }
 
   if (incident === undefined) {
@@ -264,7 +265,6 @@ export default function AppIncidentDetailPage({
             draft
               ? () => {
                   setResponseText(draft.draft);
-                  trackDemoAction();
                   pushToast("Draft inserted", "success");
                 }
               : undefined

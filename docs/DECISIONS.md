@@ -70,7 +70,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-008: Lead capture soft-gate in Demo
 
 - **Date:** 2026-07-11
-- **Status:** Accepted
+- **Status:** Superseded by ADR-011
 - **Context:** Demo should drive signups without blocking first exploration.
 - **Decision:** Allow exploration; after 3 meaningful actions (or via header CTA) show email capture modal. Store lead locally / POST to configurable form endpoint later.
 - **Consequences:** Funnel without forcing signup at the door.
@@ -93,4 +93,22 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Decision:** `NEXT_PUBLIC_DATA_MODE` defaults to `demo`. Live Frappe calls only when explicitly set to `live`. AI mock remains independent via `NEXT_PUBLIC_AI_MOCK`.
 - **Consequences:** Safe public Demo; pilots can flip env without code forks.
 - **Alternatives considered:** Always-on live API (breaks Demo without VPN/backend).
+
+### ADR-011: Open trial — email only on print/save
+
+- **Date:** 2026-07-20
+- **Status:** Accepted
+- **Context:** Launch requires clients to explore without login; capture email only when they print or save.
+- **Decision:** `/demo` auto-enters `/app` as trial guest (default role `client`). Soft lead gate after N actions is retired. Email modal gates print/save/export only. Staff Frappe login remains at `/login/live`.
+- **Consequences:** Higher trial conversion; lead capture tied to intent. Role switch available in Settings.
+- **Alternatives considered:** Keep role picker + soft gate (rejected for launch UX).
+
+### ADR-012: Launch plans locked to marketing SKUs
+
+- **Date:** 2026-07-20
+- **Status:** Accepted
+- **Context:** Need Paystack-ready catalogue aligned with trustledger.co.za.
+- **Decision:** Starter R5,399/mo launch, Growth R14,999/mo launch, Enterprise custom; 14-day trial. Catalogue in `src/config/plans.ts` + `docs/LAUNCH_PLANS.md`. Paystack plan codes filled by Ops (`docs/PAYSTACK_SETUP.md`); no secret keys in the browser.
+- **Consequences:** Frontend can show pricing; checkout waits on Interserv BFF + Paystack setup.
+- **Alternatives considered:** Invent different SKUs in-app (rejected).
 

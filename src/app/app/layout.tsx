@@ -9,8 +9,9 @@ export default async function ProductLayout({
 }) {
   const user = await getCurrentUser();
 
+  // Live without session: middleware sends to /login/live; keep a hard stop.
   if (!user) {
-    redirect("/demo");
+    redirect("/login/live");
   }
 
   return (
@@ -18,7 +19,8 @@ export default async function ProductLayout({
       role={user.role}
       userName={user.name}
       showDemoBanner={user.mode !== "live"}
-      showLeadGate={user.mode !== "live"}
+      trialPlan={user.trialPlan}
+      isGuest={Boolean(user.isGuest)}
     >
       {children}
     </AppShell>

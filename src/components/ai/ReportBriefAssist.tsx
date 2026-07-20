@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
-import { trackDemoAction } from "@/components/shell/DemoLeadGate";
+import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { useToast } from "@/components/ui/Toast";
 import { aiService } from "@/services/aiService";
 import type { AiSuggestionStatus, ReportBriefSuggestion } from "@/types/ai";
@@ -24,13 +24,38 @@ export function ReportBriefAssist() {
       });
       setBrief(result);
       setStatus("ready");
-      trackDemoAction();
       pushToast("Brief draft ready", "success");
     } catch (err) {
       setBrief(null);
       setError(err instanceof Error ? err.message : "Brief generation failed.");
       setStatus("error");
     }
+  }
+
+  function handleSave() {
+    if (!brief) return;
+    requireEmailThen("save", () => {
+      const blob = new Blob(
+        [
+          `${brief.title}\n\n${brief.executiveSummary}\n\nKey risks:\n${brief.keyRisks.map((r) => `- ${r}`).join("\n")}\n\nActions:\n${brief.recommendedActions.map((a) => `- ${a}`).join("\n")}\n`,
+        ],
+        { type: "text/plain;charset=utf-8" },
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "trustledger-brief.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+      pushToast("Brief saved", "success");
+    });
+  }
+
+  function handlePrint() {
+    if (!brief) return;
+    requireEmailThen("print", () => {
+      window.print();
+    });
   }
 
   return (
@@ -78,6 +103,22 @@ export function ReportBriefAssist() {
             <p className="text-xs text-tl-ink-muted">
               Cited: {brief.citedIncidentIds.join(", ")}
             </p>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <button
+                type="button"
+                onClick={handleSave}
+                className="rounded-md bg-tl-trust px-3 py-1.5 text-sm font-medium text-white hover:bg-tl-trust-ink"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={handlePrint}
+                className="rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium"
+              >
+                Print
+              </button>
+            </div>
           </div>
         ) : null}
       </AiSuggestionPanel>

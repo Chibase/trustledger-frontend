@@ -23,7 +23,6 @@ export default function AppIncidentsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     incidentService.list().then((rows) => {
       if (cancelled) return;
       const local = listDemoIncidents();

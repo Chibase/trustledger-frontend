@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { DemoBanner } from "@/components/shell/DemoBanner";
-import { DemoLeadGate } from "@/components/shell/DemoLeadGate";
+import { EmailCaptureGate } from "@/components/shell/EmailCaptureGate";
 import { AppNav } from "@/components/shell/AppNav";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
 import { ToastProvider } from "@/components/ui/Toast";
+import { PLANS, type PlanId } from "@/config/plans";
 import type { UserRole } from "@/types/rbac";
 
 type AppShellProps = {
@@ -12,7 +13,8 @@ type AppShellProps = {
   userName: string;
   children: React.ReactNode;
   showDemoBanner?: boolean;
-  showLeadGate?: boolean;
+  trialPlan?: PlanId;
+  isGuest?: boolean;
 };
 
 export function AppShell({
@@ -20,14 +22,19 @@ export function AppShell({
   userName,
   children,
   showDemoBanner = true,
-  showLeadGate = true,
+  trialPlan,
+  isGuest = false,
 }: AppShellProps) {
+  const planLabel = trialPlan ? PLANS[trialPlan].name : null;
+
   return (
     <ToastProvider>
       <div className="min-h-full bg-tl-paper text-tl-ink">
-        {showDemoBanner ? <DemoBanner /> : null}
-        {showLeadGate ? <DemoLeadGate /> : null}
-        <MobileNav role={role} userName={userName} />
+        {showDemoBanner ? (
+          <DemoBanner planName={planLabel} />
+        ) : null}
+        <EmailCaptureGate />
+        <MobileNav role={role} userName={userName} isGuest={isGuest} />
 
         <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-6xl flex-col md:flex-row">
           <aside className="hidden border-tl-line bg-tl-surface md:block md:w-56 md:shrink-0 md:border-r">
@@ -40,10 +47,11 @@ export function AppShell({
               </Link>
               <p className="mt-1 text-xs text-tl-ink-muted">
                 {userName} · {role}
+                {planLabel ? ` · ${planLabel}` : ""}
                 {!showDemoBanner ? " · live" : ""}
               </p>
               <div className="mt-4">
-                <ShellSignOut />
+                <ShellSignOut isGuest={isGuest} />
               </div>
             </div>
             <div className="px-2 pb-4">

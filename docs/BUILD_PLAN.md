@@ -124,6 +124,12 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 | 21 | SEO basics | robots.txt, sitemap, Open Graph metadata | **Done** |
 | 22 | Frappe API contract | Doc of methods/payloads `srm-core` must expose | **Done** |
 
+### Phase 5 — Launch trial + billing prep
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| 23 | Open trial + plans lock | No-login trial; email on print/save; plan catalogue + Paystack ops docs | **Done** |
+
 ## 8. Quality gates (every packet)
 
 ```bash
@@ -161,4 +167,5 @@ src/
 
 | Date | Change |
 |------|--------|
+| 2026-07-20 | Packet 23: open trial, plans lock, Paystack prep docs |
 | 2026-07-11 | Initial Demo-first BUILD_PLAN (Packet 00) |

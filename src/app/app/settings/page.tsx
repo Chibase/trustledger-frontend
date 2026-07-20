@@ -1,5 +1,7 @@
 import { API_BASE_URL, getDataMode } from "@/config/api";
+import { PLANS } from "@/config/plans";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
+import { TrialRoleSwitcher } from "@/components/shell/TrialRoleSwitcher";
 import { getCurrentUser } from "@/lib/auth";
 import { aiService } from "@/services/aiService";
 
@@ -9,18 +11,23 @@ export default async function AppSettingsPage() {
 
   const dataMode = getDataMode();
   const aiMock = aiService.isMockMode();
+  const planName = user.trialPlan ? PLANS[user.trialPlan].name : null;
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div>
         <h1 className="font-display text-2xl font-semibold">Settings</h1>
         <p className="mt-1 text-sm text-tl-ink-muted">
-          Session and environment for this Demo / pilot build.
+          Trial session and environment for this build.
         </p>
       </div>
 
+      {user.mode === "demo" ? (
+        <TrialRoleSwitcher currentRole={user.role} />
+      ) : null}
+
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
-        <h2 className="font-semibold">Signed-in profile</h2>
+        <h2 className="font-semibold">Profile</h2>
         <dl className="mt-3 space-y-2">
           <div className="flex justify-between gap-4">
             <dt className="text-tl-ink-muted">Name</dt>
@@ -34,6 +41,12 @@ export default async function AppSettingsPage() {
             <dt className="text-tl-ink-muted">User id</dt>
             <dd className="font-mono text-xs">{user.id}</dd>
           </div>
+          {planName ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-tl-ink-muted">Trial plan</dt>
+              <dd>{planName}</dd>
+            </div>
+          ) : null}
         </dl>
       </section>
 

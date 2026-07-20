@@ -3,8 +3,11 @@ import {
   FRAPPE_SID_COOKIE,
   SESSION_ROLE_COOKIE,
   TL_MODE_COOKIE,
+  TL_TRIAL_PLAN_COOKIE,
   TL_USER_NAME_COOKIE,
+  TRIAL_DEFAULT_ROLE,
 } from "@/lib/auth.constants";
+import { isPlanId, type PlanId } from "@/config/plans";
 import { isUserRole, type UserRole } from "@/types/rbac";
 
 export type { UserRole };
@@ -14,6 +17,9 @@ export type AppUser = {
   name: string;
   role: UserRole;
   mode: "demo" | "live";
+  /** Open trial guest (no login). */
+  isGuest?: boolean;
+  trialPlan?: PlanId;
 };
 
 export { SESSION_ROLE_COOKIE } from "@/lib/auth.constants";
@@ -23,8 +29,9 @@ function userFromRole(
   name: string,
   mode: "demo" | "live",
   id = "dev-1",
+  extras?: Pick<AppUser, "isGuest" | "trialPlan">,
 ): AppUser {
-  return { id, name, role, mode };
+  return { id, name, role, mode, ...extras };
 }
 
 export async function getCurrentUser(): Promise<AppUser | null> {
@@ -32,11 +39,11 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   const sessionRole = cookieStore.get(SESSION_ROLE_COOKIE)?.value;
   const modeRaw = cookieStore.get(TL_MODE_COOKIE)?.value;
   const hasLiveSid = Boolean(cookieStore.get(FRAPPE_SID_COOKIE)?.value);
-  // Prefer explicit live cookie; also treat httpOnly Frappe sid as live
-  // so a leftover tl-mode=demo cannot keep the demo banner after live login.
   const mode: "demo" | "live" =
     modeRaw === "live" || hasLiveSid ? "live" : "demo";
   const name = cookieStore.get(TL_USER_NAME_COOKIE)?.value || "Dev User";
+  const planRaw = cookieStore.get(TL_TRIAL_PLAN_COOKIE)?.value;
+  const trialPlan = planRaw && isPlanId(planRaw) ? planRaw : undefined;
 
   if (sessionRole && isUserRole(sessionRole)) {
     return userFromRole(
@@ -44,12 +51,26 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       name,
       mode,
       mode === "live" ? "live-user" : "dev-1",
+      trialPlan ? { trialPlan } : undefined,
     );
   }
 
   const envRole = process.env.NEXT_PUBLIC_DEV_ROLE;
   if (envRole && isUserRole(envRole)) {
-    return userFromRole(envRole, "Dev User", "demo");
+    return userFromRole(envRole, "Dev User", "demo", "dev-1", {
+      trialPlan: trialPlan ?? "starter",
+    });
+  }
+
+  // Open trial: no login required for demo product UI.
+  if (mode === "demo") {
+    return userFromRole(
+      TRIAL_DEFAULT_ROLE,
+      "Trial guest",
+      "demo",
+      "trial-guest",
+      { isGuest: true, trialPlan: trialPlan ?? "starter" },
+    );
   }
 
   return null;
