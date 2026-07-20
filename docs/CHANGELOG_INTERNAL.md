@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-20 — Pricing → Paystack plans
+
+- Practitioner R5,399 / Project R14,999 defaults in `paystackPlans.ts`
+- Home + WP pricing cards Subscribe → `/pay?plan=…` (quote demoted to fallback)
+- Trial funnel choose-step uses Paystack subscribe links
+
 ## 2026-07-20 — Open trial (no login until print/save)
 
 - `/demo` auto-enters `/app` as trial guest; email only on print/save

@@ -1,26 +1,20 @@
-# Paystack setup (Ops)
+# Paystack plan setup (Ops)
 
-Frontend catalogue: `src/config/plans.ts`. No Paystack SDK in the browser until a BFF exists.
+Checkout catalogue: `src/lib/paystackPlans.ts`.
 
-## Create plans (Test)
+## Amounts (ZAR)
 
-| TrustLedger plan | Suggested Paystack name | Amount (ZAR) | Interval |
-|------------------|-------------------------|--------------|----------|
-| Starter monthly | TrustLedger Starter Launch | 5399.00 | Monthly |
-| Starter annual | TrustLedger Starter Launch Annual | 51588.00 (R4,299×12) | Annually |
-| Growth monthly | TrustLedger Growth Launch | 14999.00 | Monthly |
-| Growth annual | TrustLedger Growth Launch Annual | 143988.00 (R11,999×12) | Annually |
+| Plan | Monthly | Cents (default) |
+|------|---------|-----------------|
+| Practitioner | R5,399 | `539900` |
+| Project | R14,999 | `1499900` |
+| Institutional | Custom | `0` (sales) |
 
-Enterprise stays sales-led (no Paystack plan required for launch).
+## Vercel
 
-## After create
+1. `PAYSTACK_SECRET_KEY` + `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY`
+2. Optional amount overrides via `PAYSTACK_AMOUNT_*_CENTS`
+3. Webhook: `https://trustledger-frontend-pi.vercel.app/api/paystack/webhook` (`charge.success`)
+4. Smoke: `/pay?plan=practitioner` with test card
 
-1. Copy each `plan_code` into `plans.ts`.
-2. Backend: initialize transaction / subscription with secret key; webhook verifies payment.
-3. Frontend: pricing page or CTA calls BFF → redirects to Paystack authorization URL.
-
-## Smoke
-
-1. Test mode: pay with Paystack test card.
-2. Confirm webhook received on Interserv.
-3. Flip Live keys only after one successful Test cycle.
+WordPress CTAs: `docs/WORDPRESS_CTA.md` + `docs/wordpress/page-home.txt`.

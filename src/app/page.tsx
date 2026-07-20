@@ -5,6 +5,7 @@ import { HomeFooter } from "@/components/marketing/HomeFooter";
 import { HomeHeader } from "@/components/marketing/HomeHeader";
 import { HomeHero } from "@/components/marketing/HomeHero";
 import { HomeHowItWorks } from "@/components/marketing/HomeHowItWorks";
+import { HomePricing } from "@/components/marketing/HomePricing";
 import { HomeSectors } from "@/components/marketing/HomeSectors";
 import { HomeTrustProof } from "@/components/marketing/HomeTrustProof";
 
@@ -52,6 +53,7 @@ export default function HomePage() {
         <HomeHowItWorks />
         <HomeTrustProof />
         <HomeSectors />
+        <HomePricing />
         <HomeFinalCta />
       </main>
       <HomeFooter />

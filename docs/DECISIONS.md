@@ -169,11 +169,11 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-020: Quote + EFT bridge while Paystack finalises
 
 - **Date:** 2026-07-16
-- **Status:** Accepted
+- **Status:** Accepted (fallback) — primary path is `/pay` (ADR-019) as of 2026-07-20
 - **Context:** Paystack KYC/go-live can stall; solo operator cannot manually chase every deal. Plan structure (Practitioner / Project / Institutional) and Plan Owner admin model stay locked (ADR-012). Lockdown still pauses auto customer logins (ADR-013).
-- **Decision:** Soft-launch revenue path is **`/quote` → Desk quotation/invoice → EFT → Ops Confirm EFT paid** → CRM Lead `EFT Payment` for Finance/Executive. Website CTAs prefer quote over `/pay` until Paystack is live. Optional `OPS_ALERT_WEBHOOK_URL` for operator ping. **No** auto Plan Owner from quote or EFT confirm.
-- **Consequences:** Pricing page amounts stay as list prices; collection is offline until Paystack flips back; CRM sources `Quote Request` + `EFT Payment` required.
-- **Alternatives considered:** Wait only on Paystack (rejected — blocks revenue); auto-provision Owner on EFT confirm (rejected — integrity + lockdown).
+- **Decision:** Soft-launch **fallback** is **`/quote` → Desk quotation/invoice → EFT → Ops Confirm EFT paid**. Website **pricing CTAs prefer `/pay?plan=…`**. Optional `OPS_ALERT_WEBHOOK_URL` for operator ping. **No** auto Plan Owner from quote or EFT confirm.
+- **Consequences:** Quote remains for EFT/edge cases; marketing pricing shows real Paystack amounts.
+- **Alternatives considered:** Wait only on Paystack (rejected earlier); auto-provision Owner on EFT confirm (rejected — integrity + lockdown).
 
 ### ADR-021: Open trial — email only on print/save
 

@@ -166,7 +166,7 @@
         <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=trial_14day" class="btn btn--primary btn--lg">Start 14-day trial</a>
       </div>
       <p style="margin-top:1rem">
-        <a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=subscribe_options" class="btn btn--link" style="color:#fff">Subscribe or request a quote</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=subscribe" class="btn btn--link" style="color:#fff">Subscribe on Paystack</a>
       </p>
     </div>
   </div>
@@ -177,11 +177,43 @@
   <div class="container">
     <div class="section-header section-header--center">
       <p class="section-header__eyebrow">Pricing</p>
-      <h2 class="section-header__title">Plans for practitioners, projects, and institutions</h2>
-      <p class="section-header__desc">List pricing available on request. Soft launch uses quote + EFT while card checkout finalises.</p>
-      <div class="hero__actions" style="justify-content:center;margin-top:1.5rem">
-        <a href="https://trustledger-frontend-pi.vercel.app/quote?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=request_quote" class="btn btn--secondary btn--lg">Request a quote</a>
-      </div>
+      <h2 class="section-header__title">Launch plans — Paystack checkout</h2>
+      <p class="section-header__desc">ZAR excl. VAT. Subscribe online, or start a 14-day open trial with no login.</p>
+    </div>
+    <div class="grid grid--3" style="margin-top:2rem">
+      <article class="pricing-card">
+        <h3 class="pricing-card__name">Practitioner</h3>
+        <p class="pricing-card__desc">Single Plan Owner — dashboard, reporting, standard AI assist</p>
+        <div class="pricing-card__row">
+          <span class="pricing-card__amount">R5,399</span>
+          <span class="pricing-card__period">/mo</span>
+        </div>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_practitioner" class="btn btn--secondary btn--block">Subscribe</a>
+        <p class="mt-4" style="text-align:center">
+          <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=trial_practitioner">Start 14-day trial</a>
+        </p>
+      </article>
+      <article class="pricing-card pricing-card--highlighted">
+        <span class="pricing-card__badge">Most popular</span>
+        <h3 class="pricing-card__name">Project</h3>
+        <p class="pricing-card__desc">Owner + per-project seats for client, contractor, community</p>
+        <div class="pricing-card__row">
+          <span class="pricing-card__amount">R14,999</span>
+          <span class="pricing-card__period">/mo</span>
+        </div>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=project&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_project" class="btn btn--primary btn--block">Subscribe</a>
+        <p class="mt-4" style="text-align:center">
+          <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=trial_project">Start 14-day trial</a>
+        </p>
+      </article>
+      <article class="pricing-card">
+        <h3 class="pricing-card__name">Institutional</h3>
+        <p class="pricing-card__desc">Organisation-wide deployment and assurance</p>
+        <div class="pricing-card__row">
+          <span class="pricing-card__amount">Custom</span>
+        </div>
+        <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_institutional" class="btn btn--secondary btn--block">Talk to sales</a>
+      </article>
     </div>
   </div>
 </section>
@@ -204,9 +236,9 @@
         <p class="mt-4"><a class="btn btn--link" href="https://trustledger.co.za/assessment/">Go to assessment</a></p>
       </article>
       <article class="card">
-        <h3 class="card__title">Subscribe or quote</h3>
-        <p class="card__desc">Ready to buy? Capture details, then quote or Paystack.</p>
-        <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=subscribe_options">See options</a></p>
+        <h3 class="card__title">Subscribe</h3>
+        <p class="card__desc">Practitioner or Project on Paystack checkout.</p>
+        <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/pay?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=subscribe">Go to checkout</a></p>
       </article>
     </div>
   </div>
@@ -228,7 +260,7 @@
     </details>
     <details class="faq__item">
       <summary class="faq__button">How do I buy a plan?</summary>
-      <div class="faq__panel">Use Subscribe / quote options for EFT or invoice, or card checkout via Paystack when go-live is ready.</div>
+      <div class="faq__panel">Subscribe on Paystack for Practitioner or Project. Institutional plans are sales-led via contact.</div>
     </details>
   </div>
 </section>
@@ -265,7 +297,7 @@
         <ul class="site-footer__links">
           <li><a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=admin_login">Admin login</a></li>
           <li><a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=trial_14day">Start 14-day trial</a></li>
-          <li><a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=subscribe_options">Subscribe / quote</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/pay?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=subscribe">Subscribe (Paystack)</a></li>
         </ul>
       </div>
     </div>

@@ -88,7 +88,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       "demo",
       "dev-user",
       email,
-      { trialPlan: trialPlan ?? "starter" },
+      { trialPlan: trialPlan ?? "practitioner" },
     );
   }
 
@@ -100,7 +100,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       "demo",
       "trial-guest",
       email,
-      { isGuest: true, trialPlan: trialPlan ?? "starter" },
+      { isGuest: true, trialPlan: trialPlan ?? "practitioner" },
     );
   }
 

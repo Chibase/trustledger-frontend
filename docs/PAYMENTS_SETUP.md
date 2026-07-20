@@ -94,9 +94,9 @@ Only after that: switch Gateway Setting to **live** keys and repeat one tiny liv
 
 ---
 
-## D0. Quote + EFT bridge (active soft-launch path)
+## D0. Quote + EFT bridge (fallback)
 
-While Paystack KYC / go-live is pending, use **quote → invoice → EFT**:
+Prefer **Paystack `/pay`** for Practitioner and Project. Use quote → invoice → EFT only if card checkout is unavailable:
 
 ```text
 WordPress / trial CTA
@@ -111,7 +111,7 @@ WordPress / trial CTA
 
 | Piece | Detail |
 |-------|--------|
-| Public form | `/quote` (also linked from `/trial`) |
+| Public form | `/quote` (secondary) |
 | CRM sources | `Quote Request`, `EFT Payment` — create via crm-setup or Desk |
 | Ops action | `/ops/finance` → **Confirm EFT paid** (allowlist only) |
 | Optional alert | Vercel `OPS_ALERT_WEBHOOK_URL` (Slack/Discord/Make) |
@@ -140,8 +140,8 @@ WordPress product CTA
 PAYSTACK_SECRET_KEY=sk_test_…
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_…
 # Amounts in ZAR cents (R500.00 = 50000)
-PAYSTACK_AMOUNT_PRACTITIONER_CENTS=50000
-PAYSTACK_AMOUNT_PROJECT_CENTS=150000
+PAYSTACK_AMOUNT_PRACTITIONER_CENTS=539900
+PAYSTACK_AMOUNT_PROJECT_CENTS=1499900
 # Institutional stays contact-sales unless you set an amount
 # PAYSTACK_AMOUNT_INSTITUTIONAL_CENTS=0
 ```

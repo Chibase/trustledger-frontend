@@ -115,17 +115,17 @@ function TrialForm() {
     router.push("/app/dashboard");
   }
 
-  function quoteUrl(plan: "practitioner" | "project" | "institutional") {
+  function payUrl(plan: "practitioner" | "project") {
     const params = new URLSearchParams({
       plan,
       email: email.trim().toLowerCase(),
       name: name.trim(),
       utm_source: "trial",
       utm_medium: "funnel",
-      utm_campaign: `quote_${plan}`,
+      utm_campaign: `buy_${plan}`,
     });
     if (organization.trim()) params.set("organization", organization.trim());
-    return `/quote?${params.toString()}`;
+    return `/pay?${params.toString()}`;
   }
 
   if (step === "choose") {
@@ -137,8 +137,8 @@ function TrialForm() {
         </h1>
         <p className="mt-3 text-sm text-tl-ink-muted">
           Thanks, {name.split(" ")[0] || "there"}. Explore sample data, or
-          request a quote (EFT / invoice). Ops confirms payment; Plan Owner
-          access is provisioned manually while lockdown is on.
+          subscribe on Paystack. Ops is notified; Plan Owner access is
+          provisioned manually while lockdown is on.
         </p>
 
         <div className="mt-8 space-y-3">
@@ -147,43 +147,43 @@ function TrialForm() {
             onClick={enterDemo}
             className="w-full rounded-md border border-tl-line bg-tl-surface px-4 py-3 text-left hover:border-tl-trust/40"
           >
-            <span className="block font-semibold">Explore the demo</span>
+            <span className="block font-semibold">Explore the open trial</span>
             <span className="mt-0.5 block text-sm text-tl-ink-muted">
-              Sample dashboards and AI assist — no live project data
+              Sample dashboards — email only to print or save
             </span>
           </button>
 
           <Link
-            href={quoteUrl("practitioner")}
+            href={payUrl("practitioner")}
             className="block w-full rounded-md bg-tl-trust px-4 py-3 text-left text-white hover:bg-tl-trust-ink"
           >
             <span className="block font-semibold">
-              Request quote · Practitioner
+              Subscribe · Practitioner
             </span>
             <span className="mt-0.5 block text-sm text-white/80">
-              Quote + EFT — single Plan Owner seat
+              Paystack checkout — single Plan Owner seat
             </span>
           </Link>
 
           <Link
-            href={quoteUrl("project")}
+            href={payUrl("project")}
             className="block w-full rounded-md border border-tl-trust bg-tl-surface px-4 py-3 text-left hover:bg-tl-paper"
           >
             <span className="block font-semibold text-tl-ink">
-              Request quote · Project
+              Subscribe · Project
             </span>
             <span className="mt-0.5 block text-sm text-tl-ink-muted">
-              Quote + EFT — owner + per-project seats
+              Paystack checkout — owner + per-project seats
             </span>
           </Link>
 
           <Link
-            href={quoteUrl("institutional")}
+            href="/contact?utm_source=trial&utm_medium=funnel&utm_campaign=buy_institutional"
             className="block w-full rounded-md border border-tl-line px-4 py-3 text-left text-sm hover:bg-tl-paper"
           >
             <span className="font-semibold">Institutional / custom</span>
             <span className="mt-0.5 block text-tl-ink-muted">
-              Request quote — sales-scoped
+              Talk to sales — scoped deployment
             </span>
           </Link>
         </div>
@@ -198,8 +198,8 @@ function TrialForm() {
         Begin with TrustLedger
       </h1>
       <p className="mt-3 text-sm text-tl-ink-muted">
-        Share your details once. Next you can explore the sample demo or
-        request a quote for EFT / invoice.
+        Share your details once. Next you can explore the open trial or
+        subscribe on Paystack.
       </p>
 
       <form
@@ -309,12 +309,12 @@ function TrialForm() {
 
       <p className="mt-4 text-xs text-tl-ink-muted">
         Already decided?{" "}
-        <Link href="/quote" className="font-medium text-tl-trust-ink underline">
-          Request a quote
-        </Link>
-        {" · "}
         <Link href="/pay" className="font-medium text-tl-trust-ink underline">
           Paystack checkout
+        </Link>
+        {" · "}
+        <Link href="/demo" className="font-medium text-tl-trust-ink underline">
+          Open trial
         </Link>
         {" · "}
         Campaign: {utmLabel}

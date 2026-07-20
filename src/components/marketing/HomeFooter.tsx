@@ -28,7 +28,8 @@ const COLS = [
       { href: "#resources", label: "Guides" },
       { href: "#faq", label: "FAQ" },
       { href: "/status", label: "System status" },
-      { href: "/quote", label: "Request a quote" },
+      { href: "/pay", label: "Subscribe (Paystack)" },
+      { href: "/demo?utm_campaign=trial_14day", label: "Start 14-day trial" },
     ],
   },
 ] as const;
@@ -87,18 +88,18 @@ export function HomeFooter() {
         </div>
 
         <div
-          id="pricing"
+          id="pricing-footer"
           className="mt-12 scroll-mt-24 rounded-lg border border-white/10 px-4 py-3 text-sm text-white/70"
         >
-          <p className="font-medium text-white">Pricing</p>
+          <p className="font-medium text-white">Checkout</p>
           <p className="mt-1">
-            Practitioner, Project, and Institutional plans —{" "}
-            <Link href="/quote" className="underline underline-offset-2 hover:text-white">
-              request a quote
-            </Link>{" "}
-            or{" "}
-            <Link href="/trial" className="underline underline-offset-2 hover:text-white">
-              start a trial
+            Practitioner and Project checkout on{" "}
+            <Link href="/pay" className="underline underline-offset-2 hover:text-white">
+              Paystack
+            </Link>
+            . Institutional is sales-led via{" "}
+            <Link href="/contact" className="underline underline-offset-2 hover:text-white">
+              contact
             </Link>
             .
           </p>

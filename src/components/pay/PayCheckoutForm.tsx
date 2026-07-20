@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
-  formatZarFromCents,
+  formatPlanPrice,
   type PaystackPlan,
   type PaystackPlanId,
 } from "@/lib/paystackPlans";
@@ -97,7 +97,7 @@ export function PayCheckoutForm({
                 <span className="flex items-baseline justify-between gap-3">
                   <span className="font-medium">{plan.label}</span>
                   <span className="text-sm tabular-nums">
-                    {formatZarFromCents(plan.amountCents)}
+                    {formatPlanPrice(plan)}
                   </span>
                 </span>
                 <span className="mt-0.5 block text-xs text-tl-ink-muted">
@@ -174,7 +174,7 @@ export function PayCheckoutForm({
           >
             {pending
               ? "Redirecting to Paystack…"
-              : `Continue to Paystack · ${formatZarFromCents(selected.amountCents)}`}
+              : `Continue to Paystack · ${formatPlanPrice(selected)}`}
           </button>
         </>
       )}
