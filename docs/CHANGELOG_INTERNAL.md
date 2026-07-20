@@ -5,6 +5,7 @@
 - `/demo` auto-enters `/app` as trial guest; email only on print/save
 - Plan catalogue `src/config/plans.ts` + `docs/LAUNCH_PLANS.md` / `docs/PAYSTACK_SETUP.md`
 - Soft lead gate retired in shell; `/trial` + Paystack subscribe paths remain
+- WP paste refreshed: Home + Assessment CTAs → open trial (`docs/WORDPRESS_CTA.md`, `page-home.txt`, `page-assessment.txt`)
 - ADR-021
 
 ## 2026-07-17 — Conversion homepage (Vercel `/`)

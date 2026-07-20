@@ -54,9 +54,9 @@
           Operationalise grievance resolution and governance-grade ESG reporting for low-connectivity, multilingual field environments — where social licence decides whether projects move.
         </p>
         <div class="hero__actions hero__actions--single">
-          <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=hero&amp;utm_campaign=live_walkthrough" class="btn btn--primary btn--lg">Run 2-minute live walkthrough</a>
+          <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=hero&amp;utm_campaign=trial_14day" class="btn btn--primary btn--lg">Start 14-day trial</a>
         </div>
-        <p class="hero__micro">No signup required to preview. Email only needed to save/export results.</p>
+        <p class="hero__micro">No login required. Explore sample data freely — email only when you print or save.</p>
         <p class="hero__assessment-link">
           <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=hero&amp;utm_campaign=pilot_walkthrough" class="btn btn--link">Book a 20-minute pilot walkthrough</a>
         </p>
@@ -99,8 +99,8 @@
     <ol class="workflow">
       <li class="workflow__item">
         <p class="workflow__step">Step 1</p>
-        <h3 class="workflow__title">Preview walkthrough</h3>
-        <p class="workflow__desc">Open the live product path on sample data — no signup required.</p>
+        <h3 class="workflow__title">Start the open trial</h3>
+        <p class="workflow__desc">Enter the product on sample data — no login or email at the door.</p>
       </li>
       <li class="workflow__item">
         <p class="workflow__step">Step 2</p>
@@ -109,8 +109,8 @@
       </li>
       <li class="workflow__item">
         <p class="workflow__step">Step 3</p>
-        <h3 class="workflow__title">Save / export report</h3>
-        <p class="workflow__desc">Email is only asked when you want to keep or export full results.</p>
+        <h3 class="workflow__title">Print or save</h3>
+        <p class="workflow__desc">We only ask for an email when you print or save data from the trial.</p>
       </li>
     </ol>
   </div>
@@ -160,13 +160,13 @@
 <section id="solutions" class="section">
   <div class="container">
     <div class="cta-block">
-      <h2 class="cta-block__title">See measurable trust outcomes in two minutes</h2>
-      <p class="cta-block__desc">Preview grievance resolution, trust visibility, and ESG evidence on sample data — then save results when you are ready.</p>
+      <h2 class="cta-block__title">Start your 14-day trial in two minutes</h2>
+      <p class="cta-block__desc">Explore grievance resolution, trust visibility, and ESG evidence on sample data — no login. Email only when you print or save.</p>
       <div class="hero__actions" style="justify-content:center;margin-top:2rem">
-        <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=live_walkthrough" class="btn btn--primary btn--lg">Run 2-minute live walkthrough</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=trial_14day" class="btn btn--primary btn--lg">Start 14-day trial</a>
       </div>
       <p style="margin-top:1rem">
-        <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=guided_demo" class="btn btn--link" style="color:#fff">Book a guided demo</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=final_cta&amp;utm_campaign=subscribe_options" class="btn btn--link" style="color:#fff">Subscribe or request a quote</a>
       </p>
     </div>
   </div>
@@ -194,9 +194,9 @@
     </div>
     <div class="grid grid--3">
       <article class="card">
-        <h3 class="card__title">Live walkthrough</h3>
-        <p class="card__desc">2-minute product preview — no signup.</p>
-        <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=walkthrough">Open walkthrough</a></p>
+        <h3 class="card__title">14-day open trial</h3>
+        <p class="card__desc">No login — email only to print or save.</p>
+        <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=trial_14day">Start trial</a></p>
       </article>
       <article class="card">
         <h3 class="card__title">Readiness assessment</h3>
@@ -204,9 +204,9 @@
         <p class="mt-4"><a class="btn btn--link" href="https://trustledger.co.za/assessment/">Go to assessment</a></p>
       </article>
       <article class="card">
-        <h3 class="card__title">Start trial</h3>
-        <p class="card__desc">Capture details, then demo or request a quote.</p>
-        <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=start_trial">Start trial</a></p>
+        <h3 class="card__title">Subscribe or quote</h3>
+        <p class="card__desc">Ready to buy? Capture details, then quote or Paystack.</p>
+        <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=subscribe_options">See options</a></p>
       </article>
     </div>
   </div>
@@ -219,16 +219,16 @@
       <h2 id="faq-title" class="section-header__title">What happens when I click?</h2>
     </div>
     <details class="faq__item" open>
-      <summary class="faq__button">Do I need an account for the walkthrough?</summary>
-      <div class="faq__panel">No. Preview needs no signup. Email is only required to save or export full results.</div>
+      <summary class="faq__button">Do I need an account for the 14-day trial?</summary>
+      <div class="faq__panel">No. The trial opens with no login. Email is only required when you print or save data.</div>
     </details>
     <details class="faq__item">
       <summary class="faq__button">What is Admin login?</summary>
-      <div class="faq__panel">Admin login is for provisioned operators and Plan Owners — not the public preview path.</div>
+      <div class="faq__panel">Admin login is for provisioned operators and Plan Owners — not the public trial path.</div>
     </details>
     <details class="faq__item">
       <summary class="faq__button">How do I buy a plan?</summary>
-      <div class="faq__panel">Request a quote for EFT / invoice, or use card checkout when Paystack go-live is ready.</div>
+      <div class="faq__panel">Use Subscribe / quote options for EFT or invoice, or card checkout via Paystack when go-live is ready.</div>
     </details>
   </div>
 </section>
@@ -248,7 +248,7 @@
           <li><a href="#how-it-works">How it works</a></li>
           <li><a href="#sectors">Sectors</a></li>
           <li><a href="#pricing">Pricing</a></li>
-          <li><a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=walkthrough">Live walkthrough</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=trial_14day">Start 14-day trial</a></li>
         </ul>
       </div>
       <div>
@@ -264,8 +264,8 @@
         <p class="site-footer__heading">Access</p>
         <ul class="site-footer__links">
           <li><a href="https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=admin_login">Admin login</a></li>
-          <li><a href="https://trustledger-frontend-pi.vercel.app/quote?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=request_quote">Request a quote</a></li>
-          <li><a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=start_trial">Start trial</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=trial_14day">Start 14-day trial</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=subscribe_options">Subscribe / quote</a></li>
         </ul>
       </div>
     </div>

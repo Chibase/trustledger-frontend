@@ -4,15 +4,17 @@ Marketing site: `https://trustledger.co.za`
 Product (Vercel): `https://trustledger-frontend-pi.vercel.app`  
 Desk (Frappe Cloud): `https://app.trustledger.co.za`
 
-## Link map
+## Link map (open trial — Jul 2026)
 
 | CTA | URL |
 |-----|-----|
-| Start trial (capture → demo **or** quote) | `https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial` |
-| Try demo only | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=try_demo` |
-| Open dashboard | `https://trustledger-frontend-pi.vercel.app/app/dashboard?utm_source=wordpress&utm_medium=cta&utm_campaign=dashboard` |
-| Sign in (live) | `https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&utm_medium=cta&utm_campaign=live_login` |
-| App home | `https://trustledger-frontend-pi.vercel.app/?utm_source=wordpress&utm_medium=cta&utm_campaign=home` |
+| **Start 14-day trial** (no login) | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=trial_14day` |
+| Trial · Starter lens | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=trial_starter` |
+| Trial · Growth lens | `https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=trial_growth` |
+| Subscribe / quote options | `https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial` |
+| Open product (guest OK) | `https://trustledger-frontend-pi.vercel.app/app/dashboard?utm_source=wordpress&utm_medium=cta&utm_campaign=dashboard` |
+| Sign in (staff / operators) | `https://trustledger-frontend-pi.vercel.app/login/live?utm_source=wordpress&utm_medium=cta&utm_campaign=live_login` |
+| App marketing home | `https://trustledger-frontend-pi.vercel.app/?utm_source=wordpress&utm_medium=cta&utm_campaign=home` |
 | SRM assessment (full page) | `https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&utm_medium=cta&utm_campaign=srm_diagnostic` |
 | SRM assessment (embed) | `https://trustledger-frontend-pi.vercel.app/assessment?embed=1&utm_source=wordpress&utm_medium=embed&utm_campaign=srm_diagnostic` |
 | Team desk (Frappe) | `https://app.trustledger.co.za` |
@@ -20,26 +22,23 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 | Quote Practitioner | `https://trustledger-frontend-pi.vercel.app/quote?plan=practitioner&utm_source=wordpress&utm_medium=cta&utm_campaign=quote_practitioner` |
 | Quote Project | `https://trustledger-frontend-pi.vercel.app/quote?plan=project&utm_source=wordpress&utm_medium=cta&utm_campaign=quote_project` |
 | Quote Institutional | `https://trustledger-frontend-pi.vercel.app/quote?plan=institutional&utm_source=wordpress&utm_medium=cta&utm_campaign=quote_institutional` |
-| Buy Practitioner (Paystack, when live) | `https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_practitioner` |
-| Buy Project (Paystack, when live) | `https://trustledger-frontend-pi.vercel.app/pay?plan=project&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_project` |
+| Buy Practitioner (Paystack) | `https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_practitioner` |
+| Buy Project (Paystack) | `https://trustledger-frontend-pi.vercel.app/pay?plan=project&utm_source=wordpress&utm_medium=cta&utm_campaign=buy_project` |
 | Institutional / contact | `https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&utm_medium=cta&utm_campaign=buy_institutional` |
-
 | Chibase Consulting | `https://chibaseconsulting.co.za` |
 | Contact | `mailto:info@trustledger.co.za` |
 
 ## Behaviour notes
 
-- **Open dashboard** → `/app/dashboard`. Guests are redirected to demo/login by middleware.
-- **Sign in** → live BFF login against Frappe Cloud (`app.trustledger.co.za`).
-- **Team desk** → Frappe desk for internal users (not the public demo).
-- **Assessment** → public diagnostic on Vercel. Results unlock after name + work email. Leads go to **HubSpot** via Forms API when `HUBSPOT_PORTAL_ID` / `HUBSPOT_FORM_ID` / `HUBSPOT_REGION` are set (fallback: `ASSESSMENT_WEBHOOK_URL`).
-- **Start trial** → Vercel `/trial` → capture details → **Explore demo** or **Request quote** (EFT / invoice).
-- **Request quote** → Vercel `/quote` → CRM Lead `Quote Request`. You send Quotation/Invoice from Desk; confirm EFT in **Ops → Finance**.
-- **Buy / Paystack** (optional while KYC finishes) → Vercel `/pay`. Ops Finance is notified; Customer / Plan Owner stay manual (`docs/PAYMENTS_SETUP.md`).
+- **Start 14-day trial** → `/demo` auto-enters `/app` as a guest. **No login / no email** to explore. Email is asked only to **print** or **save**.
+- **Subscribe / quote options** → `/trial` for capture → explore **or** quote / Paystack path (keep for buyers who are ready to pay).
+- **Open product** → `/app/dashboard` works for trial guests (demo mode).
+- **Sign in** → staff / platform operators only (`/login/live` → Frappe Cloud).
+- **Assessment** → public diagnostic; results unlock after name + work email (HubSpot when configured).
+- **Request quote** → `/quote` → CRM Lead; EFT confirm in Ops → Finance.
+- **Buy / Paystack** → `/pay` when KYC allows; otherwise prefer quote.
 
-**WordPress action required:** point every “Start trial” button to  
-`https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&utm_medium=cta&utm_campaign=start_trial`  
-(not `/demo`). Re-paste assessment nav from `docs/wordpress/page-assessment.txt` if needed.
+**WordPress action required:** every primary “Start trial” / “Walkthrough” button should use **`/demo?...utm_campaign=trial_14day`** (open trial). Use `/trial` only for “Subscribe / quote options”.
 
 ## WordPress Home page (conversion)
 
@@ -49,13 +48,39 @@ Desk (Frappe Cloud): `https://app.trustledger.co.za`
 2. Pages → Home → paste Custom HTML from `page-home.txt` → Update.
 3. Purge SpeedyCache → hard refresh `https://trustledger.co.za/`.
 
-Primary CTA: **Run 2-minute live walkthrough** → Vercel `/demo`.  
-Admin login is a utility link (not a competing CTA).
+Primary CTA: **Start 14-day trial** → Vercel `/demo`.  
+Admin login stays a utility link only.
 
 ## WordPress Assessment page
 
-**Prefer full-page paste:** replace the Assessment page Custom HTML with [`docs/wordpress/page-assessment.txt`](wordpress/page-assessment.txt) (includes the live quiz iframe + HubSpot-backed lead gate on Vercel).
+**Prefer full-page paste:** replace the Assessment page Custom HTML with [`docs/wordpress/page-assessment.txt`](wordpress/page-assessment.txt).
 
-Embed-only snippet (if you only swap the placeholder): [`docs/wordpress/assessment-embed.html`](wordpress/assessment-embed.html).
+Embed-only snippet: [`docs/wordpress/assessment-embed.html`](wordpress/assessment-embed.html).
 
 Purge SpeedyCache after paste.
+
+## Button block (quick paste)
+
+```html
+<p class="tl-cta">
+  <a class="tl-cta__btn"
+     href="https://trustledger-frontend-pi.vercel.app/demo?utm_source=wordpress&utm_medium=cta&utm_campaign=trial_14day"
+     target="_blank"
+     rel="noopener noreferrer">
+    Start 14-day trial
+  </a>
+</p>
+```
+
+```css
+.tl-cta { margin: 1.5rem 0; }
+.tl-cta__btn {
+  display: inline-block;
+  background: #0e7c66;
+  color: #fff !important;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+}
+```
