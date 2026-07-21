@@ -7,9 +7,10 @@ Product (Vercel): `https://trustledger-frontend-pi.vercel.app`
 
 | CTA | URL | Behaviour |
 |-----|-----|-----------|
-| **Start 14-day trial** | `…/trial?utm_campaign=trial_14day` | Own-data workspace (not sample demo). Upgrade → `/pay`. |
+| **Start 14-day trial** | `…/trial` or `…/trial?plan=practitioner\|project` | Own-data workspace (not sample demo). Upgrade → `/pay`. |
 | **Subscribe Practitioner** | `…/pay?plan=practitioner` | Paystack checkout |
 | **Subscribe Project** | `…/pay?plan=project` | Paystack checkout |
+| Institutional | `…/contact` | Sales-led |
 | Sample preview only | `…/demo` | Fictional data walkthrough (secondary) |
 
 ## Trial rules (product)
@@ -19,4 +20,6 @@ Product (Vercel): `https://trustledger-frontend-pi.vercel.app`
 - After day 14: **access off**; data retained **90 days**; then purged.
 - `/demo` is **not** the trial.
 
-Paste Home from `docs/wordpress/page-home.txt` after each CTA change.
+## Paste on Webway
+
+See `docs/wordpress/PASTE_PLANS.md`. After each CTA change, paste `page-home.txt` (and Assessment if live), then purge SpeedyCache.

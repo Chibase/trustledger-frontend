@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-21 — WP plan links → Paystack + trial
+
+- Home paste: plan cards → `/pay?plan=…` and `/trial?plan=…` (Institutional → contact)
+- Assessment paste: remaining trial CTAs off `/demo` onto `/trial`
+- `/trial` reads `?plan=` for pre-selected checkout plan
+- Paste checklist: `docs/wordpress/PASTE_PLANS.md`
+
 ## 2026-07-21 — Own-data trial + upgrade to Paystack
 
 - Start trial → `/trial` workspace (not `/demo` sample data)

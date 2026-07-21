@@ -19,15 +19,19 @@ function sanitizeNext(value: string | null): string {
 function TrialStartForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const suggestedPlan = useMemo(
-    () => planFromUtmCampaign(searchParams.get("utm_campaign")),
-    [searchParams],
-  );
+  const suggestedPlan = useMemo(() => {
+    const fromQuery = searchParams.get("plan");
+    if (fromQuery && (fromQuery === "practitioner" || fromQuery === "project" || fromQuery === "institutional")) {
+      return fromQuery;
+    }
+    return planFromUtmCampaign(searchParams.get("utm_campaign"));
+  }, [searchParams]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
-  const [planId, setPlanId] = useState<PlanId>(suggestedPlan);
+  const [planOverride, setPlanOverride] = useState<PlanId | null>(null);
+  const planId = planOverride ?? suggestedPlan;
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -124,7 +128,7 @@ function TrialStartForm() {
           <select
             id="trial-plan"
             value={planId}
-            onChange={(e) => setPlanId(e.target.value as PlanId)}
+            onChange={(e) => setPlanOverride(e.target.value as PlanId)}
             className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
           >
             {(Object.keys(PLANS) as PlanId[])

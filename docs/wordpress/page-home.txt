@@ -178,7 +178,7 @@
     <div class="section-header section-header--center">
       <p class="section-header__eyebrow">Pricing</p>
       <h2 class="section-header__title">Launch plans — Paystack checkout</h2>
-      <p class="section-header__desc">ZAR excl. VAT. Subscribe online, or start a 14-day open trial with no login.</p>
+      <p class="section-header__desc">ZAR excl. VAT. Subscribe on Paystack, or start a 14-day trial on your own data.</p>
     </div>
     <div class="grid grid--3" style="margin-top:2rem">
       <article class="pricing-card">
@@ -188,9 +188,9 @@
           <span class="pricing-card__amount">R5,399</span>
           <span class="pricing-card__period">/mo</span>
         </div>
-        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_practitioner" class="btn btn--secondary btn--block">Subscribe</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_practitioner" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Subscribe with Paystack</a>
         <p class="mt-4" style="text-align:center">
-          <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=trial_practitioner">Start 14-day trial</a>
+          <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?plan=practitioner&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=trial_practitioner" target="_blank" rel="noopener noreferrer">Start 14-day trial</a>
         </p>
       </article>
       <article class="pricing-card pricing-card--highlighted">
@@ -201,9 +201,9 @@
           <span class="pricing-card__amount">R14,999</span>
           <span class="pricing-card__period">/mo</span>
         </div>
-        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=project&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_project" class="btn btn--primary btn--block">Subscribe</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=project&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_project" class="btn btn--primary btn--block" target="_blank" rel="noopener noreferrer">Subscribe with Paystack</a>
         <p class="mt-4" style="text-align:center">
-          <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=trial_project">Start 14-day trial</a>
+          <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?plan=project&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=trial_project" target="_blank" rel="noopener noreferrer">Start 14-day trial</a>
         </p>
       </article>
       <article class="pricing-card">
@@ -212,7 +212,7 @@
         <div class="pricing-card__row">
           <span class="pricing-card__amount">Custom</span>
         </div>
-        <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_institutional" class="btn btn--secondary btn--block">Talk to sales</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_institutional" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Talk to sales</a>
       </article>
     </div>
   </div>
