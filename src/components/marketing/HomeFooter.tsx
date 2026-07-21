@@ -47,6 +47,9 @@ export function HomeFooter() {
               Stakeholder trust you can operationalise — from community intake
               to governance-grade reporting.
             </p>
+            <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-tl-trust">
+              Version 001 live · Version 002 in build
+            </p>
             <p className="mt-4 text-sm text-white/70">
               <a
                 href="mailto:info@trustledger.co.za"

@@ -8,6 +8,7 @@ import { HomeHowItWorks } from "@/components/marketing/HomeHowItWorks";
 import { HomePricing } from "@/components/marketing/HomePricing";
 import { HomeSectors } from "@/components/marketing/HomeSectors";
 import { HomeTrustProof } from "@/components/marketing/HomeTrustProof";
+import { HomeVersionStrip } from "@/components/marketing/HomeVersionStrip";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app";
@@ -49,6 +50,7 @@ export default function HomePage() {
       <HomeHeader />
       <main>
         <HomeHero />
+        <HomeVersionStrip />
         <HomeBenefitStrip />
         <HomeHowItWorks />
         <HomeTrustProof />

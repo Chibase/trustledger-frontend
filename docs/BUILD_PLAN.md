@@ -2,7 +2,9 @@
 
 > **Single source of truth** for scope, locked decisions, packet order, and agent behaviour.
 > **Phase 1 (Done):** full functional Demo on Vercel.
-> **Phase 2 (Active):** Frappe-ready wiring in the frontend (still mock-default); WordPress/Cloudflare remain external.
+> **Phase 2–5 (Done / partial):** Frappe-ready + ops + pay soft paths.
+> **Phase 6 (Active):** **Version 002** Stakeholder Intelligence core (geo → stakeholders → engagements → commitments → grievance → reports → ESG). Soft launch may wait (ADR-023).
+> Current public product label: **Version 001**.
 
 ## 1. Product
 
@@ -15,7 +17,7 @@
 | Marketing | WordPress `trustledger.co.za` on Webway (CTA later) |
 | Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
-**Current phase:** Phase 2 — Frappe-ready on **Frappe Cloud**. Demo remains default and must keep working without live product DocTypes. Interserv is retired (ADR-018).
+**Current phase:** Phase 6 — **Version 002** core (ADR-023). Product label in market: **Version 001**. Demo/mock remains default until Frappe DocTypes land.
 
 ## 2. Locked decisions (do not re-ask)
 
@@ -142,6 +144,21 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 
 See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 
+### Phase 6 — Version 002 Stakeholder Intelligence core (ACTIVE)
+
+> Soft launch may wait until V002 core is credible (ADR-023).  
+> Detail: `docs/VERSIONING.md`, `docs/ROADMAP_V002.md`.
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **24a** | Geo foundation | SA hierarchy types/mock, `/app/geo`, place fields, ingest hook | **Scaffolded** |
+| **24b** | Stakeholders registry | List/detail/create; Frappe DocType contract | **Scaffolded (list)** |
+| 24c | Engagements | Meetings / consultations beyond note stubs | Planned |
+| 24d | Commitments | Promise lifecycle board | Planned |
+| 24e | Stronger grievance | Fuller incident workflow on Frappe | Planned |
+| 24f | Reports packs | Executive/operational reports + export | Planned |
+| 24g | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | Planned |
+
 ## 8. Quality gates (every packet)
 
 ```bash
@@ -180,3 +197,4 @@ src/
 | Date | Change |
 |------|--------|
 | 2026-07-11 | Initial Demo-first BUILD_PLAN (Packet 00) |
+| 2026-07-21 | Phase 6 Version 002 core; Version 001 public label (ADR-023) |

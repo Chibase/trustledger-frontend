@@ -34,4 +34,9 @@ export const FRAPPE_METHODS = {
   draftResponse: "/api/method/srm_core.api.ai.draft_response",
   generateReportBrief: "/api/method/srm_core.api.ai.generate_report_brief",
   getSession: "/api/method/srm_core.api.auth.get_session",
+  listGeoPlaces: "/api/method/srm_core.api.geo.list_places",
+  getGeoPlace: "/api/method/srm_core.api.geo.get_place",
+  listSocioIndicators: "/api/method/srm_core.api.geo.list_indicators",
+  listStakeholders: "/api/method/srm_core.api.stakeholders.list_stakeholders",
+  getStakeholder: "/api/method/srm_core.api.stakeholders.get_stakeholder",
 } as const;

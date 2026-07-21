@@ -197,6 +197,19 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** WP/home CTAs point at `/trial`. Browser-local trial store until Cloud tenancy ships. Operator lockdown unchanged for Frappe live.
 - **Alternatives considered:** Keep demo-as-trial (rejected); require Frappe User create before any trial (blocked by lockdown — phase next).
 
+### ADR-023: Version 001 desk live; Version 002 core before loud commercial launch
+
+- **Date:** 2026-07-21
+- **Status:** Accepted
+- **Context:** Public messaging has compared TrustLedger to market tools on stakeholder intelligence capabilities that Version 001 does not yet ship (registry, engagements, commitments, geo, ESG depth). Over-claiming erodes trust.
+- **Decision:**
+  1. Label the current product **Version 001** (resolution desk + trial/pay).
+  2. Prioritise **Version 002** TEDS core: geo → stakeholders → engagements → commitments → stronger grievance → reports → intelligence/ESG (`docs/ROADMAP_V002.md`).
+  3. Soft commercial launch **may be delayed** until V002 geo + stakeholders + commitments + stronger grievance are demoable.
+  4. Public copy must separate **Available now (V001)** vs **Coming in V002**.
+- **Consequences:** Active packets shift to Phase 6 (24a+). Paystack/trial remain, but marketing honesty is mandatory.
+- **Alternatives considered:** Ship soft launch first then build V002 quietly (rejected — trust risk); claim V002 as live (rejected).
+
 ### ADR-013: Platform Operator sole live control (until lifted)
 
 - **Date:** 2026-07-12

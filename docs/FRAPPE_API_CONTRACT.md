@@ -22,6 +22,11 @@ Envelope: standard Frappe `{ "message": <payload> }`
 | `draftResponse` | `/api/method/srm_core.api.ai.draft_response` | draft request | draft suggestion |
 | `generateReportBrief` | `/api/method/srm_core.api.ai.generate_report_brief` | brief request | brief suggestion |
 | `getSession` | `/api/method/srm_core.api.auth.get_session` | (session cookie) | `{ user, fullName, roles, trustLedgerRole }` |
+| `listGeoPlaces` | `/api/method/srm_core.api.geo.list_places` | `{ parentId? }` | `GeoPlace[]` |
+| `getGeoPlace` | `/api/method/srm_core.api.geo.get_place` | `{ name }` | `GeoPlace \| null` |
+| `listSocioIndicators` | `/api/method/srm_core.api.geo.list_indicators` | `{ placeId }` | `SocioEconomicIndicator[]` |
+| `listStakeholders` | `/api/method/srm_core.api.stakeholders.list_stakeholders` | `{ placeId?, kind? }` | `Stakeholder[]` |
+| `getStakeholder` | `/api/method/srm_core.api.stakeholders.get_stakeholder` | `{ name }` | `Stakeholder \| null` |
 
 Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH_BRIDGE_STUB.md`).
 
@@ -31,6 +36,8 @@ Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH
 - `src/types/incident.ts`
 - `src/types/engagement.ts`
 - `src/types/ai.ts`
+- `src/types/geo.ts` (Version 002)
+- `src/types/stakeholder.ts` (Version 002)
 
 ## Ops requirements on Frappe Cloud
 
@@ -42,7 +49,10 @@ Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH
 
 ## Suggested implementation order on srm-core
 
-1. `list_incidents` / `get_incident` (maps existing SRM Incident DocType)
-2. `list_projects` / `get_project` (or temporary stub DocType)
-3. AI methods wrapping xAI with JSON schema validation
-4. Notes + evidence list endpoints
+1. Geo places + socio-economic indicators (Version 002 / packet 24a)
+2. Stakeholders list/get (packet 24b)
+3. `list_incidents` / `get_incident` (maps existing SRM Incident DocType)
+4. `list_projects` / `get_project` (or temporary stub DocType)
+5. Engagements + commitments DocTypes (24c–24d)
+6. AI methods wrapping xAI with JSON schema validation
+7. Notes + evidence list endpoints

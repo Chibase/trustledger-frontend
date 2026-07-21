@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-21 — Version 001 label + Version 002 core kickoff (ADR-023)
+
+- Soft launch may wait for V002 core; public Now/Next messaging (`HomeVersionStrip`)
+- Docs: `VERSIONING.md`, `ROADMAP_V002.md`, Phase 6 packets 24a–24g
+- Scaffold: `/app/geo`, `/app/stakeholders`, geo/stakeholder mocks + API contract rows
+- App shell shows **Version 001**
+
 ## 2026-07-21 — Fix Vercel build (next/headers on client)
 
 - Split server `readTrialSnapshot` into `trial.server.ts`

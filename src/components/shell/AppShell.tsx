@@ -10,6 +10,9 @@ import { FeedbackDrawer } from "@/components/shell/FeedbackDrawer";
 import { SupportDrawer } from "@/components/shell/SupportDrawer";
 import { ToastProvider } from "@/components/ui/Toast";
 import { PLANS, type PlanId } from "@/config/plans";
+import {
+  PRODUCT_VERSION_LABEL,
+} from "@/config/productVersion";
 import type { TlMode } from "@/lib/auth.constants";
 import type { TrialSnapshot } from "@/lib/trial";
 import type { UserRole } from "@/types/rbac";
@@ -68,6 +71,9 @@ export function AppShell({
               </Link>
               <p className="mt-1 text-xs text-white/55">
                 Resolution you can audit
+              </p>
+              <p className="mt-2 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-tl-trust">
+                {PRODUCT_VERSION_LABEL}
               </p>
             </div>
 
