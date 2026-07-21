@@ -7,6 +7,7 @@ import type {
   EscalationPolicy,
   IncidentProcessStages,
 } from "@/lib/grievanceProcess";
+import type { DeskTier } from "@/types/deskTier";
 
 export type IncidentStatus =
   | "Open"
@@ -73,4 +74,6 @@ export interface Incident {
   geo?: IncidentGeoContext;
   processStages?: IncidentProcessStages;
   escalationPolicy?: EscalationPolicy;
+  /** Professional desk that filed the case (CLO / site / …). */
+  filedByTier?: DeskTier;
 }

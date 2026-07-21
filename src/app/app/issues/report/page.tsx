@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
@@ -9,8 +9,12 @@ import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { useToast } from "@/components/ui/Toast";
 import {
   createDemoIncidentId,
+  createDemoProjectId,
+  listDemoProjects,
   saveDemoIncident,
+  saveDemoProject,
 } from "@/lib/demoStore";
+import { readDeskTier } from "@/lib/deskVisibility";
 import {
   COMPLAINT_NATURES,
   defaultTargetHours,
@@ -19,16 +23,22 @@ import {
 } from "@/lib/grievanceProcess";
 import {
   createTrialIncidentId,
+  ensureTrialSeedProject,
+  listTrialProjects,
   saveTrialIncident,
+  saveTrialProject,
 } from "@/lib/trialStore";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import { aiService } from "@/services/aiService";
+import { projectService } from "@/services/projectService";
 import type { AiSuggestionStatus, IncidentTriageSuggestion } from "@/types/ai";
 import type {
   Incident,
   IncidentGeoContext,
   IncidentPriority,
 } from "@/types/incident";
+import type { Project } from "@/types/project";
+import { ROLE_DEFAULT_DESK_TIER } from "@/types/deskTier";
 
 function asPriority(value: string): IncidentPriority {
   if (
@@ -57,6 +67,10 @@ export default function AppReportIssuePage() {
   const [description, setDescription] = useState("");
   const [anonymous, setAnonymous] = useState(false);
   const [reporterName, setReporterName] = useState("");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectId, setProjectId] = useState("");
+  const [newProjectName, setNewProjectName] = useState("");
+  const [creatingProject, setCreatingProject] = useState(false);
   const [geo, setGeo] = useState<IncidentGeoContext | null>(null);
   const [geoLabel, setGeoLabel] = useState("");
   const [geoOpen, setGeoOpen] = useState(false);
@@ -74,6 +88,26 @@ export default function AppReportIssuePage() {
   );
   const [submittedId, setSubmittedId] = useState<string | null>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const trial = readTrialModeFromDocument();
+      if (trial) ensureTrialSeedProject();
+      const seeded = await projectService.list();
+      const local = trial ? listTrialProjects() : listDemoProjects();
+      const byId = new Map<string, Project>();
+      for (const p of [...local, ...seeded]) byId.set(p.id, p);
+      if (cancelled) return;
+      const rows = [...byId.values()];
+      setProjects(rows);
+      if (rows[0]) setProjectId(rows[0].id);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectedProject = projects.find((p) => p.id === projectId);
   const escalation =
     priority
       ? suggestStaffTier(asPriority(priority), seniorFrom)
@@ -89,7 +123,52 @@ export default function AppReportIssuePage() {
       pushToast("Enter the reporter name, or mark as anonymous", "error");
       return;
     }
+    if (creatingProject) {
+      if (!newProjectName.trim()) {
+        pushToast("Enter a project name", "error");
+        return;
+      }
+    } else if (!projectId) {
+      pushToast("Select or create a project", "error");
+      return;
+    }
     setGeoOpen(true);
+  }
+
+  function ensureProject(): Project {
+    if (creatingProject && newProjectName.trim()) {
+      const trial = readTrialModeFromDocument();
+      const today = new Date().toISOString().slice(0, 10);
+      const project: Project = {
+        id: trial
+          ? `PRJ-T${Date.now().toString().slice(-6)}`
+          : createDemoProjectId(),
+        name: newProjectName.trim(),
+        clientFunder: "",
+        budgetTotal: 0,
+        budgetSpent: 0,
+        ward: geo?.wardName || "",
+        municipality: geo?.municipalityName || "",
+        status: "Active",
+        contractorName: "",
+        startDate: today,
+        targetEndDate: today,
+        publicSummary: "Created from issue intake.",
+      };
+      if (trial) saveTrialProject(project);
+      else saveDemoProject(project);
+      setProjects((prev) => {
+        const byId = new Map(prev.map((p) => [p.id, p]));
+        byId.set(project.id, project);
+        return [...byId.values()];
+      });
+      setProjectId(project.id);
+      setCreatingProject(false);
+      return project;
+    }
+    const existing = projects.find((p) => p.id === projectId);
+    if (existing) return existing;
+    throw new Error("Project required");
   }
 
   function onGeoComplete(ctx: IncidentGeoContext, label: string) {
@@ -97,7 +176,6 @@ export default function AppReportIssuePage() {
     setGeoLabel(label);
     setPhase("categorise");
     pushToast("Location captured — categorise the issue", "success");
-    // Kick AI suggest in background once location is set
     void runAssist(ctx, label);
   }
 
@@ -109,6 +187,7 @@ export default function AppReportIssuePage() {
       const result = await aiService.suggestTriage({
         description,
         ward: ctx?.wardName || label || geoLabel || undefined,
+        projectId: projectId || undefined,
       });
       setSuggestion(result);
       setStatus("ready");
@@ -137,12 +216,20 @@ export default function AppReportIssuePage() {
       return;
     }
     requireEmailThen("save", () => {
+      let project: Project;
+      try {
+        project = ensureProject();
+      } catch {
+        pushToast("Select or create a project", "error");
+        return;
+      }
       const now = new Date().toISOString();
       const trial = readTrialModeFromDocument();
       const id = trial ? createTrialIncidentId() : createDemoIncidentId();
       const pri = asPriority(priority || "P3-Medium");
       const policy = suggestStaffTier(pri, seniorFrom);
       const wardLabel = geo.wardName || geoLabel;
+      const filedByTier = readDeskTier("community") || ROLE_DEFAULT_DESK_TIER.community;
       const incident: Incident = {
         id,
         title: description.trim().slice(0, 80) || "Community concern",
@@ -151,11 +238,12 @@ export default function AppReportIssuePage() {
         geographicArea: geoLabel,
         status: "Open",
         priority: pri,
-        projectId: trial ? "PRJ-TRIAL" : "PRJ-001",
-        projectName: trial ? "My first project" : "Ward 12 Access Road Repair",
+        projectId: project.id,
+        projectName: project.name,
         reportedByRole: "community",
         reporterName: anonymous ? null : reporterName.trim(),
         anonymous,
+        filedByTier,
         reportedAt: now,
         slaDueBy: new Date(
           Date.now() + (targets.resolved ?? 72) * 60 * 60 * 1000,
@@ -190,6 +278,12 @@ export default function AppReportIssuePage() {
             at: now,
           },
           {
+            id: `${id}-project`,
+            type: "PROJECT",
+            summary: `Linked to project ${project.name}`,
+            at: now,
+          },
+          {
             id: `${id}-geo`,
             type: "LOCATION",
             summary: `Location: ${geoLabel}`,
@@ -198,7 +292,7 @@ export default function AppReportIssuePage() {
           {
             id: `${id}-route`,
             type: "ROUTING",
-            summary: `Suggested routing: ${policy.suggestedTier} — ${policy.reason}`,
+            summary: `Filed as ${filedByTier}; routing ${policy.suggestedTier} — ${policy.reason}`,
             at: now,
           },
         ],
@@ -220,9 +314,9 @@ export default function AppReportIssuePage() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Report an issue</h1>
         <p className="mt-2 text-sm text-tl-ink-muted">
-          Capture the concern and reporter, then locate it City → DM →
-          Traditional council → Ward. Categorisation and tracking follow from
-          that place.
+          Link to a project, capture reporter and location (City → DM → TC →
+          Ward), then categorise. Junior filings surface on the supervisor
+          queue.
         </p>
       </div>
 
@@ -230,13 +324,20 @@ export default function AppReportIssuePage() {
         <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
           <p className="font-medium">Issue captured — {submittedId}</p>
           <p className="mt-2 text-tl-ink-muted">
-            Location and category are on the case for tracking and routing.
+            Project, location, and category are on the case for tracking and
+            supervisor ranking.
           </p>
           <Link
             href={`/app/incidents/${submittedId}`}
             className="mt-4 inline-block text-sm font-medium text-tl-trust-ink underline"
           >
             Open the new case
+          </Link>
+          <Link
+            href="/app/dashboard"
+            className="mt-4 ml-4 inline-block text-sm font-medium text-tl-trust-ink underline"
+          >
+            Dashboard projects
           </Link>
         </section>
       ) : phase === "details" ? (
@@ -293,11 +394,49 @@ export default function AppReportIssuePage() {
             ) : null}
           </div>
 
+          <div className="space-y-3">
+            <p className="text-sm font-medium">3. Project</p>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={creatingProject}
+                onChange={(e) => setCreatingProject(e.target.checked)}
+                className="rounded border-tl-line"
+              />
+              Add a new project
+            </label>
+            {creatingProject ? (
+              <input
+                required
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                placeholder="New project name"
+              />
+            ) : (
+              <select
+                required
+                value={projectId}
+                onChange={(e) => setProjectId(e.target.value)}
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              >
+                <option value="">Select project</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            <p className="text-xs text-tl-ink-muted">
+              The project appears on role dashboards after save.
+            </p>
+          </div>
+
           <div className="rounded-md border border-dashed border-tl-line bg-tl-paper/50 px-3 py-3 text-sm text-tl-ink-muted">
-            <p className="font-medium text-tl-ink">3. Location (next)</p>
+            <p className="font-medium text-tl-ink">4. Location (next)</p>
             <p className="mt-1">
-              Continue opens a city list for South Africa. Then DM → traditional
-              council → ward, one dialogue at a time.
+              Continue opens City → DM → Traditional council → Ward dialogues.
             </p>
           </div>
 
@@ -323,6 +462,14 @@ export default function AppReportIssuePage() {
               </span>
             </p>
             <p className="mt-1 text-xs text-tl-ink-muted">
+              Project:{" "}
+              <span className="font-medium text-tl-ink">
+                {creatingProject
+                  ? newProjectName || "New project"
+                  : selectedProject?.name || "—"}
+              </span>
+            </p>
+            <p className="mt-1 text-xs text-tl-ink-muted">
               Location:{" "}
               <span className="font-medium text-tl-ink">{geoLabel}</span>
             </p>
@@ -338,7 +485,7 @@ export default function AppReportIssuePage() {
               onClick={() => setPhase("details")}
               className="ml-3 mt-2 text-xs font-medium text-tl-ink-muted underline"
             >
-              Edit issue / reporter
+              Edit details
             </button>
           </section>
 

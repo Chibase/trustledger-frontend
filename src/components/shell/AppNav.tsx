@@ -16,11 +16,17 @@ export type NavItem = {
     | "reports"
     | "settings"
     | "geo"
-    | "stakeholders";
+    | "stakeholders"
+    | "capture";
 };
 
 const NAV: NavItem[] = [
   { href: "/app/dashboard", label: "Dashboard", icon: "dashboard" },
+  {
+    href: "/app/capture",
+    label: "Capture",
+    icon: "capture",
+  },
   {
     href: "/app/stakeholders",
     label: "Stakeholders",
@@ -106,6 +112,13 @@ function NavIcon({ name }: { name: NavItem["icon"] }) {
           <circle cx="9" cy="8" r="3" />
           <circle cx="16" cy="9" r="2.5" />
           <path d="M3 19c0-3 2.5-5 6-5s6 2 6 5M13 19c.5-2 2-3.5 4.5-3.5 1.5 0 2.8.6 3.5 1.5" />
+        </svg>
+      );
+    case "capture":
+      return (
+        <svg {...common}>
+          <path d="M4 7h16v12H4V7Z" />
+          <path d="M8 7V5h8v2M12 11v5M9.5 13.5 12 11l2.5 2.5" />
         </svg>
       );
   }

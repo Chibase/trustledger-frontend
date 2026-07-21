@@ -1,6 +1,12 @@
 # Internal changelog
 
-## 2026-07-21 — Intake location wizard (City → DM → TC → Ward)
+## 2026-07-21 — Desk tiers, capture hub, project-linked intake
+
+- Professional desk tiers (CLO → supervisor → site → delivery → oversight → funder) with admin visibility matrix in Settings
+- Capture hub: minutes / attendance / social intel / pasted report → AI stakeholder extract + brief (suggest → apply)
+- Stakeholder CRM framed as demo placeholder; growth via capture
+- Supervisor ranked queue of CLO/site filings; senior desks get charts (ops chart primitives)
+- Issue intake requires project (select or create) — projects merge into dashboard/list
 
 - Report flow: issue → reporter (or anonymous) → sequential dialogs for city, DM, TC, ward
 - Geo pack powers `/api/geo` for the form only; place KPIs and Places browse removed from client dashboard/report

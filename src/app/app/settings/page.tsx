@@ -1,5 +1,6 @@
 ﻿import { API_BASE_URL, getDataMode } from "@/config/api";
 import { PLANS } from "@/config/plans";
+import { DeskSettingsPanel } from "@/components/settings/DeskSettingsPanel";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
 import { TrialRoleSwitcher } from "@/components/shell/TrialRoleSwitcher";
 import { getCurrentUser } from "@/lib/auth";
@@ -22,17 +23,22 @@ export default async function AppSettingsPage() {
   const planName = user.trialPlan ? PLANS[user.trialPlan].name : null;
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="font-display text-2xl font-semibold">Settings</h1>
         <p className="mt-1 text-sm text-tl-ink-muted">
-          Trial session and environment for this build.
+          Trial session, desk tier, and environment for this build.
         </p>
       </div>
 
       {user.mode === "demo" ? (
         <TrialRoleSwitcher currentRole={user.role} />
       ) : null}
+
+      <DeskSettingsPanel
+        role={user.role}
+        canEditMatrix={user.role === "admin"}
+      />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
         <h2 className="font-semibold">Profile</h2>

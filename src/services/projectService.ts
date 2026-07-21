@@ -27,8 +27,8 @@ function filterProjects(
 }
 
 async function listDemo(filters: ProjectListFilters): Promise<Project[]> {
-  const { isTrialWorkspaceSession } = await import("@/lib/auth");
-  if (await isTrialWorkspaceSession()) {
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  if (readTrialModeFromDocument()) {
     return delay(filterProjects([], filters));
   }
   return delay(filterProjects(mockProjects, filters));
@@ -62,8 +62,8 @@ export const projectService = {
         return delay(mockProjects.find((p) => p.id === id) ?? null);
       }
     }
-    const { isTrialWorkspaceSession } = await import("@/lib/auth");
-    if (await isTrialWorkspaceSession()) {
+    const { readTrialModeFromDocument } = await import("@/lib/trial");
+    if (readTrialModeFromDocument()) {
       return delay(null);
     }
     return delay(mockProjects.find((p) => p.id === id) ?? null);
