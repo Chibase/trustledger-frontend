@@ -1,4 +1,6 @@
 import { getDataMode } from "@/config/api";
+import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
+import { averageTatHours, countOverStageTarget } from "@/lib/tatMetrics";
 import { geoService } from "@/services/geoService";
 import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
@@ -12,6 +14,14 @@ export type ClientPortfolioBrief = {
   generatedAt: string;
   dataMode: "demo" | "live";
   dataSourceNote: string;
+  trust: {
+    trustIndex: number;
+    avgSentiment: number | null;
+    sampleSize: number;
+    label: "Strong" | "Watch" | "At risk" | "Unknown";
+    avgTatHours: number | null;
+    openOverTarget: number;
+  };
   kpis: {
     projects: number;
     activeProjects: number;
@@ -31,6 +41,8 @@ export type ClientPortfolioBrief = {
   stakeholdersByKind: { kind: string; label: string; count: number }[];
   highInfluence: Stakeholder[];
   talkingPoints: string[];
+  /** All incidents for TrustPulse / stage views. */
+  incidents: Incident[];
 };
 
 /**
@@ -57,6 +69,9 @@ export async function buildClientPortfolioBrief(): Promise<ClientPortfolioBrief>
   const highInfluence = stakeholders.filter(
     (s) => s.influence === "high" && s.status === "active",
   );
+  const trustBase = trustIndexFromIncidents(incidents);
+  const avgTat = averageTatHours(incidents);
+  const overTarget = countOverStageTarget(open);
 
   const kindMap = new Map<string, number>();
   for (const s of stakeholders) {
@@ -65,14 +80,20 @@ export async function buildClientPortfolioBrief(): Promise<ClientPortfolioBrief>
   const stakeholdersByKind = [...kindMap.entries()]
     .map(([kind, count]) => ({
       kind,
-      label: STAKEHOLDER_KIND_LABELS[kind as keyof typeof STAKEHOLDER_KIND_LABELS] ?? kind,
+      label:
+        STAKEHOLDER_KIND_LABELS[kind as keyof typeof STAKEHOLDER_KIND_LABELS] ??
+        kind,
       count,
     }))
     .sort((a, b) => b.count - a.count);
 
   const talkingPoints = [
+    `Trust index ${trustBase.trustIndex}/100 (${trustBase.label}) from ${trustBase.sampleSize} sentiment-scored cases.`,
     `${totals.projectCount} projects in portfolio (${totals.activeCount} active).`,
-    `${open.length} open grievances; ${highPriority.length} high priority; ${slaBreaches.length} SLA breaches.`,
+    `${open.length} open grievances; ${highPriority.length} high priority; ${slaBreaches.length} SLA breaches; ${overTarget} over stage TAT.`,
+    avgTat !== null
+      ? `Average turnaround ${avgTat}h (reported → resolved/closed where completed).`
+      : "Turnaround averages appear once cases reach resolved/closed.",
     `${stakeholders.length} stakeholders in CRM (${highInfluence.length} high influence).`,
     pack
       ? `Geography pack “${pack.pack.label}”: ${geoCounts.ward ?? 0} wards, ${geoCounts.traditional_council ?? 0} traditional councils.`
@@ -89,6 +110,11 @@ export async function buildClientPortfolioBrief(): Promise<ClientPortfolioBrief>
       dataMode === "live"
         ? "Live Frappe methods when available; otherwise Version 002 seed packs (geo + CRM) and mock portfolio."
         : "Demo seed mirrors backend contract (projects, incidents, geo pack, stakeholder CRM).",
+    trust: {
+      ...trustBase,
+      avgTatHours: avgTat,
+      openOverTarget: overTarget,
+    },
     kpis: {
       projects: totals.projectCount,
       activeProjects: totals.activeCount,
@@ -108,5 +134,6 @@ export async function buildClientPortfolioBrief(): Promise<ClientPortfolioBrief>
     stakeholdersByKind,
     highInfluence: highInfluence.slice(0, 6),
     talkingPoints,
+    incidents,
   };
 }

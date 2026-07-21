@@ -3,6 +3,7 @@ import { IncidentTable } from "@/components/ui/IncidentTable";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
+import { TrustPulse } from "@/components/trust/TrustPulse";
 import type { ClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
 
 const currency = new Intl.NumberFormat("en-ZA", {
@@ -19,14 +20,14 @@ type ClientPortfolioDashboardProps = {
 export function ClientPortfolioDashboard({
   brief,
 }: ClientPortfolioDashboardProps) {
-  const { kpis } = brief;
+  const { kpis, trust } = brief;
 
   return (
     <div className="space-y-7">
       <PageHeader
         eyebrow="Client workspace"
         title="Governance portfolio"
-        description={`${brief.dataSourceNote} Dashboards and reports use the same project, grievance, stakeholder, and geography services as the Frappe contract.`}
+        description={`${brief.dataSourceNote} Trust and turnaround are first-class KPIs alongside portfolio and CRM.`}
         actions={
           <>
             <Link
@@ -49,6 +50,13 @@ export function ClientPortfolioDashboard({
         Mode: <span className="font-medium capitalize">{brief.dataMode}</span> ·
         Generated {new Date(brief.generatedAt).toLocaleString()}
       </p>
+
+      <TrustPulse
+        incidents={brief.incidents}
+        levelLabel="Client portfolio"
+        avgTatHours={trust.avgTatHours}
+        openOverTarget={trust.openOverTarget}
+      />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(kpis.projects)} />
@@ -80,15 +88,6 @@ export function ClientPortfolioDashboard({
         <KpiCard
           label="Stakeholders (CRM)"
           value={String(kpis.stakeholders)}
-        />
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-3">
-        <KpiCard label="Provinces (pack)" value={String(kpis.provinces)} />
-        <KpiCard label="Wards (pack)" value={String(kpis.wards)} />
-        <KpiCard
-          label="Traditional councils"
-          value={String(kpis.traditionalCouncils)}
         />
       </div>
 
@@ -125,7 +124,10 @@ export function ClientPortfolioDashboard({
           </div>
           <ul className="mt-3 divide-y divide-tl-line">
             {brief.projects.map((p) => (
-              <li key={p.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+              <li
+                key={p.id}
+                className="flex items-center justify-between gap-3 py-2.5 text-sm"
+              >
                 <div>
                   <Link
                     href={`/app/projects/${p.id}`}
@@ -190,12 +192,6 @@ export function ClientPortfolioDashboard({
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-xs text-tl-ink-muted">
-            <Link href="/app/geo" className="text-tl-trust-ink underline">
-              Browse geography pack
-            </Link>{" "}
-            — same place ids used on stakeholder and case records.
-          </p>
         </section>
       </div>
     </div>

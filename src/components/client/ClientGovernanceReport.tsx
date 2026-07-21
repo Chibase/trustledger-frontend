@@ -3,6 +3,7 @@ import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
 import { PrintReportButton } from "@/components/client/PrintReportButton";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { KpiCard } from "@/components/ui/KpiCard";
+import { TrustPulse } from "@/components/trust/TrustPulse";
 import type { ClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
 
 const currency = new Intl.NumberFormat("en-ZA", {
@@ -17,7 +18,7 @@ type ClientGovernanceReportProps = {
 
 /** Client reports — board-ready pack from the same backend-shaped services. */
 export function ClientGovernanceReport({ brief }: ClientGovernanceReportProps) {
-  const { kpis } = brief;
+  const { kpis, trust } = brief;
 
   return (
     <div className="space-y-8 print:space-y-6">
@@ -44,6 +45,13 @@ export function ClientGovernanceReport({ brief }: ClientGovernanceReportProps) {
         </div>
       </header>
 
+      <TrustPulse
+        incidents={brief.incidents}
+        levelLabel="Client portfolio"
+        avgTatHours={trust.avgTatHours}
+        openOverTarget={trust.openOverTarget}
+      />
+
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(kpis.projects)} />
         <KpiCard label="Open grievances" value={String(kpis.openIncidents)} />
@@ -56,18 +64,16 @@ export function ClientGovernanceReport({ brief }: ClientGovernanceReportProps) {
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Budget" value={currency.format(kpis.budgetTotal)} />
+        <KpiCard label="Spent" value={currency.format(kpis.budgetSpent)} />
         <KpiCard
-          label="Budget"
-          value={currency.format(kpis.budgetTotal)}
+          label="High priority"
+          value={String(kpis.highPriority)}
+          tone={kpis.highPriority > 0 ? "attention" : "default"}
         />
         <KpiCard
-          label="Spent"
-          value={currency.format(kpis.budgetSpent)}
-        />
-        <KpiCard label="Wards in geo pack" value={String(kpis.wards)} />
-        <KpiCard
-          label="Traditional councils"
-          value={String(kpis.traditionalCouncils)}
+          label="High-influence CRM"
+          value={String(kpis.highInfluenceStakeholders)}
         />
       </section>
 

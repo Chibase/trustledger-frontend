@@ -2,7 +2,7 @@
 
 **Source blueprint:** TrustLedger Engineering Documentation Series (TEDS) Volume 1 — Platform Foundation  
 **Product labels:** Version **001** (live desk) → Version **002** (Stakeholder Intelligence core)  
-**Living code source:** `src/lib/tedsMaturity.ts` (also rendered on dashboards)  
+**Living code source:** `src/lib/tedsMaturity.ts` (**ops-only UI** — `/ops`, `/ops/executive`)  
 **Policy:** ADR-023 — soft launch may wait until V002 core is credible  
 
 ---
@@ -15,15 +15,14 @@ We are **closer** than before Version 002 kickoff: national **ZA geography** and
 
 ---
 
-## Dashboard placement (different levels)
+## Dashboard placement (internal only — not public / client)
 
 | Level | Where | What you see |
 |-------|--------|----------------|
 | **Board / investors** | `/ops/executive` | Full domain table + % progress |
 | **Platform ops** | `/ops` | Compact pulse + priority next |
-| **Plan Owner / admin** | `/app/dashboard` (admin) | Compact build status |
-| **Client** | `/app/dashboard` (client) | Compact capability roadmap |
-| **Reports** | `/app/reports` | Full maturity report + AI brief |
+
+> Do **not** render `TedsMaturityPanel` on `/app/*` (client, admin product dashboards, or reports). Product surfaces show **trust / sentiment / TAT** instead.
 
 ---
 
@@ -35,9 +34,9 @@ We are **closer** than before Version 002 kickoff: national **ZA geography** and
 | Stakeholder Registry (CRM) | Seeded | 45% | CRM list/detail; TEDS kinds; place-linked seed | Create/edit UI; relationships; Frappe DocType |
 | Project Management | Partial | 40% | List/detail + budgets + role homes | Programmes/sites/teams; geo+CRM links |
 | Engagement Management | Partial | 20% | Meeting notes stub | Meetings, attendance, minutes, actions |
-| Issue & Grievance | Partial | 55% | Incidents, intake, AI suggest→apply | Full lifecycle + verify/close; Frappe workflow |
+| Issue & Grievance | Partial | 62% | Cascading geo intake; natures; TAT stages; AI nature/routing; trust pulse | Full verify/close on Frappe; live stage stamps; policy admin UI |
 | Commitment Management | Not started | 0% | — | Register, owners, deadlines, evidence, KPIs |
-| Reporting | Partial | 35% | Reports + AI brief + role KPIs + ops exec | Packs from live/geo/CRM; exports; heat maps |
+| Reporting | Partial | 40% | Trust/TAT on reports + role KPIs + ops exec | Packs from live/geo/CRM; exports; heat maps |
 | Administration | Partial | 30% | Settings; trial/demo/live; operator lockdown | Plan Owner invites; org RBAC; audit UI |
 | Intelligence / ESG | Partial | 25% | AI assist; exec KPIs; empty indicator slots | Socio-econ ingest; trust/ESG scorecards |
 | Commercial shell (extra) | Partial | 60% | Trial, Paystack, Version 001 messaging | Auto Owner post-pay when lockdown lifts |

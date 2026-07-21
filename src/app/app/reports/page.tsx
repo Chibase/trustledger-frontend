@@ -1,7 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
 import { buildClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
 import { ClientGovernanceReport } from "@/components/client/ClientGovernanceReport";
-import { TedsMaturityPanel } from "@/components/maturity/TedsMaturityPanel";
 import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
 
 export default async function AppReportsPage() {
@@ -11,20 +10,7 @@ export default async function AppReportsPage() {
 
   if (isClientFacing) {
     const brief = await buildClientPortfolioBrief();
-    return (
-      <div className="space-y-8">
-        <ClientGovernanceReport brief={brief} />
-        {user?.role === "admin" ? (
-          <div className="print:hidden">
-            <TedsMaturityPanel
-              audience="admin"
-              variant="compact"
-              title="Internal: TEDS build maturity"
-            />
-          </div>
-        ) : null}
-      </div>
-    );
+    return <ClientGovernanceReport brief={brief} />;
   }
 
   return (

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
+import { ProcessStageTimeline } from "@/components/incidents/ProcessStageTimeline";
 import { evidenceService } from "@/services/noteService";
 import { incidentService } from "@/services/incidentService";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
@@ -199,6 +200,47 @@ export default function AppIncidentDetailPage({
             <dd>{caseRecord.impactScore}</dd>
           </div>
         </dl>
+      </section>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
+        <h2 className="mb-3 font-semibold">Process turnaround</h2>
+        <p className="mb-3 text-xs text-tl-ink-muted">
+          Reported → resource deployed → investigated → resolved → closed.
+          Lag vs client targets feeds trust dashboards.
+        </p>
+        <ProcessStageTimeline incident={caseRecord} />
+        <p className="mt-3 text-xs text-tl-ink-muted">
+          Reporter:{" "}
+          <span className="font-medium text-tl-ink">
+            {caseRecord.anonymous
+              ? "Anonymous"
+              : caseRecord.reporterName || "—"}
+          </span>
+        </p>
+        {caseRecord.nature ? (
+          <p className="mt-1 text-xs text-tl-ink-muted">
+            Nature:{" "}
+            <span className="font-medium text-tl-ink">{caseRecord.nature}</span>
+            {caseRecord.escalationPolicy
+              ? ` · Routing: ${caseRecord.escalationPolicy.suggestedTier}`
+              : ""}
+          </p>
+        ) : null}
+        {caseRecord.geo?.provinceName || caseRecord.geo?.districtName ? (
+          <p className="mt-1 text-xs text-tl-ink-muted">
+            Geo:{" "}
+            {[
+              caseRecord.geo.wardName,
+              caseRecord.geo.traditionalCouncilName,
+              caseRecord.geo.municipalityName,
+              caseRecord.geo.districtName,
+              caseRecord.geo.provinceName,
+              caseRecord.geo.countryName,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        ) : null}
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">

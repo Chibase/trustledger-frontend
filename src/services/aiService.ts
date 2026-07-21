@@ -25,35 +25,83 @@ function delay(ms = 650) {
 function mockTriage(input: TriageRequest): IncidentTriageSuggestion {
   const text = input.description.toLowerCase();
   const isWater = /water|pipe|leak|flood/.test(text);
-  const isSafety = /safety|injury|accident|danger|road/.test(text);
-  const isNoise = /noise|dust|blast/.test(text);
+  const isSafety = /safety|injury|accident|danger|unsafe|trench/.test(text);
+  const isDust = /dust/.test(text);
+  const isNoise = /noise|blast|night work/.test(text);
+  const isDisgruntlement =
+    /disgruntl|protest|angry|community unrest|boycott/.test(text);
+  const isEmployment = /job|employ|labour|labor|hiring/.test(text);
+  const isLand = /land|resettle|expropriat/.test(text);
+  const isEnv = /pollut|spill|environment|chemical/.test(text);
 
   let category = "General grievance";
+  let natureId = "other";
   let suggestedPriority: IncidentTriageSuggestion["suggestedPriority"] =
     "P3-Medium";
   const impactHints: string[] = ["Community relations"];
 
-  if (isWater) {
-    category = "Water / utilities disruption";
-    suggestedPriority = "P2-High";
-    impactHints.push("Livelihood access", "Service delivery");
-  } else if (isSafety) {
+  if (isSafety) {
     category = "Safety / access hazard";
+    natureId = "safety";
     suggestedPriority = "P1-Critical";
     impactHints.push("Public safety", "Reputation");
-  } else if (isNoise) {
+  } else if (isWater) {
+    category = "Water / utilities disruption";
+    natureId = "water";
+    suggestedPriority = "P2-High";
+    impactHints.push("Livelihood access", "Service delivery");
+  } else if (isDisgruntlement) {
+    category = "Community relations / unrest";
+    natureId = "community_disgruntlement";
+    suggestedPriority = "P1-Critical";
+    impactHints.push("Social licence", "Reputation");
+  } else if (isDust && isNoise) {
     category = "Construction nuisance";
+    natureId = "dust";
+    suggestedPriority = "P2-High";
+    impactHints.push("Amenity", "Health & wellbeing");
+  } else if (isDust) {
+    category = "Construction nuisance — dust";
+    natureId = "dust";
     suggestedPriority = "P3-Medium";
     impactHints.push("Amenity", "Health & wellbeing");
+  } else if (isNoise) {
+    category = "Construction nuisance — noise";
+    natureId = "noise";
+    suggestedPriority = "P3-Medium";
+    impactHints.push("Amenity", "Health & wellbeing");
+  } else if (isEmployment) {
+    category = "Local employment / labour";
+    natureId = "employment";
+    suggestedPriority = "P2-High";
+    impactHints.push("Livelihoods", "Social licence");
+  } else if (isLand) {
+    category = "Land / resettlement";
+    natureId = "land";
+    suggestedPriority = "P1-Critical";
+    impactHints.push("Rights", "Regulatory");
+  } else if (isEnv) {
+    category = "Environment / pollution";
+    natureId = "environment";
+    suggestedPriority = "P2-High";
+    impactHints.push("Environment", "Regulatory");
   }
+
+  const needsSenior =
+    suggestedPriority === "P1-Critical" || suggestedPriority === "P2-High";
 
   return {
     summary:
       input.description.trim().slice(0, 140) ||
       "Community-reported concern requiring triage.",
     category,
+    natureId,
     geographicAreaHint: input.ward || "Ward 12",
     suggestedPriority,
+    suggestedStaffTier: needsSenior ? "senior" : "junior",
+    escalationRationale: needsSenior
+      ? `${suggestedPriority} — escalate to senior per typical client threshold (P2+).`
+      : `${suggestedPriority} — junior staff may handle under typical client policy.`,
     impactHints,
     languageDetected: "en",
     translatedDescription: undefined,

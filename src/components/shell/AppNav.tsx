@@ -21,7 +21,6 @@ export type NavItem = {
 
 const NAV: NavItem[] = [
   { href: "/app/dashboard", label: "Dashboard", icon: "dashboard" },
-  { href: "/app/geo", label: "Places", icon: "geo" },
   {
     href: "/app/stakeholders",
     label: "Stakeholders",
@@ -32,7 +31,7 @@ const NAV: NavItem[] = [
   {
     href: "/app/issues/report",
     label: "Report issue",
-    roles: ["community", "contractor", "admin"],
+    roles: ["community", "contractor", "admin", "client"],
     icon: "report",
   },
   {

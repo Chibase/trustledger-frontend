@@ -128,13 +128,13 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     tedsName: "Issue & Grievance Management",
     tedsChapter: "TEDS Ch.9 Domain 5",
     status: "partial",
-    score: 55,
+    score: 62,
     availableNow:
-      "Incidents list/desk, intake report, SLA-ish fields, AI triage suggest→apply, evidence stub.",
+      "Cascading geo intake; complaint natures; client TAT stage targets; junior/senior routing; AI nature+priority suggest→apply; process timeline on case desk; trust pulse from sentiment.",
     stillNeeded: [
-      "Full lifecycle: categorise → escalate → investigate → resolve → verify → close",
-      "Link cases to stakeholders + geo places",
-      "Frappe workflow states on Cloud",
+      "Full lifecycle stamps on Frappe (deploy → investigate → resolve → verify → close)",
+      "Client policy admin UI for thresholds and TAT defaults",
+      "Live escalation queues by staff tier",
     ],
     href: "/app/incidents",
   },
@@ -156,8 +156,9 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     tedsName: "Reporting",
     tedsChapter: "TEDS Ch.9 Domain 7",
     status: "partial",
-    score: 35,
-    availableNow: "Reports route; AI report brief; role KPI cards; ops executive brief.",
+    score: 40,
+    availableNow:
+      "Trust/TAT on client reports; role trust pulse; AI report brief; ops executive brief (TEDS maturity ops-only).",
     stillNeeded: [
       "Standard operational packs from live/geo/CRM data",
       "Export / print packs for clients",

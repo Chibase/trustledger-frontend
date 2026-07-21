@@ -9,8 +9,13 @@ export type AiSuggestionStatus = "idle" | "loading" | "ready" | "error";
 export type IncidentTriageSuggestion = {
   summary: string;
   category: string;
+  /** Structured complaint nature id when recognised. */
+  natureId?: string;
   geographicAreaHint: string;
   suggestedPriority: "P4-Low" | "P3-Medium" | "P2-High" | "P1-Critical";
+  /** junior | senior — based on priority vs client threshold (applied client-side too). */
+  suggestedStaffTier?: "junior" | "senior";
+  escalationRationale?: string;
   impactHints: string[];
   languageDetected: string;
   translatedDescription?: string;

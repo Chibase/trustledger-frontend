@@ -2,6 +2,12 @@
  * Shapes aligned with future srm-core SRM Incident fields.
  */
 
+import type {
+  ComplaintNatureId,
+  EscalationPolicy,
+  IncidentProcessStages,
+} from "@/lib/grievanceProcess";
+
 export type IncidentStatus =
   | "Open"
   | "Investigating"
@@ -23,6 +29,22 @@ export interface IncidentTimelineEvent {
   at: string;
 }
 
+export interface IncidentGeoContext {
+  countryCode?: string;
+  countryName?: string;
+  provinceId?: string;
+  provinceName?: string;
+  districtId?: string;
+  districtName?: string;
+  municipalityId?: string;
+  municipalityName?: string;
+  traditionalCouncilId?: string;
+  traditionalCouncilName?: string;
+  wardId?: string;
+  wardName?: string;
+  placeId?: string;
+}
+
 export interface Incident {
   id: string;
   title: string;
@@ -34,13 +56,21 @@ export interface Incident {
   projectId: string;
   projectName: string;
   reportedByRole: "community" | "contractor" | "client" | "admin";
+  /** Reporter display name; omit or null when anonymous. */
+  reporterName?: string | null;
+  anonymous?: boolean;
   reportedAt: string;
   slaDueBy: string;
   slaBreached: boolean;
   escalationLevel: EscalationLevel;
   ownerName: string;
   category: string;
+  /** Structured nature of complaint (dust, noise, …). */
+  nature?: ComplaintNatureId | string;
   impactScore: number;
   sentimentScore: number | null;
   timeline: IncidentTimelineEvent[];
+  geo?: IncidentGeoContext;
+  processStages?: IncidentProcessStages;
+  escalationPolicy?: EscalationPolicy;
 }

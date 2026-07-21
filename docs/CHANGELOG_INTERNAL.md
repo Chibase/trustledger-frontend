@@ -1,16 +1,27 @@
 # Internal changelog
 
-## 2026-07-21 — Client dashboard & reports mirror backend domains
+## 2026-07-21 — Intake location wizard (City → DM → TC → Ward)
+
+- Report flow: issue → reporter (or anonymous) → sequential dialogs for city, DM, TC, ward
+- Geo pack powers `/api/geo` for the form only; place KPIs and Places browse removed from client dashboard/report
+- Case still stores full geo path for tracking and categorisation
+
+- Removed TEDS maturity panels from `/app/*` (ops-only: `/ops`, `/ops/executive`)
+- Cascading geo picker (any-order province/DM/city/TC/ward) via `/api/geo`
+- Intake: complaint natures, urgency, client junior/senior threshold, TAT stage targets
+- AI triage suggests nature + staff routing (suggest → apply)
+- Trust pulse (sentiment → trust index + TAT) on all role dashboards and client reports
+- Case desk shows process stage timeline vs client targets
 
 - `buildClientPortfolioBrief` aggregates projects, grievances, CRM, geo (same Frappe contract shapes)
 - Client home → governance portfolio KPIs + CRM/geo panels
 - `/app/reports` → printable portfolio trust brief for client/admin
 - Geo + stakeholder services call live Frappe with seed fallback
 
-## 2026-07-21 — TEDS maturity report on dashboards
+## 2026-07-21 — TEDS maturity report (ops-only)
 
 - `src/lib/tedsMaturity.ts` + `docs/TEDS_MATURITY_REPORT.md` (~36% MVP progress)
-- Panels on `/ops/executive` (full), `/ops`, admin/client dashboards, `/app/reports`
+- Panels on `/ops/executive` (full) and `/ops` only — not on public product `/app` surfaces
 
 ## 2026-07-21 — ZA geo pack + stakeholder CRM seed
 

@@ -2,21 +2,16 @@ import Link from "next/link";
 import { getCurrentUser, type UserRole } from "@/lib/auth";
 import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
 import { ClientPortfolioDashboard } from "@/components/client/ClientPortfolioDashboard";
-import { TedsMaturityPanel } from "@/components/maturity/TedsMaturityPanel";
+import { TrustPulse } from "@/components/trust/TrustPulse";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { buildClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
+import { averageTatHours, countOverStageTarget } from "@/lib/tatMetrics";
 import { incidentService } from "@/services/incidentService";
 import { noteService } from "@/services/noteService";
 import { projectService } from "@/services/projectService";
-
-const currency = new Intl.NumberFormat("en-ZA", {
-  style: "currency",
-  currency: "ZAR",
-  maximumFractionDigits: 0,
-});
 
 async function CommunityHome() {
   const [projects, incidents, notes] = await Promise.all([
@@ -52,6 +47,13 @@ async function CommunityHome() {
             </Link>
           </>
         }
+      />
+
+      <TrustPulse
+        incidents={incidents}
+        levelLabel="Ward / community"
+        avgTatHours={averageTatHours(incidents)}
+        openOverTarget={countOverStageTarget(openMine)}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -147,6 +149,13 @@ async function ContractorHome() {
         }
       />
 
+      <TrustPulse
+        incidents={incidents}
+        levelLabel="Contractor sites"
+        avgTatHours={averageTatHours(incidents)}
+        openOverTarget={countOverStageTarget(open)}
+      />
+
       <div className="grid gap-3 sm:grid-cols-3">
         <KpiCard label="Assigned projects" value={String(projects.length)} />
         <KpiCard label="Open incidents" value={String(open.length)} />
@@ -215,6 +224,13 @@ async function AdminHome() {
         }
       />
 
+      <TrustPulse
+        incidents={all}
+        levelLabel="Organisation"
+        avgTatHours={averageTatHours(all)}
+        openOverTarget={countOverStageTarget(open)}
+      />
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Open cases" value={String(open.length)} />
         <KpiCard label="Intake queue" value={String(queue.length)} />
@@ -247,12 +263,6 @@ async function AdminHome() {
       </section>
 
       <ReportBriefAssist />
-
-      <TedsMaturityPanel
-        audience="admin"
-        variant="compact"
-        title="Product build vs TEDS blueprint"
-      />
     </div>
   );
 }
