@@ -6,10 +6,16 @@ import {
   TL_TRIAL_PLAN_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
-  TRIAL_DEFAULT_ROLE,
+  type TlMode,
 } from "@/lib/auth.constants";
 import { isPlanId, type PlanId } from "@/config/plans";
 import { isUserRole, type UserRole } from "@/types/rbac";
+import {
+  computeTrialSnapshot,
+  parseTrialStarted,
+  type TrialSnapshot,
+} from "@/lib/trial";
+import { TL_TRIAL_STARTED_COOKIE } from "@/lib/auth.constants";
 
 export type { UserRole };
 
@@ -18,10 +24,10 @@ export type AppUser = {
   name: string;
   email: string | null;
   role: UserRole;
-  mode: "demo" | "live";
-  /** Open trial guest (no login). */
+  mode: TlMode;
   isGuest?: boolean;
   trialPlan?: PlanId;
+  trial?: TrialSnapshot;
 };
 
 export { SESSION_ROLE_COOKIE } from "@/lib/auth.constants";
@@ -39,13 +45,22 @@ function displayNameForRole(role: UserRole): string {
   }
 }
 
+function resolveMode(
+  modeRaw: string | undefined,
+  hasLiveSid: boolean,
+): TlMode {
+  if (modeRaw === "trial") return "trial";
+  if (modeRaw === "live" || hasLiveSid) return "live";
+  return "demo";
+}
+
 function userFromRole(
   role: UserRole,
   name: string,
-  mode: "demo" | "live",
+  mode: TlMode,
   id = "session-user",
   email: string | null = null,
-  extras?: Pick<AppUser, "isGuest" | "trialPlan">,
+  extras?: Pick<AppUser, "isGuest" | "trialPlan" | "trial">,
 ): AppUser {
   return { id, name, email, role, mode, ...extras };
 }
@@ -55,12 +70,18 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   const sessionRole = cookieStore.get(SESSION_ROLE_COOKIE)?.value;
   const modeRaw = cookieStore.get(TL_MODE_COOKIE)?.value;
   const hasLiveSid = Boolean(cookieStore.get(FRAPPE_SID_COOKIE)?.value);
-  const mode: "demo" | "live" =
-    modeRaw === "live" || hasLiveSid ? "live" : "demo";
+  const mode = resolveMode(modeRaw, hasLiveSid);
   const emailRaw = cookieStore.get(TL_USER_EMAIL_COOKIE)?.value;
   const email = emailRaw ? emailRaw.trim().toLowerCase() : null;
   const planRaw = cookieStore.get(TL_TRIAL_PLAN_COOKIE)?.value;
   const trialPlan = planRaw && isPlanId(planRaw) ? planRaw : undefined;
+  const started = parseTrialStarted(
+    decodeURIComponent(cookieStore.get(TL_TRIAL_STARTED_COOKIE)?.value || ""),
+  );
+  const trial =
+    mode === "trial" && started
+      ? computeTrialSnapshot(started, trialPlan ?? "practitioner")
+      : undefined;
 
   if (sessionRole && isUserRole(sessionRole)) {
     const name =
@@ -70,9 +91,13 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       sessionRole,
       name,
       mode,
-      mode === "live" ? "live-user" : "demo-user",
+      mode === "live" ? "live-user" : mode === "trial" ? "trial-user" : "demo-user",
       email,
-      trialPlan ? { trialPlan } : undefined,
+      {
+        trialPlan,
+        trial,
+        isGuest: mode === "demo",
+      },
     );
   }
 
@@ -88,21 +113,25 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       "demo",
       "dev-user",
       email,
-      { trialPlan: trialPlan ?? "practitioner" },
     );
   }
 
-  // Open trial: no login required for demo product UI.
-  if (mode === "demo") {
+  // Sample demo guests only (not the 14-day product trial).
+  if (mode === "demo" && modeRaw === "demo") {
     return userFromRole(
-      TRIAL_DEFAULT_ROLE,
-      "Trial guest",
+      "client",
+      "Demo guest",
       "demo",
-      "trial-guest",
+      "demo-guest",
       email,
-      { isGuest: true, trialPlan: trialPlan ?? "practitioner" },
+      { isGuest: true },
     );
   }
 
   return null;
+}
+
+export async function isTrialWorkspaceSession(): Promise<boolean> {
+  const user = await getCurrentUser();
+  return user?.mode === "trial";
 }

@@ -30,19 +30,19 @@ export function HomeHero() {
           <div className="mt-8">
             {/* Primary CTA — only dominant action in hero */}
             <Link
-              href="/demo?utm_source=home&utm_medium=hero&utm_campaign=live_walkthrough"
+              href="/trial?utm_source=home&utm_medium=hero&utm_campaign=trial_14day"
               onClick={() =>
                 trackMarketingEvent("hero_primary_cta_click", {
-                  cta: "run_2min_walkthrough",
+                  cta: "start_14day_trial",
                 })
               }
               className="inline-flex w-full items-center justify-center rounded-md bg-tl-trust px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-tl-trust-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tl-trust sm:w-auto"
             >
-              Run 2-minute live walkthrough
+              Start 14-day trial
             </Link>
             <p className="mt-3 max-w-md text-sm text-tl-ink-muted">
-              No signup required to preview. Email only needed to save/export
-              results.
+              Your own workspace — upgrade anytime via Paystack. Data retained 3
+              months after trial if you do not upgrade.
             </p>
             <p className="mt-4">
               <Link

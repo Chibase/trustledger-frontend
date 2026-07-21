@@ -27,6 +27,10 @@ function filterProjects(
 }
 
 async function listDemo(filters: ProjectListFilters): Promise<Project[]> {
+  const { isTrialWorkspaceSession } = await import("@/lib/auth");
+  if (await isTrialWorkspaceSession()) {
+    return delay(filterProjects([], filters));
+  }
   return delay(filterProjects(mockProjects, filters));
 }
 
@@ -57,6 +61,10 @@ export const projectService = {
       } catch {
         return delay(mockProjects.find((p) => p.id === id) ?? null);
       }
+    }
+    const { isTrialWorkspaceSession } = await import("@/lib/auth");
+    if (await isTrialWorkspaceSession()) {
+      return delay(null);
     }
     return delay(mockProjects.find((p) => p.id === id) ?? null);
   },

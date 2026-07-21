@@ -23,8 +23,8 @@ export function HomePricing() {
             Plans connected to Paystack checkout
           </h2>
           <p className="mt-3 text-sm text-tl-ink-muted">
-            ZAR excl. VAT. Card checkout on Paystack — start a free 14-day trial
-            anytime, no login required.
+            ZAR excl. VAT. Start a 14-day trial on your data, then upgrade on
+            Paystack — no extra forms.
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export function HomePricing() {
                   </Link>
                   {plan.selfServe ? (
                     <Link
-                      href={`/demo?utm_source=home&utm_medium=pricing&utm_campaign=trial_${plan.id}`}
+                      href={`/trial?utm_source=home&utm_medium=pricing&utm_campaign=trial_${plan.id}`}
                       className="text-center text-sm font-medium text-tl-trust-ink underline underline-offset-2"
                     >
                       Start 14-day trial

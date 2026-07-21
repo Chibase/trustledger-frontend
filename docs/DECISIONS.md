@@ -178,11 +178,24 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-021: Open trial — email only on print/save
 
 - **Date:** 2026-07-20
-- **Status:** Accepted
+- **Status:** Superseded by ADR-022 for product trial entry
 - **Context:** Launch requires clients to explore without login; capture email only when they print or save. Soft-gate and mandatory demo-entry forms raise drop-off.
 - **Decision:** `/demo` auto-enters `/app` as a trial guest (default role `client`). Email modal gates print/save/export only. `/trial` and `/pay` remain for subscribe/quote funnels. Staff/operator live login stays at `/login/live`. Soft lead gate (ADR-008) is retired from the product shell.
 - **Consequences:** Higher explore conversion; lead capture tied to intent. Role switch available in Settings. Operator lockdown still applies to live sessions only.
 - **Alternatives considered:** Keep email-before-demo (rejected for launch UX); remove `/trial` (rejected — Paystack/quote path still needed).
+
+### ADR-022: Product trial is own-data workspace; upgrade → Paystack
+
+- **Date:** 2026-07-21
+- **Status:** Accepted
+- **Context:** Marketing “Start trial” must not dump users into sample `/demo`. Clients need their own workspace for 14 days, then a smooth path to pay. After expiry, access stops but data is retained briefly.
+- **Decision:**
+  1. **Start trial** → `/trial` (name + work email + plan lens) → `tl-mode=trial` workspace with **empty/own data** (not mock seed).
+  2. In-app **Upgrade & pay** → `/pay?plan=…` directly (no subscribe form step).
+  3. Trial length **14 days**; on expiry **access off**; data retained **90 days** then purged (wall UI + local retention clock; Frappe entitlement sync later).
+  4. `/demo` remains **sample preview** only.
+- **Consequences:** WP/home CTAs point at `/trial`. Browser-local trial store until Cloud tenancy ships. Operator lockdown unchanged for Frappe live.
+- **Alternatives considered:** Keep demo-as-trial (rejected); require Frappe User create before any trial (blocked by lockdown — phase next).
 
 ### ADR-013: Platform Operator sole live control (until lifted)
 

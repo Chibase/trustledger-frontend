@@ -29,7 +29,7 @@ const COLS = [
       { href: "#faq", label: "FAQ" },
       { href: "/status", label: "System status" },
       { href: "/pay", label: "Subscribe (Paystack)" },
-      { href: "/demo?utm_campaign=trial_14day", label: "Start 14-day trial" },
+      { href: "/trial?utm_campaign=trial_14day", label: "Start 14-day trial" },
     ],
   },
 ] as const;

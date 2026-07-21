@@ -10,6 +10,11 @@ import {
   createDemoIncidentId,
   saveDemoIncident,
 } from "@/lib/demoStore";
+import {
+  createTrialIncidentId,
+  saveTrialIncident,
+} from "@/lib/trialStore";
+import { readTrialModeFromDocument } from "@/lib/trial";
 import { aiService } from "@/services/aiService";
 import type { AiSuggestionStatus, IncidentTriageSuggestion } from "@/types/ai";
 import type { Incident, IncidentPriority } from "@/types/incident";
@@ -73,7 +78,8 @@ export default function AppReportIssuePage() {
     event.preventDefault();
     requireEmailThen("save", () => {
       const now = new Date().toISOString();
-      const id = createDemoIncidentId();
+      const trial = readTrialModeFromDocument();
+      const id = trial ? createTrialIncidentId() : createDemoIncidentId();
       const incident: Incident = {
         id,
         title: description.trim().slice(0, 80) || "Community concern",
@@ -82,8 +88,8 @@ export default function AppReportIssuePage() {
         geographicArea: ward,
         status: "Open",
         priority: asPriority(priority),
-        projectId: "PRJ-001",
-        projectName: "Ward 12 Access Road Repair",
+        projectId: trial ? "PRJ-TRIAL" : "PRJ-001",
+        projectName: trial ? "My first project" : "Ward 12 Access Road Repair",
         reportedByRole: "community",
         reportedAt: now,
         slaDueBy: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -97,14 +103,20 @@ export default function AppReportIssuePage() {
           {
             id: `${id}-created`,
             type: "CREATED",
-            summary: "Logged from trial assisted intake",
+            summary: trial
+              ? "Logged from trial workspace intake"
+              : "Logged from demo assisted intake",
             at: now,
           },
         ],
       };
-      saveDemoIncident(incident);
+      if (trial) saveTrialIncident(incident);
+      else saveDemoIncident(incident);
       setSubmittedId(id);
-      pushToast("Issue saved in this browser", "success");
+      pushToast(
+        trial ? "Issue saved in your trial workspace" : "Issue saved in this browser",
+        "success",
+      );
     });
   }
 

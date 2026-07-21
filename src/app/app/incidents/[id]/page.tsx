@@ -13,6 +13,12 @@ import {
   listDemoIncidents,
   saveDemoEvidence,
 } from "@/lib/demoStore";
+import {
+  listTrialEvidence,
+  listTrialIncidents,
+  saveTrialEvidence,
+} from "@/lib/trialStore";
+import { readTrialModeFromDocument } from "@/lib/trial";
 import { aiService } from "@/services/aiService";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
@@ -51,9 +57,12 @@ export default function AppIncidentDetailPage({
     Promise.all([incidentService.get(id), evidenceService.listForIncident(id)]).then(
       ([caseRecord, files]) => {
         if (cancelled) return;
-        const localCase = listDemoIncidents().find((row) => row.id === id);
+        const trial = readTrialModeFromDocument();
+        const localCase = (trial ? listTrialIncidents() : listDemoIncidents()).find(
+          (row) => row.id === id,
+        );
         setIncident(localCase ?? caseRecord);
-        const localFiles = listDemoEvidence(id);
+        const localFiles = trial ? listTrialEvidence(id) : listDemoEvidence(id);
         const byId = new Map<string, EvidenceStub>();
         for (const file of [...localFiles, ...files]) {
           byId.set(file.id, file);
@@ -70,19 +79,24 @@ export default function AppIncidentDetailPage({
     event.preventDefault();
     if (!fileName.trim() || !incident) return;
     requireEmailThen("save", () => {
+      const trial = readTrialModeFromDocument();
       const stub: EvidenceStub = {
         id: `EVD-D${Date.now().toString().slice(-5)}`,
         incidentId: incident.id,
         fileName: fileName.trim(),
         classification: "General",
-        uploadedBy: "Trial guest",
+        uploadedBy: trial ? "Trial user" : "Demo user",
         uploadedAt: new Date().toISOString(),
         isPrimary: evidence.length === 0,
       };
-      saveDemoEvidence(stub);
+      if (trial) saveTrialEvidence(stub);
+      else saveDemoEvidence(stub);
       setEvidence((prev) => [stub, ...prev]);
       setFileName("");
-      pushToast("Evidence saved in this browser", "success");
+      pushToast(
+        trial ? "Evidence saved in your trial workspace" : "Evidence saved in this browser",
+        "success",
+      );
     });
   }
 

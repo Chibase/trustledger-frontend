@@ -1,212 +1,85 @@
 "use client";
 
-import Link from "next/link";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
+import Link from "next/link";
 import { isWorkEmail } from "@/data/assessment";
-import { captureUtmFromSearchParams, formatUtmSummary, readUtm } from "@/lib/utm";
-import { USER_ROLES, type UserRole } from "@/types/rbac";
+import { planFromUtmCampaign, PLANS, type PlanId } from "@/config/plans";
+import { captureUtmFromSearchParams } from "@/lib/utm";
+import { clearTrialWorkspaceData, startTrialCookies } from "@/lib/trial";
+import { ensureTrialSeedProject } from "@/lib/trialStore";
 
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+function sanitizeNext(value: string | null): string {
+  if (value && value.startsWith("/") && !value.startsWith("//")) {
+    return value;
+  }
+  return "/app/dashboard";
+}
 
-type Step = "capture" | "choose";
-
-function TrialForm() {
+function TrialStartForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { getToken } = useRecaptcha("demo_entry");
-  const [step, setStep] = useState<Step>("capture");
-  const [role, setRole] = useState<UserRole>("admin");
+  const suggestedPlan = useMemo(
+    () => planFromUtmCampaign(searchParams.get("utm_campaign")),
+    [searchParams],
+  );
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
-  const [comment, setComment] = useState("");
-  const [honeypot, setHoneypot] = useState("");
-  const [utmLabel, setUtmLabel] = useState("None");
-  const [submitting, setSubmitting] = useState(false);
+  const [planId, setPlanId] = useState<PlanId>(suggestedPlan);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const captured = captureUtmFromSearchParams(
-        new URLSearchParams(searchParams.toString()),
-        "/trial",
-      );
-      setUtmLabel(formatUtmSummary(captured ?? readUtm()));
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [searchParams]);
-
-  async function handleCapture(event: React.FormEvent<HTMLFormElement>) {
+  function handleStart(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
-
     if (name.trim().length < 2) {
       setError("Please enter your name.");
       return;
     }
     if (!isWorkEmail(email)) {
-      setError(
-        "Please use a work email address. Personal free-mail domains are not accepted.",
-      );
-      return;
-    }
-    if (comment.trim().length < 10) {
-      setError(
-        "Please share a short note on what you want to see or solve (at least 10 characters).",
-      );
+      setError("Please use a work email address.");
       return;
     }
 
-    setSubmitting(true);
-    const utm = readUtm();
-    const captchaToken = await getToken();
-
-    try {
-      const res = await fetch("/api/demo/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          organization: organization.trim() || undefined,
-          comment: comment.trim(),
-          tl_hp: honeypot,
-          captchaToken,
-          role,
-          source: "demo_entry",
-          utm: utm
-            ? {
-                source: utm.source,
-                medium: utm.medium,
-                campaign: utm.campaign,
-                content: utm.content,
-                term: utm.term,
-              }
-            : undefined,
-        }),
-      });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setError(data.error ?? "Could not start trial. Try again.");
-        return;
-      }
-
-      window.localStorage.setItem("tl-lead-email", email.trim().toLowerCase());
-      window.localStorage.setItem("tl-lead-name", name.trim());
-      window.localStorage.setItem(
-        "tl-lead-org",
-        organization.trim() || "",
-      );
-      window.localStorage.setItem("tl-lead-dismissed", "1");
-      window.localStorage.setItem("tl-demo-lead-source", "trial_entry");
-      setStep("choose");
-    } catch {
-      setError("Network error. Check your connection and try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  function enterDemo() {
-    document.cookie = `session-role=${role}; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-    document.cookie = `tl-mode=demo; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-    router.push("/app/dashboard");
-  }
-
-  function payUrl(plan: "practitioner" | "project") {
-    const params = new URLSearchParams({
-      plan,
+    setPending(true);
+    captureUtmFromSearchParams(
+      new URLSearchParams(searchParams.toString()),
+      "/trial",
+    );
+    clearTrialWorkspaceData();
+    startTrialCookies({
       email: email.trim().toLowerCase(),
       name: name.trim(),
-      utm_source: "trial",
-      utm_medium: "funnel",
-      utm_campaign: `buy_${plan}`,
+      planId,
     });
-    if (organization.trim()) params.set("organization", organization.trim());
-    return `/pay?${params.toString()}`;
-  }
-
-  if (step === "choose") {
-    return (
-      <main className="mx-auto flex min-h-full max-w-lg flex-col justify-center px-4 py-12">
-        <p className="text-sm font-medium text-tl-trust">Trial started</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-tl-ink">
-          What would you like to do next?
-        </h1>
-        <p className="mt-3 text-sm text-tl-ink-muted">
-          Thanks, {name.split(" ")[0] || "there"}. Explore sample data, or
-          subscribe on Paystack. Ops is notified; Plan Owner access is
-          provisioned manually while lockdown is on.
-        </p>
-
-        <div className="mt-8 space-y-3">
-          <button
-            type="button"
-            onClick={enterDemo}
-            className="w-full rounded-md border border-tl-line bg-tl-surface px-4 py-3 text-left hover:border-tl-trust/40"
-          >
-            <span className="block font-semibold">Explore the open trial</span>
-            <span className="mt-0.5 block text-sm text-tl-ink-muted">
-              Sample dashboards — email only to print or save
-            </span>
-          </button>
-
-          <Link
-            href={payUrl("practitioner")}
-            className="block w-full rounded-md bg-tl-trust px-4 py-3 text-left text-white hover:bg-tl-trust-ink"
-          >
-            <span className="block font-semibold">
-              Subscribe · Practitioner
-            </span>
-            <span className="mt-0.5 block text-sm text-white/80">
-              Paystack checkout — single Plan Owner seat
-            </span>
-          </Link>
-
-          <Link
-            href={payUrl("project")}
-            className="block w-full rounded-md border border-tl-trust bg-tl-surface px-4 py-3 text-left hover:bg-tl-paper"
-          >
-            <span className="block font-semibold text-tl-ink">
-              Subscribe · Project
-            </span>
-            <span className="mt-0.5 block text-sm text-tl-ink-muted">
-              Paystack checkout — owner + per-project seats
-            </span>
-          </Link>
-
-          <Link
-            href="/contact?utm_source=trial&utm_medium=funnel&utm_campaign=buy_institutional"
-            className="block w-full rounded-md border border-tl-line px-4 py-3 text-left text-sm hover:bg-tl-paper"
-          >
-            <span className="font-semibold">Institutional / custom</span>
-            <span className="mt-0.5 block text-tl-ink-muted">
-              Talk to sales — scoped deployment
-            </span>
-          </Link>
-        </div>
-      </main>
-    );
+    ensureTrialSeedProject();
+    if (organization.trim()) {
+      window.localStorage.setItem("tl-trial-org", organization.trim());
+    }
+    window.localStorage.setItem("tl-lead-email", email.trim().toLowerCase());
+    const next = sanitizeNext(searchParams.get("next"));
+    router.replace(next.startsWith("/app") ? next : "/app/dashboard");
+    router.refresh();
   }
 
   return (
     <main className="mx-auto flex min-h-full max-w-lg flex-col justify-center px-4 py-12">
-      <p className="text-sm font-medium text-tl-trust">Start trial</p>
+      <p className="text-sm font-medium text-tl-trust">14-day trial</p>
       <h1 className="mt-2 font-display text-3xl font-semibold text-tl-ink">
-        Begin with TrustLedger
+        Start your TrustLedger workspace
       </h1>
       <p className="mt-3 text-sm text-tl-ink-muted">
-        Share your details once. Next you can explore the open trial or
-        subscribe on Paystack.
+        Use your own projects and incidents — not sample demo data. Upgrade
+        straight to Paystack when ready. After the trial ends, access stops; we
+        keep your data for 3 months so you can upgrade and restore it.
       </p>
 
       <form
-        onSubmit={handleCapture}
-        className="relative mt-8 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-5"
+        onSubmit={handleStart}
+        className="mt-8 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-5"
       >
-        <HoneypotField value={honeypot} onChange={setHoneypot} />
         <div>
           <label htmlFor="trial-name" className="mb-1 block text-sm font-medium">
             Name
@@ -234,7 +107,7 @@ function TrialForm() {
         </div>
         <div>
           <label htmlFor="trial-org" className="mb-1 block text-sm font-medium">
-            Organization{" "}
+            Organisation{" "}
             <span className="font-normal text-tl-ink-muted">(optional)</span>
           </label>
           <input
@@ -245,37 +118,25 @@ function TrialForm() {
           />
         </div>
         <div>
-          <label
-            htmlFor="trial-comment"
-            className="mb-1 block text-sm font-medium"
-          >
-            What do you want to see or solve?
-          </label>
-          <textarea
-            id="trial-comment"
-            required
-            minLength={10}
-            rows={3}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label htmlFor="trial-role" className="mb-1 block text-sm font-medium">
-            Demo role (if you explore sample data)
+          <label htmlFor="trial-plan" className="mb-1 block text-sm font-medium">
+            Plan you are evaluating
           </label>
           <select
-            id="trial-role"
-            value={role}
-            onChange={(e) => setRole(e.target.value as UserRole)}
+            id="trial-plan"
+            value={planId}
+            onChange={(e) => setPlanId(e.target.value as PlanId)}
             className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
           >
-            {USER_ROLES.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
+            {(Object.keys(PLANS) as PlanId[])
+              .filter((id) => PLANS[id].cta === "pay")
+              .map((id) => (
+                <option key={id} value={id}>
+                  {PLANS[id].name}
+                  {PLANS[id].monthlyLaunchZar
+                    ? ` — R${PLANS[id].monthlyLaunchZar!.toLocaleString("en-ZA")}/mo`
+                    : ""}
+                </option>
+              ))}
           </select>
         </div>
 
@@ -285,39 +146,20 @@ function TrialForm() {
           </p>
         ) : null}
 
-        <p className="text-xs text-tl-ink-muted">
-          By continuing you agree we may contact you about TrustLedger.{" "}
-          <a
-            href="https://trustledger.co.za/privacy/"
-            className="underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Privacy Policy
-          </a>
-          .
-        </p>
-
         <button
           type="submit"
-          disabled={submitting}
+          disabled={pending}
           className="w-full rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
         >
-          {submitting ? "Saving…" : "Continue"}
+          {pending ? "Opening workspace…" : "Enter my trial workspace"}
         </button>
       </form>
 
       <p className="mt-4 text-xs text-tl-ink-muted">
-        Already decided?{" "}
-        <Link href="/pay" className="font-medium text-tl-trust-ink underline">
-          Paystack checkout
-        </Link>
-        {" · "}
+        Want sample data only?{" "}
         <Link href="/demo" className="font-medium text-tl-trust-ink underline">
-          Open trial
+          Open sample preview
         </Link>
-        {" · "}
-        Campaign: {utmLabel}
       </p>
     </main>
   );
@@ -332,7 +174,7 @@ export default function TrialPage() {
         </main>
       }
     >
-      <TrialForm />
+      <TrialStartForm />
     </Suspense>
   );
 }

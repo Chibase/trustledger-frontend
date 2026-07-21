@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DemoBanner } from "@/components/shell/DemoBanner";
 import { EmailCaptureGate } from "@/components/shell/EmailCaptureGate";
 import { OperatorBanner } from "@/components/shell/OperatorBanner";
+import { TrialBanner } from "@/components/shell/TrialBanner";
 import { AppNav } from "@/components/shell/AppNav";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
@@ -9,42 +10,51 @@ import { FeedbackDrawer } from "@/components/shell/FeedbackDrawer";
 import { SupportDrawer } from "@/components/shell/SupportDrawer";
 import { ToastProvider } from "@/components/ui/Toast";
 import { PLANS, type PlanId } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
+import type { TrialSnapshot } from "@/lib/trial";
 import type { UserRole } from "@/types/rbac";
 
 type AppShellProps = {
   role: UserRole;
   userName: string;
-  mode: "demo" | "live";
+  userEmail?: string | null;
+  mode: TlMode;
   children: React.ReactNode;
-  showDemoBanner?: boolean;
   showOperatorBanner?: boolean;
   trialPlan?: PlanId;
+  trial?: TrialSnapshot;
   isGuest?: boolean;
 };
 
 export function AppShell({
   role,
   userName,
+  userEmail,
   mode,
   children,
-  showDemoBanner = true,
   showOperatorBanner = false,
   trialPlan,
+  trial,
   isGuest = false,
 }: AppShellProps) {
   const planLabel = trialPlan ? PLANS[trialPlan].name : null;
+  const modeLabel =
+    mode === "live" ? "live" : mode === "trial" ? "trial" : "demo";
 
   return (
     <ToastProvider>
       <div className="min-h-full bg-tl-paper text-tl-ink">
-        {showDemoBanner ? <DemoBanner planName={planLabel} /> : null}
+        {mode === "trial" && trial ? (
+          <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
+        ) : null}
+        {mode === "demo" ? <DemoBanner planName={planLabel} /> : null}
         {showOperatorBanner ? <OperatorBanner /> : null}
-        {mode !== "live" ? <EmailCaptureGate /> : null}
+        {mode === "demo" ? <EmailCaptureGate /> : null}
         <MobileNav
           role={role}
           userName={userName}
-          mode={mode}
-          isGuest={isGuest}
+          mode={mode === "live" ? "live" : "demo"}
+          isGuest={isGuest || mode === "trial"}
         />
 
         <div className="flex min-h-[calc(100vh-2.25rem)]">
@@ -73,7 +83,7 @@ export function AppShell({
               <SupportDrawer
                 userName={userName}
                 role={role}
-                mode={mode}
+                mode={mode === "live" ? "live" : "demo"}
                 variant="ink"
               />
               <div>
@@ -83,11 +93,14 @@ export function AppShell({
                 <p className="mt-0.5 text-xs capitalize text-white/55">
                   {role}
                   {planLabel ? ` · ${planLabel}` : ""}
-                  {mode === "live" ? " · live" : " · trial"}
+                  {` · ${modeLabel}`}
                   {showOperatorBanner ? " · operator" : ""}
                 </p>
                 <div className="mt-3">
-                  <ShellSignOut variant="ink" isGuest={isGuest} />
+                  <ShellSignOut
+                    variant="ink"
+                    isGuest={isGuest || mode === "trial"}
+                  />
                 </div>
               </div>
             </div>

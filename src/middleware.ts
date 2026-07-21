@@ -54,8 +54,10 @@ export function middleware(request: NextRequest) {
   const email = request.cookies.get(TL_USER_EMAIL_COOKIE)?.value;
   const hasLiveSid = Boolean(request.cookies.get(FRAPPE_SID_COOKIE)?.value);
   const isLiveSession = mode === "live" || hasLiveSid;
+  // Trial and sample demo are not Frappe live product sessions.
   const wantsLiveProduct =
-    isLiveSession || mode === "live" || getDataMode() === "live";
+    isLiveSession ||
+    (getDataMode() === "live" && mode !== "demo" && mode !== "trial");
 
   if ((pathname === "/login" || pathname === "/login/live") && signedIn) {
     if (isLiveSession && isPlatformOperatorOnly()) {
@@ -157,10 +159,20 @@ export function middleware(request: NextRequest) {
       );
       return NextResponse.redirect(dest);
     }
-    return NextResponse.next();
+    // Product trial starts at /trial; sample preview at /demo.
+    const dest = new URL("/trial", request.url);
+    dest.searchParams.set(
+      "next",
+      pathname.startsWith("/app") ? pathname : "/app/dashboard",
+    );
+    return NextResponse.redirect(dest);
   }
 
   if (isProtected && signedIn && isPlatformOperatorLockPublic()) {
+    // Sample demo + product trial are public workspaces — lockdown is live-only.
+    if (mode === "trial" || mode === "demo") {
+      return NextResponse.next();
+    }
     if (!isLiveSession || !isPlatformOperatorIdentity(email)) {
       const dest = new URL("/login/live", request.url);
       dest.searchParams.set("error", "not_operator");

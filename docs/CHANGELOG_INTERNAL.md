@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-21 — Own-data trial + upgrade to Paystack
+
+- Start trial → `/trial` workspace (not `/demo` sample data)
+- Banner Upgrade → `/pay`; expired wall with plan checkout + 90-day retention copy
+- Subscribe form maze removed from trial funnel (ADR-022)
+
 ## 2026-07-20 — Pricing → Paystack plans
 
 - Practitioner R5,399 / Project R14,999 defaults in `paystackPlans.ts`
