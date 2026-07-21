@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { getCurrentUser, type UserRole } from "@/lib/auth";
 import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
+import { ClientPortfolioDashboard } from "@/components/client/ClientPortfolioDashboard";
 import { TedsMaturityPanel } from "@/components/maturity/TedsMaturityPanel";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
+import { buildClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
 import { incidentService } from "@/services/incidentService";
 import { noteService } from "@/services/noteService";
 import { projectService } from "@/services/projectService";
@@ -184,68 +186,8 @@ async function ContractorHome() {
 }
 
 async function ClientHome() {
-  const [totals, breaches, incidents] = await Promise.all([
-    projectService.portfolioTotals(),
-    incidentService.slaBreaches(),
-    incidentService.list(),
-  ]);
-  const openRisk = incidents.filter(
-    (i) =>
-      i.status !== "Closed" &&
-      (i.priority === "P1-Critical" || i.priority === "P2-High"),
-  );
-
-  return (
-    <div className="space-y-7">
-      <PageHeader
-        eyebrow="Client workspace"
-        title="Client portfolio"
-        description="Spend, open risk, and compliance assist."
-        actions={
-          <Link
-            href="/app/reports"
-            className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
-          >
-            Open reports
-          </Link>
-        }
-      />
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Projects" value={String(totals.projectCount)} />
-        <KpiCard
-          label="Active"
-          value={String(totals.activeCount)}
-          tone="trust"
-        />
-        <KpiCard label="Budget" value={currency.format(totals.budgetTotal)} />
-        <KpiCard label="Spent" value={currency.format(totals.budgetSpent)} />
-      </div>
-
-      <section className="space-y-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-base font-semibold">
-            Open high-priority incidents
-          </h2>
-          <p className="text-xs text-tl-ink-muted">
-            SLA breaches: {breaches.length}
-          </p>
-        </div>
-        <IncidentTable
-          incidents={openRisk}
-          emptyLabel="No open high-priority incidents."
-        />
-      </section>
-
-      <ReportBriefAssist />
-
-      <TedsMaturityPanel
-        audience="admin"
-        variant="compact"
-        title="Capability roadmap (client view)"
-      />
-    </div>
-  );
+  const brief = await buildClientPortfolioBrief();
+  return <ClientPortfolioDashboard brief={brief} />;
 }
 
 async function AdminHome() {

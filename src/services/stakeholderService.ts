@@ -1,4 +1,6 @@
 import { mockStakeholders } from "@/data/mock/stakeholders";
+import { FRAPPE_METHODS, isLiveMode } from "@/config/api";
+import { callFrappeMethod } from "@/lib/frappeClient";
 import type {
   Stakeholder,
   StakeholderKind,
@@ -28,7 +30,7 @@ function writeLocal(rows: Stakeholder[]) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
 }
 
-function mergeAll(local: Stakeholder[]): Stakeholder[] {
+function mergeSeedAndLocal(local: Stakeholder[]): Stakeholder[] {
   const byId = new Map<string, Stakeholder>();
   for (const row of mockStakeholders) byId.set(row.id, row);
   for (const row of local) byId.set(row.id, row);
@@ -43,36 +45,102 @@ export type StakeholderListFilters = {
   query?: string;
 };
 
+function applyFilters(
+  rows: Stakeholder[],
+  filters: StakeholderListFilters,
+): Stakeholder[] {
+  let next = rows;
+  if (filters.kind && filters.kind !== "all") {
+    next = next.filter((r) => r.kind === filters.kind);
+  }
+  if (filters.status && filters.status !== "all") {
+    next = next.filter((r) => r.status === filters.status);
+  }
+  if (filters.placeId) {
+    next = next.filter((r) => r.placeId === filters.placeId);
+  }
+  if (filters.countryCode) {
+    next = next.filter((r) => r.countryCode === filters.countryCode);
+  }
+  if (filters.query?.trim()) {
+    const q = filters.query.trim().toLowerCase();
+    next = next.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.organisation?.toLowerCase().includes(q) ||
+        r.tags.some((t) => t.toLowerCase().includes(q)) ||
+        r.interests.some((t) => t.toLowerCase().includes(q)),
+    );
+  }
+  return next;
+}
+
 export const stakeholderService = {
+  /** Server-safe list for dashboards/reports (Frappe live → seed). */
+  async listServer(
+    filters: StakeholderListFilters = {},
+  ): Promise<Stakeholder[]> {
+    if (isLiveMode()) {
+      try {
+        const rows = await callFrappeMethod<Stakeholder[]>(
+          FRAPPE_METHODS.listStakeholders,
+          {
+            placeId: filters.placeId,
+            kind: filters.kind === "all" ? undefined : filters.kind,
+            countryCode: filters.countryCode,
+            query: filters.query,
+          },
+        );
+        if (Array.isArray(rows) && rows.length) {
+          return applyFilters(rows, filters);
+        }
+      } catch {
+        /* seed */
+      }
+    }
+    return delay(applyFilters(mergeSeedAndLocal([]), filters));
+  },
+
   async list(filters: StakeholderListFilters = {}): Promise<Stakeholder[]> {
-    const local = typeof window !== "undefined" ? readLocal() : [];
-    let rows = mergeAll(local);
-    if (filters.kind && filters.kind !== "all") {
-      rows = rows.filter((r) => r.kind === filters.kind);
+    if (typeof window === "undefined") {
+      return this.listServer(filters);
     }
-    if (filters.status && filters.status !== "all") {
-      rows = rows.filter((r) => r.status === filters.status);
+    if (isLiveMode()) {
+      try {
+        const rows = await callFrappeMethod<Stakeholder[]>(
+          FRAPPE_METHODS.listStakeholders,
+          {
+            placeId: filters.placeId,
+            kind: filters.kind === "all" ? undefined : filters.kind,
+            countryCode: filters.countryCode,
+            query: filters.query,
+          },
+        );
+        if (Array.isArray(rows) && rows.length) {
+          const local = readLocal();
+          return delay(
+            applyFilters(mergeSeedAndLocal([...rows, ...local]), filters),
+          );
+        }
+      } catch {
+        /* local+seed */
+      }
     }
-    if (filters.placeId) {
-      rows = rows.filter((r) => r.placeId === filters.placeId);
-    }
-    if (filters.countryCode) {
-      rows = rows.filter((r) => r.countryCode === filters.countryCode);
-    }
-    if (filters.query?.trim()) {
-      const q = filters.query.trim().toLowerCase();
-      rows = rows.filter(
-        (r) =>
-          r.name.toLowerCase().includes(q) ||
-          r.organisation?.toLowerCase().includes(q) ||
-          r.tags.some((t) => t.toLowerCase().includes(q)) ||
-          r.interests.some((t) => t.toLowerCase().includes(q)),
-      );
-    }
-    return delay(rows);
+    return delay(applyFilters(mergeSeedAndLocal(readLocal()), filters));
   },
 
   async get(id: string): Promise<Stakeholder | null> {
+    if (isLiveMode()) {
+      try {
+        const row = await callFrappeMethod<Stakeholder | null>(
+          FRAPPE_METHODS.getStakeholder,
+          { name: id },
+        );
+        if (row) return row;
+      } catch {
+        /* seed */
+      }
+    }
     const rows = await this.list();
     return rows.find((r) => r.id === id) ?? null;
   },

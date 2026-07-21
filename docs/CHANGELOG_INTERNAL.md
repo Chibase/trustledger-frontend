@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-21 — Client dashboard & reports mirror backend domains
+
+- `buildClientPortfolioBrief` aggregates projects, grievances, CRM, geo (same Frappe contract shapes)
+- Client home → governance portfolio KPIs + CRM/geo panels
+- `/app/reports` → printable portfolio trust brief for client/admin
+- Geo + stakeholder services call live Frappe with seed fallback
+
 ## 2026-07-21 — TEDS maturity report on dashboards
 
 - `src/lib/tedsMaturity.ts` + `docs/TEDS_MATURITY_REPORT.md` (~36% MVP progress)
