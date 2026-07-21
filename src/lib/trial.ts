@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import {
   TL_MODE_COOKIE,
   TL_TRIAL_PLAN_COOKIE,
@@ -79,23 +78,11 @@ export function clearTrialWorkspaceData() {
   window.localStorage.removeItem("tl-trial-projects");
 }
 
-export async function readTrialSnapshot(): Promise<TrialSnapshot | null> {
-  const jar = await cookies();
-  if (jar.get(TL_MODE_COOKIE)?.value !== "trial") return null;
-  const started = parseTrialStarted(
-    decodeURIComponent(jar.get(TL_TRIAL_STARTED_COOKIE)?.value || ""),
-  );
-  if (!started) return null;
-  const planRaw = jar.get(TL_TRIAL_PLAN_COOKIE)?.value;
-  const planId = planRaw && isPlanId(planRaw) ? planRaw : "practitioner";
-  return computeTrialSnapshot(started, planId);
-}
-
 export function isTrialModeCookieValue(mode: string | undefined | null): boolean {
   return mode === "trial";
 }
 
-/** Sync check for client components. */
+/** Sync check for client components and shared services. */
 export function readTrialModeFromDocument(): boolean {
   if (typeof document === "undefined") return false;
   return /(?:^|;\s*)tl-mode=trial(?:;|$)/.test(document.cookie);

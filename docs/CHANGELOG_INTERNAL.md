@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-21 — Fix Vercel build (next/headers on client)
+
+- Split server `readTrialSnapshot` into `trial.server.ts`
+- Client `/trial` + incident service no longer import `next/headers` via `auth`/`trial`
+
 ## 2026-07-21 — WP plan links → Paystack + trial
 
 - Home paste: plan cards → `/pay?plan=…` and `/trial?plan=…` (Institutional → contact)

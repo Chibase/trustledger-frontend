@@ -43,8 +43,8 @@ function filterIncidents(
 }
 
 async function listDemo(filters: IncidentListFilters): Promise<Incident[]> {
-  const { isTrialWorkspaceSession } = await import("@/lib/auth");
-  if (await isTrialWorkspaceSession()) {
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  if (readTrialModeFromDocument()) {
     return delay(filterIncidents([], filters));
   }
   return delay(filterIncidents(mockIncidents, filters));
@@ -79,8 +79,8 @@ export const incidentService = {
         return delay(mockIncidents.find((i) => i.id === id) ?? null);
       }
     }
-    const { isTrialWorkspaceSession } = await import("@/lib/auth");
-    if (await isTrialWorkspaceSession()) {
+    const { readTrialModeFromDocument } = await import("@/lib/trial");
+    if (readTrialModeFromDocument()) {
       return delay(null);
     }
     return delay(mockIncidents.find((i) => i.id === id) ?? null);
