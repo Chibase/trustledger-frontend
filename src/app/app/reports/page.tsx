@@ -1,4 +1,5 @@
 import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
+import { TedsMaturityPanel } from "@/components/maturity/TedsMaturityPanel";
 
 export default function AppReportsPage() {
   return (
@@ -7,8 +8,15 @@ export default function AppReportsPage() {
         <h1 className="font-display text-2xl font-semibold">Reports</h1>
         <p className="mt-1 text-sm text-tl-ink-muted">
           Draft governance briefs from demo incident data. Review before sharing.
+          Blueprint maturity below shows how close we are to TEDS executive
+          reporting depth.
         </p>
       </div>
+      <TedsMaturityPanel
+        audience="admin"
+        variant="full"
+        title="TEDS maturity report"
+      />
       <ReportBriefAssist />
     </div>
   );

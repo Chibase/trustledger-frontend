@@ -151,8 +151,8 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| **24a** | Geo foundation | SA hierarchy types/mock, `/app/geo`, place fields, ingest hook | **Scaffolded** |
-| **24b** | Stakeholders registry | List/detail/create; Frappe DocType contract | **Scaffolded (list)** |
+| **24a** | Geo foundation | SA hierarchy types/mock, `/app/geo`, place fields, ingest hook | **Done (ZA MDB pack)** |
+| **24b** | Stakeholders registry | List/detail/create; Frappe DocType contract | **CRM seeded (list+detail)** |
 | 24c | Engagements | Meetings / consultations beyond note stubs | Planned |
 | 24d | Commitments | Promise lifecycle board | Planned |
 | 24e | Stronger grievance | Fuller incident workflow on Frappe | Planned |

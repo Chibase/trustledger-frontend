@@ -6,6 +6,7 @@ import {
 import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { TrendChart } from "@/components/ops/charts/TrendChart";
 import { ExecutiveActions } from "@/components/ops/ExecutiveActions";
+import { TedsMaturityPanel } from "@/components/maturity/TedsMaturityPanel";
 import {
   CONTROL_PILLARS,
   pillarStatusLabel,
@@ -41,6 +42,12 @@ export default async function ExecutiveBoardPage() {
           quotes={brief.voice.quotes.slice(0, 5).map((q) => q.quote)}
         />
       </header>
+
+      <TedsMaturityPanel
+        audience="board"
+        variant="full"
+        title="Engineering blueprint maturity (TEDS vs product)"
+      />
 
       {!brief.ok ? (
         <p className="rounded-md border border-tl-amber/40 bg-tl-amber/10 px-3 py-2 text-sm">

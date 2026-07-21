@@ -1,5 +1,18 @@
 # Internal changelog
 
+## 2026-07-21 — TEDS maturity report on dashboards
+
+- `src/lib/tedsMaturity.ts` + `docs/TEDS_MATURITY_REPORT.md` (~36% MVP progress)
+- Panels on `/ops/executive` (full), `/ops`, admin/client dashboards, `/app/reports`
+
+## 2026-07-21 — ZA geo pack + stakeholder CRM seed
+
+- Ingested MDB Wards 2020 (4 468 wards) + 15 traditional councils into `data/geo/za-mdb-2020.places.json`
+- Multi-country pack schema (add NA/BW/… packs beside ZA)
+- `/app/geo` browse by province → municipality → wards; TC list
+- Stakeholder CRM kinds expanded; list + detail; Stats SA indicators deferred
+- `scripts/ingest_za_geo.py` to regenerate
+
 ## 2026-07-21 — Version 001 label + Version 002 core kickoff (ADR-023)
 
 - Soft launch may wait for V002 core; public Now/Next messaging (`HomeVersionStrip`)

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { activityLabel, buildOpsOverview } from "@/lib/opsIntel";
+import { TedsMaturityPanel } from "@/components/maturity/TedsMaturityPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,12 @@ export default async function OpsOverviewPage() {
           tone={data.intake.weakFeedback > 0 ? "attention" : "default"}
         />
       </section>
+
+      <TedsMaturityPanel
+        audience="ops"
+        variant="compact"
+        title="Build status vs TEDS blueprint"
+      />
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-lg border border-tl-line bg-tl-surface p-4">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser, type UserRole } from "@/lib/auth";
 import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
+import { TedsMaturityPanel } from "@/components/maturity/TedsMaturityPanel";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -237,6 +238,12 @@ async function ClientHome() {
       </section>
 
       <ReportBriefAssist />
+
+      <TedsMaturityPanel
+        audience="admin"
+        variant="compact"
+        title="Capability roadmap (client view)"
+      />
     </div>
   );
 }
@@ -298,6 +305,12 @@ async function AdminHome() {
       </section>
 
       <ReportBriefAssist />
+
+      <TedsMaturityPanel
+        audience="admin"
+        variant="compact"
+        title="Product build vs TEDS blueprint"
+      />
     </div>
   );
 }

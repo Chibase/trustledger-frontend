@@ -25,7 +25,6 @@ const NAV: NavItem[] = [
   {
     href: "/app/stakeholders",
     label: "Stakeholders",
-    roles: ["client", "admin", "contractor"],
     icon: "stakeholders",
   },
   { href: "/app/projects", label: "Projects", icon: "projects" },

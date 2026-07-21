@@ -2,7 +2,7 @@
 
 **North star:** TEDS Volume 1 MVP domains that close the market gap.  
 **Policy:** Soft launch may wait until V002 core is credible (ADR-023).  
-**Active packet:** **24a — Geo foundation** (then 24b Stakeholders).
+**Active packet:** **24c — Engagements** (geo + CRM seeded; see `docs/TEDS_MATURITY_REPORT.md`).
 
 ## Priority order (do not reshuffle without reason)
 
@@ -22,8 +22,8 @@ Geo first unlocks your existing location + socio-economic datasets as a **sellin
 
 | Packet | Scope | Frontend | Frappe / data | Target |
 |--------|-------|----------|---------------|--------|
-| **24a** | Geo foundation | Types, mock SA tree, `/app/geo`, place picker fields | DocType / JSON ingest for wards + socio-econ keys | **Scaffolded** |
-| **24b** | Stakeholders | List/detail/create (mock→live) | `SRM Stakeholder` + org link | **List scaffolded** |
+| **24a** | Geo foundation | Types, mock SA tree, `/app/geo`, place picker fields | DocType / JSON ingest for wards + socio-econ keys | **Done (ZA pack seeded)** |
+| **24b** | Stakeholders | List/detail/create (mock→live) | `SRM Stakeholder` + org link | **CRM list+detail seeded** |
 | **24c** | Engagements | Meetings list + note capture | Extend meeting notes → Engagement DocType | +1–2 wks |
 | **24d** | Commitments | Register + status board | Commitment DocType + link to stakeholder/project | +1–2 wks |
 | **24e** | Stronger grievance | Status machine UI + verify/close | Incident workflow states on Cloud | +2 wks |
