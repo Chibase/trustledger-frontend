@@ -52,14 +52,14 @@ export default function AppStakeholdersPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow={`${NEXT_PRODUCT_VERSION_LABEL} CRM · ${PRODUCT_VERSION_LABEL} desk remains`}
-        title="Stakeholder CRM"
-        description="Full in-platform registry for individuals, organisations, traditional authorities, government, funders, contractors, NGOs, and more — linked to geographic packs. Seed data ships with the product; add your own records in trial (browser) until Frappe live sync lands."
+        title="Stakeholder CRM (demo)"
+        description="Placeholder registry for demos. Capture real contacts via the Capture hub — meeting minutes, attendance registers, social intelligence, or pasted reports — then apply AI suggestions."
         actions={
           <Link
-            href="/app/geo"
+            href="/app/capture"
             className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
           >
-            Places
+            Open capture hub
           </Link>
         }
       />

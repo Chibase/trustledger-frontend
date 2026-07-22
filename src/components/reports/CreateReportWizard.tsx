@@ -1,0 +1,451 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { AiAssistButton } from "@/components/ai/AiAssistButton";
+import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
+import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
+import { useToast } from "@/components/ui/Toast";
+import {
+  DESK_TIER_LABELS,
+  type DeskTier,
+} from "@/types/deskTier";
+import {
+  REPORT_AUDIENCES,
+  REPORT_AUDIENCE_LABELS,
+  REPORT_KIND_LABELS,
+  REPORT_KINDS,
+  type ReportAudience,
+  type ReportKind,
+  type ReportSectionId,
+  type SavedReport,
+} from "@/types/activityReport";
+import {
+  allSections,
+  defaultAudienceForTier,
+  defaultKindForTier,
+  sectionsForKind,
+  tierMeetsMinimum,
+} from "@/config/reportCatalogue";
+import { listDemoIncidents, listDemoProjects } from "@/lib/demoStore";
+import { readDeskTier } from "@/lib/deskVisibility";
+import {
+  buildPeriodActivityFacts,
+  factsToPromptBlock,
+} from "@/lib/reportComposer";
+import {
+  createReportId,
+  saveAuthoredReport,
+} from "@/lib/reportStore";
+import { readTrialModeFromDocument } from "@/lib/trial";
+import { listTrialIncidents, listTrialProjects } from "@/lib/trialStore";
+import { aiService } from "@/services/aiService";
+import { incidentService } from "@/services/incidentService";
+import { projectService } from "@/services/projectService";
+import type {
+  ActivityReportComposeSuggestion,
+  AiSuggestionStatus,
+} from "@/types/ai";
+import type { Project } from "@/types/project";
+import type { UserRole } from "@/types/rbac";
+
+type CreateReportWizardProps = {
+  role: UserRole;
+  authorName: string;
+};
+
+function currentMonthLabel() {
+  return new Date().toLocaleString("en-ZA", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+export function CreateReportWizard({
+  role,
+  authorName,
+}: CreateReportWizardProps) {
+  const { pushToast } = useToast();
+  const [tier, setTier] = useState<DeskTier>("clo");
+  const [kind, setKind] = useState<ReportKind>("monthly_activity");
+  const [audience, setAudience] = useState<ReportAudience>("supervisor");
+  const [periodLabel, setPeriodLabel] = useState(currentMonthLabel());
+  const [projectId, setProjectId] = useState("");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selected, setSelected] = useState<Set<ReportSectionId>>(new Set());
+  const [purposes, setPurposes] = useState<
+    Array<"reporting" | "performance" | "dispute">
+  >(["reporting", "performance"]);
+  const [status, setStatus] = useState<AiSuggestionStatus>("idle");
+  const [error, setError] = useState<string | null>(null);
+  const [draft, setDraft] = useState<ActivityReportComposeSuggestion | null>(
+    null,
+  );
+  const [body, setBody] = useState("");
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [factsBlock, setFactsBlock] = useState("");
+  const [evidence, setEvidence] = useState<SavedReport["evidence"]>([]);
+
+  useEffect(() => {
+    const desk = readDeskTier(role);
+    setTier(desk);
+    setKind(defaultKindForTier(desk));
+    setAudience(defaultAudienceForTier(desk));
+  }, [role]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const trial = readTrialModeFromDocument();
+      const [iRows, pRows] = await Promise.all([
+        incidentService.list(),
+        projectService.list(),
+      ]);
+      if (cancelled) return;
+      const localI = trial ? listTrialIncidents() : listDemoIncidents();
+      const localP = trial ? listTrialProjects() : listDemoProjects();
+      const byI = new Map([...localI, ...iRows].map((i) => [i.id, i]));
+      const byP = new Map([...localP, ...pRows].map((p) => [p.id, p]));
+      const incidents = [...byI.values()];
+      const projectList = [...byP.values()];
+      setProjects(projectList);
+      if (projectList[0]) setProjectId(projectList[0].id);
+      const facts = buildPeriodActivityFacts(incidents);
+      setFactsBlock(factsToPromptBlock(facts));
+      setEvidence(facts.evidence);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const catalogue = useMemo(() => {
+    const preferred = new Set(sectionsForKind(kind).map((s) => s.id));
+    return allSections().map((section) => {
+      const allowed = tierMeetsMinimum(tier, section.minTier);
+      return { ...section, allowed, preferred: preferred.has(section.id) };
+    });
+  }, [kind, tier]);
+
+  useEffect(() => {
+    const next = new Set<ReportSectionId>();
+    for (const section of catalogue) {
+      if (section.allowed && section.preferred) next.add(section.id);
+    }
+    setSelected(next);
+  }, [catalogue]);
+
+  const lockedSections = catalogue.filter((s) => !s.allowed);
+  const project = projects.find((p) => p.id === projectId);
+
+  async function handleCompose() {
+    setError(null);
+    setStatus("loading");
+    try {
+      const included = catalogue.filter(
+        (s) => s.allowed && selected.has(s.id),
+      );
+      const result = await aiService.composeActivityReport({
+        kind,
+        kindLabel: REPORT_KIND_LABELS[kind],
+        audience,
+        audienceLabel: REPORT_AUDIENCE_LABELS[audience],
+        periodLabel,
+        authorTierLabel: DESK_TIER_LABELS[tier],
+        authorName,
+        projectName: project?.name,
+        includedSectionLabels: included.map((s) => s.label),
+        lockedSectionLabels: lockedSections.map((s) => s.label),
+        factsBlock,
+        tonePreference:
+          audience === "board" || audience === "funders_investors"
+            ? "board"
+            : audience === "regulator"
+              ? "formal"
+              : "plain",
+      });
+      setDraft(result);
+      setBody(result.bodyMarkdown);
+      setStatus("ready");
+      pushToast("AI draft ready — review before save", "success");
+    } catch (err) {
+      setDraft(null);
+      setError(err instanceof Error ? err.message : "Compose failed");
+      setStatus("error");
+    }
+  }
+
+  function togglePurpose(tag: "reporting" | "performance" | "dispute") {
+    setPurposes((prev) =>
+      prev.includes(tag) ? prev.filter((p) => p !== tag) : [...prev, tag],
+    );
+  }
+
+  function handleSave(statusValue: SavedReport["status"]) {
+    if (!body.trim()) {
+      pushToast("Generate or write a report body first", "error");
+      return;
+    }
+    requireEmailThen("save", () => {
+      const now = new Date().toISOString();
+      const id = savedId || createReportId();
+      const included = [...selected].filter((id) =>
+        catalogue.some((s) => s.id === id && s.allowed),
+      );
+      const report: SavedReport = {
+        id,
+        kind,
+        audience,
+        title: draft?.title || `${REPORT_KIND_LABELS[kind]} — ${periodLabel}`,
+        periodLabel,
+        authorTier: tier,
+        authorName,
+        projectId: project?.id,
+        projectName: project?.name,
+        includedSections: included,
+        lockedSections: lockedSections.map((s) => s.id),
+        bodyMarkdown: body,
+        evidence,
+        status: statusValue,
+        createdAt: now,
+        updatedAt: now,
+        purposeTags: purposes.length ? purposes : ["reporting"],
+      };
+      saveAuthoredReport(report);
+      setSavedId(id);
+      pushToast(
+        statusValue === "submitted"
+          ? "Report submitted to library"
+          : "Draft saved to library",
+        "success",
+      );
+    });
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-display text-2xl font-semibold">Create a report</h1>
+        <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
+          Human and AI collaborate on evidence-based packs — activity, GRM,
+          ESG, H&amp;S, B-BBEE, CSI, MEL, and board briefs. Options above your
+          desk grade stay visible but greyed. Saved reports support performance
+          and dispute evidence; view them on the dashboard.
+        </p>
+        <p className="mt-2 text-xs text-tl-ink-muted">
+          Author desk:{" "}
+          <span className="font-medium text-tl-ink">
+            {DESK_TIER_LABELS[tier]}
+          </span>
+          {" · "}
+          <Link href="/app/settings" className="text-tl-trust-ink underline">
+            Change tier
+          </Link>
+        </p>
+      </div>
+
+      <section className="grid gap-4 rounded-lg border border-tl-line bg-tl-surface p-4 sm:grid-cols-2">
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Report type</span>
+          <select
+            className="w-full rounded-md border border-tl-line px-3 py-2"
+            value={kind}
+            onChange={(e) => setKind(e.target.value as ReportKind)}
+          >
+            {REPORT_KINDS.map((id) => (
+              <option key={id} value={id}>
+                {REPORT_KIND_LABELS[id]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Audience</span>
+          <select
+            className="w-full rounded-md border border-tl-line px-3 py-2"
+            value={audience}
+            onChange={(e) => setAudience(e.target.value as ReportAudience)}
+          >
+            {REPORT_AUDIENCES.map((id) => (
+              <option key={id} value={id}>
+                {REPORT_AUDIENCE_LABELS[id]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Period</span>
+          <input
+            className="w-full rounded-md border border-tl-line px-3 py-2"
+            value={periodLabel}
+            onChange={(e) => setPeriodLabel(e.target.value)}
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Project</span>
+          <select
+            className="w-full rounded-md border border-tl-line px-3 py-2"
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+          >
+            <option value="">All / portfolio</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <h2 className="text-base font-semibold">Sections to include</h2>
+        <p className="mt-1 text-xs text-tl-ink-muted">
+          Greyed options are above this desk grade — visible for transparency,
+          not selectable.
+        </p>
+        <ul className="mt-3 space-y-2">
+          {catalogue.map((section) => {
+            const checked = selected.has(section.id);
+            return (
+              <li key={section.id}>
+                <label
+                  className={`flex items-start gap-2 rounded-md border px-3 py-2 text-sm ${
+                    section.allowed
+                      ? "border-tl-line bg-tl-paper/40"
+                      : "border-tl-line/60 bg-tl-paper/20 opacity-55"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    disabled={!section.allowed}
+                    checked={section.allowed ? checked : false}
+                    onChange={(e) => {
+                      setSelected((prev) => {
+                        const next = new Set(prev);
+                        if (e.target.checked) next.add(section.id);
+                        else next.delete(section.id);
+                        return next;
+                      });
+                    }}
+                  />
+                  <span>
+                    <span className="font-medium text-tl-ink">
+                      {section.label}
+                    </span>
+                    {!section.allowed ? (
+                      <span className="ml-2 text-xs text-tl-ink-muted">
+                        (requires {DESK_TIER_LABELS[section.minTier]}+)
+                      </span>
+                    ) : null}
+                    <span className="mt-0.5 block text-xs text-tl-ink-muted">
+                      {section.description}
+                    </span>
+                  </span>
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <h2 className="text-base font-semibold">Evidence &amp; purpose</h2>
+        <p className="mt-1 text-xs text-tl-ink-muted">
+          Linked from Capture hub and case desk — usable for reporting,
+          performance, and dispute support.
+        </p>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-tl-ink-muted">
+          {evidence.map((e) => (
+            <li key={e.id}>
+              <span className="font-medium text-tl-ink">{e.kind}</span> —{" "}
+              {e.label}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-3 flex flex-wrap gap-3 text-sm">
+          {(
+            [
+              ["reporting", "Reporting"],
+              ["performance", "Performance evidence"],
+              ["dispute", "Dispute evidence"],
+            ] as const
+          ).map(([id, label]) => (
+            <label key={id} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={purposes.includes(id)}
+                onChange={() => togglePurpose(id)}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <div className="flex flex-wrap gap-2">
+        <AiAssistButton
+          label="AI prepare draft"
+          onClick={() => void handleCompose()}
+          loading={status === "loading"}
+        />
+        <button
+          type="button"
+          onClick={() => handleSave("draft")}
+          className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+        >
+          Save draft
+        </button>
+        <button
+          type="button"
+          onClick={() => handleSave("submitted")}
+          className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+        >
+          Submit to library
+        </button>
+        <Link
+          href="/app/dashboard"
+          className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+        >
+          View on dashboard
+        </Link>
+      </div>
+
+      <AiSuggestionPanel
+        title={draft?.title || "Report draft"}
+        status={status}
+        error={error}
+        model={draft?.model}
+        promptVersion={draft?.promptVersion}
+        confidence={draft?.confidence}
+      >
+        {draft ? (
+          <p className="mb-3 text-sm text-tl-ink-muted">
+            {draft.executiveHighlight}
+          </p>
+        ) : null}
+      </AiSuggestionPanel>
+
+      <label className="block text-sm">
+        <span className="mb-1 block font-medium">
+          Report body (edit after AI)
+        </span>
+        <textarea
+          rows={18}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          className="w-full rounded-md border border-tl-line px-3 py-2 font-mono text-xs"
+          placeholder="AI draft appears here — refine for your supervisor or board."
+        />
+      </label>
+
+      {savedId ? (
+        <p className="text-sm text-tl-ink-muted">
+          Saved as <span className="font-medium text-tl-ink">{savedId}</span>.
+          Open the dashboard report library to view by desk level.
+        </p>
+      ) : null}
+    </div>
+  );
+}

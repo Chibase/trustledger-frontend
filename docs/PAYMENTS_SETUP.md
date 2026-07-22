@@ -126,13 +126,16 @@ Plan prices on the quote form use the same `PAYSTACK_AMOUNT_*_CENTS` list prices
 Use this path on the **shared Frappe Cloud bench** (no Marketplace Paystack install required).
 
 ```text
-WordPress product CTA
+WordPress / pricing Subscribe
   → https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner
-  → Paystack hosted checkout
-  → webhook + verify → CRM Lead (source Paystack Payment)
-  → Ops Finance + Executive payment notifications
-  → you update Customer / Plan Owner manually
+  → Paystack hosted checkout (default: trial_authorize = small card verify)
+  → /pay/success → trial active immediately + temp password (email when Resend set)
+  → CRM Lead (source Trial Authorize) · card on file for day-14 charge
+  → Opt-out anytime before bill → Trial Opt-Out + deactivate authorization
+  → Ops charge-due after trial if still scheduled
 ```
+
+Optional immediate pay: `/pay?mode=pay_now` (first month charged today).
 
 ### D1. Vercel env (Production)
 
@@ -142,6 +145,13 @@ NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_…
 # Amounts in ZAR cents (R500.00 = 50000)
 PAYSTACK_AMOUNT_PRACTITIONER_CENTS=539900
 PAYSTACK_AMOUNT_PROJECT_CENTS=1499900
+# Card verification amount for trial subscribe (default R1.00)
+# PAYSTACK_TRIAL_VERIFY_CENTS=100
+# Optional welcome email (temp password). If unset, credentials show on success page only.
+# RESEND_API_KEY=re_…
+# RESEND_FROM_EMAIL=TrustLedger <onboarding@trustledger.co.za>
+# Optional stronger signing for activation tokens (falls back to Paystack secret)
+# TRIAL_TOKEN_SECRET=…
 # Institutional stays contact-sales unless you set an amount
 # PAYSTACK_AMOUNT_INSTITUTIONAL_CENTS=0
 ```
@@ -166,12 +176,14 @@ Event: `charge.success` (signature verified with the secret key).
 
 ### D4. Soft-launch ops
 
-1. Buyer pays on `/pay`.  
-2. Payment appears under **Ops → Finance** and on **Executive Board**.  
-3. Confirm in Paystack Dashboard.  
-4. Manually update CRM Customer + Plan Owner when lockdown allows (`docs/ACCESS_MODEL.md`).  
+1. Buyer completes Subscribe on `/pay` (trial_authorize by default).  
+2. Success page activates trial + shows login details (no contact CTA).  
+3. CRM shows **Trial Authorize**; Finance / Executive notifications fire.  
+4. Before day 14: buyer can **Cancel before you are charged** in the trial banner.  
+5. After day 14 (if still scheduled): Ops calls `/api/paystack/charge-due` with the authorization from the CRM lead note.  
+6. Manually update CRM Customer + Plan Owner when lockdown allows (`docs/ACCESS_MODEL.md`).  
 
-Do **not** auto-create customer logins from HubSpot.
+Do **not** auto-create customer Frappe logins from HubSpot while ADR-013 lockdown is on. Browser trial + temp password is the self-serve path.
 
 ---
 

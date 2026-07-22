@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   formatPlanPrice,
+  formatZarFromCents,
   type PaystackPlan,
   type PaystackPlanId,
 } from "@/lib/paystackPlans";
@@ -15,6 +16,8 @@ export function PayCheckoutForm({
   initialEmail = "",
   initialName = "",
   initialOrganization = "",
+  /** trial_authorize (default subscribe) | pay_now */
+  initialMode = "trial_authorize",
 }: {
   plans: PaystackPlan[];
   initialPlan: PaystackPlanId;
@@ -22,6 +25,7 @@ export function PayCheckoutForm({
   initialEmail?: string;
   initialName?: string;
   initialOrganization?: string;
+  initialMode?: "trial_authorize" | "pay_now";
 }) {
   const [planId, setPlanId] = useState<PaystackPlanId>(
     plans.some((p) => p.id === initialPlan) ? initialPlan : plans[0]?.id || "practitioner",
@@ -29,6 +33,7 @@ export function PayCheckoutForm({
   const [email, setEmail] = useState(initialEmail);
   const [name, setName] = useState(initialName);
   const [organization, setOrganization] = useState(initialOrganization);
+  const [mode, setMode] = useState<"trial_authorize" | "pay_now">(initialMode);
   const [error, setError] = useState<string | null>(
     configured ? null : "Paystack keys are not configured on this deployment yet.",
   );
@@ -52,6 +57,7 @@ export function PayCheckoutForm({
           name,
           organization,
           plan: selected.id,
+          mode,
         }),
       });
       const payload = (await res.json()) as {
@@ -67,6 +73,11 @@ export function PayCheckoutForm({
       setPending(false);
     }
   }
+
+  const ctaLabel =
+    mode === "trial_authorize"
+      ? `Subscribe · start 14-day trial · ${formatPlanPrice(selected)}`
+      : `Pay now · ${formatPlanPrice(selected)}`;
 
   return (
     <form
@@ -123,6 +134,45 @@ export function PayCheckoutForm({
         </p>
       ) : (
         <>
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium">Checkout</legend>
+            <div className="space-y-2 text-sm">
+              <label className="flex cursor-pointer gap-3 rounded-md border border-tl-line px-3 py-3">
+                <input
+                  type="radio"
+                  name="mode"
+                  checked={mode === "trial_authorize"}
+                  onChange={() => setMode("trial_authorize")}
+                  className="mt-0.5"
+                />
+                <span>
+                  <span className="font-medium">14-day trial (recommended)</span>
+                  <span className="mt-0.5 block text-xs text-tl-ink-muted">
+                    Verify banking details on Paystack (small card check). Trial
+                    starts immediately. Plan price charged after 14 days unless
+                    you cancel.
+                  </span>
+                </span>
+              </label>
+              <label className="flex cursor-pointer gap-3 rounded-md border border-tl-line px-3 py-3">
+                <input
+                  type="radio"
+                  name="mode"
+                  checked={mode === "pay_now"}
+                  onChange={() => setMode("pay_now")}
+                  className="mt-0.5"
+                />
+                <span>
+                  <span className="font-medium">Pay first month now</span>
+                  <span className="mt-0.5 block text-xs text-tl-ink-muted">
+                    Charge {selected ? formatZarFromCents(selected.amountCents) : "—"}{" "}
+                    today (no deferred trial billing).
+                  </span>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
           <div>
             <label htmlFor="name" className="mb-1 block text-sm font-medium">
               Full name
@@ -172,9 +222,7 @@ export function PayCheckoutForm({
             disabled={pending || !configured || !selected.amountCents}
             className="w-full rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-50"
           >
-            {pending
-              ? "Redirecting to Paystack…"
-              : `Continue to Paystack · ${formatPlanPrice(selected)}`}
+            {pending ? "Redirecting to Paystack…" : ctaLabel}
           </button>
         </>
       )}

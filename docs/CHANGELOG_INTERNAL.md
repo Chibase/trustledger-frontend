@@ -1,6 +1,32 @@
 # Internal changelog
 
-## 2026-07-21 — Intake location wizard (City → DM → TC → Ward)
+## 2026-07-22 — Trial subscribe (card verify + deferred charge)
+
+- `/pay` default = 14-day trial: Paystack card verification, authorization on file, bill at trial end
+- Success: thank you + login/temp password (email via Resend when configured); no Contact us CTA
+- Trial activates immediately; first-login password change prompt; `/login/trial` + `/pay/activate`
+- Banner opt-out cancels scheduled charge (`Trial Opt-Out` + deactivate authorization)
+- Ops `/api/paystack/charge-due` for day-14 collection; ADR-025
+- CRM sources: `Trial Authorize`, `Trial Opt-Out`
+
+## 2026-07-22 — Create report (evidence-based, seniority-gated)
+
+- `/app/reports` → Create a report wizard: kinds (monthly, GRM, ESG, H&S, B-BBEE, CSI, MEL, board…)
+- Sections selectable; options above desk grade greyed (visible, not selectable)
+- AI compose from workspace incidents + Capture evidence; save for performance/dispute use
+- Dashboard Report library views packs by desk level
+- Nav label: Create report
+
+- Capability catalogue + plan defaults + sellable add-ons (`entitlements` types/config/lib)
+- `FeatureGate`, nav capability filters, Settings add-on/override preview (admin)
+- Desk panels honour plan capabilities alongside desk-tier visibility
+- Pricing/seats unchanged — packaging revisit later; switches are ready
+
+- Professional desk tiers (CLO → supervisor → site → delivery → oversight → funder) with admin visibility matrix in Settings
+- Capture hub: minutes / attendance / social intel / pasted report → AI stakeholder extract + brief (suggest → apply)
+- Stakeholder CRM framed as demo placeholder; growth via capture
+- Supervisor ranked queue of CLO/site filings; senior desks get charts (ops chart primitives)
+- Issue intake requires project (select or create) — projects merge into dashboard/list
 
 - Report flow: issue → reporter (or anonymous) → sequential dialogs for city, DM, TC, ward
 - Geo pack powers `/api/geo` for the form only; place KPIs and Places browse removed from client dashboard/report

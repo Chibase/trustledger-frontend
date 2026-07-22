@@ -1,8 +1,10 @@
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
+import type { Project } from "@/types/project";
 
 const INCIDENTS_KEY = "tl-demo-incidents";
 const EVIDENCE_KEY = "tl-demo-evidence";
+const PROJECTS_KEY = "tl-demo-projects";
 
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -44,4 +46,18 @@ export function saveDemoEvidence(file: EvidenceStub) {
 
 export function createDemoIncidentId(): string {
   return `INC-D${Date.now().toString().slice(-6)}`;
+}
+
+export function listDemoProjects(): Project[] {
+  return readJson<Project[]>(PROJECTS_KEY, []);
+}
+
+export function saveDemoProject(project: Project) {
+  const rows = listDemoProjects().filter((p) => p.id !== project.id);
+  rows.unshift(project);
+  writeJson(PROJECTS_KEY, rows);
+}
+
+export function createDemoProjectId(): string {
+  return `PRJ-D${Date.now().toString().slice(-6)}`;
 }

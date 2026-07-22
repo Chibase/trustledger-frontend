@@ -75,9 +75,13 @@ function TrialStartForm() {
         Start your TrustLedger workspace
       </h1>
       <p className="mt-3 text-sm text-tl-ink-muted">
-        Use your own projects and incidents — not sample demo data. Upgrade
-        straight to Paystack when ready. After the trial ends, access stops; we
-        keep your data for 3 months so you can upgrade and restore it.
+        Explore with your own projects and incidents — not sample demo data. To
+        subscribe with banking details on file for end-of-trial billing, use{" "}
+        <Link href="/pay" className="font-medium text-tl-trust-ink underline">
+          Subscribe
+        </Link>
+        . After a card-verified trial ends, access stops; we keep your data for
+        3 months so you can restore it.
       </p>
 
       <form

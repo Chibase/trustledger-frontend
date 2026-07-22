@@ -76,4 +76,55 @@ export type ReportBriefRequest = {
   projectId?: string;
   incidentIds?: string[];
   audience: "board" | "regulator" | "internal";
+  /** Optional free-text source (minutes, social intel, pasted report). */
+  sourceText?: string;
+  sourceLabel?: string;
 };
+
+export type SuggestedStakeholder = {
+  name: string;
+  kind: string;
+  organisation?: string;
+  influence: "high" | "medium" | "low" | "unknown";
+  rationale: string;
+};
+
+export type StakeholderExtractSuggestion = {
+  stakeholders: SuggestedStakeholder[];
+  briefTitle: string;
+  briefSummary: string;
+  confidence: number;
+  model: string;
+  promptVersion: string;
+};
+
+export type StakeholderExtractRequest = {
+  text: string;
+  source: "minutes" | "attendance" | "social_intel" | "pasted_report";
+  projectName?: string;
+};
+
+export type ActivityReportComposeRequest = {
+  kind: string;
+  kindLabel: string;
+  audience: string;
+  audienceLabel: string;
+  periodLabel: string;
+  authorTierLabel: string;
+  authorName: string;
+  projectName?: string;
+  includedSectionLabels: string[];
+  lockedSectionLabels: string[];
+  factsBlock: string;
+  tonePreference?: "plain" | "formal" | "board";
+};
+
+export type ActivityReportComposeSuggestion = {
+  title: string;
+  bodyMarkdown: string;
+  executiveHighlight: string;
+  confidence: number;
+  model: string;
+  promptVersion: string;
+};
+

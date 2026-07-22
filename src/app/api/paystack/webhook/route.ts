@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { recordPaystackPayment } from "@/lib/paymentIntel";
+import { provisionAfterPaystackVerify } from "@/lib/paystackProvision";
 import {
   verifyPaystackSignature,
   verifyPaystackTransaction,
@@ -45,25 +45,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, pending: true });
     }
 
-    const logged = await recordPaystackPayment({
-      email: verified.email,
-      name: verified.name,
-      organization: verified.organization,
-      planId: verified.planId,
-      planLabel: verified.planLabel,
-      amountCents: verified.amountCents,
-      currency: verified.currency,
-      reference: verified.reference,
-      paidAt: verified.paidAt,
+    const provisioned = await provisionAfterPaystackVerify(verified, {
+      mintCredentials: false,
     });
 
     console.info("[paystack/webhook] charge.success", {
       reference: verified.reference,
-      logged: logged.logged,
-      detail: logged.detail,
+      flow: provisioned?.flow,
+      logged: provisioned?.logged,
+      emailSent: provisioned?.emailSent,
     });
 
-    return NextResponse.json({ ok: true, logged: logged.logged });
+    return NextResponse.json({
+      ok: true,
+      logged: provisioned?.logged || false,
+      flow: provisioned?.flow,
+    });
   } catch (err) {
     console.error("[paystack/webhook] failed", err);
     return NextResponse.json(

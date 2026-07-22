@@ -193,6 +193,8 @@ function resolveCrmSource(
     demo_soft_gate: "Website Demo",
     assessment: "Website Assessment",
     paystack_payment: "Paystack Payment",
+    trial_authorize: "Trial Authorize",
+    trial_opt_out: "Trial Opt-Out",
     eft_payment: "EFT Payment",
     quote_request: "Quote Request",
     support_ticket: "Support Ticket",

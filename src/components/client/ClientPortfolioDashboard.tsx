@@ -3,8 +3,10 @@ import { IncidentTable } from "@/components/ui/IncidentTable";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
-import { TrustPulse } from "@/components/trust/TrustPulse";
+import { DeskWorkspacePanels } from "@/components/desk/DeskWorkspacePanels";
+import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import type { ClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
+
 
 const currency = new Intl.NumberFormat("en-ZA", {
   style: "currency",
@@ -20,7 +22,7 @@ type ClientPortfolioDashboardProps = {
 export function ClientPortfolioDashboard({
   brief,
 }: ClientPortfolioDashboardProps) {
-  const { kpis, trust } = brief;
+  const { kpis } = brief;
 
   return (
     <div className="space-y-7">
@@ -51,12 +53,14 @@ export function ClientPortfolioDashboard({
         Generated {new Date(brief.generatedAt).toLocaleString()}
       </p>
 
-      <TrustPulse
-        incidents={brief.incidents}
-        levelLabel="Client portfolio"
-        avgTatHours={trust.avgTatHours}
-        openOverTarget={trust.openOverTarget}
+      <DeskWorkspacePanels
+        role="client"
+        seedIncidents={brief.incidents}
+        seedProjects={brief.projects}
+        showProjectList={false}
       />
+
+      <ReportsLibrary role="client" />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(kpis.projects)} />

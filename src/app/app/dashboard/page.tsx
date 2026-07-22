@@ -2,13 +2,13 @@ import Link from "next/link";
 import { getCurrentUser, type UserRole } from "@/lib/auth";
 import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
 import { ClientPortfolioDashboard } from "@/components/client/ClientPortfolioDashboard";
-import { TrustPulse } from "@/components/trust/TrustPulse";
+import { DeskWorkspacePanels } from "@/components/desk/DeskWorkspacePanels";
+import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { buildClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
-import { averageTatHours, countOverStageTarget } from "@/lib/tatMetrics";
 import { incidentService } from "@/services/incidentService";
 import { noteService } from "@/services/noteService";
 import { projectService } from "@/services/projectService";
@@ -23,14 +23,13 @@ async function CommunityHome() {
   const highPriority = openMine.filter(
     (i) => i.priority === "P1-Critical" || i.priority === "P2-High",
   );
-  const activeProjects = projects.filter((p) => p.status === "Active");
 
   return (
     <div className="space-y-7">
       <PageHeader
-        eyebrow="Community workspace"
-        title="Community home"
-        description="Ward 12 public status, your concerns, and recent meeting notes."
+        eyebrow="CLO / community workspace"
+        title="Field desk"
+        description="Report concerns linked to a project. Capture hub feeds the demo stakeholder registry."
         actions={
           <>
             <Link
@@ -40,60 +39,32 @@ async function CommunityHome() {
               Report an issue
             </Link>
             <Link
-              href="/app/incidents"
+              href="/app/capture"
               className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
             >
-              View all concerns
+              Capture hub
             </Link>
           </>
         }
       />
 
-      <TrustPulse
-        incidents={incidents}
-        levelLabel="Ward / community"
-        avgTatHours={averageTatHours(incidents)}
-        openOverTarget={countOverStageTarget(openMine)}
-      />
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <KpiCard label="Open concerns" value={String(openMine.length)} />
         <KpiCard
           label="High priority"
           value={String(highPriority.length)}
           tone={highPriority.length > 0 ? "attention" : "default"}
         />
-        <KpiCard label="Active projects" value={String(activeProjects.length)} />
         <KpiCard label="Meeting notes" value={String(notes.length)} />
       </div>
 
-      <section className="space-y-3">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-base font-semibold text-tl-ink">
-            Projects in your ward
-          </h2>
-          <Link
-            href="/app/projects"
-            className="text-xs font-medium text-tl-trust-ink hover:underline"
-          >
-            View projects
-          </Link>
-        </div>
-        <ul className="divide-y divide-tl-line overflow-hidden rounded-lg border border-tl-line bg-tl-surface">
-          {projects.map((p) => (
-            <li
-              key={p.id}
-              className="flex flex-wrap items-start justify-between gap-3 px-4 py-3.5 text-sm"
-            >
-              <div className="min-w-0">
-                <p className="font-medium text-tl-ink">{p.name}</p>
-                <p className="mt-0.5 text-tl-ink-muted">{p.publicSummary}</p>
-              </div>
-              <ProjectStatusChip status={p.status} />
-            </li>
-          ))}
-        </ul>
-      </section>
+      <DeskWorkspacePanels
+        role="community"
+        seedIncidents={incidents}
+        seedProjects={projects}
+      />
+
+      <ReportsLibrary role="community" />
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-tl-ink">Open concerns</h2>
@@ -136,8 +107,8 @@ async function ContractorHome() {
   return (
     <div className="space-y-7">
       <PageHeader
-        eyebrow="Contractor workspace"
-        title="Contractor desk"
+        eyebrow="Site workspace"
+        title="Site foreman / manager desk"
         description="Assigned sites, open incidents, and delivery windows."
         actions={
           <Link
@@ -149,13 +120,6 @@ async function ContractorHome() {
         }
       />
 
-      <TrustPulse
-        incidents={incidents}
-        levelLabel="Contractor sites"
-        avgTatHours={averageTatHours(incidents)}
-        openOverTarget={countOverStageTarget(open)}
-      />
-
       <div className="grid gap-3 sm:grid-cols-3">
         <KpiCard label="Assigned projects" value={String(projects.length)} />
         <KpiCard label="Open incidents" value={String(open.length)} />
@@ -165,6 +129,15 @@ async function ContractorHome() {
           tone={breached.length > 0 ? "attention" : "default"}
         />
       </div>
+
+      <DeskWorkspacePanels
+        role="contractor"
+        seedIncidents={incidents}
+        seedProjects={projects}
+        showProjectList={false}
+      />
+
+      <ReportsLibrary role="contractor" />
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold">Assigned projects</h2>
@@ -200,35 +173,37 @@ async function ClientHome() {
 }
 
 async function AdminHome() {
-  const [queue, breaches, escalated, all] = await Promise.all([
+  const [queue, breaches, escalated, all, projects] = await Promise.all([
     incidentService.intakeQueue(),
     incidentService.slaBreaches(),
     incidentService.list({ escalatedOnly: true }),
     incidentService.list(),
+    projectService.list(),
   ]);
   const open = all.filter((i) => i.status !== "Closed");
 
   return (
     <div className="space-y-7">
       <PageHeader
-        eyebrow="Admin workspace"
-        title="Admin desk"
-        description="Intake queue, SLA pressure, and escalations."
+        eyebrow="Supervisor / admin workspace"
+        title="Supervisor desk"
+        description="Ranked junior filings, SLA pressure, and visibility controls in Settings."
         actions={
-          <Link
-            href="/app/issues/report"
-            className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-          >
-            New intake
-          </Link>
+          <>
+            <Link
+              href="/app/issues/report"
+              className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+            >
+              New intake
+            </Link>
+            <Link
+              href="/app/settings"
+              className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+            >
+              Visibility controls
+            </Link>
+          </>
         }
-      />
-
-      <TrustPulse
-        incidents={all}
-        levelLabel="Organisation"
-        avgTatHours={averageTatHours(all)}
-        openOverTarget={countOverStageTarget(open)}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -246,13 +221,13 @@ async function AdminHome() {
         />
       </div>
 
-      <section className="space-y-3">
-        <h2 className="text-base font-semibold">Intake queue</h2>
-        <IncidentTable
-          incidents={queue}
-          emptyLabel="Intake queue is clear."
-        />
-      </section>
+      <DeskWorkspacePanels
+        role="admin"
+        seedIncidents={all}
+        seedProjects={projects}
+      />
+
+      <ReportsLibrary role="admin" />
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold">Escalations</h2>

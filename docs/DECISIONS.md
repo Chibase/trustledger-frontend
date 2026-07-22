@@ -210,7 +210,34 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Active packets shift to Phase 6 (24a+). Paystack/trial remain, but marketing honesty is mandatory.
 - **Alternatives considered:** Ship soft launch first then build V002 quietly (rejected — trust risk); claim V002 as live (rejected).
 
-### ADR-013: Platform Operator sole live control (until lifted)
+### ADR-024: Capability entitlements (plan bundles + add-ons)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Commercial packaging will combine seats with functional modules. Features must be switchable per plan or sold as optional add-ons without rewriting each screen later.
+- **Decision:**
+  1. Maintain a capability catalogue (`src/types/entitlements.ts`) separate from seat/pricing (`plans.ts`).
+  2. Each plan has a default capability matrix (`src/config/entitlements.ts`); add-ons grant extra capabilities.
+  3. UI gates via `hasCapability` / `FeatureGate` / nav `capability` fields. Admin Settings can preview add-ons and hard overrides in-browser until Frappe entitlements land.
+  4. Pricing and public plan copy may be revisited later; the switchboard stays.
+- **Consequences:** New modules register a capability id and check it at nav + page entry. Ops accounts page can later sync live entitlements.
+- **Alternatives considered:** Hardcode plan checks in each page (rejected — brittle); feature flags only in env (rejected — not client-packagable).
+
+### ADR-025: Subscribe = card verify + 14-day trial + deferred charge
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Buyers must not be charged the full plan on Subscribe. Banking details verify the trial, stay on file for day-14 billing, and support standard opt-out before charge. After confirmation the trial must start immediately with login details (temporary password) — no “contact us” CTA on the thank-you screen.
+- **Decision:**
+  1. Default `/pay` checkout mode is **`trial_authorize`**: Paystack charges a small verification amount (`PAYSTACK_TRIAL_VERIFY_CENTS`, default R1.00), stores a reusable authorization, and schedules the plan amount for trial end.
+  2. Optional **`pay_now`** mode charges the first month immediately (no deferred trial billing).
+  3. On verify success: CRM Lead `Trial Authorize`, mint temp password + signed activation token, email when `RESEND_API_KEY` is set, always show credentials on `/pay/success`, activate browser trial workspace immediately.
+  4. Banner **Cancel before you are charged** → `/api/billing/opt-out` (CRM `Trial Opt-Out` + Paystack `deactivate_authorization` when code available).
+  5. Ops charges due trials via `/api/paystack/charge-due` (allowlist). Frappe Plan Owner creation stays gated by ADR-013 lockdown.
+- **Consequences:** Subscribe CTAs mean trial-with-card-on-file. Success page has thank-you + login details only. Day-14 collection is operator-triggered until a scheduler lands.
+- **Alternatives considered:** Full charge on Subscribe (rejected — contradicts trial promise); free trial with no card (kept as `/trial` explore only); auto Frappe User create (blocked by lockdown).
+
+### ADR-013: Platform Operator lockdown
 
 - **Date:** 2026-07-12
 - **Status:** Accepted

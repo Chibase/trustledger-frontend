@@ -3,6 +3,7 @@ import { DemoBanner } from "@/components/shell/DemoBanner";
 import { EmailCaptureGate } from "@/components/shell/EmailCaptureGate";
 import { OperatorBanner } from "@/components/shell/OperatorBanner";
 import { TrialBanner } from "@/components/shell/TrialBanner";
+import { TrialPasswordChangePrompt } from "@/components/shell/TrialPasswordChangePrompt";
 import { AppNav } from "@/components/shell/AppNav";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
@@ -50,6 +51,7 @@ export function AppShell({
         {mode === "trial" && trial ? (
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
         ) : null}
+        {mode === "trial" ? <TrialPasswordChangePrompt /> : null}
         {mode === "demo" ? <DemoBanner planName={planLabel} /> : null}
         {showOperatorBanner ? <OperatorBanner /> : null}
         {mode === "demo" ? <EmailCaptureGate /> : null}
@@ -58,6 +60,7 @@ export function AppShell({
           userName={userName}
           mode={mode === "live" ? "live" : "demo"}
           isGuest={isGuest || mode === "trial"}
+          planId={trialPlan}
         />
 
         <div className="flex min-h-[calc(100vh-2.25rem)]">
@@ -81,7 +84,7 @@ export function AppShell({
               <p className="mb-2 px-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-white/40">
                 Workspace
               </p>
-              <AppNav role={role} variant="ink" />
+              <AppNav role={role} variant="ink" planId={trialPlan} />
             </div>
 
             <div className="space-y-3 border-t border-white/10 px-4 py-4">

@@ -8,6 +8,10 @@ import type {
   ReportBriefSuggestion,
   SentimentRequest,
   SentimentSuggestion,
+  StakeholderExtractRequest,
+  StakeholderExtractSuggestion,
+  ActivityReportComposeRequest,
+  ActivityReportComposeSuggestion,
   TriageRequest,
 } from "@/types/ai";
 
@@ -146,6 +150,29 @@ TrustLedger Community Desk`,
 }
 
 function mockReportBrief(input: ReportBriefRequest): ReportBriefSuggestion {
+  const fromSource = input.sourceText?.trim();
+  if (fromSource) {
+    const snippet = fromSource.slice(0, 180);
+    return {
+      title: input.sourceLabel
+        ? `Brief from ${input.sourceLabel}`
+        : "Engagement brief (draft)",
+      executiveSummary: `Based on the submitted text: ${snippet}${fromSource.length > 180 ? "…" : ""} Key themes include community relations, delivery risk, and follow-up actions for human review.`,
+      keyRisks: [
+        "Unresolved concerns referenced in the source text",
+        "Attendance or influence gaps if stakeholders were not followed up",
+        "Sentiment intensity may elevate SLA pressure on linked cases",
+      ],
+      recommendedActions: [
+        "Confirm owners for actions noted in the source",
+        "Apply suggested stakeholders to the CRM after review",
+        "Link the capture record to the project and open grievances",
+      ],
+      citedIncidentIds: input.incidentIds ?? [],
+      model: MODEL,
+      promptVersion: PROMPT_VERSION,
+    };
+  }
   return {
     title: "Stakeholder risk brief (draft)",
     executiveSummary:
@@ -161,6 +188,97 @@ function mockReportBrief(input: ReportBriefRequest): ReportBriefSuggestion {
       "Prepare assurance pack with timeline citations",
     ],
     citedIncidentIds: input.incidentIds ?? ["INC-1001", "INC-1004"],
+    model: MODEL,
+    promptVersion: PROMPT_VERSION,
+  };
+}
+
+function mockActivityReport(
+  input: ActivityReportComposeRequest,
+): ActivityReportComposeSuggestion {
+  const tone =
+    input.tonePreference === "board" || /board|investor|funder/i.test(input.audience)
+      ? "board"
+      : input.tonePreference === "formal"
+        ? "formal"
+        : "plain";
+
+  const title = `${input.kindLabel} — ${input.periodLabel}`;
+  const sections = input.includedSectionLabels
+    .map(
+      (label) =>
+        `### ${label}\n\nBased on workspace evidence for this period. ${input.authorTierLabel} reporting to ${input.audienceLabel}.\n`,
+    )
+    .join("\n");
+
+  const lockedNote = input.lockedSectionLabels.length
+    ? `\n> Sections above this desk grade (not included): ${input.lockedSectionLabels.join(", ")}.\n`
+    : "";
+
+  const intro =
+    tone === "board"
+      ? `## Executive highlight\n\nThis ${input.kindLabel.toLowerCase()} consolidates assurance evidence for ${input.audienceLabel}. Figures and case references below are drawn from TrustLedger activity in ${input.periodLabel}${input.projectName ? ` on ${input.projectName}` : ""}.\n`
+      : `## Summary\n\nPrepared by ${input.authorName} (${input.authorTierLabel}) for ${input.audienceLabel}. Period: ${input.periodLabel}${input.projectName ? `. Project: ${input.projectName}` : ""}.\n`;
+
+  const bodyMarkdown = `${intro}${lockedNote}\n## Evidence facts used\n\n\`\`\`\n${input.factsBlock}\n\`\`\`\n\n${sections}\n### Evidence appendix\n\nRegisters, minutes, and photo stubs listed in the facts block are retained for performance review and dispute support. Human review required before circulation.\n`;
+
+  return {
+    title,
+    bodyMarkdown,
+    executiveHighlight:
+      tone === "board"
+        ? "Board-ready draft — verify numbers and attach primary evidence before circulation."
+        : "Operational draft for supervisor review — confirm activities and evidence links.",
+    confidence: 0.74,
+    model: MODEL,
+    promptVersion: PROMPT_VERSION,
+  };
+}
+
+function mockStakeholderExtract(
+  input: StakeholderExtractRequest,
+): StakeholderExtractSuggestion {
+  const text = input.text;
+  const lines = text
+    .split(/[\n,;]+/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 2);
+  const names: string[] = [];
+  for (const line of lines) {
+    const titled = line.match(
+      /(?:Chief|Inkosi|Mr|Mrs|Ms|Dr|Councillor|Cllr)\.?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/,
+    );
+    if (titled?.[0]) names.push(titled[0]);
+    const plain = line.match(/\b([A-Z][a-z]+\s+[A-Z][a-z]+)\b/);
+    if (plain?.[1] && !names.includes(plain[1])) names.push(plain[1]);
+    if (names.length >= 5) break;
+  }
+  if (!names.length) {
+    names.push("Community representative", "Ward committee member");
+  }
+  const isTraditional = /chief|inkosi|traditional|council/i.test(text);
+  const isGov = /municipality|councillor|department|dmr|dws/i.test(text);
+  const isSocial = input.source === "social_intel";
+
+  return {
+    stakeholders: names.slice(0, 5).map((name, i) => ({
+      name,
+      kind: isTraditional
+        ? "traditional_authority"
+        : isGov
+          ? "government"
+          : isSocial
+            ? "community_group"
+            : i === 0
+              ? "individual"
+              : "community_group",
+      organisation: input.projectName,
+      influence: i === 0 ? "high" : "medium",
+      rationale: `Mentioned or implied in ${input.source.replaceAll("_", " ")}.`,
+    })),
+    briefTitle: `Capture brief (${input.source.replaceAll("_", " ")})`,
+    briefSummary: `Extracted ${Math.min(names.length, 5)} stakeholder candidates from the source for human review before CRM apply.`,
+    confidence: 0.7,
     model: MODEL,
     promptVersion: PROMPT_VERSION,
   };
@@ -205,5 +323,29 @@ export const aiService = {
       return mockReportBrief(input);
     }
     return callFrappeMethod(FRAPPE_METHODS.generateReportBrief, { ...input });
+  },
+
+  async suggestStakeholdersFromText(
+    input: StakeholderExtractRequest,
+  ): Promise<StakeholderExtractSuggestion> {
+    if (USE_MOCK) {
+      await delay();
+      return mockStakeholderExtract(input);
+    }
+    return callFrappeMethod(FRAPPE_METHODS.suggestStakeholdersFromText, {
+      ...input,
+    });
+  },
+
+  async composeActivityReport(
+    input: ActivityReportComposeRequest,
+  ): Promise<ActivityReportComposeSuggestion> {
+    if (USE_MOCK) {
+      await delay(800);
+      return mockActivityReport(input);
+    }
+    return callFrappeMethod(FRAPPE_METHODS.composeActivityReport, {
+      ...input,
+    });
   },
 };
