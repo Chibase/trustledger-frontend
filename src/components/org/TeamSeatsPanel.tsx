@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PLANS, type PlanId } from "@/config/plans";
+import { PLANS, isPlanId, type PlanId } from "@/config/plans";
 import { useToast } from "@/components/ui/Toast";
 import {
   DESK_TIERS,
@@ -13,14 +13,18 @@ import {
   type InviteableRole,
   type OrgRecord,
 } from "@/types/org";
-import { buildSeatSummary } from "@/lib/orgSeats";
+import {
+  buildSeatSummary,
+  canInviteDeskTier,
+  defaultInviteDeskTier,
+  inviteDeskUpgradeLabel,
+} from "@/lib/orgSeats";
 import {
   createOrgInvite,
   getActiveOrg,
   revokeOrgInvite,
 } from "@/lib/orgStore";
 import { bootstrapPlanOwnerOrg } from "@/lib/orgSession";
-import { isPlanId } from "@/config/plans";
 
 type TeamSeatsPanelProps = {
   isPlanOwner: boolean;
@@ -49,9 +53,17 @@ export function TeamSeatsPanel({
   }
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => refresh());
+    const frame = requestAnimationFrame(() => {
+      const active = getActiveOrg();
+      setOrg(active);
+      if (active) {
+        setDeskTier(defaultInviteDeskTier(active.planId));
+      } else if (planId && isPlanId(planId)) {
+        setDeskTier(defaultInviteDeskTier(planId));
+      }
+    });
     return () => cancelAnimationFrame(frame);
-  }, []);
+  }, [planId]);
 
   function handleBootstrap() {
     const plan: PlanId =
@@ -66,6 +78,7 @@ export function TeamSeatsPanel({
       mode: "demo",
     });
     refresh();
+    setDeskTier(defaultInviteDeskTier(plan));
     pushToast("Plan Owner workspace created on this device", "success");
   }
 
@@ -75,6 +88,12 @@ export function TeamSeatsPanel({
     setLastAcceptPath(null);
     if (!org) {
       setError("Create a Plan Owner workspace first.");
+      return;
+    }
+    if (!canInviteDeskTier(org.planId, deskTier)) {
+      setError(
+        "That desk exposure is above your plan. Choose a lower ranking or upgrade.",
+      );
       return;
     }
     const result = createOrgInvite({
@@ -91,6 +110,7 @@ export function TeamSeatsPanel({
     setLastAcceptPath(result.acceptPath);
     setName("");
     setEmail("");
+    setDeskTier(defaultInviteDeskTier(org.planId));
     refresh();
     pushToast("Invite created — share the accept link", "success");
   }
@@ -150,9 +170,9 @@ export function TeamSeatsPanel({
       <div>
         <h2 className="font-semibold">Invite team</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          {org.name} · {planName}. Invite juniors and choose their role + desk
-          exposure. They cannot raise privileges themselves. Practitioner has
-          no junior seats — upgrade to Project to invite.
+          {org.name} · {planName}. Invite lower-rank seats only (never Plan
+          Owner). Desk exposure is limited by your plan — higher desks stay
+          listed but greyed until you upgrade.
         </p>
         <p className="mt-2 text-xs text-tl-ink-muted">
           Seats:{" "}
@@ -233,14 +253,20 @@ export function TeamSeatsPanel({
       ) : null}
 
       {isPlanOwner ? (
-        <form onSubmit={handleInvite} className="space-y-3 border-t border-tl-line pt-4">
+        <form
+          onSubmit={handleInvite}
+          className="space-y-3 border-t border-tl-line pt-4"
+        >
           <h3 className="font-medium">Invite junior</h3>
           {!seats.canInvite ? (
             <p className="text-xs text-tl-ink-muted">
               {org.planId === "practitioner" ? (
                 <>
                   Practitioner is Owner-only.{" "}
-                  <a href="/pay?plan=project" className="text-tl-trust-ink underline">
+                  <a
+                    href="/pay?plan=project"
+                    className="text-tl-trust-ink underline"
+                  >
                     Upgrade to Project
                   </a>{" "}
                   to invite seats.
@@ -272,7 +298,9 @@ export function TeamSeatsPanel({
                   />
                 </label>
                 <label className="block text-xs">
-                  <span className="mb-1 block font-medium">Role</span>
+                  <span className="mb-1 block font-medium">
+                    Role (lower ranks only)
+                  </span>
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value as InviteableRole)}
@@ -284,22 +312,35 @@ export function TeamSeatsPanel({
                       </option>
                     ))}
                   </select>
+                  <span className="mt-1 block text-[0.65rem] text-tl-ink-muted">
+                    Plan Owner (admin) cannot be invited.
+                  </span>
                 </label>
                 <label className="block text-xs">
-                  <span className="mb-1 block font-medium">
-                    Desk exposure
-                  </span>
+                  <span className="mb-1 block font-medium">Desk exposure</span>
                   <select
                     value={deskTier}
-                    onChange={(e) => setDeskTier(e.target.value as DeskTier)}
+                    onChange={(e) => {
+                      const next = e.target.value as DeskTier;
+                      if (!canInviteDeskTier(org.planId, next)) return;
+                      setDeskTier(next);
+                    }}
                     className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
                   >
-                    {DESK_TIERS.map((t) => (
-                      <option key={t} value={t}>
-                        {DESK_TIER_LABELS[t]}
-                      </option>
-                    ))}
+                    {DESK_TIERS.map((t) => {
+                      const allowed = canInviteDeskTier(org.planId, t);
+                      return (
+                        <option key={t} value={t} disabled={!allowed}>
+                          {allowed
+                            ? DESK_TIER_LABELS[t]
+                            : `${DESK_TIER_LABELS[t]} — ${inviteDeskUpgradeLabel(t)}`}
+                        </option>
+                      );
+                    })}
                   </select>
+                  <span className="mt-1 block text-[0.65rem] text-tl-ink-muted">
+                    Greyed desks are above {planName}. Upgrade to unlock.
+                  </span>
                 </label>
               </div>
               {error ? (
@@ -317,7 +358,8 @@ export function TeamSeatsPanel({
           )}
           {lastAcceptPath ? (
             <p className="break-all rounded-md border border-tl-line bg-tl-paper px-3 py-2 font-mono text-xs">
-              Accept link: {typeof window !== "undefined" ? window.location.origin : ""}
+              Accept link:{" "}
+              {typeof window !== "undefined" ? window.location.origin : ""}
               {lastAcceptPath}
             </p>
           ) : null}

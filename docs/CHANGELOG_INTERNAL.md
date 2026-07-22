@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-22 — Invite desk exposure gated by plan
+
+- Desk exposure on invite lists all tiers; desks above the plan are greyed / disabled
+- Project: CLO / site / supervisor; Institutional: full ladder; Practitioner: no invites
+- Privilege matrix columns for above-plan desks greyed; createOrgInvite enforces the cap
+
 ## 2026-07-22 — Settings: plan on top; Owner invites & privileges only
 
 - Read-only plan banner at top of Settings (no plan / desk self-toggle for clients)

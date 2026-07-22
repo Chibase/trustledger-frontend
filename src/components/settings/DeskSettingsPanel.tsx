@@ -26,6 +26,7 @@ import {
   upgradeHrefForCapability,
   upgradeLabelForCapability,
 } from "@/lib/entitlements";
+import { canInviteDeskTier } from "@/lib/orgSeats";
 import { useToast } from "@/components/ui/Toast";
 
 const FLAGS = Object.keys(VISIBILITY_FLAG_LABELS) as VisibilityFlag[];
@@ -102,42 +103,57 @@ export function DeskSettingsPanel({
         <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
           <h2 className="font-semibold">Desk privileges for lower ranks</h2>
           <p className="mt-1 text-xs text-tl-ink-muted">
-            Set what each desk tier may see after you invite them (Settings →
-            Team / Seats). Rows greyed out are not on {planLabel} — upgrade to
-            unlock those privileges.
+            Set what each inviteable desk may see. Rows outside your plan modules
+            and columns above {planLabel} desk exposure stay greyed — upgrade to
+            unlock.
           </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[36rem] border-collapse text-left text-xs">
               <thead>
                 <tr className="border-b border-tl-line text-tl-ink-muted">
                   <th className="py-2 pr-2 font-medium">Privilege</th>
-                  {DESK_TIERS.map((id) => (
-                    <th key={id} className="px-1 py-2 font-medium">
-                      {DESK_TIER_LABELS[id].split(" / ")[0]}
-                    </th>
-                  ))}
+                  {DESK_TIERS.map((id) => {
+                    const deskOnPlan = planId
+                      ? canInviteDeskTier(planId, id)
+                      : true;
+                    return (
+                      <th
+                        key={id}
+                        className={`px-1 py-2 font-medium ${
+                          deskOnPlan ? "" : "opacity-50"
+                        }`}
+                      >
+                        {DESK_TIER_LABELS[id].split(" / ")[0]}
+                        {!deskOnPlan ? (
+                          <span className="mt-0.5 block text-[0.6rem] font-normal text-tl-amber">
+                            Above plan
+                          </span>
+                        ) : null}
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
                 {FLAGS.map((flag) => {
                   const capability = VISIBILITY_FLAG_CAPABILITY[flag];
                   const onPlan = hasCapabilityForPlan(capability, planId);
-                  const editable =
+                  const rowEditable =
                     onPlan && canOwnerToggleCapability(capability, planId);
                   return (
                     <tr
                       key={flag}
                       className={`border-b border-tl-line/70 ${
-                        editable
+                        rowEditable
                           ? ""
                           : "bg-tl-paper/80 text-tl-ink-muted opacity-60"
                       }`}
                     >
                       <td className="py-2 pr-2">
-                        <span className={editable ? "text-tl-ink" : ""}>
+                        <span className={rowEditable ? "text-tl-ink" : ""}>
                           {VISIBILITY_FLAG_LABELS[flag]}
                         </span>
-                        {!editable ? (
+                        {!rowEditable ? (
                           <span className="mt-0.5 block text-[0.65rem] text-tl-amber">
                             Not on {planLabel} ·{" "}
                             <Link
@@ -149,23 +165,34 @@ export function DeskSettingsPanel({
                           </span>
                         ) : null}
                       </td>
-                      {DESK_TIERS.map((id) => (
-                        <td key={id} className="px-1 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={editable ? matrix[id][flag] : false}
-                            disabled={!editable}
-                            onChange={(e) => {
-                              if (!editable) return;
-                              const next = structuredClone(matrix);
-                              next[id][flag] = e.target.checked;
-                              setMatrix(next);
-                              writeVisibilityMatrix(next);
-                            }}
-                            aria-label={`${VISIBILITY_FLAG_LABELS[flag]} for ${DESK_TIER_LABELS[id]}${editable ? "" : " (not on plan)"}`}
-                          />
-                        </td>
-                      ))}
+                      {DESK_TIERS.map((id) => {
+                        const deskOnPlan = planId
+                          ? canInviteDeskTier(planId, id)
+                          : true;
+                        const editable = rowEditable && deskOnPlan;
+                        return (
+                          <td
+                            key={id}
+                            className={`px-1 py-2 text-center ${
+                              deskOnPlan ? "" : "opacity-40"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={editable ? matrix[id][flag] : false}
+                              disabled={!editable}
+                              onChange={(e) => {
+                                if (!editable) return;
+                                const next = structuredClone(matrix);
+                                next[id][flag] = e.target.checked;
+                                setMatrix(next);
+                                writeVisibilityMatrix(next);
+                              }}
+                              aria-label={`${VISIBILITY_FLAG_LABELS[flag]} for ${DESK_TIER_LABELS[id]}${editable ? "" : " (locked)"}`}
+                            />
+                          </td>
+                        );
+                      })}
                     </tr>
                   );
                 })}

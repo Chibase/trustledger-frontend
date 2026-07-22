@@ -11,7 +11,7 @@ import type {
   OrgRecord,
 } from "@/types/org";
 import { INVITEABLE_ROLES } from "@/types/org";
-import { buildSeatSummary } from "@/lib/orgSeats";
+import { buildSeatSummary, canInviteDeskTier } from "@/lib/orgSeats";
 
 const ORGS_KEY = "tl-orgs";
 const ACTIVE_ORG_KEY = "tl-active-org-id";
@@ -133,6 +133,14 @@ export function createOrgInvite(input: {
 
   if (!INVITEABLE_ROLES.includes(input.role)) {
     return { ok: false, error: "Invitees cannot be Plan Owner (admin)." };
+  }
+
+  if (!canInviteDeskTier(org.planId, input.deskTier)) {
+    return {
+      ok: false,
+      error:
+        "That desk exposure is above your plan. Upgrade to assign higher desks, or pick a lower ranking.",
+    };
   }
 
   const email = input.email.trim().toLowerCase();
