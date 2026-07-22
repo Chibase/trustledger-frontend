@@ -4,6 +4,7 @@
 
 import { isPlanId, type PlanId } from "@/config/plans";
 import type { DeskTier } from "@/types/deskTier";
+import { normalizeDeskTier, PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
 import type {
   InviteableRole,
   OrgInvite,
@@ -11,7 +12,7 @@ import type {
   OrgRecord,
 } from "@/types/org";
 import { INVITEABLE_ROLES } from "@/types/org";
-import { buildSeatSummary } from "@/lib/orgSeats";
+import { buildSeatSummary, canInviteDeskTier } from "@/lib/orgSeats";
 
 const ORGS_KEY = "tl-orgs";
 const ACTIVE_ORG_KEY = "tl-active-org-id";
@@ -87,7 +88,7 @@ export function ensureOwnerOrg(input: {
     email,
     name: input.name.trim() || email.split("@")[0] || "Plan Owner",
     role: "admin",
-    deskTier: "supervisor",
+    deskTier: PLAN_OWNER_DESK_TIER[planId],
     isPlanOwner: true,
     deskTierLocked: false,
     joinedAt: now,
@@ -133,6 +134,14 @@ export function createOrgInvite(input: {
 
   if (!INVITEABLE_ROLES.includes(input.role)) {
     return { ok: false, error: "Invitees cannot be Plan Owner (admin)." };
+  }
+
+  if (!canInviteDeskTier(org.planId, input.deskTier)) {
+    return {
+      ok: false,
+      error:
+        "That desk exposure is above your plan. Upgrade to assign higher desks, or pick a lower ranking.",
+    };
   }
 
   const email = input.email.trim().toLowerCase();
@@ -219,6 +228,14 @@ export function acceptOrgInvite(input: {
     return { ok: false, error: "Invite not found or already used." };
   }
   const { org, invite } = found;
+  const deskTier = normalizeDeskTier(invite.deskTier) || invite.deskTier;
+  if (!canInviteDeskTier(org.planId, deskTier)) {
+    return {
+      ok: false,
+      error:
+        "This invite’s desk exposure is above the organisation’s plan. Ask your Plan Owner to send a new invite at a lower rank.",
+    };
+  }
   const seats = buildSeatSummary(org);
   // Pending invite already counted in seats; accepting converts pending → member.
   if (seats.additionalSeatCap === 0 && org.planId === "practitioner") {
@@ -234,7 +251,7 @@ export function acceptOrgInvite(input: {
     email: invite.email,
     name: input.fullName?.trim() || invite.name,
     role: invite.role,
-    deskTier: invite.deskTier,
+    deskTier,
     isPlanOwner: false,
     deskTierLocked: true,
     projectId: invite.projectId,

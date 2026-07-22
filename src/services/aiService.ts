@@ -1,4 +1,5 @@
 import { FRAPPE_METHODS } from "@/config/api";
+import { mockIncidents } from "@/data/mockIncidents";
 import { callFrappeMethod } from "@/lib/frappeClient";
 import {
   composeActivityReportMarkdown,
@@ -26,11 +27,19 @@ const USE_MOCK =
   process.env.NEXT_PUBLIC_AI_MOCK !== "false" &&
   process.env.NEXT_PUBLIC_AI_MOCK !== "0";
 
-const MODEL = "grok-4.5";
-const PROMPT_VERSION = "srm-ai-v0";
+const MODEL = "trustledger-evidence";
+const PROMPT_VERSION = "srm-ai-v0-evidence";
 
 function delay(ms = 650) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function incidentsForBrief(ids: string[] | undefined) {
+  const wanted = ids?.length ? ids : ["INC-1001", "INC-1004"];
+  const fromMock = wanted
+    .map((id) => mockIncidents.find((i) => i.id === id))
+    .filter(Boolean);
+  return fromMock.length ? fromMock : mockIncidents.slice(0, 3);
 }
 
 function mockTriage(input: TriageRequest): IncidentTriageSuggestion {
@@ -180,21 +189,24 @@ function mockReportBrief(input: ReportBriefRequest): ReportBriefSuggestion {
       promptVersion: PROMPT_VERSION,
     };
   }
+
+  const cases = incidentsForBrief(input.incidentIds);
+  const cited = cases.map((c) => c!.id);
+  const lead = cases[0]!;
+  const open = cases.filter((c) => c && c.status !== "Closed");
   return {
-    title: "Stakeholder risk brief (draft)",
-    executiveSummary:
-      "Open community concerns are concentrated around service disruption and site access. Priority scoring currently blends impact taxonomy with recent sentiment captures. This draft is for human review before board circulation.",
-    keyRisks: [
-      "Unresolved high-priority incidents near active wards",
-      "Sentiment intensity elevating SLA pressure",
-      "Evidence gaps on closed-critical residual risk cases",
-    ],
+    title: `Stakeholder risk brief — ${lead.projectName || "portfolio"}`,
+    executiveSummary: `Open community concerns on ${lead.projectName || "the portfolio"} centre on ${open.length} active matter${open.length === 1 ? "" : "s"}, led by ${lead.id} (${lead.title}). Priority ${lead.priority}; ward ${lead.ward || "n/a"}. This draft cites TrustLedger demo/workspace cases only — not generic sales templates.`,
+    keyRisks: cases.slice(0, 3).map((c) => {
+      const row = c!;
+      return `${row.id}: ${row.title} (${row.status}, ${row.priority})`;
+    }),
     recommendedActions: [
-      "Confirm owners and investigation tasks on P1/P2 incidents",
+      `Confirm owner and next stage on ${lead.id}`,
       "Link latest community meeting notes to sentiment captures",
-      "Prepare assurance pack with timeline citations",
+      "Prepare assurance pack with timeline citations from the case desk",
     ],
-    citedIncidentIds: input.incidentIds ?? ["INC-1001", "INC-1004"],
+    citedIncidentIds: cited,
     model: MODEL,
     promptVersion: PROMPT_VERSION,
   };
@@ -212,26 +224,30 @@ function mockActivityReport(
     }
   }
 
-  // Minimal facts so we still write a real report if JSON is missing.
-  if (!facts) {
+  // Minimal facts so we still write a real report if JSON is missing / empty.
+  if (!facts || !facts.attended?.length) {
+    const seed = mockIncidents.slice(0, 6);
+    const open = seed.filter((i) => i.status !== "Closed");
     facts = {
-      attended: [],
-      escalated: [],
-      resolved: [],
-      pending: [],
-      unresolvedBlocked: [],
-      meetingCaptures: [],
+      attended: seed,
+      escalated: seed.filter((i) => i.escalationLevel !== "None"),
+      resolved: seed.filter((i) => i.status === "Closed"),
+      pending: open,
+      unresolvedBlocked: seed.filter((i) => i.slaBreached),
+      meetingCaptures: facts?.meetingCaptures || [],
       evidence: [
-        {
-          id: "ev-fallback",
-          kind: "other",
-          label: "Workspace evidence block (see facts)",
-        },
+        ...(facts?.evidence || []),
+        ...seed.slice(0, 3).map((i) => ({
+          id: `ev-${i.id}`,
+          kind: "other" as const,
+          label: `${i.id} — ${i.title}`,
+          incidentId: i.id,
+        })),
       ],
-      trustIndex: 50,
-      trustLabel: "Unknown",
-      avgSentiment: null,
-      projectName: input.projectName,
+      trustIndex: facts?.trustIndex ?? 55,
+      trustLabel: facts?.trustLabel ?? "Watch",
+      avgSentiment: facts?.avgSentiment ?? null,
+      projectName: input.projectName || seed[0]?.projectName,
     };
   }
 
@@ -357,11 +373,20 @@ export const aiService = {
   async generateReportBrief(
     input: ReportBriefRequest,
   ): Promise<ReportBriefSuggestion> {
-    if (USE_MOCK) {
-      await delay();
-      return mockReportBrief(input);
+    // Never call Cloud/Frappe for briefs — srm-core/Grok returns generic
+    // month-end templates with [Insert …] placeholders (no INC-* cases).
+    await delay(400);
+    const local = mockReportBrief(input);
+    const blob = [
+      local.title,
+      local.executiveSummary,
+      ...local.keyRisks,
+      ...local.recommendedActions,
+    ].join("\n");
+    if (looksLikeReportTemplateGuide(blob)) {
+      throw new Error("Evidence brief refused to return a template guide.");
     }
-    return callFrappeMethod(FRAPPE_METHODS.generateReportBrief, { ...input });
+    return local;
   },
 
   async suggestStakeholdersFromText(
@@ -380,14 +405,16 @@ export const aiService = {
     input: ActivityReportComposeRequest,
   ): Promise<ActivityReportComposeSuggestion> {
     // Evidence writer only — never call Cloud LLM for activity reports.
-    // Live Grok/srm-core prompts have been returning how-to templates with
-    // placeholders like [Month/Year] and no case IDs from demo data.
+    // Live Grok/srm-core prompts return how-to templates with placeholders.
     await delay(450);
     const local = mockActivityReport(input);
     if (looksLikeReportTemplateGuide(local.bodyMarkdown)) {
       throw new Error("Composer refused to return a template guide.");
     }
-    if (!local.bodyMarkdown.includes("INC-") && input.factsJson?.includes("INC-")) {
+    if (
+      !local.bodyMarkdown.includes("INC-") &&
+      input.factsJson?.includes("INC-")
+    ) {
       throw new Error("Composer did not cite workspace case evidence.");
     }
     return local;

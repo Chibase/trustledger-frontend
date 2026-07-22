@@ -8,9 +8,9 @@ import type { VerifiedPaystackTransaction } from "@/lib/paystackServer";
 import { getPaystackPlan } from "@/lib/paystackPlans";
 import {
   computeBillAt,
-  generateTempPassword,
   hashTrialPassword,
   signTrialActivationToken,
+  tempPasswordForReference,
 } from "@/lib/trialProvision";
 import {
   sendTrialWelcomeEmail,
@@ -133,7 +133,7 @@ export async function provisionAfterPaystackVerify(
     };
   }
 
-  const tempPassword = generateTempPassword();
+  const tempPassword = tempPasswordForReference(verified.reference);
   const passHash = hashTrialPassword(tempPassword);
   const activationToken = signTrialActivationToken({
     email,

@@ -41,6 +41,8 @@ Add alternate operator emails as a comma-separated list if needed.
 
 You can keep `PLATFORM_OPERATOR_EMAILS` set for future staff tools without enforcing lockdown.
 
+**Soft public launch (ADR-027):** Do **not** lift this yet for buyers. They use `/pay` + `/trial` with live Paystack while you keep operator-only live Frappe. See `docs/PUBLIC_LAUNCH.md`.
+
 ## UI signal
 
 Live sessions under lockdown show a **Platform Operator** banner and Settings → Access control status.

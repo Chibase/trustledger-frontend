@@ -16,7 +16,7 @@ import {
   SESSION_MAX_AGE_SECONDS,
 } from "@/lib/auth.constants";
 import type { PlanId } from "@/config/plans";
-import type { DeskTier } from "@/types/deskTier";
+import { PLAN_OWNER_DESK_TIER, type DeskTier } from "@/types/deskTier";
 import type { UserRole } from "@/types/rbac";
 import { ensureOwnerOrg } from "@/lib/orgStore";
 
@@ -42,7 +42,7 @@ export function applyOrgOwnerSession(input: {
   setCookie(TL_TRIAL_PLAN_COOKIE, input.planId, maxAge);
   setCookie(TL_ORG_ID_COOKIE, input.orgId, maxAge);
   setCookie(TL_ORG_OWNER_COOKIE, "1", maxAge);
-  setCookie(TL_DESK_TIER_COOKIE, "supervisor", maxAge);
+  setCookie(TL_DESK_TIER_COOKIE, PLAN_OWNER_DESK_TIER[input.planId], maxAge);
   setCookie(TL_DESK_TIER_LOCKED_COOKIE, "0", maxAge);
   if (mode === "trial" && input.startedAt) {
     setCookie(TL_TRIAL_STARTED_COOKIE, input.startedAt, maxAge);

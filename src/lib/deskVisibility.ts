@@ -7,6 +7,7 @@ import {
   DEFAULT_VISIBILITY_MATRIX,
   DESK_TIERS,
   ROLE_DEFAULT_DESK_TIER,
+  normalizeDeskTier,
   type DeskTier,
   type TierVisibility,
   type VisibilityFlag,
@@ -16,17 +17,12 @@ import {
 const TIER_KEY = "tl-desk-tier";
 const MATRIX_KEY = "tl-visibility-matrix";
 
-function isDeskTier(value: string): value is DeskTier {
-  return (DESK_TIERS as readonly string[]).includes(value);
-}
-
 function readDeskTierCookie(): DeskTier | null {
   if (typeof document === "undefined") return null;
   const match = document.cookie.match(/(?:^|;\s*)tl-desk-tier=([^;]*)/);
   if (!match) return null;
   try {
-    const raw = decodeURIComponent(match[1]);
-    return isDeskTier(raw) ? raw : null;
+    return normalizeDeskTier(decodeURIComponent(match[1]));
   } catch {
     return null;
   }
@@ -42,8 +38,8 @@ export function readDeskTier(role: UserRole): DeskTier {
   const fromCookie = readDeskTierCookie();
   if (isDeskTierLocked() && fromCookie) return fromCookie;
   try {
-    const raw = window.localStorage.getItem(TIER_KEY);
-    if (raw && isDeskTier(raw)) return raw;
+    const normalized = normalizeDeskTier(window.localStorage.getItem(TIER_KEY));
+    if (normalized) return normalized;
   } catch {
     /* ignore */
   }
@@ -61,6 +57,14 @@ export function writeDeskTier(tier: DeskTier) {
 function mergeMatrix(partial: Partial<VisibilityMatrix> | null): VisibilityMatrix {
   const out = structuredClone(DEFAULT_VISIBILITY_MATRIX);
   if (!partial) return out;
+  const legacy = partial as Partial<Record<string, TierVisibility>>;
+  for (const rawKey of Object.keys(legacy)) {
+    const tier = normalizeDeskTier(rawKey);
+    if (!tier) continue;
+    const row = legacy[rawKey];
+    if (!row) continue;
+    out[tier] = { ...out[tier], ...row };
+  }
   for (const tier of DESK_TIERS) {
     const row = partial[tier];
     if (!row) continue;

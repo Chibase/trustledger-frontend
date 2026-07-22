@@ -30,11 +30,38 @@ export type SignedTrialToken = {
 };
 
 function tokenSecret(): string {
-  return (
-    process.env.TRIAL_TOKEN_SECRET?.trim() ||
-    process.env.PAYSTACK_SECRET_KEY?.trim() ||
-    "trustledger-dev-trial-secret"
-  );
+  const explicit = process.env.TRIAL_TOKEN_SECRET?.trim();
+  if (explicit) return explicit;
+  const paystack = process.env.PAYSTACK_SECRET_KEY?.trim();
+  if (paystack) return paystack;
+  const isProd =
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production";
+  if (isProd) {
+    throw new Error(
+      "TRIAL_TOKEN_SECRET (or PAYSTACK_SECRET_KEY) must be set in production",
+    );
+  }
+  return "trustledger-dev-trial-secret";
+}
+
+/**
+ * Stable temp password for a Paystack reference so verify remounts
+ * do not mint a new password on every refresh.
+ */
+export function tempPasswordForReference(
+  reference: string,
+  length = 10,
+): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const digest = createHmac("sha256", tokenSecret())
+    .update(`tl-trial-temp:${reference}`)
+    .digest();
+  let out = "";
+  for (let i = 0; i < length; i += 1) {
+    out += alphabet[digest[i]! % alphabet.length];
+  }
+  return out;
 }
 
 export function trialVerifyCents(): number {

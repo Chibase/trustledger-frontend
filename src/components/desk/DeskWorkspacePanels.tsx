@@ -44,7 +44,7 @@ function rankFilings(rows: Incident[]): Incident[] {
     .filter((i) => i.status !== "Closed")
     .filter((i) => {
       const tier = i.filedByTier;
-      return !tier || tier === "clo" || tier === "site";
+      return !tier || tier === "clo" || tier === "supervisor";
     })
     .sort((a, b) => {
       const pr = priorityRank(b.priority) - priorityRank(a.priority);

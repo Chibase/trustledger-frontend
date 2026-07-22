@@ -47,9 +47,23 @@ export function looksLikeReportTemplateGuide(text: string): boolean {
     /\[Your Name\]/i,
     /\[Chosen Topics\]/i,
     /\[Insert Topic/i,
+    /\[Insert Date\]/i,
+    /\[Insert Total Sales\]/i,
+    /\[Insert Percentage\]/i,
+    /\[Insert Number\]/i,
+    /\[Insert Process Improvement\]/i,
+    /\[Insert Outcome\]/i,
+    /\[Insert Method\]/i,
+    /\[List Products\]/i,
+    /\[List key goals/i,
+    /\[Highlight any team/i,
+    /\[Describe any significant challenges/i,
+    /\[Briefly outline any expected challenges/i,
+    /\[Include any additional data/i,
     /\[Month\/Year\]/i,
     /\[Month\b/i,
     /Feel free to customize/i,
+    /customize the placeholders/i,
     /Adjust the content as necessary/i,
     /Provide a brief overview/i,
     /Outline the importance of this topic/i,
@@ -66,13 +80,21 @@ export function looksLikeReportTemplateGuide(text: string): boolean {
     /This structure will ensure that the report/i,
     /Highlight the most significant trends/i,
     /Offer strategic recommendations for future actions/i,
+    /This month has been marked by significant developments across various sectors/i,
+    /enhancing operational efficiency, improving customer engagement/i,
+    /Top Selling Products/i,
+    /Customer Retention Rate/i,
   ];
   let hits = 0;
   for (const re of probes) {
     if (re.test(text)) hits += 1;
   }
   // One strong hit is enough for obvious template markers
-  if (/\[Month\/Year\]|\[Insert\b|Feel free to customize|we will structure the report/i.test(text)) {
+  if (
+    /\[Month\/Year\]|\[Insert\b|Feel free to customize|customize the placeholders|we will structure the report|End of Report/i.test(
+      text,
+    )
+  ) {
     return true;
   }
   return hits >= 2;

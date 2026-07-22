@@ -1,5 +1,33 @@
 # Internal changelog
 
+## 2026-07-22 — Report AI: never use Frappe/Grok templates
+
+- `generateReportBrief` and `composeActivityReport` both use local evidence writer only
+- Template detector expanded for Month-End / `[Insert …]` / sales-metric placeholders
+- Create report always seeds `mockIncidents` even when live Frappe list is empty
+- Briefs cite real INC-* titles from demo data
+
+## 2026-07-22 — Soft public launch + live Paystack readiness
+
+- ADR-027: public trial/pay with live Paystack; Frappe live login stays operator-gated
+- Bugbot rules (`.cursor/BUGBOT.md`), PR template, `docs/CURSOR_AGENTS.md`, `docs/PUBLIC_LAUNCH.md`
+- Invite accept re-checks plan desk cap; opt-out verifies Paystack reference+email (no client auth-code)
+- Stable trial temp password per reference; production requires trial/Paystack secret
+- Launch checklist updated for live key cutover
+
+## 2026-07-22 — Desk ranks 1 (Client/Board) → 5 (CLO)
+
+- Five desks ordered high→low: funder, executive (CEO/MD), delivery, supervisor, clo
+- Plan Owner desk by plan (Practitioner supervisor, Project delivery, Institutional funder)
+- Invites only ranks strictly below Owner; higher options greyed in picker + privilege matrix
+- Legacy `site` / `oversight` ids normalize to supervisor / executive
+
+## 2026-07-22 — Invite desk exposure gated by plan
+
+- Desk exposure on invite lists all tiers; desks above the plan are greyed / disabled
+- Project: CLO / site / supervisor; Institutional: full ladder; Practitioner: no invites
+- Privilege matrix columns for above-plan desks greyed; createOrgInvite enforces the cap
+
 ## 2026-07-22 — Settings: plan on top; Owner invites & privileges only
 
 - Read-only plan banner at top of Settings (no plan / desk self-toggle for clients)

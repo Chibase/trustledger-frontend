@@ -258,3 +258,16 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Demo/trial Owners can manage seats without Cloud Users; invite links only work on the same browser store until Cloud sync; no change to ADR-013 lockdown.
 - **Alternatives considered:** Wait for lockdown lift (rejected — blocks product learning); fake multi-user without seat model (rejected — contradicts ACCESS_MODEL).
 
+### ADR-027: Soft public launch (live Paystack, operator-gated Frappe)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Product is ready to offer to clients with plan-gated modules and ranked desks. Live Paystack must collect trial authorizations; Frappe Customer/User SoT (T5) is not ready. Full ADR-013 lift would expose live `/app` + BFF without Owner issuance.
+- **Decision:**
+  1. **Public:** marketing, demo, assessment, `/trial`, `/pay` (live Paystack keys), invite accept (demo tenancy).
+  2. **Keep `PLATFORM_OPERATOR_ONLY=1`** for `/login/live`, live `/app`, and `/api/frappe` until T5.
+  3. `/ops` remains allowlist-only always.
+  4. Quality gates: Bugbot on client-facing PRs; Security Agents on payment/auth changes; Cloud Agents for packets (`docs/CURSOR_AGENTS.md`, `docs/PUBLIC_LAUNCH.md`).
+- **Consequences:** Clients subscribe/trial without Frappe logins; Plan Owner Cloud users stay manual/paused; messaging must say modules expand by plan over time.
+- **Alternatives considered:** Full lockdown lift now (rejected — no SoT Owner issuance); stay on Paystack test forever (rejected — blocks real clients).
+
