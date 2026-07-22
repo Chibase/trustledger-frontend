@@ -36,7 +36,8 @@ FRAPPE_BASE_URL=https://app.trustledger.co.za
 
 | Route | Who | Behaviour |
 |-------|-----|-----------|
-| `POST /api/frappe/provision-owner` | Platform Operator + `FRAPPE_OWNER_ISSUANCE=1` | Returns Customer + User **drafts** + checklist; optional `dryRun: true` (default). Live create only when `dryRun: false` **and** keys present. |
+| `POST /api/frappe/ensure-custom-fields` | Platform Operator + `FRAPPE_OWNER_ISSUANCE=1` | Idempotent create of Customer/User `custom_*` fields (`dryRun` default true). |
+| `POST /api/frappe/provision-owner` | Platform Operator + `FRAPPE_OWNER_ISSUANCE=1` | Returns Customer + User **drafts** + checklist; optional `dryRun: true` (default). Live create (`dryRun: false`) auto-ensures fields then creates docs. |
 | `POST /api/frappe/crm-setup` | Token | Lead sources/views (existing) |
 
 ## Customer custom fields (Desk)

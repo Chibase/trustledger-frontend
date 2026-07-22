@@ -37,6 +37,35 @@ export function ProvisionOwnerPanel({
 
   if (!isOperator) return null;
 
+  async function ensureFields(dryRun: boolean) {
+    setBusy(true);
+    setResult("");
+    try {
+      const res = await fetch("/api/frappe/ensure-custom-fields", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ dryRun }),
+      });
+      const json = (await res.json()) as {
+        error?: string;
+        message?: string;
+        ok?: boolean;
+      };
+      if (!res.ok) {
+        pushToast(json.error || json.message || "Field ensure failed", "error");
+        setResult(JSON.stringify(json, null, 2));
+        return;
+      }
+      pushToast(json.message || "Fields checked", "success");
+      setResult(JSON.stringify(json, null, 2));
+    } catch {
+      pushToast("Network error", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function run(dryRun: boolean) {
     setBusy(true);
     setResult("");
@@ -53,6 +82,7 @@ export function ProvisionOwnerPanel({
           orgId: orgId || undefined,
           dryRun,
           hasCrmLead: true,
+          ensureFields: !dryRun,
         }),
       });
       const json = (await res.json()) as {
@@ -78,13 +108,13 @@ export function ProvisionOwnerPanel({
 
   return (
     <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
-      <h2 className="font-semibold text-tl-ink">Frappe Owner provision (T5)</h2>
+      <h2 className="font-semibold text-tl-ink">Frappe Owner provision (Step 1)</h2>
       <p className="mt-1 text-xs text-tl-ink-muted">
-        Platform Operator only. Builds Customer + Plan Owner User drafts for
-        Cloud. Live create needs{" "}
+        Platform Operator only. Ensures Desk custom fields, then builds Customer
+        + Plan Owner User. Needs{" "}
         <code className="font-mono">FRAPPE_OWNER_ISSUANCE=1</code> and API keys.
-        Keep ADR-013 lockdown ON for buyers until smoke login works. See{" "}
-        <span className="font-mono">docs/FRAPPE_SOT.md</span>.
+        Keep ADR-013 lockdown ON until smoke login works. See{" "}
+        <span className="font-mono">docs/OPERATIONAL_DELIVERY.md</span>.
       </p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         <label className="text-xs">
@@ -130,6 +160,22 @@ export function ProvisionOwnerPanel({
         <button
           type="button"
           disabled={busy}
+          onClick={() => void ensureFields(true)}
+          className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
+        >
+          Check Desk fields
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void ensureFields(false)}
+          className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
+        >
+          Create Desk fields
+        </button>
+        <button
+          type="button"
+          disabled={busy}
           onClick={() => void run(true)}
           className="rounded-md bg-tl-trust px-3 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-50"
         >
@@ -139,7 +185,7 @@ export function ProvisionOwnerPanel({
           type="button"
           disabled={busy}
           onClick={() => void run(false)}
-          className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
+          className="rounded-md border border-tl-amber/50 bg-tl-amber/10 px-3 py-2 text-sm font-medium hover:bg-tl-amber/20 disabled:opacity-50"
         >
           Create on Cloud
         </button>

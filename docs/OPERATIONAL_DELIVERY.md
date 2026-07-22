@@ -23,9 +23,40 @@ GO LIVE  Operational grade
 
 **Goal:** One real Customer + Plan Owner User on `app.trustledger.co.za`; operator can provision via Ops; buyer live login works for that Owner only after smoke (lockdown still on for the public).
 
-### Your actions on Frappe Cloud (Desk)
+### Split: agent vs you
 
-1. Open **Customize Form → Customer** and add fields (or confirm they exist):
+| Who | What |
+|-----|------|
+| **Agent (done in repo)** | Ops `/ops/readiness`, `POST /api/frappe/ensure-custom-fields`, provision auto-creates Desk fields on live create, User custom fields on create |
+| **You (cannot automate from here)** | Vercel env + merge/deploy + one Ops click smoke + controlled live login |
+
+There are **no Frappe/Vercel secrets in the agent environment**, so Desk writes and production smoke must run on your Vercel deployment after you flip the flag.
+
+### Your actions only (short)
+
+1. **Merge** the OD-1 PR and wait for Vercel deploy.
+2. On **Vercel** set/confirm:
+
+```bash
+FRAPPE_OWNER_ISSUANCE=1
+FRAPPE_API_KEY=…          # must create Customer, User, Custom Field
+FRAPPE_API_SECRET=…
+FRAPPE_BASE_URL=https://app.trustledger.co.za
+PLATFORM_OPERATOR_ONLY=1
+PLATFORM_OPERATOR_EMAILS=admin@chibaseconsulting.co.za
+```
+
+Redeploy after env changes.
+
+3. Live-login as Platform Operator → **Ops → Accounts**:
+   - Optional: **Check Desk fields** / **Create Desk fields**
+   - **Dry-run draft** for a **test** buyer email you control
+   - **Create on Cloud** (auto-ensures custom fields, then creates Customer + User)
+   - Confirm Customer + User in Desk
+
+4. Smoke `/login/live` as that Owner (temporarily add their email to `PLATFORM_OPERATOR_EMAILS` if needed). Confirm `/app` with **no demo `INC-*` seed**.
+
+### Fallback — manual Desk fields (only if API ensure fails)
 
 | Fieldname | Label | Type | Options |
 |-----------|-------|------|---------|
@@ -36,41 +67,15 @@ GO LIVE  Operational grade
 | `custom_tl_org_id` | TrustLedger org id | Data | — |
 | `custom_owner_email` | Owner email | Data | — |
 
-2. **Customize Form → User** (optional but recommended):
-
-| Fieldname | Label | Type |
-|-----------|-------|------|
-| `custom_tl_desk_tier` | Desk tier | Data |
-| `custom_tl_plan_owner` | Plan Owner | Check |
-| `custom_tl_customer` | Customer | Link → Customer |
-
-3. Ensure API key user can **create** Customer + User (or use Administrator key for smoke only).
-
-4. On **Vercel** set:
-
-```bash
-FRAPPE_OWNER_ISSUANCE=1
-FRAPPE_API_KEY=…
-FRAPPE_API_SECRET=…
-FRAPPE_BASE_URL=https://app.trustledger.co.za
-PLATFORM_OPERATOR_ONLY=1
-PLATFORM_OPERATOR_EMAILS=admin@chibaseconsulting.co.za
-```
-
-5. Sign in as Platform Operator → **Ops → Accounts** (or **Ops → Readiness**):
-   - Dry-run draft for a **test** buyer email you control
-   - Create on Cloud (`dryRun: false`)
-   - Confirm Customer + User appear in Desk
-
-6. Test `/login/live` as that Owner (still allowlisted or temporarily add their email to `PLATFORM_OPERATOR_EMAILS` for smoke only). Confirm session reaches `/app` without demo seed.
+User (recommended): `custom_tl_desk_tier`, `custom_tl_plan_owner`, `custom_tl_customer` (Link → Customer).
 
 ### Done when
 
-- [ ] Customer custom fields exist  
+- [ ] Vercel issuance + keys live  
 - [ ] Dry-run returns drafts  
-- [ ] Live create succeeds once  
+- [ ] Live create succeeds once (fields exist or were auto-created)  
 - [ ] Owner can live-login in a controlled smoke  
-- [ ] Checklist on Ops Readiness shows Step 1 green  
+- [ ] `PLATFORM_OPERATOR_ONLY` still **ON**  
 
 **Then tell the agent: “Step 1 complete”** → we start Step 2.
 

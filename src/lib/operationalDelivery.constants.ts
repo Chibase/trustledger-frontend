@@ -54,10 +54,9 @@ export const OPERATIONAL_STEP1_REQUIRED_LABELS = [
 ] as const;
 
 export const STEP1_DESK_CHECKLIST: string[] = [
-  "Customize Form → Customer: custom_plan_code, custom_seat_limit, custom_project_limit, custom_entitlement_status, custom_tl_org_id, custom_owner_email",
-  "Customize Form → User (recommended): custom_tl_desk_tier, custom_tl_plan_owner, custom_tl_customer",
-  "API key user can create Customer + User",
-  "Vercel: FRAPPE_OWNER_ISSUANCE=1 + API keys + PLATFORM_OPERATOR_ONLY=1",
-  "Ops → Accounts: dry-run then Create on Cloud for a test buyer email you control",
+  "Merge OD-1 PR and wait for Vercel deploy",
+  "Vercel: FRAPPE_OWNER_ISSUANCE=1 + API keys (Customer/User/Custom Field create) + PLATFORM_OPERATOR_ONLY=1",
+  "Ops → Accounts: Check/Create Desk fields (or rely on Create on Cloud auto-ensure)",
+  "Dry-run then Create on Cloud for a test buyer email you control",
   "Smoke /login/live as that Owner (temporarily allowlist if needed); confirm no demo INC-* seed",
 ];

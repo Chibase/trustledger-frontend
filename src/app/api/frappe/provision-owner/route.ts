@@ -7,6 +7,7 @@ import {
   frappeBase,
   frappeKeyPair,
 } from "@/lib/leadCapture";
+import { ensureTrustLedgerCustomFields } from "@/lib/frappeCustomFields";
 import {
   buildCustomerDraft,
   buildOwnerUserDraft,
@@ -32,6 +33,8 @@ type Body = {
   hasCrmLead?: boolean;
   /** Default true — never creates Cloud docs unless explicitly false. */
   dryRun?: boolean;
+  /** On live create, ensure Desk custom fields first (default true). */
+  ensureFields?: boolean;
 };
 
 /**
@@ -129,6 +132,26 @@ export async function POST(request: Request) {
     );
   }
 
+  const ensureFields = body.ensureFields !== false;
+  let fieldsResult: Awaited<ReturnType<typeof ensureTrustLedgerCustomFields>> | null =
+    null;
+  if (ensureFields) {
+    fieldsResult = await ensureTrustLedgerCustomFields({ dryRun: false });
+    if (!fieldsResult.ok) {
+      return NextResponse.json(
+        {
+          error:
+            "Custom fields ensure failed — fix Desk permissions or create fields manually, then retry.",
+          fields: fieldsResult,
+          customer,
+          user,
+          checklist,
+        },
+        { status: 502 },
+      );
+    }
+  }
+
   try {
     const customerRes = await fetch(`${base}/api/resource/Customer`, {
       method: "POST",
@@ -154,11 +177,22 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: `Customer create failed (${customerRes.status}): ${customerText.slice(0, 300)}`,
+          fields: fieldsResult,
           customer,
           user,
         },
         { status: 502 },
       );
+    }
+
+    let customerName = customer.customer_name;
+    try {
+      const parsed = JSON.parse(customerText) as {
+        data?: { name?: string };
+      };
+      if (parsed.data?.name) customerName = parsed.data.name;
+    } catch {
+      /* keep draft name */
     }
 
     const userRes = await fetch(`${base}/api/resource/User`, {
@@ -174,6 +208,9 @@ export async function POST(request: Request) {
         last_name: user.last_name,
         send_welcome_email: user.send_welcome_email ? 1 : 0,
         roles: user.roles.map((role) => ({ role })),
+        custom_tl_desk_tier: user.tl_desk_tier,
+        custom_tl_plan_owner: user.tl_plan_owner,
+        custom_tl_customer: customerName,
       }),
     });
     const userText = await userRes.text();
@@ -182,6 +219,7 @@ export async function POST(request: Request) {
         {
           error: `User create failed (${userRes.status}): ${userText.slice(0, 300)}`,
           customerCreated: true,
+          fields: fieldsResult,
           customer,
           user,
         },
@@ -192,15 +230,18 @@ export async function POST(request: Request) {
     return NextResponse.json({
       dryRun: false,
       ok: true,
+      fields: fieldsResult,
       customer,
       user,
       checklist,
-      message: "Customer + User created on Frappe Cloud. Keep ADR-013 on until smoke login.",
+      message:
+        "Customer + User created on Frappe Cloud. Keep ADR-013 on until smoke login.",
     });
   } catch (err) {
     return NextResponse.json(
       {
         error: err instanceof Error ? err.message : "Provision failed",
+        fields: fieldsResult,
         customer,
         user,
       },
