@@ -2,7 +2,7 @@
 
 **North star:** TEDS Volume 1 MVP domains that close the market gap.  
 **Policy:** Soft launch may wait until V002 core is credible (ADR-023).  
-**Active packet:** **T3 — Org data space** (customer data isolated from demo seed; ADR-029).
+**Active packet:** **T4 + T5** — media quotas + Frappe SoT prep (ADR-030 / ADR-031).
 
 ## Priority order (do not reshuffle without reason)
 

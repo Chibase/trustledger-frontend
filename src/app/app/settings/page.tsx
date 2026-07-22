@@ -5,6 +5,7 @@ import { DeskSettingsPanel } from "@/components/settings/DeskSettingsPanel";
 import { EntitlementsSettingsPanel } from "@/components/settings/EntitlementsSettingsPanel";
 import { ReportPackAccessPanel } from "@/components/settings/ReportPackAccessPanel";
 import { DataSpacePanel } from "@/components/org/DataSpacePanel";
+import { MediaLibraryPanel } from "@/components/org/MediaLibraryPanel";
 import { SettingsPlanBanner } from "@/components/settings/SettingsPlanBanner";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
 import { getCurrentUser } from "@/lib/auth";
@@ -76,6 +77,10 @@ export default async function AppSettingsPage() {
             isPlanOwner={isPlanOwner}
           />
           <DataSpacePanel isPlanOwner={isPlanOwner} />
+          <MediaLibraryPanel
+            planId={user.trialPlan}
+            isPlanOwner={isPlanOwner}
+          />
         </section>
       ) : (
         <>
