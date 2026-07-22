@@ -78,9 +78,16 @@ export function looksLikeReportTemplateGuide(text: string): boolean {
     /Data Sources:\s*Briefly describe/i,
     /we will structure the report/i,
     /This structure will ensure that the report/i,
+    /This structure can be tailored/i,
+    /To create a comprehensive monthly report/i,
+    /comprehensive monthly report/i,
+    /Monthly Report:\s*\[Month/i,
+    /Topic 1:\s*\[Insert Topic Name\]/i,
+    /Key achievements and milestones reached/i,
+    /Additional resources or references for further reading/i,
     /Highlight the most significant trends/i,
     /Offer strategic recommendations for future actions/i,
-    /This month has been marked by significant developments across various sectors/i,
+    /This month has been marked by significant developments/i,
     /enhancing operational efficiency, improving customer engagement/i,
     /Top Selling Products/i,
     /Customer Retention Rate/i,
@@ -91,7 +98,7 @@ export function looksLikeReportTemplateGuide(text: string): boolean {
   }
   // One strong hit is enough for obvious template markers
   if (
-    /\[Month\/Year\]|\[Insert\b|Feel free to customize|customize the placeholders|we will structure the report|End of Report/i.test(
+    /\[Month\/Year\]|\[Insert\b|Feel free to customize|customize the placeholders|we will structure the report|This structure can be tailored|comprehensive monthly report|End of Report/i.test(
       text,
     )
   ) {

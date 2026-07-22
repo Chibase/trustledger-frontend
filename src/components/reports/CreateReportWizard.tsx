@@ -103,6 +103,12 @@ export function CreateReportWizard({
   useEffect(() => {
     // Drop old Cloud LLM month-end drafts from this browser.
     setPurgedTemplates(purgeTemplateGuideReports());
+    // Never keep a leftover Month-End paste in the editor across visits.
+    setBody("");
+    setDraft(null);
+    setStatus("idle");
+    setError(null);
+    setSavedId(null);
     const trial = readTrialModeFromDocument();
     const localI = trial ? listTrialIncidents() : listDemoIncidents();
     const localP = trial ? listTrialProjects() : listDemoProjects();
@@ -198,6 +204,16 @@ export function CreateReportWizard({
       if (looksLikeReportTemplateGuide(result.bodyMarkdown)) {
         throw new Error(
           "AI returned a template guide instead of a report. The evidence writer blocked it — try again.",
+        );
+      }
+      if (!/\bINC-\d+/i.test(result.bodyMarkdown)) {
+        throw new Error(
+          "Draft missing case citations (INC-*). Evidence writer did not run — hard-refresh and retry.",
+        );
+      }
+      if (!String(result.model || "").includes("trustledger-evidence")) {
+        throw new Error(
+          `Unexpected model “${result.model}”. Expected trustledger-evidence — hard-refresh the page.`,
         );
       }
       setDraft(result);

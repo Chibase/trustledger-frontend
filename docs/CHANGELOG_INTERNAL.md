@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-22 — Hard-block Cloud report AI + reject user’s Month/Year template
+
+- `/api/frappe` returns 403 for `compose_activity_report` / `generate_report_brief`
+- Template detector covers “comprehensive monthly report”, `[Month/Year]`, Topic 1 placeholders
+- Create report clears stale editor body; refuses drafts without `INC-*` or `trustledger-evidence` model
+
 ## 2026-07-22 — Reports ignore Frappe seed; purge browser templates
 
 - Create report grounds only on `mockIncidents` / local demo·trial stores — never live Frappe lists
