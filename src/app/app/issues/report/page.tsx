@@ -10,7 +10,6 @@ import { useToast } from "@/components/ui/Toast";
 import {
   createDemoIncidentId,
   createDemoProjectId,
-  listDemoProjects,
   saveDemoIncident,
   saveDemoProject,
 } from "@/lib/demoStore";
@@ -21,14 +20,13 @@ import {
   suggestStaffTier,
   type ComplaintNatureId,
 } from "@/lib/grievanceProcess";
+import { saveOrgIncident, saveOrgProject } from "@/lib/orgDataSpace";
 import {
   createTrialIncidentId,
   ensureTrialSeedProject,
-  listTrialProjects,
-  saveTrialIncident,
-  saveTrialProject,
 } from "@/lib/trialStore";
 import { readTrialModeFromDocument } from "@/lib/trial";
+import { listWorkspaceProjects } from "@/lib/workspaceData";
 import { aiService } from "@/services/aiService";
 import { projectService } from "@/services/projectService";
 import type { AiSuggestionStatus, IncidentTriageSuggestion } from "@/types/ai";
@@ -93,12 +91,9 @@ export default function AppReportIssuePage() {
     (async () => {
       const trial = readTrialModeFromDocument();
       if (trial) ensureTrialSeedProject();
-      const seeded = await projectService.list();
-      const local = trial ? listTrialProjects() : listDemoProjects();
-      const byId = new Map<string, Project>();
-      for (const p of [...local, ...seeded]) byId.set(p.id, p);
+      const seeded = trial ? [] : await projectService.list();
       if (cancelled) return;
-      const rows = [...byId.values()];
+      const rows = listWorkspaceProjects(seeded);
       setProjects(rows);
       if (rows[0]) setProjectId(rows[0].id);
     })();
@@ -155,7 +150,7 @@ export default function AppReportIssuePage() {
         targetEndDate: today,
         publicSummary: "Created from issue intake.",
       };
-      if (trial) saveTrialProject(project);
+      if (trial) saveOrgProject(project);
       else saveDemoProject(project);
       setProjects((prev) => {
         const byId = new Map(prev.map((p) => [p.id, p]));
@@ -297,12 +292,12 @@ export default function AppReportIssuePage() {
           },
         ],
       };
-      if (trial) saveTrialIncident(incident);
+      if (trial) saveOrgIncident(incident);
       else saveDemoIncident(incident);
       setSubmittedId(id);
       pushToast(
         trial
-          ? "Issue saved in your trial workspace"
+          ? "Issue saved in your organisation data space"
           : "Issue saved in this browser",
         "success",
       );

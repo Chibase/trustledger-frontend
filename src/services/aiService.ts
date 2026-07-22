@@ -6,6 +6,7 @@ import {
   looksLikeReportTemplateGuide,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
+import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type { ReportSectionId } from "@/types/activityReport";
 import { REPORT_SECTION_IDS } from "@/types/activityReport";
 import type {
@@ -225,7 +226,13 @@ function mockActivityReport(
   }
 
   // Minimal facts so we still write a real report if JSON is missing / empty.
+  // Customer workspaces must never fall back to demo INC-* seed.
   if (!facts || !facts.attended?.length) {
+    if (isCustomerWorkspaceClient()) {
+      throw new Error(
+        "No cases in your org data space — import CSV or log a case before writing a report.",
+      );
+    }
     const seed = mockIncidents.slice(0, 6);
     const open = seed.filter((i) => i.status !== "Closed");
     facts = {

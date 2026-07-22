@@ -1,21 +1,22 @@
 import { ActivityDashboard } from "@/components/dashboard/ActivityDashboard";
 import { PlanOwnerMasterPanel } from "@/components/org/PlanOwnerMasterPanel";
 import { getCurrentUser } from "@/lib/auth";
+import { isCustomerWorkspaceUser } from "@/lib/workspaceMode";
 import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
 
 /**
  * Activity dashboard — overall navigation + project activity pulse.
- * Companion Reports dashboard lives at `/app/reports` (ADR-028 / packet 24f).
+ * Customer/trial workspaces get empty RSC seeds (no demo contamination).
  */
 export default async function AppDashboardPage() {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  const [incidents, projects] = await Promise.all([
-    incidentService.list(),
-    projectService.list(),
-  ]);
+  const customer = isCustomerWorkspaceUser(user);
+  const [incidents, projects] = customer
+    ? [[], []]
+    : await Promise.all([incidentService.list(), projectService.list()]);
 
   const isPlanOwner =
     user.isPlanOwner === true ||

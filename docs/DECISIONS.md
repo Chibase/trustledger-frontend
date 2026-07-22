@@ -285,3 +285,17 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Nav label “Reports”; Create report wizard nests under a chosen pack; juniors only see packs Owner enabled for their desk.
 - **Alternatives considered:** Single mega-dashboard (rejected — mixed jobs); unlock all packs on every plan (rejected — contradicts commercial seniority).
 
+### ADR-029: Org data space before Frappe SoT (T3)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Paying / trial customers must not see TrustLedger demo `INC-*` sample data. Cloud DocTypes (T5) are not ready; buyers still need a place to deposit and work their own projects and cases.
+- **Decision:**
+  1. **Customer workspace** = `tl-mode=trial` or non-demo session with `orgId`.
+  2. Domain data lives in org-scoped browser store `tl-org-data` (projects, incidents, evidence, stakeholders), migrating legacy `tl-trial-*` once.
+  3. Activity / Reports / evidence writer **never merge** static mocks in customer mode.
+  4. Plan Owner deposits via Settings → **Org data space** (CSV import) or normal UI create flows; rows stamp `orgId`.
+  5. T5 later moves the same shapes to Frappe Customer-scoped DocTypes.
+- **Consequences:** Trial/pay workspaces start empty (plus optional blank `PRJ-TRIAL` scaffold); demo path (`/demo`) keeps sample data. Multi-device sync waits for T5.
+- **Alternatives considered:** Keep demo seed in trial for “something to click” (rejected — contaminates paid path); block all product use until T5 (rejected — cannot sell).
+
