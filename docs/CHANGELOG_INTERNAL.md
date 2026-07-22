@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — Settings: plan on top; Owner invites & privileges only
+
+- Read-only plan banner at top of Settings (no plan / desk self-toggle for clients)
+- Removed demo role switcher from Settings
+- Plan Owner section: Team invites + desk privileges matrix for lower ranks
+- Juniors see assigned desk only; off-plan privilege rows stay greyed
+
 ## 2026-07-22 — Grey out off-plan Settings controls
 
 - Visibility-by-desk-tier rows outside the current plan are greyed / disabled with upgrade hint

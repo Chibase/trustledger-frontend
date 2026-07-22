@@ -3,8 +3,8 @@ import { PLANS } from "@/config/plans";
 import { TeamSeatsPanel } from "@/components/org/TeamSeatsPanel";
 import { DeskSettingsPanel } from "@/components/settings/DeskSettingsPanel";
 import { EntitlementsSettingsPanel } from "@/components/settings/EntitlementsSettingsPanel";
+import { SettingsPlanBanner } from "@/components/settings/SettingsPlanBanner";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
-import { TrialRoleSwitcher } from "@/components/shell/TrialRoleSwitcher";
 import { getCurrentUser } from "@/lib/auth";
 import {
   isPlatformOperatorIdentity,
@@ -33,30 +33,60 @@ export default async function AppSettingsPage() {
         <h1 className="font-display text-2xl font-semibold">Settings</h1>
         <p className="mt-1 text-sm text-tl-ink-muted">
           {isPlanOwner
-            ? "Plan Owner controls — team seats, desk tier, and environment."
-            : "Trial session, desk tier, and environment for this build."}
+            ? "Plan Owner — invite juniors, set desk privileges, and review modules on your plan."
+            : "Your organisation membership and assigned desk for this TrustLedger workspace."}
         </p>
       </div>
 
-      <TeamSeatsPanel
-        isPlanOwner={isPlanOwner || user.role === "admin"}
-        userEmail={user.email}
-        userName={user.name}
+      <SettingsPlanBanner
         planId={user.trialPlan}
+        trial={user.trial}
+        isPlanOwner={isPlanOwner}
       />
 
-      {user.mode === "demo" ? (
-        <TrialRoleSwitcher currentRole={user.role} />
-      ) : null}
-
-      <DeskSettingsPanel
-        role={user.role}
-        canEditMatrix={
-          isPlanOwner && user.role === "admin" && !user.deskTierLocked
-        }
-        deskTierLocked={Boolean(user.deskTierLocked)}
-        planId={user.trialPlan}
-      />
+      {isPlanOwner ? (
+        <section className="space-y-4">
+          <div>
+            <h2 className="font-display text-lg font-semibold text-tl-ink">
+              Team & privileges
+            </h2>
+            <p className="mt-1 text-sm text-tl-ink-muted">
+              Invite lower-rank seats and control what each desk may see. Your
+              commercial plan is fixed above — it does not change from this
+              page.
+            </p>
+          </div>
+          <TeamSeatsPanel
+            isPlanOwner={isPlanOwner}
+            userEmail={user.email}
+            userName={user.name}
+            planId={user.trialPlan}
+          />
+          <DeskSettingsPanel
+            role={user.role}
+            isPlanOwner={isPlanOwner}
+            deskTierLocked={Boolean(user.deskTierLocked)}
+            planId={user.trialPlan}
+            assignedDeskTier={user.deskTier}
+          />
+        </section>
+      ) : (
+        <>
+          <TeamSeatsPanel
+            isPlanOwner={false}
+            userEmail={user.email}
+            userName={user.name}
+            planId={user.trialPlan}
+          />
+          <DeskSettingsPanel
+            role={user.role}
+            isPlanOwner={false}
+            deskTierLocked
+            planId={user.trialPlan}
+            assignedDeskTier={user.deskTier}
+          />
+        </>
+      )}
 
       <EntitlementsSettingsPanel
         planId={user.trialPlan}
@@ -96,7 +126,7 @@ export default async function AppSettingsPage() {
           </div>
           {planName ? (
             <div className="flex justify-between gap-4">
-              <dt className="text-tl-ink-muted">Trial plan</dt>
+              <dt className="text-tl-ink-muted">Plan</dt>
               <dd>{planName}</dd>
             </div>
           ) : null}

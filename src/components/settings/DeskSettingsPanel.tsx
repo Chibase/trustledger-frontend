@@ -17,7 +17,6 @@ import {
 import {
   readDeskTier,
   readVisibilityMatrix,
-  writeDeskTier,
   writeVisibilityMatrix,
   isDeskTierLocked,
 } from "@/lib/deskVisibility";
@@ -33,32 +32,44 @@ const FLAGS = Object.keys(VISIBILITY_FLAG_LABELS) as VisibilityFlag[];
 
 type DeskSettingsPanelProps = {
   role: UserRole;
-  canEditMatrix: boolean;
-  /** When true (invitee), desk tier is Owner-assigned and not editable. */
+  /** Plan Owner may edit the privilege matrix for lower desks. */
+  isPlanOwner: boolean;
   deskTierLocked?: boolean;
-  /** Commercial plan — greys out visibility rows not on this plan. */
   planId?: PlanId | null;
+  /** Server-known desk tier when cookies set it (invitee / Owner). */
+  assignedDeskTier?: DeskTier | null;
 };
 
+/**
+ * Desk assignment is read-only for everyone.
+ * Plan Owner alone edits which lower desks see which modules (plan-gated).
+ */
 export function DeskSettingsPanel({
   role,
-  canEditMatrix,
+  isPlanOwner,
   deskTierLocked = false,
   planId,
+  assignedDeskTier = null,
 }: DeskSettingsPanelProps) {
   const { pushToast } = useToast();
   const [tier, setTier] = useState<DeskTier>("clo");
   const [matrix, setMatrix] = useState<VisibilityMatrix | null>(null);
-  const [locked, setLocked] = useState(deskTierLocked);
+  const [locked, setLocked] = useState(true);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      setTier(readDeskTier(role));
+      const fromStorage = readDeskTier(role);
+      setTier(assignedDeskTier || fromStorage);
       setMatrix(readVisibilityMatrix());
-      setLocked(deskTierLocked || isDeskTierLocked());
+      setLocked(
+        deskTierLocked ||
+          isDeskTierLocked() ||
+          !isPlanOwner ||
+          Boolean(assignedDeskTier),
+      );
     });
     return () => cancelAnimationFrame(frame);
-  }, [role, deskTierLocked]);
+  }, [role, deskTierLocked, isPlanOwner, assignedDeskTier]);
 
   if (!matrix) {
     return (
@@ -71,50 +82,35 @@ export function DeskSettingsPanel({
   return (
     <div className="space-y-6">
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
-        <h2 className="font-semibold">My desk tier</h2>
+        <h2 className="font-semibold">Your desk</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          {locked
-            ? "Assigned by your Plan Owner. Desk exposure cannot be raised on this seat."
-            : "Professional level for this session. Defaults from login role; change to preview another desk view."}
+          {isPlanOwner
+            ? "Plan Owner desk for this organisation. Juniors receive a desk when you invite them — they cannot raise exposure themselves."
+            : "Assigned by your Plan Owner. Desk exposure is fixed for this seat."}
         </p>
-        <select
-          className="mt-3 w-full rounded-md border border-tl-line px-3 py-2 disabled:cursor-not-allowed disabled:opacity-70"
-          value={tier}
-          disabled={locked}
-          onChange={(e) => {
-            if (locked) return;
-            const next = e.target.value as DeskTier;
-            setTier(next);
-            writeDeskTier(next);
-            pushToast(`Desk set to ${DESK_TIER_LABELS[next]}`, "success");
-          }}
-        >
-          {DESK_TIERS.map((id) => (
-            <option key={id} value={id}>
-              {DESK_TIER_LABELS[id]}
-            </option>
-          ))}
-        </select>
-        {locked ? (
-          <p className="mt-2 text-xs text-tl-ink-muted">
-            Locked · {DESK_TIER_LABELS[tier]}
-          </p>
-        ) : null}
+        <p className="mt-3 rounded-md border border-tl-line bg-tl-paper px-3 py-2 font-medium text-tl-ink">
+          {DESK_TIER_LABELS[tier]}
+          {locked || !isPlanOwner ? (
+            <span className="ml-2 text-xs font-normal text-tl-ink-muted">
+              · locked
+            </span>
+          ) : null}
+        </p>
       </section>
 
-      {canEditMatrix ? (
+      {isPlanOwner ? (
         <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
-          <h2 className="font-semibold">Visibility by desk tier</h2>
+          <h2 className="font-semibold">Desk privileges for lower ranks</h2>
           <p className="mt-1 text-xs text-tl-ink-muted">
-            Administrator control — who sees graphs, CRM detail, budget, and the
-            supervisor queue. Rows greyed out are not on {planLabel}; upgrade to
-            unlock them.
+            Set what each desk tier may see after you invite them (Settings →
+            Team / Seats). Rows greyed out are not on {planLabel} — upgrade to
+            unlock those privileges.
           </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[36rem] border-collapse text-left text-xs">
               <thead>
                 <tr className="border-b border-tl-line text-tl-ink-muted">
-                  <th className="py-2 pr-2 font-medium">Capability</th>
+                  <th className="py-2 pr-2 font-medium">Privilege</th>
                   {DESK_TIERS.map((id) => (
                     <th key={id} className="px-1 py-2 font-medium">
                       {DESK_TIER_LABELS[id].split(" / ")[0]}
@@ -146,7 +142,7 @@ export function DeskSettingsPanel({
                             Not on {planLabel} ·{" "}
                             <Link
                               href={upgradeHrefForCapability(capability)}
-                              className="underline text-tl-trust-ink"
+                              className="text-tl-trust-ink underline"
                             >
                               {upgradeLabelForCapability(capability)}
                             </Link>
@@ -180,16 +176,16 @@ export function DeskSettingsPanel({
             type="button"
             className="mt-3 rounded-md border border-tl-line px-3 py-1.5 text-xs font-medium hover:bg-tl-paper"
             onClick={() => {
-              pushToast("Visibility matrix saved in this browser", "success");
+              pushToast("Desk privileges saved in this browser", "success");
             }}
           >
-            Confirm save
+            Confirm privileges
           </button>
         </section>
       ) : (
         <p className="text-xs text-tl-ink-muted">
-          Visibility matrix is editable by admin. Your current desk sees what
-          the administrator allows.
+          Desk privileges are set by your Plan Owner. Use Feedback if something
+          looks wrong for your seat.
         </p>
       )}
     </div>

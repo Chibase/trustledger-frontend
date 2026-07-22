@@ -148,11 +148,11 @@ export function TeamSeatsPanel({
       className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4 text-sm"
     >
       <div>
-        <h2 className="font-semibold">Team / Seats</h2>
+        <h2 className="font-semibold">Invite team</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          {org.name} · {planName}. Plan Owner invites juniors and sets their
-          exposure (role + desk tier). Practitioner has no junior seats —
-          upgrade to Project to invite.
+          {org.name} · {planName}. Invite juniors and choose their role + desk
+          exposure. They cannot raise privileges themselves. Practitioner has
+          no junior seats — upgrade to Project to invite.
         </p>
         <p className="mt-2 text-xs text-tl-ink-muted">
           Seats:{" "}
