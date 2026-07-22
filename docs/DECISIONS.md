@@ -213,15 +213,18 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-024: Capability entitlements (plan bundles + add-ons)
 
 - **Date:** 2026-07-22
-- **Status:** Accepted
+- **Status:** Accepted (amended 2026-07-22)
 - **Context:** Commercial packaging will combine seats with functional modules. Features must be switchable per plan or sold as optional add-ons without rewriting each screen later.
 - **Decision:**
   1. Maintain a capability catalogue (`src/types/entitlements.ts`) separate from seat/pricing (`plans.ts`).
-  2. Each plan has a default capability matrix (`src/config/entitlements.ts`); add-ons grant extra capabilities.
-  3. UI gates via `hasCapability` / `FeatureGate` / nav `capability` fields. Admin Settings can preview add-ons and hard overrides in-browser until Frappe entitlements land.
-  4. Pricing and public plan copy may be revisited later; the switchboard stays.
+  2. Each plan has a default capability matrix (`src/config/entitlements.ts`).
+  3. UI gates via `hasCapability` / `FeatureGate` / nav `capability` fields.
+  4. **Settings → Plan capabilities** is **Plan Owner only**. Juniors never see the switchboard.
+  5. Plan Owner sees the **full catalogue**. Capabilities outside the current plan are visible but **locked** (upgrade CTA). Only **Institutional** may toggle every capability on/off. Lower plans may only toggle modules included in their matrix; they cannot force-enable missing features (overrides that turn missing caps on are ignored).
+  6. Sellable add-on SKUs remain in types for future packaging; they do not unlock above-plan features from Settings.
+  7. Pricing and public plan copy may be revisited later; the switchboard stays.
 - **Consequences:** New modules register a capability id and check it at nav + page entry. Ops accounts page can later sync live entitlements.
-- **Alternatives considered:** Hardcode plan checks in each page (rejected — brittle); feature flags only in env (rejected — not client-packagable).
+- **Alternatives considered:** Hardcode plan checks in each page (rejected — brittle); feature flags only in env (rejected — not client-packagable); let any admin freely override every switch (rejected — breaks packaging).
 
 ### ADR-025: Subscribe = card verify + 14-day trial + deferred charge
 

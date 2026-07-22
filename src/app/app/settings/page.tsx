@@ -57,7 +57,7 @@ export default async function AppSettingsPage() {
 
       <EntitlementsSettingsPanel
         planId={user.trialPlan}
-        canEdit={user.role === "admin"}
+        isPlanOwner={isPlanOwner}
       />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">

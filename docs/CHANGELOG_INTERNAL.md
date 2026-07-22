@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — Plan capabilities: Owner-only, plan-gated toggles
+
+- Settings → Plan capabilities visible only to Plan Owner (juniors never see it)
+- Full catalogue always listed; modules outside the plan are locked with upgrade CTA
+- Only Institutional may toggle every feature; lower plans toggle included modules only
+- Above-plan force-on overrides ignored; ADR-024 amended
+
 ## 2026-07-22 — T1+T2: Plan Owner org + team invites (demo)
 
 - Browser org tenancy: Plan Owner workspace on trial/subscribe; seat caps per ACCESS_MODEL
