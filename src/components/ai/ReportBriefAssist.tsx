@@ -64,7 +64,9 @@ export function ReportBriefAssist() {
         <div>
           <h2 className="text-lg font-semibold">AI compliance brief</h2>
           <p className="mt-1 text-sm text-tl-ink-muted">
-            Draft a board-ready summary from open incidents. Review before sharing.
+            Draft a board-ready summary from demo cases (INC-1001, INC-1004).
+            Evidence writer only — not Cloud/Frappe templates. Review before
+            sharing.
           </p>
         </div>
         <AiAssistButton

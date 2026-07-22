@@ -112,14 +112,13 @@ export function CreateReportWizard({
       if (cancelled) return;
       const localI = trial ? listTrialIncidents() : listDemoIncidents();
       const localP = trial ? listTrialProjects() : listDemoProjects();
-      // Always ground report writing in demo seed cases (unless trial own-data).
-      const seedI = trial ? [] : mockIncidents;
-      const seedP = trial ? [] : mockProjects;
+      // Always ground report writing in TrustLedger demo seed cases.
+      // Live Frappe rows may be empty or unrelated — never rely on them alone.
       const byI = new Map(
-        [...seedI, ...localI, ...iRows].map((i) => [i.id, i]),
+        [...mockIncidents, ...localI, ...iRows].map((i) => [i.id, i]),
       );
       const byP = new Map(
-        [...seedP, ...localP, ...pRows].map((p) => [p.id, p]),
+        [...mockProjects, ...localP, ...pRows].map((p) => [p.id, p]),
       );
       const incidents = [...byI.values()];
       const projectList = [...byP.values()];
@@ -284,9 +283,9 @@ export function CreateReportWizard({
       <div>
         <h1 className="font-display text-2xl font-semibold">Create a report</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Pick topics, then AI writes a finished report from the demo case
-          desk (not a blank template). It cites real case IDs from this
-          workspace. Edit and save before sharing.
+          Pick topics, then AI writes a finished report from TrustLedger demo
+          cases (e.g. INC-1001). Cloud/Frappe LLM is not used here — that path
+          returned generic month-end templates with placeholders.
         </p>
         {facts ? (
           <p className="mt-2 rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-xs text-tl-ink-muted">
@@ -372,11 +371,12 @@ export function CreateReportWizard({
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
         <h2 className="text-base font-semibold">Topics to cover</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          AI writes only the topics you select, using cases
+          AI writes only the topics you select, citing demo/workspace case IDs
           {facts
             ? ` (${facts.attended.length} in scope · trust ${facts.trustIndex}/100)`
             : ""}
-          . Greyed topics are above this desk grade — visible, not selectable.
+          . Generic Frappe/sales month-end templates are blocked. Greyed topics
+          are above this desk grade.
         </p>
         <ul className="mt-3 space-y-2">
           {catalogue.map((section) => {

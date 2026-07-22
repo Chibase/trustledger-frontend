@@ -16,3 +16,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 8. Live data mode must fall back to mock if Frappe is unreachable.
 9. **Client-facing PRs:** Bugbot must review (`.cursor/BUGBOT.md`). Use Security Agents before Paystack/live auth changes. Best-of-N only for rare UI forks — see `docs/CURSOR_AGENTS.md`.
 10. **Public launch:** buyers use `/pay` + `/trial`. Do not lift `PLATFORM_OPERATOR_ONLY` without an explicit T5 / ADR-013 decision (`docs/PUBLIC_LAUNCH.md`).
+11. **Report AI:** Activity reports and compliance briefs must use the local evidence composer (`reportComposer` / demo INC-* cases). Never call Frappe/Grok for those — it returns fill-in-the-blank month-end templates.

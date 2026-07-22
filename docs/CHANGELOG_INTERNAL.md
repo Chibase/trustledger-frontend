@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — Report AI: never use Frappe/Grok templates
+
+- `generateReportBrief` and `composeActivityReport` both use local evidence writer only
+- Template detector expanded for Month-End / `[Insert …]` / sales-metric placeholders
+- Create report always seeds `mockIncidents` even when live Frappe list is empty
+- Briefs cite real INC-* titles from demo data
+
 ## 2026-07-22 — Soft public launch + live Paystack readiness
 
 - ADR-027: public trial/pay with live Paystack; Frappe live login stays operator-gated
