@@ -10,7 +10,11 @@ import {
 } from "@/types/activityReport";
 import { DESK_TIER_RANK } from "@/config/reportCatalogue";
 import { readDeskTier } from "@/lib/deskVisibility";
-import { listSavedReports } from "@/lib/reportStore";
+import {
+  clearAllSavedReports,
+  listSavedReports,
+  purgeTemplateGuideReports,
+} from "@/lib/reportStore";
 import type { UserRole } from "@/types/rbac";
 
 type ReportsLibraryProps = {
@@ -25,9 +29,11 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [rows, setRows] = useState<SavedReport[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [purged, setPurged] = useState(0);
 
   useEffect(() => {
     setTier(readDeskTier(role));
+    setPurged(purgeTemplateGuideReports());
     setRows(listSavedReports());
   }, [role]);
 
@@ -44,6 +50,13 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
 
   const active = visible.find((r) => r.id === activeId) ?? visible[0] ?? null;
 
+  function handleClearLibrary() {
+    clearAllSavedReports();
+    setRows([]);
+    setActiveId(null);
+    setPurged(0);
+  }
+
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -55,13 +68,30 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
             Evidence packs for reporting, performance, and disputes. Create new
             packs under Create report.
           </p>
+          {purged > 0 ? (
+            <p className="mt-1 text-xs text-amber-800">
+              Cleared {purged} old Cloud LLM placeholder draft
+              {purged === 1 ? "" : "s"} from this browser.
+            </p>
+          ) : null}
         </div>
-        <Link
-          href="/app/reports"
-          className="text-xs font-medium text-tl-trust-ink hover:underline"
-        >
-          Create a report
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          {rows.length > 0 ? (
+            <button
+              type="button"
+              onClick={handleClearLibrary}
+              className="text-xs font-medium text-tl-ink-muted hover:text-tl-ink hover:underline"
+            >
+              Clear browser library
+            </button>
+          ) : null}
+          <Link
+            href="/app/reports"
+            className="text-xs font-medium text-tl-trust-ink hover:underline"
+          >
+            Create a report
+          </Link>
+        </div>
       </div>
 
       {visible.length === 0 ? (
@@ -70,7 +100,7 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
           <Link href="/app/reports" className="text-tl-trust-ink underline">
             Create a report
           </Link>{" "}
-          with AI assist.
+          with the evidence writer.
         </p>
       ) : (
         <div className="grid gap-4 lg:grid-cols-[16rem_1fr]">
@@ -101,7 +131,8 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
                 </h3>
                 <p className="mt-1 text-xs text-tl-ink-muted">
                   {REPORT_KIND_LABELS[active.kind]} →{" "}
-                  {REPORT_AUDIENCE_LABELS[active.audience]} · {active.periodLabel}
+                  {REPORT_AUDIENCE_LABELS[active.audience]} ·{" "}
+                  {active.periodLabel}
                   {active.projectName ? ` · ${active.projectName}` : ""} ·{" "}
                   {active.purposeTags.join(", ")}
                 </p>

@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — Reports ignore Frappe seed; purge browser templates
+
+- Create report grounds only on `mockIncidents` / local demo·trial stores — never live Frappe lists
+- Auto-purge Month-End / `[Insert …]` drafts from `tl-authored-reports`; library “Clear browser library”
+- Removed dead Cloud compose/brief method paths from `FRAPPE_METHODS`
+- Docs: `docs/FRAPPE_SAMPLE_DATA.md` — deleting ERPNext sample DocTypes does not fix LLM templates
+
 ## 2026-07-22 — Report AI: never use Frappe/Grok templates
 
 - `generateReportBrief` and `composeActivityReport` both use local evidence writer only
