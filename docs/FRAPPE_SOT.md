@@ -1,6 +1,8 @@
-# Frappe system of record (T5)
+# Frappe system of record (T5 → OD-1)
 
-**Status:** Contract + operator prep shipped. Buyer live login stays gated by **ADR-013** until you explicitly lift lockdown.
+**Status:** Contract + operator prep shipped. **Operational Step 1 active** (ADR-032): Desk fields + one live `provision-owner` smoke. Buyer public live login stays gated by **ADR-013** until Step 4.
+
+**Master path:** `docs/OPERATIONAL_DELIVERY.md` · Ops UI: `/ops/readiness`
 
 ## Goal
 
@@ -39,16 +41,18 @@ FRAPPE_BASE_URL=https://app.trustledger.co.za
 
 ## Customer custom fields (Desk)
 
-Create on **Customer** (or Subscription DocType):
+Prefer `custom_*` fieldnames (Customize Form). Create on **Customer**:
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `plan_code` | Data / Select | practitioner / project / institutional |
-| `seat_limit` | Int | null = unlimited (Project) |
-| `project_limit` | Int | Practitioner default 2 |
-| `entitlement_status` | Select | trial / active / past_due / cancelled |
-| `tl_org_id` | Data | Browser org id for migration |
-| `owner_email` | Data | Plan Owner |
+| `custom_plan_code` | Select | practitioner / project / institutional |
+| `custom_seat_limit` | Int | null = unlimited (Project) |
+| `custom_project_limit` | Int | Practitioner default 2 |
+| `custom_entitlement_status` | Select | trial / active / past_due / cancelled |
+| `custom_tl_org_id` | Data | Browser org id for migration |
+| `custom_owner_email` | Data | Plan Owner |
+
+Legacy short names (`plan_code`, …) in older notes map to the same intent — use `custom_*` when adding via Customize Form.
 
 ## Owner User
 
@@ -64,4 +68,4 @@ Create on **Customer** (or Subscription DocType):
 3. Set `PLATFORM_OPERATOR_ONLY=0`.  
 4. Point Paystack success at provision (automation packet).
 
-See ADR-031, `docs/ACCESS_MODEL.md`, `docs/PLATFORM_OPERATOR.md`.
+See ADR-031, ADR-032, `docs/OPERATIONAL_DELIVERY.md`, `docs/ACCESS_MODEL.md`, `docs/PLATFORM_OPERATOR.md`.

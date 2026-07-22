@@ -166,8 +166,9 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **T1** | Plan Owner master | Org store, session cookies, master desk strip, Team shell | **Done** |
 | **T2** | Invites + seats | Owner invites, `/invite/accept`, locked junior desk tier, plan seat caps | **Done** |
 | **T3** | Org data space | Org-scoped store, no demo seed in trial, CSV deposit | **Done** |
-| **T4** | Media + quotas | Registers/minutes/photos/video; plan storage quotas | **Active** |
-| **T5** | Frappe SoT | Customer/User contract + operator provision prep (lockdown stays) | **Active** |
+| **T4** | Media + quotas | Registers/minutes/photos/video; plan storage quotas | **Done** |
+| **T5** | Frappe SoT | Customer/User contract + operator provision prep (lockdown stays) | **Done** |
+| **OD-1** | Operational Step 1 | Desk Customer/User fields + issuance smoke; Ops `/ops/readiness` ladder (ADR-032) | **Active** |
 
 ## 8. Quality gates (every packet)
 
@@ -208,3 +209,4 @@ src/
 |------|--------|
 | 2026-07-11 | Initial Demo-first BUILD_PLAN (Packet 00) |
 | 2026-07-21 | Phase 6 Version 002 core; Version 001 public label (ADR-023) |
+| 2026-07-22 | Operational delivery path (ADR-032); OD-1 active — delay paid prod until Cloud SoT |

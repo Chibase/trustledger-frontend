@@ -22,8 +22,16 @@ export default async function OpsAccountsPage() {
         <p className="text-sm font-medium text-tl-trust">Command centre</p>
         <h1 className="mt-1 font-display text-3xl font-semibold">Accounts</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Control client accounts and T5 Plan Owner provision prep. Buyers stay
-          on trial/browser tenancy while ADR-013 lockdown is on.
+          Control client accounts and Step 1 Plan Owner provision. Buyers stay
+          on trial/browser tenancy while ADR-013 lockdown is on. Track the full
+          ladder on{" "}
+          <Link
+            href="/ops/readiness"
+            className="font-medium text-tl-trust-ink underline"
+          >
+            Delivery readiness
+          </Link>
+          .
         </p>
       </header>
 
@@ -38,7 +46,8 @@ export default async function OpsAccountsPage() {
           <span className="font-medium text-tl-ink">
             {lockdown ? "ON" : "OFF"}
           </span>
-          . See <code className="text-tl-ink">docs/FRAPPE_SOT.md</code>.
+          . See <code className="text-tl-ink">docs/FRAPPE_SOT.md</code> and{" "}
+          <code className="text-tl-ink">docs/OPERATIONAL_DELIVERY.md</code>.
         </p>
       </div>
 
