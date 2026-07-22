@@ -19,78 +19,47 @@ GO LIVE  Operational grade
 
 ---
 
-## Step 1 — Frappe SoT ready **(ACTIVE)**
+## Step 1 — Frappe SoT ready **(DONE — 2026-07-22)**
 
-**Goal:** One real Customer + Plan Owner User on `app.trustledger.co.za`; operator can provision via Ops; buyer live login works for that Owner only after smoke (lockdown still on for the public).
+Customer + Owner User smoke passed (`nonunu@trustledger.co.za`). Lockdown remains ON.
+
+---
+
+## Step 2 — Product DocTypes + Cloud File **(ACTIVE)**
+
+**Goal:** Org-scoped Project, Incident, Evidence on Frappe; File attach for media >2 MB.
 
 ### Split: agent vs you
 
 | Who | What |
 |-----|------|
-| **Agent (done in repo)** | Ops `/ops/readiness`, `POST /api/frappe/ensure-custom-fields`, provision auto-creates Desk fields on live create, User custom fields on create |
-| **You (cannot automate from here)** | Vercel env + merge/deploy + one Ops click smoke + controlled live login |
+| **Agent (this packet)** | DocType ensure API, product smoke create, `/api/frappe/upload-file`, Ops buttons, readiness Step 2 |
+| **You** | Click Check/Create DocTypes → Smoke Project→Incident→Evidence → optional file upload → confirm in Desk |
 
-There are **no Frappe/Vercel secrets in the agent environment**, so Desk writes and production smoke must run on your Vercel deployment after you flip the flag.
+### Your actions
 
-### Your actions only (short)
-
-1. **Merge** the OD-1 PR and wait for Vercel deploy.
-2. On **Vercel** set/confirm:
-
-```bash
-FRAPPE_OWNER_ISSUANCE=1
-FRAPPE_API_KEY=…          # must create Customer, User, Custom Field
-FRAPPE_API_SECRET=…
-FRAPPE_BASE_URL=https://app.trustledger.co.za
-PLATFORM_OPERATOR_ONLY=1
-PLATFORM_OPERATOR_EMAILS=admin@chibaseconsulting.co.za
-```
-
-Redeploy after env changes.
-
-3. Live-login as Platform Operator → **Ops → Accounts**:
-   - Optional: **Check Desk fields** / **Create Desk fields**
-   - **Dry-run draft** for a **test** buyer email you control
-   - **Create on Cloud** (auto-ensures custom fields, then creates Customer + User)
-   - Confirm Customer + User in Desk
-
-4. Smoke `/login/live` as that Owner (temporarily add their email to `PLATFORM_OPERATOR_EMAILS` if needed). Confirm `/app` with **no demo `INC-*` seed**.
-
-### Fallback — manual Desk fields (only if API ensure fails)
-
-| Fieldname | Label | Type | Options |
-|-----------|-------|------|---------|
-| `custom_plan_code` | Plan code | Select | `practitioner\nproject\ninstitutional` |
-| `custom_seat_limit` | Seat limit | Int | — |
-| `custom_project_limit` | Project limit | Int | — |
-| `custom_entitlement_status` | Entitlement status | Select | `trial\nactive\npast_due\ncancelled` |
-| `custom_tl_org_id` | TrustLedger org id | Data | — |
-| `custom_owner_email` | Owner email | Data | — |
-
-User (recommended): `custom_tl_desk_tier`, `custom_tl_plan_owner`, `custom_tl_customer` (Link → Customer).
+1. Merge OD-2 PR → wait for Vercel.
+2. Ops → Accounts (as Platform Operator):
+   - Organization = Frappe **Customer** name (e.g. `Step1 Smoke Test`)
+   - **Check product DocTypes** → **Create product DocTypes**
+   - **Smoke Project→Incident→Evidence**
+3. Optional: upload a file with `POST /api/frappe/upload-file` (or wait for case-desk wiring next).
+4. Confirm rows in Desk: **TL Project**, **TL Incident**, **TL Evidence**.
 
 ### Done when
 
-- [ ] Vercel issuance + keys live  
-- [ ] Dry-run returns drafts  
-- [ ] Live create succeeds once (fields exist or were auto-created)  
-- [ ] Owner can live-login in a controlled smoke  
-- [ ] `PLATFORM_OPERATOR_ONLY` still **ON**  
+- [ ] Three DocTypes exist  
+- [ ] One smoke Project + Incident + Evidence under the test Customer  
+- [ ] Lockdown still ON  
 
-**Then tell the agent: “Step 1 complete”** → we start Step 2.
+**Then tell the agent: “Step 2 complete”** → Step 3 (sync + auto-provision).
 
----
+### Outline (technical)
 
-## Step 2 — Product DocTypes + Cloud File
-
-**Goal:** Org-scoped Project, Incident, Evidence on Frappe; File attach for media >2 MB.
-
-### Outline (detail when Step 1 done)
-
-- DocTypes (or `srm_core` methods) matching `src/types/project.ts`, `incident.ts`, evidence  
-- Customer link / permission on every row  
-- File upload API + frontend switch from `tl-org-media` data URLs to Cloud File  
-- `FRAPPE_API_CONTRACT.md` methods: create/list/update for projects, incidents, evidence  
+- DocTypes match `src/types/project.ts`, `incident.ts`, evidence  
+- Customer link on every row  
+- File upload BFF → Frappe `upload_file`  
+- See `docs/PRODUCT_DOCTYPES.md` and `docs/FRAPPE_API_CONTRACT.md`
 
 ---
 
