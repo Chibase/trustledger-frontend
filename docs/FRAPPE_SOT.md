@@ -26,6 +26,9 @@ PLATFORM_OPERATOR_EMAILS=admin@chibaseconsulting.co.za
 # Operator-only tools for T5 dry-run / issuance helpers (default off)
 FRAPPE_OWNER_ISSUANCE=0
 
+# OD-3 — after Steps 1–2 smoke, auto-create Customer+User on Paystack success
+FRAPPE_AUTO_PROVISION=0
+
 # Existing CRM / API keys (never commit)
 FRAPPE_API_KEY=…
 FRAPPE_API_SECRET=…
@@ -38,6 +41,8 @@ FRAPPE_BASE_URL=https://app.trustledger.co.za
 |-------|-----|-----------|
 | `POST /api/frappe/ensure-custom-fields` | Platform Operator + `FRAPPE_OWNER_ISSUANCE=1` | Idempotent create of Customer/User `custom_*` fields (`dryRun` default true). |
 | `POST /api/frappe/provision-owner` | Platform Operator + `FRAPPE_OWNER_ISSUANCE=1` | Returns Customer + User **drafts** + checklist; optional `dryRun: true` (default). Live create (`dryRun: false`) auto-ensures fields then creates docs. |
+| Paystack verify/webhook | Server | When `FRAPPE_AUTO_PROVISION=1` + issuance + keys: idempotent Customer+User create (OD-3). |
+| `POST /api/frappe/migrate-org` | Live session | Push browser projects/incidents/evidence to TL DocTypes (OD-3). |
 | `POST /api/frappe/crm-setup` | Token | Lead sources/views (existing) |
 
 ## Customer custom fields (Desk)

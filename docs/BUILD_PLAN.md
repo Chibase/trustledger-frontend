@@ -169,7 +169,8 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **T4** | Media + quotas | Registers/minutes/photos/video; plan storage quotas | **Done** |
 | **T5** | Frappe SoT | Customer/User contract + operator provision prep (lockdown stays) | **Done** |
 | **OD-1** | Operational Step 1 | Desk Customer/User fields + issuance smoke; Ops `/ops/readiness` ladder (ADR-032) | **Done** |
-| **OD-2** | Product DocTypes + File | TL Project / Incident / Evidence ensure + smoke + upload BFF | **Active** |
+| **OD-2** | Product DocTypes + File | TL Project / Incident / Evidence ensure + smoke + upload BFF | **Done** |
+| **OD-3** | Sync + auto-provision | Paystack → Cloud Owner; migrate tl-org-data on live login | **Active** |
 
 ## 8. Quality gates (every packet)
 

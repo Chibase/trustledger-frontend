@@ -162,9 +162,11 @@ export function OperationalReadinessPanel({ initial }: Props) {
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
           <h2 className="font-display text-lg font-semibold text-tl-ink">
-            {data.activeStepId === "2"
-              ? "Step 2 — DocTypes + File (you)"
-              : "Step 1 — Desk checklist (you)"}
+            {data.activeStepId === "3"
+              ? "Step 3 — Sync + auto-provision (you)"
+              : data.activeStepId === "2"
+                ? "Step 2 — DocTypes + File (you)"
+                : "Step 1 — Desk checklist (you)"}
           </h2>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-tl-ink-muted">
             {data.deskChecklist.map((item) => (
@@ -172,7 +174,12 @@ export function OperationalReadinessPanel({ initial }: Props) {
             ))}
           </ol>
           <p className="mt-4 text-sm text-tl-ink">
-            {data.activeStepId === "2" ? (
+            {data.activeStepId === "3" ? (
+              <>
+                When Paystack creates Customer+User without Ops click, reply:{" "}
+                <strong>Step 3 complete</strong>.
+              </>
+            ) : data.activeStepId === "2" ? (
               <>
                 When DocTypes + one Project/Incident/Evidence+file smoke pass,
                 reply in chat: <strong>Step 2 complete</strong>.
