@@ -27,11 +27,14 @@ import {
   sectionsForKind,
   tierMeetsMinimum,
 } from "@/config/reportCatalogue";
+import { mockIncidents } from "@/data/mockIncidents";
+import { mockProjects } from "@/data/mockProjects";
 import { listDemoIncidents, listDemoProjects } from "@/lib/demoStore";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPeriodActivityFacts,
   factsToPromptBlock,
+  looksLikeReportTemplateGuide,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import {
@@ -109,8 +112,15 @@ export function CreateReportWizard({
       if (cancelled) return;
       const localI = trial ? listTrialIncidents() : listDemoIncidents();
       const localP = trial ? listTrialProjects() : listDemoProjects();
-      const byI = new Map([...localI, ...iRows].map((i) => [i.id, i]));
-      const byP = new Map([...localP, ...pRows].map((p) => [p.id, p]));
+      // Always ground report writing in demo seed cases (unless trial own-data).
+      const seedI = trial ? [] : mockIncidents;
+      const seedP = trial ? [] : mockProjects;
+      const byI = new Map(
+        [...seedI, ...localI, ...iRows].map((i) => [i.id, i]),
+      );
+      const byP = new Map(
+        [...seedP, ...localP, ...pRows].map((p) => [p.id, p]),
+      );
       const incidents = [...byI.values()];
       const projectList = [...byP.values()];
       setProjects(projectList);
@@ -167,6 +177,13 @@ export function CreateReportWizard({
       setStatus("error");
       return;
     }
+    if (!facts.attended.length) {
+      setError(
+        "No demo/workspace cases available to write from. Open Demo mode or log cases first.",
+      );
+      setStatus("error");
+      return;
+    }
     setStatus("loading");
     try {
       const result = await aiService.composeActivityReport({
@@ -190,20 +207,16 @@ export function CreateReportWizard({
               ? "formal"
               : "plain",
       });
-      if (
-        /\[Insert\b|Feel free to customize|\[Your Name\]/i.test(
-          result.bodyMarkdown,
-        )
-      ) {
+      if (looksLikeReportTemplateGuide(result.bodyMarkdown)) {
         throw new Error(
-          "AI returned a template guide instead of a report. Try again.",
+          "AI returned a template guide instead of a report. The evidence writer blocked it — try again.",
         );
       }
       setDraft(result);
       setBody(result.bodyMarkdown);
       setStatus("ready");
       pushToast(
-        "Report written from selected topics and workspace evidence — review then save",
+        `Report written from ${facts.attended.length} cases (e.g. ${facts.attended[0]?.id}) — review then save`,
         "success",
       );
     } catch (err) {
@@ -271,10 +284,25 @@ export function CreateReportWizard({
       <div>
         <h1 className="font-display text-2xl font-semibold">Create a report</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Pick topics, then AI writes a finished report from demo cases, trust
-          pulse, and Capture evidence — not a blank template. Edit and save
-          before sharing.
+          Pick topics, then AI writes a finished report from the demo case
+          desk (not a blank template). It cites real case IDs from this
+          workspace. Edit and save before sharing.
         </p>
+        {facts ? (
+          <p className="mt-2 rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-xs text-tl-ink-muted">
+            <span className="font-medium text-tl-ink">Data in scope:</span>{" "}
+            {facts.attended.length} case
+            {facts.attended.length === 1 ? "" : "s"}
+            {facts.attended[0]
+              ? ` · ${facts.attended
+                  .slice(0, 4)
+                  .map((i) => i.id)
+                  .join(", ")}${facts.attended.length > 4 ? "…" : ""}`
+              : ""}
+            {" · "}trust {facts.trustIndex}/100 ({facts.trustLabel})
+            {project?.name ? ` · ${project.name}` : ""}
+          </p>
+        ) : null}
         <p className="mt-2 text-xs text-tl-ink-muted">
           Author desk:{" "}
           <span className="font-medium text-tl-ink">

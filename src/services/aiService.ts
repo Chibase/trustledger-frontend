@@ -379,34 +379,17 @@ export const aiService = {
   async composeActivityReport(
     input: ActivityReportComposeRequest,
   ): Promise<ActivityReportComposeSuggestion> {
-    // Always write from workspace evidence locally. Cloud LLM prompts have been
-    // returning fill-in-the-blank guides; reject those until srm-core is ready.
-    await delay(500);
+    // Evidence writer only — never call Cloud LLM for activity reports.
+    // Live Grok/srm-core prompts have been returning how-to templates with
+    // placeholders like [Month/Year] and no case IDs from demo data.
+    await delay(450);
     const local = mockActivityReport(input);
     if (looksLikeReportTemplateGuide(local.bodyMarkdown)) {
       throw new Error("Composer refused to return a template guide.");
     }
-
-    if (!USE_MOCK) {
-      try {
-        const remote = await callFrappeMethod<ActivityReportComposeSuggestion>(
-          FRAPPE_METHODS.composeActivityReport,
-          { ...input },
-        );
-        if (
-          remote?.bodyMarkdown &&
-          !looksLikeReportTemplateGuide(remote.bodyMarkdown)
-        ) {
-          return remote;
-        }
-        console.warn(
-          "[ai] compose_activity_report returned a template/guide — using evidence writer",
-        );
-      } catch (err) {
-        console.warn("[ai] compose_activity_report unavailable — using evidence writer", err);
-      }
+    if (!local.bodyMarkdown.includes("INC-") && input.factsJson?.includes("INC-")) {
+      throw new Error("Composer did not cite workspace case evidence.");
     }
-
     return local;
   },
 };
