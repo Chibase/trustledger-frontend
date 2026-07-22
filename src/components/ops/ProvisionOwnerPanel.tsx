@@ -95,6 +95,159 @@ export function ProvisionOwnerPanel({
     }
   }
 
+  async function ensureDocTypes(dryRun: boolean) {
+    setBusy(true);
+    setResult("");
+    try {
+      const res = await fetch("/api/frappe/ensure-product-doctypes", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ dryRun }),
+      });
+      const json = (await res.json()) as {
+        error?: string;
+        message?: string;
+      };
+      if (!res.ok) {
+        pushToast(json.error || json.message || "DocType ensure failed", "error");
+        setResult(JSON.stringify(json, null, 2));
+        return;
+      }
+      pushToast(json.message || "DocTypes checked", "success");
+      setResult(JSON.stringify(json, null, 2));
+    } catch {
+      pushToast("Network error", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function smokeProduct() {
+    setBusy(true);
+    setResult("");
+    try {
+      const customer = organization.trim() || "Step1 Smoke Test";
+      const projectId = `PRJ-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const projectRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "project",
+          customer,
+          project: {
+            id: projectId,
+            name: "Step2 Smoke Project",
+            clientFunder: customer,
+            budgetTotal: 0,
+            budgetSpent: 0,
+            ward: "Ward 1",
+            municipality: "Smoke Municipality",
+            status: "Draft",
+            contractorName: "",
+            startDate: "",
+            targetEndDate: "",
+            publicSummary: "OD-2 smoke project",
+          },
+        }),
+      });
+      const projectJson = (await projectRes.json()) as {
+        ok?: boolean;
+        error?: string;
+        name?: string;
+      };
+      if (!projectRes.ok || !projectJson.ok) {
+        pushToast(projectJson.error || "Project smoke failed", "error");
+        setResult(JSON.stringify(projectJson, null, 2));
+        return;
+      }
+
+      const incidentId = `INC-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const incidentRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "incident",
+          customer,
+          incident: {
+            id: incidentId,
+            title: "Step2 Smoke Incident",
+            description: "OD-2 smoke case",
+            ward: "Ward 1",
+            geographicArea: "Smoke area",
+            status: "Open",
+            priority: "P3-Medium",
+            projectId,
+            projectName: "Step2 Smoke Project",
+            reportedByRole: "admin",
+            reporterName: ownerName || "Operator",
+            reportedAt: new Date().toISOString(),
+            slaDueBy: new Date().toISOString(),
+            slaBreached: false,
+            escalationLevel: "None",
+            ownerName: ownerName || "Operator",
+            category: "Smoke",
+            impactScore: 0,
+            sentimentScore: null,
+            timeline: [],
+          },
+        }),
+      });
+      const incidentJson = (await incidentRes.json()) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!incidentRes.ok || !incidentJson.ok) {
+        pushToast(incidentJson.error || "Incident smoke failed", "error");
+        setResult(
+          JSON.stringify({ project: projectJson, incident: incidentJson }, null, 2),
+        );
+        return;
+      }
+
+      const evidenceRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "evidence",
+          customer,
+          evidence: {
+            id: `EVD-SMOKE-${Date.now().toString(36).slice(-6)}`,
+            incidentId,
+            fileName: "smoke-note.txt",
+            classification: "General",
+            uploadedBy: ownerEmail || "operator",
+            uploadedAt: new Date().toISOString(),
+            isPrimary: true,
+          },
+        }),
+      });
+      const evidenceJson = (await evidenceRes.json()) as {
+        ok?: boolean;
+        error?: string;
+      };
+      const bundle = {
+        project: projectJson,
+        incident: incidentJson,
+        evidence: evidenceJson,
+      };
+      if (!evidenceRes.ok || !evidenceJson.ok) {
+        pushToast(evidenceJson.error || "Evidence smoke failed", "error");
+        setResult(JSON.stringify(bundle, null, 2));
+        return;
+      }
+      pushToast("Product smoke OK — Project + Incident + Evidence on Cloud", "success");
+      setResult(JSON.stringify(bundle, null, 2));
+    } catch {
+      pushToast("Network error", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function run(dryRun: boolean) {
     setBusy(true);
     setResult("");
@@ -226,10 +379,35 @@ export function ProvisionOwnerPanel({
         >
           Set temp password
         </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void ensureDocTypes(true)}
+          className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
+        >
+          Check product DocTypes
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void ensureDocTypes(false)}
+          className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
+        >
+          Create product DocTypes
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void smokeProduct()}
+          className="rounded-md border border-tl-amber/50 bg-tl-amber/10 px-3 py-2 text-sm font-medium hover:bg-tl-amber/20 disabled:opacity-50"
+        >
+          Smoke Project→Incident→Evidence
+        </button>
       </div>
       <p className="mt-2 text-xs text-tl-ink-muted">
-        Forgot Owner password? Use <strong>Set temp password</strong> (shows once
-        in the JSON), or the Owner can use Forgot password on{" "}
+        Step 2: create DocTypes, then smoke rows under the Organization name as
+        Frappe Customer. Forgot Owner password? Use{" "}
+        <strong>Set temp password</strong>, or Forgot password on{" "}
         <code className="font-mono">/login/live</code>.
       </p>
       {result ? (

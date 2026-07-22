@@ -13,6 +13,7 @@ import { paystackConfigured } from "@/lib/paystackServer";
 import {
   OPERATIONAL_STEPS,
   STEP1_DESK_CHECKLIST,
+  STEP2_DESK_CHECKLIST,
   type OperationalStepId,
   type StepLaneStatus,
 } from "@/lib/operationalDelivery.constants";
@@ -25,6 +26,7 @@ export {
   OPERATIONAL_STEPS,
   OPERATIONAL_STEP1_REQUIRED_LABELS,
   STEP1_DESK_CHECKLIST,
+  STEP2_DESK_CHECKLIST,
 } from "@/lib/operationalDelivery.constants";
 
 type GateDef = {
@@ -160,11 +162,17 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     .filter((c) => c.required && !c.pass)
     .map((c) => `${c.label}: ${c.detail}`);
 
-  const activeStepId: OperationalStepId = "1";
+  /** Step 1 Owner smoke completed 2026-07-22 — ladder advances to DocTypes + File. */
+  const step1Complete = true;
+  const activeStepId: OperationalStepId = step1Complete && step1EnvReady ? "2" : "1";
 
   const steps = OPERATIONAL_STEPS.map((step) => {
-    const status: StepLaneStatus =
-      step.id === "1" ? (step1EnvReady ? "active" : "blocked") : "blocked";
+    let status: StepLaneStatus = "blocked";
+    if (step.id === "1") {
+      status = step1Complete ? "done" : step1EnvReady ? "active" : "blocked";
+    } else if (step.id === "2") {
+      status = step1Complete && step1EnvReady ? "active" : "blocked";
+    }
     return {
       id: step.id,
       title: step.title,
@@ -173,9 +181,12 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     };
   });
 
-  const summary = step1EnvReady
-    ? "Step 1 env ready — finish Desk fields + smoke create on Ops Accounts, then reply “Step 1 complete”."
-    : "Step 1 blocked — set FRAPPE_OWNER_ISSUANCE=1, API keys, and operator allowlist on Vercel (see docs/OPERATIONAL_DELIVERY.md).";
+  const summary =
+    activeStepId === "2"
+      ? "Step 2 active — ensure TL Project / Incident / Evidence DocTypes, then smoke create + Cloud File upload."
+      : step1EnvReady
+        ? "Step 1 env ready — finish Desk fields + smoke create on Ops Accounts, then reply “Step 1 complete”."
+        : "Step 1 blocked — set FRAPPE_OWNER_ISSUANCE=1, API keys, and operator allowlist on Vercel (see docs/OPERATIONAL_DELIVERY.md).";
 
   return {
     ok: true,
@@ -191,7 +202,7 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     gateChecks,
     blockedReasons,
     goLiveReady: false,
-    deskChecklist: STEP1_DESK_CHECKLIST,
+    deskChecklist: activeStepId === "2" ? STEP2_DESK_CHECKLIST : STEP1_DESK_CHECKLIST,
     docs: {
       path: "/docs/OPERATIONAL_DELIVERY.md",
       frappeSoT: "/docs/FRAPPE_SOT.md",

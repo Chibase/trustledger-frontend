@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-22 — OD-2: Product DocTypes + Cloud File BFF
+
+- Step 1 marked Done; Step 2 active on Ops readiness
+- `POST /api/frappe/ensure-product-doctypes` — TL Project / Incident / Evidence
+- `POST /api/frappe/product-smoke` + Ops smoke button (Project→Incident→Evidence)
+- `POST /api/frappe/upload-file` — Frappe `upload_file` proxy
+- `docs/PRODUCT_DOCTYPES.md`; OPERATIONAL_DELIVERY Step 2 checklist
+
 ## 2026-07-22 — Live password reset + Ops set temp password
 
 - `/login/live` → Forgot password? → `POST /api/auth/live/forgot-password` (Frappe email reset)

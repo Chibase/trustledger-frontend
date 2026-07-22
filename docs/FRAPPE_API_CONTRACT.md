@@ -28,6 +28,18 @@ Envelope: standard Frappe `{ "message": <payload> }`
 | `listStakeholders` | `/api/method/srm_core.api.stakeholders.list_stakeholders` | `{ placeId?, kind? }` | `Stakeholder[]` |
 | `getStakeholder` | `/api/method/srm_core.api.stakeholders.get_stakeholder` | `{ name }` | `Stakeholder \| null` |
 
+### OD-2 resource path (until srm_core create methods land)
+
+Prefer Frappe **resource** DocTypes created by Ops ensure:
+
+| Action | Path | Notes |
+|--------|------|-------|
+| Ensure DocTypes | `POST /api/frappe/ensure-product-doctypes` | `TL Project`, `TL Incident`, `TL Evidence` |
+| Smoke create | `POST /api/frappe/product-smoke` | `{ kind, customer, project\|incident\|evidence }` |
+| Upload file | `POST /api/frappe/upload-file` | multipart → Frappe `upload_file` |
+
+Field maps: `src/lib/productCloud.ts`. Spec: `docs/PRODUCT_DOCTYPES.md`.
+
 Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH_BRIDGE_STUB.md`).
 
 ## Type sources (frontend)

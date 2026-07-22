@@ -60,3 +60,12 @@ export const STEP1_DESK_CHECKLIST: string[] = [
   "Dry-run then Create on Cloud for a test buyer email you control",
   "Smoke /login/live as that Owner (temporarily allowlist if needed); confirm no demo INC-* seed",
 ];
+
+/** Active Step 2 checklist after Step 1 Owner smoke. */
+export const STEP2_DESK_CHECKLIST: string[] = [
+  "Ops → Accounts: Check/Create product DocTypes (TL Project, TL Incident, TL Evidence)",
+  "Smoke create: one Project under Step1 Smoke Test Customer via Ops product smoke",
+  "Smoke create: one Incident linked to that Project",
+  "Upload a file via /api/frappe/upload-file and attach as TL Evidence",
+  "Confirm rows in Frappe Desk; keep PLATFORM_OPERATOR_ONLY=1",
+];

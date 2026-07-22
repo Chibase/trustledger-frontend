@@ -162,7 +162,9 @@ export function OperationalReadinessPanel({ initial }: Props) {
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
           <h2 className="font-display text-lg font-semibold text-tl-ink">
-            Step 1 — Desk checklist (you)
+            {data.activeStepId === "2"
+              ? "Step 2 — DocTypes + File (you)"
+              : "Step 1 — Desk checklist (you)"}
           </h2>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-tl-ink-muted">
             {data.deskChecklist.map((item) => (
@@ -170,9 +172,18 @@ export function OperationalReadinessPanel({ initial }: Props) {
             ))}
           </ol>
           <p className="mt-4 text-sm text-tl-ink">
-            When smoke passes, reply in chat:{" "}
-            <strong>Step 1 complete</strong> — then we open Step 2 (DocTypes +
-            File).
+            {data.activeStepId === "2" ? (
+              <>
+                When DocTypes + one Project/Incident/Evidence+file smoke pass,
+                reply in chat: <strong>Step 2 complete</strong>.
+              </>
+            ) : (
+              <>
+                When smoke passes, reply in chat:{" "}
+                <strong>Step 1 complete</strong> — then we open Step 2 (DocTypes
+                + File).
+              </>
+            )}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
