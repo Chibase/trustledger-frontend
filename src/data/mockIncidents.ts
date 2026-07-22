@@ -216,7 +216,7 @@ export const mockIncidents: Incident[] = [
     projectId: "PRJ-001",
     projectName: "Ward 12 Access Road Repair",
     reportedByRole: "client",
-    filedByTier: "site",
+    filedByTier: "supervisor",
     reportedAt: "2026-07-06T14:00:00+02:00",
     slaDueBy: "2026-07-07T14:00:00+02:00",
     slaBreached: true,

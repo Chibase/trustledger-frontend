@@ -158,6 +158,7 @@ Until ADR-013 lockdown lifts and Frappe Customer/User is SoT:
 - **Plan Owner org** is created in browser `localStorage` when trial/subscribe starts (`startTrialCookies` → `bootstrapPlanOwnerOrg`).
 - **Settings → Team / Seats** lets the Owner invite juniors with role + desk exposure.
 - **Seat caps:** Practitioner = 0 juniors; Project / Institutional = unlimited in demo.
+- **Desk ranks (1 highest → 5 lowest):** Client/Board/funder → CEO/MD → Director/PM → Site foreman/supervisor → CLO. Plan Owner sits at the plan ceiling and may invite only **lower** ranks; higher desks stay greyed.
 - Invite accept at `/invite/accept` locks the invitee’s desk tier (cannot self-raise).
 - Live Owner issuance and email invites remain gated by ADR-013 / T5.
 

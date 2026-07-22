@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/Toast";
 import {
   DESK_TIERS,
   DESK_TIER_LABELS,
+  DESK_TIER_RANK,
   type DeskTier,
 } from "@/types/deskTier";
 import {
@@ -329,11 +330,12 @@ export function TeamSeatsPanel({
                   >
                     {DESK_TIERS.map((t) => {
                       const allowed = canInviteDeskTier(org.planId, t);
+                      const rank = DESK_TIER_RANK[t];
                       return (
                         <option key={t} value={t} disabled={!allowed}>
                           {allowed
-                            ? DESK_TIER_LABELS[t]
-                            : `${DESK_TIER_LABELS[t]} — ${inviteDeskUpgradeLabel(t)}`}
+                            ? `${rank}. ${DESK_TIER_LABELS[t]}`
+                            : `${rank}. ${DESK_TIER_LABELS[t]} — ${inviteDeskUpgradeLabel(t)}`}
                         </option>
                       );
                     })}

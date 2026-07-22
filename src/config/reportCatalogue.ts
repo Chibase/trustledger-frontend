@@ -1,30 +1,20 @@
 /**
  * Report catalogue — kinds, sections, seniority gates.
+ * Desk rank 1 (highest) → 5 (lowest); see `@/types/deskTier`.
  */
 
-import type { DeskTier } from "@/types/deskTier";
+import {
+  DESK_TIER_RANK,
+  tierMeetsMinimum,
+  type DeskTier,
+} from "@/types/deskTier";
 import {
   type ReportKind,
   type ReportSectionDef,
   type ReportSectionId,
 } from "@/types/activityReport";
 
-/** Lower = more junior. */
-export const DESK_TIER_RANK: Record<DeskTier, number> = {
-  clo: 1,
-  site: 2,
-  supervisor: 3,
-  delivery: 4,
-  oversight: 5,
-  funder: 5,
-};
-
-export function tierMeetsMinimum(
-  authorTier: DeskTier,
-  minTier: DeskTier,
-): boolean {
-  return DESK_TIER_RANK[authorTier] >= DESK_TIER_RANK[minTier];
-}
+export { DESK_TIER_RANK, tierMeetsMinimum };
 
 export const REPORT_SECTIONS: ReportSectionDef[] = [
   {
@@ -143,14 +133,14 @@ export const REPORT_SECTIONS: ReportSectionDef[] = [
     id: "environmental_indicators",
     label: "Environmental indicators",
     description: "Env KPIs and incidents.",
-    minTier: "site",
+    minTier: "supervisor",
     defaultFor: ["environmental", "esg"],
   },
   {
     id: "hs_incidents",
     label: "H&S incidents & controls",
     description: "Health and safety case summary.",
-    minTier: "site",
+    minTier: "supervisor",
     defaultFor: ["health_safety"],
   },
   {
@@ -239,14 +229,12 @@ export function defaultAudienceForTier(tier: DeskTier): import("@/types/activity
   switch (tier) {
     case "clo":
       return "supervisor";
-    case "site":
-      return "delivery_leadership";
     case "supervisor":
       return "delivery_leadership";
     case "delivery":
       return "board";
-    case "oversight":
-      return "regulator";
+    case "executive":
+      return "board";
     case "funder":
       return "board";
   }
@@ -255,14 +243,14 @@ export function defaultAudienceForTier(tier: DeskTier): import("@/types/activity
 export function defaultKindForTier(tier: DeskTier): ReportKind {
   switch (tier) {
     case "clo":
-    case "site":
       return "monthly_activity";
     case "supervisor":
       return "grm";
     case "delivery":
+      return "board_investor";
+    case "executive":
+      return "esg";
     case "funder":
       return "board_investor";
-    case "oversight":
-      return "esg";
   }
 }

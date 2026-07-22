@@ -35,8 +35,8 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
     const rank = DESK_TIER_RANK[tier];
     return rows.filter((r) => {
       const authorRank = DESK_TIER_RANK[r.authorTier];
-      // Seniors see junior filings; juniors see their own and peer tier.
-      if (rank >= authorRank) return true;
+      // Seniors (lower rank number) see junior filings; juniors see peer tier.
+      if (rank <= authorRank) return true;
       if (r.authorTier === tier) return true;
       return false;
     });

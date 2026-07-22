@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — Desk ranks 1 (Client/Board) → 5 (CLO)
+
+- Five desks ordered high→low: funder, executive (CEO/MD), delivery, supervisor, clo
+- Plan Owner desk by plan (Practitioner supervisor, Project delivery, Institutional funder)
+- Invites only ranks strictly below Owner; higher options greyed in picker + privilege matrix
+- Legacy `site` / `oversight` ids normalize to supervisor / executive
+
 ## 2026-07-22 — Invite desk exposure gated by plan
 
 - Desk exposure on invite lists all tiers; desks above the plan are greyed / disabled

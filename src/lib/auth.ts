@@ -20,7 +20,7 @@ import {
   parseTrialStarted,
   type TrialSnapshot,
 } from "@/lib/trial";
-import { DESK_TIERS, type DeskTier } from "@/types/deskTier";
+import { normalizeDeskTier, type DeskTier } from "@/types/deskTier";
 
 export type { UserRole };
 
@@ -64,10 +64,6 @@ function resolveMode(
   return "demo";
 }
 
-function isDeskTier(value: string | undefined): value is DeskTier {
-  return Boolean(value && (DESK_TIERS as readonly string[]).includes(value));
-}
-
 function userFromRole(
   role: UserRole,
   name: string,
@@ -108,7 +104,9 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   const orgId = cookieStore.get(TL_ORG_ID_COOKIE)?.value || undefined;
   const isPlanOwner = cookieStore.get(TL_ORG_OWNER_COOKIE)?.value === "1";
   const deskTierRaw = cookieStore.get(TL_DESK_TIER_COOKIE)?.value;
-  const deskTier = isDeskTier(deskTierRaw) ? deskTierRaw : undefined;
+  const deskTier = normalizeDeskTier(
+    deskTierRaw ? decodeURIComponent(deskTierRaw) : undefined,
+  ) ?? undefined;
   const deskTierLocked =
     cookieStore.get(TL_DESK_TIER_LOCKED_COOKIE)?.value === "1";
 

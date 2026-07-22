@@ -8,6 +8,7 @@ import type { UserRole } from "@/types/rbac";
 import {
   DESK_TIERS,
   DESK_TIER_LABELS,
+  DESK_TIER_RANK,
   VISIBILITY_FLAG_CAPABILITY,
   VISIBILITY_FLAG_LABELS,
   type DeskTier,
@@ -123,6 +124,9 @@ export function DeskSettingsPanel({
                           deskOnPlan ? "" : "opacity-50"
                         }`}
                       >
+                        <span className="block text-[0.65rem] text-tl-ink-muted">
+                          Rank {DESK_TIER_RANK[id]}
+                        </span>
                         {DESK_TIER_LABELS[id].split(" / ")[0]}
                         {!deskOnPlan ? (
                           <span className="mt-0.5 block text-[0.6rem] font-normal text-tl-amber">

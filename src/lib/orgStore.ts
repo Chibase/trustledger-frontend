@@ -4,6 +4,7 @@
 
 import { isPlanId, type PlanId } from "@/config/plans";
 import type { DeskTier } from "@/types/deskTier";
+import { PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
 import type {
   InviteableRole,
   OrgInvite,
@@ -87,7 +88,7 @@ export function ensureOwnerOrg(input: {
     email,
     name: input.name.trim() || email.split("@")[0] || "Plan Owner",
     role: "admin",
-    deskTier: "supervisor",
+    deskTier: PLAN_OWNER_DESK_TIER[planId],
     isPlanOwner: true,
     deskTierLocked: false,
     joinedAt: now,
