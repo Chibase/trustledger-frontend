@@ -23,8 +23,9 @@ export function HomePricing() {
             Plans connected to Paystack checkout
           </h2>
           <p className="mt-3 text-sm text-tl-ink-muted">
-            ZAR excl. VAT. Start a 14-day trial on your data, then upgrade on
-            Paystack — no extra forms.
+            ZAR excl. VAT. Subscribe verifies your card, starts a 14-day trial
+            immediately, and bills the plan price only when the trial ends —
+            unless you cancel first.
           </p>
         </div>
 

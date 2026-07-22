@@ -1,5 +1,14 @@
 # Internal changelog
 
+## 2026-07-22 — Trial subscribe (card verify + deferred charge)
+
+- `/pay` default = 14-day trial: Paystack card verification, authorization on file, bill at trial end
+- Success: thank you + login/temp password (email via Resend when configured); no Contact us CTA
+- Trial activates immediately; first-login password change prompt; `/login/trial` + `/pay/activate`
+- Banner opt-out cancels scheduled charge (`Trial Opt-Out` + deactivate authorization)
+- Ops `/api/paystack/charge-due` for day-14 collection; ADR-025
+- CRM sources: `Trial Authorize`, `Trial Opt-Out`
+
 ## 2026-07-22 — Create report (evidence-based, seniority-gated)
 
 - `/app/reports` → Create a report wizard: kinds (monthly, GRM, ESG, H&S, B-BBEE, CSI, MEL, board…)

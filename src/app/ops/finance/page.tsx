@@ -16,8 +16,9 @@ export default async function OpsFinancePage() {
         <p className="text-sm font-medium text-tl-trust">Command control</p>
         <h1 className="mt-1 font-display text-3xl font-semibold">Finance</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Quote / EFT confirmations and Paystack checkout signals. CRM Customer
-          and Plan Owner stay manual while lockdown is on.
+          Trial card authorizations, opt-outs, EFT confirms, and Paystack
+          charges. Day-14 collection uses charge-due when still scheduled.
+          CRM Customer / Plan Owner stay manual while lockdown is on.
         </p>
       </header>
 

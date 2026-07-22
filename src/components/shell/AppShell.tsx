@@ -3,6 +3,7 @@ import { DemoBanner } from "@/components/shell/DemoBanner";
 import { EmailCaptureGate } from "@/components/shell/EmailCaptureGate";
 import { OperatorBanner } from "@/components/shell/OperatorBanner";
 import { TrialBanner } from "@/components/shell/TrialBanner";
+import { TrialPasswordChangePrompt } from "@/components/shell/TrialPasswordChangePrompt";
 import { AppNav } from "@/components/shell/AppNav";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
@@ -50,6 +51,7 @@ export function AppShell({
         {mode === "trial" && trial ? (
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
         ) : null}
+        {mode === "trial" ? <TrialPasswordChangePrompt /> : null}
         {mode === "demo" ? <DemoBanner planName={planLabel} /> : null}
         {showOperatorBanner ? <OperatorBanner /> : null}
         {mode === "demo" ? <EmailCaptureGate /> : null}

@@ -27,7 +27,9 @@ Hard-refresh Frappe CRM afterward. Remove `CRM_SETUP_TOKEN` from Vercel when don
 | `Website Demo` | Demo entry + soft gate |
 | `Website Assessment` | Assessment unlock lead |
 | `Support Ticket` | In-app Support escalate |
-| `Paystack Payment` | Vercel `/pay` successful checkout |
+| `Paystack Payment` | Vercel `/pay?mode=pay_now` or day-14 charge-due |
+| `Trial Authorize` | Subscribe trial card verify (`trial_authorize`) |
+| `Trial Opt-Out` | Cancel before end-of-trial charge |
 | `Quote Request` | `/quote` and trial “Request quote” |
 | `EFT Payment` | Ops → Finance → Confirm EFT paid |
 
