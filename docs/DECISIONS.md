@@ -299,3 +299,30 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Trial/pay workspaces start empty (plus optional blank `PRJ-TRIAL` scaffold); demo path (`/demo`) keeps sample data. Multi-device sync waits for T5.
 - **Alternatives considered:** Keep demo seed in trial for “something to click” (rejected — contaminates paid path); block all product use until T5 (rejected — cannot sell).
 
+### ADR-030: Browser media library with plan quotas (T4)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Customers need registers, minutes, photos, and video on cases without Cloud File yet. Storage must follow plan seniority and push upgrades.
+- **Decision:**
+  1. Org media store `tl-org-media` with kinds register / minutes / photo / video / other.
+  2. Soft quotas: Practitioner 25 MB, Project 250 MB, Institutional 2 GB (browser soft cap).
+  3. Files ≤2 MB may store as data URL; larger files store metadata only until T5 Cloud File.
+  4. Over-quota blocks add; Settings meter + upgrade CTA.
+  5. Case desk upload writes media + evidence stub for customer workspaces.
+- **Consequences:** Real file picker in trial/org; demo can still use filename stubs. Not multi-device until Cloud File.
+- **Alternatives considered:** Wait for S3/Frappe File (rejected — blocks field evidence now); unlimited browser storage (rejected — no upgrade signal).
+
+### ADR-031: Frappe SoT prep without lifting ADR-013 (T5)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** ACCESS_MODEL requires Customer + Plan Owner User on Cloud. Soft launch (ADR-027) must keep buyers off `/login/live` until issuance works.
+- **Decision:**
+  1. Document Customer/User field contract in `docs/FRAPPE_SOT.md`.
+  2. Operator-only `POST /api/frappe/provision-owner` behind `FRAPPE_OWNER_ISSUANCE` (default off) + Platform Operator allowlist.
+  3. Default `dryRun: true` returns drafts + checklist; live create only when flag + keys + `dryRun: false`.
+  4. **Do not** set `PLATFORM_OPERATOR_ONLY=0` in this packet.
+- **Consequences:** Ops Accounts can prepare Owner issuance; buyers remain on `/pay` + `/trial` browser tenancy.
+- **Alternatives considered:** Auto-provision on Paystack webhook now (rejected — lockdown + untested User create); lift lockdown without issuance path (rejected — ADR-027).
+

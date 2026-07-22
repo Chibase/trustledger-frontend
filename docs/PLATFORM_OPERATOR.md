@@ -43,6 +43,13 @@ You can keep `PLATFORM_OPERATOR_EMAILS` set for future staff tools without enfor
 
 **Soft public launch (ADR-027):** Do **not** lift this yet for buyers. They use `/pay` + `/trial` with live Paystack while you keep operator-only live Frappe. See `docs/PUBLIC_LAUNCH.md`.
 
+## T5 Owner issuance prep
+
+1. Read `docs/FRAPPE_SOT.md`.
+2. Optionally set `FRAPPE_OWNER_ISSUANCE=1` (operator tools only).
+3. `/ops/accounts` → Dry-run draft for a buyer; create on Cloud only after Desk custom fields exist.
+4. Lift `PLATFORM_OPERATOR_ONLY` only after smoke `/login/live` as that Owner.
+
 ## UI signal
 
 Live sessions under lockdown show a **Platform Operator** banner and Settings → Access control status.

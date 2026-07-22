@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-22 — Packets T4 + T5: media quotas + Frappe SoT prep
+
+- T4: Org media library (`tl-org-media`) with plan storage quotas + Settings meter
+- Case desk file upload for trial/org; over-quota blocks with upgrade CTA
+- T5: `docs/FRAPPE_SOT.md` + `POST /api/frappe/provision-owner` (operator + FRAPPE_OWNER_ISSUANCE)
+- Ops Accounts: dry-run / create Customer+Owner drafts; ADR-013 lockdown stays on
+- ADR-030, ADR-031
+
 ## 2026-07-22 — Packet T3: Org data space (no demo contamination)
 
 - Customer/trial workspaces never merge `mockIncidents` / `mockProjects`

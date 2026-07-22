@@ -14,12 +14,18 @@ import {
   listDemoIncidents,
   saveDemoEvidence,
 } from "@/lib/demoStore";
+import { listOrgEvidence, saveOrgEvidence } from "@/lib/orgDataSpace";
+import {
+  addOrgMedia,
+  guessMediaKind,
+  readFileForOrgMedia,
+} from "@/lib/orgMedia";
 import {
   listTrialEvidence,
   listTrialIncidents,
-  saveTrialEvidence,
 } from "@/lib/trialStore";
-import { readTrialModeFromDocument } from "@/lib/trial";
+import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
+import { listWorkspaceIncidents } from "@/lib/workspaceData";
 import { aiService } from "@/services/aiService";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
@@ -58,14 +64,17 @@ export default function AppIncidentDetailPage({
     Promise.all([incidentService.get(id), evidenceService.listForIncident(id)]).then(
       ([caseRecord, files]) => {
         if (cancelled) return;
-        const trial = readTrialModeFromDocument();
-        const localCase = (trial ? listTrialIncidents() : listDemoIncidents()).find(
-          (row) => row.id === id,
-        );
+        const customer = isCustomerWorkspaceClient();
+        const localCase = customer
+          ? listWorkspaceIncidents().find((row) => row.id === id) ||
+            listTrialIncidents().find((row) => row.id === id)
+          : listDemoIncidents().find((row) => row.id === id);
         setIncident(localCase ?? caseRecord);
-        const localFiles = trial ? listTrialEvidence(id) : listDemoEvidence(id);
+        const localFiles = customer
+          ? [...listOrgEvidence(id), ...listTrialEvidence(id)]
+          : listDemoEvidence(id);
         const byId = new Map<string, EvidenceStub>();
-        for (const file of [...localFiles, ...files]) {
+        for (const file of [...localFiles, ...(customer ? [] : files)]) {
           byId.set(file.id, file);
         }
         setEvidence([...byId.values()]);
@@ -80,24 +89,88 @@ export default function AppIncidentDetailPage({
     event.preventDefault();
     if (!fileName.trim() || !incident) return;
     requireEmailThen("save", () => {
-      const trial = readTrialModeFromDocument();
+      const customer = isCustomerWorkspaceClient();
       const stub: EvidenceStub = {
-        id: `EVD-D${Date.now().toString().slice(-5)}`,
+        id: `EVD-${Date.now().toString().slice(-6)}`,
         incidentId: incident.id,
         fileName: fileName.trim(),
         classification: "General",
-        uploadedBy: trial ? "Trial user" : "Demo user",
+        uploadedBy: customer ? "Org user" : "Demo user",
         uploadedAt: new Date().toISOString(),
         isPrimary: evidence.length === 0,
       };
-      if (trial) saveTrialEvidence(stub);
-      else saveDemoEvidence(stub);
-      setEvidence((prev) => [stub, ...prev]);
+      if (customer) {
+        const media = addOrgMedia({
+          kind: guessMediaKind(stub.fileName),
+          fileName: stub.fileName,
+          sizeBytes: Math.max(256, stub.fileName.length * 32),
+          incidentId: incident.id,
+          projectId: incident.projectId,
+          projectName: incident.projectName,
+          uploadedBy: stub.uploadedBy,
+        });
+        if (!media.ok) {
+          pushToast(media.error, "error");
+          return;
+        }
+        saveOrgEvidence({ ...stub, id: media.item.id });
+        setEvidence((prev) => [{ ...stub, id: media.item.id }, ...prev]);
+      } else {
+        saveDemoEvidence(stub);
+        setEvidence((prev) => [stub, ...prev]);
+      }
       setFileName("");
       pushToast(
-        trial ? "Evidence saved in your trial workspace" : "Evidence saved in this browser",
+        customer
+          ? "Evidence saved in your org media library"
+          : "Evidence saved in this browser",
         "success",
       );
+    });
+  }
+
+  async function handleFilePick(files: FileList | null) {
+    if (!files?.length || !incident) return;
+    if (!isCustomerWorkspaceClient()) {
+      pushToast("File upload is for trial/org workspaces — use /trial", "error");
+      return;
+    }
+    requireEmailThen("save", () => {
+      void (async () => {
+        for (const file of Array.from(files)) {
+          try {
+            const read = await readFileForOrgMedia(file);
+            const media = addOrgMedia({
+              kind: guessMediaKind(read.fileName, read.mimeType),
+              fileName: read.fileName,
+              mimeType: read.mimeType,
+              sizeBytes: read.sizeBytes,
+              dataUrl: read.dataUrl,
+              incidentId: incident.id,
+              projectId: incident.projectId,
+              projectName: incident.projectName,
+              uploadedBy: "Org user",
+            });
+            if (!media.ok) {
+              pushToast(media.error, "error");
+              break;
+            }
+            const stub: EvidenceStub = {
+              id: media.item.id,
+              incidentId: incident.id,
+              fileName: media.item.fileName,
+              classification: "General",
+              uploadedBy: media.item.uploadedBy,
+              uploadedAt: media.item.uploadedAt,
+              isPrimary: evidence.length === 0,
+            };
+            setEvidence((prev) => [stub, ...prev]);
+            pushToast(`Added ${media.item.fileName}`, "success");
+          } catch {
+            pushToast(`Failed to read ${file.name}`, "error");
+          }
+        }
+      })();
     });
   }
 
@@ -280,18 +353,32 @@ export default function AppIncidentDetailPage({
           <input
             value={fileName}
             onChange={(event) => setFileName(event.target.value)}
-            placeholder="Filename stub e.g. site-photo.jpg"
+            placeholder="Filename e.g. site-photo.jpg"
             className="min-w-[12rem] flex-1 rounded-md border border-tl-line px-3 py-2 text-sm"
           />
           <button
             type="submit"
             className="rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm font-medium hover:bg-tl-surface"
           >
-            Add evidence (demo)
+            Add by name
           </button>
+          <label className="rounded-md bg-tl-trust px-3 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink">
+            Upload file
+            <input
+              type="file"
+              multiple
+              className="hidden"
+              accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"
+              onChange={(e) => {
+                void handleFilePick(e.target.files);
+                e.target.value = "";
+              }}
+            />
+          </label>
         </form>
         <p className="mt-2 text-xs text-tl-ink-muted">
-          Demo stores the filename only — binary upload arrives with TrustLedger Cloud live mode.
+          Trial/org media counts toward plan storage quota (Settings → Media
+          library). Files over 2 MB store metadata only until Cloud File (T5).
         </p>
       </section>
 

@@ -79,6 +79,12 @@ export function PlanOwnerMasterPanel() {
           >
             Data space
           </Link>
+          <Link
+            href="/app/settings#media-library"
+            className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-surface"
+          >
+            Media
+          </Link>
         </div>
       </div>
       <dl className="mt-4 grid gap-3 sm:grid-cols-3 text-sm">
@@ -95,9 +101,9 @@ export function PlanOwnerMasterPanel() {
           </dd>
         </div>
         <div className="rounded-md border border-tl-line bg-tl-surface px-3 py-2">
-          <dt className="text-xs text-tl-ink-muted">Data space</dt>
+          <dt className="text-xs text-tl-ink-muted">Data &amp; media</dt>
           <dd className="mt-0.5 text-xs text-tl-ink-muted">
-            Import CSV · Settings
+            CSV import · quota meter
           </dd>
         </div>
       </dl>
