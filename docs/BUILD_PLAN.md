@@ -159,6 +159,16 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | 24f | Reports packs | Executive/operational reports + export | Planned |
 | 24g | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | Planned |
 
+### Client org / tenancy (demo → Cloud)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **T1** | Plan Owner master | Org store, session cookies, master desk strip, Team shell | **Active (this PR)** |
+| **T2** | Invites + seats | Owner invites, `/invite/accept`, locked junior desk tier, plan seat caps | **Active (this PR)** |
+| T3 | Org data space | Geo/projects/evidence dump + ongoing org-scoped data | Planned |
+| T4 | Media + quotas | Registers/minutes/photos/video; storage quotas → upgrade | Planned |
+| T5 | Frappe SoT | Customer/User sync when ADR-013 lockdown lifts | Planned |
+
 ## 8. Quality gates (every packet)
 
 ```bash

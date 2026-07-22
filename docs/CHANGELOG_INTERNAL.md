@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — T1+T2: Plan Owner org + team invites (demo)
+
+- Browser org tenancy: Plan Owner workspace on trial/subscribe; seat caps per ACCESS_MODEL
+- Dashboard master strip; Settings → Team / Seats invites (role + desk exposure)
+- `/invite/accept` joins as junior with locked desk tier; Practitioner = Owner-only
+- Data space / media quotas / Frappe User SoT deferred (T3–T5); ADR-026
+
 ## 2026-07-22 — Report AI: hard-bind to demo cases (no LLM guides)
 
 - Create report always seeds `mockIncidents` / `mockProjects` into evidence

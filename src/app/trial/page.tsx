@@ -57,6 +57,7 @@ function TrialStartForm() {
       email: email.trim().toLowerCase(),
       name: name.trim(),
       planId,
+      organization: organization.trim() || undefined,
     });
     ensureTrialSeedProject();
     if (organization.trim()) {

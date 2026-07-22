@@ -1,5 +1,6 @@
 ﻿import { API_BASE_URL, getDataMode } from "@/config/api";
 import { PLANS } from "@/config/plans";
+import { TeamSeatsPanel } from "@/components/org/TeamSeatsPanel";
 import { DeskSettingsPanel } from "@/components/settings/DeskSettingsPanel";
 import { EntitlementsSettingsPanel } from "@/components/settings/EntitlementsSettingsPanel";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
@@ -22,15 +23,27 @@ export default async function AppSettingsPage() {
   const isOperator =
     user.mode === "live" && isPlatformOperatorIdentity(user.email);
   const planName = user.trialPlan ? PLANS[user.trialPlan].name : null;
+  const isPlanOwner =
+    user.isPlanOwner === true ||
+    (user.role === "admin" && (user.mode === "trial" || Boolean(user.orgId)));
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="font-display text-2xl font-semibold">Settings</h1>
         <p className="mt-1 text-sm text-tl-ink-muted">
-          Trial session, desk tier, and environment for this build.
+          {isPlanOwner
+            ? "Plan Owner controls — team seats, desk tier, and environment."
+            : "Trial session, desk tier, and environment for this build."}
         </p>
       </div>
+
+      <TeamSeatsPanel
+        isPlanOwner={isPlanOwner || user.role === "admin"}
+        userEmail={user.email}
+        userName={user.name}
+        planId={user.trialPlan}
+      />
 
       {user.mode === "demo" ? (
         <TrialRoleSwitcher currentRole={user.role} />
@@ -38,7 +51,8 @@ export default async function AppSettingsPage() {
 
       <DeskSettingsPanel
         role={user.role}
-        canEditMatrix={user.role === "admin"}
+        canEditMatrix={user.role === "admin" && !user.deskTierLocked}
+        deskTierLocked={Boolean(user.deskTierLocked)}
       />
 
       <EntitlementsSettingsPanel
@@ -62,6 +76,16 @@ export default async function AppSettingsPage() {
           <div className="flex justify-between gap-4">
             <dt className="text-tl-ink-muted">Role</dt>
             <dd>{user.role}</dd>
+          </div>
+          {user.orgId ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-tl-ink-muted">Organisation</dt>
+              <dd className="font-mono text-xs">{user.orgId}</dd>
+            </div>
+          ) : null}
+          <div className="flex justify-between gap-4">
+            <dt className="text-tl-ink-muted">Plan Owner</dt>
+            <dd>{isPlanOwner ? "yes" : "no"}</dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-tl-ink-muted">User id</dt>

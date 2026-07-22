@@ -73,6 +73,7 @@ export default function TrialLoginPage() {
         name: payload.name || email,
         planId: payload.planId,
         startedAt: payload.startedAt ? new Date(payload.startedAt) : undefined,
+        organization: payload.organization || undefined,
       });
       ensureTrialSeedProject();
       if (payload.organization) {

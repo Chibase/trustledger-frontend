@@ -163,6 +163,7 @@ function SuccessBody() {
       email: state.email,
       name: state.name || state.email.split("@")[0] || "Trial user",
       planId: state.planId,
+      organization: state.organization || undefined,
     });
     ensureTrialSeedProject();
     if (state.organization) {

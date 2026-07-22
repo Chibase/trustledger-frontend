@@ -20,20 +20,42 @@ function isDeskTier(value: string): value is DeskTier {
   return (DESK_TIERS as readonly string[]).includes(value);
 }
 
+function readDeskTierCookie(): DeskTier | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|;\s*)tl-desk-tier=([^;]*)/);
+  if (!match) return null;
+  try {
+    const raw = decodeURIComponent(match[1]);
+    return isDeskTier(raw) ? raw : null;
+  } catch {
+    return null;
+  }
+}
+
+export function isDeskTierLocked(): boolean {
+  if (typeof document === "undefined") return false;
+  return /(?:^|;\s*)tl-desk-tier-locked=1(?:;|$)/.test(document.cookie);
+}
+
 export function readDeskTier(role: UserRole): DeskTier {
   if (typeof window === "undefined") return ROLE_DEFAULT_DESK_TIER[role];
+  const fromCookie = readDeskTierCookie();
+  if (isDeskTierLocked() && fromCookie) return fromCookie;
   try {
     const raw = window.localStorage.getItem(TIER_KEY);
     if (raw && isDeskTier(raw)) return raw;
   } catch {
     /* ignore */
   }
+  if (fromCookie) return fromCookie;
   return ROLE_DEFAULT_DESK_TIER[role];
 }
 
 export function writeDeskTier(tier: DeskTier) {
   if (typeof window === "undefined") return;
+  if (isDeskTierLocked()) return;
   window.localStorage.setItem(TIER_KEY, tier);
+  document.cookie = `tl-desk-tier=${encodeURIComponent(tier)}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`;
 }
 
 function mergeMatrix(partial: Partial<VisibilityMatrix> | null): VisibilityMatrix {

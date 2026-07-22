@@ -70,6 +70,7 @@ function ActivateBody() {
           startedAt: payload.startedAt
             ? new Date(payload.startedAt)
             : undefined,
+          organization: payload.organization || undefined,
         });
         ensureTrialSeedProject();
         if (payload.organization) {

@@ -15,6 +15,7 @@ import {
   readVisibilityMatrix,
   writeDeskTier,
   writeVisibilityMatrix,
+  isDeskTierLocked,
 } from "@/lib/deskVisibility";
 import { useToast } from "@/components/ui/Toast";
 
@@ -23,20 +24,28 @@ const FLAGS = Object.keys(VISIBILITY_FLAG_LABELS) as VisibilityFlag[];
 type DeskSettingsPanelProps = {
   role: UserRole;
   canEditMatrix: boolean;
+  /** When true (invitee), desk tier is Owner-assigned and not editable. */
+  deskTierLocked?: boolean;
 };
 
 export function DeskSettingsPanel({
   role,
   canEditMatrix,
+  deskTierLocked = false,
 }: DeskSettingsPanelProps) {
   const { pushToast } = useToast();
   const [tier, setTier] = useState<DeskTier>("clo");
   const [matrix, setMatrix] = useState<VisibilityMatrix | null>(null);
+  const [locked, setLocked] = useState(deskTierLocked);
 
   useEffect(() => {
-    setTier(readDeskTier(role));
-    setMatrix(readVisibilityMatrix());
-  }, [role]);
+    const frame = requestAnimationFrame(() => {
+      setTier(readDeskTier(role));
+      setMatrix(readVisibilityMatrix());
+      setLocked(deskTierLocked || isDeskTierLocked());
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [role, deskTierLocked]);
 
   if (!matrix) {
     return (
@@ -49,13 +58,16 @@ export function DeskSettingsPanel({
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
         <h2 className="font-semibold">My desk tier</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          Professional level for this session. Defaults from login role; change
-          to preview another desk view.
+          {locked
+            ? "Assigned by your Plan Owner. Desk exposure cannot be raised on this seat."
+            : "Professional level for this session. Defaults from login role; change to preview another desk view."}
         </p>
         <select
-          className="mt-3 w-full rounded-md border border-tl-line px-3 py-2"
+          className="mt-3 w-full rounded-md border border-tl-line px-3 py-2 disabled:cursor-not-allowed disabled:opacity-70"
           value={tier}
+          disabled={locked}
           onChange={(e) => {
+            if (locked) return;
             const next = e.target.value as DeskTier;
             setTier(next);
             writeDeskTier(next);
@@ -68,6 +80,11 @@ export function DeskSettingsPanel({
             </option>
           ))}
         </select>
+        {locked ? (
+          <p className="mt-2 text-xs text-tl-ink-muted">
+            Locked · {DESK_TIER_LABELS[tier]}
+          </p>
+        ) : null}
       </section>
 
       {canEditMatrix ? (

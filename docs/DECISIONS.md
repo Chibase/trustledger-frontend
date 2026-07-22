@@ -246,3 +246,12 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear sole-control posture for launch; env flip opens Plan Owner flow later.
 - **Alternatives considered:** Hardcode a single email in source (rejected — use env allowlist); lock demo too by default (rejected — keep Wednesday lead funnel unless explicitly locked).
 
+### ADR-026: Demo org tenancy before Frappe User SoT
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** ADR-012 requires Plan Owner + invite seats, but ADR-013 still blocks live Customer/User issuance. Buyers on trial/demo need a master desk and junior invites now.
+- **Decision:** Ship **browser-local org tenancy** (packets T1–T2): `localStorage` org + invite records; cookies for `orgId`, Plan Owner flag, desk tier, and desk-tier lock. Trial/subscribe bootstraps the Owner org. Invitees accept at `/invite/accept` with Owner-assigned role + locked desk. Seat caps follow ACCESS_MODEL (Practitioner = 0 juniors). T3–T5 cover data space, media quotas, and Frappe SoT when lockdown lifts.
+- **Consequences:** Demo/trial Owners can manage seats without Cloud Users; invite links only work on the same browser store until Cloud sync; no change to ADR-013 lockdown.
+- **Alternatives considered:** Wait for lockdown lift (rejected — blocks product learning); fake multi-user without seat model (rejected — contradicts ACCESS_MODEL).
+
