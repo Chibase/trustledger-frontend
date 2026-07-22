@@ -3,6 +3,7 @@ import { getCurrentUser, type UserRole } from "@/lib/auth";
 import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
 import { ClientPortfolioDashboard } from "@/components/client/ClientPortfolioDashboard";
 import { DeskWorkspacePanels } from "@/components/desk/DeskWorkspacePanels";
+import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -62,6 +63,8 @@ async function CommunityHome() {
         seedIncidents={incidents}
         seedProjects={projects}
       />
+
+      <ReportsLibrary role="community" />
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-tl-ink">Open concerns</h2>
@@ -133,6 +136,8 @@ async function ContractorHome() {
         seedProjects={projects}
         showProjectList={false}
       />
+
+      <ReportsLibrary role="contractor" />
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold">Assigned projects</h2>
@@ -221,6 +226,8 @@ async function AdminHome() {
         seedIncidents={all}
         seedProjects={projects}
       />
+
+      <ReportsLibrary role="admin" />
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold">Escalations</h2>

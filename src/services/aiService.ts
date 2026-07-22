@@ -10,6 +10,8 @@ import type {
   SentimentSuggestion,
   StakeholderExtractRequest,
   StakeholderExtractSuggestion,
+  ActivityReportComposeRequest,
+  ActivityReportComposeSuggestion,
   TriageRequest,
 } from "@/types/ai";
 
@@ -191,6 +193,48 @@ function mockReportBrief(input: ReportBriefRequest): ReportBriefSuggestion {
   };
 }
 
+function mockActivityReport(
+  input: ActivityReportComposeRequest,
+): ActivityReportComposeSuggestion {
+  const tone =
+    input.tonePreference === "board" || /board|investor|funder/i.test(input.audience)
+      ? "board"
+      : input.tonePreference === "formal"
+        ? "formal"
+        : "plain";
+
+  const title = `${input.kindLabel} — ${input.periodLabel}`;
+  const sections = input.includedSectionLabels
+    .map(
+      (label) =>
+        `### ${label}\n\nBased on workspace evidence for this period. ${input.authorTierLabel} reporting to ${input.audienceLabel}.\n`,
+    )
+    .join("\n");
+
+  const lockedNote = input.lockedSectionLabels.length
+    ? `\n> Sections above this desk grade (not included): ${input.lockedSectionLabels.join(", ")}.\n`
+    : "";
+
+  const intro =
+    tone === "board"
+      ? `## Executive highlight\n\nThis ${input.kindLabel.toLowerCase()} consolidates assurance evidence for ${input.audienceLabel}. Figures and case references below are drawn from TrustLedger activity in ${input.periodLabel}${input.projectName ? ` on ${input.projectName}` : ""}.\n`
+      : `## Summary\n\nPrepared by ${input.authorName} (${input.authorTierLabel}) for ${input.audienceLabel}. Period: ${input.periodLabel}${input.projectName ? `. Project: ${input.projectName}` : ""}.\n`;
+
+  const bodyMarkdown = `${intro}${lockedNote}\n## Evidence facts used\n\n\`\`\`\n${input.factsBlock}\n\`\`\`\n\n${sections}\n### Evidence appendix\n\nRegisters, minutes, and photo stubs listed in the facts block are retained for performance review and dispute support. Human review required before circulation.\n`;
+
+  return {
+    title,
+    bodyMarkdown,
+    executiveHighlight:
+      tone === "board"
+        ? "Board-ready draft — verify numbers and attach primary evidence before circulation."
+        : "Operational draft for supervisor review — confirm activities and evidence links.",
+    confidence: 0.74,
+    model: MODEL,
+    promptVersion: PROMPT_VERSION,
+  };
+}
+
 function mockStakeholderExtract(
   input: StakeholderExtractRequest,
 ): StakeholderExtractSuggestion {
@@ -289,6 +333,18 @@ export const aiService = {
       return mockStakeholderExtract(input);
     }
     return callFrappeMethod(FRAPPE_METHODS.suggestStakeholdersFromText, {
+      ...input,
+    });
+  },
+
+  async composeActivityReport(
+    input: ActivityReportComposeRequest,
+  ): Promise<ActivityReportComposeSuggestion> {
+    if (USE_MOCK) {
+      await delay(800);
+      return mockActivityReport(input);
+    }
+    return callFrappeMethod(FRAPPE_METHODS.composeActivityReport, {
       ...input,
     });
   },

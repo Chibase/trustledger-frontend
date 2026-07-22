@@ -1,6 +1,12 @@
 # Internal changelog
 
-## 2026-07-22 — Capability entitlements switchboard (ADR-024)
+## 2026-07-22 — Create report (evidence-based, seniority-gated)
+
+- `/app/reports` → Create a report wizard: kinds (monthly, GRM, ESG, H&S, B-BBEE, CSI, MEL, board…)
+- Sections selectable; options above desk grade greyed (visible, not selectable)
+- AI compose from workspace incidents + Capture evidence; save for performance/dispute use
+- Dashboard Report library views packs by desk level
+- Nav label: Create report
 
 - Capability catalogue + plan defaults + sellable add-ons (`entitlements` types/config/lib)
 - `FeatureGate`, nav capability filters, Settings add-on/override preview (admin)

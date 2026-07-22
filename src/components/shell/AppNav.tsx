@@ -65,8 +65,8 @@ const NAV: NavItem[] = [
   },
   {
     href: "/app/reports",
-    label: "Reports",
-    roles: ["client", "admin"],
+    label: "Create report",
+    roles: ["community", "contractor", "client", "admin"],
     icon: "reports",
     capability: "governanceReports",
   },

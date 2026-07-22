@@ -35,6 +35,8 @@ export const FRAPPE_METHODS = {
   generateReportBrief: "/api/method/srm_core.api.ai.generate_report_brief",
   suggestStakeholdersFromText:
     "/api/method/srm_core.api.ai.suggest_stakeholders_from_text",
+  composeActivityReport:
+    "/api/method/srm_core.api.ai.compose_activity_report",
   getSession: "/api/method/srm_core.api.auth.get_session",
   listGeoPlaces: "/api/method/srm_core.api.geo.list_places",
   getGeoPlace: "/api/method/srm_core.api.geo.get_place",

@@ -104,3 +104,27 @@ export type StakeholderExtractRequest = {
   projectName?: string;
 };
 
+export type ActivityReportComposeRequest = {
+  kind: string;
+  kindLabel: string;
+  audience: string;
+  audienceLabel: string;
+  periodLabel: string;
+  authorTierLabel: string;
+  authorName: string;
+  projectName?: string;
+  includedSectionLabels: string[];
+  lockedSectionLabels: string[];
+  factsBlock: string;
+  tonePreference?: "plain" | "formal" | "board";
+};
+
+export type ActivityReportComposeSuggestion = {
+  title: string;
+  bodyMarkdown: string;
+  executiveHighlight: string;
+  confidence: number;
+  model: string;
+  promptVersion: string;
+};
+

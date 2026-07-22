@@ -4,6 +4,7 @@ import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { DeskWorkspacePanels } from "@/components/desk/DeskWorkspacePanels";
+import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import type { ClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
 
 
@@ -58,6 +59,8 @@ export function ClientPortfolioDashboard({
         seedProjects={brief.projects}
         showProjectList={false}
       />
+
+      <ReportsLibrary role="client" />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(kpis.projects)} />
