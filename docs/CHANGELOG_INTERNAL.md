@@ -1,6 +1,11 @@
 # Internal changelog
 
-## 2026-07-21 — Desk tiers, capture hub, project-linked intake
+## 2026-07-22 — Capability entitlements switchboard (ADR-024)
+
+- Capability catalogue + plan defaults + sellable add-ons (`entitlements` types/config/lib)
+- `FeatureGate`, nav capability filters, Settings add-on/override preview (admin)
+- Desk panels honour plan capabilities alongside desk-tier visibility
+- Pricing/seats unchanged — packaging revisit later; switches are ready
 
 - Professional desk tiers (CLO → supervisor → site → delivery → oversight → funder) with admin visibility matrix in Settings
 - Capture hub: minutes / attendance / social intel / pasted report → AI stakeholder extract + brief (suggest → apply)

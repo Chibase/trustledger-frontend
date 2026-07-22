@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import type { PlanId } from "@/config/plans";
+import { hasCapability } from "@/lib/entitlements";
+import type { CapabilityId } from "@/types/entitlements";
 import type { UserRole } from "@/types/rbac";
 
 export type NavItem = {
   href: string;
   label: string;
   roles?: UserRole[];
+  capability?: CapabilityId;
   icon:
     | "dashboard"
     | "projects"
@@ -21,30 +26,49 @@ export type NavItem = {
 };
 
 const NAV: NavItem[] = [
-  { href: "/app/dashboard", label: "Dashboard", icon: "dashboard" },
+  {
+    href: "/app/dashboard",
+    label: "Dashboard",
+    icon: "dashboard",
+    capability: "dashboard",
+  },
   {
     href: "/app/capture",
     label: "Capture",
     icon: "capture",
+    capability: "captureHub",
   },
   {
     href: "/app/stakeholders",
     label: "Stakeholders",
     icon: "stakeholders",
+    capability: "stakeholdersCrm",
   },
-  { href: "/app/projects", label: "Projects", icon: "projects" },
-  { href: "/app/incidents", label: "Incidents", icon: "incidents" },
+  {
+    href: "/app/projects",
+    label: "Projects",
+    icon: "projects",
+    capability: "projects",
+  },
+  {
+    href: "/app/incidents",
+    label: "Incidents",
+    icon: "incidents",
+    capability: "incidents",
+  },
   {
     href: "/app/issues/report",
     label: "Report issue",
     roles: ["community", "contractor", "admin", "client"],
     icon: "report",
+    capability: "issueIntake",
   },
   {
     href: "/app/reports",
     label: "Reports",
     roles: ["client", "admin"],
     icon: "reports",
+    capability: "governanceReports",
   },
   { href: "/app/settings", label: "Settings", icon: "settings" },
 ];
@@ -127,13 +151,30 @@ function NavIcon({ name }: { name: NavItem["icon"] }) {
 type AppNavProps = {
   role: UserRole;
   variant?: "light" | "ink";
+  planId?: PlanId | null;
 };
 
-export function AppNav({ role, variant = "light" }: AppNavProps) {
+export function AppNav({ role, variant = "light", planId }: AppNavProps) {
   const pathname = usePathname();
-  const items = NAV.filter(
-    (item) => !item.roles || item.roles.includes(role),
-  );
+  const [capsReady, setCapsReady] = useState(false);
+  const [allowed, setAllowed] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const map: Record<string, boolean> = {};
+    for (const item of NAV) {
+      map[item.href] = item.capability
+        ? hasCapability(item.capability, planId)
+        : true;
+    }
+    setAllowed(map);
+    setCapsReady(true);
+  }, [planId]);
+
+  const items = NAV.filter((item) => {
+    if (item.roles && !item.roles.includes(role)) return false;
+    if (!capsReady) return !item.capability || item.capability === "dashboard";
+    return allowed[item.href] !== false;
+  });
   const ink = variant === "ink";
 
   return (

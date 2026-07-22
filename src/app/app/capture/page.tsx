@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
+import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
@@ -202,6 +203,7 @@ export default function AppCapturePage() {
   }
 
   return (
+    <FeatureGate capability="captureHub">
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
         eyebrow="Engagement capture"
@@ -380,5 +382,6 @@ export default function AppCapturePage() {
         </ul>
       </section>
     </div>
+    </FeatureGate>
   );
 }

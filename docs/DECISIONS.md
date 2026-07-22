@@ -210,7 +210,18 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Active packets shift to Phase 6 (24a+). Paystack/trial remain, but marketing honesty is mandatory.
 - **Alternatives considered:** Ship soft launch first then build V002 quietly (rejected — trust risk); claim V002 as live (rejected).
 
-### ADR-013: Platform Operator sole live control (until lifted)
+### ADR-024: Capability entitlements (plan bundles + add-ons)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Commercial packaging will combine seats with functional modules. Features must be switchable per plan or sold as optional add-ons without rewriting each screen later.
+- **Decision:**
+  1. Maintain a capability catalogue (`src/types/entitlements.ts`) separate from seat/pricing (`plans.ts`).
+  2. Each plan has a default capability matrix (`src/config/entitlements.ts`); add-ons grant extra capabilities.
+  3. UI gates via `hasCapability` / `FeatureGate` / nav `capability` fields. Admin Settings can preview add-ons and hard overrides in-browser until Frappe entitlements land.
+  4. Pricing and public plan copy may be revisited later; the switchboard stays.
+- **Consequences:** New modules register a capability id and check it at nav + page entry. Ops accounts page can later sync live entitlements.
+- **Alternatives considered:** Hardcode plan checks in each page (rejected — brittle); feature flags only in env (rejected — not client-packagable).
 
 - **Date:** 2026-07-12
 - **Status:** Accepted

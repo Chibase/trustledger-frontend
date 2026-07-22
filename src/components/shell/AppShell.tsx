@@ -58,6 +58,7 @@ export function AppShell({
           userName={userName}
           mode={mode === "live" ? "live" : "demo"}
           isGuest={isGuest || mode === "trial"}
+          planId={trialPlan}
         />
 
         <div className="flex min-h-[calc(100vh-2.25rem)]">
@@ -81,7 +82,7 @@ export function AppShell({
               <p className="mb-2 px-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-white/40">
                 Workspace
               </p>
-              <AppNav role={role} variant="ink" />
+              <AppNav role={role} variant="ink" planId={trialPlan} />
             </div>
 
             <div className="space-y-3 border-t border-white/10 px-4 py-4">

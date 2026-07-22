@@ -15,6 +15,7 @@ import {
   readDeskTier,
   readVisibilityMatrix,
 } from "@/lib/deskVisibility";
+import { hasCapability } from "@/lib/entitlements";
 import { averageTatHours, countOverStageTarget } from "@/lib/tatMetrics";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import { listTrialIncidents, listTrialProjects } from "@/lib/trialStore";
@@ -61,6 +62,7 @@ type DeskWorkspacePanelsProps = {
   seedIncidents?: Incident[];
   seedProjects?: Project[];
   showProjectList?: boolean;
+  planId?: import("@/config/plans").PlanId | null;
 };
 
 /**
@@ -71,6 +73,7 @@ export function DeskWorkspacePanels({
   seedIncidents = [],
   seedProjects = [],
   showProjectList = true,
+  planId = null,
 }: DeskWorkspacePanelsProps) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [matrix, setMatrix] = useState(() => readVisibilityMatrix());
@@ -144,7 +147,8 @@ export function DeskWorkspacePanels({
         </Link>
       </p>
 
-      {canSee("trustPulse", tier, matrix) ? (
+      {canSee("trustPulse", tier, matrix) &&
+      hasCapability("trustPulse", planId) ? (
         <TrustPulse
           incidents={incidents}
           levelLabel={DESK_TIER_LABELS[tier]}
@@ -153,7 +157,8 @@ export function DeskWorkspacePanels({
         />
       ) : null}
 
-      {canSee("supervisorQueue", tier, matrix) ? (
+      {canSee("supervisorQueue", tier, matrix) &&
+      hasCapability("supervisorQueue", planId) ? (
         <section className="space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-base font-semibold text-tl-ink">
@@ -176,7 +181,8 @@ export function DeskWorkspacePanels({
         </section>
       ) : null}
 
-      {canSee("graphs", tier, matrix) ? (
+      {canSee("graphs", tier, matrix) &&
+      hasCapability("deskGraphs", planId) ? (
         <div className="grid gap-6 lg:grid-cols-2">
           <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
             <h2 className="text-base font-semibold text-tl-ink">

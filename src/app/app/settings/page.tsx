@@ -1,6 +1,7 @@
 ﻿import { API_BASE_URL, getDataMode } from "@/config/api";
 import { PLANS } from "@/config/plans";
 import { DeskSettingsPanel } from "@/components/settings/DeskSettingsPanel";
+import { EntitlementsSettingsPanel } from "@/components/settings/EntitlementsSettingsPanel";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
 import { TrialRoleSwitcher } from "@/components/shell/TrialRoleSwitcher";
 import { getCurrentUser } from "@/lib/auth";
@@ -38,6 +39,11 @@ export default async function AppSettingsPage() {
       <DeskSettingsPanel
         role={user.role}
         canEditMatrix={user.role === "admin"}
+      />
+
+      <EntitlementsSettingsPanel
+        planId={user.trialPlan}
+        canEdit={user.role === "admin"}
       />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
