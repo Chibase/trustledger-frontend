@@ -46,7 +46,6 @@ export function TrialBanner({ trial, planId, email }: TrialBannerProps) {
           planId: billing?.planId || planId,
           planLabel: billing?.planLabel || plan?.name,
           reference: billing?.reference,
-          authorizationCode: billing?.authorizationCode,
         }),
       });
       const payload = (await res.json()) as { ok?: boolean; error?: string };

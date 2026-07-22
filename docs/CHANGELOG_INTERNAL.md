@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-22 — Soft public launch + live Paystack readiness
+
+- ADR-027: public trial/pay with live Paystack; Frappe live login stays operator-gated
+- Bugbot rules (`.cursor/BUGBOT.md`), PR template, `docs/CURSOR_AGENTS.md`, `docs/PUBLIC_LAUNCH.md`
+- Invite accept re-checks plan desk cap; opt-out verifies Paystack reference+email (no client auth-code)
+- Stable trial temp password per reference; production requires trial/Paystack secret
+- Launch checklist updated for live key cutover
+
 ## 2026-07-22 — Desk ranks 1 (Client/Board) → 5 (CLO)
 
 - Five desks ordered high→low: funder, executive (CEO/MD), delivery, supervisor, clo

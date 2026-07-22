@@ -228,6 +228,13 @@ export function acceptOrgInvite(input: {
     return { ok: false, error: "Invite not found or already used." };
   }
   const { org, invite } = found;
+  if (!canInviteDeskTier(org.planId, invite.deskTier)) {
+    return {
+      ok: false,
+      error:
+        "This invite’s desk exposure is above the organisation’s plan. Ask your Plan Owner to send a new invite at a lower rank.",
+    };
+  }
   const seats = buildSeatSummary(org);
   // Pending invite already counted in seats; accepting converts pending → member.
   if (seats.additionalSeatCap === 0 && org.planId === "practitioner") {
