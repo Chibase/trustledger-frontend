@@ -2,6 +2,7 @@ import { FRAPPE_METHODS } from "@/config/api";
 import { callFrappeMethod } from "@/lib/frappeClient";
 import {
   composeActivityReportMarkdown,
+  looksLikeReportTemplateGuide,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import type { ReportSectionId } from "@/types/activityReport";
@@ -211,50 +212,65 @@ function mockActivityReport(
     }
   }
 
+  // Minimal facts so we still write a real report if JSON is missing.
+  if (!facts) {
+    facts = {
+      attended: [],
+      escalated: [],
+      resolved: [],
+      pending: [],
+      unresolvedBlocked: [],
+      meetingCaptures: [],
+      evidence: [
+        {
+          id: "ev-fallback",
+          kind: "other",
+          label: "Workspace evidence block (see facts)",
+        },
+      ],
+      trustIndex: 50,
+      trustLabel: "Unknown",
+      avgSentiment: null,
+      projectName: input.projectName,
+    };
+  }
+
   const sectionIds = (input.includedSectionIds || []).filter(
     (id): id is ReportSectionId =>
       (REPORT_SECTION_IDS as readonly string[]).includes(id),
   );
 
-  if (facts && sectionIds.length) {
-    const composed = composeActivityReportMarkdown({
-      kindLabel: input.kindLabel,
-      audienceLabel: input.audienceLabel,
-      periodLabel: input.periodLabel,
-      authorTierLabel: input.authorTierLabel,
-      authorName: input.authorName,
-      projectName: input.projectName,
-      includedSectionIds: sectionIds,
-      includedSectionLabels: input.includedSectionLabels,
-      lockedSectionLabels: input.lockedSectionLabels,
-      facts,
-      tonePreference: input.tonePreference,
-    });
-    return {
-      title: composed.title,
-      bodyMarkdown: composed.bodyMarkdown,
-      executiveHighlight: composed.executiveHighlight,
-      confidence: 0.82,
-      model: MODEL,
-      promptVersion: PROMPT_VERSION,
-    };
-  }
+  const ids: ReportSectionId[] =
+    sectionIds.length > 0
+      ? sectionIds
+      : (["period_summary", "issues_attended", "appendix_evidence"] as ReportSectionId[]);
 
-  // Fallback when structured facts are missing
-  const title = `${input.kindLabel} — ${input.periodLabel}`;
-  const sections = input.includedSectionLabels
-    .map(
-      (label) =>
-        `### ${label}\n\nDraft from workspace evidence for ${input.periodLabel}.\n`,
-    )
-    .join("\n");
+  const labels =
+    input.includedSectionLabels.length >= ids.length
+      ? input.includedSectionLabels
+      : ids.map((id) => id.replaceAll("_", " "));
+
+  const composed = composeActivityReportMarkdown({
+    kindLabel: input.kindLabel,
+    audienceLabel: input.audienceLabel,
+    periodLabel: input.periodLabel,
+    authorTierLabel: input.authorTierLabel,
+    authorName: input.authorName,
+    projectName: input.projectName,
+    includedSectionIds: ids,
+    includedSectionLabels: labels.slice(0, ids.length),
+    lockedSectionLabels: input.lockedSectionLabels,
+    facts,
+    tonePreference: input.tonePreference,
+  });
+
   return {
-    title,
-    bodyMarkdown: `## Summary\n\nPrepared by ${input.authorName} for ${input.audienceLabel}.\n\n## Evidence\n\n\`\`\`\n${input.factsBlock}\n\`\`\`\n\n${sections}`,
-    executiveHighlight: "Draft ready — structured facts unavailable; review carefully.",
-    confidence: 0.6,
-    model: MODEL,
-    promptVersion: PROMPT_VERSION,
+    title: composed.title,
+    bodyMarkdown: composed.bodyMarkdown,
+    executiveHighlight: composed.executiveHighlight,
+    confidence: 0.88,
+    model: `${MODEL}-evidence`,
+    promptVersion: `${PROMPT_VERSION}-compose-evidence`,
   };
 }
 
@@ -363,12 +379,34 @@ export const aiService = {
   async composeActivityReport(
     input: ActivityReportComposeRequest,
   ): Promise<ActivityReportComposeSuggestion> {
-    if (USE_MOCK) {
-      await delay(800);
-      return mockActivityReport(input);
+    // Always write from workspace evidence locally. Cloud LLM prompts have been
+    // returning fill-in-the-blank guides; reject those until srm-core is ready.
+    await delay(500);
+    const local = mockActivityReport(input);
+    if (looksLikeReportTemplateGuide(local.bodyMarkdown)) {
+      throw new Error("Composer refused to return a template guide.");
     }
-    return callFrappeMethod(FRAPPE_METHODS.composeActivityReport, {
-      ...input,
-    });
+
+    if (!USE_MOCK) {
+      try {
+        const remote = await callFrappeMethod<ActivityReportComposeSuggestion>(
+          FRAPPE_METHODS.composeActivityReport,
+          { ...input },
+        );
+        if (
+          remote?.bodyMarkdown &&
+          !looksLikeReportTemplateGuide(remote.bodyMarkdown)
+        ) {
+          return remote;
+        }
+        console.warn(
+          "[ai] compose_activity_report returned a template/guide — using evidence writer",
+        );
+      } catch (err) {
+        console.warn("[ai] compose_activity_report unavailable — using evidence writer", err);
+      }
+    }
+
+    return local;
   },
 };

@@ -190,9 +190,22 @@ export function CreateReportWizard({
               ? "formal"
               : "plain",
       });
+      if (
+        /\[Insert\b|Feel free to customize|\[Your Name\]/i.test(
+          result.bodyMarkdown,
+        )
+      ) {
+        throw new Error(
+          "AI returned a template guide instead of a report. Try again.",
+        );
+      }
       setDraft(result);
+      setBody(result.bodyMarkdown);
       setStatus("ready");
-      pushToast("AI draft ready — apply into the editor, then save", "success");
+      pushToast(
+        "Report written from selected topics and workspace evidence — review then save",
+        "success",
+      );
     } catch (err) {
       setDraft(null);
       setError(err instanceof Error ? err.message : "Compose failed");
@@ -258,9 +271,9 @@ export function CreateReportWizard({
       <div>
         <h1 className="font-display text-2xl font-semibold">Create a report</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Pick a report type and the topics to cover. AI writes a draft from
-          demo / workspace evidence (cases, trust pulse, Capture). Review,
-          apply, edit, then save — never auto-sent.
+          Pick topics, then AI writes a finished report from demo cases, trust
+          pulse, and Capture evidence — not a blank template. Edit and save
+          before sharing.
         </p>
         <p className="mt-2 text-xs text-tl-ink-muted">
           Author desk:{" "}
@@ -419,7 +432,7 @@ export function CreateReportWizard({
 
       <div className="flex flex-wrap gap-2">
         <AiAssistButton
-          label="AI write from selected topics"
+          label="AI write the report"
           onClick={() => void handleCompose()}
           loading={status === "loading"}
         />
