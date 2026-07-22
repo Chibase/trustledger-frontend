@@ -1,5 +1,11 @@
 import { FRAPPE_METHODS } from "@/config/api";
 import { callFrappeMethod } from "@/lib/frappeClient";
+import {
+  composeActivityReportMarkdown,
+  type PeriodActivityFacts,
+} from "@/lib/reportComposer";
+import type { ReportSectionId } from "@/types/activityReport";
+import { REPORT_SECTION_IDS } from "@/types/activityReport";
 import type {
   DraftResponseRequest,
   DraftResponseSuggestion,
@@ -196,40 +202,57 @@ function mockReportBrief(input: ReportBriefRequest): ReportBriefSuggestion {
 function mockActivityReport(
   input: ActivityReportComposeRequest,
 ): ActivityReportComposeSuggestion {
-  const tone =
-    input.tonePreference === "board" || /board|investor|funder/i.test(input.audience)
-      ? "board"
-      : input.tonePreference === "formal"
-        ? "formal"
-        : "plain";
+  let facts: PeriodActivityFacts | null = null;
+  if (input.factsJson) {
+    try {
+      facts = JSON.parse(input.factsJson) as PeriodActivityFacts;
+    } catch {
+      facts = null;
+    }
+  }
 
+  const sectionIds = (input.includedSectionIds || []).filter(
+    (id): id is ReportSectionId =>
+      (REPORT_SECTION_IDS as readonly string[]).includes(id),
+  );
+
+  if (facts && sectionIds.length) {
+    const composed = composeActivityReportMarkdown({
+      kindLabel: input.kindLabel,
+      audienceLabel: input.audienceLabel,
+      periodLabel: input.periodLabel,
+      authorTierLabel: input.authorTierLabel,
+      authorName: input.authorName,
+      projectName: input.projectName,
+      includedSectionIds: sectionIds,
+      includedSectionLabels: input.includedSectionLabels,
+      lockedSectionLabels: input.lockedSectionLabels,
+      facts,
+      tonePreference: input.tonePreference,
+    });
+    return {
+      title: composed.title,
+      bodyMarkdown: composed.bodyMarkdown,
+      executiveHighlight: composed.executiveHighlight,
+      confidence: 0.82,
+      model: MODEL,
+      promptVersion: PROMPT_VERSION,
+    };
+  }
+
+  // Fallback when structured facts are missing
   const title = `${input.kindLabel} — ${input.periodLabel}`;
   const sections = input.includedSectionLabels
     .map(
       (label) =>
-        `### ${label}\n\nBased on workspace evidence for this period. ${input.authorTierLabel} reporting to ${input.audienceLabel}.\n`,
+        `### ${label}\n\nDraft from workspace evidence for ${input.periodLabel}.\n`,
     )
     .join("\n");
-
-  const lockedNote = input.lockedSectionLabels.length
-    ? `\n> Sections above this desk grade (not included): ${input.lockedSectionLabels.join(", ")}.\n`
-    : "";
-
-  const intro =
-    tone === "board"
-      ? `## Executive highlight\n\nThis ${input.kindLabel.toLowerCase()} consolidates assurance evidence for ${input.audienceLabel}. Figures and case references below are drawn from TrustLedger activity in ${input.periodLabel}${input.projectName ? ` on ${input.projectName}` : ""}.\n`
-      : `## Summary\n\nPrepared by ${input.authorName} (${input.authorTierLabel}) for ${input.audienceLabel}. Period: ${input.periodLabel}${input.projectName ? `. Project: ${input.projectName}` : ""}.\n`;
-
-  const bodyMarkdown = `${intro}${lockedNote}\n## Evidence facts used\n\n\`\`\`\n${input.factsBlock}\n\`\`\`\n\n${sections}\n### Evidence appendix\n\nRegisters, minutes, and photo stubs listed in the facts block are retained for performance review and dispute support. Human review required before circulation.\n`;
-
   return {
     title,
-    bodyMarkdown,
-    executiveHighlight:
-      tone === "board"
-        ? "Board-ready draft — verify numbers and attach primary evidence before circulation."
-        : "Operational draft for supervisor review — confirm activities and evidence links.",
-    confidence: 0.74,
+    bodyMarkdown: `## Summary\n\nPrepared by ${input.authorName} for ${input.audienceLabel}.\n\n## Evidence\n\n\`\`\`\n${input.factsBlock}\n\`\`\`\n\n${sections}`,
+    executiveHighlight: "Draft ready — structured facts unavailable; review carefully.",
+    confidence: 0.6,
     model: MODEL,
     promptVersion: PROMPT_VERSION,
   };

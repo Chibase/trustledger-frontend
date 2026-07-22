@@ -113,9 +113,13 @@ export type ActivityReportComposeRequest = {
   authorTierLabel: string;
   authorName: string;
   projectName?: string;
+  /** Selected topic / section ids (preferred for structured compose). */
+  includedSectionIds?: string[];
   includedSectionLabels: string[];
   lockedSectionLabels: string[];
   factsBlock: string;
+  /** Structured facts JSON for richer mock / future Cloud prompts. */
+  factsJson?: string;
   tonePreference?: "plain" | "formal" | "board";
 };
 

@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-22 — AI report write from picked topics (demo data)
+
+- Create report: pick topics → AI writes narrative sections from workspace/demo cases, trust pulse, and Capture evidence
+- Suggest → apply → save; project scope filters facts; mock compose uses structured section writers
+- Desk-gated topics stay greyed / non-selectable
+
 ## 2026-07-22 — Trial subscribe (card verify + deferred charge)
 
 - `/pay` default = 14-day trial: Paystack card verification, authorization on file, bill at trial end
