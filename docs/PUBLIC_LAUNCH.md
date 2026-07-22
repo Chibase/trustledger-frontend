@@ -65,3 +65,7 @@ NEXT_PUBLIC_DATA_MODE=demo                # safe default; live DocTypes later
 - Monitor Paystack live transactions + HubSpot/CRM `Trial Authorize` / `Trial Opt-Out`.
 - Day-14 charges via Ops `/api/paystack/charge-due` (allowlist) — see ADR-025.
 - Plan Owner Frappe users remain **manual** until ADR-013 lift (`docs/PLATFORM_OPERATOR.md`).
+
+## Frappe sample data vs reports
+
+Deleting ERPNext sample DocTypes on Cloud **does not** fix Month-End AI templates. See `docs/FRAPPE_SAMPLE_DATA.md`. Clear bad drafts in the **browser** report library instead; Create report uses the local evidence writer only.

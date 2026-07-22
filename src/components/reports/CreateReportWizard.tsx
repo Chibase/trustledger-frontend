@@ -39,17 +39,17 @@ import {
 } from "@/lib/reportComposer";
 import {
   createReportId,
+  purgeTemplateGuideReports,
   saveAuthoredReport,
 } from "@/lib/reportStore";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import { listTrialIncidents, listTrialProjects } from "@/lib/trialStore";
 import { aiService } from "@/services/aiService";
-import { incidentService } from "@/services/incidentService";
-import { projectService } from "@/services/projectService";
 import type {
   ActivityReportComposeSuggestion,
   AiSuggestionStatus,
 } from "@/types/ai";
+import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
 import type { UserRole } from "@/types/rbac";
 
@@ -90,9 +90,8 @@ export function CreateReportWizard({
   const [factsBlock, setFactsBlock] = useState("");
   const [facts, setFacts] = useState<PeriodActivityFacts | null>(null);
   const [evidence, setEvidence] = useState<SavedReport["evidence"]>([]);
-  const [allIncidents, setAllIncidents] = useState<
-    Awaited<ReturnType<typeof incidentService.list>>
-  >([]);
+  const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
+  const [purgedTemplates, setPurgedTemplates] = useState(0);
 
   useEffect(() => {
     const desk = readDeskTier(role);
@@ -102,33 +101,23 @@ export function CreateReportWizard({
   }, [role]);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const trial = readTrialModeFromDocument();
-      const [iRows, pRows] = await Promise.all([
-        incidentService.list(),
-        projectService.list(),
-      ]);
-      if (cancelled) return;
-      const localI = trial ? listTrialIncidents() : listDemoIncidents();
-      const localP = trial ? listTrialProjects() : listDemoProjects();
-      // Always ground report writing in TrustLedger demo seed cases.
-      // Live Frappe rows may be empty or unrelated — never rely on them alone.
-      const byI = new Map(
-        [...mockIncidents, ...localI, ...iRows].map((i) => [i.id, i]),
-      );
-      const byP = new Map(
-        [...mockProjects, ...localP, ...pRows].map((p) => [p.id, p]),
-      );
-      const incidents = [...byI.values()];
-      const projectList = [...byP.values()];
-      setProjects(projectList);
-      setAllIncidents(incidents);
-      setProjectId((prev) => prev || projectList[0]?.id || "");
-    })();
-    return () => {
-      cancelled = true;
-    };
+    // Drop old Cloud LLM month-end drafts from this browser.
+    setPurgedTemplates(purgeTemplateGuideReports());
+    const trial = readTrialModeFromDocument();
+    const localI = trial ? listTrialIncidents() : listDemoIncidents();
+    const localP = trial ? listTrialProjects() : listDemoProjects();
+    // Evidence writer never reads Frappe/ERPNext seed rows — those are not
+    // TrustLedger cases and can empty the project scope filter.
+    const byI = new Map(
+      [...mockIncidents, ...localI].map((i) => [i.id, i] as const),
+    );
+    const byP = new Map(
+      [...mockProjects, ...localP].map((p) => [p.id, p] as const),
+    );
+    setProjects([...byP.values()]);
+    setAllIncidents([...byI.values()]);
+    // Portfolio scope by default so all demo INC-* cases stay in frame.
+    setProjectId("");
   }, []);
 
   useEffect(() => {
@@ -283,10 +272,19 @@ export function CreateReportWizard({
       <div>
         <h1 className="font-display text-2xl font-semibold">Create a report</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Pick topics, then AI writes a finished report from TrustLedger demo
-          cases (e.g. INC-1001). Cloud/Frappe LLM is not used here — that path
-          returned generic month-end templates with placeholders.
+          Pick topics, then the local evidence writer drafts a finished report
+          from TrustLedger demo cases (e.g. INC-1001). Frappe Cloud / Grok is
+          not called for this step — that path returned generic month-end sales
+          templates. After write, confirm the model label shows{" "}
+          <span className="font-mono text-tl-ink">trustledger-evidence</span>.
         </p>
+        {purgedTemplates > 0 ? (
+          <p className="mt-2 rounded-md border border-amber-300/80 bg-amber-50 px-3 py-2 text-xs text-tl-ink">
+            Removed {purgedTemplates} old placeholder draft
+            {purgedTemplates === 1 ? "" : "s"} from this browser’s report
+            library (Month-End / [Insert …] templates).
+          </p>
+        ) : null}
         {facts ? (
           <p className="mt-2 rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-xs text-tl-ink-muted">
             <span className="font-medium text-tl-ink">Data in scope:</span>{" "}

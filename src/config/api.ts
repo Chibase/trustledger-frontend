@@ -32,11 +32,10 @@ export const FRAPPE_METHODS = {
   suggestTriage: "/api/method/srm_core.api.ai.suggest_triage",
   suggestSentiment: "/api/method/srm_core.api.ai.suggest_sentiment",
   draftResponse: "/api/method/srm_core.api.ai.draft_response",
-  generateReportBrief: "/api/method/srm_core.api.ai.generate_report_brief",
+  // Report brief + activity compose stay local (reportComposer). Do not wire
+  // these Cloud methods — Grok returns Month-End / [Insert …] sales templates.
   suggestStakeholdersFromText:
     "/api/method/srm_core.api.ai.suggest_stakeholders_from_text",
-  composeActivityReport:
-    "/api/method/srm_core.api.ai.compose_activity_report",
   getSession: "/api/method/srm_core.api.auth.get_session",
   listGeoPlaces: "/api/method/srm_core.api.geo.list_places",
   getGeoPlace: "/api/method/srm_core.api.geo.get_place",
