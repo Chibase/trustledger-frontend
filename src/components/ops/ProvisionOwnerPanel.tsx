@@ -66,6 +66,35 @@ export function ProvisionOwnerPanel({
     }
   }
 
+  async function setTempPassword() {
+    setBusy(true);
+    setResult("");
+    try {
+      const res = await fetch("/api/frappe/set-user-password", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ email: ownerEmail }),
+      });
+      const json = (await res.json()) as {
+        error?: string;
+        message?: string;
+        temporaryPassword?: string;
+      };
+      if (!res.ok) {
+        pushToast(json.error || "Could not set password", "error");
+        setResult(JSON.stringify(json, null, 2));
+        return;
+      }
+      pushToast(json.message || "Temporary password set", "success");
+      setResult(JSON.stringify(json, null, 2));
+    } catch {
+      pushToast("Network error", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function run(dryRun: boolean) {
     setBusy(true);
     setResult("");
@@ -189,7 +218,20 @@ export function ProvisionOwnerPanel({
         >
           Create on Cloud
         </button>
+        <button
+          type="button"
+          disabled={busy || !ownerEmail.includes("@")}
+          onClick={() => void setTempPassword()}
+          className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
+        >
+          Set temp password
+        </button>
       </div>
+      <p className="mt-2 text-xs text-tl-ink-muted">
+        Forgot Owner password? Use <strong>Set temp password</strong> (shows once
+        in the JSON), or the Owner can use Forgot password on{" "}
+        <code className="font-mono">/login/live</code>.
+      </p>
       {result ? (
         <pre className="mt-3 max-h-64 overflow-auto rounded-md border border-tl-line bg-tl-paper/50 p-3 font-mono text-[11px] text-tl-ink">
           {result}

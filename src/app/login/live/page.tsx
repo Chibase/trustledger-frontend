@@ -36,11 +36,14 @@ function LiveLoginForm() {
   const [pwd, setPwd] = useState("");
   const [error, setError] = useState<string | null>(gateError);
   const [pending, setPending] = useState(false);
+  const [resetPending, setResetPending] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError(null);
+    setResetMessage(null);
     try {
       const response = await fetch("/auth/live/login", {
         method: "POST",
@@ -72,6 +75,38 @@ function LiveLoginForm() {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setPending(false);
+    }
+  }
+
+  async function handleForgotPassword() {
+    setResetPending(true);
+    setError(null);
+    setResetMessage(null);
+    try {
+      const email = usr.trim();
+      if (!email.includes("@")) {
+        throw new Error("Enter your email above first, then request a reset.");
+      }
+      const response = await fetch("/api/auth/live/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const payload = (await response.json()) as {
+        error?: string;
+        message?: string;
+      };
+      if (!response.ok) {
+        throw new Error(payload.error || "Could not start password reset");
+      }
+      setResetMessage(
+        payload.message ||
+          "If this email is registered, reset instructions were sent.",
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Reset failed");
+    } finally {
+      setResetPending(false);
     }
   }
 
@@ -123,6 +158,11 @@ function LiveLoginForm() {
             {error}
           </p>
         ) : null}
+        {resetMessage ? (
+          <p className="text-sm text-tl-trust-ink" role="status">
+            {resetMessage}
+          </p>
+        ) : null}
         <button
           type="submit"
           disabled={pending}
@@ -130,13 +170,23 @@ function LiveLoginForm() {
         >
           {pending ? "Signing in…" : "Sign in"}
         </button>
+        <button
+          type="button"
+          disabled={resetPending || pending}
+          onClick={() => void handleForgotPassword()}
+          className="w-full text-sm font-medium text-tl-trust-ink underline disabled:opacity-50"
+        >
+          {resetPending ? "Sending reset…" : "Forgot password?"}
+        </button>
       </form>
       <p className="mt-4 text-xs text-tl-ink-muted">
         Want sample data only?{" "}
         <Link href="/demo" className="text-tl-trust-ink underline">
           Open the demo
         </Link>
-        .
+        . Reset links go to TrustLedger Cloud (
+        <span className="font-mono">app.trustledger.co.za</span>
+        ); set a new password there, then return here to sign in.
       </p>
     </main>
   );
