@@ -25,51 +25,55 @@ Customer + Owner User smoke passed (`nonunu@trustledger.co.za`). Lockdown remain
 
 ---
 
-## Step 2 — Product DocTypes + Cloud File **(ACTIVE)**
+## Step 2 — Product DocTypes + Cloud File **(DONE — 2026-07-22)**
 
-**Goal:** Org-scoped Project, Incident, Evidence on Frappe; File attach for media >2 MB.
+DocTypes + Project/Incident/Evidence smoke under `Step1 Smoke Test` passed.
+
+---
+
+## Step 3 — Sync + auto-provision **(ACTIVE)**
+
+**Goal:** Trial/subscribe writes Cloud Customer+User without Ops click; browser `tl-org-data` migrates on first live login.
 
 ### Split: agent vs you
 
 | Who | What |
 |-----|------|
-| **Agent (this packet)** | DocType ensure API, product smoke create, `/api/frappe/upload-file`, Ops buttons, readiness Step 2 |
-| **You** | Click Check/Create DocTypes → Smoke Project→Incident→Evidence → optional file upload → confirm in Desk |
+| **Agent (this packet)** | `provisionOwnerOnCloud` shared lib; Paystack → Cloud when `FRAPPE_AUTO_PROVISION=1`; `POST /api/frappe/migrate-org`; `/login/live` one-shot migrate |
+| **You** | Set env flag, redeploy, smoke one Paystack path, confirm Desk Customer+User |
 
 ### Your actions
 
-1. Merge OD-2 PR → wait for Vercel.
-2. Ops → Accounts (as Platform Operator):
-   - Organization = Frappe **Customer** name (e.g. `Step1 Smoke Test`)
-   - **Check product DocTypes** → **Create product DocTypes**
-   - **Smoke Project→Incident→Evidence**
-3. Optional: upload a file with `POST /api/frappe/upload-file` (or wait for case-desk wiring next).
-4. Confirm rows in Desk: **TL Project**, **TL Incident**, **TL Evidence**.
+1. Merge OD-3 PR → wait for Vercel.
+2. Vercel env (then redeploy):
+
+```bash
+FRAPPE_AUTO_PROVISION=1
+# keep existing:
+FRAPPE_OWNER_ISSUANCE=1
+FRAPPE_API_KEY=…
+FRAPPE_API_SECRET=…
+FRAPPE_BASE_URL=https://app.trustledger.co.za
+PLATFORM_OPERATOR_ONLY=1
+```
+
+3. Smoke Paystack `/pay` (trial authorize or pay now) with a **new** test email you control.
+4. Confirm **Customer + User** appear in Desk **without** clicking Ops Create on Cloud.
+5. Optional: with browser org data present, `/login/live` as that Owner (temp allowlist) → projects/incidents migrate once.
 
 ### Done when
 
-- [ ] Three DocTypes exist  
-- [ ] One smoke Project + Incident + Evidence under the test Customer  
+- [ ] `FRAPPE_AUTO_PROVISION=1` live  
+- [ ] One Paystack success creates Cloud Owner without Ops  
 - [ ] Lockdown still ON  
 
-**Then tell the agent: “Step 2 complete”** → Step 3 (sync + auto-provision).
-
-### Outline (technical)
-
-- DocTypes match `src/types/project.ts`, `incident.ts`, evidence  
-- Customer link on every row  
-- File upload BFF → Frappe `upload_file`  
-- See `docs/PRODUCT_DOCTYPES.md` and `docs/FRAPPE_API_CONTRACT.md`
+**Then tell the agent: “Step 3 complete”** → Step 4 (billing scheduler + lift ADR-013).
 
 ---
 
 ## Step 3 — Sync + auto-provision
 
-**Goal:** Trial/subscribe writes Cloud, not only `localStorage`.
-
-- Migrate `tl-org-data` / media → Cloud on first live login  
-- Paystack webhook → `provision-owner` (no manual Ops click)  
-- Invite accept creates Frappe User at lower role  
+_(Superseded by ACTIVE section above when Step 2 is Done.)_
 
 ---
 

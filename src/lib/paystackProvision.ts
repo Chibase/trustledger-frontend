@@ -16,6 +16,11 @@ import {
   sendTrialWelcomeEmail,
   transactionalEmailConfigured,
 } from "@/lib/transactionalEmail";
+import {
+  isFrappeAutoProvisionEnabled,
+  provisionOwnerOnCloud,
+} from "@/lib/provisionOwnerCloud";
+import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 
 export type TrialProvisionResult = {
   flow: "trial_authorize" | "pay_now";
@@ -33,6 +38,13 @@ export type TrialProvisionResult = {
   emailSent: boolean;
   emailDetail?: string;
   logged: boolean;
+  /** OD-3 — Frappe Customer+User auto-provision outcome */
+  cloudProvision?: {
+    ok: boolean;
+    skipped?: boolean;
+    customerName?: string;
+    error?: string;
+  };
 };
 
 /**
@@ -70,6 +82,29 @@ export async function provisionAfterPaystackVerify(
       reference: verified.reference,
       paidAt: verified.paidAt,
     });
+
+    let cloudProvision: TrialProvisionResult["cloudProvision"];
+    if (
+      isFrappeAutoProvisionEnabled() &&
+      isFrappeOwnerIssuanceEnabled() &&
+      planId
+    ) {
+      const cloud = await provisionOwnerOnCloud({
+        organization: organization || `${name}'s TrustLedger`,
+        ownerEmail: email,
+        ownerName: name,
+        planId,
+        status: "active",
+        sendWelcomeEmail: true,
+      });
+      cloudProvision = {
+        ok: cloud.ok,
+        skipped: cloud.skipped,
+        customerName: cloud.customerName,
+        error: cloud.error,
+      };
+    }
+
     return {
       flow: "pay_now",
       email,
@@ -85,6 +120,7 @@ export async function provisionAfterPaystackVerify(
       activationToken: null,
       emailSent: false,
       logged: logged.logged,
+      cloudProvision,
     };
   }
 
@@ -112,6 +148,28 @@ export async function provisionAfterPaystackVerify(
   });
 
   if (!mintCredentials || !planId) {
+    let cloudProvision: TrialProvisionResult["cloudProvision"];
+    if (
+      isFrappeAutoProvisionEnabled() &&
+      isFrappeOwnerIssuanceEnabled() &&
+      planId
+    ) {
+      const cloud = await provisionOwnerOnCloud({
+        organization: organization || `${name}'s TrustLedger`,
+        ownerEmail: email,
+        ownerName: name,
+        planId,
+        status: "trial",
+        sendWelcomeEmail: false,
+      });
+      cloudProvision = {
+        ok: cloud.ok,
+        skipped: cloud.skipped,
+        customerName: cloud.customerName,
+        error: cloud.error,
+      };
+    }
+
     return {
       flow: "trial_authorize",
       email,
@@ -130,6 +188,7 @@ export async function provisionAfterPaystackVerify(
         ? "Missing plan id — credentials not issued"
         : "Credentials minted on success-page verify",
       logged: logged.logged,
+      cloudProvision,
     };
   }
 
@@ -169,6 +228,24 @@ export async function provisionAfterPaystackVerify(
       "Email provider not configured — credentials shown on success page only";
   }
 
+  let cloudProvision: TrialProvisionResult["cloudProvision"];
+  if (isFrappeAutoProvisionEnabled() && isFrappeOwnerIssuanceEnabled()) {
+    const cloud = await provisionOwnerOnCloud({
+      organization: organization || `${name}'s TrustLedger`,
+      ownerEmail: email,
+      ownerName: name,
+      planId,
+      status: "trial",
+      sendWelcomeEmail: false,
+    });
+    cloudProvision = {
+      ok: cloud.ok,
+      skipped: cloud.skipped,
+      customerName: cloud.customerName,
+      error: cloud.error,
+    };
+  }
+
   return {
     flow: "trial_authorize",
     email,
@@ -185,5 +262,6 @@ export async function provisionAfterPaystackVerify(
     emailSent,
     emailDetail,
     logged: logged.logged,
+    cloudProvision,
   };
 }

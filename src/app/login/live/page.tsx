@@ -62,6 +62,15 @@ function LiveLoginForm() {
       }
       // Clear any leftover demo-mode cookie from a prior /demo visit
       document.cookie = "tl-mode=live; path=/; max-age=604800; samesite=lax";
+
+      // OD-3 — one-shot push of browser tl-org-data to Cloud (best-effort).
+      try {
+        const { migrateActiveOrgToCloud } = await import("@/lib/migrateOrgClient");
+        await migrateActiveOrgToCloud();
+      } catch {
+        /* non-blocking */
+      }
+
       // Server decides operator home (/ops/executive). Never fall to customer desk.
       const dest =
         payload.home ||

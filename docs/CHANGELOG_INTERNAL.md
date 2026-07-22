@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — OD-3: Paystack auto-provision + org migrate
+
+- Shared `provisionOwnerOnCloud` (API-key, idempotent); Ops provision-owner uses it
+- Paystack verify/webhook creates Customer+User when `FRAPPE_AUTO_PROVISION=1`
+- `POST /api/frappe/migrate-org` + `/login/live` one-shot browser → Cloud DocTypes
+- Step 2 Done; Step 3 active on Ops readiness; lockdown stays ON
+
 ## 2026-07-22 — OD-2: Product DocTypes + Cloud File BFF
 
 - Step 1 marked Done; Step 2 active on Ops readiness

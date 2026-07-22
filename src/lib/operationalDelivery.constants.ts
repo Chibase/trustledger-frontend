@@ -69,3 +69,12 @@ export const STEP2_DESK_CHECKLIST: string[] = [
   "Upload a file via /api/frappe/upload-file and attach as TL Evidence",
   "Confirm rows in Frappe Desk; keep PLATFORM_OPERATOR_ONLY=1",
 ];
+
+/** Active Step 3 checklist after DocType smoke. */
+export const STEP3_DESK_CHECKLIST: string[] = [
+  "Vercel: set FRAPPE_AUTO_PROVISION=1 (keep FRAPPE_OWNER_ISSUANCE=1 + API keys)",
+  "Redeploy; confirm Paystack webhook URL still points at /api/paystack/webhook",
+  "Smoke: /pay trial or pay_now → Customer+User appear in Desk without Ops Create on Cloud",
+  "Optional: seed browser tl-org-data, /login/live as Owner → rows migrate once to TL DocTypes",
+  "Keep PLATFORM_OPERATOR_ONLY=1 until Step 4",
+];

@@ -14,6 +14,7 @@ import {
   OPERATIONAL_STEPS,
   STEP1_DESK_CHECKLIST,
   STEP2_DESK_CHECKLIST,
+  STEP3_DESK_CHECKLIST,
   type OperationalStepId,
   type StepLaneStatus,
 } from "@/lib/operationalDelivery.constants";
@@ -27,6 +28,7 @@ export {
   OPERATIONAL_STEP1_REQUIRED_LABELS,
   STEP1_DESK_CHECKLIST,
   STEP2_DESK_CHECKLIST,
+  STEP3_DESK_CHECKLIST,
 } from "@/lib/operationalDelivery.constants";
 
 type GateDef = {
@@ -162,16 +164,28 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     .filter((c) => c.required && !c.pass)
     .map((c) => `${c.label}: ${c.detail}`);
 
-  /** Step 1 Owner smoke completed 2026-07-22 — ladder advances to DocTypes + File. */
+  /** Steps 1–2 smokes completed 2026-07-22 — ladder advances to sync + auto-provision. */
   const step1Complete = true;
-  const activeStepId: OperationalStepId = step1Complete && step1EnvReady ? "2" : "1";
+  const step2Complete = true;
+  const activeStepId: OperationalStepId =
+    step2Complete && step1EnvReady
+      ? "3"
+      : step1Complete && step1EnvReady
+        ? "2"
+        : "1";
 
   const steps = OPERATIONAL_STEPS.map((step) => {
     let status: StepLaneStatus = "blocked";
     if (step.id === "1") {
       status = step1Complete ? "done" : step1EnvReady ? "active" : "blocked";
     } else if (step.id === "2") {
-      status = step1Complete && step1EnvReady ? "active" : "blocked";
+      status = step2Complete
+        ? "done"
+        : step1Complete && step1EnvReady
+          ? "active"
+          : "blocked";
+    } else if (step.id === "3") {
+      status = step2Complete && step1EnvReady ? "active" : "blocked";
     }
     return {
       id: step.id,
@@ -182,11 +196,20 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
   });
 
   const summary =
-    activeStepId === "2"
-      ? "Step 2 active — ensure TL Project / Incident / Evidence DocTypes, then smoke create + Cloud File upload."
-      : step1EnvReady
-        ? "Step 1 env ready — finish Desk fields + smoke create on Ops Accounts, then reply “Step 1 complete”."
-        : "Step 1 blocked — set FRAPPE_OWNER_ISSUANCE=1, API keys, and operator allowlist on Vercel (see docs/OPERATIONAL_DELIVERY.md).";
+    activeStepId === "3"
+      ? "Step 3 active — enable FRAPPE_AUTO_PROVISION=1, smoke Paystack → Cloud Owner, then first-login migrate."
+      : activeStepId === "2"
+        ? "Step 2 active — ensure TL Project / Incident / Evidence DocTypes, then smoke create + Cloud File upload."
+        : step1EnvReady
+          ? "Step 1 env ready — finish Desk fields + smoke create on Ops Accounts, then reply “Step 1 complete”."
+          : "Step 1 blocked — set FRAPPE_OWNER_ISSUANCE=1, API keys, and operator allowlist on Vercel (see docs/OPERATIONAL_DELIVERY.md).";
+
+  const deskChecklist =
+    activeStepId === "3"
+      ? STEP3_DESK_CHECKLIST
+      : activeStepId === "2"
+        ? STEP2_DESK_CHECKLIST
+        : STEP1_DESK_CHECKLIST;
 
   return {
     ok: true,
@@ -202,7 +225,7 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     gateChecks,
     blockedReasons,
     goLiveReady: false,
-    deskChecklist: activeStepId === "2" ? STEP2_DESK_CHECKLIST : STEP1_DESK_CHECKLIST,
+    deskChecklist,
     docs: {
       path: "/docs/OPERATIONAL_DELIVERY.md",
       frappeSoT: "/docs/FRAPPE_SOT.md",
