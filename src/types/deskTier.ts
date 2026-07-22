@@ -3,6 +3,7 @@
  * CLO → supervisor → site → delivery → oversight → funder/client.
  */
 
+import type { CapabilityId } from "@/types/entitlements";
 import type { UserRole } from "@/types/rbac";
 
 export const DESK_TIERS = [
@@ -117,10 +118,7 @@ export const VISIBILITY_FLAG_LABELS: Record<VisibilityFlag, string> = {
  * Map desk-visibility rows → commercial capability ids (plan matrix).
  * Rows outside the plan stay visible but greyed out in Settings.
  */
-export const VISIBILITY_FLAG_CAPABILITY: Record<
-  VisibilityFlag,
-  import("@/types/entitlements").CapabilityId
-> = {
+export const VISIBILITY_FLAG_CAPABILITY: Record<VisibilityFlag, CapabilityId> = {
   graphs: "deskGraphs",
   crmDetail: "stakeholdersCrm",
   budget: "deskGraphs",
