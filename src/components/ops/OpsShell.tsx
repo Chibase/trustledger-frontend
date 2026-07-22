@@ -15,6 +15,7 @@ const NAV_OPS = [
   { href: "/ops/activity", label: "Client activity" },
   { href: "/ops/reports", label: "Reports" },
   { href: "/ops/accounts", label: "Accounts" },
+  { href: "/ops/readiness", label: "Delivery readiness" },
 ];
 
 type OpsShellProps = {

@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — OD-1: Operational delivery Step 1 (ADR-032)
+
+- Policy: delay paid production until Cloud operational grade (`docs/OPERATIONAL_DELIVERY.md`)
+- Ops `/ops/readiness` + `GET /api/ops/readiness` env gate ladder (Steps 1→GO LIVE)
+- T4/T5 marked Done; active packet **OD-1** (Desk Customer/User + provision smoke)
+- ADR-032; do not lift ADR-013 until Step 4
+
 ## 2026-07-22 — Packets T4 + T5: media quotas + Frappe SoT prep
 
 - T4: Org media library (`tl-org-media`) with plan storage quotas + Settings meter

@@ -326,3 +326,17 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Ops Accounts can prepare Owner issuance; buyers remain on `/pay` + `/trial` browser tenancy.
 - **Alternatives considered:** Auto-provision on Paystack webhook now (rejected — lockdown + untested User create); lift lockdown without issuance path (rejected — ADR-027).
 
+### ADR-032: Delay paid production until Cloud operational grade
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Soft launch (ADR-027) + browser tenancy (T1–T5) can sell trials, but multi-device durable ops for paying customers still needs Frappe SoT, DocTypes, File, sync, and billing. Operator chose **real product over early rollout**.
+- **Decision:**
+  1. Treat `docs/OPERATIONAL_DELIVERY.md` as the master path: Steps 1→5→GO LIVE.
+  2. Soft marketing (`/demo`, leads, `/pay`/`/trial`) may continue; **do not** promise multi-device production until GO LIVE criteria.
+  3. Active work = **Step 1** (Customer/User smoke) before DocTypes, sync, or lifting ADR-013.
+  4. Ops UI `/ops/readiness` surfaces env gates; Desk/smoke remain human checklist.
+  5. Lift `PLATFORM_OPERATOR_ONLY` only at Step 4 after Steps 1–3 smoke.
+- **Consequences:** Rollout may slip; customers who pay early stay on browser tenancy until Cloud catch-up. Agents lead one step at a time and wait for “Step N complete”.
+- **Alternatives considered:** Ship browser-only as “production” (rejected — not durable); lift lockdown now without DocTypes (rejected — incomplete SoT).
+

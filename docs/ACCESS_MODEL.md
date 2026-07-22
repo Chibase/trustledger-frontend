@@ -162,8 +162,9 @@ Until ADR-013 lockdown lifts and Frappe Customer/User is SoT:
 - **T3 data space:** org-scoped projects/cases (`tl-org-data`); CSV import; no demo seed in trial.
 - **T4 media:** org media library + plan quotas (25 MB / 250 MB / 2 GB soft); Settings meter.
 - **T5 prep:** Customer + Owner User drafts via `/api/frappe/provision-owner` (operator + `FRAPPE_OWNER_ISSUANCE`); see `docs/FRAPPE_SOT.md`.
+- **OD-1 (active):** Operational delivery Step 1 — Desk fields + smoke; ladder in `docs/OPERATIONAL_DELIVERY.md` / `/ops/readiness` (ADR-032). Paid multi-device production waits for GO LIVE.
 - Invite accept at `/invite/accept` locks the invitee’s desk tier (cannot self-raise).
-- Live Owner issuance for buyers remains gated by ADR-013 until you lift lockdown after smoke.
+- Live Owner issuance for buyers remains gated by ADR-013 until you lift lockdown after smoke (Step 4).
 
 ## Build sequence (after Paystack sandbox)
 
