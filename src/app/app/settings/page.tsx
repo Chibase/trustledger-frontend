@@ -51,8 +51,11 @@ export default async function AppSettingsPage() {
 
       <DeskSettingsPanel
         role={user.role}
-        canEditMatrix={user.role === "admin" && !user.deskTierLocked}
+        canEditMatrix={
+          isPlanOwner && user.role === "admin" && !user.deskTierLocked
+        }
         deskTierLocked={Boolean(user.deskTierLocked)}
+        planId={user.trialPlan}
       />
 
       <EntitlementsSettingsPanel

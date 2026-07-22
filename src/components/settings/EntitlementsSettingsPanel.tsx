@@ -86,11 +86,24 @@ export function EntitlementsSettingsPanel({
             return (
               <li
                 key={id}
-                className="flex flex-wrap items-center justify-between gap-3 px-3 py-2.5"
+                className={`flex flex-wrap items-center justify-between gap-3 px-3 py-2.5 ${
+                  toggleable
+                    ? "bg-tl-surface"
+                    : "bg-tl-paper/90 opacity-70"
+                }`}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-tl-ink">
+                  <p
+                    className={`font-medium ${
+                      toggleable ? "text-tl-ink" : "text-tl-ink-muted"
+                    }`}
+                  >
                     {CAPABILITY_LABELS[id]}
+                    {!toggleable ? (
+                      <span className="ml-2 text-[0.65rem] font-normal uppercase tracking-wide text-tl-amber">
+                        Locked
+                      </span>
+                    ) : null}
                   </p>
                   {toggleable ? (
                     <p className="mt-0.5 text-xs text-tl-ink-muted">

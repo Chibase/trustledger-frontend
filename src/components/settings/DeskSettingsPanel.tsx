@@ -1,10 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { PlanId } from "@/config/plans";
+import { PLANS } from "@/config/plans";
 import type { UserRole } from "@/types/rbac";
 import {
   DESK_TIERS,
   DESK_TIER_LABELS,
+  VISIBILITY_FLAG_CAPABILITY,
   VISIBILITY_FLAG_LABELS,
   type DeskTier,
   type VisibilityFlag,
@@ -17,6 +21,12 @@ import {
   writeVisibilityMatrix,
   isDeskTierLocked,
 } from "@/lib/deskVisibility";
+import {
+  canOwnerToggleCapability,
+  hasCapabilityForPlan,
+  upgradeHrefForCapability,
+  upgradeLabelForCapability,
+} from "@/lib/entitlements";
 import { useToast } from "@/components/ui/Toast";
 
 const FLAGS = Object.keys(VISIBILITY_FLAG_LABELS) as VisibilityFlag[];
@@ -26,12 +36,15 @@ type DeskSettingsPanelProps = {
   canEditMatrix: boolean;
   /** When true (invitee), desk tier is Owner-assigned and not editable. */
   deskTierLocked?: boolean;
+  /** Commercial plan — greys out visibility rows not on this plan. */
+  planId?: PlanId | null;
 };
 
 export function DeskSettingsPanel({
   role,
   canEditMatrix,
   deskTierLocked = false,
+  planId,
 }: DeskSettingsPanelProps) {
   const { pushToast } = useToast();
   const [tier, setTier] = useState<DeskTier>("clo");
@@ -52,6 +65,8 @@ export function DeskSettingsPanel({
       <p className="text-sm text-tl-ink-muted">Loading desk settings…</p>
     );
   }
+
+  const planLabel = planId ? PLANS[planId].name : "Demo (Project lens)";
 
   return (
     <div className="space-y-6">
@@ -92,7 +107,8 @@ export function DeskSettingsPanel({
           <h2 className="font-semibold">Visibility by desk tier</h2>
           <p className="mt-1 text-xs text-tl-ink-muted">
             Administrator control — who sees graphs, CRM detail, budget, and the
-            supervisor queue.
+            supervisor queue. Rows greyed out are not on {planLabel}; upgrade to
+            unlock them.
           </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[36rem] border-collapse text-left text-xs">
@@ -107,28 +123,56 @@ export function DeskSettingsPanel({
                 </tr>
               </thead>
               <tbody>
-                {FLAGS.map((flag) => (
-                  <tr key={flag} className="border-b border-tl-line/70">
-                    <td className="py-2 pr-2 text-tl-ink">
-                      {VISIBILITY_FLAG_LABELS[flag]}
-                    </td>
-                    {DESK_TIERS.map((id) => (
-                      <td key={id} className="px-1 py-2 text-center">
-                        <input
-                          type="checkbox"
-                          checked={matrix[id][flag]}
-                          onChange={(e) => {
-                            const next = structuredClone(matrix);
-                            next[id][flag] = e.target.checked;
-                            setMatrix(next);
-                            writeVisibilityMatrix(next);
-                          }}
-                          aria-label={`${VISIBILITY_FLAG_LABELS[flag]} for ${DESK_TIER_LABELS[id]}`}
-                        />
+                {FLAGS.map((flag) => {
+                  const capability = VISIBILITY_FLAG_CAPABILITY[flag];
+                  const onPlan = hasCapabilityForPlan(capability, planId);
+                  const editable =
+                    onPlan && canOwnerToggleCapability(capability, planId);
+                  return (
+                    <tr
+                      key={flag}
+                      className={`border-b border-tl-line/70 ${
+                        editable
+                          ? ""
+                          : "bg-tl-paper/80 text-tl-ink-muted opacity-60"
+                      }`}
+                    >
+                      <td className="py-2 pr-2">
+                        <span className={editable ? "text-tl-ink" : ""}>
+                          {VISIBILITY_FLAG_LABELS[flag]}
+                        </span>
+                        {!editable ? (
+                          <span className="mt-0.5 block text-[0.65rem] text-tl-amber">
+                            Not on {planLabel} ·{" "}
+                            <Link
+                              href={upgradeHrefForCapability(capability)}
+                              className="underline text-tl-trust-ink"
+                            >
+                              {upgradeLabelForCapability(capability)}
+                            </Link>
+                          </span>
+                        ) : null}
                       </td>
-                    ))}
-                  </tr>
-                ))}
+                      {DESK_TIERS.map((id) => (
+                        <td key={id} className="px-1 py-2 text-center">
+                          <input
+                            type="checkbox"
+                            checked={editable ? matrix[id][flag] : false}
+                            disabled={!editable}
+                            onChange={(e) => {
+                              if (!editable) return;
+                              const next = structuredClone(matrix);
+                              next[id][flag] = e.target.checked;
+                              setMatrix(next);
+                              writeVisibilityMatrix(next);
+                            }}
+                            aria-label={`${VISIBILITY_FLAG_LABELS[flag]} for ${DESK_TIER_LABELS[id]}${editable ? "" : " (not on plan)"}`}
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

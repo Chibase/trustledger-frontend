@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-22 — Grey out off-plan Settings controls
+
+- Visibility-by-desk-tier rows outside the current plan are greyed / disabled with upgrade hint
+- Plan capabilities locked rows visually muted; matrix edit is Plan Owner only
+- Practitioner trial: graphs, CRM, capture, supervisor, ESG stay visible but unusable
+
 ## 2026-07-22 — Plan capabilities: Owner-only, plan-gated toggles
 
 - Settings → Plan capabilities visible only to Plan Owner (juniors never see it)

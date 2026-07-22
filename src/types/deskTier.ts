@@ -112,3 +112,20 @@ export const VISIBILITY_FLAG_LABELS: Record<VisibilityFlag, string> = {
   captureHub: "Capture hub",
   trustPulse: "Trust pulse",
 };
+
+/**
+ * Map desk-visibility rows → commercial capability ids (plan matrix).
+ * Rows outside the plan stay visible but greyed out in Settings.
+ */
+export const VISIBILITY_FLAG_CAPABILITY: Record<
+  VisibilityFlag,
+  import("@/types/entitlements").CapabilityId
+> = {
+  graphs: "deskGraphs",
+  crmDetail: "stakeholdersCrm",
+  budget: "deskGraphs",
+  supervisorQueue: "supervisorQueue",
+  esgSignals: "esgIndicators",
+  captureHub: "captureHub",
+  trustPulse: "trustPulse",
+};
