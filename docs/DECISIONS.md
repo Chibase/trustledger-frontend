@@ -271,3 +271,17 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clients subscribe/trial without Frappe logins; Plan Owner Cloud users stay manual/paused; messaging must say modules expand by plan over time.
 - **Alternatives considered:** Full lockdown lift now (rejected — no SoT Owner issuance); stay on Paystack test forever (rejected — blocks real clients).
 
+### ADR-028: Dual dashboards — Activity + Reports packs
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Plan Owner (primary user) needs one surface for navigation/project activity and another for choosing report forms (monthly text+graphs, executive risk graphs, board/client/funder presentation). Formats must follow plan seniority; who may open them is Owner-controlled.
+- **Decision:**
+  1. `/app/dashboard` = **Activity dashboard** (overall nav + project activity pulse).
+  2. `/app/reports` = **Reports dashboard** with three packs: `monthly`, `executive`, `board_presentation`.
+  3. Plan matrix: Practitioner → monthly; Project → monthly+executive; Institutional → all three (demo uses Project lens).
+  4. Plan Owner grants desks per pack in Settings (`tl-report-pack-access`); cannot grant below pack `minDesk` or off-plan packs.
+  5. Evidence AI writer remains local (no Cloud Month-End templates).
+- **Consequences:** Nav label “Reports”; Create report wizard nests under a chosen pack; juniors only see packs Owner enabled for their desk.
+- **Alternatives considered:** Single mega-dashboard (rejected — mixed jobs); unlock all packs on every plan (rejected — contradicts commercial seniority).
+

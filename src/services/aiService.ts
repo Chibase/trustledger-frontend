@@ -411,11 +411,8 @@ export const aiService = {
     if (looksLikeReportTemplateGuide(local.bodyMarkdown)) {
       throw new Error("Composer refused to return a template guide.");
     }
-    if (
-      !local.bodyMarkdown.includes("INC-") &&
-      input.factsJson?.includes("INC-")
-    ) {
-      throw new Error("Composer did not cite workspace case evidence.");
+    if (!/\bINC-\d+/i.test(local.bodyMarkdown)) {
+      throw new Error("Composer did not cite workspace case evidence (INC-*).");
     }
     return local;
   },

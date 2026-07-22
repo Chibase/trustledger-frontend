@@ -1,5 +1,18 @@
 # Internal changelog
 
+## 2026-07-22 — Packet 24f: Activity + Reports dual dashboards
+
+- `/app/dashboard` → Activity dashboard (nav + project activity pulse)
+- `/app/reports` → Reports hub: Monthly (text+graphs), Executive (strategic/high-risk graphs), Board pack (presentation)
+- Plan seniority gates packs; Plan Owner grants desks in Settings → Report pack access
+- ADR-028; nav label “Reports”; evidence AI writer still under each pack
+
+## 2026-07-22 — Hard-block Cloud report AI + reject user’s Month/Year template
+
+- `/api/frappe` returns 403 for `compose_activity_report` / `generate_report_brief`
+- Template detector covers “comprehensive monthly report”, `[Month/Year]`, Topic 1 placeholders
+- Create report clears stale editor body; refuses drafts without `INC-*` or `trustledger-evidence` model
+
 ## 2026-07-22 — Reports ignore Frappe seed; purge browser templates
 
 - Create report grounds only on `mockIncidents` / local demo·trial stores — never live Frappe lists

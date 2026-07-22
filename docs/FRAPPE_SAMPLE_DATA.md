@@ -1,5 +1,16 @@
 # Frappe sample / seed data vs TrustLedger reports
 
+## How to verify Create report is healthy
+
+You are on the right build when **all** of these are true after **AI write the report**:
+
+1. URL is `https://trustledger-frontend-pi.vercel.app/...` (not `app.trustledger.co.za` Frappe Desk)
+2. Page shows **Data in scope:** with `INC-…` case ids
+3. Suggestion footer: **Model: trustledger-evidence-evidence** (or `trustledger-evidence`)
+4. Body cites cases like `INC-1001` — never `[Month/Year]` / `[Insert Topic Name]`
+
+If you still see a “comprehensive monthly report” / `[Month/Year]` outline, you are either on a stale browser tab, or generating from **Frappe Desk AI** (`app.trustledger.co.za`), not TrustLedger Create report. Hard-refresh (`Ctrl/Cmd+Shift+R`) or clear site data for the Vercel host, then retry from `/demo` → Create report.
+
 ## Short answer
 
 **Deleting Frappe Desk sample data will not fix Month-End / `[Insert …]` AI reports.**
