@@ -2,8 +2,13 @@ import { cookies } from "next/headers";
 import {
   FRAPPE_SID_COOKIE,
   SESSION_ROLE_COOKIE,
+  TL_DESK_TIER_COOKIE,
+  TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
+  TL_ORG_ID_COOKIE,
+  TL_ORG_OWNER_COOKIE,
   TL_TRIAL_PLAN_COOKIE,
+  TL_TRIAL_STARTED_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
   type TlMode,
@@ -15,7 +20,7 @@ import {
   parseTrialStarted,
   type TrialSnapshot,
 } from "@/lib/trial";
-import { TL_TRIAL_STARTED_COOKIE } from "@/lib/auth.constants";
+import { DESK_TIERS, type DeskTier } from "@/types/deskTier";
 
 export type { UserRole };
 
@@ -28,6 +33,11 @@ export type AppUser = {
   isGuest?: boolean;
   trialPlan?: PlanId;
   trial?: TrialSnapshot;
+  /** Demo org tenancy */
+  orgId?: string;
+  isPlanOwner?: boolean;
+  deskTier?: DeskTier;
+  deskTierLocked?: boolean;
 };
 
 export { SESSION_ROLE_COOKIE } from "@/lib/auth.constants";
@@ -54,13 +64,26 @@ function resolveMode(
   return "demo";
 }
 
+function isDeskTier(value: string | undefined): value is DeskTier {
+  return Boolean(value && (DESK_TIERS as readonly string[]).includes(value));
+}
+
 function userFromRole(
   role: UserRole,
   name: string,
   mode: TlMode,
   id = "session-user",
   email: string | null = null,
-  extras?: Pick<AppUser, "isGuest" | "trialPlan" | "trial">,
+  extras?: Pick<
+    AppUser,
+    | "isGuest"
+    | "trialPlan"
+    | "trial"
+    | "orgId"
+    | "isPlanOwner"
+    | "deskTier"
+    | "deskTierLocked"
+  >,
 ): AppUser {
   return { id, name, email, role, mode, ...extras };
 }
@@ -82,6 +105,12 @@ export async function getCurrentUser(): Promise<AppUser | null> {
     mode === "trial" && started
       ? computeTrialSnapshot(started, trialPlan ?? "practitioner")
       : undefined;
+  const orgId = cookieStore.get(TL_ORG_ID_COOKIE)?.value || undefined;
+  const isPlanOwner = cookieStore.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+  const deskTierRaw = cookieStore.get(TL_DESK_TIER_COOKIE)?.value;
+  const deskTier = isDeskTier(deskTierRaw) ? deskTierRaw : undefined;
+  const deskTierLocked =
+    cookieStore.get(TL_DESK_TIER_LOCKED_COOKIE)?.value === "1";
 
   if (sessionRole && isUserRole(sessionRole)) {
     const name =
@@ -96,7 +125,11 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       {
         trialPlan,
         trial,
-        isGuest: mode === "demo",
+        isGuest: mode === "demo" && !orgId,
+        orgId,
+        isPlanOwner: orgId ? isPlanOwner || sessionRole === "admin" : undefined,
+        deskTier,
+        deskTierLocked: orgId ? deskTierLocked : undefined,
       },
     );
   }

@@ -3,6 +3,7 @@ import { getCurrentUser, type UserRole } from "@/lib/auth";
 import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
 import { ClientPortfolioDashboard } from "@/components/client/ClientPortfolioDashboard";
 import { DeskWorkspacePanels } from "@/components/desk/DeskWorkspacePanels";
+import { PlanOwnerMasterPanel } from "@/components/org/PlanOwnerMasterPanel";
 import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { KpiCard } from "@/components/ui/KpiCard";
@@ -205,6 +206,8 @@ async function AdminHome() {
           </>
         }
       />
+
+      <PlanOwnerMasterPanel />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Open cases" value={String(open.length)} />

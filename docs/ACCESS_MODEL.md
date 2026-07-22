@@ -151,6 +151,16 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 | Payment or Commitment | Frappe Customer + **Owner admin** user |
 | Ongoing team | Owner invites in-app → Frappe Users |
 
+## Demo / trial tenancy (frontend packets T1–T2)
+
+Until ADR-013 lockdown lifts and Frappe Customer/User is SoT:
+
+- **Plan Owner org** is created in browser `localStorage` when trial/subscribe starts (`startTrialCookies` → `bootstrapPlanOwnerOrg`).
+- **Settings → Team / Seats** lets the Owner invite juniors with role + desk exposure.
+- **Seat caps:** Practitioner = 0 juniors; Project / Institutional = unlimited in demo.
+- Invite accept at `/invite/accept` locks the invitee’s desk tier (cannot self-raise).
+- Live Owner issuance and email invites remain gated by ADR-013 / T5.
+
 ## Build sequence (after Paystack sandbox)
 
 1. Entitlement DocType / fields on Customer (`plan`, `seat_limit`, `owner_user`)  
@@ -160,3 +170,4 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 5. Seat enforcement middleware  
 
 Launch week can still be **manual**: you create Owner in Frappe after Paystack/commitment using this model; automate next. See `docs/PAYMENTS_SETUP.md`.
+

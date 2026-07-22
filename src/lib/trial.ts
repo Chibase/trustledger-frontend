@@ -1,12 +1,5 @@
-import {
-  TL_MODE_COOKIE,
-  TL_TRIAL_PLAN_COOKIE,
-  TL_TRIAL_STARTED_COOKIE,
-  TL_USER_EMAIL_COOKIE,
-  TL_USER_NAME_COOKIE,
-  TRIAL_DEFAULT_ROLE,
-} from "@/lib/auth.constants";
 import { isPlanId, type PlanId } from "@/config/plans";
+import { bootstrapPlanOwnerOrg } from "@/lib/orgSession";
 
 export const TRIAL_DAYS = 14;
 /** Keep workspace data after trial ends, then purge. */
@@ -53,22 +46,26 @@ export function parseTrialStarted(raw: string | undefined | null): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-/** Browser cookie helper for starting a trial workspace. */
+/** Browser cookie helper for starting a trial workspace (+ Plan Owner org). */
 export function startTrialCookies(input: {
   email: string;
   name: string;
   planId: PlanId;
   startedAt?: Date;
+  organization?: string;
 }) {
   const maxAge = TRIAL_DAYS * 24 * 60 * 60;
   const started = (input.startedAt ?? new Date()).toISOString();
   const plan = isPlanId(input.planId) ? input.planId : "practitioner";
-  document.cookie = `session-role=${TRIAL_DEFAULT_ROLE}; path=/; max-age=${maxAge}; samesite=lax`;
-  document.cookie = `${TL_MODE_COOKIE}=trial; path=/; max-age=${maxAge}; samesite=lax`;
-  document.cookie = `${TL_TRIAL_PLAN_COOKIE}=${plan}; path=/; max-age=${maxAge}; samesite=lax`;
-  document.cookie = `${TL_TRIAL_STARTED_COOKIE}=${encodeURIComponent(started)}; path=/; max-age=${maxAge}; samesite=lax`;
-  document.cookie = `${TL_USER_NAME_COOKIE}=${encodeURIComponent(input.name)}; path=/; max-age=${maxAge}; samesite=lax`;
-  document.cookie = `${TL_USER_EMAIL_COOKIE}=${encodeURIComponent(input.email.toLowerCase())}; path=/; max-age=${maxAge}; samesite=lax`;
+  bootstrapPlanOwnerOrg({
+    email: input.email.trim().toLowerCase(),
+    name: input.name.trim() || input.email.split("@")[0] || "Plan Owner",
+    planId: plan,
+    organization: input.organization,
+    mode: "trial",
+    startedAt: started,
+    maxAge,
+  });
 }
 
 export function clearTrialWorkspaceData() {

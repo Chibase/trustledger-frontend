@@ -213,15 +213,18 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-024: Capability entitlements (plan bundles + add-ons)
 
 - **Date:** 2026-07-22
-- **Status:** Accepted
+- **Status:** Accepted (amended 2026-07-22)
 - **Context:** Commercial packaging will combine seats with functional modules. Features must be switchable per plan or sold as optional add-ons without rewriting each screen later.
 - **Decision:**
   1. Maintain a capability catalogue (`src/types/entitlements.ts`) separate from seat/pricing (`plans.ts`).
-  2. Each plan has a default capability matrix (`src/config/entitlements.ts`); add-ons grant extra capabilities.
-  3. UI gates via `hasCapability` / `FeatureGate` / nav `capability` fields. Admin Settings can preview add-ons and hard overrides in-browser until Frappe entitlements land.
-  4. Pricing and public plan copy may be revisited later; the switchboard stays.
+  2. Each plan has a default capability matrix (`src/config/entitlements.ts`).
+  3. UI gates via `hasCapability` / `FeatureGate` / nav `capability` fields.
+  4. **Settings → Plan capabilities** is **Plan Owner only**. Juniors never see the switchboard.
+  5. Plan Owner sees the **full catalogue**. Capabilities outside the current plan are visible but **locked** (upgrade CTA). Only **Institutional** may toggle every capability on/off. Lower plans may only toggle modules included in their matrix; they cannot force-enable missing features (overrides that turn missing caps on are ignored).
+  6. Sellable add-on SKUs remain in types for future packaging; they do not unlock above-plan features from Settings.
+  7. Pricing and public plan copy may be revisited later; the switchboard stays.
 - **Consequences:** New modules register a capability id and check it at nav + page entry. Ops accounts page can later sync live entitlements.
-- **Alternatives considered:** Hardcode plan checks in each page (rejected — brittle); feature flags only in env (rejected — not client-packagable).
+- **Alternatives considered:** Hardcode plan checks in each page (rejected — brittle); feature flags only in env (rejected — not client-packagable); let any admin freely override every switch (rejected — breaks packaging).
 
 ### ADR-025: Subscribe = card verify + 14-day trial + deferred charge
 
@@ -245,4 +248,13 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Decision:** While `PLATFORM_OPERATOR_ONLY=1`, only identities in `PLATFORM_OPERATOR_EMAILS` may use live login, live `/app`, and the Frappe BFF. Demo/assessment stay public for leads unless `PLATFORM_OPERATOR_LOCK_PUBLIC=1`. Customer seat issuance stays paused until lockdown is lifted. See `docs/PLATFORM_OPERATOR.md`.
 - **Consequences:** Clear sole-control posture for launch; env flip opens Plan Owner flow later.
 - **Alternatives considered:** Hardcode a single email in source (rejected — use env allowlist); lock demo too by default (rejected — keep Wednesday lead funnel unless explicitly locked).
+
+### ADR-026: Demo org tenancy before Frappe User SoT
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** ADR-012 requires Plan Owner + invite seats, but ADR-013 still blocks live Customer/User issuance. Buyers on trial/demo need a master desk and junior invites now.
+- **Decision:** Ship **browser-local org tenancy** (packets T1–T2): `localStorage` org + invite records; cookies for `orgId`, Plan Owner flag, desk tier, and desk-tier lock. Trial/subscribe bootstraps the Owner org. Invitees accept at `/invite/accept` with Owner-assigned role + locked desk. Seat caps follow ACCESS_MODEL (Practitioner = 0 juniors). T3–T5 cover data space, media quotas, and Frappe SoT when lockdown lifts.
+- **Consequences:** Demo/trial Owners can manage seats without Cloud Users; invite links only work on the same browser store until Cloud sync; no change to ADR-013 lockdown.
+- **Alternatives considered:** Wait for lockdown lift (rejected — blocks product learning); fake multi-user without seat model (rejected — contradicts ACCESS_MODEL).
 

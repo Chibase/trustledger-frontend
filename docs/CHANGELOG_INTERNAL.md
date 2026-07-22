@@ -1,5 +1,32 @@
 # Internal changelog
 
+## 2026-07-22 — Settings: plan on top; Owner invites & privileges only
+
+- Read-only plan banner at top of Settings (no plan / desk self-toggle for clients)
+- Removed demo role switcher from Settings
+- Plan Owner section: Team invites + desk privileges matrix for lower ranks
+- Juniors see assigned desk only; off-plan privilege rows stay greyed
+
+## 2026-07-22 — Grey out off-plan Settings controls
+
+- Visibility-by-desk-tier rows outside the current plan are greyed / disabled with upgrade hint
+- Plan capabilities locked rows visually muted; matrix edit is Plan Owner only
+- Practitioner trial: graphs, CRM, capture, supervisor, ESG stay visible but unusable
+
+## 2026-07-22 — Plan capabilities: Owner-only, plan-gated toggles
+
+- Settings → Plan capabilities visible only to Plan Owner (juniors never see it)
+- Full catalogue always listed; modules outside the plan are locked with upgrade CTA
+- Only Institutional may toggle every feature; lower plans toggle included modules only
+- Above-plan force-on overrides ignored; ADR-024 amended
+
+## 2026-07-22 — T1+T2: Plan Owner org + team invites (demo)
+
+- Browser org tenancy: Plan Owner workspace on trial/subscribe; seat caps per ACCESS_MODEL
+- Dashboard master strip; Settings → Team / Seats invites (role + desk exposure)
+- `/invite/accept` joins as junior with locked desk tier; Practitioner = Owner-only
+- Data space / media quotas / Frappe User SoT deferred (T3–T5); ADR-026
+
 ## 2026-07-22 — Report AI: hard-bind to demo cases (no LLM guides)
 
 - Create report always seeds `mockIncidents` / `mockProjects` into evidence

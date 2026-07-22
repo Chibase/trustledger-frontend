@@ -2,7 +2,10 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { hasCapability } from "@/lib/entitlements";
+import {
+  hasCapability,
+  upgradeHrefForCapability,
+} from "@/lib/entitlements";
 import type { PlanId } from "@/config/plans";
 import {
   CAPABILITY_LABELS,
@@ -18,7 +21,7 @@ type FeatureGateProps = {
 };
 
 /**
- * Soft gate for plan/add-on capabilities. Demo uses Project lens by default.
+ * Soft gate for plan capabilities. Demo uses Project lens by default.
  */
 export function FeatureGate({
   capability,
@@ -29,7 +32,10 @@ export function FeatureGate({
   const [allowed, setAllowed] = useState(true);
 
   useEffect(() => {
-    setAllowed(hasCapability(capability, planId));
+    const frame = requestAnimationFrame(() => {
+      setAllowed(hasCapability(capability, planId));
+    });
+    return () => cancelAnimationFrame(frame);
   }, [capability, planId]);
 
   if (allowed) return <>{children}</>;
@@ -41,14 +47,14 @@ export function FeatureGate({
         {CAPABILITY_LABELS[capability]} is not on this plan
       </p>
       <p className="mt-1 text-tl-ink-muted">
-        Capabilities can be bundled into plans or sold as add-ons. Preview
-        switches live in Settings (admin).
+        Your Plan Owner can review the full module list in Settings. Features
+        above the current plan stay locked until you upgrade.
       </p>
       <Link
-        href="/app/settings"
+        href={upgradeHrefForCapability(capability)}
         className="mt-3 inline-block text-sm font-medium text-tl-trust-ink underline"
       >
-        Review entitlements
+        Upgrade plan
       </Link>
     </div>
   );

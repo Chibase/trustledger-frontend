@@ -1,23 +1,20 @@
 /**
- * Resolve plan + add-on entitlements. Browser overrides for demo/ops preview.
+ * Resolve plan + Owner toggles. Lower plans cannot enable capabilities
+ * outside their matrix; Institutional may toggle the full catalogue (ADR-024).
  */
 
 import { DEMO_CAPABILITIES, PLAN_CAPABILITIES } from "@/config/entitlements";
-import type { PlanId } from "@/config/plans";
+import { PLANS, type PlanId } from "@/config/plans";
 import {
-  ADDON_GRANTS,
   CAPABILITIES,
-  type AddonId,
   type CapabilityId,
 } from "@/types/entitlements";
 
-const ADDONS_KEY = "tl-entitlement-addons";
 const OVERRIDE_KEY = "tl-entitlement-overrides";
 
 export type EntitlementSnapshot = {
   planId: PlanId | "demo";
   capabilities: Set<CapabilityId>;
-  addons: AddonId[];
 };
 
 function readJson<T>(key: string, fallback: T): T {
@@ -36,16 +33,48 @@ function writeJson(key: string, value: unknown) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
-export function listEnabledAddons(): AddonId[] {
-  const rows = readJson<string[]>(ADDONS_KEY, []);
-  return rows.filter((id): id is AddonId => id in ADDON_GRANTS);
+/** Base matrix for a plan (demo sessions use Project lens). */
+export function baseCapabilitiesForPlan(
+  planId?: PlanId | null,
+): readonly CapabilityId[] {
+  if (planId) return PLAN_CAPABILITIES[planId];
+  return DEMO_CAPABILITIES;
 }
 
-export function writeEnabledAddons(addons: AddonId[]) {
-  writeJson(ADDONS_KEY, addons);
+/** Institutional (highest) may toggle every catalogue capability. */
+export function hasFullCapabilityControl(planId?: PlanId | null): boolean {
+  return planId === "institutional";
 }
 
-/** Optional hard on/off overrides (admin preview). null = inherit. */
+/** Plan Owner may turn this capability on/off for the org. */
+export function canOwnerToggleCapability(
+  capability: CapabilityId,
+  planId?: PlanId | null,
+): boolean {
+  if (hasFullCapabilityControl(planId)) return true;
+  return baseCapabilitiesForPlan(planId).includes(capability);
+}
+
+/** Lowest commercial plan that includes the capability (for upgrade copy). */
+export function lowestPlanIncluding(capability: CapabilityId): PlanId {
+  const order: PlanId[] = ["practitioner", "project", "institutional"];
+  for (const id of order) {
+    if (PLAN_CAPABILITIES[id].includes(capability)) return id;
+  }
+  return "institutional";
+}
+
+export function upgradeHrefForCapability(capability: CapabilityId): string {
+  const plan = lowestPlanIncluding(capability);
+  return `/pay?plan=${plan}&utm_source=settings&utm_medium=entitlement&utm_campaign=upgrade_${plan}`;
+}
+
+export function upgradeLabelForCapability(capability: CapabilityId): string {
+  const plan = lowestPlanIncluding(capability);
+  return `Included on ${PLANS[plan].name}`;
+}
+
+/** Owner on/off overrides. null/missing = inherit plan default. */
 export function readCapabilityOverrides(): Partial<
   Record<CapabilityId, boolean>
 > {
@@ -58,28 +87,54 @@ export function writeCapabilityOverrides(
   writeJson(OVERRIDE_KEY, overrides);
 }
 
+/**
+ * Apply an Owner toggle. Refuses to enable capabilities outside the plan
+ * unless the plan has full control (Institutional).
+ */
+export function setCapabilityToggle(
+  capability: CapabilityId,
+  enabled: boolean,
+  planId?: PlanId | null,
+): Partial<Record<CapabilityId, boolean>> {
+  const next = { ...readCapabilityOverrides() };
+  if (!canOwnerToggleCapability(capability, planId)) {
+    return next;
+  }
+  const baseOn = baseCapabilitiesForPlan(planId).includes(capability);
+  if (hasFullCapabilityControl(planId)) {
+    // Institutional: explicit on/off for every switch.
+    next[capability] = enabled;
+  } else if (enabled === baseOn) {
+    delete next[capability];
+  } else {
+    next[capability] = enabled;
+  }
+  writeCapabilityOverrides(next);
+  return next;
+}
+
 export function resolveEntitlements(
   planId?: PlanId | null,
 ): EntitlementSnapshot {
-  const baseList = planId
-    ? PLAN_CAPABILITIES[planId]
-    : DEMO_CAPABILITIES;
+  const baseList = baseCapabilitiesForPlan(planId);
   const capabilities = new Set<CapabilityId>(baseList);
-  const addons = listEnabledAddons();
-  for (const addon of addons) {
-    for (const cap of ADDON_GRANTS[addon]) capabilities.add(cap);
-  }
   const overrides = readCapabilityOverrides();
+  const fullControl = hasFullCapabilityControl(planId);
+
   for (const id of CAPABILITIES) {
-    if (typeof overrides[id] === "boolean") {
-      if (overrides[id]) capabilities.add(id);
-      else capabilities.delete(id);
+    const forced = overrides[id];
+    if (typeof forced !== "boolean") continue;
+    if (forced) {
+      // Never honour "force on" for capabilities outside a lower plan.
+      if (fullControl || baseList.includes(id)) capabilities.add(id);
+    } else {
+      capabilities.delete(id);
     }
   }
+
   return {
     planId: planId ?? "demo",
     capabilities,
-    addons,
   };
 }
 
@@ -90,11 +145,21 @@ export function hasCapability(
   return resolveEntitlements(planId).capabilities.has(capability);
 }
 
-/** Server-safe: plan matrix only (no localStorage add-ons). */
+/** Server-safe: plan matrix only (no localStorage toggles). */
 export function hasCapabilityForPlan(
   capability: CapabilityId,
   planId?: PlanId | null,
 ): boolean {
-  const list = planId ? PLAN_CAPABILITIES[planId] : DEMO_CAPABILITIES;
-  return list.includes(capability);
+  return baseCapabilitiesForPlan(planId).includes(capability);
+}
+
+/** @deprecated Add-ons no longer unlock above-plan features in Settings. */
+export function listEnabledAddons(): never[] {
+  return [];
+}
+
+/** @deprecated */
+export function writeEnabledAddons(_addons?: string[]) {
+  void _addons;
+  /* no-op — plan matrix + Owner toggles only */
 }

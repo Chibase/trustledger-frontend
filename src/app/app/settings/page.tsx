@@ -1,9 +1,10 @@
 ﻿import { API_BASE_URL, getDataMode } from "@/config/api";
 import { PLANS } from "@/config/plans";
+import { TeamSeatsPanel } from "@/components/org/TeamSeatsPanel";
 import { DeskSettingsPanel } from "@/components/settings/DeskSettingsPanel";
 import { EntitlementsSettingsPanel } from "@/components/settings/EntitlementsSettingsPanel";
+import { SettingsPlanBanner } from "@/components/settings/SettingsPlanBanner";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
-import { TrialRoleSwitcher } from "@/components/shell/TrialRoleSwitcher";
 import { getCurrentUser } from "@/lib/auth";
 import {
   isPlatformOperatorIdentity,
@@ -22,28 +23,74 @@ export default async function AppSettingsPage() {
   const isOperator =
     user.mode === "live" && isPlatformOperatorIdentity(user.email);
   const planName = user.trialPlan ? PLANS[user.trialPlan].name : null;
+  const isPlanOwner =
+    user.isPlanOwner === true ||
+    (user.role === "admin" && (user.mode === "trial" || Boolean(user.orgId)));
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="font-display text-2xl font-semibold">Settings</h1>
         <p className="mt-1 text-sm text-tl-ink-muted">
-          Trial session, desk tier, and environment for this build.
+          {isPlanOwner
+            ? "Plan Owner — invite juniors, set desk privileges, and review modules on your plan."
+            : "Your organisation membership and assigned desk for this TrustLedger workspace."}
         </p>
       </div>
 
-      {user.mode === "demo" ? (
-        <TrialRoleSwitcher currentRole={user.role} />
-      ) : null}
-
-      <DeskSettingsPanel
-        role={user.role}
-        canEditMatrix={user.role === "admin"}
+      <SettingsPlanBanner
+        planId={user.trialPlan}
+        trial={user.trial}
+        isPlanOwner={isPlanOwner}
       />
+
+      {isPlanOwner ? (
+        <section className="space-y-4">
+          <div>
+            <h2 className="font-display text-lg font-semibold text-tl-ink">
+              Team & privileges
+            </h2>
+            <p className="mt-1 text-sm text-tl-ink-muted">
+              Invite lower-rank seats and control what each desk may see. Your
+              commercial plan is fixed above — it does not change from this
+              page.
+            </p>
+          </div>
+          <TeamSeatsPanel
+            isPlanOwner={isPlanOwner}
+            userEmail={user.email}
+            userName={user.name}
+            planId={user.trialPlan}
+          />
+          <DeskSettingsPanel
+            role={user.role}
+            isPlanOwner={isPlanOwner}
+            deskTierLocked={Boolean(user.deskTierLocked)}
+            planId={user.trialPlan}
+            assignedDeskTier={user.deskTier}
+          />
+        </section>
+      ) : (
+        <>
+          <TeamSeatsPanel
+            isPlanOwner={false}
+            userEmail={user.email}
+            userName={user.name}
+            planId={user.trialPlan}
+          />
+          <DeskSettingsPanel
+            role={user.role}
+            isPlanOwner={false}
+            deskTierLocked
+            planId={user.trialPlan}
+            assignedDeskTier={user.deskTier}
+          />
+        </>
+      )}
 
       <EntitlementsSettingsPanel
         planId={user.trialPlan}
-        canEdit={user.role === "admin"}
+        isPlanOwner={isPlanOwner}
       />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
@@ -63,13 +110,23 @@ export default async function AppSettingsPage() {
             <dt className="text-tl-ink-muted">Role</dt>
             <dd>{user.role}</dd>
           </div>
+          {user.orgId ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-tl-ink-muted">Organisation</dt>
+              <dd className="font-mono text-xs">{user.orgId}</dd>
+            </div>
+          ) : null}
+          <div className="flex justify-between gap-4">
+            <dt className="text-tl-ink-muted">Plan Owner</dt>
+            <dd>{isPlanOwner ? "yes" : "no"}</dd>
+          </div>
           <div className="flex justify-between gap-4">
             <dt className="text-tl-ink-muted">User id</dt>
             <dd className="font-mono text-xs">{user.id}</dd>
           </div>
           {planName ? (
             <div className="flex justify-between gap-4">
-              <dt className="text-tl-ink-muted">Trial plan</dt>
+              <dt className="text-tl-ink-muted">Plan</dt>
               <dd>{planName}</dd>
             </div>
           ) : null}
