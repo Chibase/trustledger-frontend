@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-22 — Live password reset + Ops set temp password
+
+- `/login/live` → Forgot password? → `POST /api/auth/live/forgot-password` (Frappe email reset)
+- Ops Accounts → Set temp password → `POST /api/frappe/set-user-password` (operator + issuance; returns one-time temp password)
+- Unblocks Step 1 Owner smoke when welcome/reset email is missing
+
 ## 2026-07-22 — OD-1b: Auto-ensure Desk custom fields
 
 - `POST /api/frappe/ensure-custom-fields` (operator + issuance) creates Customer/User `custom_*` fields via API
