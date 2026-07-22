@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — OD-1b: Auto-ensure Desk custom fields
+
+- `POST /api/frappe/ensure-custom-fields` (operator + issuance) creates Customer/User `custom_*` fields via API
+- Live `provision-owner` auto-ensures fields before Customer/User create; User payload includes desk/owner/customer customs
+- Ops Accounts: Check / Create Desk fields buttons
+- Step 1 human scope reduced to Vercel env + smoke clicks (`docs/OPERATIONAL_DELIVERY.md`)
+
 ## 2026-07-22 — OD-1: Operational delivery Step 1 (ADR-032)
 
 - Policy: delay paid production until Cloud operational grade (`docs/OPERATIONAL_DELIVERY.md`)
