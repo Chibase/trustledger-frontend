@@ -11,6 +11,15 @@ import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
 
+/** Frappe MySQL Datetime: `YYYY-MM-DD HH:MM:SS` (no ISO `T`/`Z`). */
+export function toFrappeDatetime(isoOrDate: string | Date | null | undefined): string | null {
+  if (!isoOrDate) return null;
+  const d = typeof isoOrDate === "string" ? new Date(isoOrDate) : isoOrDate;
+  if (Number.isNaN(d.getTime())) return null;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+}
+
 function authHeaders(): HeadersInit | null {
   const pair = frappeKeyPair();
   if (!pair) return null;
@@ -109,7 +118,7 @@ export function evidenceToFrappeDoc(
     file_name: evidence.fileName,
     classification: evidence.classification,
     uploaded_by: evidence.uploadedBy,
-    uploaded_at: evidence.uploadedAt,
+    uploaded_at: toFrappeDatetime(evidence.uploadedAt),
     is_primary: evidence.isPrimary ? 1 : 0,
     file: fileUrl || undefined,
     tl_org_id: orgId,
