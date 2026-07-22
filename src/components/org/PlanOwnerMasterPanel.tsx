@@ -74,10 +74,10 @@ export function PlanOwnerMasterPanel() {
             Invite team
           </Link>
           <Link
-            href="/app/settings#team-seats"
+            href="/app/settings#data-space"
             className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-surface"
           >
-            Data space (soon · T3)
+            Data space
           </Link>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function PlanOwnerMasterPanel() {
         <div className="rounded-md border border-tl-line bg-tl-surface px-3 py-2">
           <dt className="text-xs text-tl-ink-muted">Data space</dt>
           <dd className="mt-0.5 text-xs text-tl-ink-muted">
-            Stub — packet T3
+            Import CSV · Settings
           </dd>
         </div>
       </dl>

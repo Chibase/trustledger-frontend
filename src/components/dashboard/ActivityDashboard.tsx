@@ -5,13 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { buildProjectActivity } from "@/lib/dashboardActivity";
-import { listDemoIncidents, listDemoProjects } from "@/lib/demoStore";
 import { readDeskTier } from "@/lib/deskVisibility";
 import { packsForDesk } from "@/lib/reportPackAccess";
-import { readTrialModeFromDocument } from "@/lib/trial";
-import { listTrialIncidents, listTrialProjects } from "@/lib/trialStore";
-import { mockIncidents } from "@/data/mockIncidents";
-import { mockProjects } from "@/data/mockProjects";
+import {
+  listWorkspaceIncidents,
+  listWorkspaceProjects,
+} from "@/lib/workspaceData";
 import type { PlanId } from "@/config/plans";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import { REPORT_PACKS } from "@/types/reportPacks";
@@ -57,17 +56,8 @@ export function ActivityDashboard({
 
   useEffect(() => {
     setTier(readDeskTier(role));
-    const trial = readTrialModeFromDocument();
-    const localI = trial ? listTrialIncidents() : listDemoIncidents();
-    const localP = trial ? listTrialProjects() : listDemoProjects();
-    const byI = new Map(
-      [...mockIncidents, ...seedIncidents, ...localI].map((i) => [i.id, i]),
-    );
-    const byP = new Map(
-      [...mockProjects, ...seedProjects, ...localP].map((p) => [p.id, p]),
-    );
-    setIncidents([...byI.values()]);
-    setProjects([...byP.values()]);
+    setIncidents(listWorkspaceIncidents(seedIncidents));
+    setProjects(listWorkspaceProjects(seedProjects));
   }, [role, seedIncidents, seedProjects]);
 
   const activity = useMemo(

@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-22 — Packet T3: Org data space (no demo contamination)
+
+- Customer/trial workspaces never merge `mockIncidents` / `mockProjects`
+- Org-scoped store `tl-org-data` + CSV import (projects & cases) for Plan Owner
+- Settings → Org data space; Activity/Reports/Create report use workspace lists
+- Intake saves to org data space; ADR-029
+
 ## 2026-07-22 — Packet 24f: Activity + Reports dual dashboards
 
 - `/app/dashboard` → Activity dashboard (nav + project activity pulse)

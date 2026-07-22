@@ -9,8 +9,6 @@ import {
 import { CreateReportWizard } from "@/components/reports/CreateReportWizard";
 import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import { KpiCard } from "@/components/ui/KpiCard";
-import { mockIncidents } from "@/data/mockIncidents";
-import { mockProjects } from "@/data/mockProjects";
 import type { PlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
 import {
@@ -19,15 +17,13 @@ import {
   projectOpenBars,
   statusBars,
 } from "@/lib/dashboardActivity";
-import { listDemoIncidents, listDemoProjects } from "@/lib/demoStore";
 import { readDeskTier } from "@/lib/deskVisibility";
-import {
-  canDeskOpenPack,
-  packsForDesk,
-} from "@/lib/reportPackAccess";
+import { canDeskOpenPack, packsForDesk } from "@/lib/reportPackAccess";
 import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
-import { readTrialModeFromDocument } from "@/lib/trial";
-import { listTrialIncidents, listTrialProjects } from "@/lib/trialStore";
+import {
+  listWorkspaceIncidents,
+  listWorkspaceProjects,
+} from "@/lib/workspaceData";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import {
   REPORT_PACK_IDS,
@@ -73,17 +69,8 @@ export function ReportsHub({
 
   useEffect(() => {
     setTier(readDeskTier(role));
-    const trial = readTrialModeFromDocument();
-    const localI = trial ? listTrialIncidents() : listDemoIncidents();
-    const localP = trial ? listTrialProjects() : listDemoProjects();
-    const byI = new Map(
-      [...mockIncidents, ...localI].map((i) => [i.id, i] as const),
-    );
-    const byP = new Map(
-      [...mockProjects, ...localP].map((p) => [p.id, p] as const),
-    );
-    setIncidents([...byI.values()]);
-    setProjects([...byP.values()]);
+    setIncidents(listWorkspaceIncidents());
+    setProjects(listWorkspaceProjects());
     const fromUrl = readInitialPack();
     const allowed = packsForDesk(readDeskTier(role), planId);
     if (fromUrl && allowed.includes(fromUrl)) setPack(fromUrl);

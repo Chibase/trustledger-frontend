@@ -27,9 +27,6 @@ import {
   sectionsForKind,
   tierMeetsMinimum,
 } from "@/config/reportCatalogue";
-import { mockIncidents } from "@/data/mockIncidents";
-import { mockProjects } from "@/data/mockProjects";
-import { listDemoIncidents, listDemoProjects } from "@/lib/demoStore";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPeriodActivityFacts,
@@ -42,8 +39,11 @@ import {
   purgeTemplateGuideReports,
   saveAuthoredReport,
 } from "@/lib/reportStore";
-import { readTrialModeFromDocument } from "@/lib/trial";
-import { listTrialIncidents, listTrialProjects } from "@/lib/trialStore";
+import {
+  listWorkspaceIncidents,
+  listWorkspaceProjects,
+} from "@/lib/workspaceData";
+import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
 import type {
   ActivityReportComposeSuggestion,
@@ -109,20 +109,9 @@ export function CreateReportWizard({
     setStatus("idle");
     setError(null);
     setSavedId(null);
-    const trial = readTrialModeFromDocument();
-    const localI = trial ? listTrialIncidents() : listDemoIncidents();
-    const localP = trial ? listTrialProjects() : listDemoProjects();
-    // Evidence writer never reads Frappe/ERPNext seed rows — those are not
-    // TrustLedger cases and can empty the project scope filter.
-    const byI = new Map(
-      [...mockIncidents, ...localI].map((i) => [i.id, i] as const),
-    );
-    const byP = new Map(
-      [...mockProjects, ...localP].map((p) => [p.id, p] as const),
-    );
-    setProjects([...byP.values()]);
-    setAllIncidents([...byI.values()]);
-    // Portfolio scope by default so all demo INC-* cases stay in frame.
+    // Customer workspace: org/trial rows only — never demo INC-* seed.
+    setProjects(listWorkspaceProjects());
+    setAllIncidents(listWorkspaceIncidents());
     setProjectId("");
   }, []);
 
@@ -173,7 +162,9 @@ export function CreateReportWizard({
     }
     if (!facts.attended.length) {
       setError(
-        "No demo/workspace cases available to write from. Open Demo mode or log cases first.",
+        isCustomerWorkspaceClient()
+          ? "No cases in your org data space yet. Import CSV under Data space, or log a case first."
+          : "No demo/workspace cases available to write from. Open Demo mode or log cases first.",
       );
       setStatus("error");
       return;

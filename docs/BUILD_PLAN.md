@@ -156,7 +156,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | 24c | Engagements | Meetings / consultations beyond note stubs | Planned |
 | 24d | Commitments | Promise lifecycle board | Planned |
 | 24e | Stronger grievance | Fuller incident workflow on Frappe | Planned |
-| **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Active** |
+| **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** |
 | 24g | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | Planned |
 
 ### Client org / tenancy (demo → Cloud)
@@ -165,7 +165,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 |--------|------|-------|--------|
 | **T1** | Plan Owner master | Org store, session cookies, master desk strip, Team shell | **Done** |
 | **T2** | Invites + seats | Owner invites, `/invite/accept`, locked junior desk tier, plan seat caps | **Done** |
-| T3 | Org data space | Geo/projects/evidence dump + ongoing org-scoped data | Planned |
+| **T3** | Org data space | Org-scoped store, no demo seed in trial, CSV deposit | **Active** |
 | T4 | Media + quotas | Registers/minutes/photos/video; storage quotas → upgrade | Planned |
 | T5 | Frappe SoT | Customer/User sync when ADR-013 lockdown lifts | Planned |
 
