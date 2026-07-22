@@ -32,6 +32,7 @@ import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPeriodActivityFacts,
   factsToPromptBlock,
+  type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import {
   createReportId,
@@ -84,7 +85,11 @@ export function CreateReportWizard({
   const [body, setBody] = useState("");
   const [savedId, setSavedId] = useState<string | null>(null);
   const [factsBlock, setFactsBlock] = useState("");
+  const [facts, setFacts] = useState<PeriodActivityFacts | null>(null);
   const [evidence, setEvidence] = useState<SavedReport["evidence"]>([]);
+  const [allIncidents, setAllIncidents] = useState<
+    Awaited<ReturnType<typeof incidentService.list>>
+  >([]);
 
   useEffect(() => {
     const desk = readDeskTier(role);
@@ -109,15 +114,24 @@ export function CreateReportWizard({
       const incidents = [...byI.values()];
       const projectList = [...byP.values()];
       setProjects(projectList);
-      if (projectList[0]) setProjectId(projectList[0].id);
-      const facts = buildPeriodActivityFacts(incidents);
-      setFactsBlock(factsToPromptBlock(facts));
-      setEvidence(facts.evidence);
+      setAllIncidents(incidents);
+      setProjectId((prev) => prev || projectList[0]?.id || "");
     })();
     return () => {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    const project = projects.find((p) => p.id === projectId);
+    const scopedFacts = buildPeriodActivityFacts(allIncidents, {
+      projectId: projectId || undefined,
+      projectName: project?.name,
+    });
+    setFacts(scopedFacts);
+    setFactsBlock(factsToPromptBlock(scopedFacts));
+    setEvidence(scopedFacts.evidence);
+  }, [allIncidents, projectId, projects]);
 
   const catalogue = useMemo(() => {
     const preferred = new Set(sectionsForKind(kind).map((s) => s.id));
@@ -140,11 +154,21 @@ export function CreateReportWizard({
 
   async function handleCompose() {
     setError(null);
+    const included = catalogue.filter(
+      (s) => s.allowed && selected.has(s.id),
+    );
+    if (!included.length) {
+      setError("Pick at least one topic to include in the report.");
+      setStatus("error");
+      return;
+    }
+    if (!facts) {
+      setError("Workspace evidence is still loading.");
+      setStatus("error");
+      return;
+    }
     setStatus("loading");
     try {
-      const included = catalogue.filter(
-        (s) => s.allowed && selected.has(s.id),
-      );
       const result = await aiService.composeActivityReport({
         kind,
         kindLabel: REPORT_KIND_LABELS[kind],
@@ -154,9 +178,11 @@ export function CreateReportWizard({
         authorTierLabel: DESK_TIER_LABELS[tier],
         authorName,
         projectName: project?.name,
+        includedSectionIds: included.map((s) => s.id),
         includedSectionLabels: included.map((s) => s.label),
         lockedSectionLabels: lockedSections.map((s) => s.label),
         factsBlock,
+        factsJson: JSON.stringify(facts),
         tonePreference:
           audience === "board" || audience === "funders_investors"
             ? "board"
@@ -164,15 +190,33 @@ export function CreateReportWizard({
               ? "formal"
               : "plain",
       });
+      if (
+        /\[Insert\b|Feel free to customize|\[Your Name\]/i.test(
+          result.bodyMarkdown,
+        )
+      ) {
+        throw new Error(
+          "AI returned a template guide instead of a report. Try again.",
+        );
+      }
       setDraft(result);
       setBody(result.bodyMarkdown);
       setStatus("ready");
-      pushToast("AI draft ready — review before save", "success");
+      pushToast(
+        "Report written from selected topics and workspace evidence — review then save",
+        "success",
+      );
     } catch (err) {
       setDraft(null);
       setError(err instanceof Error ? err.message : "Compose failed");
       setStatus("error");
     }
+  }
+
+  function handleApplyDraft() {
+    if (!draft) return;
+    setBody(draft.bodyMarkdown);
+    pushToast("Draft applied — edit before save", "success");
   }
 
   function togglePurpose(tag: "reporting" | "performance" | "dispute") {
@@ -227,10 +271,9 @@ export function CreateReportWizard({
       <div>
         <h1 className="font-display text-2xl font-semibold">Create a report</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Human and AI collaborate on evidence-based packs — activity, GRM,
-          ESG, H&amp;S, B-BBEE, CSI, MEL, and board briefs. Options above your
-          desk grade stay visible but greyed. Saved reports support performance
-          and dispute evidence; view them on the dashboard.
+          Pick topics, then AI writes a finished report from demo cases, trust
+          pulse, and Capture evidence — not a blank template. Edit and save
+          before sharing.
         </p>
         <p className="mt-2 text-xs text-tl-ink-muted">
           Author desk:{" "}
@@ -299,10 +342,13 @@ export function CreateReportWizard({
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-        <h2 className="text-base font-semibold">Sections to include</h2>
+        <h2 className="text-base font-semibold">Topics to cover</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          Greyed options are above this desk grade — visible for transparency,
-          not selectable.
+          AI writes only the topics you select, using cases
+          {facts
+            ? ` (${facts.attended.length} in scope · trust ${facts.trustIndex}/100)`
+            : ""}
+          . Greyed topics are above this desk grade — visible, not selectable.
         </p>
         <ul className="mt-3 space-y-2">
           {catalogue.map((section) => {
@@ -386,10 +432,18 @@ export function CreateReportWizard({
 
       <div className="flex flex-wrap gap-2">
         <AiAssistButton
-          label="AI prepare draft"
+          label="AI write the report"
           onClick={() => void handleCompose()}
           loading={status === "loading"}
         />
+        <button
+          type="button"
+          onClick={handleApplyDraft}
+          disabled={!draft}
+          className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
+        >
+          Apply draft to editor
+        </button>
         <button
           type="button"
           onClick={() => handleSave("draft")}
@@ -421,9 +475,15 @@ export function CreateReportWizard({
         confidence={draft?.confidence}
       >
         {draft ? (
-          <p className="mb-3 text-sm text-tl-ink-muted">
-            {draft.executiveHighlight}
-          </p>
+          <>
+            <p className="mb-3 text-sm text-tl-ink-muted">
+              {draft.executiveHighlight}
+            </p>
+            <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md border border-tl-line bg-tl-paper/50 p-3 font-mono text-xs text-tl-ink">
+              {draft.bodyMarkdown.slice(0, 1200)}
+              {draft.bodyMarkdown.length > 1200 ? "…" : ""}
+            </pre>
+          </>
         ) : null}
       </AiSuggestionPanel>
 
