@@ -2,7 +2,7 @@
 
 **North star:** TEDS Volume 1 MVP domains that close the market gap.  
 **Policy:** Soft launch may wait until V002 core is credible (ADR-023).  
-**Active packet:** **24c — Engagements** (capture hub shipped: minutes / attendance / social intel / reports → CRM; see `docs/TEDS_MATURITY_REPORT.md`).
+**Active packet:** **24f — Reports packs** (Activity + Reports dual dashboards; see ADR-028).
 
 ## Priority order (do not reshuffle without reason)
 
@@ -27,7 +27,7 @@ Geo first unlocks your existing location + socio-economic datasets as a **sellin
 | **24c** | Engagements | Capture hub (minutes/attendance/social/report) + AI brief | Extend meeting notes → Engagement DocType | **Partial (capture hub)** |
 | **24d** | Commitments | Register + status board | Commitment DocType + link to stakeholder/project | +1–2 wks |
 | **24e** | Stronger grievance | Status machine UI + verify/close | Incident workflow states on Cloud | +2 wks |
-| **24f** | Reports | `/app/reports` packs + CSV/print | Aggregate APIs | +1–2 wks |
+| **24f** | Reports | Activity + Reports dashboards; monthly / executive / board packs; Owner desk grants | Pack access + evidence writer | **Active** |
 | **24g** | Intelligence / ESG | Indicator cards + AI briefs on live indicators | Indicator store + Grok briefs | +2–3 wks |
 
 **Aggressive solo calendar:** ~10–14 weeks to a **demoable V002 core** (mock+ingest OK). Faster if geo/socio-econ files land in week 1 and Frappe DocTypes are created in parallel on Cloud.
