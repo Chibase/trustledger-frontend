@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-22 — Report AI: hard-bind to demo cases (no LLM guides)
+
+- Create report always seeds `mockIncidents` / `mockProjects` into evidence
+- Activity-report compose never calls Cloud LLM (was returning `[Month/Year]` guides when `AI_MOCK=false`)
+- UI shows case IDs in scope before write; template detector expanded
+
 ## 2026-07-22 — AI report writes finished prose (not a template guide)
 
 - Activity report AI always uses evidence-based local writer from picked topics + demo/workspace cases

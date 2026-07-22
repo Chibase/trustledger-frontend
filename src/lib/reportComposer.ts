@@ -47,18 +47,33 @@ export function looksLikeReportTemplateGuide(text: string): boolean {
     /\[Your Name\]/i,
     /\[Chosen Topics\]/i,
     /\[Insert Topic/i,
+    /\[Month\/Year\]/i,
+    /\[Month\b/i,
     /Feel free to customize/i,
-    /Provide a brief overview of the topic/i,
+    /Adjust the content as necessary/i,
+    /Provide a brief overview/i,
     /Outline the importance of this topic/i,
+    /Describe the relevance of this topic/i,
+    /Include graphs or charts if applicable/i,
     /End of Report/i,
     /Prepared by:\s*\[/i,
     /Department:\s*\[/i,
     /Finding 1:\s*\[Insert/i,
     /Recommendation 1:\s*\[Insert/i,
+    /Topics Analyzed:\s*List the specific topics/i,
+    /Data Sources:\s*Briefly describe/i,
+    /we will structure the report/i,
+    /This structure will ensure that the report/i,
+    /Highlight the most significant trends/i,
+    /Offer strategic recommendations for future actions/i,
   ];
   let hits = 0;
   for (const re of probes) {
     if (re.test(text)) hits += 1;
+  }
+  // One strong hit is enough for obvious template markers
+  if (/\[Month\/Year\]|\[Insert\b|Feel free to customize|we will structure the report/i.test(text)) {
+    return true;
   }
   return hits >= 2;
 }
