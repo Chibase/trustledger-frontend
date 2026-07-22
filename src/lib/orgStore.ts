@@ -4,7 +4,7 @@
 
 import { isPlanId, type PlanId } from "@/config/plans";
 import type { DeskTier } from "@/types/deskTier";
-import { PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
+import { normalizeDeskTier, PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
 import type {
   InviteableRole,
   OrgInvite,
@@ -228,7 +228,8 @@ export function acceptOrgInvite(input: {
     return { ok: false, error: "Invite not found or already used." };
   }
   const { org, invite } = found;
-  if (!canInviteDeskTier(org.planId, invite.deskTier)) {
+  const deskTier = normalizeDeskTier(invite.deskTier) || invite.deskTier;
+  if (!canInviteDeskTier(org.planId, deskTier)) {
     return {
       ok: false,
       error:
@@ -250,7 +251,7 @@ export function acceptOrgInvite(input: {
     email: invite.email,
     name: input.fullName?.trim() || invite.name,
     role: invite.role,
-    deskTier: invite.deskTier,
+    deskTier,
     isPlanOwner: false,
     deskTierLocked: true,
     projectId: invite.projectId,
