@@ -17,6 +17,7 @@ import {
   STEP3_DESK_CHECKLIST,
   STEP4_DESK_CHECKLIST,
   STEP5_DESK_CHECKLIST,
+  GO_LIVE_DESK_CHECKLIST,
   type OperationalStepId,
   type StepLaneStatus,
 } from "@/lib/operationalDelivery.constants";
@@ -33,6 +34,7 @@ export {
   STEP3_DESK_CHECKLIST,
   STEP4_DESK_CHECKLIST,
   STEP5_DESK_CHECKLIST,
+  GO_LIVE_DESK_CHECKLIST,
 } from "@/lib/operationalDelivery.constants";
 
 type GateDef = {
@@ -171,12 +173,12 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     .filter((c) => c.required && !c.pass)
     .map((c) => `${c.label}: ${c.detail}`);
 
-  /** Steps 1–4 complete — ladder advances to V002 depth. */
+  /** Steps 1–5 complete — ladder advances to GO LIVE criteria. */
   const step1Complete = true;
   const step2Complete = true;
   const step3Complete = true;
   const step4Complete = true;
-  const step5Complete = false;
+  const step5Complete = true;
 
   const activeStepId: OperationalStepId = !step1EnvReady
     ? "1"
@@ -245,9 +247,12 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     "3": STEP3_DESK_CHECKLIST,
     "4": STEP4_DESK_CHECKLIST,
     "5": STEP5_DESK_CHECKLIST,
-    go: STEP5_DESK_CHECKLIST,
+    go: GO_LIVE_DESK_CHECKLIST,
   };
   const deskChecklist = checklistByStep[activeStepId];
+
+  const lockdownLifted = !isPlatformOperatorOnly();
+  const goLiveReady = step5Complete && step1EnvReady && lockdownLifted;
 
   return {
     ok: true,
@@ -262,7 +267,7 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     },
     gateChecks,
     blockedReasons,
-    goLiveReady: false,
+    goLiveReady,
     deskChecklist,
     docs: {
       path: "/docs/OPERATIONAL_DELIVERY.md",
