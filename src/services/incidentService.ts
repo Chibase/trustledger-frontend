@@ -42,12 +42,34 @@ function filterIncidents(
   return next;
 }
 
+async function mergeLocalOverlays(seed: Incident[]): Promise<Incident[]> {
+  if (typeof window === "undefined") return seed;
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  const { listDemoIncidents } = await import("@/lib/demoStore");
+  const { listWorkspaceIncidents } = await import("@/lib/workspaceData");
+  const { listTrialIncidents } = await import("@/lib/trialStore");
+
+  if (readTrialModeFromDocument()) {
+    const byId = new Map<string, Incident>();
+    for (const row of listWorkspaceIncidents()) byId.set(row.id, row);
+    for (const row of listTrialIncidents()) byId.set(row.id, row);
+    return [...byId.values()];
+  }
+
+  const byId = new Map<string, Incident>();
+  for (const row of seed) byId.set(row.id, row);
+  for (const row of listDemoIncidents()) byId.set(row.id, row);
+  return [...byId.values()];
+}
+
 async function listDemo(filters: IncidentListFilters): Promise<Incident[]> {
   const { readTrialModeFromDocument } = await import("@/lib/trial");
   if (readTrialModeFromDocument()) {
-    return delay(filterIncidents([], filters));
+    const rows = await mergeLocalOverlays([]);
+    return delay(filterIncidents(rows, filters));
   }
-  return delay(filterIncidents(mockIncidents, filters));
+  const rows = await mergeLocalOverlays(mockIncidents);
+  return delay(filterIncidents(rows, filters));
 }
 
 async function listLive(filters: IncidentListFilters): Promise<Incident[]> {
@@ -56,7 +78,9 @@ async function listLive(filters: IncidentListFilters): Promise<Incident[]> {
       FRAPPE_METHODS.listIncidents,
       { ...filters },
     );
-    return Array.isArray(rows) ? filterIncidents(rows, filters) : [];
+    const base = Array.isArray(rows) ? rows : [];
+    const merged = await mergeLocalOverlays(base.length ? base : mockIncidents);
+    return filterIncidents(merged, filters);
   } catch {
     return listDemo(filters);
   }
@@ -68,6 +92,10 @@ export const incidentService = {
   },
 
   async get(id: string): Promise<Incident | null> {
+    const rows = await this.list();
+    const local = rows.find((i) => i.id === id);
+    if (local) return local;
+
     if (isLiveMode()) {
       try {
         const row = await callFrappeMethod<Incident | null>(
@@ -79,11 +107,21 @@ export const incidentService = {
         return delay(mockIncidents.find((i) => i.id === id) ?? null);
       }
     }
-    const { readTrialModeFromDocument } = await import("@/lib/trial");
-    if (readTrialModeFromDocument()) {
-      return delay(null);
-    }
     return delay(mockIncidents.find((i) => i.id === id) ?? null);
+  },
+
+  async save(incident: Incident): Promise<Incident> {
+    if (typeof window === "undefined") return incident;
+    const { readTrialModeFromDocument } = await import("@/lib/trial");
+    const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+    if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+      const { saveOrgIncident } = await import("@/lib/orgDataSpace");
+      saveOrgIncident(incident);
+    } else {
+      const { saveDemoIncident } = await import("@/lib/demoStore");
+      saveDemoIncident(incident);
+    }
+    return delay(incident);
   },
 
   async intakeQueue(): Promise<Incident[]> {

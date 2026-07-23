@@ -259,6 +259,7 @@ export default function AppReportIssuePage() {
           resourceDeployedAt: null,
           investigatedAt: null,
           resolvedAt: null,
+          verifiedAt: null,
           closedAt: null,
           targetHours: targets,
         },
