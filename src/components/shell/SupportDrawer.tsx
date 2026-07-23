@@ -68,7 +68,8 @@ export function SupportDrawer({
       await fetch("/auth/live/logout", { method: "POST" }).catch(() => null);
       document.cookie = "session-role=; path=/; max-age=0; samesite=lax";
       document.cookie = "tl-mode=; path=/; max-age=0; samesite=lax";
-      router.push(mode === "live" ? "/login/live" : "/demo");
+      // Land on the account chooser — never auto-jump into demo.
+      router.push("/login?repaired=1");
       router.refresh();
     } finally {
       setRepairing(false);
