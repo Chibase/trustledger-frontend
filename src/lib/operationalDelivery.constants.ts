@@ -97,3 +97,12 @@ export const STEP5_DESK_CHECKLIST: string[] = [
   "Optional: Cloud DocTypes + Stats SA ingest; then reply Step 5 complete → GO LIVE",
   "Keep demo path separate; no demo INC-* in customer live workspaces",
 ];
+
+/** GO LIVE human checklist after Step 5 demo depth. */
+export const GO_LIVE_DESK_CHECKLIST: string[] = [
+  "Confirm buyer /login/live + Cloud Customer/User still green",
+  "Confirm day-14 cron / Finance charge-due path still healthy",
+  "Confirm /demo stays separate from live customer workspaces (no demo INC-* bleed)",
+  "Optional follow-ups: Cloud Engagement/Commitment DocTypes; Stats SA indicator ingest",
+  "When criteria above are accepted, promise multi-device production to paying customers",
+];

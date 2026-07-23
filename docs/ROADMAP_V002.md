@@ -2,7 +2,7 @@
 
 **North star:** TEDS Volume 1 MVP domains that close the market gap.  
 **Policy:** Soft launch may wait until V002 core is credible (ADR-023).  
-**Active packet:** **OD-5 Step 5 complete on demo depth (24c–24g)** — Cloud DocTypes / Stats SA ingest remain follow-ups. See `docs/OPERATIONAL_DELIVERY.md` / ADR-032. GO LIVE criteria next.
+**Active packet:** **GO LIVE** — operational-grade criteria on `/ops/readiness`. Steps 1–5 Done (demo V002 depth). See `docs/OPERATIONAL_DELIVERY.md` / ADR-032.
 
 ## Priority order (do not reshuffle without reason)
 

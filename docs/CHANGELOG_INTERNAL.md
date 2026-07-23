@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-23 — Step 5 Done → GO LIVE active on Ops ladder
+
+- `step5Complete=true`; Ops `/ops/readiness` advances to GO LIVE
+- GO LIVE desk checklist; `goLiveReady` when env gates + lockdown lifted
+- OPERATIONAL_DELIVERY marks Steps 1–5 Done; GO LIVE Active
+
 ## 2026-07-23 — Packet 24g: Intelligence / ESG indicators (demo)
 
 - `/app/intelligence` — place picker, indicator KPI cards, AI brief suggest→apply→save

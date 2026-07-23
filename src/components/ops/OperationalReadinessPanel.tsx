@@ -162,7 +162,9 @@ export function OperationalReadinessPanel({ initial }: Props) {
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
           <h2 className="font-display text-lg font-semibold text-tl-ink">
-            {data.activeStepId === "5" || data.activeStepId === "go"
+            {data.activeStepId === "go"
+              ? "GO LIVE — operational grade"
+              : data.activeStepId === "5"
               ? "Step 5 — V002 depth"
               : data.activeStepId === "4"
               ? "Step 4 — Billing + lift lockdown (you)"
@@ -178,7 +180,13 @@ export function OperationalReadinessPanel({ initial }: Props) {
             ))}
           </ol>
           <p className="mt-4 text-sm text-tl-ink">
-            {data.activeStepId === "5" || data.activeStepId === "go" ? (
+            {data.activeStepId === "go" ? (
+              <>
+                Steps 1–5 demo depth are Done. Walk the checklist, then treat
+                TrustLedger as operational-grade for paying customers. Keep{" "}
+                <code className="text-xs">/demo</code> separate.
+              </>
+            ) : data.activeStepId === "5" ? (
               <>
                 When engagements → commitments → grievance → ESG are
                 market-honest, reply: <strong>Step 5 complete</strong> — then GO
