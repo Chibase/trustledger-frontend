@@ -45,12 +45,15 @@ function filterIncidents(
 async function mergeLocalOverlays(seed: Incident[]): Promise<Incident[]> {
   if (typeof window === "undefined") return seed;
   const { readTrialModeFromDocument } = await import("@/lib/trial");
+  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
   const { listDemoIncidents } = await import("@/lib/demoStore");
   const { listWorkspaceIncidents } = await import("@/lib/workspaceData");
   const { listTrialIncidents } = await import("@/lib/trialStore");
 
-  if (readTrialModeFromDocument()) {
+  // Paying / trial / invitee workspaces never absorb demo INC-* seed or overlays.
+  if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
     const byId = new Map<string, Incident>();
+    for (const row of seed) byId.set(row.id, row);
     for (const row of listWorkspaceIncidents()) byId.set(row.id, row);
     for (const row of listTrialIncidents()) byId.set(row.id, row);
     return [...byId.values()];
@@ -78,10 +81,17 @@ async function listLive(filters: IncidentListFilters): Promise<Incident[]> {
       FRAPPE_METHODS.listIncidents,
       { ...filters },
     );
+    // Empty Cloud list must stay empty — never substitute demo INC-*.
     const base = Array.isArray(rows) ? rows : [];
-    const merged = await mergeLocalOverlays(base.length ? base : mockIncidents);
+    const merged = await mergeLocalOverlays(base);
     return filterIncidents(merged, filters);
   } catch {
+    const { readTrialModeFromDocument } = await import("@/lib/trial");
+    const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+    if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+      return filterIncidents(await mergeLocalOverlays([]), filters);
+    }
+    // Demo / exploratory live only — ADR-010 mock fallback.
     return listDemo(filters);
   }
 }
@@ -104,6 +114,11 @@ export const incidentService = {
         );
         return row ?? null;
       } catch {
+        const { readTrialModeFromDocument } = await import("@/lib/trial");
+        const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+        if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+          return null;
+        }
         return delay(mockIncidents.find((i) => i.id === id) ?? null);
       }
     }

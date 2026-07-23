@@ -163,7 +163,7 @@ export default async function AppSettingsPage() {
         </dl>
         <p className="mt-4 text-xs text-tl-ink-muted">
           Live product access is limited to the Platform Operator until lockdown
-          is lifted by Chibase Consulting / TrustLedger ops.
+          is lifted by TrustLedger ops.
         </p>
       </section>
 

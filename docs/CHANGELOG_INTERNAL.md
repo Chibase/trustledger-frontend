@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-23 — Launch hardening: no demo INC-* in customer desks
+
+- Live incident/project lists: empty Cloud ≠ mock seed; customer/trial never fall back to demo data
+- Invite accept uses `trial` mode (customer workspace) instead of `demo`
+- Settings lockdown copy: TrustLedger ops (not Chibase product framing)
+- `docs/LAUNCH_WATCHLIST.md` + refreshed `PUBLIC_LAUNCH.md` (GO LIVE posture)
+
 ## 2026-07-23 — GO LIVE Done (operator confirmed)
 
 - Ops `/ops/readiness` green on Production; TrustLedger operational-grade for paying customers
