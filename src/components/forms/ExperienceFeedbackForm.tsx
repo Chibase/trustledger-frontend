@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
+import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/forms/FormGuards";
 import { isWorkEmail } from "@/data/assessment";
 
 type ExperienceFeedbackFormProps = {
@@ -206,6 +206,8 @@ export function ExperienceFeedbackForm({
       </div>
 
       {error ? <p className="text-sm text-tl-danger">{error}</p> : null}
+
+      <RecaptchaLegalNote />
 
       <button
         type="submit"

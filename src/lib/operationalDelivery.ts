@@ -10,6 +10,12 @@ import {
 } from "@/lib/platformOperator";
 import { frappeBase, frappeKeyPair } from "@/lib/leadCapture";
 import { paystackConfigured } from "@/lib/paystackServer";
+import { isFrappeAutoProvisionEnabled } from "@/lib/provisionOwnerCloud";
+import {
+  recaptchaConfigured,
+  recaptchaRequired,
+} from "@/lib/formGuard";
+import { transactionalEmailConfigured } from "@/lib/transactionalEmail";
 import {
   OPERATIONAL_STEPS,
   STEP1_DESK_CHECKLIST,
@@ -112,6 +118,65 @@ const GATE_DEFS: GateDef[] = [
       };
     },
   },
+  {
+    id: "autoProvision",
+    label: "FRAPPE_AUTO_PROVISION=1",
+    requiredForStep1: false,
+    evaluate: () => {
+      const on = isFrappeAutoProvisionEnabled();
+      return {
+        pass: on,
+        detail: on
+          ? "Paystack → Cloud Owner enabled"
+          : "Set on Vercel so paid buyers get Customer+User",
+      };
+    },
+  },
+  {
+    id: "cronSecret",
+    label: "CRON_SECRET set (day-14)",
+    requiredForStep1: false,
+    evaluate: () => {
+      const on = Boolean(process.env.CRON_SECRET?.trim());
+      return {
+        pass: on,
+        detail: on
+          ? "Cron auth configured"
+          : "Set CRON_SECRET or use Ops Finance Charge due",
+      };
+    },
+  },
+  {
+    id: "resend",
+    label: "RESEND_API_KEY (welcome email)",
+    requiredForStep1: false,
+    evaluate: () => {
+      const on = transactionalEmailConfigured();
+      return {
+        pass: on,
+        detail: on
+          ? "Trial welcome email can send"
+          : "Unset — credentials still show on /pay/success",
+      };
+    },
+  },
+  {
+    id: "recaptcha",
+    label: "reCAPTCHA v3 (form spam)",
+    requiredForStep1: false,
+    evaluate: () => {
+      const on = recaptchaConfigured();
+      const required = recaptchaRequired();
+      return {
+        pass: on,
+        detail: on
+          ? required
+            ? "Keys set · FORM_REQUIRE_RECAPTCHA=1 (fail closed)"
+            : "Keys set · tokens verified on public forms"
+          : "Set NEXT_PUBLIC_RECAPTCHA_SITE_KEY + RECAPTCHA_SECRET_KEY (+ FORM_REQUIRE_RECAPTCHA=1)",
+      };
+    },
+  },
 ];
 
 /** Re-export shape used by Ops panel footnotes (labels only). */
@@ -147,6 +212,11 @@ export type OperationalReadinessPayload = {
   deskChecklist: string[];
   /** Short git SHA from the Vercel deployment (null outside Vercel). */
   deploySha: string | null;
+  /** First-days hardening (spam, email, cron, auto-provision). */
+  launchHardening: {
+    ready: boolean;
+    missing: string[];
+  };
   docs: {
     path: string;
     frappeSoT: string;
@@ -277,6 +347,15 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
     null;
 
+  const launchGateIds = ["autoProvision", "cronSecret", "resend", "recaptcha"] as const;
+  const launchMissing = gateChecks
+    .filter((c) => (launchGateIds as readonly string[]).includes(c.id) && !c.pass)
+    .map((c) => c.label);
+  const launchHardening = {
+    ready: launchMissing.length === 0,
+    missing: launchMissing,
+  };
+
   return {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -293,6 +372,7 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     goLiveReady,
     deskChecklist,
     deploySha,
+    launchHardening,
     docs: {
       path: "/docs/OPERATIONAL_DELIVERY.md",
       frappeSoT: "/docs/FRAPPE_SOT.md",

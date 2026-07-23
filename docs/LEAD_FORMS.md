@@ -1,6 +1,6 @@
 # Lead forms — spam, feedback, follow-ups
 
-Applies to `/demo`, `/assessment`, `/contact`, soft-gate, product feedback, and in-app Support tickets.
+Applies to `/assessment`, `/contact`, `/quote`, soft-gate, product feedback, and in-app Support tickets.
 
 ## 1. Spam control (shipped)
 
@@ -8,32 +8,33 @@ Applies to `/demo`, `/assessment`, `/contact`, soft-gate, product feedback, and 
 |-------|-----------|
 | Work-email allowlist | Rejects common free-mail domains |
 | Honeypot (`tl_hp`) | Hidden field; bots that fill it get a fake success (no CRM write). Avoids `company_url` / website names that password managers autofill. |
-| Rate limit | ~8 posts / 15 min / IP / route (best-effort on serverless) |
-| **reCAPTCHA v3** (optional) | When env keys are set, token verified server-side |
+| Rate limit | ~8 posts / 15 min / IP / route when reCAPTCHA is on; **~3 / 15 min** when keys are missing (best-effort on serverless) |
+| **reCAPTCHA v3** | When env keys are set, token verified server-side on every public form |
 
-### Enable reCAPTCHA (recommended before public launch)
+### Turn on reCAPTCHA (required before traffic rises)
 
-1. Create a **reCAPTCHA v3** key pair in Google Admin (domains: `trustledger-frontend-pi.vercel.app`, `trustledger.co.za`).
-2. Vercel env:
+1. Create a **reCAPTCHA v3** key pair in [Google Admin](https://www.google.com/recaptcha/admin)  
+   Domains: `trustledger-frontend-pi.vercel.app`, `trustledger.co.za`, `localhost` (for local).
+2. Vercel → Project → Settings → Environment Variables → **Production** (and Preview if useful):
    ```bash
-   NEXT_PUBLIC_RECAPTCHA_SITE_KEY=...
-   RECAPTCHA_SECRET_KEY=...
-   # optional
+   NEXT_PUBLIC_RECAPTCHA_SITE_KEY=…
+   RECAPTCHA_SECRET_KEY=…
    RECAPTCHA_MIN_SCORE=0.5
-   FORM_REQUIRE_RECAPTCHA=1   # fail closed if keys missing
+   FORM_REQUIRE_RECAPTCHA=1   # fail closed if keys ever missing
    ```
-3. Redeploy.
+3. Redeploy Production.
+4. Confirm: `GET /api/health` → `launch.recaptcha: true` and `launch.recaptchaFailClosed: true`  
+   Ops `/ops/readiness` → reCAPTCHA gate **pass** · First-days hardening green.
 
-Without keys, honeypot + rate limit + work-email still run.
+Without keys, honeypot + tighter rate limit + work-email still run, but spam protection is incomplete.
 
 ## 2. Required comment / feedback (shipped)
 
 | Form | Required note |
 |------|----------------|
-| Demo entry | “What do you want to see or solve?” (min 10 chars) |
 | Assessment unlock | “What prompted this assessment?” (min 10 chars) |
-| Soft gate | Email only (backup; entry already captured intent) |
 | Contact (`/contact`) | Message (min 10 chars) → CRM Lead `contact` |
+| Quote (`/quote`) | Message → CRM Lead |
 | Product feedback | Rating 1–5 + note (min 10 chars) → CRM Lead `product_feedback` |
 | Support | Description already required |
 
@@ -59,4 +60,4 @@ Until Frappe email is ready, send follow-ups manually from HubSpot sequences or 
 
 ## Privacy
 
-Incentives and marketing follow-ups must match the Privacy Policy consent line already on the forms.
+Incentives and marketing follow-ups must match the Privacy Policy consent line already on the forms. Forms show Google reCAPTCHA attribution when keys are configured.
