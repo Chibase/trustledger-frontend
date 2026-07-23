@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-23 — GO LIVE Done (operator confirmed)
+
+- Ops `/ops/readiness` green on Production; TrustLedger operational-grade for paying customers
+- OPERATIONAL_DELIVERY / ROADMAP / PLATFORM_OPERATOR mark GO LIVE Done
+- Next: Cloud V002 deepening (Engagement/Commitment DocTypes, Stats SA, live Grok)
+
 ## 2026-07-23 — GO LIVE ladder: Done when gates green
 
 - GO LIVE lane → **done** when `goLiveReady` (env + `PLATFORM_OPERATOR_ONLY=0`)

@@ -44,7 +44,7 @@ Add alternate operator emails as a comma-separated list if needed.
 4. Keep `PLATFORM_OPERATOR_EMAILS` for `/ops` (always allowlist-gated).
 5. Smoke buyer `/login/live`; `past_due` / `cancelled` Customers stay blocked by entitlement gate.
 
-**Status:** Buyer live login is open. Do **not** clear the Ops allowlist. Soft-launch marketing may continue. GO LIVE on `/ops/readiness` turns **Done** when env gates + lockdown-off are green.
+**Status:** Buyer live login is open. **GO LIVE Done (2026-07-23).** Do **not** clear the Ops allowlist. Do **not** set `PLATFORM_OPERATOR_ONLY=1` again.
 
 ## T5 / OD-1 Owner issuance
 
