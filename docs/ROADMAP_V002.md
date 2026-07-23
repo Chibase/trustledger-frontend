@@ -2,7 +2,7 @@
 
 **North star:** TEDS Volume 1 MVP domains that close the market gap.  
 **Policy:** Soft launch may wait until V002 core is credible (ADR-023).  
-**Active packet:** **GO LIVE** — `/ops/readiness` Done when env gates + lockdown-off. Steps 1–5 Done (demo V002 depth). See `docs/OPERATIONAL_DELIVERY.md` / ADR-032.
+**Active packet:** Cloud V002 deepening (Engagement/Commitment DocTypes · Stats SA ingest · live Grok). **GO LIVE Done** 2026-07-23 — see `docs/OPERATIONAL_DELIVERY.md` / ADR-032.
 
 ## Priority order (do not reshuffle without reason)
 
@@ -27,7 +27,7 @@ Geo first unlocks your existing location + socio-economic datasets as a **sellin
 | **24c** | Engagements | Capture hub (minutes/attendance/social/report) + AI brief | Extend meeting notes → Engagement DocType | **Done (demo; Cloud DocType next)** |
 | **24d** | Commitments | Register + status board | Commitment DocType + link to stakeholder/project | **Done (demo; Cloud DocType next)** |
 | **24e** | Stronger grievance | Status machine UI + verify/close | Incident workflow states on Cloud | **Done (demo; Cloud stamps next)** |
-| **24f** | Reports | Activity + Reports dashboards; monthly / executive / board packs; Owner desk grants | Pack access + evidence writer | **Active** |
+| **24f** | Reports | Activity + Reports dashboards; monthly / executive / board packs; Owner desk grants | Pack access + evidence writer | **Done** |
 | **24g** | Intelligence / ESG | Indicator cards + AI briefs on live indicators | Indicator store + Grok briefs | **Done (demo; Stats SA / Cloud next)** |
 
 **Aggressive solo calendar:** ~10–14 weeks to a **demoable V002 core** (mock+ingest OK). Faster if geo/socio-econ files land in week 1 and Frappe DocTypes are created in parallel on Cloud.

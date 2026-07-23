@@ -173,6 +173,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **OD-3** | Sync + auto-provision | Paystack → Cloud Owner; migrate tl-org-data on live login | **Done** |
 | **OD-4** | Billing + lift lockdown | Day-14 cron charge-due; entitlement gate; lift ADR-013 | **Done** |
 | **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Done (demo)** |
+| **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
 
 ## 8. Quality gates (every packet)
 
@@ -214,3 +215,4 @@ src/
 | 2026-07-11 | Initial Demo-first BUILD_PLAN (Packet 00) |
 | 2026-07-21 | Phase 6 Version 002 core; Version 001 public label (ADR-023) |
 | 2026-07-22 | Operational delivery path (ADR-032); OD-1 active — delay paid prod until Cloud SoT |
+| 2026-07-23 | GO LIVE Done — operational-grade Cloud ops for paying customers |
