@@ -17,6 +17,10 @@ import {
 } from "@/lib/formGuard";
 import { transactionalEmailConfigured } from "@/lib/transactionalEmail";
 import {
+  accessEmailVerificationEnabled,
+  accessVerificationReady,
+} from "@/lib/accessVerification";
+import {
   OPERATIONAL_STEPS,
   STEP1_DESK_CHECKLIST,
   STEP2_DESK_CHECKLIST,
@@ -174,6 +178,28 @@ const GATE_DEFS: GateDef[] = [
             ? "Keys set · FORM_REQUIRE_RECAPTCHA=1 (fail closed)"
             : "Keys set · tokens verified on public forms"
           : "Set NEXT_PUBLIC_RECAPTCHA_SITE_KEY + RECAPTCHA_SECRET_KEY (+ FORM_REQUIRE_RECAPTCHA=1)",
+      };
+    },
+  },
+  {
+    id: "accessVerify",
+    label: "Access email verification",
+    requiredForStep1: false,
+    evaluate: () => {
+      const enabled = accessEmailVerificationEnabled();
+      const ready = accessVerificationReady();
+      if (!enabled) {
+        return {
+          pass: false,
+          detail:
+            "Off — set RESEND_API_KEY (auto-on in Production) or ACCESS_EMAIL_VERIFICATION=1",
+        };
+      }
+      return {
+        pass: ready,
+        detail: ready
+          ? "Live login OTP + trial email verify on"
+          : "Enabled but RESEND_API_KEY missing — live login will 503",
       };
     },
   },
@@ -347,7 +373,13 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
     null;
 
-  const launchGateIds = ["autoProvision", "cronSecret", "resend", "recaptcha"] as const;
+  const launchGateIds = [
+    "autoProvision",
+    "cronSecret",
+    "resend",
+    "recaptcha",
+    "accessVerify",
+  ] as const;
   const launchMissing = gateChecks
     .filter((c) => (launchGateIds as readonly string[]).includes(c.id) && !c.pass)
     .map((c) => c.label);

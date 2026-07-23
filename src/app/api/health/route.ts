@@ -5,6 +5,10 @@ import { transactionalEmailConfigured } from "@/lib/transactionalEmail";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import { isPlatformOperatorOnly } from "@/lib/platformOperator";
 import { paystackConfigured } from "@/lib/paystackServer";
+import {
+  accessEmailVerificationEnabled,
+  accessVerificationReady,
+} from "@/lib/accessVerification";
 
 const FRAPPE_SITE =
   process.env.FRAPPE_BASE_URL ||
@@ -63,6 +67,8 @@ export async function GET() {
     resend: transactionalEmailConfigured(),
     recaptcha: recaptchaConfigured(),
     recaptchaFailClosed: recaptchaRequired(),
+    accessEmailVerification: accessEmailVerificationEnabled(),
+    accessVerificationReady: accessVerificationReady(),
   };
 
   return NextResponse.json(

@@ -32,8 +32,23 @@ Ops ladder: `/ops/readiness` · Health: `GET /api/health` (`deploySha`)
 | Demo `INC-*` in customer desk | Empty live→mock / invite `demo` | Fixed (launch-hardening) | Shipped |
 | Bad deploy / env bake | Wrong `NEXT_PUBLIC_*` | Vercel rollback | `deploySha` on health |
 | **Spam on forms** | reCAPTCHA keys unset | **Set keys + `FORM_REQUIRE_RECAPTCHA=1`**, redeploy | Wired; **keys = you** |
+| Unverified inbox uses product | No email proof | Set `RESEND_API_KEY` (OTP + trial verify auto-on in Production) | Shipped |
 
 **Do not** set `PLATFORM_OPERATOR_ONLY=1` again after GO LIVE — it re-blocks buyers and the readiness ladder.
+
+### Access email verification (before reCAPTCHA is fine)
+
+```bash
+# Vercel Production — enables live login OTP + trial “verify email” copy
+RESEND_API_KEY=re_…
+RESEND_FROM_EMAIL=TrustLedger <onboarding@trustledger.co.za>
+# Optional force:
+ACCESS_EMAIL_VERIFICATION=1
+```
+
+- **Live:** password → emailed 6-digit code → session  
+- **Trial:** Paystack success → email “Verify & open” → `/pay/activate` opens workspace  
+- Confirm: `/api/health` → `launch.accessVerificationReady: true`
 
 ### Turn on reCAPTCHA now (operator)
 

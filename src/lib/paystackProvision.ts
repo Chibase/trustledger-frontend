@@ -21,6 +21,7 @@ import {
   provisionOwnerOnCloud,
 } from "@/lib/provisionOwnerCloud";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
+import { accessEmailVerificationEnabled } from "@/lib/accessVerification";
 
 export type TrialProvisionResult = {
   flow: "trial_authorize" | "pay_now";
@@ -224,6 +225,7 @@ export async function provisionAfterPaystackVerify(
     }),
     loginUrl: `${base}/login/trial`,
     workspaceUrl: `${base}/pay/activate?token=${encodeURIComponent(activationToken)}`,
+    requireEmailVerification: accessEmailVerificationEnabled(),
   });
   emailSent = mail.sent;
   emailDetail = mail.detail;
