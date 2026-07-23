@@ -66,3 +66,5 @@ Ops ladder: https://trustledger-frontend-pi.vercel.app/ops/readiness — **GO LI
 | No demo `INC-*` in customer live workspace | Yes | Met (buyer live smoke) |
 
 TrustLedger is operational-grade for paying customers. Keep `/demo` separate. Non-blocking follow-ups: Cloud Engagement/Commitment DocTypes; Stats SA ingest; live Grok via srm-core.
+
+**Launch runbook:** `docs/LAUNCH_WATCHLIST.md` (first-days failures, traffic, branding).

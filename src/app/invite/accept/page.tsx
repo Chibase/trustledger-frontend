@@ -51,9 +51,10 @@ function AcceptInviteForm() {
         role: accepted.member.role,
         deskTier: accepted.member.deskTier,
         planId: accepted.org.planId,
-        mode: "demo",
+        // Trial mode = customer workspace (no demo INC-* seed). Browser-local
+        // until Cloud User seats; password not persisted to Frappe yet.
+        mode: "trial",
       });
-      // Demo only: password is not persisted until Frappe User SoT (T5).
       router.replace("/app/dashboard");
       router.refresh();
     } finally {
@@ -73,8 +74,8 @@ function AcceptInviteForm() {
     return (
       <p className="rounded-md border border-tl-danger/40 bg-tl-surface px-3 py-2 text-sm text-tl-danger" role="alert">
         This invite is invalid or was created on another browser. Ask your Plan
-        Owner to resend from Settings → Team / Seats on the same device (demo
-        tenancy).
+        Owner to resend from Settings → Team / Seats on the same device
+        (browser-local seats until Cloud Users).
       </p>
     );
   }
@@ -142,8 +143,8 @@ function AcceptInviteForm() {
           className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
         />
         <span className="mt-1 block text-xs text-tl-ink-muted">
-          Demo session only — credentials sync to TrustLedger Cloud when Owner
-          issuance is unlocked.
+          Workspace is browser-local until your Owner issues Cloud seats —
+          password is not synced to TrustLedger Cloud yet.
         </span>
       </label>
       {error ? (

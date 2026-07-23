@@ -1,6 +1,7 @@
 # Public soft launch — live Paystack
 
-**Goal:** Clients can Subscribe / trial on production with **live** Paystack while Cloud Agents, Bugbot, and Security Agents guard the repo.
+**Goal:** Clients Subscribe / trial on production with **live** Paystack.  
+**Status:** GO LIVE Done (2026-07-23) — buyers may `/login/live`. Instant runbook: `docs/LAUNCH_WATCHLIST.md`.
 
 ## Product surfaces (public)
 
@@ -9,11 +10,18 @@
 | Marketing `/`, `/assessment`, `/contact`, `/quote` | Yes | Lead capture |
 | `/demo`, sample `/app` | Yes | Demo banner on |
 | `/trial`, `/pay`, `/pay/success`, `/login/trial` | Yes | Card-on-file trial |
-| `/invite/accept` | Yes | Demo/local org seats until T5 |
-| `/login/live`, live `/app`, `/api/frappe` | **Operator allowlist** until T5 | Keep `PLATFORM_OPERATOR_ONLY=1` |
-| `/ops/*` | Always allowlist | Never public |
+| `/invite/accept` | Yes | Browser-local org seats until Cloud Users |
+| `/login/live`, live `/app` | **Buyers open** | `PLATFORM_OPERATOR_ONLY=0` |
+| `/api/frappe` (buyer session) | Live buyers + ops | Entitlement gate applies |
+| `/ops/*` | Always allowlist | `PLATFORM_OPERATOR_EMAILS` — never public |
 
-Trial + Paystack is the **client path**. Frappe live login stays operator-only until Plan Owner SoT (T5 / ADR-013 lift).
+Trial + Paystack is the **self-serve path**. Live Frappe login is open for entitled Customers; Ops stay allowlist-only.
+
+## Branding
+
+- UI product name: **TrustLedger** only.
+- **Chibase Consulting** OK for footer / legal / ops allowlist email — not as a product alias.
+- Client co-branding later: Institutional-first, exports only — see `docs/LAUNCH_WATCHLIST.md`.
 
 ## Vercel env — live Paystack cutover
 
@@ -24,21 +32,26 @@ Replace test keys with **live** keys from Paystack Dashboard → API Keys:
 NEXT_PUBLIC_SITE_URL=https://trustledger-frontend-pi.vercel.app   # or custom domain
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_live_…
 PAYSTACK_SECRET_KEY=sk_live_…
-TRIAL_TOKEN_SECRET=<long random string>   # do not reuse Paystack secret long-term
-PAYSTACK_WEBHOOK_SECRET=<from Paystack webhook config>
+TRIAL_TOKEN_SECRET=<long random string>   # do not reuse Paystack secret
 
 # Recommended
 RESEND_API_KEY=…                          # welcome email with temp password
 RESEND_FROM=TrustLedger <noreply@…>
 
-# Keep for ops / live Frappe
-PLATFORM_OPERATOR_ONLY=1
+# GO LIVE posture
+PLATFORM_OPERATOR_ONLY=0
 PLATFORM_OPERATOR_EMAILS=admin@chibaseconsulting.co.za
 PLATFORM_OPERATOR_LOCK_PUBLIC=0           # demo stays public
+FRAPPE_OWNER_ISSUANCE=1
+FRAPPE_AUTO_PROVISION=1
+CRON_SECRET=<random>                      # day-14 cron
 
 # Data
-NEXT_PUBLIC_DATA_MODE=demo                # safe default; live DocTypes later
+NEXT_PUBLIC_DATA_MODE=demo                # safe default until live lists proven
+NEXT_PUBLIC_AI_MOCK=true
 ```
+
+Webhook auth uses the **Paystack secret key** HMAC (`PAYSTACK_SECRET_KEY`) — there is no separate webhook secret env in this app.
 
 ### Paystack Dashboard
 
@@ -50,8 +63,9 @@ NEXT_PUBLIC_DATA_MODE=demo                # safe default; live DocTypes later
 ### Do not
 
 - Commit live keys to git.
-- Set `PLATFORM_OPERATOR_ONLY=0` until Frappe Customer/User issuance (T5) is ready.
-- Point WordPress CTAs at `/login/live` for buyers — use `/pay` or `/trial`.
+- Set `PLATFORM_OPERATOR_ONLY=1` again (re-blocks buyers / GO LIVE ladder).
+- Clear `PLATFORM_OPERATOR_EMAILS` (breaks `/ops`).
+- Point WordPress CTAs at `/login/live` for cold buyers — use `/pay` or `/trial`.
 
 ## Cursor quality gates (every client-facing PR)
 
@@ -63,8 +77,8 @@ NEXT_PUBLIC_DATA_MODE=demo                # safe default; live DocTypes later
 ## After go-live
 
 - Monitor Paystack live transactions + HubSpot/CRM `Trial Authorize` / `Trial Opt-Out`.
-- Day-14 charges via Ops `/api/paystack/charge-due` (allowlist) — see ADR-025.
-- Plan Owner Frappe users remain **manual** until ADR-013 lift (`docs/PLATFORM_OPERATOR.md`).
+- Day-14 charges via cron + Ops Finance charge-due — see `docs/LAUNCH_WATCHLIST.md`.
+- Keep `/demo` separate from customer live workspaces (no `INC-*` bleed).
 
 ## Frappe sample data vs reports
 

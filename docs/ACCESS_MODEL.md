@@ -162,9 +162,21 @@ Until ADR-013 lockdown lifts and Frappe Customer/User is SoT:
 - **T3 data space:** org-scoped projects/cases (`tl-org-data`); CSV import; no demo seed in trial.
 - **T4 media:** org media library + plan quotas (25 MB / 250 MB / 2 GB soft); Settings meter.
 - **T5 prep:** Customer + Owner User drafts via `/api/frappe/provision-owner` (operator + `FRAPPE_OWNER_ISSUANCE`); see `docs/FRAPPE_SOT.md`.
-- **OD / GO LIVE (Done 2026-07-23):** Operational delivery complete — Cloud SoT + billing + buyer live. Ladder: `docs/OPERATIONAL_DELIVERY.md` / `/ops/readiness` (ADR-032). Keep `/demo` separate.
-- Invite accept at `/invite/accept` locks the invitee’s desk tier (cannot self-raise).
+- **OD / GO LIVE (Done 2026-07-23):** Operational delivery complete — Cloud SoT + billing + buyer live. Ladder: `docs/OPERATIONAL_DELIVERY.md` / `/ops/readiness` (ADR-032). Keep `/demo` separate. Launch runbook: `docs/LAUNCH_WATCHLIST.md`.
+- Invite accept at `/invite/accept` locks the invitee’s desk tier (cannot self-raise). Invitees use **trial** (customer) mode so demo `INC-*` never appears.
 - Buyer live login is open (`PLATFORM_OPERATOR_ONLY=0`); `/ops` stays allowlist-only.
+
+## Client branding (future)
+
+Product chrome stays **TrustLedger** only. Optional client co-brand is plan-density dependent and **not shipped yet**:
+
+| Plan | Density |
+|------|---------|
+| Practitioner | None |
+| Project | Optional later (report footer co-name) |
+| Institutional | Co-brand on exports/PDF headers only (capability TBD) |
+
+Never replace the TrustLedger wordmark in app nav. Owner legal mark **Chibase Consulting** remains footer/ops attribution only.
 
 ## Build sequence (after Paystack sandbox)
 
