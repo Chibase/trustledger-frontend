@@ -22,7 +22,8 @@ export type NavItem = {
     | "settings"
     | "geo"
     | "stakeholders"
-    | "capture";
+    | "capture"
+    | "engagements";
 };
 
 const NAV: NavItem[] = [
@@ -37,6 +38,12 @@ const NAV: NavItem[] = [
     label: "Capture",
     icon: "capture",
     capability: "captureHub",
+  },
+  {
+    href: "/app/engagements",
+    label: "Engagements",
+    icon: "engagements",
+    capability: "engagements",
   },
   {
     href: "/app/stakeholders",
@@ -145,6 +152,13 @@ function NavIcon({ name }: { name: NavItem["icon"] }) {
           <path d="M8 7V5h8v2M12 11v5M9.5 13.5 12 11l2.5 2.5" />
         </svg>
       );
+    case "engagements":
+      return (
+        <svg {...common}>
+          <path d="M5 6h14v4H5V6Zm0 8h9v4H5v-4Z" />
+          <path d="M17 14h2v4h-2v-4Z" />
+        </svg>
+      );
   }
 }
 
@@ -166,8 +180,11 @@ export function AppNav({ role, variant = "light", planId }: AppNavProps) {
         ? hasCapability(item.capability, planId)
         : true;
     }
-    setAllowed(map);
-    setCapsReady(true);
+    const handle = window.setTimeout(() => {
+      setAllowed(map);
+      setCapsReady(true);
+    }, 0);
+    return () => window.clearTimeout(handle);
   }, [planId]);
 
   const items = NAV.filter((item) => {
