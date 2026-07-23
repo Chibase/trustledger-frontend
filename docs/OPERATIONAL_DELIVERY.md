@@ -43,10 +43,10 @@ Day-14 charge cron + entitlement gate live. `PLATFORM_OPERATOR_ONLY=0`; buyer `/
 
 ### Done when
 
-- [x] Cron route + CRON_SECRET live  
-- [x] Charge-due updates entitlement  
-- [x] Buyer live login works with lockdown off (or past_due blocks)  
-- [x] Ops still allowlist-only  
+- [x] Cron route + CRON_SECRET live
+- [x] Charge-due updates entitlement
+- [x] Buyer live login works with lockdown off (or past_due blocks)
+- [x] Ops still allowlist-only
 
 ---
 
