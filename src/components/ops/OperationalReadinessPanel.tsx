@@ -162,7 +162,9 @@ export function OperationalReadinessPanel({ initial }: Props) {
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
           <h2 className="font-display text-lg font-semibold text-tl-ink">
-            {data.activeStepId === "4"
+            {data.activeStepId === "5" || data.activeStepId === "go"
+              ? "Step 5 — V002 depth"
+              : data.activeStepId === "4"
               ? "Step 4 — Billing + lift lockdown (you)"
               : data.activeStepId === "3"
               ? "Step 3 — Sync + auto-provision (you)"
@@ -176,7 +178,13 @@ export function OperationalReadinessPanel({ initial }: Props) {
             ))}
           </ol>
           <p className="mt-4 text-sm text-tl-ink">
-            {data.activeStepId === "4" ? (
+            {data.activeStepId === "5" || data.activeStepId === "go" ? (
+              <>
+                When engagements → commitments → grievance → ESG are
+                market-honest, reply: <strong>Step 5 complete</strong> — then GO
+                LIVE criteria.
+              </>
+            ) : data.activeStepId === "4" ? (
               <>
                 After charge-due smoke and buyer live login with lockdown off,
                 reply: <strong>Step 4 complete</strong>.
