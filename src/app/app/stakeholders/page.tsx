@@ -3,10 +3,15 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { stakeholderService } from "@/services/stakeholderService";
+import { useToast } from "@/components/ui/Toast";
+import {
+  createStakeholderId,
+  stakeholderService,
+} from "@/services/stakeholderService";
 import {
   STAKEHOLDER_KIND_LABELS,
   type Stakeholder,
+  type StakeholderInfluence,
   type StakeholderKind,
   type StakeholderStatus,
 } from "@/types/stakeholder";
@@ -18,17 +23,26 @@ import {
 const KINDS = Object.keys(STAKEHOLDER_KIND_LABELS) as StakeholderKind[];
 
 export default function AppStakeholdersPage() {
+  const { pushToast } = useToast();
   const [rows, setRows] = useState<Stakeholder[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<StakeholderKind | "all">("all");
   const [status, setStatus] = useState<StakeholderStatus | "all">("all");
+  const [showCreate, setShowCreate] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [name, setName] = useState("");
+  const [createKind, setCreateKind] = useState<StakeholderKind>("individual");
+  const [organisation, setOrganisation] = useState("");
+  const [influence, setInfluence] =
+    useState<StakeholderInfluence>("medium");
+  const [summary, setSummary] = useState("");
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    stakeholderService
-      .list({ query, kind, status, countryCode: "ZA" })
+    void stakeholderService
+      .list({ query, kind, status })
       .then((data) => {
         if (!cancelled) {
           setRows(data);
@@ -38,7 +52,7 @@ export default function AppStakeholdersPage() {
     return () => {
       cancelled = true;
     };
-  }, [query, kind, status]);
+  }, [query, kind, status, reloadToken]);
 
   const kindCounts = useMemo(() => {
     const map = new Map<string, number>();
@@ -48,21 +62,144 @@ export default function AppStakeholdersPage() {
     return map;
   }, [rows]);
 
+  async function handleCreate(event: React.FormEvent) {
+    event.preventDefault();
+    if (name.trim().length < 2) {
+      pushToast("Enter a stakeholder name", "error");
+      return;
+    }
+    setSaving(true);
+    try {
+      const row: Stakeholder = {
+        id: createStakeholderId(),
+        name: name.trim(),
+        kind: createKind,
+        status: "active",
+        organisation: organisation.trim() || undefined,
+        countryCode: "ZA",
+        influence,
+        interests: [],
+        tags: [],
+        summary: summary.trim() || undefined,
+        source: "trial",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      await stakeholderService.save(row);
+      pushToast("Stakeholder saved", "success");
+      setName("");
+      setOrganisation("");
+      setSummary("");
+      setShowCreate(false);
+      setReloadToken((n) => n + 1);
+    } catch {
+      pushToast("Could not save stakeholder", "error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={`${NEXT_PRODUCT_VERSION_LABEL} CRM · ${PRODUCT_VERSION_LABEL} desk remains`}
-        title="Stakeholder CRM (demo)"
-        description="Placeholder registry for demos. Capture real contacts via the Capture hub — meeting minutes, attendance registers, social intelligence, or pasted reports — then apply AI suggestions."
+        eyebrow={`${NEXT_PRODUCT_VERSION_LABEL} · Stakeholder Intelligence · ${PRODUCT_VERSION_LABEL} desk`}
+        title="Stakeholder registry"
+        description="The SRM engine starts here — people and organisations linked to place, influence, and engagements. Live sessions persist to Frappe Cloud; trial keeps your own browser workspace (no sample seed)."
         actions={
-          <Link
-            href="/app/capture"
-            className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
-          >
-            Open capture hub
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setShowCreate((open) => !open)}
+              className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+            >
+              {showCreate ? "Cancel" : "Add stakeholder"}
+            </button>
+            <Link
+              href="/app/capture"
+              className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+            >
+              Capture hub
+            </Link>
+          </div>
         }
       />
+
+      {showCreate ? (
+        <form
+          onSubmit={handleCreate}
+          className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4"
+        >
+          <h2 className="font-display text-base font-semibold text-tl-ink">
+            New stakeholder
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-sm sm:col-span-2">
+              <span className="mb-1 block font-medium">Name</span>
+              <input
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium">Kind</span>
+              <select
+                value={createKind}
+                onChange={(e) =>
+                  setCreateKind(e.target.value as StakeholderKind)
+                }
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              >
+                {KINDS.map((k) => (
+                  <option key={k} value={k}>
+                    {STAKEHOLDER_KIND_LABELS[k]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium">Influence</span>
+              <select
+                value={influence}
+                onChange={(e) =>
+                  setInfluence(e.target.value as StakeholderInfluence)
+                }
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              >
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </label>
+            <label className="block text-sm sm:col-span-2">
+              <span className="mb-1 block font-medium">Organisation</span>
+              <input
+                value={organisation}
+                onChange={(e) => setOrganisation(e.target.value)}
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block text-sm sm:col-span-2">
+              <span className="mb-1 block font-medium">Summary</span>
+              <textarea
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                rows={2}
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              />
+            </label>
+          </div>
+          <button
+            type="submit"
+            disabled={saving}
+            className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
+          >
+            {saving ? "Saving…" : "Save stakeholder"}
+          </button>
+        </form>
+      ) : null}
 
       <div className="grid gap-3 rounded-lg border border-tl-line bg-tl-surface p-4 sm:grid-cols-[1fr_auto_auto]">
         <label className="block text-sm">
@@ -141,7 +278,7 @@ export default function AppStakeholdersPage() {
         ))}
         {!loading && rows.length === 0 ? (
           <li className="px-4 py-8 text-center text-sm text-tl-ink-muted">
-            No stakeholders match these filters.
+            No stakeholders yet — add one to start the SRM register.
           </li>
         ) : null}
       </ul>

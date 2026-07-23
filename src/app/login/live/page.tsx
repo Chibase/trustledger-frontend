@@ -325,9 +325,9 @@ function LiveLoginForm() {
         </form>
       )}
       <p className="mt-4 text-xs text-tl-ink-muted">
-        Want sample data only?{" "}
-        <Link href="/demo" className="text-tl-trust-ink underline">
-          Open the demo
+        New to TrustLedger?{" "}
+        <Link href="/product" className="text-tl-trust-ink underline">
+          Product &amp; onboarding
         </Link>
         . Reset links go to TrustLedger Cloud (
         <span className="font-mono">app.trustledger.co.za</span>

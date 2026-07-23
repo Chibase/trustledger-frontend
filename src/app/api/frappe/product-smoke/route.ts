@@ -6,25 +6,41 @@ import {
   createCloudIncident,
   createCloudProject,
 } from "@/lib/productCloud";
+import {
+  createCloudCommitment,
+  createCloudEngagement,
+  createCloudStakeholder,
+} from "@/lib/siCloud";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import {
   assertLiveOperatorAccess,
   operatorGateMessage,
 } from "@/lib/platformOperator";
-import type { EvidenceStub } from "@/types/engagement";
+import type { Commitment } from "@/types/commitment";
+import type { Engagement, EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { Stakeholder } from "@/types/stakeholder";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Body = {
-  kind?: "project" | "incident" | "evidence";
+  kind?:
+    | "project"
+    | "incident"
+    | "evidence"
+    | "stakeholder"
+    | "engagement"
+    | "commitment";
   customer?: string;
   orgId?: string;
   project?: Project;
   incident?: Incident;
   evidence?: EvidenceStub;
+  stakeholder?: Stakeholder;
+  engagement?: Engagement;
+  commitment?: Commitment;
   fileUrl?: string;
 };
 
@@ -79,9 +95,36 @@ export async function POST(request: Request) {
     );
     return NextResponse.json(result, { status: result.ok ? 200 : 502 });
   }
+  if (body.kind === "stakeholder" && body.stakeholder) {
+    const result = await createCloudStakeholder(
+      body.stakeholder,
+      customer,
+      body.orgId,
+    );
+    return NextResponse.json(result, { status: result.ok ? 200 : 502 });
+  }
+  if (body.kind === "engagement" && body.engagement) {
+    const result = await createCloudEngagement(
+      body.engagement,
+      customer,
+      body.orgId,
+    );
+    return NextResponse.json(result, { status: result.ok ? 200 : 502 });
+  }
+  if (body.kind === "commitment" && body.commitment) {
+    const result = await createCloudCommitment(
+      body.commitment,
+      customer,
+      body.orgId,
+    );
+    return NextResponse.json(result, { status: result.ok ? 200 : 502 });
+  }
 
   return NextResponse.json(
-    { error: "kind + matching payload required (project|incident|evidence)" },
+    {
+      error:
+        "kind + matching payload required (project|incident|evidence|stakeholder|engagement|commitment)",
+    },
     { status: 400 },
   );
 }

@@ -118,7 +118,7 @@ export async function POST(request: Request) {
       name: name || email.split("@")[0],
       company: organization,
       message,
-      pageUri: `${siteBaseUrl()}/demo`,
+      pageUri: `${siteBaseUrl()}/product`,
       pageName:
         source === "demo_entry"
           ? "TrustLedger Demo entry"

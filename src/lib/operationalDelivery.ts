@@ -351,7 +351,7 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     "5":
       "Step 5 active — V002 depth: engagements → commitments → grievance → ESG (packets 24c–24g).",
     go: goLiveReady
-      ? "GO LIVE done — TrustLedger is operational-grade for paying customers. Keep /demo separate."
+      ? "GO LIVE done — TrustLedger is operational-grade for paying customers. Sample /demo retired (ADR-033)."
       : !lockdownLifted
         ? "GO LIVE waiting — set PLATFORM_OPERATOR_ONLY=0 on Vercel (buyer lockdown still ON)."
         : "GO LIVE waiting — fix Environment gates below, then Refresh.",

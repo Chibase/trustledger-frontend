@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { DemoBanner } from "@/components/shell/DemoBanner";
-import { EmailCaptureGate } from "@/components/shell/EmailCaptureGate";
 import { OperatorBanner } from "@/components/shell/OperatorBanner";
 import { TrialBanner } from "@/components/shell/TrialBanner";
 import { TrialPasswordChangePrompt } from "@/components/shell/TrialPasswordChangePrompt";
@@ -43,7 +41,7 @@ export function AppShell({
 }: AppShellProps) {
   const planLabel = trialPlan ? PLANS[trialPlan].name : null;
   const modeLabel =
-    mode === "live" ? "live" : mode === "trial" ? "trial" : "demo";
+    mode === "live" ? "live" : mode === "trial" ? "trial" : "workspace";
 
   return (
     <ToastProvider>
@@ -52,9 +50,7 @@ export function AppShell({
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
         ) : null}
         {mode === "trial" ? <TrialPasswordChangePrompt /> : null}
-        {mode === "demo" ? <DemoBanner planName={planLabel} /> : null}
         {showOperatorBanner ? <OperatorBanner /> : null}
-        {mode === "demo" ? <EmailCaptureGate /> : null}
         <MobileNav
           role={role}
           userName={userName}

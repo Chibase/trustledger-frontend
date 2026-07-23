@@ -1,6 +1,5 @@
 import { mockCommitments } from "@/data/mockCommitments";
-import { FRAPPE_METHODS, isLiveMode } from "@/config/api";
-import { callFrappeMethod } from "@/lib/frappeClient";
+import { isLiveMode } from "@/config/api";
 import type { Commitment, CommitmentStatus } from "@/types/commitment";
 
 const STORAGE_KEY = "tl-commitments";
@@ -66,30 +65,78 @@ function applyFilters(
   return next;
 }
 
+async function isOwnDataWorkspace(): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+  return readTrialModeFromDocument() || isCustomerWorkspaceClient();
+}
+
+async function listFromCloudSi(): Promise<Commitment[] | null> {
+  if (typeof window === "undefined") return null;
+  try {
+    const res = await fetch("/api/frappe/si?kind=commitment", {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (res.status === 401 || res.status === 403) return null;
+    if (res.status === 404) return [];
+    if (!res.ok) return null;
+    const json = (await res.json()) as { rows?: Commitment[] };
+    return Array.isArray(json.rows) ? json.rows : [];
+  } catch {
+    return null;
+  }
+}
+
+async function saveToCloudSi(row: Commitment): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  try {
+    const res = await fetch("/api/frappe/si", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ kind: "commitment", commitment: row }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export function createCommitmentId(): string {
   return `COM-${Date.now().toString(36).toUpperCase()}`;
 }
 
 export const commitmentService = {
   async list(filters: CommitmentListFilters = {}): Promise<Commitment[]> {
-    if (isLiveMode()) {
-      try {
-        const rows = await callFrappeMethod<Commitment[]>(
-          FRAPPE_METHODS.listCommitments,
-          {
-            projectId: filters.projectId,
-            engagementId: filters.engagementId,
-            query: filters.query,
-          },
+    const own = await isOwnDataWorkspace();
+
+    if (typeof window !== "undefined" && isLiveMode()) {
+      const cloud = await listFromCloudSi();
+      if (cloud) {
+        const local = readLocal();
+        const byId = new Map<string, Commitment>();
+        for (const row of cloud) byId.set(row.id, row);
+        for (const row of local) byId.set(row.id, row);
+        return applyFilters(
+          [...byId.values()].sort((a, b) => a.dueOn.localeCompare(b.dueOn)),
+          filters,
         );
-        if (Array.isArray(rows) && rows.length) {
-          const local = typeof window !== "undefined" ? readLocal() : [];
-          return applyFilters(mergeSeedAndLocal([...rows, ...local]), filters);
-        }
-      } catch {
-        /* seed + local */
+      }
+      if (own) {
+        return delay(applyFilters(readLocal(), filters));
       }
     }
+
+    if (own) {
+      return delay(applyFilters(readLocal(), filters));
+    }
+
     const local = typeof window !== "undefined" ? readLocal() : [];
     return delay(applyFilters(mergeSeedAndLocal(local), filters));
   },
@@ -100,6 +147,14 @@ export const commitmentService = {
   },
 
   async save(row: Commitment): Promise<Commitment> {
+    if (typeof window !== "undefined" && isLiveMode()) {
+      const pushed = await saveToCloudSi(row);
+      if (pushed) {
+        const local = readLocal().filter((r) => r.id !== row.id);
+        writeLocal(local);
+        return delay(row);
+      }
+    }
     const local = readLocal().filter((r) => r.id !== row.id);
     local.push(row);
     writeLocal(local);

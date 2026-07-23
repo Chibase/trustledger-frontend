@@ -82,15 +82,14 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     id: "stakeholders",
     tedsName: "Stakeholder Registry (CRM)",
     tedsChapter: "TEDS Ch.9 Domain 2",
-    status: "seeded",
-    score: 45,
+    status: "partial",
+    score: 70,
     availableNow:
-      "In-app CRM list + detail; TEDS-aligned kinds (traditional authority, government, funder, contractor, NGO, …); seed linked to places.",
+      "List + detail + create UI; live BFF persists to TL Stakeholder on Frappe Cloud; trial own-data (no sample seed).",
     stillNeeded: [
-      "Create / edit / merge UI (trial localStorage save exists in service)",
       "Relationship mapping graph",
       "Influence / interest matrices",
-      "Frappe Stakeholder DocType + live API",
+      "Merge / dedupe tooling",
     ],
     href: "/app/stakeholders",
   },
@@ -114,12 +113,11 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     tedsName: "Engagement Management",
     tedsChapter: "TEDS Ch.9 Domain 4",
     status: "partial",
-    score: 55,
+    score: 72,
     availableNow:
-      "Engagements list/detail; Capture hub apply → CRM + Engagement; seed meetings/consultations; AI brief on capture.",
+      "Engagements list/detail; Capture hub apply → CRM + Engagement; live BFF → TL Engagement on Cloud; trial own-data.",
     stillNeeded: [
       "Structured attendance register rows",
-      "Cloud Engagement DocType (create/list on Frappe)",
       "Link engagements to geo place ids",
     ],
     href: "/app/engagements",
@@ -144,13 +142,12 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     tedsName: "Commitment Management",
     tedsChapter: "TEDS Ch.9 Domain 6",
     status: "partial",
-    score: 50,
+    score: 70,
     availableNow:
-      "Commitments status board + detail; promote engagement action items; seed from 24c meetings.",
+      "Commitments status board + detail; promote from engagements; live BFF → TL Commitment on Cloud; trial own-data.",
     stillNeeded: [
       "Evidence file attach on Cloud",
       "Owner assignment from seats/CRM",
-      "Commitment DocType on Frappe",
     ],
     href: "/app/commitments",
   },
@@ -242,17 +239,17 @@ export function buildTedsMaturityReport(): TedsMaturityReport {
     mvpProgressPct,
     headline: `TEDS MVP ≈ ${mvpProgressPct}% realised in product`,
     summary:
-      "Version 001 ships the resolution desk. Version 002 has seeded national ZA geography and an in-platform stakeholder CRM. Engagements, commitments, fuller grievance workflow, and ESG indicators remain the largest gaps versus the Engineering Documentation Series blueprint.",
+      "Version 001 ships the resolution desk. Version 002 Stakeholder Intelligence now has Cloud DocTypes + live BFF for registry, engagements, and commitments. Remaining gaps: geo depth, grievance Cloud stamps, Stats SA, relationship graphs.",
     domains,
     priorityNext: [
-      "Engagements module (meetings, attendance, actions)",
-      "Commitments register + dashboard KPIs",
-      "Stronger grievance lifecycle on Frappe",
+      "Ops: Create product + SI DocTypes, then Smoke Stakeholder→Engagement→Commitment",
+      "Buyer live smoke: empty Cloud CRM → add stakeholder → list on Cloud",
+      "Stronger grievance lifecycle stamps on Frappe TL Incident",
       "Stats SA socio-economic indicators on geo pack",
-      "CRM create/edit + relationship links",
+      "CRM relationship links + influence matrices",
     ],
     publicMessage:
-      "Version 001 is the live resolution desk. Version 002 Stakeholder Intelligence core is in active build — geo and CRM registry are seeded; engagements, commitments, and ESG depth are next.",
+      "Version 001 is the live resolution desk. Version 002 Stakeholder Intelligence core runs on Cloud for registry, engagements, and commitments — the SRM engine.",
   };
 }
 

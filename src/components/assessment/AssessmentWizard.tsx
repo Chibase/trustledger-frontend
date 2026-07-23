@@ -25,13 +25,13 @@ import type {
 
 type Step = "intro" | "questions" | "lead" | "results";
 
-function demoHref(campaign: string): string {
+function productHref(campaign: string): string {
   const params = new URLSearchParams({
     utm_source: "assessment",
     utm_medium: "cta",
     utm_campaign: campaign,
   });
-  return `/demo?${params.toString()}`;
+  return `/product?${params.toString()}`;
 }
 
 function dashboardHref(): string {
@@ -636,15 +636,15 @@ export function AssessmentWizard() {
               Put this into practice with TrustLedger
             </h2>
             <p className="mt-2 text-sm text-tl-ink-muted">
-              Explore the interactive demo, or talk to Chibase Consulting about
-              implementing the 90-day plan on your sites.
+              Review TrustLedger features and onboarding, or talk to Chibase
+              Consulting about implementing the 90-day plan on your sites.
             </p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
               <a
-                href={demoHref("assessment")}
+                href={productHref("assessment")}
                 className="inline-flex justify-center rounded-md bg-tl-trust px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-tl-trust-ink"
               >
-                Try the interactive demo
+                Product overview
               </a>
               <a
                 href={dashboardHref()}

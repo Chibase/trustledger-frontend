@@ -165,9 +165,9 @@ function TrialStartForm() {
       </form>
 
       <p className="mt-4 text-xs text-tl-ink-muted">
-        Want sample data only?{" "}
-        <Link href="/demo" className="font-medium text-tl-trust-ink underline">
-          Open sample preview
+        Learn features first?{" "}
+        <Link href="/product" className="font-medium text-tl-trust-ink underline">
+          Product &amp; onboarding
         </Link>
       </p>
     </main>

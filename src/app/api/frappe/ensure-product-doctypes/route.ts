@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import { ensureProductDocTypes } from "@/lib/frappeProductDocTypes";
+import { ensureSiDocTypes } from "@/lib/frappeSiDocTypes";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import {
   assertLiveOperatorAccess,
@@ -11,9 +12,9 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Body = { dryRun?: boolean };
+type Body = { dryRun?: boolean; includeSi?: boolean };
 
-/** OD-2 — ensure TL Project / Incident / Evidence DocTypes on Frappe. */
+/** OD-2 / SI-Cloud — ensure product + SI DocTypes on Frappe. */
 export async function POST(request: Request) {
   if (!isFrappeOwnerIssuanceEnabled()) {
     return NextResponse.json(
@@ -40,6 +41,31 @@ export async function POST(request: Request) {
   }
 
   const dryRun = body.dryRun !== false;
-  const result = await ensureProductDocTypes({ dryRun });
-  return NextResponse.json(result, { status: result.ok ? 200 : 502 });
+  const includeSi = body.includeSi !== false;
+  const product = await ensureProductDocTypes({ dryRun });
+  const si = includeSi
+    ? await ensureSiDocTypes({ dryRun })
+    : {
+        ok: true,
+        dryRun,
+        results: [],
+        missing: [],
+        message: "SI DocTypes skipped (includeSi:false)",
+      };
+
+  const ok = product.ok && si.ok;
+  const message = [product.message, si.message].filter(Boolean).join(" · ");
+
+  return NextResponse.json(
+    {
+      ok,
+      dryRun,
+      message,
+      product,
+      si,
+      results: [...product.results, ...si.results],
+      missing: [...product.missing, ...si.missing],
+    },
+    { status: ok ? 200 : 502 },
+  );
 }

@@ -102,7 +102,7 @@ export const STEP5_DESK_CHECKLIST: string[] = [
 export const GO_LIVE_DESK_CHECKLIST: string[] = [
   "Confirm buyer /login/live + Cloud Customer/User still green",
   "Confirm day-14 cron / Finance charge-due path still healthy",
-  "Confirm /demo stays separate from live customer workspaces (no demo INC-* bleed)",
+  "Confirm sample /demo is retired (ADR-033) and customer workspaces never show demo INC-*",
   "Optional follow-ups: Cloud Engagement/Commitment DocTypes; Stats SA indicator ingest",
   "When criteria above are accepted, promise multi-device production to paying customers",
 ];
