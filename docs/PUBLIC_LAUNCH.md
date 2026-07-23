@@ -7,15 +7,15 @@
 
 | Surface | Public? | Notes |
 |---------|---------|--------|
-| Marketing `/`, `/assessment`, `/contact`, `/quote` | Yes | Lead capture |
-| `/demo`, sample `/app` | Yes | Demo banner on |
-| `/trial`, `/pay`, `/pay/success`, `/login/trial` | Yes | Card-on-file trial |
+| Marketing `/`, `/product`, `/assessment`, `/contact`, `/quote` | Yes | Lead capture + onboarding |
+| `/demo` | Redirect | **Retired** → `/product` (ADR-033) |
+| `/trial`, `/pay`, `/pay/success`, `/login/trial` | Yes | Own-data trial / card path |
 | `/invite/accept` | Yes | Browser-local org seats until Cloud Users |
 | `/login/live`, live `/app` | **Buyers open** | `PLATFORM_OPERATOR_ONLY=0` |
 | `/api/frappe` (buyer session) | Live buyers + ops | Entitlement gate applies |
 | `/ops/*` | Always allowlist | `PLATFORM_OPERATOR_EMAILS` — never public |
 
-Trial + Paystack is the **self-serve path**. Live Frappe login is open for entitled Customers; Ops stay allowlist-only.
+Trial + Paystack is the **self-serve path**. Live Frappe login is open for entitled Customers; Ops stay allowlist-only. See `docs/PLATFORM_STRATEGIC_BRIEF.md` for plan packaging and public agent scripts.
 
 ## Branding
 
@@ -78,7 +78,7 @@ Webhook auth uses the **Paystack secret key** HMAC (`PAYSTACK_SECRET_KEY`) — t
 
 - Monitor Paystack live transactions + HubSpot/CRM `Trial Authorize` / `Trial Opt-Out`.
 - Day-14 charges via cron + Ops Finance charge-due — see `docs/LAUNCH_WATCHLIST.md`.
-- Keep `/demo` separate from customer live workspaces (no `INC-*` bleed).
+- Keep customer live workspaces free of demo `INC-*` bleed (sample `/demo` retired).
 
 ## Frappe sample data vs reports
 
