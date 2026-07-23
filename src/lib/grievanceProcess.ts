@@ -24,6 +24,7 @@ export const PROCESS_STAGE_KEYS = [
   "resource_deployed",
   "investigated",
   "resolved",
+  "verified",
   "closed",
 ] as const;
 
@@ -34,6 +35,7 @@ export const PROCESS_STAGE_LABELS: Record<ProcessStageKey, string> = {
   resource_deployed: "Resource deployed",
   investigated: "Investigated",
   resolved: "Resolved",
+  verified: "Verified",
   closed: "Closed",
 };
 
@@ -42,6 +44,8 @@ export type IncidentProcessStages = {
   resourceDeployedAt?: string | null;
   investigatedAt?: string | null;
   resolvedAt?: string | null;
+  /** Community / supervisor verify before close (packet 24e). */
+  verifiedAt?: string | null;
   closedAt?: string | null;
   /** Target turnaround hours configured by client (per stage from previous). */
   targetHours?: Partial<Record<ProcessStageKey, number>>;
@@ -92,6 +96,8 @@ export function stageTimestamp(
       return stages.investigatedAt ?? null;
     case "resolved":
       return stages.resolvedAt ?? null;
+    case "verified":
+      return stages.verifiedAt ?? null;
     case "closed":
       return stages.closedAt ?? null;
   }
@@ -161,6 +167,120 @@ export function defaultTargetHours(): Partial<
     resource_deployed: 4,
     investigated: 24,
     resolved: 72,
+    verified: 84,
     closed: 96,
   };
+}
+
+function setStageAt(
+  stages: IncidentProcessStages,
+  key: ProcessStageKey,
+  at: string,
+): IncidentProcessStages {
+  const next = { ...stages };
+  switch (key) {
+    case "reported":
+      next.reportedAt = at;
+      break;
+    case "resource_deployed":
+      next.resourceDeployedAt = at;
+      break;
+    case "investigated":
+      next.investigatedAt = at;
+      break;
+    case "resolved":
+      next.resolvedAt = at;
+      break;
+    case "verified":
+      next.verifiedAt = at;
+      break;
+    case "closed":
+      next.closedAt = at;
+      break;
+  }
+  return next;
+}
+
+export function ensureProcessStages(incident: Incident): IncidentProcessStages {
+  if (incident.processStages?.reportedAt) {
+    return {
+      targetHours: defaultTargetHours(),
+      ...incident.processStages,
+    };
+  }
+  return {
+    reportedAt: incident.reportedAt,
+    targetHours: defaultTargetHours(),
+  };
+}
+
+/** First stage that does not yet have a timestamp. */
+export function nextPendingStage(
+  stages: IncidentProcessStages,
+): ProcessStageKey | null {
+  for (const key of PROCESS_STAGE_KEYS) {
+    if (!stageTimestamp(stages, key)) return key;
+  }
+  return null;
+}
+
+export function statusForProcessStages(
+  stages: IncidentProcessStages,
+  previous: Incident["status"],
+): Incident["status"] {
+  if (stages.closedAt) return "Closed";
+  if (stages.resourceDeployedAt || stages.investigatedAt || stages.resolvedAt) {
+    return previous === "Escalated" ? "Escalated" : "Investigating";
+  }
+  return previous === "Escalated" ? "Escalated" : "Open";
+}
+
+/**
+ * Stamp the next pending stage (or a specific key). Returns updated incident.
+ */
+export function advanceIncidentStage(
+  incident: Incident,
+  options: { to?: ProcessStageKey; at?: string; actor?: string } = {},
+): Incident {
+  const at = options.at ?? new Date().toISOString();
+  const actor = options.actor ?? "Case desk";
+  let stages = ensureProcessStages(incident);
+  const target = options.to ?? nextPendingStage(stages);
+  if (!target) return incident;
+  if (stageTimestamp(stages, target)) return incident;
+
+  stages = setStageAt(stages, target, at);
+  const event = {
+    id: `EVT-${Date.now().toString(36)}`,
+    type: `stage_${target}`,
+    summary: `${PROCESS_STAGE_LABELS[target]} — ${actor}`,
+    at,
+  };
+  return {
+    ...incident,
+    processStages: stages,
+    status: statusForProcessStages(stages, incident.status),
+    timeline: [event, ...incident.timeline],
+  };
+}
+
+/** After resolved: stamp verified then closed in one action. */
+export function verifyAndCloseIncident(
+  incident: Incident,
+  options: { at?: string; actor?: string } = {},
+): Incident {
+  const at = options.at ?? new Date().toISOString();
+  const actor = options.actor ?? "Case desk";
+  let next = incident;
+  const stages = ensureProcessStages(incident);
+  if (!stages.resolvedAt) {
+    next = advanceIncidentStage(next, { to: "resolved", at, actor });
+  }
+  if (!ensureProcessStages(next).verifiedAt) {
+    next = advanceIncidentStage(next, { to: "verified", at, actor });
+  }
+  if (!ensureProcessStages(next).closedAt) {
+    next = advanceIncidentStage(next, { to: "closed", at, actor });
+  }
+  return next;
 }

@@ -5,6 +5,7 @@ import { use, useEffect, useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { ProcessStageTimeline } from "@/components/incidents/ProcessStageTimeline";
+import { ProcessStageActions } from "@/components/incidents/ProcessStageActions";
 import { evidenceService } from "@/services/noteService";
 import { incidentService } from "@/services/incidentService";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
@@ -61,8 +62,11 @@ export default function AppIncidentDetailPage({
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([incidentService.get(id), evidenceService.listForIncident(id)]).then(
-      ([caseRecord, files]) => {
+    const handle = window.setTimeout(() => {
+      void Promise.all([
+        incidentService.get(id),
+        evidenceService.listForIncident(id),
+      ]).then(([caseRecord, files]) => {
         if (cancelled) return;
         const customer = isCustomerWorkspaceClient();
         const localCase = customer
@@ -78,10 +82,11 @@ export default function AppIncidentDetailPage({
           byId.set(file.id, file);
         }
         setEvidence([...byId.values()]);
-      },
-    );
+      });
+    }, 0);
     return () => {
       cancelled = true;
+      window.clearTimeout(handle);
     };
   }, [id]);
 
@@ -278,10 +283,16 @@ export default function AppIncidentDetailPage({
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
         <h2 className="mb-3 font-semibold">Process turnaround</h2>
         <p className="mb-3 text-xs text-tl-ink-muted">
-          Reported → resource deployed → investigated → resolved → closed.
-          Lag vs client targets feeds trust dashboards.
+          Reported → deploy → investigate → resolve → verify → close. Advance
+          stages or verify &amp; close when resolved; stamps persist in this
+          browser (demo/org).
         </p>
         <ProcessStageTimeline incident={caseRecord} />
+        <ProcessStageActions
+          incident={caseRecord}
+          onUpdated={setIncident}
+          onToast={(message, kind) => pushToast(message, kind ?? "success")}
+        />
         <p className="mt-3 text-xs text-tl-ink-muted">
           Reporter:{" "}
           <span className="font-medium text-tl-ink">

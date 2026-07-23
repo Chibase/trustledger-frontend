@@ -92,7 +92,7 @@ export const STEP4_DESK_CHECKLIST: string[] = [
 export const STEP5_DESK_CHECKLIST: string[] = [
   "Packet 24c Done (demo): /app/engagements + Capture apply → Engagement",
   "Packet 24d Done (demo): /app/commitments board + promote from engagement",
-  "Packet 24e: Grievance lifecycle (verify/close) on Cloud incidents",
+  "Packet 24e Done (demo): case desk Advance / Verify & close lifecycle stamps",
   "Packet 24g: ESG / intelligence indicators + AI briefs (suggest → apply → save)",
   "Keep demo path separate; no demo INC-* in customer live workspaces",
   "When V002 depth is market-honest, reply: Step 5 complete → GO LIVE criteria",

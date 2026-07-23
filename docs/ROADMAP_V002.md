@@ -2,7 +2,7 @@
 
 **North star:** TEDS Volume 1 MVP domains that close the market gap.  
 **Policy:** Soft launch may wait until V002 core is credible (ADR-023).  
-**Active packet:** **24e Stronger grievance** (after 24c–24d demo). OD-5 / Step 5. See `docs/OPERATIONAL_DELIVERY.md` / ADR-032.
+**Active packet:** **24g Intelligence / ESG** (after 24c–24e demo). OD-5 / Step 5. See `docs/OPERATIONAL_DELIVERY.md` / ADR-032.
 
 ## Priority order (do not reshuffle without reason)
 
@@ -26,7 +26,7 @@ Geo first unlocks your existing location + socio-economic datasets as a **sellin
 | **24b** | Stakeholders | List/detail/create (mock→live) | `SRM Stakeholder` + org link | **CRM list+detail seeded** |
 | **24c** | Engagements | Capture hub (minutes/attendance/social/report) + AI brief | Extend meeting notes → Engagement DocType | **Done (demo; Cloud DocType next)** |
 | **24d** | Commitments | Register + status board | Commitment DocType + link to stakeholder/project | **Done (demo; Cloud DocType next)** |
-| **24e** | Stronger grievance | Status machine UI + verify/close | Incident workflow states on Cloud | +2 wks |
+| **24e** | Stronger grievance | Status machine UI + verify/close | Incident workflow states on Cloud | **Done (demo; Cloud stamps next)** |
 | **24f** | Reports | Activity + Reports dashboards; monthly / executive / board packs; Owner desk grants | Pack access + evidence writer | **Active** |
 | **24g** | Intelligence / ESG | Indicator cards + AI briefs on live indicators | Indicator store + Grok briefs | +2–3 wks |
 
