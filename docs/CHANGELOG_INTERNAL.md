@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-23 — Platform Strategic Brief (living)
+
+- Added `docs/PLATFORM_STRATEGIC_BRIEF.md`: achievements journey, front/back architecture, keep/improve/cut inventory, plan packaging matrix, public agent scripts, evaluation cadence, future upgrades
+- Pointed `AGENTS.md` + `VERSIONING.md` + BUILD_PLAN + PUBLIC_LAUNCH at the brief
+
 ## 2026-07-23 — ADR-033: retire sample demo; Cloud SI north star
 
 - Public `/demo` → `/product` (onboarding + feature purpose); no guest `tl-mode=demo` workspace
