@@ -8,6 +8,11 @@ type ShellSignOutProps = {
   isGuest?: boolean;
 };
 
+function clearClientSessionCookies() {
+  document.cookie = "session-role=; path=/; max-age=0; samesite=lax";
+  document.cookie = "tl-mode=; path=/; max-age=0; samesite=lax";
+}
+
 export function ShellSignOut({
   variant = "light",
   isGuest = false,
@@ -18,8 +23,14 @@ export function ShellSignOut({
   async function handleSignOut() {
     setPending(true);
     try {
-      await fetch("/auth/logout", { method: "POST" });
-      router.push(isGuest ? "/" : "/demo");
+      // Clear demo/trial session and live Frappe session so the next visit
+      // can pick a different account — never bounce straight into /demo.
+      await Promise.allSettled([
+        fetch("/auth/logout", { method: "POST" }),
+        fetch("/auth/live/logout", { method: "POST" }),
+      ]);
+      clearClientSessionCookies();
+      router.push("/login?signedOut=1");
       router.refresh();
     } finally {
       setPending(false);

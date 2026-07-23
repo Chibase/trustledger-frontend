@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-23 — Sign-out → account chooser
+
+- Sign out / leave trial clears demo + live sessions and lands on `/login?signedOut=1` (no auto-demo)
+- `/login` chooser: live again / different account, trial, demo; quick demo role collapsed
+- Support session repair redirects to `/login?repaired=1`
+
 ## 2026-07-23 — OD-4: Day-14 charge cron + entitlement gate
 
 - Customer billing fields: `custom_bill_at`, `custom_authorization_code`, `custom_plan_amount_cents`
