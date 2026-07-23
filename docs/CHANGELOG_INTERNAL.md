@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-23 — Packet 24d: Commitments status board (demo)
+
+- `Commitment` type + mocks from engagement action items; `commitmentService`
+- `/app/commitments` board + list + detail (status updates); nav + Project/demo capability
+- Engagement detail: **Promote to commitment** on action items
+- Cloud Commitment DocType still follow-up
+
 ## 2026-07-23 — Packet 24c: Engagements module (demo)
 
 - `Engagement` type + mocks; `engagementService` (seed + localStorage; live list reserved)

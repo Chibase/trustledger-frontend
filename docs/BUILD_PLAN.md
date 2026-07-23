@@ -154,7 +154,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24a** | Geo foundation | SA hierarchy types/mock, `/app/geo`, place fields, ingest hook | **Done (ZA MDB pack)** |
 | **24b** | Stakeholders registry | List/detail/create; Frappe DocType contract | **CRM seeded (list+detail)** |
 | **24c** | Engagements | Meetings / consultations beyond note stubs | **Done (demo module)** |
-| 24d | Commitments | Promise lifecycle board | Planned |
+| **24d** | Commitments | Promise lifecycle board | **Done (demo board)** |
 | 24e | Stronger grievance | Fuller incident workflow on Frappe | Planned |
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** |
 | 24g | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | Planned |

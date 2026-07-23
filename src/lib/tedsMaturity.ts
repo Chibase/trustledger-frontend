@@ -143,14 +143,16 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     id: "commitments",
     tedsName: "Commitment Management",
     tedsChapter: "TEDS Ch.9 Domain 6",
-    status: "not_started",
-    score: 0,
-    availableNow: "Not in product UI yet.",
+    status: "partial",
+    score: 50,
+    availableNow:
+      "Commitments status board + detail; promote engagement action items; seed from 24c meetings.",
     stillNeeded: [
-      "Commitment register (owner, deadline, evidence, status)",
-      "Board on dashboard KPIs",
-      "Link to stakeholders / engagements / projects",
+      "Evidence file attach on Cloud",
+      "Owner assignment from seats/CRM",
+      "Commitment DocType on Frappe",
     ],
+    href: "/app/commitments",
   },
   {
     id: "reporting",
