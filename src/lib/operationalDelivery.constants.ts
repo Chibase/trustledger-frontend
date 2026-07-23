@@ -93,7 +93,7 @@ export const STEP5_DESK_CHECKLIST: string[] = [
   "Packet 24c Done (demo): /app/engagements + Capture apply → Engagement",
   "Packet 24d Done (demo): /app/commitments board + promote from engagement",
   "Packet 24e Done (demo): case desk Advance / Verify & close lifecycle stamps",
-  "Packet 24g: ESG / intelligence indicators + AI briefs (suggest → apply → save)",
+  "Packet 24g Done (demo): /app/intelligence indicators + AI brief suggest→apply→save",
+  "Optional: Cloud DocTypes + Stats SA ingest; then reply Step 5 complete → GO LIVE",
   "Keep demo path separate; no demo INC-* in customer live workspaces",
-  "When V002 depth is market-honest, reply: Step 5 complete → GO LIVE criteria",
 ];

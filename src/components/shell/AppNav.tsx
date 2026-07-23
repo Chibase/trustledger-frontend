@@ -24,7 +24,8 @@ export type NavItem = {
     | "stakeholders"
     | "capture"
     | "engagements"
-    | "commitments";
+    | "commitments"
+    | "intelligence";
 };
 
 const NAV: NavItem[] = [
@@ -53,12 +54,17 @@ const NAV: NavItem[] = [
     capability: "commitments",
   },
   {
+    href: "/app/intelligence",
+    label: "Intelligence",
+    icon: "intelligence",
+    capability: "esgIndicators",
+  },
+  {
     href: "/app/stakeholders",
     label: "Stakeholders",
     icon: "stakeholders",
     capability: "stakeholdersCrm",
-  },
-  {
+  },  {
     href: "/app/projects",
     label: "Projects",
     icon: "projects",
@@ -171,6 +177,13 @@ function NavIcon({ name }: { name: NavItem["icon"] }) {
         <svg {...common}>
           <path d="M5 5h14v14H5V5Z" />
           <path d="M8 12h8M8 8h5M8 16h6" />
+        </svg>
+      );
+    case "intelligence":
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 3v2M12 19v2M4.2 6.2l1.4 1.4M18.4 16.4l1.4 1.4M3 12h2M19 12h2M4.2 17.8l1.4-1.4M18.4 7.6l1.4-1.4" />
         </svg>
       );
   }

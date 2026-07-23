@@ -189,16 +189,15 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     tedsName: "Intelligence / ESG depth",
     tedsChapter: "TEDS Ch.9 Layer 3 + future",
     status: "partial",
-    score: 25,
+    score: 55,
     availableNow:
-      "AI assist (suggest→apply); ops executive KPIs; indicator slots on geo pack (empty until Stats SA).",
+      "/app/intelligence indicator cards + mock AI brief suggest→apply→save; geo pack indicator slots.",
     stillNeeded: [
-      "Socio-economic indicator ingest",
-      "Trust / ESG scorecards from operational data",
-      "Stronger AI briefs on live indicators",
+      "Stats SA / municipal indicator ingest into geo pack JSON",
+      "Live Grok briefs via srm-core (never from browser)",
       "Executive packs driven by CRM + geo + grievances",
     ],
-    href: "/ops/executive",
+    href: "/app/intelligence",
   },
   {
     id: "commercial",

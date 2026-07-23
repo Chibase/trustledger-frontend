@@ -51,6 +51,30 @@ export type ReportBriefSuggestion = {
   promptVersion: string;
 };
 
+/** Packet 24g — brief over socio-economic / ESG indicator cards. */
+export type IndicatorBriefSuggestion = {
+  title: string;
+  executiveSummary: string;
+  watchpoints: string[];
+  recommendedActions: string[];
+  indicatorKeys: string[];
+  confidence: number;
+  model: string;
+  promptVersion: string;
+};
+
+export type IndicatorBriefRequest = {
+  placeId: string;
+  placeName: string;
+  indicators: Array<{
+    key: string;
+    label: string;
+    value: number;
+    unit: string;
+    year?: number;
+  }>;
+};
+
 export type TriageRequest = {
   description: string;
   ward?: string;

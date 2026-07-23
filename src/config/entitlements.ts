@@ -25,6 +25,7 @@ export const PLAN_CAPABILITIES: Record<PlanId, CapabilityId[]> = {
     "stakeholdersCrm",
     "engagements",
     "commitments",
+    "esgIndicators",
     "deskGraphs",
     "supervisorQueue",
     "governanceReports",
