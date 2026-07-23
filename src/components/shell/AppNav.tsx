@@ -23,7 +23,8 @@ export type NavItem = {
     | "geo"
     | "stakeholders"
     | "capture"
-    | "engagements";
+    | "engagements"
+    | "commitments";
 };
 
 const NAV: NavItem[] = [
@@ -44,6 +45,12 @@ const NAV: NavItem[] = [
     label: "Engagements",
     icon: "engagements",
     capability: "engagements",
+  },
+  {
+    href: "/app/commitments",
+    label: "Commitments",
+    icon: "commitments",
+    capability: "commitments",
   },
   {
     href: "/app/stakeholders",
@@ -157,6 +164,13 @@ function NavIcon({ name }: { name: NavItem["icon"] }) {
         <svg {...common}>
           <path d="M5 6h14v4H5V6Zm0 8h9v4H5v-4Z" />
           <path d="M17 14h2v4h-2v-4Z" />
+        </svg>
+      );
+    case "commitments":
+      return (
+        <svg {...common}>
+          <path d="M5 5h14v14H5V5Z" />
+          <path d="M8 12h8M8 8h5M8 16h6" />
         </svg>
       );
   }

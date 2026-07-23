@@ -17,6 +17,7 @@ Envelope: standard Frappe `{ "message": <payload> }`
 | `getIncident` | `/api/method/srm_core.api.incidents.get_incident` | `{ name }` | `Incident \| null` |
 | `listNotes` | `/api/method/srm_core.api.engagements.list_meeting_notes` | `{ ward?, projectId? }` | `MeetingNote[]` (legacy) |
 | `listEngagements` | `/api/method/srm_core.api.engagements.list_engagements` | `{ ward?, projectId?, query? }` | `Engagement[]` |
+| `listCommitments` | `/api/method/srm_core.api.commitments.list_commitments` | `{ projectId?, engagementId?, query? }` | `Commitment[]` |
 | `listEvidence` | `/api/method/srm_core.api.incidents.list_evidence` | `{ incident }` | `EvidenceStub[]` |
 | `suggestTriage` | `/api/method/srm_core.api.ai.suggest_triage` | triage request | triage suggestion |
 | `suggestSentiment` | `/api/method/srm_core.api.ai.suggest_sentiment` | sentiment request | sentiment suggestion |
