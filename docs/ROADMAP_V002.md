@@ -2,7 +2,7 @@
 
 **North star:** TEDS Volume 1 MVP domains that close the market gap.  
 **Policy:** Soft launch may wait until V002 core is credible (ADR-023).  
-**Active packet:** **OD-4** — Day-14 billing cron + lift ADR-013. Steps 1–3 Done. See `docs/OPERATIONAL_DELIVERY.md` / ADR-032.
+**Active packet:** **OD-5 / Step 5** — V002 depth (24c–24g). Steps 1–4 Done (ADR-013 lifted). See `docs/OPERATIONAL_DELIVERY.md` / ADR-032.
 
 ## Priority order (do not reshuffle without reason)
 

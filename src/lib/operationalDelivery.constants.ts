@@ -47,7 +47,6 @@ export const OPERATIONAL_STEPS: Array<{
 
 /** Labels for gates that must pass before Step 1 smoke. */
 export const OPERATIONAL_STEP1_REQUIRED_LABELS = [
-  "PLATFORM_OPERATOR_ONLY on",
   "PLATFORM_OPERATOR_EMAILS set",
   "FRAPPE_OWNER_ISSUANCE=1",
   "Frappe API base + keys",
@@ -87,4 +86,14 @@ export const STEP4_DESK_CHECKLIST: string[] = [
   "Smoke: set a test Customer bill_at to past + authorization → Charge due now → status active or past_due",
   "When billing smoke is green: set PLATFORM_OPERATOR_ONLY=0, redeploy, buyer /login/live smoke",
   "Keep PLATFORM_OPERATOR_EMAILS for /ops",
+];
+
+/** Active Step 5 checklist — V002 depth after lockdown lift. */
+export const STEP5_DESK_CHECKLIST: string[] = [
+  "Packet 24c: Engagements capture hub → Cloud Engagement DocType when ready",
+  "Packet 24d: Commitments register + status board",
+  "Packet 24e: Grievance lifecycle (verify/close) on Cloud incidents",
+  "Packet 24g: ESG / intelligence indicators + AI briefs (suggest → apply → save)",
+  "Keep demo path separate; no demo INC-* in customer live workspaces",
+  "When V002 depth is market-honest, reply: Step 5 complete → GO LIVE criteria",
 ];
