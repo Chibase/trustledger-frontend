@@ -43,10 +43,16 @@ export async function GET() {
   const checks = [app, cloud];
   const ok = checks.every((c) => c.ok);
 
+  const deploySha =
+    process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+    process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+    null;
+
   return NextResponse.json(
     {
       ok,
       checkedAt: new Date().toISOString(),
+      deploySha,
       checks,
     },
     {

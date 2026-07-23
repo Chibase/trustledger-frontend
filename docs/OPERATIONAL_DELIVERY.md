@@ -14,7 +14,7 @@ Step 4  Billing scheduler + lift ADR-013 for buyers             DONE
    ↓
 Step 5  V002 depth (engagements → commitments → grievance → ESG) DONE (demo)
    ↓
-GO LIVE  Operational grade                                      ← ACTIVE
+GO LIVE  Operational grade                                      DONE when gates green
 ```
 
 ---
@@ -51,9 +51,15 @@ Follow-ups (non-blocking for GO LIVE ladder): Cloud Engagement/Commitment DocTyp
 
 ---
 
-## GO LIVE — operational grade **(ACTIVE)**
+## GO LIVE — operational grade **(gates → Done)**
 
 Ops ladder: https://trustledger-frontend-pi.vercel.app/ops/readiness
+
+`/ops/readiness` marks GO LIVE **Done** when:
+
+1. Steps 1–5 are complete (ladder flags)
+2. Required env gates pass (`PLATFORM_OPERATOR_EMAILS`, `FRAPPE_OWNER_ISSUANCE=1`, Frappe API keys)
+3. Buyer lockdown is lifted (`PLATFORM_OPERATOR_ONLY=0`)
 
 | Criterion | Required | Status |
 |-----------|----------|--------|
@@ -61,8 +67,8 @@ Ops ladder: https://trustledger-frontend-pi.vercel.app/ops/readiness
 | Customer data on Cloud, not browser-only | Yes | Met (TL DocTypes + migrate) |
 | Media on Cloud File | Yes | Met (upload BFF) |
 | Day-14 billing without babysitting | Yes | Met (cron + Finance panel) |
-| ADR-013 lifted for buyers | Yes | Met (`PLATFORM_OPERATOR_ONLY=0`) |
+| ADR-013 lifted for buyers | Yes | Met when `PLATFORM_OPERATOR_ONLY=0` |
 | Demo path still separate (`/demo`) | Yes | Keep separate |
 | No demo `INC-*` in customer live workspace | Yes | Smoke on buyer live |
 
-Walk the GO LIVE checklist on `/ops/readiness`, then treat TrustLedger as operational-grade for paying customers.
+If the ladder still shows GO LIVE blocked/active: open Environment gates on `/ops/readiness`, fix any **fail** row (most often lockdown still ON or `FRAPPE_OWNER_ISSUANCE` unset), Refresh. Deploy SHA is shown on the panel and on `GET /api/health`.

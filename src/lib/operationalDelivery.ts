@@ -145,6 +145,8 @@ export type OperationalReadinessPayload = {
   blockedReasons: string[];
   goLiveReady: boolean;
   deskChecklist: string[];
+  /** Short git SHA from the Vercel deployment (null outside Vercel). */
+  deploySha: string | null;
   docs: {
     path: string;
     frappeSoT: string;
@@ -169,16 +171,26 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     .filter((c) => c.required)
     .every((c) => c.pass);
 
-  const blockedReasons = gateChecks
-    .filter((c) => c.required && !c.pass)
-    .map((c) => `${c.label}: ${c.detail}`);
-
   /** Steps 1–5 complete — ladder advances to GO LIVE criteria. */
   const step1Complete = true;
   const step2Complete = true;
   const step3Complete = true;
   const step4Complete = true;
   const step5Complete = true;
+
+  const lockdownLifted = !isPlatformOperatorOnly();
+  const goLiveReady = step5Complete && step1EnvReady && lockdownLifted;
+
+  const blockedReasons = [
+    ...gateChecks
+      .filter((c) => c.required && !c.pass)
+      .map((c) => `${c.label}: ${c.detail}`),
+    ...(!lockdownLifted
+      ? [
+          "Buyer live lockdown lifted: ON — set PLATFORM_OPERATOR_ONLY=0 on Vercel, then redeploy",
+        ]
+      : []),
+  ];
 
   const activeStepId: OperationalStepId = !step1EnvReady
     ? "1"
@@ -215,7 +227,12 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
           ? "active"
           : "blocked";
     } else if (step.id === "go") {
-      status = step5Complete && step1EnvReady ? "active" : "blocked";
+      // Done when env + lockdown green; active while Step 5 done but a GO LIVE gate fails.
+      status = goLiveReady
+        ? "done"
+        : step5Complete && step1EnvReady
+          ? "active"
+          : "blocked";
     }
     return {
       id: step.id,
@@ -237,7 +254,11 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
       "Step 4 active — wire day-14 cron, smoke charge-due → entitlement, then lift PLATFORM_OPERATOR_ONLY=0.",
     "5":
       "Step 5 active — V002 depth: engagements → commitments → grievance → ESG (packets 24c–24g).",
-    go: "GO LIVE active — verify operational-grade criteria in docs/OPERATIONAL_DELIVERY.md.",
+    go: goLiveReady
+      ? "GO LIVE done — TrustLedger is operational-grade for paying customers. Keep /demo separate."
+      : !lockdownLifted
+        ? "GO LIVE waiting — set PLATFORM_OPERATOR_ONLY=0 on Vercel (buyer lockdown still ON)."
+        : "GO LIVE waiting — fix Environment gates below, then Refresh.",
   };
   const summary = summaryByStep[activeStepId];
 
@@ -251,8 +272,10 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
   };
   const deskChecklist = checklistByStep[activeStepId];
 
-  const lockdownLifted = !isPlatformOperatorOnly();
-  const goLiveReady = step5Complete && step1EnvReady && lockdownLifted;
+  const deploySha =
+    process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+    process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+    null;
 
   return {
     ok: true,
@@ -269,6 +292,7 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     blockedReasons,
     goLiveReady,
     deskChecklist,
+    deploySha,
     docs: {
       path: "/docs/OPERATIONAL_DELIVERY.md",
       frappeSoT: "/docs/FRAPPE_SOT.md",

@@ -29,6 +29,7 @@ export type ReadinessPayload = {
   blockedReasons: string[];
   goLiveReady: boolean;
   deskChecklist: string[];
+  deploySha?: string | null;
 };
 
 const STATUS_CLASS: Record<"done" | "active" | "blocked", string> = {
@@ -103,6 +104,7 @@ export function OperationalReadinessPanel({ initial }: Props) {
             <p className="mt-1 text-sm text-tl-ink-muted">{data.summary}</p>
             <p className="mt-1 text-xs text-tl-ink-muted">
               Checked {new Date(data.generatedAt).toLocaleString()}
+              {data.deploySha ? ` · deploy ${data.deploySha}` : null}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -114,8 +116,10 @@ export function OperationalReadinessPanel({ initial }: Props) {
               }`}
             >
               {data.goLiveReady
-                ? "Go-live gates green"
-                : "Not ready for public live login"}
+                ? "GO LIVE ready"
+                : data.blockedReasons.length > 0
+                  ? "GO LIVE blocked — fix gates"
+                  : "GO LIVE in progress"}
             </span>
             <button
               type="button"
@@ -181,11 +185,20 @@ export function OperationalReadinessPanel({ initial }: Props) {
           </ol>
           <p className="mt-4 text-sm text-tl-ink">
             {data.activeStepId === "go" ? (
-              <>
-                Steps 1–5 demo depth are Done. Walk the checklist, then treat
-                TrustLedger as operational-grade for paying customers. Keep{" "}
-                <code className="text-xs">/demo</code> separate.
-              </>
+              data.goLiveReady ? (
+                <>
+                  GO LIVE gates are green. Treat TrustLedger as operational-grade
+                  for paying customers. Keep{" "}
+                  <code className="text-xs">/demo</code> separate from live
+                  workspaces.
+                </>
+              ) : (
+                <>
+                  Steps 1–5 are Done. Clear any failed Environment gates (and
+                  buyer lockdown if still ON), then Refresh. Keep{" "}
+                  <code className="text-xs">/demo</code> separate.
+                </>
+              )
             ) : data.activeStepId === "5" ? (
               <>
                 When engagements → commitments → grievance → ESG are

@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-23 — GO LIVE ladder: Done when gates green
+
+- GO LIVE lane → **done** when `goLiveReady` (env + `PLATFORM_OPERATOR_ONLY=0`)
+- Lockdown-ON listed in `blockedReasons`; clearer Ops badge copy
+- `deploySha` on readiness panel + `GET /api/health` for Production smoke
+- Docs: do not re-set `PLATFORM_OPERATOR_ONLY=1` (re-blocks GO LIVE)
+
 ## 2026-07-23 — Step 5 Done → GO LIVE active on Ops ladder
 
 - `step5Complete=true`; Ops `/ops/readiness` advances to GO LIVE
