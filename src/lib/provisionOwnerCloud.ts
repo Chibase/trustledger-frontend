@@ -17,6 +17,7 @@ import {
   type FrappeOwnerUserDraft,
 } from "@/lib/frappeSoT";
 import { PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
+import { toFrappeDatetime } from "@/lib/productCloud";
 
 export function isFrappeAutoProvisionEnabled(): boolean {
   return (
@@ -34,6 +35,10 @@ export type ProvisionOwnerInput = {
   status?: FrappeCustomerDraft["entitlement_status"];
   ensureFields?: boolean;
   sendWelcomeEmail?: boolean;
+  /** OD-4 billing fields */
+  billAt?: string | null;
+  authorizationCode?: string | null;
+  planAmountCents?: number | null;
 };
 
 export type ProvisionOwnerCloudResult = {
@@ -143,6 +148,23 @@ export async function provisionOwnerOnCloud(
     );
     if (existingCustomer) {
       const hasUser = await userExists(base, headers, ownerEmail);
+      // Refresh billing fields when re-provisioning / Paystack retry
+      if (input.billAt || input.authorizationCode || input.planAmountCents) {
+        await fetch(
+          `${base}/api/resource/Customer/${encodeURIComponent(existingCustomer)}`,
+          {
+            method: "PUT",
+            headers,
+            body: JSON.stringify({
+              custom_bill_at: toFrappeDatetime(input.billAt || null),
+              custom_authorization_code: input.authorizationCode || undefined,
+              custom_plan_amount_cents: input.planAmountCents ?? undefined,
+              custom_entitlement_status: input.status || customer.entitlement_status,
+            }),
+            cache: "no-store",
+          },
+        ).catch(() => undefined);
+      }
       if (hasUser) {
         return {
           ok: true,
@@ -201,6 +223,9 @@ export async function provisionOwnerOnCloud(
         custom_entitlement_status: customer.entitlement_status,
         custom_tl_org_id: customer.tl_org_id,
         custom_owner_email: customer.owner_email,
+        custom_bill_at: toFrappeDatetime(input.billAt || null),
+        custom_authorization_code: input.authorizationCode || undefined,
+        custom_plan_amount_cents: input.planAmountCents ?? undefined,
       }),
       cache: "no-store",
     });

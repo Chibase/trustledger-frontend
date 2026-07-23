@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-23 — OD-4: Day-14 charge cron + entitlement gate
+
+- Customer billing fields: `custom_bill_at`, `custom_authorization_code`, `custom_plan_amount_cents`
+- `GET|POST /api/cron/charge-due` (+ `vercel.json` daily cron); Ops Finance dry-run/charge panel
+- Charge success → `active`; fail → `past_due`; live login blocks past_due/cancelled when not Ops
+- Step 3 Done; Step 4 active — human lifts `PLATFORM_OPERATOR_ONLY=0` after smoke
+
 ## 2026-07-22 — OD-3: Paystack auto-provision + org migrate
 
 - Shared `provisionOwnerOnCloud` (API-key, idempotent); Ops provision-owner uses it
