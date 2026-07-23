@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
 import {
   SUPPORT_CATEGORIES,
@@ -29,7 +29,6 @@ export function SupportDrawer({
   variant = "ink",
 }: SupportDrawerProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const { getToken } = useRecaptcha("support_ticket");
   const [open, setOpen] = useState(false);
   const [category, setCategory] =
@@ -64,13 +63,19 @@ export function SupportDrawer({
   async function repairSession() {
     setRepairing(true);
     try {
-      await fetch("/auth/logout", { method: "POST" });
-      await fetch("/auth/live/logout", { method: "POST" }).catch(() => null);
-      document.cookie = "session-role=; path=/; max-age=0; samesite=lax";
-      document.cookie = "tl-mode=; path=/; max-age=0; samesite=lax";
-      // Land on the account chooser — never auto-jump into demo.
-      router.push("/login?repaired=1");
-      router.refresh();
+      await Promise.allSettled([
+        fetch("/auth/logout", { method: "POST", credentials: "same-origin" }),
+        fetch("/auth/live/logout", {
+          method: "POST",
+          credentials: "same-origin",
+        }),
+      ]);
+      for (const name of ["session-role", "tl-mode", "tl-user-name", "tl-user-email"]) {
+        document.cookie = `${name}=; path=/; max-age=0`;
+        document.cookie = `${name}=; path=/; max-age=0; samesite=lax`;
+      }
+      // Hard nav + middleware signedOut/repaired bypass — avoid dashboard bounce.
+      window.location.assign("/login?repaired=1");
     } finally {
       setRepairing(false);
       setOpen(false);

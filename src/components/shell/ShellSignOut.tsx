@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type ShellSignOutProps = {
@@ -9,15 +8,18 @@ type ShellSignOutProps = {
 };
 
 function clearClientSessionCookies() {
-  document.cookie = "session-role=; path=/; max-age=0; samesite=lax";
-  document.cookie = "tl-mode=; path=/; max-age=0; samesite=lax";
+  // Clear with and without SameSite — browsers match on attributes.
+  const expired = "path=/; max-age=0";
+  for (const name of ["session-role", "tl-mode", "tl-user-name", "tl-user-email"]) {
+    document.cookie = `${name}=; ${expired}`;
+    document.cookie = `${name}=; ${expired}; samesite=lax`;
+  }
 }
 
 export function ShellSignOut({
   variant = "light",
   isGuest = false,
 }: ShellSignOutProps) {
-  const router = useRouter();
   const [pending, setPending] = useState(false);
 
   async function handleSignOut() {
@@ -26,14 +28,19 @@ export function ShellSignOut({
       // Clear demo/trial session and live Frappe session so the next visit
       // can pick a different account — never bounce straight into /demo.
       await Promise.allSettled([
-        fetch("/auth/logout", { method: "POST" }),
-        fetch("/auth/live/logout", { method: "POST" }),
+        fetch("/auth/logout", { method: "POST", credentials: "same-origin" }),
+        fetch("/auth/live/logout", {
+          method: "POST",
+          credentials: "same-origin",
+        }),
       ]);
       clearClientSessionCookies();
-      router.push("/login?signedOut=1");
-      router.refresh();
-    } finally {
-      setPending(false);
+      // Hard navigation avoids soft-nav races where middleware still sees
+      // session-role and 307s /login → /app/dashboard.
+      window.location.assign("/login?signedOut=1");
+    } catch {
+      clearClientSessionCookies();
+      window.location.assign("/login?signedOut=1");
     }
   }
 
