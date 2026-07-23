@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-23 — Step 4 complete → Step 5 active
+
+- Buyer `/login/live` smoke passed with `PLATFORM_OPERATOR_ONLY=0`
+- Ops readiness ladder: Steps 1–4 Done; active Step 5 (V002 depth)
+- Lockdown gate flipped to “lifted” (no longer blocks readiness after ADR-013 lift)
+
 ## 2026-07-23 — Sign-out: stop middleware dashboard bounce
 
 - `/login?signedOut=1` and `?repaired=1` bypass the signed-in redirect and clear session cookies

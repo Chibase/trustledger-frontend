@@ -33,7 +33,7 @@ PLATFORM_OPERATOR_LOCK_PUBLIC=1
 
 Add alternate operator emails as a comma-separated list if needed.
 
-## How to lift lockdown (Step 4 — only after charge-due smoke)
+## How to lift lockdown (Step 4 — **DONE 2026-07-23**)
 
 1. Confirm Ops Finance **Dry-run due list** / forced charge smoke works.
 2. Set `PLATFORM_OPERATOR_ONLY=0` (or remove it) on Vercel.
@@ -41,14 +41,14 @@ Add alternate operator emails as a comma-separated list if needed.
 4. Keep `PLATFORM_OPERATOR_EMAILS` for `/ops` (always allowlist-gated).
 5. Smoke buyer `/login/live`; `past_due` / `cancelled` Customers stay blocked by entitlement gate.
 
-**Soft public launch (ADR-027):** Do **not** lift this yet for buyers. They use `/pay` + `/trial` with live Paystack while you keep operator-only live Frappe. See `docs/PUBLIC_LAUNCH.md`.
+**Status:** Buyer live login is open. Do **not** clear the Ops allowlist. Soft-launch marketing may continue; GO LIVE still waits on Step 5 + criteria in `docs/OPERATIONAL_DELIVERY.md`.
 
 ## T5 / OD-1 Owner issuance
 
 1. Read `docs/FRAPPE_SOT.md` and `docs/OPERATIONAL_DELIVERY.md` (Step 1).
 2. Set `FRAPPE_OWNER_ISSUANCE=1` (operator tools only).
 3. Track gates on `/ops/readiness`; `/ops/accounts` → Dry-run then Create on Cloud after Desk custom fields exist.
-4. Lift `PLATFORM_OPERATOR_ONLY` only at delivery Step 4 after Steps 1–3 smoke.
+4. Lift `PLATFORM_OPERATOR_ONLY` only at delivery Step 4 after Steps 1–3 smoke *(Done)*.
 
 ## UI signal
 

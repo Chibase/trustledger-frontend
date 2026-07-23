@@ -1,23 +1,23 @@
 # Operational delivery — real platform for customers
 
 **Policy:** Delay public rollout until customers get durable Cloud-backed operations (not browser-only tenancy).  
-**Locked:** ADR-032. Soft-launch marketing may continue for `/demo` / leads; **paid production** waits for Steps 1–4 green.
+**Locked:** ADR-032. Soft-launch marketing may continue for `/demo` / leads; **paid production** waits for Steps 1–4 green *(Steps 1–4 Done — 2026-07-23)*.
 
 ```text
 Step 1  Frappe SoT ready (Customer + Plan Owner User smoke)
    ↓
 Step 2  Product DocTypes + Cloud File (Project / Incident / Evidence / Media)
-   ↓
+    10|   ↓
 Step 3  Sync browser org → Cloud + auto-provision on Paystack
    ↓
 Step 4  Billing scheduler + suspend/reopen + lift ADR-013 for buyers
    ↓
-Step 5  V002 depth (engagements → commitments → grievance → ESG)
+Step 5  V002 depth (engagements → commitments → grievance → ESG)  ← ACTIVE
    ↓
 GO LIVE  Operational grade
 ```
 
----
+    20|---
 
 ## Step 1 — Frappe SoT ready **(DONE — 2026-07-22)**
 
@@ -27,7 +27,7 @@ Customer + Owner User smoke passed (`nonunu@trustledger.co.za`). Lockdown remain
 
 ## Step 2 — Product DocTypes + Cloud File **(DONE — 2026-07-22)**
 
-DocTypes + Project/Incident/Evidence smoke under `Step1 Smoke Test` passed.
+    30|DocTypes + Project/Incident/Evidence smoke under `Step1 Smoke Test` passed.
 
 ---
 
@@ -37,46 +37,26 @@ Paystack creates Customer+User without Ops click; lockdown still ON.
 
 ---
 
-## Step 4 — Billing ops + lift lockdown **(ACTIVE)**
+    40|## Step 4 — Billing ops + lift lockdown **(DONE — 2026-07-23)**
 
-**Goal:** Day-14 charges run on a schedule; `past_due` blocks buyer live login; then lift ADR-013.
-
-### Split: agent vs you
-
-| Who | What |
-|-----|------|
-| **Agent (this packet)** | `vercel.json` cron → `/api/cron/charge-due`; entitlement fields + login gate; Ops Finance charge-due panel |
-| **You** | `CRON_SECRET`, Desk fields refresh, charge smoke, then `PLATFORM_OPERATOR_ONLY=0` |
-
-### Your actions
-
-1. Merge OD-4 PR → wait for Vercel.
-2. Ops → Accounts → **Create Desk fields** (adds `custom_bill_at`, `custom_authorization_code`, `custom_plan_amount_cents`).
-3. Vercel:
-   ```bash
-   CRON_SECRET=<long-random-string>
-   # keep PLATFORM_OPERATOR_ONLY=1 until charge smoke passes
-   ```
-4. Ops → Finance → **Dry-run due list** (empty is OK until a trial is due).
-5. Smoke (optional forced): on a test Customer set `custom_bill_at` to past + valid authorization → **Charge due now** → status `active` or `past_due`.
-6. When green, set `PLATFORM_OPERATOR_ONLY=0`, redeploy, smoke buyer `/login/live`. Keep `PLATFORM_OPERATOR_EMAILS` for `/ops`.
+Day-14 charge cron + entitlement gate live. `PLATFORM_OPERATOR_ONLY=0`; buyer `/login/live` smoke passed. Ops stay allowlist via `PLATFORM_OPERATOR_EMAILS`.
 
 ### Done when
 
-- [ ] Cron route + CRON_SECRET live  
-- [ ] Charge-due updates entitlement  
-- [ ] Buyer live login works with lockdown off (or past_due blocks)  
-- [ ] Ops still allowlist-only  
-
-**Then tell the agent: “Step 4 complete”** → Step 5 (V002 depth) or GO LIVE criteria.
+- [x] Cron route + CRON_SECRET live
+- [x] Charge-due updates entitlement
+- [x] Buyer live login works with lockdown off (or past_due blocks)
+- [x] Ops still allowlist-only
 
 ---
 
-## Step 5 — V002 operational depth
+## Step 5 — V002 operational depth **(ACTIVE)**
 
 **Goal:** Market-honest stakeholder intelligence (ADR-023).
 
 - 24c Engagements · 24d Commitments · 24e Grievance lifecycle · 24g ESG indicators  
+
+**Then tell the agent: “Step 5 complete”** → GO LIVE criteria.
 
 ---
 
