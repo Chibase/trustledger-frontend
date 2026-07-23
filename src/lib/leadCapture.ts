@@ -35,13 +35,39 @@ export function frappeBase(): string {
   ).replace(/\/$/, "");
 }
 
-/** Trim + strip accidental quotes/whitespace/invisible chars from Vercel paste. */
+/** Trim + strip accidental quotes/whitespace/invisible/non-ASCII paste junk from Vercel env. */
 export function cleanSecret(raw: string | undefined): string {
   return (raw || "")
     .replace(/^\uFEFF/, "")
     .trim()
     .replace(/^["']|["']$/g, "")
-    .replace(/[\s\u200B-\u200D\uFEFF]/g, "");
+    // Zero-width + common Word/Docs paste junk (ellipsis U+2026 often from truncated keys).
+    .replace(/[\s\u200B-\u200D\uFEFF\u2026\u00A0\u2018\u2019\u201C\u201D]/g, "")
+    // HTTP Authorization headers must be ByteString (code points ≤ 255).
+    .replace(/[^\x00-\xFF]/g, "");
+}
+
+/** True when a string would throw undici ByteString conversion in Headers. */
+export function hasNonByteStringChars(value: string): boolean {
+  for (let i = 0; i < value.length; i += 1) {
+    if (value.charCodeAt(i) > 255) return true;
+  }
+  return false;
+}
+
+/** Cookie values must be Latin-1/ASCII-safe for Next/undici cookie setters. */
+export function cookieSafeValue(value: string, maxLen = 120): string {
+  return value
+    .replace(/[;\r\n]/g, "")
+    .replace(/[^\x20-\x7E]/g, "")
+    .slice(0, maxLen);
+}
+
+/** Map undici ByteString failures to an actionable ops message. */
+export function byteStringHeaderErrorMessage(err: unknown): string | null {
+  const message = err instanceof Error ? err.message : String(err || "");
+  if (!/ByteString/i.test(message)) return null;
+  return "A server secret used for sign-in contains an invalid character (often a pasted … ellipsis from a truncated API key). In Vercel, re-copy FRAPPE_API_KEY, FRAPPE_API_SECRET, and RESEND_API_KEY from the provider dashboards — do not paste truncated keys — then redeploy.";
 }
 
 export function frappeKeyPair(): { key: string; secret: string } | null {

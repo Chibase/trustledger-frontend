@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-23 — Fix live login ByteString (ellipsis in secrets/password)
+
+- `cleanSecret` strips Unicode ellipsis / non-ByteString chars from Frappe + Resend keys
+- Live login sanitises pasted credentials; clearer error if Vercel env keys were truncated with `…`
+- Cookie name/email values forced ASCII-safe (OTP verify + login)
+
 ## 2026-07-23 — ADR-033: retire sample demo; Cloud SI north star
 
 - Public `/demo` → `/product` (onboarding + feature purpose); no guest `tl-mode=demo` workspace

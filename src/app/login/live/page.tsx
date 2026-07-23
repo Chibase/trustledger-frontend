@@ -73,11 +73,27 @@ function LiveLoginForm() {
     setResetMessage(null);
     setInfo(null);
     try {
+      // Drop paste junk (… from truncated copies, zero-width chars).
+      const cleanUsr = usr
+        .replace(/^\uFEFF/, "")
+        .trim()
+        .replace(/[\u200B-\u200D\uFEFF\u2026]/g, "");
+      const cleanPwd = pwd
+        .replace(/^\uFEFF/, "")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .replace(/\u2026/g, "");
+      if (pwd.includes("\u2026")) {
+        setError(
+          "Password looked truncated (contained …). Re-type the full password from TrustLedger Cloud — do not paste a shortened copy.",
+        );
+        setPending(false);
+        return;
+      }
       const response = await fetch("/auth/live/login", {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ usr, pwd }),
+        body: JSON.stringify({ usr: cleanUsr, pwd: cleanPwd }),
       });
       const payload = (await response.json()) as {
         error?: string;
