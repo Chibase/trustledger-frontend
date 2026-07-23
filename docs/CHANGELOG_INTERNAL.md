@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-23 — Access email verification (live OTP + trial gate)
+
+- Live `/login/live`: password then 6-digit email OTP (Resend) before session cookies
+- Trial `/pay/success`: no auto workspace — verify via emailed `/pay/activate` link
+- `ACCESS_EMAIL_VERIFICATION` (auto-on in Production when Resend set); readiness + health gates
+
 ## 2026-07-23 — First-days hardening: reCAPTCHA + launch gates
 
 - Production forms: tighter rate limit without captcha keys; verify whenever keys set

@@ -6,11 +6,6 @@ import { useSearchParams } from "next/navigation";
 import { isPlanId } from "@/config/plans";
 import { formatZarFromCents } from "@/lib/paystackPlans";
 import {
-  clearTrialWorkspaceData,
-  startTrialCookies,
-} from "@/lib/trial";
-import { ensureTrialSeedProject } from "@/lib/trialStore";
-import {
   readTrialBilling,
   setMustChangePassword,
   writeTrialBilling,
@@ -158,14 +153,8 @@ function SuccessBody() {
     if (!state.email || !state.planId || !isPlanId(state.planId)) return;
     if (activated) return;
 
-    clearTrialWorkspaceData();
-    startTrialCookies({
-      email: state.email,
-      name: state.name || state.email.split("@")[0] || "Trial user",
-      planId: state.planId,
-      organization: state.organization || undefined,
-    });
-    ensureTrialSeedProject();
+    // Do not open the workspace until the buyer verifies via /pay/activate
+    // (email deep-link). Still stash token + billing draft for activation.
     if (state.organization) {
       window.localStorage.setItem("tl-trial-org", state.organization);
     }
@@ -189,7 +178,6 @@ function SuccessBody() {
     }
     if (state.activationToken) {
       writeStoredActivationToken(state.activationToken);
-      // Pull authorization code into local billing state for opt-out deactivate.
       void fetch(
         `/api/trial/activate?token=${encodeURIComponent(state.activationToken)}`,
       )
@@ -225,12 +213,12 @@ function SuccessBody() {
       ) : state.ok && isTrial ? (
         <>
           <h1 className="mt-1 font-display text-3xl font-semibold">
-            Thank you — your trial is active
+            Verify your email to open TrustLedger
           </h1>
           <p className="mt-2 text-sm text-tl-ink-muted">
             Your banking details were verified and saved for the charge at the
-            end of your 14-day trial. Cancel anytime before then to stop
-            billing.
+            end of your 14-day trial. Open the verification link we emailed to
+            start your workspace (proves you control this inbox).
           </p>
 
           <dl className="mt-6 space-y-2 rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
@@ -277,8 +265,8 @@ function SuccessBody() {
             <p className="font-medium text-tl-ink">Your login details</p>
             <p className="mt-1 text-tl-ink-muted">
               {state.emailSent
-                ? "We also emailed these to you. Change the temporary password when you first sign in."
-                : "Save these now. Change the temporary password when you first sign in."}
+                ? "We emailed a verify link plus these credentials. Change the temporary password after you open the workspace."
+                : "Email could not be sent — use the verify button below, then change the temporary password after you open the workspace."}
             </p>
             <dl className="mt-3 space-y-2">
               <div>
@@ -298,12 +286,16 @@ function SuccessBody() {
           </div>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/app/dashboard"
-              className="inline-flex justify-center rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink"
-            >
-              Enter workspace
-            </Link>
+            {state.activationToken ? (
+              <Link
+                href={`/pay/activate?token=${encodeURIComponent(state.activationToken)}`}
+                className="inline-flex justify-center rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink"
+              >
+                {state.emailSent
+                  ? "I verified — open workspace"
+                  : "Verify & open workspace"}
+              </Link>
+            ) : null}
             <Link
               href="/login/trial"
               className="inline-flex justify-center rounded-md border border-tl-line px-4 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-surface"
@@ -312,8 +304,7 @@ function SuccessBody() {
             </Link>
           </div>
         </>
-      ) : state.ok ? (
-        <>
+      ) : state.ok ? (        <>
           <h1 className="mt-1 font-display text-3xl font-semibold">
             Thank you — payment received
           </h1>
