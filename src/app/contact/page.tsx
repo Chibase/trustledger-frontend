@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
+import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/forms/FormGuards";
 import { isWorkEmail } from "@/data/assessment";
 
 export default function ContactPage() {
@@ -163,6 +163,7 @@ export default function ContactPage() {
             />
           </div>
           {error ? <p className="text-sm text-tl-danger">{error}</p> : null}
+          <RecaptchaLegalNote />
           <button
             type="submit"
             disabled={submitting}

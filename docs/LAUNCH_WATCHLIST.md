@@ -21,21 +21,32 @@ Ops ladder: `/ops/readiness` · Health: `GET /api/health` (`deploySha`)
 
 ## Instant mitigations (keep this open)
 
-| Symptom | Likely trigger | Instant fix |
-|---------|----------------|-------------|
-| Buyers cannot `/login/live` | `PLATFORM_OPERATOR_ONLY=1` | Set `0`, redeploy. **Keep** `PLATFORM_OPERATOR_EMAILS` |
-| Ops locked out | Empty / wrong allowlist | Set `PLATFORM_OPERATOR_EMAILS`, redeploy |
-| Paystack paid but no Cloud User | `FRAPPE_AUTO_PROVISION` or `FRAPPE_OWNER_ISSUANCE` off / missing API keys | Set both `=1` + keys; Ops → Accounts → Create on Cloud |
-| Login “could not map roles” | Frappe User missing roles | Desk: assign roles; re-login |
-| Login entitlement blocked | `custom_entitlement_status` = `past_due` / `cancelled` | Desk → `trial`/`active`; Ops Finance charge-due |
-| Welcome email missing | `RESEND_API_KEY` unset | Buyer uses `/pay/success` credentials; set Resend |
-| Day-14 not charging | `CRON_SECRET` missing / cron auth fail | Set secret; Ops Finance **Charge due now** |
-| Demo `INC-*` in customer desk | Old invite as `demo` / live empty→mock (fixed in launch-hardening) | Sign out; clear site data; `/login/live`; redeploy hardening |
-| Bad deploy / env bake | Wrong `NEXT_PUBLIC_*` | Vercel → previous Production deployment |
-| Cloud / Frappe down | Site or API key issue | `/api/health`; Desk ping; keep `NEXT_PUBLIC_DATA_MODE=demo` for public until live lists proven |
-| Spam on contact/assessment | Form flood | Enable reCAPTCHA keys; rate limit is weak on serverless |
+| Symptom | Likely trigger | Instant fix | Code status |
+|---------|----------------|-------------|-------------|
+| Buyers cannot `/login/live` | `PLATFORM_OPERATOR_ONLY=1` | Set `0`, redeploy. **Keep** `PLATFORM_OPERATOR_EMAILS` | Gate on `/ops/readiness` + `/api/health` `launch.lockdownLifted` |
+| Ops locked out | Empty / wrong allowlist | Set `PLATFORM_OPERATOR_EMAILS`, redeploy | Fail closed |
+| Paystack paid but no Cloud User | `FRAPPE_AUTO_PROVISION` / `FRAPPE_OWNER_ISSUANCE` / API keys | Both flags `=1` + keys; Ops Create on Cloud | Hardening gate `autoProvision` |
+| Login entitlement blocked | `past_due` / `cancelled` | Desk → `trial`/`active`; Ops charge-due | Entitlement gate live |
+| Welcome email missing | `RESEND_API_KEY` unset | `/pay/success` credentials; set Resend | Hardening gate `resend` |
+| Day-14 not charging | `CRON_SECRET` missing | Set secret; Ops **Charge due now** | Hardening gate `cronSecret` |
+| Demo `INC-*` in customer desk | Empty live→mock / invite `demo` | Fixed (launch-hardening) | Shipped |
+| Bad deploy / env bake | Wrong `NEXT_PUBLIC_*` | Vercel rollback | `deploySha` on health |
+| **Spam on forms** | reCAPTCHA keys unset | **Set keys + `FORM_REQUIRE_RECAPTCHA=1`**, redeploy | Wired; **keys = you** |
 
 **Do not** set `PLATFORM_OPERATOR_ONLY=1` again after GO LIVE — it re-blocks buyers and the readiness ladder.
+
+### Turn on reCAPTCHA now (operator)
+
+```bash
+# Vercel Production env — then Redeploy
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=<Google reCAPTCHA v3 site key>
+RECAPTCHA_SECRET_KEY=<Google reCAPTCHA v3 secret>
+FORM_REQUIRE_RECAPTCHA=1
+RECAPTCHA_MIN_SCORE=0.5
+```
+
+Domains on the Google key: `trustledger-frontend-pi.vercel.app`, `trustledger.co.za`.  
+Until keys are set: honeypot + work-email + **tighter** rate limit (3/15 min) still run.
 
 ---
 
@@ -96,6 +107,9 @@ NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_live_…
 TRIAL_TOKEN_SECRET=…   # dedicated, not Paystack secret
 CRON_SECRET=…
 RESEND_API_KEY=…       # strongly recommended
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=…
+RECAPTCHA_SECRET_KEY=…
+FORM_REQUIRE_RECAPTCHA=1
 NEXT_PUBLIC_SITE_URL=https://trustledger-frontend-pi.vercel.app
 NEXT_PUBLIC_DATA_MODE=demo
 NEXT_PUBLIC_AI_MOCK=true

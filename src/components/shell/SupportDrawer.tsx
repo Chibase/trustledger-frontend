@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
+import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/forms/FormGuards";
 import {
   SUPPORT_CATEGORIES,
   type SupportCategoryCode,
@@ -306,6 +306,7 @@ export function SupportDrawer({
                         {error}
                       </p>
                     ) : null}
+                    <RecaptchaLegalNote />
                     <button
                       type="submit"
                       disabled={submitting}

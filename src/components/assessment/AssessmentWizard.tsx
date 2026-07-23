@@ -14,7 +14,7 @@ import {
   scoreAssessment,
 } from "@/data/assessment";
 import { ExperienceFeedbackForm } from "@/components/forms/ExperienceFeedbackForm";
-import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
+import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/forms/FormGuards";
 import { captureUtmFromSearchParams, readUtm } from "@/lib/utm";
 import type {
   AssessmentAnswers,
@@ -489,6 +489,8 @@ export function AssessmentWizard() {
               </a>
               .
             </p>
+
+            <RecaptchaLegalNote />
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <button

@@ -1,4 +1,10 @@
 import { NextResponse } from "next/server";
+import { recaptchaConfigured, recaptchaRequired } from "@/lib/formGuard";
+import { isFrappeAutoProvisionEnabled } from "@/lib/provisionOwnerCloud";
+import { transactionalEmailConfigured } from "@/lib/transactionalEmail";
+import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
+import { isPlatformOperatorOnly } from "@/lib/platformOperator";
+import { paystackConfigured } from "@/lib/paystackServer";
 
 const FRAPPE_SITE =
   process.env.FRAPPE_BASE_URL ||
@@ -48,12 +54,24 @@ export async function GET() {
     process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
     null;
 
+  const launch = {
+    lockdownLifted: !isPlatformOperatorOnly(),
+    frappeOwnerIssuance: isFrappeOwnerIssuanceEnabled(),
+    frappeAutoProvision: isFrappeAutoProvisionEnabled(),
+    paystack: paystackConfigured(),
+    cronSecret: Boolean(process.env.CRON_SECRET?.trim()),
+    resend: transactionalEmailConfigured(),
+    recaptcha: recaptchaConfigured(),
+    recaptchaFailClosed: recaptchaRequired(),
+  };
+
   return NextResponse.json(
     {
       ok,
       checkedAt: new Date().toISOString(),
       deploySha,
       checks,
+      launch,
     },
     {
       status: 200,

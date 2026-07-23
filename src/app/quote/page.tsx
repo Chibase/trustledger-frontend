@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
+import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/forms/FormGuards";
 import { isWorkEmail } from "@/data/assessment";
 import { captureUtmFromSearchParams, formatUtmSummary, readUtm } from "@/lib/utm";
 import type { PaystackPlanId } from "@/lib/paystackPlans";
@@ -257,6 +257,8 @@ function QuoteForm() {
             {error}
           </p>
         ) : null}
+
+        <RecaptchaLegalNote />
 
         <button
           type="submit"

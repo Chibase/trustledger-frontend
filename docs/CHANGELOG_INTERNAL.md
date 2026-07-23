@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-23 — First-days hardening: reCAPTCHA + launch gates
+
+- Production forms: tighter rate limit without captcha keys; verify whenever keys set
+- `FORM_REQUIRE_RECAPTCHA=1` fail-closed when keys missing; Google attribution on forms
+- Ops readiness + `/api/health` expose launch hardening (auto-provision, cron, Resend, reCAPTCHA)
+- Docs: LEAD_FORMS / LAUNCH_WATCHLIST — turn on reCAPTCHA env steps
+
 ## 2026-07-23 — Launch hardening: no demo INC-* in customer desks
 
 - Live incident/project lists: empty Cloud ≠ mock seed; customer/trial never fall back to demo data

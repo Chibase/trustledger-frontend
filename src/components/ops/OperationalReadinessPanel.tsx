@@ -30,6 +30,10 @@ export type ReadinessPayload = {
   goLiveReady: boolean;
   deskChecklist: string[];
   deploySha?: string | null;
+  launchHardening?: {
+    ready: boolean;
+    missing: string[];
+  };
 };
 
 const STATUS_CLASS: Record<"done" | "active" | "blocked", string> = {
@@ -136,6 +140,32 @@ export function OperationalReadinessPanel({ initial }: Props) {
               <li key={reason}>{reason}</li>
             ))}
           </ul>
+        ) : null}
+        {data.launchHardening ? (
+          <div
+            className={`mt-4 rounded-md border px-3 py-2 text-sm ${
+              data.launchHardening.ready
+                ? "border-tl-trust/40 bg-tl-trust/10 text-tl-trust-ink"
+                : "border-tl-amber/40 bg-tl-amber/10 text-tl-ink"
+            }`}
+          >
+            <p className="font-semibold">
+              {data.launchHardening.ready
+                ? "First-days hardening green"
+                : "First-days hardening — set remaining env"}
+            </p>
+            {!data.launchHardening.ready ? (
+              <ul className="mt-1 list-disc pl-5 text-xs">
+                {data.launchHardening.missing.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-1 text-xs">
+                Auto-provision, cron secret, Resend, and reCAPTCHA are configured.
+              </p>
+            )}
+          </div>
         ) : null}
       </section>
 
