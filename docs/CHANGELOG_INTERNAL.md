@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-23 — Packet 24g: Intelligence / ESG indicators (demo)
+
+- `/app/intelligence` — place picker, indicator KPI cards, AI brief suggest→apply→save
+- `mockIndicators` + geoService merge; local `tl-esg-briefs` store
+- Mock `generateIndicatorBrief` only (no LLM keys / no Cloud brief call)
+- Project/demo `esgIndicators` capability; V002 demo packets 24c–24g complete
+
 ## 2026-07-23 — Packet 24e: Grievance verify/close on case desk
 
 - Process stages add **Verified** between Resolved and Closed

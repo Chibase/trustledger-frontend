@@ -13,6 +13,8 @@ import type {
   DraftResponseRequest,
   DraftResponseSuggestion,
   IncidentTriageSuggestion,
+  IndicatorBriefRequest,
+  IndicatorBriefSuggestion,
   ReportBriefRequest,
   ReportBriefSuggestion,
   SentimentRequest,
@@ -161,6 +163,42 @@ If you have photos, meeting references, or additional details, please reply to t
 TrustLedger Community Desk`,
     tone: input.audience === "community" ? "empathetic" : "formal",
     language: input.language || "en",
+    model: MODEL,
+    promptVersion: PROMPT_VERSION,
+  };
+}
+
+function mockIndicatorBrief(
+  input: IndicatorBriefRequest,
+): IndicatorBriefSuggestion {
+  const rows = input.indicators;
+  const top = rows[0];
+  const highUnemployment = rows.find(
+    (r) => r.key.includes("unemployment") && r.value >= 30,
+  );
+  const water = rows.find((r) => r.key.includes("water"));
+  const watchpoints = [
+    top
+      ? `${top.label}: ${top.value}${top.unit}${top.year ? ` (${top.year})` : ""}`
+      : "Limited indicator coverage for this place",
+    highUnemployment
+      ? `Elevated unemployment (${highUnemployment.value}%) — labour / livelihood grievance risk`
+      : "Watch youth / employment indicators for early social risk",
+    water
+      ? `Service access: ${water.label} at ${water.value}${water.unit}`
+      : "Confirm utility access metrics against ward complaints",
+  ];
+  return {
+    title: `ESG intelligence brief — ${input.placeName}`,
+    executiveSummary: `Demo brief for ${input.placeName} using ${rows.length} socio-economic indicator(s). Figures are illustrative until Stats SA / municipal ingest replaces the seed pack. Use watchpoints below to prioritize engagement and grievance readiness — human apply required before saving.`,
+    watchpoints,
+    recommendedActions: [
+      "Cross-check open grievances in this place against service-access indicators",
+      "Schedule a community engagement where unemployment or NEET is elevated",
+      "Save this brief after review for board / ESG packs",
+    ],
+    indicatorKeys: rows.map((r) => r.key),
+    confidence: rows.length ? 0.72 : 0.4,
     model: MODEL,
     promptVersion: PROMPT_VERSION,
   };
@@ -394,6 +432,14 @@ export const aiService = {
       throw new Error("Evidence brief refused to return a template guide.");
     }
     return local;
+  },
+
+  async generateIndicatorBrief(
+    input: IndicatorBriefRequest,
+  ): Promise<IndicatorBriefSuggestion> {
+    // Local mock only — never call LLM from the browser.
+    await delay(350);
+    return mockIndicatorBrief(input);
   },
 
   async suggestStakeholdersFromText(

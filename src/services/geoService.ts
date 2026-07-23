@@ -114,14 +114,20 @@ export const geoService = {
           FRAPPE_METHODS.listSocioIndicators,
           { placeId },
         );
-        if (Array.isArray(rows)) return rows;
+        if (Array.isArray(rows) && rows.length) return rows;
       } catch {
         /* seed */
       }
     }
+    const { mockIndicators } = await import("@/data/mockIndicators");
     const pack = getDefaultGeoPack();
-    const rows = (pack?.indicators ?? []).filter((i) => i.placeId === placeId);
-    return delay(rows);
+    const fromPack = (pack?.indicators ?? []).filter((i) => i.placeId === placeId);
+    const fromMock = mockIndicators.filter((i) => i.placeId === placeId);
+    const byKey = new Map<string, SocioEconomicIndicator>();
+    for (const row of [...fromPack, ...fromMock]) {
+      byKey.set(`${row.placeId}:${row.key}`, row);
+    }
+    return delay([...byKey.values()]);
   },
 
   async breadcrumbs(placeId: string, packId?: string): Promise<GeoPlace[]> {

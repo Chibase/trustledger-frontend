@@ -50,13 +50,14 @@ Day-14 charge cron + entitlement gate live. `PLATFORM_OPERATOR_ONLY=0`; buyer `/
 
 ---
 
-## Step 5 — V002 operational depth **(ACTIVE)**
+## Step 5 — V002 operational depth **(DEMO CORE DONE — 2026-07-23)**
 
 **Goal:** Market-honest stakeholder intelligence (ADR-023).
 
-- 24c Engagements · 24d Commitments · 24e Grievance lifecycle · 24g ESG indicators  
+- 24c Engagements · 24d Commitments · 24e Grievance lifecycle · 24g ESG indicators — **demo modules shipped**
+- Follow-ups: Cloud DocTypes / Stats SA ingest / live Grok via srm-core
 
-**Then tell the agent: “Step 5 complete”** → GO LIVE criteria.
+**Then tell the agent: “Step 5 complete”** after you accept demo depth (or after Cloud follow-ups) → GO LIVE criteria.
 
 ---
 

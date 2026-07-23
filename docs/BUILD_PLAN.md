@@ -157,7 +157,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24d** | Commitments | Promise lifecycle board | **Done (demo board)** |
 | **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (demo verify/close)** |
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** |
-| 24g | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | Planned |
+| **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | **Done (demo indicators)** |
 
 ### Client org / tenancy (demo → Cloud)
 
@@ -172,7 +172,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **OD-2** | Product DocTypes + File | TL Project / Incident / Evidence ensure + smoke + upload BFF | **Done** |
 | **OD-3** | Sync + auto-provision | Paystack → Cloud Owner; migrate tl-org-data on live login | **Done** |
 | **OD-4** | Billing + lift lockdown | Day-14 cron charge-due; entitlement gate; lift ADR-013 | **Done** |
-| **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Active** |
+| **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Done (demo)** |
 
 ## 8. Quality gates (every packet)
 
