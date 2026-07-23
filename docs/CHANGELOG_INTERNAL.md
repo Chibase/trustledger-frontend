@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-23 — Packet 24e: Grievance verify/close on case desk
+
+- Process stages add **Verified** between Resolved and Closed
+- Case desk: Advance stage + Verify & close; stamps + timeline events
+- `incidentService.save` persists overlays (demo/org); list/get merge local
+- Cloud TL Incident workflow stamps still follow-up
+
 ## 2026-07-23 — Packet 24d: Commitments status board (demo)
 
 - `Commitment` type + mocks from engagement action items; `commitmentService`

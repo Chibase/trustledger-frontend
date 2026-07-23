@@ -129,11 +129,11 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     tedsName: "Issue & Grievance Management",
     tedsChapter: "TEDS Ch.9 Domain 5",
     status: "partial",
-    score: 62,
+    score: 78,
     availableNow:
-      "Cascading geo intake; complaint natures; client TAT stage targets; junior/senior routing; AI nature+priority suggest→apply; process timeline on case desk; trust pulse from sentiment.",
+      "Case desk Advance / Verify & close stamps (reported→deploy→investigate→resolve→verify→close); local persistence; geo intake; natures; TAT targets; AI suggest→apply; trust pulse.",
     stillNeeded: [
-      "Full lifecycle stamps on Frappe (deploy → investigate → resolve → verify → close)",
+      "Mirror lifecycle stamps on Frappe TL Incident",
       "Client policy admin UI for thresholds and TAT defaults",
       "Live escalation queues by staff tier",
     ],
