@@ -8,7 +8,11 @@ import {
   getPlatformOperatorEmails,
   isPlatformOperatorOnly,
 } from "@/lib/platformOperator";
-import { frappeBase, frappeKeyPair } from "@/lib/leadCapture";
+import {
+  frappeBase,
+  frappeKeyPair,
+  leadBackendStatus,
+} from "@/lib/leadCapture";
 import { paystackConfigured } from "@/lib/paystackServer";
 import { isFrappeAutoProvisionEnabled } from "@/lib/provisionOwnerCloud";
 import {
@@ -203,6 +207,35 @@ const GATE_DEFS: GateDef[] = [
       };
     },
   },
+  {
+    id: "leadBackend",
+    label: "Lead backend (Frappe CRM)",
+    requiredForStep1: false,
+    evaluate: () => {
+      const status = leadBackendStatus();
+      if (status.cutoverComplete) {
+        return {
+          pass: true,
+          detail: status.envExplicit
+            ? "LEAD_BACKEND=frappe · HubSpot not used for product leads"
+            : "Production default frappe · HubSpot not used for product leads",
+        };
+      }
+      if (!status.frappeConfigured) {
+        return {
+          pass: false,
+          detail:
+            "Set FRAPPE_API_KEY/SECRET so leads write CRM Lead (see docs/HS_CUTOVER.md)",
+        };
+      }
+      return {
+        pass: false,
+        detail: `Still ${status.preference}${
+          status.hubspotFallbackActive ? " (HubSpot fallback on)" : ""
+        } — set LEAD_BACKEND=frappe or unset in Production`,
+      };
+    },
+  },
 ];
 
 /** Re-export shape used by Ops panel footnotes (labels only). */
@@ -379,6 +412,7 @@ export function buildOperationalReadiness(): OperationalReadinessPayload {
     "resend",
     "recaptcha",
     "accessVerify",
+    "leadBackend",
   ] as const;
   const launchMissing = gateChecks
     .filter((c) => (launchGateIds as readonly string[]).includes(c.id) && !c.pass)

@@ -38,7 +38,7 @@ Without keys, honeypot + tighter rate limit + work-email still run, but spam pro
 | Product feedback | Rating 1–5 + note (min 10 chars) → CRM Lead `product_feedback` |
 | Support | Description already required |
 
-Comments are appended into the CRM / HubSpot message body for sales context.
+Comments are appended into the CRM message body for sales context.
 
 **Where feedback appears:** assessment results screen; demo shell sidebar **Feedback** (desktop + mobile).
 
@@ -48,15 +48,15 @@ Comments are appended into the CRM / HubSpot message body for sales context.
 
 Do **not** auto-send discounts from the Vercel form. That needs email identity, unsubscribe, and offer control.
 
-**Recommended after Frappe Cloud is stable:**
+**Recommended (Frappe CRM Lead SoT — ADR-034):**
 
-1. Lead lands in Frappe CRM (or HubSpot until cutover) with source + comment.
+1. Lead lands in Frappe CRM with source + comment (`docs/HS_CUTOVER.md`).
 2. Email Alert / Newsletter / Notification:
    - Day 0: thank-you + link to demo/assessment summary  
    - Day 2–3: soft offer (e.g. launch week % or fixed pilot credit) **only** if tagged `incentive_eligible`
 3. Paystack / manual invoice note for the discount — never a public unauthenticated “claim” URL without expiry.
 
-Until Frappe email is ready, send follow-ups manually from HubSpot sequences or your Webway mailbox using the new **Comment** field.
+Until Frappe email alerts are ready, send follow-ups manually from your Webway mailbox using the **Comment** field (not HubSpot sequences).
 
 ## Privacy
 

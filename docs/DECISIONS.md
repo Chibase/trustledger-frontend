@@ -97,11 +97,20 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-011: HubSpot lead magnet → Frappe after commitment
 
 - **Date:** 2026-07-12
-- **Status:** Accepted
+- **Status:** **Superseded** by ADR-034 (2026-07-23)
 - **Context:** Solo operator; HubSpot Free is already wired for assessment/demo/support intake but is limited for ongoing customer management. Frappe Cloud is the product system of record.
 - **Decision:** Use HubSpot Free only for acquisition (leads, light tickets, early pipeline). At commitment (pilot signed, paid, or Closed Won), hand off to Frappe Customer/Contact/(User). No dual full-CRM maintenance.
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
+
+### ADR-034: Frappe CRM Lead is acquisition SoT (cut HubSpot)
+
+- **Date:** 2026-07-23
+- **Status:** Accepted
+- **Context:** HubSpot Free embeds and dual CRM hurt branding and ops clarity. Vercel already owns branded forms; Frappe Cloud already receives CRM Lead when keys exist (`LEAD_BACKEND`). Soft launch no longer needs HubSpot as primary magnet.
+- **Decision:** **Frappe CRM Lead** is the system of record for product acquisition (assessment, contact, quote, trial, feedback, support intake). WordPress remains CTA-only to Vercel. HubSpot is optional fallback via explicit `LEAD_BACKEND=auto` or `hubspot` during cutover packets HS-1→HS-4 (`docs/HS_CUTOVER.md`). Production with Frappe API keys defaults to **frappe-only** when `LEAD_BACKEND` is unset.
+- **Consequences:** Ops readiness + `/api/health` gate lead cutover; no new HubSpot form embeds; commitment still provisions Customer/Owner on Frappe (Paystack / Ops / VIP).
+- **Alternatives considered:** Keep ADR-011 HubSpot-first forever (rejected); hard-delete HubSpot code in HS-1 before Production smoke (rejected — phased HS-2→HS-4).
 
 ### ADR-012: Plan Owner admin + Owner-confirmed lower seats
 

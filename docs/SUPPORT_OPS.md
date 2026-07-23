@@ -1,6 +1,6 @@
 # TrustLedger support operations
 
-**System of record (Phase A):** HubSpot via structured in-app tickets  
+**System of record (Phase A):** Frappe CRM Lead via structured in-app tickets (HubSpot cutover — `docs/HS_CUTOVER.md`)  
 **Later (Phase C):** Frappe Helpdesk for authenticated paying clients  
 **Entry:** Vercel `/app` Support drawer (not WordPress)
 
@@ -8,7 +8,7 @@
 
 | Phase | Scope | Human load |
 |-------|--------|------------|
-| **A (this ship)** | Status page, in-app Support, self-serve session repair, HubSpot tickets with diagnostics | You only handle escalations |
+| **A (this ship)** | Status page, in-app Support, self-serve session repair, Frappe CRM Lead tickets with diagnostics | You only handle escalations |
 | **B** | Playbook runner (allowlisted auto-actions) + AI diagnosis | Most common tech issues self-serve |
 | **C** | Frappe Helpdesk + in-app AI draft replies (approve to send) | Humans for edge cases only |
 

@@ -182,6 +182,15 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
 | **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
 
+### HubSpot cutover (ACTIVE)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **HS-1** | Frappe-first leads | Production default `frappe` when Cloud keys set; Ops/health gate; ADR-034 + `docs/HS_CUTOVER.md` | **Active** |
+| **HS-2** | Production smoke | All Vercel forms → CRM Lead; explicit `LEAD_BACKEND=frappe`; pause HubSpot form workflows | Planned |
+| **HS-3** | Remove HubSpot config | Drop portal/form env; strip WP embeds (Webway) | Planned |
+| **HS-4** | Delete HubSpot client | Remove `submitHubSpotLead`; relocate `siteBaseUrl` | Planned |
+
 ## 8. Quality gates (every packet)
 
 ```bash
@@ -225,3 +234,4 @@ src/
 | 2026-07-23 | GO LIVE Done — operational-grade Cloud ops for paying customers |
 | 2026-07-23 | ADR-033 — retire public sample demo; `/product` + Cloud SI active |
 | 2026-07-23 | PLATFORM_STRATEGIC_BRIEF — living brief for plans, agents, evaluation |
+| 2026-07-23 | HS-1 active — cut HubSpot; Frappe CRM Lead acquisition SoT (ADR-034) |

@@ -143,13 +143,15 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 - Cross-tenant access  
 - Creating users from HubSpot without payment/commitment trigger  
 
-## HubSpot → Frappe (ties to CRM_HANDOFF)
+## HubSpot → Frappe (ties to CRM_HANDOFF / HS_CUTOVER)
 
 | Stage | Action |
 |-------|--------|
-| Lead / demo / assessment | HubSpot only |
+| Lead / assessment / contact / quote / support | **Frappe CRM Lead** (Vercel forms; ADR-034) |
 | Payment or Commitment | Frappe Customer + **Owner admin** user |
 | Ongoing team | Owner invites in-app → Frappe Users |
+
+HubSpot is cutover fallback only (`docs/HS_CUTOVER.md`). Never create product logins from HubSpot.
 
 ## Demo / trial tenancy (frontend packets T1–T5)
 
