@@ -8,6 +8,10 @@ import {
   paystackConfigured,
 } from "@/lib/paystackServer";
 import { getPaystackPlan, type PaystackPlanId } from "@/lib/paystackPlans";
+import {
+  getCustomerEntitlementByOwnerEmail,
+  setCustomerEntitlement,
+} from "@/lib/entitlementCloud";
 
 export const runtime = "nodejs";
 
@@ -95,6 +99,15 @@ export async function POST(request: Request) {
         reference: charged.reference,
         paidAt: new Date().toISOString(),
       });
+      const ent = await getCustomerEntitlementByOwnerEmail(email);
+      if (ent?.customerName) {
+        await setCustomerEntitlement(ent.customerName, "active");
+      }
+    } else {
+      const ent = await getCustomerEntitlementByOwnerEmail(email);
+      if (ent?.customerName) {
+        await setCustomerEntitlement(ent.customerName, "past_due");
+      }
     }
 
     return NextResponse.json({

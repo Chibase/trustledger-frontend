@@ -33,13 +33,13 @@ PLATFORM_OPERATOR_LOCK_PUBLIC=1
 
 Add alternate operator emails as a comma-separated list if needed.
 
-## How to lift lockdown (when you advise)
+## How to lift lockdown (Step 4 — only after charge-due smoke)
 
-1. Set `PLATFORM_OPERATOR_ONLY=0` (or remove it) on Vercel.
-2. Optionally clear `PLATFORM_OPERATOR_LOCK_PUBLIC`.
-3. Resume Plan Owner provisioning per ADR-012 / `ACCESS_MODEL.md`.
-
-You can keep `PLATFORM_OPERATOR_EMAILS` set for future staff tools without enforcing lockdown.
+1. Confirm Ops Finance **Dry-run due list** / forced charge smoke works.
+2. Set `PLATFORM_OPERATOR_ONLY=0` (or remove it) on Vercel.
+3. Optionally clear `PLATFORM_OPERATOR_LOCK_PUBLIC`.
+4. Keep `PLATFORM_OPERATOR_EMAILS` for `/ops` (always allowlist-gated).
+5. Smoke buyer `/login/live`; `past_due` / `cancelled` Customers stay blocked by entitlement gate.
 
 **Soft public launch (ADR-027):** Do **not** lift this yet for buyers. They use `/pay` + `/trial` with live Paystack while you keep operator-only live Frappe. See `docs/PUBLIC_LAUNCH.md`.
 

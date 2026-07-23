@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChargeDuePanel } from "@/components/ops/ChargeDuePanel";
 import { ConfirmEftPaidForm } from "@/components/ops/ConfirmEftPaidForm";
 import { PillarBanner } from "@/components/ops/PillarBanner";
 import { buildFinanceOverview } from "@/lib/commandCentreIntel";
@@ -27,6 +28,8 @@ export default async function OpsFinancePage() {
           ? `${payments.total} payment signal(s) in the latest CRM window (EFT + Paystack).`
           : data.summary}
       </PillarBanner>
+
+      <ChargeDuePanel />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
         <h2 className="font-display text-lg font-semibold">

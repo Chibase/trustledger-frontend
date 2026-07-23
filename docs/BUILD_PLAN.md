@@ -170,7 +170,8 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **T5** | Frappe SoT | Customer/User contract + operator provision prep (lockdown stays) | **Done** |
 | **OD-1** | Operational Step 1 | Desk Customer/User fields + issuance smoke; Ops `/ops/readiness` ladder (ADR-032) | **Done** |
 | **OD-2** | Product DocTypes + File | TL Project / Incident / Evidence ensure + smoke + upload BFF | **Done** |
-| **OD-3** | Sync + auto-provision | Paystack → Cloud Owner; migrate tl-org-data on live login | **Active** |
+| **OD-3** | Sync + auto-provision | Paystack → Cloud Owner; migrate tl-org-data on live login | **Done** |
+| **OD-4** | Billing + lift lockdown | Day-14 cron charge-due; entitlement gate; lift ADR-013 | **Active** |
 
 ## 8. Quality gates (every packet)
 

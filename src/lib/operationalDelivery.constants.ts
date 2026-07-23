@@ -78,3 +78,13 @@ export const STEP3_DESK_CHECKLIST: string[] = [
   "Optional: seed browser tl-org-data, /login/live as Owner → rows migrate once to TL DocTypes",
   "Keep PLATFORM_OPERATOR_ONLY=1 until Step 4",
 ];
+
+/** Active Step 4 checklist after Paystack auto-provision. */
+export const STEP4_DESK_CHECKLIST: string[] = [
+  "Ops → Accounts: Create Desk fields (picks up custom_bill_at / authorization / amount)",
+  "Vercel: set CRON_SECRET (random string); confirm vercel.json cron for /api/cron/charge-due",
+  "Ops → Finance: Dry-run due list (may be empty until a trial bill_at is due)",
+  "Smoke: set a test Customer bill_at to past + authorization → Charge due now → status active or past_due",
+  "When billing smoke is green: set PLATFORM_OPERATOR_ONLY=0, redeploy, buyer /login/live smoke",
+  "Keep PLATFORM_OPERATOR_EMAILS for /ops",
+];

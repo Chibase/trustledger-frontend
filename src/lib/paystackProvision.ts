@@ -96,6 +96,7 @@ export async function provisionAfterPaystackVerify(
         planId,
         status: "active",
         sendWelcomeEmail: true,
+        planAmountCents: planAmountCents,
       });
       cloudProvision = {
         ok: cloud.ok,
@@ -161,6 +162,9 @@ export async function provisionAfterPaystackVerify(
         planId,
         status: "trial",
         sendWelcomeEmail: false,
+        billAt,
+        authorizationCode: verified.authorizationCode,
+        planAmountCents,
       });
       cloudProvision = {
         ok: cloud.ok,
@@ -237,6 +241,9 @@ export async function provisionAfterPaystackVerify(
       planId,
       status: "trial",
       sendWelcomeEmail: false,
+      billAt,
+      authorizationCode: verified.authorizationCode,
+      planAmountCents,
     });
     cloudProvision = {
       ok: cloud.ok,

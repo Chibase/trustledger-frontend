@@ -13,7 +13,7 @@ export type CustomFieldSpec = {
   dt: "Customer" | "User";
   fieldname: string;
   label: string;
-  fieldtype: "Data" | "Int" | "Select" | "Check" | "Link";
+  fieldtype: "Data" | "Int" | "Select" | "Check" | "Link" | "Datetime";
   options?: string;
   insert_after?: string;
 };
@@ -52,10 +52,31 @@ export const TRUSTLEDGER_CUSTOM_FIELDS: CustomFieldSpec[] = [
   },
   {
     dt: "Customer",
+    fieldname: "custom_bill_at",
+    label: "Trial bill at",
+    fieldtype: "Datetime",
+    insert_after: "custom_entitlement_status",
+  },
+  {
+    dt: "Customer",
+    fieldname: "custom_authorization_code",
+    label: "Paystack authorization",
+    fieldtype: "Data",
+    insert_after: "custom_bill_at",
+  },
+  {
+    dt: "Customer",
+    fieldname: "custom_plan_amount_cents",
+    label: "Plan amount (cents)",
+    fieldtype: "Int",
+    insert_after: "custom_authorization_code",
+  },
+  {
+    dt: "Customer",
     fieldname: "custom_tl_org_id",
     label: "TrustLedger org id",
     fieldtype: "Data",
-    insert_after: "custom_entitlement_status",
+    insert_after: "custom_plan_amount_cents",
   },
   {
     dt: "Customer",

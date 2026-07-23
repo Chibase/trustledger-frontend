@@ -15,6 +15,10 @@ import {
   normalizeIdentity,
   operatorGateMessage,
 } from "@/lib/platformOperator";
+import {
+  entitlementAllowsLiveAccess,
+  getCustomerEntitlementByOwnerEmail,
+} from "@/lib/entitlementCloud";
 
 export async function POST(request: Request) {
   let body: { usr?: string; pwd?: string };
@@ -54,6 +58,21 @@ export async function POST(request: Request) {
     const email = normalizeIdentity(session.user || usr);
     // Operators home to Executive Board — never the customer desk.
     const opsGate = assertOpsAccess(usr, session.user, email);
+
+    // OD-4 — when lockdown is off, buyers still need trial/active entitlement.
+    if (!opsGate.ok) {
+      const ent = await getCustomerEntitlementByOwnerEmail(email);
+      if (ent?.status && !entitlementAllowsLiveAccess(ent.status)) {
+        return NextResponse.json(
+          {
+            error: `Account entitlement is “${ent.status}”. Update billing or contact TrustLedger support.`,
+            entitlement: ent.status,
+          },
+          { status: 403 },
+        );
+      }
+    }
+
     const home = opsGate.ok ? "/ops/executive" : "/app/dashboard";
 
     const response = NextResponse.json({

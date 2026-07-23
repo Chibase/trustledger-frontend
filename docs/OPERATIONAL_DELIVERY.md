@@ -31,59 +31,44 @@ DocTypes + Project/Incident/Evidence smoke under `Step1 Smoke Test` passed.
 
 ---
 
-## Step 3 — Sync + auto-provision **(ACTIVE)**
+## Step 3 — Sync + auto-provision **(DONE — 2026-07-23)**
 
-**Goal:** Trial/subscribe writes Cloud Customer+User without Ops click; browser `tl-org-data` migrates on first live login.
+Paystack creates Customer+User without Ops click; lockdown still ON.
+
+---
+
+## Step 4 — Billing ops + lift lockdown **(ACTIVE)**
+
+**Goal:** Day-14 charges run on a schedule; `past_due` blocks buyer live login; then lift ADR-013.
 
 ### Split: agent vs you
 
 | Who | What |
 |-----|------|
-| **Agent (this packet)** | `provisionOwnerOnCloud` shared lib; Paystack → Cloud when `FRAPPE_AUTO_PROVISION=1`; `POST /api/frappe/migrate-org`; `/login/live` one-shot migrate |
-| **You** | Set env flag, redeploy, smoke one Paystack path, confirm Desk Customer+User |
+| **Agent (this packet)** | `vercel.json` cron → `/api/cron/charge-due`; entitlement fields + login gate; Ops Finance charge-due panel |
+| **You** | `CRON_SECRET`, Desk fields refresh, charge smoke, then `PLATFORM_OPERATOR_ONLY=0` |
 
 ### Your actions
 
-1. Merge OD-3 PR → wait for Vercel.
-2. Vercel env (then redeploy):
-
-```bash
-FRAPPE_AUTO_PROVISION=1
-# keep existing:
-FRAPPE_OWNER_ISSUANCE=1
-FRAPPE_API_KEY=…
-FRAPPE_API_SECRET=…
-FRAPPE_BASE_URL=https://app.trustledger.co.za
-PLATFORM_OPERATOR_ONLY=1
-```
-
-3. Smoke Paystack `/pay` (trial authorize or pay now) with a **new** test email you control.
-4. Confirm **Customer + User** appear in Desk **without** clicking Ops Create on Cloud.
-5. Optional: with browser org data present, `/login/live` as that Owner (temp allowlist) → projects/incidents migrate once.
+1. Merge OD-4 PR → wait for Vercel.
+2. Ops → Accounts → **Create Desk fields** (adds `custom_bill_at`, `custom_authorization_code`, `custom_plan_amount_cents`).
+3. Vercel:
+   ```bash
+   CRON_SECRET=<long-random-string>
+   # keep PLATFORM_OPERATOR_ONLY=1 until charge smoke passes
+   ```
+4. Ops → Finance → **Dry-run due list** (empty is OK until a trial is due).
+5. Smoke (optional forced): on a test Customer set `custom_bill_at` to past + valid authorization → **Charge due now** → status `active` or `past_due`.
+6. When green, set `PLATFORM_OPERATOR_ONLY=0`, redeploy, smoke buyer `/login/live`. Keep `PLATFORM_OPERATOR_EMAILS` for `/ops`.
 
 ### Done when
 
-- [ ] `FRAPPE_AUTO_PROVISION=1` live  
-- [ ] One Paystack success creates Cloud Owner without Ops  
-- [ ] Lockdown still ON  
+- [ ] Cron route + CRON_SECRET live  
+- [ ] Charge-due updates entitlement  
+- [ ] Buyer live login works with lockdown off (or past_due blocks)  
+- [ ] Ops still allowlist-only  
 
-**Then tell the agent: “Step 3 complete”** → Step 4 (billing scheduler + lift ADR-013).
-
----
-
-## Step 3 — Sync + auto-provision
-
-_(Superseded by ACTIVE section above when Step 2 is Done.)_
-
----
-
-## Step 4 — Billing ops + lift lockdown
-
-**Goal:** Day-14 charges scheduled; past_due suspends; buyers use `/login/live`.
-
-- Cron / Ops scheduler for `charge-due`  
-- Entitlement status drives access  
-- Set `PLATFORM_OPERATOR_ONLY=0` after smoke of Steps 1–3  
+**Then tell the agent: “Step 4 complete”** → Step 5 (V002 depth) or GO LIVE criteria.
 
 ---
 
