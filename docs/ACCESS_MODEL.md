@@ -1,7 +1,7 @@
 # Post-payment access & seats
 
 **Locked with ADR-012.**  
-**Override while active:** ADR-013 Platform Operator lockdown — see `docs/PLATFORM_OPERATOR.md`. Until lockdown is lifted, **do not** issue customer Plan Owner logins; only the Platform Operator uses live product access.
+**Override while active:** ADR-013 Platform Operator lockdown — see `docs/PLATFORM_OPERATOR.md`. **Lifted for buyers (Step 4 Done — 2026-07-23):** public live login allowed when `PLATFORM_OPERATOR_ONLY=0`. `/ops` remains allowlist-only via `PLATFORM_OPERATOR_EMAILS`.
 
 After payment (or confirmed commitment), TrustLedger issues logins from **plan entitlements**. The **purchaser is Plan Owner**; they alone hold org **admin** and may invite others at **lower** roles.
 
