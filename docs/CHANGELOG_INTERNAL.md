@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-23 — Packet 24c: Engagements module (demo)
+
+- `Engagement` type + mocks; `engagementService` (seed + localStorage; live list reserved)
+- `/app/engagements` list + detail; nav + Project/demo capability
+- Capture **Apply** also saves an Engagement linked to applied stakeholders
+- noteService reads via engagements; Cloud Engagement DocType still follow-up
+
 ## 2026-07-23 — Step 4 complete → Step 5 active
 
 - Buyer `/login/live` smoke passed with `PLATFORM_OPERATOR_ONLY=0`

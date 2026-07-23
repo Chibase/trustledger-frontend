@@ -1,12 +1,20 @@
-import { mockEvidence, mockMeetingNotes } from "@/data/mockEngagements";
+import { mockEvidence } from "@/data/mockEngagements";
 import { FRAPPE_METHODS, isLiveMode } from "@/config/api";
 import { callFrappeMethod } from "@/lib/frappeClient";
-import type { EvidenceStub, MeetingNote } from "@/types/engagement";
+import {
+  engagementService,
+} from "@/services/engagementService";
+import {
+  engagementToMeetingNote,
+  type EvidenceStub,
+  type MeetingNote,
+} from "@/types/engagement";
 
 function delay<T>(value: T, ms = 120): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(value), ms));
 }
 
+/** Legacy notes API — backed by Engagement records. */
 export const noteService = {
   async list(filters: { ward?: string; projectId?: string } = {}): Promise<
     MeetingNote[]
@@ -17,22 +25,22 @@ export const noteService = {
           FRAPPE_METHODS.listNotes,
           { ...filters },
         );
-        return Array.isArray(rows) ? rows : [];
+        if (Array.isArray(rows) && rows.length) return rows;
       } catch {
-        /* fall through to demo */
+        /* fall through */
       }
     }
 
-    let rows = [...mockMeetingNotes];
-    if (filters.ward) rows = rows.filter((n) => n.ward === filters.ward);
-    if (filters.projectId) {
-      rows = rows.filter((n) => n.projectId === filters.projectId);
-    }
-    return delay(rows);
+    const engagements = await engagementService.list({
+      ward: filters.ward,
+      projectId: filters.projectId,
+    });
+    return delay(engagements.map(engagementToMeetingNote));
   },
 
   async get(id: string): Promise<MeetingNote | null> {
-    return delay(mockMeetingNotes.find((n) => n.id === id) ?? null);
+    const row = await engagementService.get(id);
+    return row ? engagementToMeetingNote(row) : null;
   },
 };
 

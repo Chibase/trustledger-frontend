@@ -114,14 +114,15 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     tedsName: "Engagement Management",
     tedsChapter: "TEDS Ch.9 Domain 4",
     status: "partial",
-    score: 20,
-    availableNow: "Meeting notes stub on community dashboard; note service.",
+    score: 55,
+    availableNow:
+      "Engagements list/detail; Capture hub apply → CRM + Engagement; seed meetings/consultations; AI brief on capture.",
     stillNeeded: [
-      "Meetings / consultations module",
-      "Attendance registers",
-      "Minutes, action items, documents",
-      "Link engagements to stakeholders + places",
+      "Structured attendance register rows",
+      "Cloud Engagement DocType (create/list on Frappe)",
+      "Link engagements to geo place ids",
     ],
+    href: "/app/engagements",
   },
   {
     id: "grievances",

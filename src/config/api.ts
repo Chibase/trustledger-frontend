@@ -28,6 +28,7 @@ export const FRAPPE_METHODS = {
   listIncidents: "/api/method/srm_core.api.incidents.list_incidents",
   getIncident: "/api/method/srm_core.api.incidents.get_incident",
   listNotes: "/api/method/srm_core.api.engagements.list_meeting_notes",
+  listEngagements: "/api/method/srm_core.api.engagements.list_engagements",
   listEvidence: "/api/method/srm_core.api.incidents.list_evidence",
   suggestTriage: "/api/method/srm_core.api.ai.suggest_triage",
   suggestSentiment: "/api/method/srm_core.api.ai.suggest_sentiment",

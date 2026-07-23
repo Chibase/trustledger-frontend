@@ -21,6 +21,10 @@ import {
   listTrialProjects,
 } from "@/lib/trialStore";
 import { aiService } from "@/services/aiService";
+import {
+  createEngagementId,
+  engagementService,
+} from "@/services/engagementService";
 import { projectService } from "@/services/projectService";
 import { stakeholderService } from "@/services/stakeholderService";
 import type {
@@ -28,6 +32,7 @@ import type {
   ReportBriefSuggestion,
   StakeholderExtractSuggestion,
 } from "@/types/ai";
+import type { EngagementSource } from "@/types/engagement";
 import type { Project } from "@/types/project";
 import type { Stakeholder, StakeholderKind } from "@/types/stakeholder";
 
@@ -182,8 +187,9 @@ export default function AppCapturePage() {
           await stakeholderService.save(stakeholder);
           ids.push(id);
         }
+        const captureId = createCaptureId();
         const record = {
-          id: createCaptureId(),
+          id: captureId,
           source,
           title: title.trim() || extract.briefTitle,
           body: body.trim(),
@@ -193,9 +199,45 @@ export default function AppCapturePage() {
           appliedStakeholderIds: ids,
         };
         saveCaptureRecord(record);
+
+        const actionItems = (brief?.recommendedActions ?? [])
+          .map((b) => b.trim())
+          .filter(Boolean)
+          .slice(0, 6);
+        const engagementSource = source as EngagementSource;
+        await engagementService.save({
+          id: createEngagementId(),
+          title: record.title,
+          kind:
+            source === "attendance"
+              ? "meeting"
+              : source === "social_intel"
+                ? "other"
+                : source === "pasted_report"
+                  ? "briefing"
+                  : "consultation",
+          status: "held",
+          heldOn: new Date().toISOString().slice(0, 10),
+          ward: project?.ward ?? "",
+          placeLabel: project?.name,
+          projectId: project?.id ?? null,
+          summary:
+            brief?.executiveSummary?.trim() ||
+            body.trim().slice(0, 480) ||
+            extract.briefTitle,
+          attendeesLabel:
+            extract.stakeholders.map((s) => s.name).join(", ") ||
+            "From capture apply",
+          actionItems,
+          stakeholderIds: ids,
+          captureId,
+          source: engagementSource,
+          createdAt: new Date().toISOString(),
+        });
+
         setRecent(listCaptureRecords());
         pushToast(
-          `${ids.length} stakeholder(s) applied to demo CRM`,
+          `${ids.length} stakeholder(s) applied · engagement saved`,
           "success",
         );
       })();
@@ -210,12 +252,20 @@ export default function AppCapturePage() {
         title="Capture hub"
         description="Grow the stakeholder registry from minutes, attendance registers, social intelligence, or pasted reports. Seed CRM stays demo placeholder until you apply AI suggestions."
         actions={
-          <Link
-            href="/app/stakeholders"
-            className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
-          >
-            Open demo CRM
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/app/engagements"
+              className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+            >
+              Engagements
+            </Link>
+            <Link
+              href="/app/stakeholders"
+              className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+            >
+              Open demo CRM
+            </Link>
+          </div>
         }
       />
 

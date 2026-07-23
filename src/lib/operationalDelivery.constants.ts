@@ -90,7 +90,7 @@ export const STEP4_DESK_CHECKLIST: string[] = [
 
 /** Active Step 5 checklist — V002 depth after lockdown lift. */
 export const STEP5_DESK_CHECKLIST: string[] = [
-  "Packet 24c: Engagements capture hub → Cloud Engagement DocType when ready",
+  "Packet 24c Done (demo): /app/engagements + Capture apply → Engagement",
   "Packet 24d: Commitments register + status board",
   "Packet 24e: Grievance lifecycle (verify/close) on Cloud incidents",
   "Packet 24g: ESG / intelligence indicators + AI briefs (suggest → apply → save)",
