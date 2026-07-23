@@ -50,33 +50,35 @@ When implementing:
 ## 4. Information architecture
 
 ```
-/                     Marketing-lite app home → CTA to /demo
-/demo                 Demo landing: role picker + “Demo data” notice + lead CTA
+/                     Marketing home → CTA to /trial (and /product)
+/product              Onboarding + feature purpose (ADR-033) — no sample workspace
+/demo                 301 → /product (legacy)
 /assessment           Public SRM Readiness & Risk Diagnostic (lead-gated results)
-/login                Dev/demo role session (cookie) — same as today, restyled
-/app                  Authenticated shell (sidebar + topbar)
-/app/dashboard        Role home (real widgets, not bullet lists)
+/login                Sign-in chooser → live / trial (no sample demo)
+/app                  Authenticated shell (trial or live)
+/app/dashboard        Role home
 /app/projects         Project list + detail
 /app/incidents        Incident list
 /app/incidents/[id]   Case desk + AI assist
+/app/stakeholders     Stakeholder Intelligence CRM (Cloud when live)
+/app/engagements      Engagements
+/app/commitments      Commitments board
 /app/issues/report    Assisted intake
 /app/reports          Client/admin briefs
-/app/settings         Profile/role display (demo)
+/app/settings         Profile / org
 ```
 
 Legacy routes (`/dashboard`, `/incidents`, …) **redirect** into `/app/...` so old links work.
 
-## 5. Demo behaviour
+## 5. Workspace behaviour (ADR-033)
 
 | Behaviour | Rule |
 |-----------|------|
-| Entry | `/demo` explains demo, picks role, sets `session-role` + `tl-mode=demo` cookie |
-| Banner | Persistent “Demo mode — sample data” on all `/app` pages |
-| Data | `src/data/mock/*` only |
-| AI | `NEXT_PUBLIC_AI_MOCK=true` (default) |
-| Lead capture | Soft gate modal after N meaningful actions (default 3) OR “Book a demo” in shell |
-| Persistence | localStorage for demo actions optional; no server writes |
-| Live mode | `NEXT_PUBLIC_DATA_MODE=live` + API base; falls back to mock if unset |
+| Public entry | `/product` educates; `/trial` opens own-data workspace; `/login/live` for Cloud |
+| Sample demo | **Retired** — no `tl-mode=demo` guest funnel; `/demo` → `/product` |
+| Data | Trial = browser org store; Live = Frappe Cloud; empty Cloud ≠ mock seed |
+| AI | Suggest → apply → save; keys server-side only |
+| Live fallback | ADR-010 mock only when Frappe unreachable **and** not a customer/trial workspace |
 
 Meaningful actions: submit issue, apply AI suggestion, generate brief, open incident assist.
 
@@ -152,12 +154,14 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **24a** | Geo foundation | SA hierarchy types/mock, `/app/geo`, place fields, ingest hook | **Done (ZA MDB pack)** |
-| **24b** | Stakeholders registry | List/detail/create; Frappe DocType contract | **CRM seeded (list+detail)** |
-| **24c** | Engagements | Meetings / consultations beyond note stubs | **Done (demo module)** |
-| **24d** | Commitments | Promise lifecycle board | **Done (demo board)** |
-| **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (demo verify/close)** |
+| **24b** | Stakeholders registry | List/detail/create; Cloud DocType + BFF | **Done (Cloud SI path)** |
+| **24c** | Engagements | Meetings / consultations; Cloud DocType + BFF | **Done (Cloud SI path)** |
+| **24d** | Commitments | Promise board; Cloud DocType + BFF | **Done (Cloud SI path)** |
+| **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (UI); Cloud stamps next** |
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** |
 | **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | **Done (demo indicators)** |
+| **D1** | Product onboarding | `/product` replaces public `/demo` sample entry | **Done** |
+| **D2** | Kill demo mode | No guest `tl-mode=demo`; retarget CTAs; clear lingering demo sessions | **Done** |
 
 ### Client org / tenancy (demo → Cloud)
 
@@ -172,8 +176,9 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **OD-2** | Product DocTypes + File | TL Project / Incident / Evidence ensure + smoke + upload BFF | **Done** |
 | **OD-3** | Sync + auto-provision | Paystack → Cloud Owner; migrate tl-org-data on live login | **Done** |
 | **OD-4** | Billing + lift lockdown | Day-14 cron charge-due; entitlement gate; lift ADR-013 | **Done** |
-| **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Done (demo)** |
+| **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Done (UI modules)** |
 | **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
+| **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
 
 ## 8. Quality gates (every packet)
 
@@ -182,7 +187,7 @@ npm run lint
 npm run build
 ```
 
-Manual smoke (packet 09+): `/demo` → each role → one AI action → lead CTA visible.
+Manual smoke: `/product` → `/trial` or `/login/live` → Stakeholders create/list on Cloud when live.
 
 ## 9. Repository layout (target)
 
@@ -216,3 +221,4 @@ src/
 | 2026-07-21 | Phase 6 Version 002 core; Version 001 public label (ADR-023) |
 | 2026-07-22 | Operational delivery path (ADR-032); OD-1 active — delay paid prod until Cloud SoT |
 | 2026-07-23 | GO LIVE Done — operational-grade Cloud ops for paying customers |
+| 2026-07-23 | ADR-033 — retire public sample demo; `/product` + Cloud SI active |

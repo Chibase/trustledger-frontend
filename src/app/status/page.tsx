@@ -60,8 +60,8 @@ export default function StatusPage() {
       ) : null}
 
       <p className="mt-8 text-sm">
-        <Link href="/demo" className="font-medium text-tl-trust-ink underline">
-          Back to demo
+        <Link href="/product" className="font-medium text-tl-trust-ink underline">
+          Product overview
         </Link>
         {" · "}
         <Link href="/login/live" className="font-medium text-tl-trust-ink underline">

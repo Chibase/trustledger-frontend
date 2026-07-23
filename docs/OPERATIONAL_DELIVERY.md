@@ -1,7 +1,7 @@
 # Operational delivery — real platform for customers
 
 **Policy:** Delay public rollout until customers get durable Cloud-backed operations (not browser-only tenancy).  
-**Locked:** ADR-032. Soft-launch marketing may continue for `/demo` / leads.
+**Locked:** ADR-032 / ADR-033. Public sample `/demo` retired → `/product`. Soft marketing via `/product` / `/trial` / leads.
 
 ```text
 Step 1  Frappe SoT ready (Customer + Plan Owner User smoke)     DONE
@@ -45,9 +45,9 @@ Day-14 charge cron + entitlement gate live. `PLATFORM_OPERATOR_ONLY=0`; buyer `/
 
 ## Step 5 — V002 operational depth **(DONE — 2026-07-23)**
 
-Demo modules shipped: 24c Engagements · 24d Commitments · 24e Grievance verify/close · 24g Intelligence/ESG.
+UI modules shipped: 24c Engagements · 24d Commitments · 24e Grievance verify/close · 24g Intelligence/ESG.
 
-Follow-ups (non-blocking for GO LIVE ladder): Cloud Engagement/Commitment DocTypes; Stats SA ingest; live Grok via srm-core.
+**Active after GO LIVE:** Cloud Stakeholder / Engagement / Commitment DocTypes + live BFF (ADR-033). Deferred: Stats SA ingest; live Grok via srm-core.
 
 ---
 
@@ -62,9 +62,9 @@ Ops ladder: https://trustledger-frontend-pi.vercel.app/ops/readiness — **GO LI
 | Media on Cloud File | Yes | Met (upload BFF) |
 | Day-14 billing without babysitting | Yes | Met (cron + Finance panel) |
 | ADR-013 lifted for buyers | Yes | Met (`PLATFORM_OPERATOR_ONLY=0`) |
-| Demo path still separate (`/demo`) | Yes | Keep separate |
+| Sample demo retired (`/demo` → `/product`) | Yes | ADR-033 |
 | No demo `INC-*` in customer live workspace | Yes | Met (buyer live smoke) |
 
-TrustLedger is operational-grade for paying customers. Keep `/demo` separate. Non-blocking follow-ups: Cloud Engagement/Commitment DocTypes; Stats SA ingest; live Grok via srm-core.
+TrustLedger is operational-grade for paying customers. Active: Cloud Stakeholder Intelligence (DocTypes + live CRUD). Deferred: Stats SA ingest; live Grok via srm-core.
 
 **Launch runbook:** `docs/LAUNCH_WATCHLIST.md` (first-days failures, traffic, branding).

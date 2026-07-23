@@ -16,12 +16,12 @@ const siteUrl =
 export const metadata: Metadata = {
   title: "Turn Community Risk into Measurable Trust Outcomes",
   description:
-    "TrustLedger helps operators run grievance resolution and governance-grade ESG reporting in low-connectivity, multilingual field environments. Preview in 2 minutes — no signup required.",
+    "TrustLedger helps operators run grievance resolution and Stakeholder Intelligence in low-connectivity, multilingual field environments. Start a 14-day trial with your own workspace.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "TrustLedger — Measurable Trust Outcomes",
     description:
-      "Preview grievance resolution, trust visibility, and audit-ready ESG evidence. No signup required to walk through the product.",
+      "Grievance resolution, Stakeholder Intelligence, and audit-ready ESG evidence. Start a trial or sign in live.",
     url: siteUrl,
     siteName: "TrustLedger",
     locale: "en_ZA",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "TrustLedger — Measurable Trust Outcomes",
     description:
-      "Run a 2-minute live walkthrough. No signup required to preview.",
+      "Start a 14-day trial with your own workspace — or sign in live on Cloud.",
     images: ["/marketing/trustledger-hero-dashboard.png"],
   },
 };

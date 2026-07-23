@@ -47,6 +47,13 @@ function clearLiveCookies(response: NextResponse) {
   response.cookies.set(TL_USER_EMAIL_COOKIE, "", clear);
 }
 
+function clearDemoSession(response: NextResponse) {
+  const clear = { path: "/", maxAge: 0 };
+  response.cookies.set(SESSION_ROLE_COOKIE, "", clear);
+  response.cookies.set(TL_MODE_COOKIE, "", clear);
+  response.cookies.set(TL_USER_NAME_COOKIE, "", clear);
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const mode = request.cookies.get(TL_MODE_COOKIE)?.value;
@@ -54,7 +61,7 @@ export function middleware(request: NextRequest) {
   const email = request.cookies.get(TL_USER_EMAIL_COOKIE)?.value;
   const hasLiveSid = Boolean(request.cookies.get(FRAPPE_SID_COOKIE)?.value);
   const isLiveSession = mode === "live" || hasLiveSid;
-  // Trial and sample demo are not Frappe live product sessions.
+  // Trial is not a Frappe live product session. Sample demo is retired (ADR-033).
   const wantsLiveProduct =
     isLiveSession ||
     (getDataMode() === "live" && mode !== "demo" && mode !== "trial");
@@ -131,15 +138,19 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Open trial: /demo auto-enters; live staff may revisit intentionally.
-  if (pathname === "/demo" && signedIn && isLiveSession) {
-    return NextResponse.redirect(new URL("/app/dashboard", request.url));
-  }
-
   const protectedPrefixes = ["/app", "/dashboard", "/issues", "/incidents"];
   const isProtected = protectedPrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
+
+  // ADR-033 — sample demo workspace retired; clear cookies and send to /product.
+  if (isProtected && mode === "demo" && !isLiveSession) {
+    const dest = new URL("/product", request.url);
+    dest.searchParams.set("retired", "1");
+    const response = NextResponse.redirect(dest);
+    clearDemoSession(response);
+    return response;
+  }
 
   if (
     signedIn &&
@@ -152,7 +163,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/ops/executive", request.url));
   }
 
-  // Demo/trial is open (no login). Live product still requires sign-in.
+  // Trial is open (no login). Live product still requires sign-in.
   // Operator public lock only applies to live sessions, not open trial guests.
   if (isProtected && !signedIn) {
     if (wantsLiveProduct) {
@@ -172,7 +183,6 @@ export function middleware(request: NextRequest) {
       );
       return NextResponse.redirect(dest);
     }
-    // Product trial starts at /trial; sample preview at /demo.
     const dest = new URL("/trial", request.url);
     dest.searchParams.set(
       "next",
@@ -182,8 +192,8 @@ export function middleware(request: NextRequest) {
   }
 
   if (isProtected && signedIn && isPlatformOperatorLockPublic()) {
-    // Sample demo + product trial are public workspaces — lockdown is live-only.
-    if (mode === "trial" || mode === "demo") {
+    // Product trial is a public workspace — lockdown is live-only.
+    if (mode === "trial") {
       return NextResponse.next();
     }
     if (!isLiveSession || !isPlatformOperatorIdentity(email)) {
@@ -217,7 +227,6 @@ export const config = {
   matcher: [
     "/login",
     "/login/live",
-    "/demo",
     "/ops",
     "/ops/:path*",
     "/app",

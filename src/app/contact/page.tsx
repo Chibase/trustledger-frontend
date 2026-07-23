@@ -84,10 +84,10 @@ export default function ContactPage() {
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
-              href="/demo"
+              href="/product"
               className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
             >
-              Try the demo
+              Product overview
             </Link>
             <Link
               href="/assessment"
@@ -176,8 +176,8 @@ export default function ContactPage() {
 
       <p className="mt-8 text-xs text-tl-ink-muted">
         Prefer the product first?{" "}
-        <Link href="/demo" className="font-medium text-tl-trust-ink underline">
-          Open the demo
+        <Link href="/product" className="font-medium text-tl-trust-ink underline">
+          Product overview
         </Link>{" "}
         or{" "}
         <Link

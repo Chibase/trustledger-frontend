@@ -218,15 +218,15 @@ export function OperationalReadinessPanel({ initial }: Props) {
               data.goLiveReady ? (
                 <>
                   GO LIVE gates are green. Treat TrustLedger as operational-grade
-                  for paying customers. Keep{" "}
-                  <code className="text-xs">/demo</code> separate from live
-                  workspaces.
+                  for paying customers. Sample{" "}
+                  <code className="text-xs">/demo</code> is retired (
+                  <code className="text-xs">/product</code>).
                 </>
               ) : (
                 <>
                   Steps 1–5 are Done. Clear any failed Environment gates (and
-                  buyer lockdown if still ON), then Refresh. Keep{" "}
-                  <code className="text-xs">/demo</code> separate.
+                  buyer lockdown if still ON), then Refresh. Sample{" "}
+                  <code className="text-xs">/demo</code> is retired.
                 </>
               )
             ) : data.activeStepId === "5" ? (

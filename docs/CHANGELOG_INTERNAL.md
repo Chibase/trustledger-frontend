@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-23 — ADR-033: retire sample demo; Cloud SI north star
+
+- Public `/demo` → `/product` (onboarding + feature purpose); no guest `tl-mode=demo` workspace
+- Active packets: D1/D2 + SI-Cloud (TL Stakeholder / Engagement / Commitment)
+- CTAs retarget `/product` or `/trial`; lingering demo sessions cleared from `/app`
+- Ops: ensure DocTypes now includes SI; smoke Stakeholder→Engagement→Commitment
+- Live BFF `GET/POST /api/frappe/si`; CRM create + services persist to Cloud when live
+
 ## 2026-07-23 — Access email verification (live OTP + trial gate)
 
 - Live `/login/live`: password then 6-digit email OTP (Resend) before session cookies

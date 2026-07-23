@@ -340,3 +340,18 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Rollout may slip; customers who pay early stay on browser tenancy until Cloud catch-up. Agents lead one step at a time and wait for “Step N complete”.
 - **Alternatives considered:** Ship browser-only as “production” (rejected — not durable); lift lockdown now without DocTypes (rejected — incomplete SoT).
 
+### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
+
+- **Date:** 2026-07-23
+- **Status:** Accepted
+- **Context:** Public `/demo` auto-entered a sample INC-* workspace that competed with trial/live and risked bleed. Stakeholder Intelligence (registry → engagements → commitments) is the platform engine — without Cloud SI there is no durable SRM. GO LIVE is Done for the resolution desk; buyers need onboarding/feature education, not fictional data.
+- **Decision:**
+  1. **Retire** public sample-demo entry (`tl-mode=demo` guest workspace). `/demo` permanently redirects to `/product`.
+  2. **`/product`** is the public onboarding + feature-purpose surface (what TrustLedger is for, SI core, how to start). CTAs → `/trial`, `/login/live`, `/pay`, `/contact`.
+  3. Product workspaces are **trial** (browser) or **live** (Frappe Cloud only). Lingering `tl-mode=demo` sessions hitting `/app` are cleared and sent to `/product`.
+  4. Mock seed remains only as ADR-010 live-unreachable fallback for non-customer exploratory paths — never for customer/trial lists.
+  5. **Active north star:** Cloud Stakeholder Intelligence — DocTypes + BFF CRUD for TL Stakeholder / TL Engagement / TL Commitment so live Owners get empty-or-real Cloud lists (no seed) and create/update on Cloud.
+  6. Supersedes ADR-001 and ADR-004 **entry** behaviour (Demo-first `/demo` funnel). App shell under `/app` stays.
+- **Consequences:** No public fictional desk; marketing/assessment CTAs retarget `/product` or `/trial`. Ops still ensures SI DocTypes. Stats SA / live Grok deferred.
+- **Alternatives considered:** Keep sample preview beside trial (rejected — bleed + confuses buyers); wait for srm-core methods before SI Cloud (rejected — resource API BFF unblocks Owners now).
+

@@ -248,6 +248,119 @@ export function ProvisionOwnerPanel({
     }
   }
 
+  async function smokeSi() {
+    setBusy(true);
+    setResult("");
+    try {
+      const customer = organization.trim() || "Step1 Smoke Test";
+      const stkId = `STK-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const engId = `ENG-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const comId = `COM-SMOKE-${Date.now().toString(36).slice(-6)}`;
+
+      const stkRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "stakeholder",
+          customer,
+          stakeholder: {
+            id: stkId,
+            name: "SI Smoke Stakeholder",
+            kind: "community_group",
+            status: "active",
+            organisation: customer,
+            countryCode: "ZA",
+            influence: "medium",
+            interests: ["water"],
+            tags: ["smoke"],
+            summary: "SI-Cloud smoke stakeholder",
+            source: "live",
+          },
+        }),
+      });
+      const stkJson = (await stkRes.json()) as { ok?: boolean; error?: string };
+      if (!stkRes.ok || !stkJson.ok) {
+        pushToast(stkJson.error || "Stakeholder smoke failed", "error");
+        setResult(JSON.stringify(stkJson, null, 2));
+        return;
+      }
+
+      const engRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "engagement",
+          customer,
+          engagement: {
+            id: engId,
+            title: "SI Smoke Engagement",
+            kind: "meeting",
+            status: "held",
+            heldOn: new Date().toISOString().slice(0, 10),
+            ward: "Ward 1",
+            projectId: null,
+            summary: "SI-Cloud smoke engagement",
+            attendeesLabel: "Smoke attendees",
+            actionItems: ["Follow up on smoke commitment"],
+            stakeholderIds: [stkId],
+            source: "minutes",
+            createdAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const engJson = (await engRes.json()) as { ok?: boolean; error?: string };
+      if (!engRes.ok || !engJson.ok) {
+        pushToast(engJson.error || "Engagement smoke failed", "error");
+        setResult(JSON.stringify({ stakeholder: stkJson, engagement: engJson }, null, 2));
+        return;
+      }
+
+      const comRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "commitment",
+          customer,
+          commitment: {
+            id: comId,
+            title: "SI Smoke Commitment",
+            status: "open",
+            ownerLabel: ownerName || "Operator",
+            dueOn: new Date().toISOString().slice(0, 10),
+            projectId: null,
+            engagementId: engId,
+            stakeholderIds: [stkId],
+            sourceActionItem: "Follow up on smoke commitment",
+            createdAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const comJson = (await comRes.json()) as { ok?: boolean; error?: string };
+      const bundle = {
+        stakeholder: stkJson,
+        engagement: engJson,
+        commitment: comJson,
+      };
+      if (!comRes.ok || !comJson.ok) {
+        pushToast(comJson.error || "Commitment smoke failed", "error");
+        setResult(JSON.stringify(bundle, null, 2));
+        return;
+      }
+      pushToast(
+        "SI smoke OK — Stakeholder + Engagement + Commitment on Cloud",
+        "success",
+      );
+      setResult(JSON.stringify(bundle, null, 2));
+    } catch {
+      pushToast("Network error", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function run(dryRun: boolean) {
     setBusy(true);
     setResult("");
@@ -385,7 +498,7 @@ export function ProvisionOwnerPanel({
           onClick={() => void ensureDocTypes(true)}
           className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
         >
-          Check product DocTypes
+          Check product + SI DocTypes
         </button>
         <button
           type="button"
@@ -393,7 +506,7 @@ export function ProvisionOwnerPanel({
           onClick={() => void ensureDocTypes(false)}
           className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
         >
-          Create product DocTypes
+          Create product + SI DocTypes
         </button>
         <button
           type="button"
@@ -403,9 +516,18 @@ export function ProvisionOwnerPanel({
         >
           Smoke Project→Incident→Evidence
         </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void smokeSi()}
+          className="rounded-md border border-tl-amber/50 bg-tl-amber/10 px-3 py-2 text-sm font-medium hover:bg-tl-amber/20 disabled:opacity-50"
+        >
+          Smoke Stakeholder→Engagement→Commitment
+        </button>
       </div>
       <p className="mt-2 text-xs text-tl-ink-muted">
-        Step 2: create DocTypes, then smoke rows under the Organization name as
+        Step 2 / SI-Cloud: create DocTypes (including TL Stakeholder /
+        Engagement / Commitment), then smoke rows under the Organization name as
         Frappe Customer. Forgot Owner password? Use{" "}
         <strong>Set temp password</strong>, or Forgot password on{" "}
         <code className="font-mono">/login/live</code>.

@@ -1,6 +1,5 @@
 import { mockStakeholders } from "@/data/mock/stakeholders";
-import { FRAPPE_METHODS, isLiveMode } from "@/config/api";
-import { callFrappeMethod } from "@/lib/frappeClient";
+import { isLiveMode } from "@/config/api";
 import type {
   Stakeholder,
   StakeholderKind,
@@ -75,84 +74,123 @@ function applyFilters(
   return next;
 }
 
+async function isOwnDataWorkspace(): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+  return readTrialModeFromDocument() || isCustomerWorkspaceClient();
+}
+
+async function listFromCloudSi(): Promise<Stakeholder[] | null> {
+  if (typeof window === "undefined") return null;
+  try {
+    const res = await fetch("/api/frappe/si?kind=stakeholder", {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (res.status === 401 || res.status === 403) return null;
+    if (res.status === 404) return [];
+    if (!res.ok) return null;
+    const json = (await res.json()) as { rows?: Stakeholder[] };
+    return Array.isArray(json.rows) ? json.rows : [];
+  } catch {
+    return null;
+  }
+}
+
+async function saveToCloudSi(row: Stakeholder): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  try {
+    const res = await fetch("/api/frappe/si", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ kind: "stakeholder", stakeholder: row }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export function createStakeholderId(): string {
+  return `STK-${Date.now().toString(36).toUpperCase()}`;
+}
+
 export const stakeholderService = {
-  /** Server-safe list for dashboards/reports (Frappe live → seed). */
+  /** Server-safe list for dashboards/reports (Cloud SI → empty/own; never seed for customers). */
   async listServer(
     filters: StakeholderListFilters = {},
   ): Promise<Stakeholder[]> {
-    if (isLiveMode()) {
-      try {
-        const rows = await callFrappeMethod<Stakeholder[]>(
-          FRAPPE_METHODS.listStakeholders,
-          {
-            placeId: filters.placeId,
-            kind: filters.kind === "all" ? undefined : filters.kind,
-            countryCode: filters.countryCode,
-            query: filters.query,
-          },
-        );
-        if (Array.isArray(rows) && rows.length) {
-          return applyFilters(rows, filters);
-        }
-      } catch {
-        /* seed */
-      }
-    }
-    return delay(applyFilters(mergeSeedAndLocal([]), filters));
+    // RSC / server: no browser Cloud session — return empty (no seed bleed).
+    return delay(applyFilters([], filters));
   },
 
   async list(filters: StakeholderListFilters = {}): Promise<Stakeholder[]> {
     if (typeof window === "undefined") {
       return this.listServer(filters);
     }
+
+    const own = await isOwnDataWorkspace();
+
     if (isLiveMode()) {
-      try {
-        const rows = await callFrappeMethod<Stakeholder[]>(
-          FRAPPE_METHODS.listStakeholders,
-          {
-            placeId: filters.placeId,
-            kind: filters.kind === "all" ? undefined : filters.kind,
-            countryCode: filters.countryCode,
-            query: filters.query,
-          },
+      const cloud = await listFromCloudSi();
+      if (cloud) {
+        const local = readLocal().filter((r) => r.source !== "seed");
+        const byId = new Map<string, Stakeholder>();
+        for (const row of cloud) byId.set(row.id, row);
+        for (const row of local) byId.set(row.id, row);
+        return delay(
+          applyFilters(
+            [...byId.values()].sort((a, b) => a.name.localeCompare(b.name)),
+            filters,
+          ),
         );
-        if (Array.isArray(rows) && rows.length) {
-          const local = readLocal();
-          return delay(
-            applyFilters(mergeSeedAndLocal([...rows, ...local]), filters),
-          );
-        }
-      } catch {
-        /* local+seed */
+      }
+      if (own) {
+        return delay(applyFilters(readLocal().filter((r) => r.source !== "seed"), filters));
       }
     }
+
+    if (own) {
+      return delay(applyFilters(readLocal().filter((r) => r.source !== "seed"), filters));
+    }
+
     return delay(applyFilters(mergeSeedAndLocal(readLocal()), filters));
   },
 
   async get(id: string): Promise<Stakeholder | null> {
-    if (isLiveMode()) {
-      try {
-        const row = await callFrappeMethod<Stakeholder | null>(
-          FRAPPE_METHODS.getStakeholder,
-          { name: id },
-        );
-        if (row) return row;
-      } catch {
-        /* seed */
-      }
-    }
     const rows = await this.list();
     return rows.find((r) => r.id === id) ?? null;
   },
 
   async save(input: Stakeholder): Promise<Stakeholder> {
-    const local = readLocal().filter((r) => r.id !== input.id);
-    const next = {
+    const next: Stakeholder = {
       ...input,
-      source: input.source ?? "trial",
+      source:
+        input.source === "seed"
+          ? "seed"
+          : isLiveMode()
+            ? "live"
+            : input.source ?? "trial",
       updatedAt: new Date().toISOString(),
       createdAt: input.createdAt ?? new Date().toISOString(),
     };
+
+    if (typeof window !== "undefined" && isLiveMode()) {
+      const pushed = await saveToCloudSi(next);
+      if (pushed) {
+        const local = readLocal().filter((r) => r.id !== next.id);
+        writeLocal(local);
+        return delay({ ...next, source: "live" });
+      }
+    }
+
+    const local = readLocal().filter((r) => r.id !== next.id);
     local.unshift(next);
     writeLocal(local);
     return delay(next);

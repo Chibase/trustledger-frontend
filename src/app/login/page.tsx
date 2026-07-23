@@ -1,11 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { USER_ROLES, type UserRole } from "@/types/rbac";
-
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 function sanitizeNext(value: string | null): string {
   if (value && value.startsWith("/") && !value.startsWith("//")) {
@@ -14,27 +11,11 @@ function sanitizeNext(value: string | null): string {
   return "/app/dashboard";
 }
 
-function setDemoSessionCookies(role: UserRole) {
-  const cookieStore = globalThis.document;
-  if (!cookieStore) return;
-  cookieStore.cookie = `session-role=${role}; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-  cookieStore.cookie = `tl-mode=demo; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-}
-
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const next = sanitizeNext(searchParams.get("next"));
   const signedOut = searchParams.get("signedOut") === "1";
   const repaired = searchParams.get("repaired") === "1";
-  const [role, setRole] = useState<UserRole>("client");
-  const [showDemoPicker, setShowDemoPicker] = useState(false);
-
-  function handleDemoSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setDemoSessionCookies(role);
-    router.push(next.startsWith("/app") ? next : "/app/dashboard");
-  }
 
   const liveHref =
     next.startsWith("/app") || next.startsWith("/ops")
@@ -71,62 +52,20 @@ function LoginForm() {
           Continue trial
         </Link>
         <Link
-          href="/demo"
+          href="/product"
           className="block w-full rounded-md border border-tl-line bg-tl-surface px-4 py-3 text-center text-sm font-medium text-tl-ink hover:border-tl-trust hover:text-tl-trust-ink"
         >
-          Explore demo
+          Product &amp; onboarding
         </Link>
       </div>
 
-      <div className="mt-8 border-t border-tl-line pt-6">
-        <button
-          type="button"
-          onClick={() => setShowDemoPicker((open) => !open)}
-          className="text-sm font-medium text-tl-ink-muted hover:text-tl-trust-ink"
-          aria-expanded={showDemoPicker}
-        >
-          {showDemoPicker ? "Hide quick demo role" : "Quick demo role (dev)"}
-        </button>
-
-        {showDemoPicker ? (
-          <form
-            onSubmit={handleDemoSubmit}
-            className="mt-4 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4"
-          >
-            <p className="text-xs text-tl-ink-muted">
-              Sets a demo session cookie and opens the app shell. Prefer{" "}
-              <Link href="/demo" className="text-tl-trust-ink underline">
-                /demo
-              </Link>{" "}
-              for the guided entry.
-            </p>
-            <div>
-              <label htmlFor="role" className="mb-1 block text-sm font-medium">
-                Role
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(event) => setRole(event.target.value as UserRole)}
-                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-              >
-                {USER_ROLES.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-            >
-              Continue as demo role
-            </button>
-          </form>
-        ) : null}
-      </div>
+      <p className="mt-8 text-xs text-tl-ink-muted">
+        New here?{" "}
+        <Link href="/trial" className="text-tl-trust-ink underline">
+          Start a 14-day trial
+        </Link>{" "}
+        with your own workspace — sample preview is retired.
+      </p>
     </main>
   );
 }
