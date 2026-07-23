@@ -39,7 +39,22 @@ export type ProvisionOwnerInput = {
   billAt?: string | null;
   authorizationCode?: string | null;
   planAmountCents?: number | null;
+  /**
+   * Complimentary VIP: full plan, entitlement active, no Paystack auth/bill_at.
+   * Isolated from day-14 charge-due (cron requires authorization_code).
+   */
+  complimentaryVip?: boolean;
+  /** ISO date (YYYY-MM-DD) for operator reminder — stored on Customer comment. */
+  complimentaryUntil?: string | null;
 };
+
+/** Prefix org name so VIP pilots never mix with paying Customers in Desk lists. */
+export function vipPilotOrganizationName(organization: string, ownerName: string): string {
+  const base =
+    organization.trim() || `${ownerName.trim() || "Guest"}'s TrustLedger`;
+  if (/^VIP Pilot\b/i.test(base)) return base;
+  return `VIP Pilot — ${base}`;
+}
 
 export type ProvisionOwnerCloudResult = {
   ok: boolean;
@@ -98,8 +113,10 @@ export async function provisionOwnerOnCloud(
 ): Promise<ProvisionOwnerCloudResult> {
   const ownerEmail = input.ownerEmail.trim().toLowerCase();
   const ownerName = input.ownerName.trim();
-  const organization =
-    input.organization.trim() || `${ownerName}'s TrustLedger`;
+  const complimentary = Boolean(input.complimentaryVip);
+  const organization = complimentary
+    ? vipPilotOrganizationName(input.organization, ownerName)
+    : input.organization.trim() || `${ownerName}'s TrustLedger`;
 
   if (!ownerEmail.includes("@") || !ownerName) {
     return { ok: false, error: "ownerEmail and ownerName required" };
@@ -112,13 +129,22 @@ export async function provisionOwnerOnCloud(
   }
 
   const headers = authHeaders(pair.key, pair.secret);
+  const entitlementStatus = complimentary
+    ? "active"
+    : input.status || "trial";
+  const billAt = complimentary ? null : input.billAt || null;
+  const authorizationCode = complimentary
+    ? null
+    : input.authorizationCode || null;
+  const planAmountCents = complimentary ? 0 : input.planAmountCents ?? undefined;
+
   const customer = buildCustomerDraft({
     organization,
     ownerEmail,
     ownerName,
     planId: input.planId,
     orgId: input.orgId,
-    status: input.status || "trial",
+    status: entitlementStatus,
   });
   const user = buildOwnerUserDraft({
     email: ownerEmail,
@@ -140,6 +166,49 @@ export async function provisionOwnerOnCloud(
     }
   }
 
+  async function stampVipComment(customerName: string) {
+    if (!complimentary) return;
+    const until = (input.complimentaryUntil || "").trim();
+    const text = [
+      "TrustLedger complimentary VIP access",
+      `Plan: ${input.planId}`,
+      until ? `Access until: ${until}` : "Access until: (operator calendar — typically 8 weeks)",
+      "No Paystack authorization — excluded from day-14 charge-due.",
+      "Do not mix with paying / self-serve trial Customers.",
+    ].join("\n");
+    await fetch(`${base}/api/resource/Comment`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        comment_type: "Comment",
+        reference_doctype: "Customer",
+        reference_name: customerName,
+        content: text,
+      }),
+      cache: "no-store",
+    }).catch(() => undefined);
+  }
+
+  async function applyComplimentaryFields(customerName: string) {
+    await fetch(
+      `${base}/api/resource/Customer/${encodeURIComponent(customerName)}`,
+      {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({
+          customer_name: organization,
+          custom_plan_code: input.planId,
+          custom_entitlement_status: "active",
+          custom_bill_at: null,
+          custom_authorization_code: "",
+          custom_plan_amount_cents: 0,
+          custom_owner_email: ownerEmail,
+        }),
+        cache: "no-store",
+      },
+    ).catch(() => undefined);
+  }
+
   try {
     const existingCustomer = await findCustomerByOwnerEmail(
       base,
@@ -148,8 +217,11 @@ export async function provisionOwnerOnCloud(
     );
     if (existingCustomer) {
       const hasUser = await userExists(base, headers, ownerEmail);
-      // Refresh billing fields when re-provisioning / Paystack retry
-      if (input.billAt || input.authorizationCode || input.planAmountCents) {
+      if (complimentary) {
+        await applyComplimentaryFields(existingCustomer);
+        await stampVipComment(existingCustomer);
+      } else if (input.billAt || input.authorizationCode || input.planAmountCents) {
+        // Refresh billing fields when re-provisioning / Paystack retry
         await fetch(
           `${base}/api/resource/Customer/${encodeURIComponent(existingCustomer)}`,
           {
@@ -223,9 +295,9 @@ export async function provisionOwnerOnCloud(
         custom_entitlement_status: customer.entitlement_status,
         custom_tl_org_id: customer.tl_org_id,
         custom_owner_email: customer.owner_email,
-        custom_bill_at: toFrappeDatetime(input.billAt || null),
-        custom_authorization_code: input.authorizationCode || undefined,
-        custom_plan_amount_cents: input.planAmountCents ?? undefined,
+        custom_bill_at: toFrappeDatetime(billAt),
+        custom_authorization_code: authorizationCode || (complimentary ? "" : undefined),
+        custom_plan_amount_cents: planAmountCents,
       }),
       cache: "no-store",
     });
@@ -246,6 +318,8 @@ export async function provisionOwnerOnCloud(
     } catch {
       /* keep draft name */
     }
+
+    await stampVipComment(customerName);
 
     const userRes = await fetch(`${base}/api/resource/User`, {
       method: "POST",

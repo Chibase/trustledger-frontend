@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProvisionOwnerPanel } from "@/components/ops/ProvisionOwnerPanel";
+import { VipAccessPanel } from "@/components/ops/VipAccessPanel";
 import { getCurrentUser } from "@/lib/auth";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import {
@@ -52,14 +53,17 @@ export default async function OpsAccountsPage() {
       </div>
 
       {isOperator ? (
-        <ProvisionOwnerPanel
-          isOperator
-          defaultEmail={user?.email}
-          defaultName={user?.name}
-          defaultPlanId={user?.trialPlan}
-          defaultOrg={undefined}
-          orgId={user?.orgId}
-        />
+        <>
+          <VipAccessPanel isOperator />
+          <ProvisionOwnerPanel
+            isOperator
+            defaultEmail={user?.email}
+            defaultName={user?.name}
+            defaultPlanId={user?.trialPlan}
+            defaultOrg={undefined}
+            orgId={user?.orgId}
+          />
+        </>
       ) : (
         <p className="text-sm text-tl-ink-muted">
           Sign in as Platform Operator to run provision drafts.
