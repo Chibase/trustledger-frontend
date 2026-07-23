@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-23 — Sign-out: stop middleware dashboard bounce
+
+- `/login?signedOut=1` and `?repaired=1` bypass the signed-in redirect and clear session cookies
+- Sign-out / session repair use hard navigation (`location.assign`) to avoid soft-nav cookie races
+
 ## 2026-07-23 — Sign-out → account chooser
 
 - Sign out / leave trial clears demo + live sessions and lands on `/login?signedOut=1` (no auto-demo)

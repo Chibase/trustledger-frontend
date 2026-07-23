@@ -59,6 +59,19 @@ export function middleware(request: NextRequest) {
     isLiveSession ||
     (getDataMode() === "live" && mode !== "demo" && mode !== "trial");
 
+  // After explicit sign-out / session repair, never bounce back into a dashboard
+  // even if cookies briefly linger on the first navigation.
+  if (pathname === "/login") {
+    const signedOutIntent =
+      request.nextUrl.searchParams.get("signedOut") === "1" ||
+      request.nextUrl.searchParams.get("repaired") === "1";
+    if (signedOutIntent) {
+      const response = NextResponse.next();
+      clearLiveCookies(response);
+      return response;
+    }
+  }
+
   if ((pathname === "/login" || pathname === "/login/live") && signedIn) {
     if (isLiveSession && isPlatformOperatorOnly()) {
       const gate = assertLiveOperatorAccess(email);
