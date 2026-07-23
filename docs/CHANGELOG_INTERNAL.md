@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-23 — VIP complimentary access (Ops)
+
+- `provisionOwnerCloud` / `POST /api/frappe/provision-owner`: `complimentaryVip` + `complimentaryUntil` → Customer `VIP Pilot — …`, plan default **institutional**, status **active**, Paystack billing cleared, Desk Comment stamped; no Frappe welcome email (operator shares temp password).
+- Ops **Accounts**: **VIP complimentary access** panel (dry-run + create + temp password).
+- Runbook: `docs/VIP_ACCESS.md`.
+- Public `/trial` and `/pay` unchanged; VIP guests use `/login/live` only.
+
 ## 2026-07-23 — Platform Strategic Brief (living)
 
 - Added `docs/PLATFORM_STRATEGIC_BRIEF.md`: achievements journey, front/back architecture, keep/improve/cut inventory, plan packaging matrix, public agent scripts, evaluation cadence, future upgrades
