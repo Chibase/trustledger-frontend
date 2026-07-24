@@ -1,17 +1,22 @@
 # Internal changelog
 
-<<<<<<< HEAD
+## 2026-07-24 — Resend env hardening (live OTP)
+
+- Accept `RESEND_API_KEY` (preferred) plus aliases `RESEND` / `RESEND_KEY`; `RESEND_FROM_EMAIL` or `RESEND_FROM`.
+- Default From → `TrustLedger <onboarding@resend.dev>` until `trustledger.co.za` is verified in Resend.
+- Clearer login errors for invalid key vs unverified From domain.
+- Reject keys that do not start with `re_` (dashboard name is not the secret).
+
 ## 2026-07-23 — Fix live login ByteString (ellipsis in secrets/password)
 
 - `cleanSecret` strips Unicode ellipsis / non-ByteString chars from Frappe + Resend keys
 - Live login sanitises pasted credentials; clearer error if Vercel env keys were truncated with `…`
 - Cookie name/email values forced ASCII-safe (OTP verify + login)
-=======
+
 ## 2026-07-24 — WP Contact CTAs → Vercel `/contact`
 
 - `docs/WORDPRESS_CTA.md` + `page-home.txt`: absolute Vercel Contact URLs (no relative `/contact` / mailto-only nav).
 - Rebased onto master (demo gate retired; trial/pay paths unchanged).
->>>>>>> origin/master
 
 ## 2026-07-23 — HS-1: start HubSpot cutover (Frappe CRM Lead SoT)
 

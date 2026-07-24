@@ -36,7 +36,8 @@ TRIAL_TOKEN_SECRET=<long random string>   # do not reuse Paystack secret
 
 # Recommended
 RESEND_API_KEY=…                          # welcome email with temp password
-RESEND_FROM=TrustLedger <noreply@…>
+RESEND_FROM_EMAIL=TrustLedger <onboarding@resend.dev>   # or verified @trustledger.co.za
+# Alias also accepted: RESEND_FROM=…
 
 # GO LIVE posture
 PLATFORM_OPERATOR_ONLY=0
