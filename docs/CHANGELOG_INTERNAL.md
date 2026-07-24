@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-24 — Uninstall Email Delivery Service for sales@ SMTP
+
+- Documented Frappe Cloud **Email Delivery Service** uninstall (blocks custom Email Accounts while installed).
+- Desk checklist for `sales@trustledger.co.za` SMTP 465 / IMAP 993: `docs/exports/email-marketing/DESK_EMAIL_ACCOUNT_SALES.md`.
+
 ## 2026-07-24 — Launch gates: reject truncated Resend keys + fix checklist
 
 - `resendApiKey` ignores stub values shorter than 20 chars (e.g. `re_` alone) so readiness/health don’t treat them as configured.
