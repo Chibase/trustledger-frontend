@@ -272,7 +272,7 @@
       <div>
         <p class="site-footer__brand">TrustLedger</p>
         <p class="site-footer__parent">A Chibase Consulting product</p>
-        <p class="site-footer__contact"><a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a></p>
+        <p className="site-footer__contact"><a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a> · <a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a></p>
       </div>
       <div>
         <p class="site-footer__heading">Product</p>
@@ -289,7 +289,7 @@
           <li><a href="https://chibaseconsulting.co.za" target="_blank" rel="noopener noreferrer">Chibase Consulting</a></li>
           <li><a href="https://trustledger.co.za/privacy/">Privacy</a></li>
           <li><a href="https://trustledger.co.za/terms/">Terms</a></li>
-          <li><a href="mailto:info@trustledger.co.za">Contact</a></li>
+          <li><a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a></li>
         </ul>
       </div>
       <div>
