@@ -25,6 +25,10 @@ Product (Vercel): `https://trustledger-frontend-pi.vercel.app`
 
 ## Paste on Webway
 
+**Cutover checklist (HubSpot out):** `docs/WEBWAY_CUTOVER.md` (ADR-034).
+
 See `docs/wordpress/PASTE_PLANS.md`. After each CTA change, paste `page-home.txt` (and Assessment if live), then purge SpeedyCache.
 
 **Contact fix (if footer still opens mail/search):** replace every footer/nav Contact `mailto:info@trustledger.co.za` (or relative `/contact`) with the absolute Contact URL above, or re-paste full `page-home.txt`. Purge SpeedyCache after.
+
+**Do not** paste HubSpot Free form embeds on trustledger.co.za.

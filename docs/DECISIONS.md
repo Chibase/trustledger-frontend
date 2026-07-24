@@ -103,14 +103,27 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
 
-### ADR-034: Frappe CRM Lead is acquisition SoT (cut HubSpot)
+### ADR-034: Frappe-only acquisition CRM (cut HubSpot)
 
-- **Date:** 2026-07-23
+- **Date:** 2026-07-23 (clarified 2026-07-24)
 - **Status:** Accepted
-- **Context:** HubSpot Free embeds and dual CRM hurt branding and ops clarity. Vercel already owns branded forms; Frappe Cloud already receives CRM Lead when keys exist (`LEAD_BACKEND`). Soft launch no longer needs HubSpot as primary magnet.
-- **Decision:** **Frappe CRM Lead** is the system of record for product acquisition (assessment, contact, quote, trial, feedback, support intake). WordPress remains CTA-only to Vercel. HubSpot is optional fallback via explicit `LEAD_BACKEND=auto` or `hubspot` during cutover packets HS-1→HS-4 (`docs/HS_CUTOVER.md`). Production with Frappe API keys defaults to **frappe-only** when `LEAD_BACKEND` is unset.
-- **Consequences:** Ops readiness + `/api/health` gate lead cutover; no new HubSpot form embeds; commitment still provisions Customer/Owner on Frappe (Paystack / Ops / VIP).
-- **Alternatives considered:** Keep ADR-011 HubSpot-first forever (rejected); hard-delete HubSpot code in HS-1 before Production smoke (rejected — phased HS-2→HS-4).
+- **Context:** HubSpot Free embeds and dual CRM hurt TrustLedger branding and solo-ops clarity. Vercel already owns branded forms; Frappe Cloud already receives **CRM Lead** when API keys exist. Soft launch no longer needs HubSpot as a required link in the chain.
+- **Decision:** **Acquisition CRM = Frappe CRM Lead only.** Target chain:
+  ```text
+  WordPress (Webway)  →  CTAs only (no forms / no HubSpot embeds)
+          ↓
+  Vercel TrustLedger  →  branded forms + Paystack + product UI + Ops
+          ↓
+  Frappe Cloud        →  CRM Lead → (commitment/pay) Customer + Owner User
+          ↓
+  /login/live         →  product
+  ```
+  Operating rule: *Strangers fill Vercel forms → Frappe Leads; money/commitment → Frappe Customer + live login. WordPress never owns data. HubSpot is out.*
+  - Production: set `LEAD_BACKEND=frappe` (or leave unset when Frappe keys exist — HS-1 defaults to frappe-only).
+  - HubSpot is **not required**. Optional emergency only via explicit `LEAD_BACKEND=auto` or `hubspot` until HS-4 deletes the client.
+  - WordPress cutover: `docs/WEBWAY_CUTOVER.md`. Full phases: `docs/HS_CUTOVER.md`.
+- **Consequences:** No new HubSpot form embeds or sequences for product intake; Ops readiness + `/api/health` gate lead cutover; follow-ups via Frappe notifications or Webway mailbox (`info@trustledger.co.za`) using Lead comments; commitment still provisions Customer/Owner on Frappe (Paystack / Ops / VIP).
+- **Alternatives considered:** Keep ADR-011 HubSpot-first forever (rejected); hard-delete HubSpot code before Production smoke (rejected — phased HS-2→HS-4).
 
 ### ADR-012: Plan Owner admin + Owner-confirmed lower seats
 
