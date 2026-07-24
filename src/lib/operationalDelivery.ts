@@ -19,7 +19,10 @@ import {
   recaptchaConfigured,
   recaptchaRequired,
 } from "@/lib/formGuard";
-import { transactionalEmailConfigured } from "@/lib/transactionalEmail";
+import {
+  resendPublicDiagnostics,
+  transactionalEmailConfigured,
+} from "@/lib/transactionalEmail";
 import {
   accessEmailVerificationEnabled,
   accessVerificationReady,
@@ -192,18 +195,34 @@ const GATE_DEFS: GateDef[] = [
     evaluate: () => {
       const enabled = accessEmailVerificationEnabled();
       const ready = accessVerificationReady();
-      if (!enabled) {
+      const resend = resendPublicDiagnostics();
+      if (resend.keyLooksTruncated) {
         return {
           pass: false,
           detail:
-            "Off — set RESEND_API_KEY (auto-on in Production) or ACCESS_EMAIL_VERIFICATION=1",
+            "RESEND_API_KEY looks truncated (paste the full re_… secret from Resend, then Redeploy)",
+        };
+      }
+      if (!enabled) {
+        const forcedOff =
+          (process.env.ACCESS_EMAIL_VERIFICATION || "").trim().toLowerCase() ===
+            "0" ||
+          (process.env.ACCESS_EMAIL_VERIFICATION || "").trim().toLowerCase() ===
+            "false" ||
+          (process.env.ACCESS_EMAIL_VERIFICATION || "").trim().toLowerCase() ===
+            "off";
+        return {
+          pass: false,
+          detail: forcedOff
+            ? "Off via ACCESS_EMAIL_VERIFICATION=0 — set to 1 after a valid RESEND_API_KEY works"
+            : "Off — set a full RESEND_API_KEY (auto-on in Production) or ACCESS_EMAIL_VERIFICATION=1",
         };
       }
       return {
         pass: ready,
         detail: ready
           ? "Live login OTP + trial email verify on"
-          : "Enabled but RESEND_API_KEY missing — live login will 503",
+          : "Enabled but RESEND_API_KEY missing/invalid — live login OTP will fail",
       };
     },
   },

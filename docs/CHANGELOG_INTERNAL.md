@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-24 — Launch gates: reject truncated Resend keys + fix checklist
+
+- `resendApiKey` ignores stub values shorter than 20 chars (e.g. `re_` alone) so readiness/health don’t treat them as configured.
+- Access-verify gate calls out truncated keys and `ACCESS_EMAIL_VERIFICATION=0`.
+- Operator checklist: `docs/LAUNCH_GATES_FIX.md` (reCAPTCHA + Resend).
+
 ## 2026-07-24 — EM-1: branded Frappe bulk email pack
 
 - `docs/FRAPPE_EMAIL_MARKETING.md`: Desk Email Domain → Email Group → Newsletter/Campaign; Resend stays transactional only.
