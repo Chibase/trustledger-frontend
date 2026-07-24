@@ -18,7 +18,7 @@ const COLS = [
     title: "Company",
     links: [
       { href: "https://chibaseconsulting.co.za", label: "Chibase Consulting", external: true },
-      { href: "/contact", label: "Contact" },
+      { href: "/contact?utm_source=home&utm_medium=footer&utm_campaign=contact", label: "Contact" },
       { href: "https://trustledger.co.za/privacy/", label: "Privacy", external: true },
       { href: "https://trustledger.co.za/terms/", label: "Terms", external: true },
     ],
@@ -52,6 +52,13 @@ export function HomeFooter() {
               Version 001 live · Version 002 in build
             </p>
             <p className="mt-4 text-sm text-white/70">
+              <Link
+                href="/contact?utm_source=home&utm_medium=footer&utm_campaign=contact"
+                className="underline underline-offset-2 hover:text-white"
+              >
+                Contact
+              </Link>
+              {" · "}
               <a
                 href="mailto:info@trustledger.co.za"
                 className="underline underline-offset-2 hover:text-white"
@@ -102,7 +109,10 @@ export function HomeFooter() {
               Paystack
             </Link>
             . Institutional is sales-led via{" "}
-            <Link href="/contact" className="underline underline-offset-2 hover:text-white">
+            <Link
+              href="/contact?utm_source=home&utm_medium=footer&utm_campaign=contact"
+              className="underline underline-offset-2 hover:text-white"
+            >
               contact
             </Link>
             .
