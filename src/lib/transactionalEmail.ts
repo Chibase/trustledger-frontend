@@ -28,6 +28,13 @@ const RESEND_KEY_ENV_CANDIDATES = [
   "RESEND",
 ] as const;
 
+/** Real Resend secrets are `re_` + a long token — reject stubs like `re_` alone. */
+const RESEND_KEY_MIN_LENGTH = 20;
+
+function isPlausibleResendKey(value: string): boolean {
+  return value.startsWith("re_") && value.length >= RESEND_KEY_MIN_LENGTH;
+}
+
 /** Normalize pasted secrets: strip Bearer, quotes, whitespace, junk. */
 function normalizeResendSecret(raw: string | undefined): string {
   let value = cleanSecret(raw);
@@ -39,8 +46,9 @@ function normalizeResendSecret(raw: string | undefined): string {
 
 /**
  * Resend API key from Vercel.
- * Prefers a value that starts with `re_`. Among those, prefers RESEND_API_KEY.
+ * Prefers a plausible `re_…` secret. Among those, prefers RESEND_API_KEY.
  * The Resend dashboard *key name* (e.g. "resend") is cosmetic and ignored.
+ * Truncated stubs (`re_` only) are treated as missing.
  */
 export function resendApiKey(): string {
   const found: Array<{ source: string; value: string }> = [];
@@ -48,14 +56,14 @@ export function resendApiKey(): string {
     const value = normalizeResendSecret(process.env[name]);
     if (value) found.push({ source: name, value });
   }
-  const withPrefix = found.filter((row) => row.value.startsWith("re_"));
-  if (withPrefix.length) {
+  const plausible = found.filter((row) => isPlausibleResendKey(row.value));
+  if (plausible.length) {
     return (
-      withPrefix.find((row) => row.source === "RESEND_API_KEY")?.value ||
-      withPrefix[0].value
+      plausible.find((row) => row.source === "RESEND_API_KEY")?.value ||
+      plausible[0].value
     );
   }
-  return found[0]?.value || "";
+  return "";
 }
 
 export function resendApiKeySource(): string | null {
@@ -84,7 +92,7 @@ export function resendFromAddress(): string {
 }
 
 export function transactionalEmailConfigured(): boolean {
-  return Boolean(resendApiKey());
+  return isPlausibleResendKey(resendApiKey());
 }
 
 /** Safe diagnostics for /api/health — never includes the secret. */
@@ -95,15 +103,26 @@ export function resendPublicDiagnostics(): {
   keyLength: number;
   keyPrefix: string | null;
   from: string;
+  /** True when an env var is set but too short / not a real re_ secret. */
+  keyLooksTruncated: boolean;
 } {
+  const rawCandidates = RESEND_KEY_ENV_CANDIDATES.map((name) =>
+    normalizeResendSecret(process.env[name]),
+  ).filter(Boolean);
   const key = resendApiKey();
+  const longestRaw = rawCandidates.reduce((a, b) => (a.length >= b.length ? a : b), "");
   return {
     configured: Boolean(key),
     envSource: resendApiKeySource(),
-    keyStartsWithRe: key.startsWith("re_"),
-    keyLength: key.length,
-    keyPrefix: key ? `${key.slice(0, 3)}…` : null,
+    keyStartsWithRe: key.startsWith("re_") || longestRaw.startsWith("re_"),
+    keyLength: key.length || longestRaw.length,
+    keyPrefix: key
+      ? `${key.slice(0, 3)}…`
+      : longestRaw
+        ? `${longestRaw.slice(0, 3)}…`
+        : null,
     from: resendFromAddress(),
+    keyLooksTruncated: Boolean(longestRaw) && !isPlausibleResendKey(longestRaw),
   };
 }
 
