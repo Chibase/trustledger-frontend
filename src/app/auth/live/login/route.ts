@@ -29,6 +29,27 @@ import {
   signPendingLiveAuth,
 } from "@/lib/accessVerification";
 import { sendLoginOtpEmail } from "@/lib/transactionalEmail";
+import {
+  byteStringHeaderErrorMessage,
+  cookieSafeValue,
+} from "@/lib/leadCapture";
+
+/** Strip paste junk that often lands in password managers / truncated copies. */
+function sanitizeLoginCredentials(usr: string, pwd: string): {
+  usr: string;
+  pwd: string;
+} {
+  const cleanUsr = usr
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .replace(/[\u200B-\u200D\uFEFF\u2026]/g, "");
+  const cleanPwd = pwd
+    .replace(/^\uFEFF/, "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    // Trailing ellipsis usually means a truncated paste — drop it.
+    .replace(/\u2026/g, "");
+  return { usr: cleanUsr, pwd: cleanPwd };
+}
 
 export async function POST(request: Request) {
   let body: { usr?: string; pwd?: string };
@@ -38,8 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const usr = (body.usr || "").trim();
-  const pwd = body.pwd || "";
+  const { usr, pwd } = sanitizeLoginCredentials(body.usr || "", body.pwd || "");
   if (!usr || !pwd) {
     return NextResponse.json(
       { error: "usr and pwd are required" },
@@ -130,7 +150,7 @@ export async function POST(request: Request) {
 
       const hint =
         email.includes("@") && email.length > 4
-          ? `${email.slice(0, 2)}•••@${email.split("@")[1]}`
+          ? `${email.slice(0, 2)}...@${email.split("@")[1]}`
           : "your email";
 
       const response = NextResponse.json({
@@ -176,18 +196,21 @@ export async function POST(request: Request) {
     response.cookies.set(TL_MODE_COOKIE, "live", cookieBase);
     response.cookies.set(
       TL_USER_NAME_COOKIE,
-      session.fullName.replace(/[;\r\n]/g, "").slice(0, 80),
+      cookieSafeValue(session.fullName, 80),
       cookieBase,
     );
     response.cookies.set(
       TL_USER_EMAIL_COOKIE,
-      email.replace(/[;\r\n]/g, "").slice(0, 120),
+      cookieSafeValue(email, 120),
       cookieBase,
     );
 
     return response;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Login failed";
+    const byteMsg = byteStringHeaderErrorMessage(error);
+    const message =
+      byteMsg ||
+      (error instanceof Error ? error.message : "Login failed");
     return NextResponse.json({ error: message }, { status: 401 });
   }
 }

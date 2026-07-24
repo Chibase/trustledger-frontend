@@ -19,6 +19,7 @@ import {
 } from "@/lib/accessVerification";
 import { sendLoginOtpEmail } from "@/lib/transactionalEmail";
 import { rateLimitAllow, clientIp } from "@/lib/formGuard";
+import { cookieSafeValue } from "@/lib/leadCapture";
 
 /** Complete live login after email OTP. */
 export async function POST(request: Request) {
@@ -86,12 +87,12 @@ export async function POST(request: Request) {
   response.cookies.set(TL_MODE_COOKIE, "live", cookieBase);
   response.cookies.set(
     TL_USER_NAME_COOKIE,
-    pending.fullName.replace(/[;\r\n]/g, "").slice(0, 80),
+    cookieSafeValue(pending.fullName, 80),
     cookieBase,
   );
   response.cookies.set(
     TL_USER_EMAIL_COOKIE,
-    pending.email.replace(/[;\r\n]/g, "").slice(0, 120),
+    cookieSafeValue(pending.email, 120),
     cookieBase,
   );
   response.cookies.set(TL_AUTH_PENDING_COOKIE, "", {

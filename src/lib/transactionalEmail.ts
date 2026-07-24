@@ -1,7 +1,7 @@
-/**
- * Optional transactional email (Resend).
- * When unset, callers still surface credentials on the success page and CRM lead.
- */
+import {
+  cleanSecret,
+  byteStringHeaderErrorMessage,
+} from "@/lib/leadCapture";
 
 export type TrialWelcomeEmailInput = {
   to: string;
@@ -23,7 +23,7 @@ export type LoginOtpEmailInput = {
 };
 
 export function transactionalEmailConfigured(): boolean {
-  return Boolean(process.env.RESEND_API_KEY?.trim());
+  return Boolean(cleanSecret(process.env.RESEND_API_KEY));
 }
 
 async function sendResendEmail(input: {
@@ -32,13 +32,16 @@ async function sendResendEmail(input: {
   text: string;
   html: string;
 }): Promise<{ sent: boolean; detail?: string }> {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const apiKey = cleanSecret(process.env.RESEND_API_KEY);
   if (!apiKey) {
     return { sent: false, detail: "RESEND_API_KEY not set" };
   }
 
   const from =
-    process.env.RESEND_FROM_EMAIL?.trim() ||
+    (process.env.RESEND_FROM_EMAIL || "")
+      .replace(/^\uFEFF/, "")
+      .trim()
+      .replace(/\u2026/g, "") ||
     "TrustLedger <onboarding@trustledger.co.za>";
 
   try {
@@ -67,9 +70,10 @@ async function sendResendEmail(input: {
     }
     return { sent: true };
   } catch (err) {
+    const byteMsg = byteStringHeaderErrorMessage(err);
     return {
       sent: false,
-      detail: err instanceof Error ? err.message : "email failed",
+      detail: byteMsg || (err instanceof Error ? err.message : "email failed"),
     };
   }
 }
