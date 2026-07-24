@@ -186,8 +186,8 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| **HS-1** | Frappe-first leads | Production default `frappe` when Cloud keys set; Ops/health gate; ADR-034 + `docs/HS_CUTOVER.md` | **Active** |
-| **HS-2** | Production smoke | All Vercel forms → CRM Lead; explicit `LEAD_BACKEND=frappe`; pause HubSpot form workflows | Planned |
+| **HS-1** | Frappe-first leads | Production default `frappe` when Cloud keys set; Ops/health gate; ADR-034 + `docs/HS_CUTOVER.md` | **Done** (#68) |
+| **HS-2** | Production smoke + Webway | All Vercel forms → CRM Lead; explicit `LEAD_BACKEND=frappe`; `docs/WEBWAY_CUTOVER.md` | **Active** |
 | **HS-3** | Remove HubSpot config | Drop portal/form env; strip WP embeds (Webway) | Planned |
 | **HS-4** | Delete HubSpot client | Remove `submitHubSpotLead`; relocate `siteBaseUrl` | Planned |
 
@@ -235,3 +235,4 @@ src/
 | 2026-07-23 | ADR-033 — retire public sample demo; `/product` + Cloud SI active |
 | 2026-07-23 | PLATFORM_STRATEGIC_BRIEF — living brief for plans, agents, evaluation |
 | 2026-07-23 | HS-1 active — cut HubSpot; Frappe CRM Lead acquisition SoT (ADR-034) |
+| 2026-07-24 | ADR-034 clarified Frappe-only; WEBWAY_CUTOVER checklist; HS-2 active |

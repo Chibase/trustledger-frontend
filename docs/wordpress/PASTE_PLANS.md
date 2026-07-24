@@ -2,6 +2,8 @@
 
 Repo paste files already point at Vercel Paystack + trial. **Live WP does not update until you paste.**
 
+**HubSpot cutover:** follow `docs/WEBWAY_CUTOVER.md` (ADR-034). Do not paste HubSpot forms.
+
 ## Link map
 
 | Plan | Subscribe | Trial |

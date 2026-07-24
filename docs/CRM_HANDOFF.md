@@ -1,8 +1,9 @@
-# CRM handoff: leads → Frappe (HubSpot retired)
+# CRM handoff: Vercel forms → Frappe (HubSpot out)
 
 **Locked operating model (ADR-034):**  
 **Frappe Cloud** `app.trustledger.co.za` = acquisition **and** relationship system of record.  
-HubSpot Free = **cutover fallback only** (`LEAD_BACKEND=auto` / `hubspot`) until HS-3/HS-4 remove it. See `docs/HS_CUTOVER.md`.
+WordPress = CTAs only. HubSpot = **not required** (emergency fallback only until HS-4).  
+See `docs/HS_CUTOVER.md` and `docs/WEBWAY_CUTOVER.md`.
 
 ```text
 WordPress CTA → Vercel branded form
@@ -18,30 +19,30 @@ WordPress CTA → Vercel branded form
 
 | Keep | Where |
 |------|--------|
-| Assessment / contact / quote / trial / feedback | CRM Lead via `/api/...` → `submitProductLead` |
+| Assessment / contact / quote / trial / feedback | CRM Lead via Vercel APIs → `submitProductLead` |
 | Support tickets Phase A | Same CRM Lead path (`support_ticket`) |
-| UTM / campaign attribution | Lead message / custom fields as already shipped |
+| UTM / campaign attribution | Lead message / fields as shipped |
 | Paying / VIP customers | Customer + Owner User (Paystack / Ops / VIP panel) |
 
 **Do not** rebuild marketing automation in HubSpot for these forms.
 
-## What used to stay in HubSpot (retired target)
+## Suggested Lead stages (Phase 3)
 
-Until HS-2 smoke is green you may keep HubSpot credentials for emergency `LEAD_BACKEND=auto`. After HS-3, remove portal/form env and WP embeds.
+`New → Contacted → Qualified → Proposal → Commitment`
+
+At **Commitment** or Paystack success: Customer + Plan Owner (auto-provision / Ops).  
+Follow-ups: Frappe email if enabled, else Webway mailbox using the Lead **Comment** — not HubSpot sequences.
 
 ## Commitment → Customer
 
 **Trigger (any one):** signed pilot, paid Paystack checkout, written “yes” to paid plan, or Ops VIP / Owner provision.
 
-**Create on Frappe Cloud:**
-
 1. **Customer** (organisation)  
 2. **Contact** (buyer / champion) linked to Customer  
 3. **User** + roles when they need product access  
 4. Optional close CRM Lead against that Customer  
-5. Link **Project(s)** when `srm-core` / SI DocTypes apply  
 
-Day-to-day relationship work (calls, renewals, support) stays in **Frappe**.
+Day-to-day relationship work stays in **Frappe**.
 
 ## Solo checklist when someone commits
 
@@ -56,4 +57,5 @@ Day-to-day relationship work (calls, renewals, support) stays in **Frappe**.
 |-------|--------|
 | Strangers → interest | **Frappe CRM Lead** (Vercel forms) |
 | Commitment → ongoing client | **Frappe** Customer / Owner |
-| HubSpot | Fallback only during cutover |
+| WordPress | CTAs only |
+| HubSpot | Out (emergency fallback until retired) |
