@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-24 — Resend key load + health auth probe
+
+- Prefer valid `re_…` among RESEND_API_KEY / RESEND / RESEND_KEY; strip accidental `Bearer ` prefix.
+- `/api/health` → `launch.resendAuthOk` + safe `resendDiag` (env source, length, prefix, from) — no secret.
+- Clearer OTP error when Vercel still holds a revoked key.
+
 ## 2026-07-24 — Resend env hardening (live OTP)
 
 - Accept `RESEND_API_KEY` (preferred) plus aliases `RESEND` / `RESEND_KEY`; `RESEND_FROM_EMAIL` or `RESEND_FROM`.
