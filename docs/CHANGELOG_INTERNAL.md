@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-24 — CP-1 / ADR-035: Solo entry plan
+
+- New commercial plan **`solo`** — R1,999/mo, 1 seat, 1 project, 10 MB, no AI Assist / SI / governance packs.
+- Wired through Paystack catalogue, entitlements, seats, media quotas, report packs, trial/pay/quote/ops UI, Frappe `custom_plan_code`.
+- Docs: `docs/SOLO_PLAN.md`, LAUNCH_PLANS, ACCESS_MODEL, PLATFORM_STRATEGIC_BRIEF, WORDPRESS_CTA.
+- Ladder: Solo → Practitioner → Project → Institutional. Ops must create Paystack plan code `solo` before live charge.
+
 ## 2026-07-24 — Uninstall Email Delivery Service for sales@ SMTP
 
 - Documented Frappe Cloud **Email Delivery Service** uninstall (blocks custom Email Accounts while installed).

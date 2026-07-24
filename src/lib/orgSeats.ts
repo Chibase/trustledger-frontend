@@ -1,5 +1,5 @@
 /**
- * Seat limits + inviteable desk exposure by plan (ACCESS_MODEL).
+ * Seat limits + inviteable desk exposure by plan (ACCESS_MODEL / ADR-035).
  * Desk rank 1 (Client/Board/funder) → 5 (CLO); Owner invites only lower ranks.
  */
 
@@ -14,8 +14,14 @@ import {
 } from "@/types/deskTier";
 import type { OrgRecord, SeatSummary } from "@/types/org";
 
+/** Solo + Practitioner are owner-only (0 junior seats). */
+export function isOwnerOnlyPlan(planId: PlanId): boolean {
+  return planId === "solo" || planId === "practitioner";
+}
+
 export function additionalSeatCapForPlan(planId: PlanId): number | null {
   switch (planId) {
+    case "solo":
     case "practitioner":
       return 0;
     case "project":
@@ -32,10 +38,10 @@ export function ownerDeskForPlan(planId: PlanId): DeskTier {
 
 /**
  * Desks an Owner may assign to juniors: strictly below Owner rank.
- * Practitioner has no junior seats (empty). Higher desks stay in the UI greyed.
+ * Solo / Practitioner have no junior seats (empty). Higher desks stay in the UI greyed.
  */
 export function inviteableDeskTiersForPlan(planId: PlanId): DeskTier[] {
-  if (planId === "practitioner") return [];
+  if (isOwnerOnlyPlan(planId)) return [];
   return desksBelow(ownerDeskForPlan(planId));
 }
 
@@ -51,7 +57,7 @@ export function defaultInviteDeskTier(planId: PlanId): DeskTier {
 
 /** Lowest commercial plan whose Owner sits above this desk (can invite it). */
 export function lowestPlanForInviteDesk(tier: DeskTier): PlanId {
-  const order: PlanId[] = ["practitioner", "project", "institutional"];
+  const order: PlanId[] = ["solo", "practitioner", "project", "institutional"];
   for (const id of order) {
     if (canInviteDeskTier(id, tier)) return id;
   }

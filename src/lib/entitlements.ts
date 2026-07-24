@@ -57,7 +57,7 @@ export function canOwnerToggleCapability(
 
 /** Lowest commercial plan that includes the capability (for upgrade copy). */
 export function lowestPlanIncluding(capability: CapabilityId): PlanId {
-  const order: PlanId[] = ["practitioner", "project", "institutional"];
+  const order: PlanId[] = ["solo", "practitioner", "project", "institutional"];
   for (const id of order) {
     if (PLAN_CAPABILITIES[id].includes(capability)) return id;
   }

@@ -25,7 +25,7 @@ export const TRUSTLEDGER_CUSTOM_FIELDS: CustomFieldSpec[] = [
     fieldname: "custom_plan_code",
     label: "Plan code",
     fieldtype: "Select",
-    options: "practitioner\nproject\ninstitutional",
+    options: "solo\npractitioner\nproject\ninstitutional",
     insert_after: "customer_name",
   },
   {

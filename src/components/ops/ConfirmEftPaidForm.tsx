@@ -4,7 +4,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { PaystackPlanId } from "@/lib/paystackPlans";
 
-const PLANS: PaystackPlanId[] = ["practitioner", "project", "institutional"];
+const PLANS: PaystackPlanId[] = [
+  "solo",
+  "practitioner",
+  "project",
+  "institutional",
+];
 
 export function ConfirmEftPaidForm() {
   const router = useRouter();

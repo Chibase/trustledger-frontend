@@ -1,5 +1,5 @@
 /**
- * Trial / marketing plan lens — aligned with Paystack catalogue (ADR-012).
+ * Trial / marketing plan lens — aligned with Paystack catalogue (ADR-012 / ADR-035).
  * Prefer `getPaystackPlans()` for checkout amounts.
  */
 
@@ -24,6 +24,7 @@ export type PlanDefinition = {
 export const TRIAL_DAYS = 14;
 
 export const PLAN_IDS: PlanId[] = [
+  "solo",
   "practitioner",
   "project",
   "institutional",
@@ -37,7 +38,7 @@ export function isPlanId(value: string): value is PlanId {
 export function planFromUtmCampaign(
   campaign: string | null | undefined,
 ): PlanId {
-  if (!campaign) return "practitioner";
+  if (!campaign) return "solo";
   const c = campaign.toLowerCase();
   if (
     c.includes("growth") ||
@@ -53,10 +54,18 @@ export function planFromUtmCampaign(
   ) {
     return "institutional";
   }
-  if (c.includes("starter") || c.includes("practitioner")) {
+  if (c.includes("practitioner") || c.includes("ai_assist")) {
     return "practitioner";
   }
-  return "practitioner";
+  if (
+    c.includes("solo") ||
+    c.includes("starter") ||
+    c.includes("entry") ||
+    c.includes("lone")
+  ) {
+    return "solo";
+  }
+  return "solo";
 }
 
 export function formatZar(amount: number): string {
@@ -64,11 +73,22 @@ export function formatZar(amount: number): string {
 }
 
 export const PLANS: Record<PlanId, PlanDefinition> = {
+  solo: {
+    id: "solo",
+    name: "Solo",
+    description:
+      "Lone consultant — 1 seat, essential desk (no AI Assist).",
+    monthlyLaunchZar: LAUNCH_PRICES_ZAR.solo,
+    trialDays: TRIAL_DAYS,
+    cta: "pay",
+    payHref:
+      "/pay?plan=solo&utm_source=pricing&utm_medium=cta&utm_campaign=buy_solo",
+  },
   practitioner: {
     id: "practitioner",
     name: "Practitioner",
     description:
-      "Single Plan Owner — dashboard, reporting, and standard AI assist.",
+      "Independent desk — AI Assist, light governance, higher media quota.",
     monthlyLaunchZar: LAUNCH_PRICES_ZAR.practitioner,
     trialDays: TRIAL_DAYS,
     cta: "pay",

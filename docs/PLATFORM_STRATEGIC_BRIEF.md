@@ -145,7 +145,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Commitments board | Promote from engagements; Cloud SI | Project + Institutional |
 | Capture hub | Minutes → AI extract → apply | Project + Institutional |
 | Trial own-data | `/trial` empty workspace | Acquisition |
-| Paystack trial authorize | Card on file → day-14 charge | Practitioner + Project |
+| Paystack trial authorize | Card on file → day-14 charge | Solo + Practitioner + Project |
 | Live login + email OTP | Resend when configured | Paying / provisioned Owners |
 | Ops provision + DocType ensure/smoke | `/ops/accounts` | Operator only |
 | Dual reports hub | Activity vs packs (ADR-028) | Pack tier by plan |
@@ -205,39 +205,40 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 
 | Plan | Price (ZAR/mo excl. VAT) | Who it is for | Seat model | Storage soft cap |
 |------|--------------------------|---------------|------------|------------------|
-| **Practitioner** | R5,399 | Solo SRM / consultant / small desk | Owner only (0 juniors) | 25 MB |
+| **Solo** | R1,999 | Lone consultant barely surviving / entry desk | Owner only (0 juniors) | 10 MB |
+| **Practitioner** | R5,399 | Independent SRM ready for AI Assist | Owner only (0 juniors) | 25 MB |
 | **Project** | R14,999 | Active project / site team | Owner + juniors | 250 MB |
 | **Institutional** | Contact sales | Multi-project / public sector / enterprise | Custom | 2 GB soft |
 
-**Trial:** 14 days; default Paystack path `trial_authorize` (small verify charge, bill day 14) — ADR-025.
+**Trial:** 14 days; default Paystack path `trial_authorize` (small verify charge, bill day 14) — ADR-025. Entry SKU detail: `docs/SOLO_PLAN.md` (ADR-035).
 
 ### 5.2 Capability matrix (what to package)
 
-| Capability | Practitioner | Project | Institutional | Notes for packaging |
-|------------|:------------:|:-------:|:-------------:|---------------------|
-| Dashboard / activity | ✓ | ✓ | ✓ | Core wedge |
-| Projects | ✓ | ✓ | ✓ | Light PM — not full PMO |
-| Incidents / grievance desk | ✓ | ✓ | ✓ | **V001 sellable heart** |
-| Issue intake | ✓ | ✓ | ✓ | Field reporting |
-| AI assist (suggest→apply) | ✓ | ✓ | ✓ | Never “auto-resolve” in sales |
-| Geo intake / place fields | ✓ | ✓ | ✓ | ZA pack; not full GIS |
-| Trust pulse | ✓ | ✓ | ✓ | Desk signal |
-| Governance reports | ✓ | ✓ | ✓ | Pack depth differs (below) |
-| Capture hub | — | ✓ | ✓ | V002 field evidence |
-| Stakeholder CRM | — | ✓ | ✓ | **SRM engine — do not undersell** |
-| Engagements | — | ✓ | ✓ | SI core |
-| Commitments | — | ✓ | ✓ | SI core |
-| ESG / intelligence cards | — | ✓ | ✓ | Illustrative until Stats SA |
-| Desk graphs | — | ✓ | ✓ | |
-| Supervisor queue | — | ✓ | ✓ | |
+| Capability | Solo | Practitioner | Project | Institutional | Notes for packaging |
+|------------|:----:|:------------:|:-------:|:-------------:|---------------------|
+| Dashboard / activity | ✓ | ✓ | ✓ | ✓ | Core wedge |
+| Projects | ✓ (1) | ✓ | ✓ | ✓ | Light PM — not full PMO |
+| Incidents / grievance desk | ✓ | ✓ | ✓ | ✓ | **V001 sellable heart** |
+| Issue intake | ✓ | ✓ | ✓ | ✓ | Field reporting |
+| AI assist (suggest→apply) | — | ✓ | ✓ | ✓ | Never “auto-resolve” in sales |
+| Geo intake / place fields | ✓ | ✓ | ✓ | ✓ | ZA pack; not full GIS |
+| Trust pulse | ✓ | ✓ | ✓ | ✓ | Desk signal |
+| Governance reports | — | ✓ | ✓ | ✓ | Pack depth differs (below) |
+| Capture hub | — | — | ✓ | ✓ | V002 field evidence |
+| Stakeholder CRM | — | — | ✓ | ✓ | **SRM engine — do not undersell** |
+| Engagements | — | — | ✓ | ✓ | SI core |
+| Commitments | — | — | ✓ | ✓ | SI core |
+| ESG / intelligence cards | — | — | ✓ | ✓ | Illustrative until Stats SA |
+| Desk graphs | — | — | ✓ | ✓ | |
+| Supervisor queue | — | — | ✓ | ✓ | |
 
 **Report packs (ADR-028):**
 
-| Pack | Practitioner | Project | Institutional |
-|------|:------------:|:-------:|:-------------:|
-| Monthly | ✓ | ✓ | ✓ |
-| Executive | — | ✓ | ✓ |
-| Board presentation | — | — | ✓ |
+| Pack | Solo | Practitioner | Project | Institutional |
+|------|:----:|:------------:|:-------:|:-------------:|
+| Monthly | ✓ | ✓ | ✓ | ✓ |
+| Executive | — | — | ✓ | ✓ |
+| Board presentation | — | — | — | ✓ |
 
 ### 5.3 Sellable add-ons (typed)
 
@@ -254,11 +255,12 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 
 **Packaging guidance:**
 
-1. **Practitioner** = resolution desk + light governance. Do **not** promise full SI registry as included.
-2. **Project** = default “real SRM” SKU — desk + Stakeholder Intelligence modules.
-3. **Institutional** = Project capabilities + board pack + commercial/custom (sales-led).
-4. Keep **add-ons** for upsell; do not silently unlock Institutional-only toggles on lower plans (ADR-024).
-5. Revisit prices only with evidence from Ops Finance + win/loss — matrix above is the feature switchboard.
+1. **Solo** = survive and professionalise — personal grievance desk, 1 seat, no AI / SI. Entry for lone consultants.
+2. **Practitioner** = earn with AI Assist + light governance. Do **not** promise full SI registry as included.
+3. **Project** = default “real SRM” SKU — desk + Stakeholder Intelligence modules + junior seats.
+4. **Institutional** = Project capabilities + board pack + commercial/custom (sales-led).
+5. Keep **add-ons** for upsell; do not silently unlock Institutional-only toggles on lower plans (ADR-024).
+6. Revisit prices only with evidence from Ops Finance + win/loss — matrix above is the feature switchboard.
 
 ### 5.4 What each plan should *not* include in the box (yet)
 

@@ -7,7 +7,8 @@ Product (Vercel): `https://trustledger-frontend-pi.vercel.app`
 
 | CTA | URL | Behaviour |
 |-----|-----|-----------|
-| **Start 14-day trial** | `https://trustledger-frontend-pi.vercel.app/trial` (optional `?plan=practitioner\|project`) | Own-data workspace. Upgrade → `/pay`. |
+| **Start 14-day trial** | `https://trustledger-frontend-pi.vercel.app/trial` (optional `?plan=solo\|practitioner\|project`) | Own-data workspace. Upgrade → `/pay`. |
+| **Subscribe Solo** | `…/pay?plan=solo` | Entry — lone consultant, 1 seat |
 | **Subscribe Practitioner** | `…/pay?plan=practitioner` | Paystack checkout |
 | **Subscribe Project** | `…/pay?plan=project` | Paystack checkout |
 | Institutional / Talk to sales | `https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&utm_medium=cta&utm_campaign=buy_institutional` | Sales-led → Vercel branded form → Frappe CRM Lead |

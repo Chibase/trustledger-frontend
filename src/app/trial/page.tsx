@@ -4,7 +4,12 @@ import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { isWorkEmail } from "@/data/assessment";
-import { planFromUtmCampaign, PLANS, type PlanId } from "@/config/plans";
+import {
+  isPlanId,
+  planFromUtmCampaign,
+  PLANS,
+  type PlanId,
+} from "@/config/plans";
 import { captureUtmFromSearchParams } from "@/lib/utm";
 import { clearTrialWorkspaceData, startTrialCookies } from "@/lib/trial";
 import { ensureTrialSeedProject } from "@/lib/trialStore";
@@ -21,7 +26,7 @@ function TrialStartForm() {
   const searchParams = useSearchParams();
   const suggestedPlan = useMemo(() => {
     const fromQuery = searchParams.get("plan");
-    if (fromQuery && (fromQuery === "practitioner" || fromQuery === "project" || fromQuery === "institutional")) {
+    if (fromQuery && isPlanId(fromQuery)) {
       return fromQuery;
     }
     return planFromUtmCampaign(searchParams.get("utm_campaign"));

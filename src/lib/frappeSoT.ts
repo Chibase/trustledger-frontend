@@ -60,13 +60,13 @@ export function buildCustomerDraft(input: {
   status?: FrappeCustomerDraft["entitlement_status"];
 }): FrappeCustomerDraft {
   const seat =
-    input.planId === "practitioner"
-      ? 0
-      : input.planId === "project"
-        ? null
-        : null;
+    input.planId === "solo" || input.planId === "practitioner" ? 0 : null;
   const projects =
-    input.planId === "practitioner" ? 2 : input.planId === "project" ? null : null;
+    input.planId === "solo"
+      ? 1
+      : input.planId === "practitioner"
+        ? 2
+        : null;
   return {
     customer_name: input.organization.trim() || `${input.ownerName}'s TrustLedger`,
     customer_type: "Company",

@@ -47,7 +47,13 @@ export function SettingsPlanBanner({
         </div>
         {planId && planId !== "institutional" ? (
           <Link
-            href={`/pay?plan=${planId === "practitioner" ? "project" : "institutional"}&utm_source=settings&utm_medium=plan_banner&utm_campaign=upgrade`}
+            href={`/pay?plan=${
+              planId === "solo"
+                ? "practitioner"
+                : planId === "practitioner"
+                  ? "project"
+                  : "institutional"
+            }&utm_source=settings&utm_medium=plan_banner&utm_campaign=upgrade`}
             className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-xs font-medium text-tl-trust-ink hover:bg-tl-paper"
           >
             Upgrade plan

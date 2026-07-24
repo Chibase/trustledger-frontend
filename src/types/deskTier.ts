@@ -37,6 +37,7 @@ export const DESK_TIER_LABELS: Record<DeskTier, string> = {
 
 /** Plan Owner’s own desk by commercial plan. */
 export const PLAN_OWNER_DESK_TIER: Record<PlanId, DeskTier> = {
+  solo: "clo",
   practitioner: "supervisor",
   project: "delivery",
   institutional: "funder",

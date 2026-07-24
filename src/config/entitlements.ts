@@ -1,26 +1,33 @@
 /**
  * Default capability grants per commercial plan.
- * Revisit commercial packaging later — this matrix is the switchboard.
+ * Solo = essentials only (ADR-035). Revisit packaging via PLATFORM_STRATEGIC_BRIEF.
  */
 
 import type { PlanId } from "@/config/plans";
 import type { CapabilityId } from "@/types/entitlements";
 
-const CORE: CapabilityId[] = [
+/** Solo essentials — survive desk without AI / SI / governance depth. */
+const SOLO_CORE: CapabilityId[] = [
   "dashboard",
   "projects",
   "incidents",
   "issueIntake",
-  "aiAssist",
   "geoIntake",
   "trustPulse",
 ];
 
+const PRACTITIONER_CORE: CapabilityId[] = [
+  ...SOLO_CORE,
+  "aiAssist",
+  "governanceReports",
+];
+
 /** Base plan → enabled capabilities (before add-ons). */
 export const PLAN_CAPABILITIES: Record<PlanId, CapabilityId[]> = {
-  practitioner: [...CORE, "governanceReports"],
+  solo: [...SOLO_CORE],
+  practitioner: [...PRACTITIONER_CORE],
   project: [
-    ...CORE,
+    ...PRACTITIONER_CORE,
     "captureHub",
     "stakeholdersCrm",
     "engagements",
@@ -28,16 +35,14 @@ export const PLAN_CAPABILITIES: Record<PlanId, CapabilityId[]> = {
     "esgIndicators",
     "deskGraphs",
     "supervisorQueue",
-    "governanceReports",
   ],
   institutional: [
-    ...CORE,
+    ...PRACTITIONER_CORE,
     "captureHub",
     "stakeholdersCrm",
     "engagements",
     "deskGraphs",
     "supervisorQueue",
-    "governanceReports",
     "commitments",
     "esgIndicators",
   ],
