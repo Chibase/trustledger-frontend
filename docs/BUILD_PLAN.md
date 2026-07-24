@@ -191,6 +191,12 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **HS-3** | Remove HubSpot config | Drop portal/form env; strip WP embeds (Webway) | Planned |
 | **HS-4** | Delete HubSpot client | Remove `submitHubSpotLead`; relocate `siteBaseUrl` | Planned |
 
+### Email marketing on Frappe (ACTIVE with HS-2)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **EM-1** | Branded bulk email | TrustLedger HTML templates + Desk runbook (`docs/FRAPPE_EMAIL_MARKETING.md`); Frappe Email Domain/Newsletter — not HubSpot / not Resend blasts | **Active** |
+
 ## 8. Quality gates (every packet)
 
 ```bash
@@ -236,3 +242,4 @@ src/
 | 2026-07-23 | PLATFORM_STRATEGIC_BRIEF — living brief for plans, agents, evaluation |
 | 2026-07-23 | HS-1 active — cut HubSpot; Frappe CRM Lead acquisition SoT (ADR-034) |
 | 2026-07-24 | ADR-034 clarified Frappe-only; WEBWAY_CUTOVER checklist; HS-2 active |
+| 2026-07-24 | EM-1 — branded Frappe bulk email templates + FRAPPE_EMAIL_MARKETING |

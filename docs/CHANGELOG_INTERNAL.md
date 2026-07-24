@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-24 — EM-1: branded Frappe bulk email pack
+
+- `docs/FRAPPE_EMAIL_MARKETING.md`: Desk Email Domain → Email Group → Newsletter/Campaign; Resend stays transactional only.
+- HTML templates in `docs/exports/email-marketing/` (shell, soft launch, trial, quote, assessment) — TrustLedger design tokens.
+- BUILD_PLAN packet EM-1 active; HS_CUTOVER Phase 3 / LEAD_FORMS point at the pack.
+
 ## 2026-07-24 — Fix Home footer Contact → Vercel (not Gmail)
 
 - WP `page-home.txt`: footer Contact is absolute Vercel `/contact` (fix `className`→`class`); mailto kept as email text only.

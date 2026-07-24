@@ -18,3 +18,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 10. **Public launch / plan packaging / agent scripts:** treat `docs/PLATFORM_STRATEGIC_BRIEF.md` as the living brief. Do not over-claim V002/V003. Sample `/demo` is retired → `/product`.
 11. **Report AI:** Activity reports and compliance briefs must use the local evidence composer (`reportComposer`). Never call Frappe/Grok for those — it returns fill-in-the-blank month-end templates.
 12. **Acquisition CRM (ADR-034):** Frappe CRM Lead only. WordPress = CTAs (`docs/WEBWAY_CUTOVER.md`). Do not add HubSpot embeds or treat HubSpot as required.
+13. **Bulk email marketing:** Brand via Frappe Email Template / Newsletter using `docs/FRAPPE_EMAIL_MARKETING.md` + `docs/exports/email-marketing/`. Do not blast from Resend OTP keys or HubSpot.

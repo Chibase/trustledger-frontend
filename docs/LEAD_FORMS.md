@@ -61,3 +61,5 @@ Until Frappe email alerts are ready, send follow-ups manually from your Webway m
 ## Privacy
 
 Incentives and marketing follow-ups must match the Privacy Policy consent line already on the forms. Forms show Google reCAPTCHA attribution when keys are configured.
+
+**Bulk / nurture email:** use branded Frappe templates — `docs/FRAPPE_EMAIL_MARKETING.md` and `docs/exports/email-marketing/` — not HubSpot sequences and not Resend OTP keys.

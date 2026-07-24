@@ -30,7 +30,7 @@ Frappe Cloud           →  CRM Lead → (commit) Customer + Owner User
 | **1 — Frappe only writer (HS-1)** | Production frappe-only when Cloud keys exist; Ops/health gates | **Done** (#68) |
 | **2 — Smoke + explicit env (HS-2)** | All Vercel forms → CRM Lead; set `LEAD_BACKEND=frappe`; pause HubSpot sequences | **Active** |
 | **2b — Webway credibility** | Remove HubSpot embeds; CTAs → Vercel (`docs/WEBWAY_CUTOVER.md`) | **Active** (with HS-2) |
-| **3 — Sales on Frappe** | Lead stages → Commitment; Paystack / Ops provision Customer+Owner; follow-ups via Frappe or Webway mailbox | Planned |
+| **3 — Sales on Frappe** | Lead stages → Commitment; Paystack / Ops provision; follow-ups via Frappe email / Webway mailbox; bulk brand pack **EM-1** (`docs/FRAPPE_EMAIL_MARKETING.md`) | **Active (EM-1 templates)** |
 | **4 — Retire HubSpot (HS-3/HS-4)** | Export if needed; unset `HUBSPOT_*`; delete `submitHubSpotLead`; cancel Free portal | Planned |
 
 ---
