@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-23 — HS-1: start HubSpot cutover (Frappe CRM Lead SoT)
+
+- ADR-034: Frappe CRM Lead is acquisition SoT; ADR-011 superseded for HubSpot-first magnet.
+- Production: unset `LEAD_BACKEND` + Frappe keys ⇒ **frappe-only** (no HubSpot fallback). Explicit `auto` / `hubspot` remain for emergency.
+- Ops readiness + `/api/health`: `leadBackend` / `leadBackendCutover` / `hubspotFallbackActive`.
+- Runbook `docs/HS_CUTOVER.md`; CRM_HANDOFF / LEAD_FORMS / ACCESS_MODEL / FRAPPE_CLOUD_SETUP aligned.
+- BUILD_PLAN packets HS-1 (active) → HS-4 (delete HubSpot client).
+
 ## 2026-07-23 — VIP complimentary access (Ops)
 
 - `provisionOwnerCloud` / `POST /api/frappe/provision-owner`: `complimentaryVip` + `complimentaryUntil` → Customer `VIP Pilot — …`, plan default **institutional**, status **active**, Paystack billing cleared, Desk Comment stamped; no Frappe welcome email (operator shares temp password).

@@ -1,73 +1,59 @@
-# CRM handoff: HubSpot → Frappe
+# CRM handoff: leads → Frappe (HubSpot retired)
 
-**Locked operating model (solo / launch):**  
-HubSpot Free = **lead magnet** (acquisition only).  
-Frappe (**Cloud** `app.trustledger.co.za`) = **relationship system of record** after commitment.
+**Locked operating model (ADR-034):**  
+**Frappe Cloud** `app.trustledger.co.za` = acquisition **and** relationship system of record.  
+HubSpot Free = **cutover fallback only** (`LEAD_BACKEND=auto` / `hubspot`) until HS-3/HS-4 remove it. See `docs/HS_CUTOVER.md`.
 
 ```text
-Website / Assessment / Demo
+WordPress CTA → Vercel branded form
         ↓
-   HubSpot contact + deal stage
-   (Demo → Waitlist → Qualified → Commitment)
-        ↓  ← human marks "Commitment"
-   Frappe Customer + Contact + (optional) User
+   Frappe CRM Lead (source + comment)
+        ↓  ← Paystack / Ops commitment
+   Frappe Customer + Contact + Owner User
         ↓
-   Live /login/live · projects · support (Helpdesk later)
+   /login/live · projects · support
 ```
 
-## What stays in HubSpot
+## What lands in Frappe (from day one)
 
-| Keep | Why |
-|------|-----|
-| Assessment leads `[Source: assessment]` | Free form + marketing list |
-| Demo entry / soft-gate leads | Same |
-| Support tickets Phase A `[Source: support_ticket]` | Until Helpdesk |
-| Early pipeline & email follow-ups | Free-tier strength |
-| UTM / campaign attribution | Already captured |
+| Keep | Where |
+|------|--------|
+| Assessment / contact / quote / trial / feedback | CRM Lead via `/api/...` → `submitProductLead` |
+| Support tickets Phase A | Same CRM Lead path (`support_ticket`) |
+| UTM / campaign attribution | Lead message / custom fields as already shipped |
+| Paying / VIP customers | Customer + Owner User (Paystack / Ops / VIP panel) |
 
-**Do not** build full customer success, renewals, or project history in HubSpot.
+**Do not** rebuild marketing automation in HubSpot for these forms.
 
-## What moves to Frappe at commitment
+## What used to stay in HubSpot (retired target)
 
-**Trigger (any one):** signed pilot, paid Paystack invoice/checkout, written “yes” to paid plan, or you set HubSpot deal stage = **Commitment / Closed Won**.
+Until HS-2 smoke is green you may keep HubSpot credentials for emergency `LEAD_BACKEND=auto`. After HS-3, remove portal/form env and WP embeds.
 
-**Create on Frappe Cloud (manual at first, automate later):**
+## Commitment → Customer
+
+**Trigger (any one):** signed pilot, paid Paystack checkout, written “yes” to paid plan, or Ops VIP / Owner provision.
+
+**Create on Frappe Cloud:**
 
 1. **Customer** (organisation)  
 2. **Contact** (buyer / champion) linked to Customer  
 3. **User** + roles when they need product access  
-4. Optional **CRM Lead/Deal** closed against that Customer  
-5. Link **Project(s)** in `srm-core` (on Cloud) to Customer  
+4. Optional close CRM Lead against that Customer  
+5. Link **Project(s)** when `srm-core` / SI DocTypes apply  
 
-After handoff, day-to-day relationship work (calls logged, renewals, support) happens in **Frappe**, not HubSpot.
-
-## HubSpot Free limitations — how we work around them
-
-| Limit | Workaround |
-|-------|------------|
-| Contact/list caps | Export Closed Won → Frappe; archive or delete cold HubSpot leads periodically |
-| Weak ticketing | Phase A form tickets OK; Phase C → Frappe Helpdesk |
-| Limited seats/automation | Short sequences only; Calendly for meetings |
-| No deep product context | Never try — that’s why Frappe takes over |
+Day-to-day relationship work (calls, renewals, support) stays in **Frappe**.
 
 ## Solo checklist when someone commits
 
-1. HubSpot: stage → **Commitment** (note plan + ZAR amount).  
-2. Frappe Cloud: Customer + Contact (+ User if access needed).  
-3. Email credentials / `/login/live` link.  
-4. HubSpot contact note: `Handed to Frappe Customer: <name>`.  
-5. Stop nurturing that contact in HubSpot sequences.
-
-## Later automation (not launch-critical)
-
-- Button/script: “Provision from HubSpot deal” → Frappe Customer/Contact/**Owner admin User** (see `docs/ACCESS_MODEL.md`)
-- Paystack webhook → entitlement + Owner login email (see `docs/PAYMENTS_SETUP.md`)
-- Owner-confirmed invites for lower roles (`client` / `contractor` / `community`)
-- Sync only **Closed Won**; never bi-directional full CRM sync  
+1. Confirm CRM Lead (or Paystack reference) in Desk.  
+2. Customer + Contact (+ User via provision / auto-provision).  
+3. Email credentials / `/login/live` (or VIP temp password).  
+4. Stop any leftover HubSpot nurture for that email.
 
 ## Decision
 
 | Stage | System |
 |-------|--------|
-| Strangers → interest | **HubSpot** |
-| Commitment → ongoing client | **Frappe** |
+| Strangers → interest | **Frappe CRM Lead** (Vercel forms) |
+| Commitment → ongoing client | **Frappe** Customer / Owner |
+| HubSpot | Fallback only during cutover |

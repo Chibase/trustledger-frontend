@@ -9,6 +9,7 @@ import {
   accessEmailVerificationEnabled,
   accessVerificationReady,
 } from "@/lib/accessVerification";
+import { leadBackendStatus } from "@/lib/leadCapture";
 
 const FRAPPE_SITE =
   process.env.FRAPPE_BASE_URL ||
@@ -58,6 +59,8 @@ export async function GET() {
     process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
     null;
 
+  const leads = leadBackendStatus();
+
   const launch = {
     lockdownLifted: !isPlatformOperatorOnly(),
     frappeOwnerIssuance: isFrappeOwnerIssuanceEnabled(),
@@ -69,6 +72,9 @@ export async function GET() {
     recaptchaFailClosed: recaptchaRequired(),
     accessEmailVerification: accessEmailVerificationEnabled(),
     accessVerificationReady: accessVerificationReady(),
+    leadBackend: leads.preference,
+    leadBackendCutover: leads.cutoverComplete,
+    hubspotFallbackActive: leads.hubspotFallbackActive,
   };
 
   return NextResponse.json(
