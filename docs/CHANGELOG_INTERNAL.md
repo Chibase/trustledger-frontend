@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-24 — WP Contact CTAs → Vercel `/contact`
+
+- `docs/WORDPRESS_CTA.md` + `page-home.txt`: absolute Vercel Contact URLs (no relative `/contact` / mailto-only nav).
+- Rebased onto master (demo gate retired; trial/pay paths unchanged).
+
 ## 2026-07-23 — HS-1: start HubSpot cutover (Frappe CRM Lead SoT)
 
 - ADR-034: Frappe CRM Lead is acquisition SoT; ADR-011 superseded for HubSpot-first magnet.
