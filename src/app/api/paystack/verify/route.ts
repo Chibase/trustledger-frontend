@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { recordPaystackPayment } from "@/lib/paymentIntel";
+import { provisionAfterPaystackVerify } from "@/lib/paystackProvision";
 import {
   paystackConfigured,
   verifyPaystackTransaction,
@@ -20,19 +20,10 @@ export async function GET(request: Request) {
 
   try {
     const verified = await verifyPaystackTransaction(reference);
+    let provision: Awaited<ReturnType<typeof provisionAfterPaystackVerify>> =
+      null;
     if (verified.ok && verified.email) {
-      // Idempotent enough for soft launch: CRM may get a second note if webhook also fired.
-      await recordPaystackPayment({
-        email: verified.email,
-        name: verified.name,
-        organization: verified.organization,
-        planId: verified.planId,
-        planLabel: verified.planLabel,
-        amountCents: verified.amountCents,
-        currency: verified.currency,
-        reference: verified.reference,
-        paidAt: verified.paidAt,
-      });
+      provision = await provisionAfterPaystackVerify(verified);
     }
 
     return NextResponse.json({
@@ -41,8 +32,21 @@ export async function GET(request: Request) {
       reference: verified.reference,
       amountCents: verified.amountCents,
       currency: verified.currency,
+      planId: verified.planId,
       planLabel: verified.planLabel,
+      planAmountCents: verified.planAmountCents,
       email: verified.email,
+      name: verified.name,
+      organization: verified.organization,
+      checkoutMode: verified.checkoutMode,
+      billAt: provision?.billAt || verified.billAt,
+      authorizationLast4: verified.authorizationLast4,
+      // Credentials only returned once from verify for the success page / email.
+      tempPassword: provision?.tempPassword || null,
+      activationToken: provision?.activationToken || null,
+      emailSent: provision?.emailSent || false,
+      emailDetail: provision?.emailDetail || null,
+      flow: provision?.flow || verified.checkoutMode,
     });
   } catch (err) {
     return NextResponse.json(

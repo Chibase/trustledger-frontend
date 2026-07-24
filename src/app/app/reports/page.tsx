@@ -1,15 +1,23 @@
-import { ReportBriefAssist } from "@/components/ai/ReportBriefAssist";
+import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { ReportsHub } from "@/components/reports/ReportsHub";
+import { getCurrentUser } from "@/lib/auth";
 
-export default function AppReportsPage() {
+export default async function AppReportsPage() {
+  const user = await getCurrentUser();
+  if (!user) return null;
+
+  const isPlanOwner =
+    user.isPlanOwner === true ||
+    (user.role === "admin" && (user.mode === "trial" || Boolean(user.orgId)));
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-semibold">Reports</h1>
-        <p className="mt-1 text-sm text-tl-ink-muted">
-          Draft governance briefs from demo incident data. Review before sharing.
-        </p>
-      </div>
-      <ReportBriefAssist />
-    </div>
+    <FeatureGate capability="governanceReports">
+      <ReportsHub
+        role={user.role}
+        authorName={user.name}
+        planId={user.trialPlan}
+        isPlanOwner={isPlanOwner}
+      />
+    </FeatureGate>
   );
 }

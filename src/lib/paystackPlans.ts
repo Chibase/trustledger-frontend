@@ -1,3 +1,13 @@
+/**
+ * Paystack checkout catalogue (ADR-012 / ADR-019).
+ * Amounts are ZAR cents. Override via env without code change.
+ *
+ * Launch defaults (excl. VAT, monthly):
+ * - Practitioner R5,399 → 539900
+ * - Project R14,999 → 1499900
+ * - Institutional → sales (0)
+ */
+
 export type PaystackPlanId = "practitioner" | "project" | "institutional";
 
 export type PaystackPlan = {
@@ -7,8 +17,16 @@ export type PaystackPlan = {
   /** Amount in ZAR cents (Paystack subunit). 0 = contact sales / not self-serve. */
   amountCents: number;
   currency: "ZAR";
+  period: "month";
   selfServe: boolean;
 };
+
+/** Launch list prices in ZAR (whole rands) — source for WP paste and defaults. */
+export const LAUNCH_PRICES_ZAR = {
+  practitioner: 5399,
+  project: 14999,
+  institutional: null as number | null,
+} as const;
 
 function envCents(key: string, fallback: number): number {
   const raw = process.env[key]?.trim();
@@ -19,8 +37,7 @@ function envCents(key: string, fallback: number): number {
 
 /**
  * Plan catalogue for Vercel checkout.
- * Override amounts (ZAR cents) via env without code change:
- * PAYSTACK_AMOUNT_PRACTITIONER_CENTS, PAYSTACK_AMOUNT_PROJECT_CENTS,
+ * Override: PAYSTACK_AMOUNT_PRACTITIONER_CENTS, PAYSTACK_AMOUNT_PROJECT_CENTS,
  * PAYSTACK_AMOUNT_INSTITUTIONAL_CENTS (0 = contact sales).
  */
 export function getPaystackPlans(): PaystackPlan[] {
@@ -28,17 +45,27 @@ export function getPaystackPlans(): PaystackPlan[] {
     {
       id: "practitioner",
       label: "Practitioner",
-      summary: "Single Plan Owner — dashboard, reporting, standard AI assist.",
-      amountCents: envCents("PAYSTACK_AMOUNT_PRACTITIONER_CENTS", 0),
+      summary:
+        "Single Plan Owner — dashboard, reporting, and standard AI assist.",
+      amountCents: envCents(
+        "PAYSTACK_AMOUNT_PRACTITIONER_CENTS",
+        LAUNCH_PRICES_ZAR.practitioner * 100,
+      ),
       currency: "ZAR",
+      period: "month",
       selfServe: true,
     },
     {
       id: "project",
       label: "Project",
-      summary: "Owner + per-project seats for client, contractor, community.",
-      amountCents: envCents("PAYSTACK_AMOUNT_PROJECT_CENTS", 0),
+      summary:
+        "Owner + per-project seats for client, contractor, and community roles.",
+      amountCents: envCents(
+        "PAYSTACK_AMOUNT_PROJECT_CENTS",
+        LAUNCH_PRICES_ZAR.project * 100,
+      ),
       currency: "ZAR",
+      period: "month",
       selfServe: true,
     },
     {
@@ -47,12 +74,15 @@ export function getPaystackPlans(): PaystackPlan[] {
       summary: "Custom seats, regions, and compliance — sales-scoped.",
       amountCents: envCents("PAYSTACK_AMOUNT_INSTITUTIONAL_CENTS", 0),
       currency: "ZAR",
+      period: "month",
       selfServe: false,
     },
   ];
 }
 
-export function getPaystackPlan(id: string | null | undefined): PaystackPlan | null {
+export function getPaystackPlan(
+  id: string | null | undefined,
+): PaystackPlan | null {
   if (!id) return null;
   return getPaystackPlans().find((p) => p.id === id) || null;
 }
@@ -60,7 +90,12 @@ export function getPaystackPlan(id: string | null | undefined): PaystackPlan | n
 export function formatZarFromCents(cents: number): string {
   if (!cents) return "Contact sales";
   return `R ${(cents / 100).toLocaleString("en-ZA", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   })}`;
+}
+
+export function formatPlanPrice(plan: PaystackPlan): string {
+  if (!plan.amountCents) return "Contact sales";
+  return `${formatZarFromCents(plan.amountCents)}/mo`;
 }

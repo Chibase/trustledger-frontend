@@ -15,6 +15,20 @@ import {
   normalizeIdentity,
   operatorGateMessage,
 } from "@/lib/platformOperator";
+import {
+  entitlementAllowsLiveAccess,
+  getCustomerEntitlementByOwnerEmail,
+} from "@/lib/entitlementCloud";
+import {
+  TL_AUTH_PENDING_COOKIE,
+  accessEmailVerificationEnabled,
+  accessVerificationReady,
+  hashLoginOtp,
+  mintLoginOtp,
+  pendingAuthMaxAgeSeconds,
+  signPendingLiveAuth,
+} from "@/lib/accessVerification";
+import { sendLoginOtpEmail } from "@/lib/transactionalEmail";
 
 export async function POST(request: Request) {
   let body: { usr?: string; pwd?: string };
@@ -54,7 +68,88 @@ export async function POST(request: Request) {
     const email = normalizeIdentity(session.user || usr);
     // Operators home to Executive Board — never the customer desk.
     const opsGate = assertOpsAccess(usr, session.user, email);
+
+    // OD-4 — when lockdown is off, buyers still need trial/active entitlement.
+    if (!opsGate.ok) {
+      const ent = await getCustomerEntitlementByOwnerEmail(email);
+      if (ent?.status && !entitlementAllowsLiveAccess(ent.status)) {
+        return NextResponse.json(
+          {
+            error: `Account entitlement is “${ent.status}”. Update billing or contact TrustLedger support.`,
+            entitlement: ent.status,
+          },
+          { status: 403 },
+        );
+      }
+    }
+
     const home = opsGate.ok ? "/ops/executive" : "/app/dashboard";
+
+    // Email OTP step-up when verification is on.
+    if (accessEmailVerificationEnabled()) {
+      if (!accessVerificationReady()) {
+        return NextResponse.json(
+          {
+            error:
+              "Email verification is required but RESEND_API_KEY is not configured. Set Resend on Vercel or set ACCESS_EMAIL_VERIFICATION=0.",
+          },
+          { status: 503 },
+        );
+      }
+
+      const code = mintLoginOtp();
+      const otpHash = hashLoginOtp(code, email);
+      const maxAge = pendingAuthMaxAgeSeconds();
+      const pendingToken = signPendingLiveAuth({
+        email,
+        sid,
+        role: session.trustLedgerRole,
+        fullName: session.fullName,
+        home,
+        platformOperator: opsGate.ok,
+        otpHash,
+        exp: Date.now() + maxAge * 1000,
+      });
+
+      const mail = await sendLoginOtpEmail({
+        to: email,
+        name: session.fullName,
+        code,
+        expiresMinutes: Math.round(maxAge / 60),
+      });
+      if (!mail.sent) {
+        return NextResponse.json(
+          {
+            error:
+              mail.detail ||
+              "Could not send verification email. Try again or contact TrustLedger support.",
+          },
+          { status: 503 },
+        );
+      }
+
+      const hint =
+        email.includes("@") && email.length > 4
+          ? `${email.slice(0, 2)}•••@${email.split("@")[1]}`
+          : "your email";
+
+      const response = NextResponse.json({
+        ok: true,
+        needsVerification: true,
+        emailHint: hint,
+        message: `We sent a 6-digit code to ${hint}. Enter it to finish signing in.`,
+      });
+
+      response.cookies.set(TL_AUTH_PENDING_COOKIE, pendingToken, {
+        path: "/",
+        maxAge,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+      });
+      // Do not set live session cookies until OTP is confirmed.
+      return response;
+    }
 
     const response = NextResponse.json({
       ok: true,

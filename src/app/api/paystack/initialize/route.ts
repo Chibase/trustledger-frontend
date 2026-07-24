@@ -4,6 +4,7 @@ import { getPaystackPlan, type PaystackPlanId } from "@/lib/paystackPlans";
 import {
   initializePaystackTransaction,
   paystackConfigured,
+  type CheckoutMode,
 } from "@/lib/paystackServer";
 
 type Body = {
@@ -11,7 +12,13 @@ type Body = {
   name?: string;
   organization?: string;
   plan?: string;
+  /** trial_authorize (default) | pay_now */
+  mode?: string;
 };
+
+function parseMode(raw: string | undefined): CheckoutMode {
+  return raw === "pay_now" ? "pay_now" : "trial_authorize";
+}
 
 export async function POST(request: Request) {
   if (!paystackConfigured()) {
@@ -36,6 +43,7 @@ export async function POST(request: Request) {
   const organization = body.organization?.trim();
   const planId = (body.plan || "").trim() as PaystackPlanId;
   const plan = getPaystackPlan(planId);
+  const mode = parseMode(body.mode);
 
   if (!email || !isWorkEmail(email)) {
     return NextResponse.json(
@@ -64,6 +72,7 @@ export async function POST(request: Request) {
       planId: plan.id,
       name,
       organization,
+      mode,
     });
     return NextResponse.json({
       ok: true,
@@ -71,6 +80,8 @@ export async function POST(request: Request) {
       reference: init.reference,
       amountCents: init.amountCents,
       planLabel: init.planLabel,
+      mode: init.mode,
+      billAt: init.billAt,
     });
   } catch (err) {
     return NextResponse.json(

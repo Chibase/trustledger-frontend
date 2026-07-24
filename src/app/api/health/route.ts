@@ -1,4 +1,15 @@
 import { NextResponse } from "next/server";
+import { recaptchaConfigured, recaptchaRequired } from "@/lib/formGuard";
+import { isFrappeAutoProvisionEnabled } from "@/lib/provisionOwnerCloud";
+import { transactionalEmailConfigured } from "@/lib/transactionalEmail";
+import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
+import { isPlatformOperatorOnly } from "@/lib/platformOperator";
+import { paystackConfigured } from "@/lib/paystackServer";
+import {
+  accessEmailVerificationEnabled,
+  accessVerificationReady,
+} from "@/lib/accessVerification";
+import { leadBackendStatus } from "@/lib/leadCapture";
 
 const FRAPPE_SITE =
   process.env.FRAPPE_BASE_URL ||
@@ -43,11 +54,36 @@ export async function GET() {
   const checks = [app, cloud];
   const ok = checks.every((c) => c.ok);
 
+  const deploySha =
+    process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+    process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+    null;
+
+  const leads = leadBackendStatus();
+
+  const launch = {
+    lockdownLifted: !isPlatformOperatorOnly(),
+    frappeOwnerIssuance: isFrappeOwnerIssuanceEnabled(),
+    frappeAutoProvision: isFrappeAutoProvisionEnabled(),
+    paystack: paystackConfigured(),
+    cronSecret: Boolean(process.env.CRON_SECRET?.trim()),
+    resend: transactionalEmailConfigured(),
+    recaptcha: recaptchaConfigured(),
+    recaptchaFailClosed: recaptchaRequired(),
+    accessEmailVerification: accessEmailVerificationEnabled(),
+    accessVerificationReady: accessVerificationReady(),
+    leadBackend: leads.preference,
+    leadBackendCutover: leads.cutoverComplete,
+    hubspotFallbackActive: leads.hubspotFallbackActive,
+  };
+
   return NextResponse.json(
     {
       ok,
       checkedAt: new Date().toISOString(),
+      deploySha,
       checks,
+      launch,
     },
     {
       status: 200,

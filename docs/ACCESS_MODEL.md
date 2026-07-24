@@ -1,7 +1,7 @@
 # Post-payment access & seats
 
 **Locked with ADR-012.**  
-**Override while active:** ADR-013 Platform Operator lockdown — see `docs/PLATFORM_OPERATOR.md`. Until lockdown is lifted, **do not** issue customer Plan Owner logins; only the Platform Operator uses live product access.
+**Override while active:** ADR-013 Platform Operator lockdown — see `docs/PLATFORM_OPERATOR.md`. **Lifted for buyers (Step 4 Done — 2026-07-23):** public live login allowed when `PLATFORM_OPERATOR_ONLY=0`. `/ops` remains allowlist-only via `PLATFORM_OPERATOR_EMAILS`.
 
 After payment (or confirmed commitment), TrustLedger issues logins from **plan entitlements**. The **purchaser is Plan Owner**; they alone hold org **admin** and may invite others at **lower** roles.
 
@@ -143,13 +143,42 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 - Cross-tenant access  
 - Creating users from HubSpot without payment/commitment trigger  
 
-## HubSpot → Frappe (ties to CRM_HANDOFF)
+## HubSpot → Frappe (ties to CRM_HANDOFF / HS_CUTOVER)
 
 | Stage | Action |
 |-------|--------|
-| Lead / demo / assessment | HubSpot only |
+| Lead / assessment / contact / quote / support | **Frappe CRM Lead** (Vercel forms; ADR-034) |
 | Payment or Commitment | Frappe Customer + **Owner admin** user |
 | Ongoing team | Owner invites in-app → Frappe Users |
+
+HubSpot is cutover fallback only (`docs/HS_CUTOVER.md`). Never create product logins from HubSpot.
+
+## Demo / trial tenancy (frontend packets T1–T5)
+
+Until ADR-013 lockdown lifts and Frappe Customer/User is SoT:
+
+- **Plan Owner org** is created in browser `localStorage` when trial/subscribe starts (`startTrialCookies` → `bootstrapPlanOwnerOrg`).
+- **Settings → Team / Seats** lets the Owner invite juniors with role + desk exposure.
+- **Seat caps:** Practitioner = 0 juniors; Project / Institutional = unlimited in demo.
+- **Desk ranks (1 highest → 5 lowest):** Client/Board/funder → CEO/MD → Director/PM → Site foreman/supervisor → CLO. Plan Owner sits at the plan ceiling and may invite only **lower** ranks; higher desks stay greyed.
+- **T3 data space:** org-scoped projects/cases (`tl-org-data`); CSV import; no demo seed in trial.
+- **T4 media:** org media library + plan quotas (25 MB / 250 MB / 2 GB soft); Settings meter.
+- **T5 prep:** Customer + Owner User drafts via `/api/frappe/provision-owner` (operator + `FRAPPE_OWNER_ISSUANCE`); see `docs/FRAPPE_SOT.md`.
+- **OD / GO LIVE (Done 2026-07-23):** Operational delivery complete — Cloud SoT + billing + buyer live. Ladder: `docs/OPERATIONAL_DELIVERY.md` / `/ops/readiness` (ADR-032). Keep `/demo` separate. Launch runbook: `docs/LAUNCH_WATCHLIST.md`.
+- Invite accept at `/invite/accept` locks the invitee’s desk tier (cannot self-raise). Invitees use **trial** (customer) mode so demo `INC-*` never appears.
+- Buyer live login is open (`PLATFORM_OPERATOR_ONLY=0`); `/ops` stays allowlist-only.
+
+## Client branding (future)
+
+Product chrome stays **TrustLedger** only. Optional client co-brand is plan-density dependent and **not shipped yet**:
+
+| Plan | Density |
+|------|---------|
+| Practitioner | None |
+| Project | Optional later (report footer co-name) |
+| Institutional | Co-brand on exports/PDF headers only (capability TBD) |
+
+Never replace the TrustLedger wordmark in app nav. Owner legal mark **Chibase Consulting** remains footer/ops attribution only.
 
 ## Build sequence (after Paystack sandbox)
 
@@ -160,3 +189,4 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 5. Seat enforcement middleware  
 
 Launch week can still be **manual**: you create Owner in Frappe after Paystack/commitment using this model; automate next. See `docs/PAYMENTS_SETUP.md`.
+

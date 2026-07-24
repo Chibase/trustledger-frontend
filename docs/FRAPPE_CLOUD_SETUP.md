@@ -38,27 +38,28 @@ FRAPPE_BASE_URL=https://app.trustledger.co.za
 
 Redeploy. Live login BFF and `/status` will hit Frappe Cloud.
 
-## 1b. Lead capture — choose one path
+## 1b. Lead capture — Frappe CRM (HubSpot cutover)
 
-### Option A (now): keep HubSpot Free
-No Frappe CRM required. Leave `FRAPPE_API_KEY` unset. Demo/assessment/support keep posting to HubSpot.
+**Canonical path (ADR-034):** Vercel forms → Frappe **CRM Lead**. See `docs/HS_CUTOVER.md`.
 
-### Option B: install **Frappe CRM** on this site (recommended)
-See **§0** above. Frappe CRM uses DocType **`CRM Lead`** (our API defaults to that).
-
-1. User → API Access → **API Key + Secret** (user must create **CRM Lead**).
-2. Vercel:
+1. Install **Frappe CRM** on Cloud (DocType `CRM Lead`).
+2. User → API Access → **API Key + Secret** (user must create CRM Lead).
+3. Vercel:
    ```bash
    FRAPPE_API_KEY=...
    FRAPPE_API_SECRET=...
-   LEAD_BACKEND=auto
+   # Optional once HS-1 is live — Production already defaults to frappe when keys exist:
+   LEAD_BACKEND=frappe
    # optional override:
    # FRAPPE_LEAD_DOCTYPE=CRM Lead
    ```
-   `auto` = Frappe first, HubSpot fallback.  
-   After smoke: `LEAD_BACKEND=frappe` to stop HubSpot.
+4. Mid-cutover emergency only: `LEAD_BACKEND=auto` (Frappe then HubSpot) or `hubspot`.
 
-### Option C (later): custom `srm-core` DocType
+### Legacy Option A (retiring): HubSpot Free
+
+Only if Frappe keys are absent (local) or you explicitly set `LEAD_BACKEND=hubspot` / `auto`. Do not add new HubSpot embeds on WordPress.
+
+### Later: custom `srm-core` DocType
 If you prefer not to install CRM, we add `TL Lead` + whitelisted method and set:
 ```bash
 FRAPPE_LEAD_METHOD=srm_core.api.leads.create_lead
@@ -95,7 +96,7 @@ Save / reload site after change.
 
 1. Open `https://app.trustledger.co.za` → login page (padlock OK).  
 2. Desk → **Lead** list loads (only after CRM install — Option B).  
-3. Submit demo or assessment on Vercel → Lead in Frappe **or** HubSpot contact (Option A).  
+3. Submit assessment/contact on Vercel → Lead in Frappe CRM (HubSpot only if `LEAD_BACKEND=auto|hubspot`).  
 4. `/status` on Vercel shows Frappe check green.  
 5. `/login/live` with your operator user (after `PLATFORM_OPERATOR_EMAILS` + CORS).
 
@@ -112,12 +113,13 @@ TrustLedger’s Vercel app is unaffected. If Desk emails/prints break after a Cl
 
 If the demo form returns OK but nothing appears in **CRM → Leads**:
 
-1. Vercel likely fell back to HubSpot (`LEAD_BACKEND=auto`). Set temporarily:
+1. Vercel fell back or HubSpot-only mode. For cutover:
    ```bash
    LEAD_BACKEND=frappe
    LEAD_DEBUG=1
    ```
    Redeploy, submit again — you should get a **502** with `detail` if Frappe rejects the create.
+   Production with Frappe keys and unset `LEAD_BACKEND` already prefers frappe (HS-1).
 2. API user roles: add **Sales User** or **System Manager** (must **create** CRM Lead).
 3. Desk → **CRM Lead Status**: ensure a status named **`New`** exists (default).
 4. Create Desk **CRM Lead Source** names listed in `docs/CRM_VIEWS.md` (Product Feedback, Website Contact, …) before relying on Source filters.

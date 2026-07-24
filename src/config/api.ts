@@ -28,10 +28,20 @@ export const FRAPPE_METHODS = {
   listIncidents: "/api/method/srm_core.api.incidents.list_incidents",
   getIncident: "/api/method/srm_core.api.incidents.get_incident",
   listNotes: "/api/method/srm_core.api.engagements.list_meeting_notes",
+  listEngagements: "/api/method/srm_core.api.engagements.list_engagements",
+  listCommitments: "/api/method/srm_core.api.commitments.list_commitments",
   listEvidence: "/api/method/srm_core.api.incidents.list_evidence",
   suggestTriage: "/api/method/srm_core.api.ai.suggest_triage",
   suggestSentiment: "/api/method/srm_core.api.ai.suggest_sentiment",
   draftResponse: "/api/method/srm_core.api.ai.draft_response",
-  generateReportBrief: "/api/method/srm_core.api.ai.generate_report_brief",
+  // Report brief + activity compose stay local (reportComposer). Do not wire
+  // these Cloud methods — Grok returns Month-End / [Insert …] sales templates.
+  suggestStakeholdersFromText:
+    "/api/method/srm_core.api.ai.suggest_stakeholders_from_text",
   getSession: "/api/method/srm_core.api.auth.get_session",
+  listGeoPlaces: "/api/method/srm_core.api.geo.list_places",
+  getGeoPlace: "/api/method/srm_core.api.geo.get_place",
+  listSocioIndicators: "/api/method/srm_core.api.geo.list_indicators",
+  listStakeholders: "/api/method/srm_core.api.stakeholders.list_stakeholders",
+  getStakeholder: "/api/method/srm_core.api.stakeholders.get_stakeholder",
 } as const;

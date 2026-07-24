@@ -70,7 +70,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-008: Lead capture soft-gate in Demo
 
 - **Date:** 2026-07-11
-- **Status:** Accepted
+- **Status:** Superseded by ADR-021 for in-app explore
 - **Context:** Demo should drive signups without blocking first exploration.
 - **Decision:** Allow exploration; after 3 meaningful actions (or via header CTA) show email capture modal. Store lead locally / POST to configurable form endpoint later.
 - **Consequences:** Funnel without forcing signup at the door.
@@ -97,11 +97,20 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-011: HubSpot lead magnet → Frappe after commitment
 
 - **Date:** 2026-07-12
-- **Status:** Accepted
+- **Status:** **Superseded** by ADR-034 (2026-07-23)
 - **Context:** Solo operator; HubSpot Free is already wired for assessment/demo/support intake but is limited for ongoing customer management. Frappe Cloud is the product system of record.
 - **Decision:** Use HubSpot Free only for acquisition (leads, light tickets, early pipeline). At commitment (pilot signed, paid, or Closed Won), hand off to Frappe Customer/Contact/(User). No dual full-CRM maintenance.
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
+
+### ADR-034: Frappe CRM Lead is acquisition SoT (cut HubSpot)
+
+- **Date:** 2026-07-23
+- **Status:** Accepted
+- **Context:** HubSpot Free embeds and dual CRM hurt branding and ops clarity. Vercel already owns branded forms; Frappe Cloud already receives CRM Lead when keys exist (`LEAD_BACKEND`). Soft launch no longer needs HubSpot as primary magnet.
+- **Decision:** **Frappe CRM Lead** is the system of record for product acquisition (assessment, contact, quote, trial, feedback, support intake). WordPress remains CTA-only to Vercel. HubSpot is optional fallback via explicit `LEAD_BACKEND=auto` or `hubspot` during cutover packets HS-1→HS-4 (`docs/HS_CUTOVER.md`). Production with Frappe API keys defaults to **frappe-only** when `LEAD_BACKEND` is unset.
+- **Consequences:** Ops readiness + `/api/health` gate lead cutover; no new HubSpot form embeds; commitment still provisions Customer/Owner on Frappe (Paystack / Ops / VIP).
+- **Alternatives considered:** Keep ADR-011 HubSpot-first forever (rejected); hard-delete HubSpot code in HS-1 before Production smoke (rejected — phased HS-2→HS-4).
 
 ### ADR-012: Plan Owner admin + Owner-confirmed lower seats
 
@@ -169,13 +178,78 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-020: Quote + EFT bridge while Paystack finalises
 
 - **Date:** 2026-07-16
-- **Status:** Accepted
+- **Status:** Accepted (fallback) — primary path is `/pay` (ADR-019) as of 2026-07-20
 - **Context:** Paystack KYC/go-live can stall; solo operator cannot manually chase every deal. Plan structure (Practitioner / Project / Institutional) and Plan Owner admin model stay locked (ADR-012). Lockdown still pauses auto customer logins (ADR-013).
-- **Decision:** Soft-launch revenue path is **`/quote` → Desk quotation/invoice → EFT → Ops Confirm EFT paid** → CRM Lead `EFT Payment` for Finance/Executive. Website CTAs prefer quote over `/pay` until Paystack is live. Optional `OPS_ALERT_WEBHOOK_URL` for operator ping. **No** auto Plan Owner from quote or EFT confirm.
-- **Consequences:** Pricing page amounts stay as list prices; collection is offline until Paystack flips back; CRM sources `Quote Request` + `EFT Payment` required.
-- **Alternatives considered:** Wait only on Paystack (rejected — blocks revenue); auto-provision Owner on EFT confirm (rejected — integrity + lockdown).
+- **Decision:** Soft-launch **fallback** is **`/quote` → Desk quotation/invoice → EFT → Ops Confirm EFT paid**. Website **pricing CTAs prefer `/pay?plan=…`**. Optional `OPS_ALERT_WEBHOOK_URL` for operator ping. **No** auto Plan Owner from quote or EFT confirm.
+- **Consequences:** Quote remains for EFT/edge cases; marketing pricing shows real Paystack amounts.
+- **Alternatives considered:** Wait only on Paystack (rejected earlier); auto-provision Owner on EFT confirm (rejected — integrity + lockdown).
 
-### ADR-013: Platform Operator sole live control (until lifted)
+### ADR-021: Open trial — email only on print/save
+
+- **Date:** 2026-07-20
+- **Status:** Superseded by ADR-022 for product trial entry
+- **Context:** Launch requires clients to explore without login; capture email only when they print or save. Soft-gate and mandatory demo-entry forms raise drop-off.
+- **Decision:** `/demo` auto-enters `/app` as a trial guest (default role `client`). Email modal gates print/save/export only. `/trial` and `/pay` remain for subscribe/quote funnels. Staff/operator live login stays at `/login/live`. Soft lead gate (ADR-008) is retired from the product shell.
+- **Consequences:** Higher explore conversion; lead capture tied to intent. Role switch available in Settings. Operator lockdown still applies to live sessions only.
+- **Alternatives considered:** Keep email-before-demo (rejected for launch UX); remove `/trial` (rejected — Paystack/quote path still needed).
+
+### ADR-022: Product trial is own-data workspace; upgrade → Paystack
+
+- **Date:** 2026-07-21
+- **Status:** Accepted
+- **Context:** Marketing “Start trial” must not dump users into sample `/demo`. Clients need their own workspace for 14 days, then a smooth path to pay. After expiry, access stops but data is retained briefly.
+- **Decision:**
+  1. **Start trial** → `/trial` (name + work email + plan lens) → `tl-mode=trial` workspace with **empty/own data** (not mock seed).
+  2. In-app **Upgrade & pay** → `/pay?plan=…` directly (no subscribe form step).
+  3. Trial length **14 days**; on expiry **access off**; data retained **90 days** then purged (wall UI + local retention clock; Frappe entitlement sync later).
+  4. `/demo` remains **sample preview** only.
+- **Consequences:** WP/home CTAs point at `/trial`. Browser-local trial store until Cloud tenancy ships. Operator lockdown unchanged for Frappe live.
+- **Alternatives considered:** Keep demo-as-trial (rejected); require Frappe User create before any trial (blocked by lockdown — phase next).
+
+### ADR-023: Version 001 desk live; Version 002 core before loud commercial launch
+
+- **Date:** 2026-07-21
+- **Status:** Accepted
+- **Context:** Public messaging has compared TrustLedger to market tools on stakeholder intelligence capabilities that Version 001 does not yet ship (registry, engagements, commitments, geo, ESG depth). Over-claiming erodes trust.
+- **Decision:**
+  1. Label the current product **Version 001** (resolution desk + trial/pay).
+  2. Prioritise **Version 002** TEDS core: geo → stakeholders → engagements → commitments → stronger grievance → reports → intelligence/ESG (`docs/ROADMAP_V002.md`).
+  3. Soft commercial launch **may be delayed** until V002 geo + stakeholders + commitments + stronger grievance are demoable.
+  4. Public copy must separate **Available now (V001)** vs **Coming in V002**.
+- **Consequences:** Active packets shift to Phase 6 (24a+). Paystack/trial remain, but marketing honesty is mandatory.
+- **Alternatives considered:** Ship soft launch first then build V002 quietly (rejected — trust risk); claim V002 as live (rejected).
+
+### ADR-024: Capability entitlements (plan bundles + add-ons)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted (amended 2026-07-22)
+- **Context:** Commercial packaging will combine seats with functional modules. Features must be switchable per plan or sold as optional add-ons without rewriting each screen later.
+- **Decision:**
+  1. Maintain a capability catalogue (`src/types/entitlements.ts`) separate from seat/pricing (`plans.ts`).
+  2. Each plan has a default capability matrix (`src/config/entitlements.ts`).
+  3. UI gates via `hasCapability` / `FeatureGate` / nav `capability` fields.
+  4. **Settings → Plan capabilities** is **Plan Owner only**. Juniors never see the switchboard.
+  5. Plan Owner sees the **full catalogue**. Capabilities outside the current plan are visible but **locked** (upgrade CTA). Only **Institutional** may toggle every capability on/off. Lower plans may only toggle modules included in their matrix; they cannot force-enable missing features (overrides that turn missing caps on are ignored).
+  6. Sellable add-on SKUs remain in types for future packaging; they do not unlock above-plan features from Settings.
+  7. Pricing and public plan copy may be revisited later; the switchboard stays.
+- **Consequences:** New modules register a capability id and check it at nav + page entry. Ops accounts page can later sync live entitlements.
+- **Alternatives considered:** Hardcode plan checks in each page (rejected — brittle); feature flags only in env (rejected — not client-packagable); let any admin freely override every switch (rejected — breaks packaging).
+
+### ADR-025: Subscribe = card verify + 14-day trial + deferred charge
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Buyers must not be charged the full plan on Subscribe. Banking details verify the trial, stay on file for day-14 billing, and support standard opt-out before charge. After confirmation the trial must start immediately with login details (temporary password) — no “contact us” CTA on the thank-you screen.
+- **Decision:**
+  1. Default `/pay` checkout mode is **`trial_authorize`**: Paystack charges a small verification amount (`PAYSTACK_TRIAL_VERIFY_CENTS`, default R1.00), stores a reusable authorization, and schedules the plan amount for trial end.
+  2. Optional **`pay_now`** mode charges the first month immediately (no deferred trial billing).
+  3. On verify success: CRM Lead `Trial Authorize`, mint temp password + signed activation token, email when `RESEND_API_KEY` is set, always show credentials on `/pay/success`, activate browser trial workspace immediately.
+  4. Banner **Cancel before you are charged** → `/api/billing/opt-out` (CRM `Trial Opt-Out` + Paystack `deactivate_authorization` when code available).
+  5. Ops charges due trials via `/api/paystack/charge-due` (allowlist). Frappe Plan Owner creation stays gated by ADR-013 lockdown.
+- **Consequences:** Subscribe CTAs mean trial-with-card-on-file. Success page has thank-you + login details only. Day-14 collection is operator-triggered until a scheduler lands.
+- **Alternatives considered:** Full charge on Subscribe (rejected — contradicts trial promise); free trial with no card (kept as `/trial` explore only); auto Frappe User create (blocked by lockdown).
+
+### ADR-013: Platform Operator lockdown
 
 - **Date:** 2026-07-12
 - **Status:** Accepted
@@ -183,4 +257,110 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Decision:** While `PLATFORM_OPERATOR_ONLY=1`, only identities in `PLATFORM_OPERATOR_EMAILS` may use live login, live `/app`, and the Frappe BFF. Demo/assessment stay public for leads unless `PLATFORM_OPERATOR_LOCK_PUBLIC=1`. Customer seat issuance stays paused until lockdown is lifted. See `docs/PLATFORM_OPERATOR.md`.
 - **Consequences:** Clear sole-control posture for launch; env flip opens Plan Owner flow later.
 - **Alternatives considered:** Hardcode a single email in source (rejected — use env allowlist); lock demo too by default (rejected — keep Wednesday lead funnel unless explicitly locked).
+
+### ADR-026: Demo org tenancy before Frappe User SoT
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** ADR-012 requires Plan Owner + invite seats, but ADR-013 still blocks live Customer/User issuance. Buyers on trial/demo need a master desk and junior invites now.
+- **Decision:** Ship **browser-local org tenancy** (packets T1–T2): `localStorage` org + invite records; cookies for `orgId`, Plan Owner flag, desk tier, and desk-tier lock. Trial/subscribe bootstraps the Owner org. Invitees accept at `/invite/accept` with Owner-assigned role + locked desk. Seat caps follow ACCESS_MODEL (Practitioner = 0 juniors). T3–T5 cover data space, media quotas, and Frappe SoT when lockdown lifts.
+- **Consequences:** Demo/trial Owners can manage seats without Cloud Users; invite links only work on the same browser store until Cloud sync; no change to ADR-013 lockdown.
+- **Alternatives considered:** Wait for lockdown lift (rejected — blocks product learning); fake multi-user without seat model (rejected — contradicts ACCESS_MODEL).
+
+### ADR-027: Soft public launch (live Paystack, operator-gated Frappe)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Product is ready to offer to clients with plan-gated modules and ranked desks. Live Paystack must collect trial authorizations; Frappe Customer/User SoT (T5) is not ready. Full ADR-013 lift would expose live `/app` + BFF without Owner issuance.
+- **Decision:**
+  1. **Public:** marketing, demo, assessment, `/trial`, `/pay` (live Paystack keys), invite accept (demo tenancy).
+  2. **Keep `PLATFORM_OPERATOR_ONLY=1`** for `/login/live`, live `/app`, and `/api/frappe` until T5.
+  3. `/ops` remains allowlist-only always.
+  4. Quality gates: Bugbot on client-facing PRs; Security Agents on payment/auth changes; Cloud Agents for packets (`docs/CURSOR_AGENTS.md`, `docs/PUBLIC_LAUNCH.md`).
+- **Consequences:** Clients subscribe/trial without Frappe logins; Plan Owner Cloud users stay manual/paused; messaging must say modules expand by plan over time.
+- **Alternatives considered:** Full lockdown lift now (rejected — no SoT Owner issuance); stay on Paystack test forever (rejected — blocks real clients).
+
+### ADR-028: Dual dashboards — Activity + Reports packs
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Plan Owner (primary user) needs one surface for navigation/project activity and another for choosing report forms (monthly text+graphs, executive risk graphs, board/client/funder presentation). Formats must follow plan seniority; who may open them is Owner-controlled.
+- **Decision:**
+  1. `/app/dashboard` = **Activity dashboard** (overall nav + project activity pulse).
+  2. `/app/reports` = **Reports dashboard** with three packs: `monthly`, `executive`, `board_presentation`.
+  3. Plan matrix: Practitioner → monthly; Project → monthly+executive; Institutional → all three (demo uses Project lens).
+  4. Plan Owner grants desks per pack in Settings (`tl-report-pack-access`); cannot grant below pack `minDesk` or off-plan packs.
+  5. Evidence AI writer remains local (no Cloud Month-End templates).
+- **Consequences:** Nav label “Reports”; Create report wizard nests under a chosen pack; juniors only see packs Owner enabled for their desk.
+- **Alternatives considered:** Single mega-dashboard (rejected — mixed jobs); unlock all packs on every plan (rejected — contradicts commercial seniority).
+
+### ADR-029: Org data space before Frappe SoT (T3)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Paying / trial customers must not see TrustLedger demo `INC-*` sample data. Cloud DocTypes (T5) are not ready; buyers still need a place to deposit and work their own projects and cases.
+- **Decision:**
+  1. **Customer workspace** = `tl-mode=trial` or non-demo session with `orgId`.
+  2. Domain data lives in org-scoped browser store `tl-org-data` (projects, incidents, evidence, stakeholders), migrating legacy `tl-trial-*` once.
+  3. Activity / Reports / evidence writer **never merge** static mocks in customer mode.
+  4. Plan Owner deposits via Settings → **Org data space** (CSV import) or normal UI create flows; rows stamp `orgId`.
+  5. T5 later moves the same shapes to Frappe Customer-scoped DocTypes.
+- **Consequences:** Trial/pay workspaces start empty (plus optional blank `PRJ-TRIAL` scaffold); demo path (`/demo`) keeps sample data. Multi-device sync waits for T5.
+- **Alternatives considered:** Keep demo seed in trial for “something to click” (rejected — contaminates paid path); block all product use until T5 (rejected — cannot sell).
+
+### ADR-030: Browser media library with plan quotas (T4)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Customers need registers, minutes, photos, and video on cases without Cloud File yet. Storage must follow plan seniority and push upgrades.
+- **Decision:**
+  1. Org media store `tl-org-media` with kinds register / minutes / photo / video / other.
+  2. Soft quotas: Practitioner 25 MB, Project 250 MB, Institutional 2 GB (browser soft cap).
+  3. Files ≤2 MB may store as data URL; larger files store metadata only until T5 Cloud File.
+  4. Over-quota blocks add; Settings meter + upgrade CTA.
+  5. Case desk upload writes media + evidence stub for customer workspaces.
+- **Consequences:** Real file picker in trial/org; demo can still use filename stubs. Not multi-device until Cloud File.
+- **Alternatives considered:** Wait for S3/Frappe File (rejected — blocks field evidence now); unlimited browser storage (rejected — no upgrade signal).
+
+### ADR-031: Frappe SoT prep without lifting ADR-013 (T5)
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** ACCESS_MODEL requires Customer + Plan Owner User on Cloud. Soft launch (ADR-027) must keep buyers off `/login/live` until issuance works.
+- **Decision:**
+  1. Document Customer/User field contract in `docs/FRAPPE_SOT.md`.
+  2. Operator-only `POST /api/frappe/provision-owner` behind `FRAPPE_OWNER_ISSUANCE` (default off) + Platform Operator allowlist.
+  3. Default `dryRun: true` returns drafts + checklist; live create only when flag + keys + `dryRun: false`.
+  4. **Do not** set `PLATFORM_OPERATOR_ONLY=0` in this packet.
+- **Consequences:** Ops Accounts can prepare Owner issuance; buyers remain on `/pay` + `/trial` browser tenancy.
+- **Alternatives considered:** Auto-provision on Paystack webhook now (rejected — lockdown + untested User create); lift lockdown without issuance path (rejected — ADR-027).
+
+### ADR-032: Delay paid production until Cloud operational grade
+
+- **Date:** 2026-07-22
+- **Status:** Accepted
+- **Context:** Soft launch (ADR-027) + browser tenancy (T1–T5) can sell trials, but multi-device durable ops for paying customers still needs Frappe SoT, DocTypes, File, sync, and billing. Operator chose **real product over early rollout**.
+- **Decision:**
+  1. Treat `docs/OPERATIONAL_DELIVERY.md` as the master path: Steps 1→5→GO LIVE.
+  2. Soft marketing (`/demo`, leads, `/pay`/`/trial`) may continue; **do not** promise multi-device production until GO LIVE criteria.
+  3. Active work = **Step 1** (Customer/User smoke) before DocTypes, sync, or lifting ADR-013.
+  4. Ops UI `/ops/readiness` surfaces env gates; Desk/smoke remain human checklist.
+  5. Lift `PLATFORM_OPERATOR_ONLY` only at Step 4 after Steps 1–3 smoke.
+- **Consequences:** Rollout may slip; customers who pay early stay on browser tenancy until Cloud catch-up. Agents lead one step at a time and wait for “Step N complete”.
+- **Alternatives considered:** Ship browser-only as “production” (rejected — not durable); lift lockdown now without DocTypes (rejected — incomplete SoT).
+
+### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
+
+- **Date:** 2026-07-23
+- **Status:** Accepted
+- **Context:** Public `/demo` auto-entered a sample INC-* workspace that competed with trial/live and risked bleed. Stakeholder Intelligence (registry → engagements → commitments) is the platform engine — without Cloud SI there is no durable SRM. GO LIVE is Done for the resolution desk; buyers need onboarding/feature education, not fictional data.
+- **Decision:**
+  1. **Retire** public sample-demo entry (`tl-mode=demo` guest workspace). `/demo` permanently redirects to `/product`.
+  2. **`/product`** is the public onboarding + feature-purpose surface (what TrustLedger is for, SI core, how to start). CTAs → `/trial`, `/login/live`, `/pay`, `/contact`.
+  3. Product workspaces are **trial** (browser) or **live** (Frappe Cloud only). Lingering `tl-mode=demo` sessions hitting `/app` are cleared and sent to `/product`.
+  4. Mock seed remains only as ADR-010 live-unreachable fallback for non-customer exploratory paths — never for customer/trial lists.
+  5. **Active north star:** Cloud Stakeholder Intelligence — DocTypes + BFF CRUD for TL Stakeholder / TL Engagement / TL Commitment so live Owners get empty-or-real Cloud lists (no seed) and create/update on Cloud.
+  6. Supersedes ADR-001 and ADR-004 **entry** behaviour (Demo-first `/demo` funnel). App shell under `/app` stays.
+- **Consequences:** No public fictional desk; marketing/assessment CTAs retarget `/product` or `/trial`. Ops still ensures SI DocTypes. Stats SA / live Grok deferred.
+- **Alternatives considered:** Keep sample preview beside trial (rejected — bleed + confuses buyers); wait for srm-core methods before SI Cloud (rejected — resource API BFF unblocks Owners now).
 

@@ -27,6 +27,10 @@ function filterProjects(
 }
 
 async function listDemo(filters: ProjectListFilters): Promise<Project[]> {
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  if (readTrialModeFromDocument()) {
+    return delay(filterProjects([], filters));
+  }
   return delay(filterProjects(mockProjects, filters));
 }
 
@@ -37,6 +41,12 @@ async function listLive(filters: ProjectListFilters): Promise<Project[]> {
     });
     return Array.isArray(rows) ? rows : [];
   } catch {
+    const { readTrialModeFromDocument } = await import("@/lib/trial");
+    const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+    if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+      return [];
+    }
+    // Demo / exploratory live only — ADR-010 mock fallback.
     return listDemo(filters);
   }
 }
@@ -55,8 +65,17 @@ export const projectService = {
         );
         return row ?? null;
       } catch {
+        const { readTrialModeFromDocument } = await import("@/lib/trial");
+        const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+        if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+          return null;
+        }
         return delay(mockProjects.find((p) => p.id === id) ?? null);
       }
+    }
+    const { readTrialModeFromDocument } = await import("@/lib/trial");
+    if (readTrialModeFromDocument()) {
+      return delay(null);
     }
     return delay(mockProjects.find((p) => p.id === id) ?? null);
   },

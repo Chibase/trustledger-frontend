@@ -42,6 +42,22 @@ export async function POST(request: Request) {
     );
   }
 
+  // Hard block Cloud LLM report methods — Grok returns Month-End / [Insert …]
+  // fill-in guides. TrustLedger composes reports locally (reportComposer).
+  const blockedAi = [
+    "srm_core.api.ai.compose_activity_report",
+    "srm_core.api.ai.generate_report_brief",
+  ];
+  if (blockedAi.some((m) => method.includes(m))) {
+    return NextResponse.json(
+      {
+        error:
+          "Report AI is local-only on TrustLedger. Use Create report → evidence writer (never Cloud compose/brief).",
+      },
+      { status: 403 },
+    );
+  }
+
   const { method: _method, ...args } = body;
   try {
     const message = await frappeCallWithSid(sid, method, args);

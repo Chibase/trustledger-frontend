@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { HoneypotField, useRecaptcha } from "@/components/forms/FormGuards";
+import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/forms/FormGuards";
 import { isWorkEmail } from "@/data/assessment";
 import { captureUtmFromSearchParams, formatUtmSummary, readUtm } from "@/lib/utm";
 import type { PaystackPlanId } from "@/lib/paystackPlans";
@@ -140,10 +140,10 @@ function QuoteForm() {
         </p>
         <div className="mt-8 flex flex-wrap gap-3 text-sm">
           <Link
-            href="/demo"
+            href="/product"
             className="rounded-md bg-tl-trust px-4 py-2 font-medium text-white hover:bg-tl-trust-ink"
           >
-            Explore the demo
+            Product overview
           </Link>
           <Link
             href="/trial"
@@ -257,6 +257,8 @@ function QuoteForm() {
             {error}
           </p>
         ) : null}
+
+        <RecaptchaLegalNote />
 
         <button
           type="submit"

@@ -1,10 +1,8 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { USER_ROLES, type UserRole } from "@/types/rbac";
-
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+import Link from "next/link";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 function sanitizeNext(value: string | null): string {
   if (value && value.startsWith("/") && !value.startsWith("//")) {
@@ -14,62 +12,60 @@ function sanitizeNext(value: string | null): string {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const next = sanitizeNext(searchParams.get("next"));
-  const [role, setRole] = useState<UserRole>("client");
+  const signedOut = searchParams.get("signedOut") === "1";
+  const repaired = searchParams.get("repaired") === "1";
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    document.cookie = `session-role=${role}; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-    document.cookie = `tl-mode=demo; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; samesite=lax`;
-    router.push(next.startsWith("/app") ? next : "/app/dashboard");
-  }
+  const liveHref =
+    next.startsWith("/app") || next.startsWith("/ops")
+      ? `/login/live?next=${encodeURIComponent(next)}`
+      : "/login/live";
 
   return (
     <main className="mx-auto max-w-md p-6">
-      <h1 className="font-display text-2xl font-semibold">Sign in</h1>
+      <p className="font-display text-sm font-semibold tracking-wide text-tl-trust-ink">
+        TrustLedger
+      </p>
+      <h1 className="mt-1 font-display text-2xl font-semibold text-tl-ink">
+        {signedOut || repaired ? "Signed out" : "Sign in"}
+      </h1>
       <p className="mt-2 text-sm text-tl-ink-muted">
-        Choose a demo role to explore sample data, or use{" "}
-        <a href="/demo" className="text-tl-trust-ink underline">
-          the demo entry
-        </a>
-        . For a live TrustLedger session, go to{" "}
-        <a href="/login/live" className="text-tl-trust-ink underline">
-          live sign-in
-        </a>
-        .
+        {signedOut || repaired
+          ? "Your session is cleared. Sign in again, or use a different email on the live form to switch accounts."
+          : "Choose how you want to enter TrustLedger."}
       </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-6 space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4"
-      >
-        <div>
-          <label htmlFor="role" className="mb-1 block text-sm font-medium">
-            Role
-          </label>
-          <select
-            id="role"
-            value={role}
-            onChange={(event) => setRole(event.target.value as UserRole)}
-            className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-          >
-            {USER_ROLES.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+      <div className="mt-6 space-y-3">
+        <Link
+          href={liveHref}
+          className="block w-full rounded-md bg-tl-trust px-4 py-3 text-center text-sm font-medium text-white hover:bg-tl-trust-ink"
         >
-          Continue
-        </button>
-      </form>
+          {signedOut || repaired
+            ? "Sign in again / different account"
+            : "Sign in with live account"}
+        </Link>
+        <Link
+          href="/login/trial"
+          className="block w-full rounded-md border border-tl-line bg-tl-surface px-4 py-3 text-center text-sm font-medium text-tl-ink hover:border-tl-trust hover:text-tl-trust-ink"
+        >
+          Continue trial
+        </Link>
+        <Link
+          href="/product"
+          className="block w-full rounded-md border border-tl-line bg-tl-surface px-4 py-3 text-center text-sm font-medium text-tl-ink hover:border-tl-trust hover:text-tl-trust-ink"
+        >
+          Product &amp; onboarding
+        </Link>
+      </div>
+
+      <p className="mt-8 text-xs text-tl-ink-muted">
+        New here?{" "}
+        <Link href="/trial" className="text-tl-trust-ink underline">
+          Start a 14-day trial
+        </Link>{" "}
+        with your own workspace — sample preview is retired.
+      </p>
     </main>
   );
 }

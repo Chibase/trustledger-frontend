@@ -18,10 +18,11 @@ This is **not** the same as a customer **Plan Owner** (`admin` on a paid org). S
 
 Fail closed: if lockdown is on and the allowlist is empty, **all** live logins are denied.
 
-## Vercel env (required)
+## Vercel env (current)
 
 ```bash
-PLATFORM_OPERATOR_ONLY=1
+# Buyer live login open (Step 4 Done). Do NOT set back to 1.
+PLATFORM_OPERATOR_ONLY=0
 PLATFORM_OPERATOR_EMAILS=admin@chibaseconsulting.co.za
 ```
 
@@ -33,13 +34,24 @@ PLATFORM_OPERATOR_LOCK_PUBLIC=1
 
 Add alternate operator emails as a comma-separated list if needed.
 
-## How to lift lockdown (when you advise)
+**Warning:** Setting `PLATFORM_OPERATOR_ONLY=1` again re-blocks GO LIVE on `/ops/readiness` (buyer lockdown gate fails).
 
-1. Set `PLATFORM_OPERATOR_ONLY=0` (or remove it) on Vercel.
-2. Optionally clear `PLATFORM_OPERATOR_LOCK_PUBLIC`.
-3. Resume Plan Owner provisioning per ADR-012 / `ACCESS_MODEL.md`.
+## How to lift lockdown (Step 4 — **DONE 2026-07-23**)
 
-You can keep `PLATFORM_OPERATOR_EMAILS` set for future staff tools without enforcing lockdown.
+1. Confirm Ops Finance **Dry-run due list** / forced charge smoke works.
+2. Set `PLATFORM_OPERATOR_ONLY=0` (or remove it) on Vercel.
+3. Optionally clear `PLATFORM_OPERATOR_LOCK_PUBLIC`.
+4. Keep `PLATFORM_OPERATOR_EMAILS` for `/ops` (always allowlist-gated).
+5. Smoke buyer `/login/live`; `past_due` / `cancelled` Customers stay blocked by entitlement gate.
+
+**Status:** Buyer live login is open. **GO LIVE Done (2026-07-23).** Do **not** clear the Ops allowlist. Do **not** set `PLATFORM_OPERATOR_ONLY=1` again.
+
+## T5 / OD-1 Owner issuance
+
+1. Read `docs/FRAPPE_SOT.md` and `docs/OPERATIONAL_DELIVERY.md` (Step 1).
+2. Set `FRAPPE_OWNER_ISSUANCE=1` (operator tools only).
+3. Track gates on `/ops/readiness`; `/ops/accounts` → Dry-run then Create on Cloud after Desk custom fields exist.
+4. Lift `PLATFORM_OPERATOR_ONLY` only at delivery Step 4 after Steps 1–3 smoke *(Done)*.
 
 ## UI signal
 

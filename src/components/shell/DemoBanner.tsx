@@ -1,28 +1,31 @@
 import Link from "next/link";
 
-export function DemoBanner() {
+type DemoBannerProps = {
+  planName?: string | null;
+};
+
+/** Sample-data preview banner (not the product trial). */
+export function DemoBanner({ planName }: DemoBannerProps) {
   return (
-    <div className="animate-[tl-banner-in_280ms_ease-out] bg-tl-demo text-white">
+    <div className="animate-[tl-banner-in_280ms_ease-out] bg-tl-ink text-white">
       <div className="flex w-full flex-wrap items-center justify-between gap-2 px-4 py-2 text-xs sm:px-6 sm:text-sm">
         <p>
-          <span className="font-semibold">Trial / demo mode</span>
+          <span className="font-semibold">Sample preview</span>
+          {planName ? (
+            <>
+              <span className="mx-2 opacity-60">·</span>
+              {planName}
+            </>
+          ) : null}
           <span className="mx-2 opacity-60">·</span>
-          Sample data only — not a live project record
+          Fictional data — not your workspace
         </p>
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/contact?utm_source=demo_banner&utm_medium=cta&utm_campaign=talk_to_us"
-            className="font-medium underline underline-offset-2 hover:opacity-90"
-          >
-            Talk to us
-          </Link>
-          <Link
-            href="/trial?utm_source=demo_banner&utm_medium=cta&utm_campaign=start_trial"
-            className="font-medium underline underline-offset-2 hover:opacity-90"
-          >
-            Start trial
-          </Link>
-        </div>
+        <Link
+          href="/trial?utm_source=demo_banner&utm_medium=cta&utm_campaign=start_trial"
+          className="font-semibold underline underline-offset-2 hover:opacity-90"
+        >
+          Start 14-day trial
+        </Link>
       </div>
     </div>
   );

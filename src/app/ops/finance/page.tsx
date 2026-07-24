@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChargeDuePanel } from "@/components/ops/ChargeDuePanel";
 import { ConfirmEftPaidForm } from "@/components/ops/ConfirmEftPaidForm";
 import { PillarBanner } from "@/components/ops/PillarBanner";
 import { buildFinanceOverview } from "@/lib/commandCentreIntel";
@@ -16,8 +17,9 @@ export default async function OpsFinancePage() {
         <p className="text-sm font-medium text-tl-trust">Command control</p>
         <h1 className="mt-1 font-display text-3xl font-semibold">Finance</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Quote / EFT confirmations and Paystack checkout signals. CRM Customer
-          and Plan Owner stay manual while lockdown is on.
+          Trial card authorizations, opt-outs, EFT confirms, and Paystack
+          charges. Day-14 collection uses charge-due when still scheduled.
+          CRM Customer / Plan Owner stay manual while lockdown is on.
         </p>
       </header>
 
@@ -26,6 +28,8 @@ export default async function OpsFinancePage() {
           ? `${payments.total} payment signal(s) in the latest CRM window (EFT + Paystack).`
           : data.summary}
       </PillarBanner>
+
+      <ChargeDuePanel />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
         <h2 className="font-display text-lg font-semibold">

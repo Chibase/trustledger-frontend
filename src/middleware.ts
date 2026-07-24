@@ -47,6 +47,13 @@ function clearLiveCookies(response: NextResponse) {
   response.cookies.set(TL_USER_EMAIL_COOKIE, "", clear);
 }
 
+function clearDemoSession(response: NextResponse) {
+  const clear = { path: "/", maxAge: 0 };
+  response.cookies.set(SESSION_ROLE_COOKIE, "", clear);
+  response.cookies.set(TL_MODE_COOKIE, "", clear);
+  response.cookies.set(TL_USER_NAME_COOKIE, "", clear);
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const mode = request.cookies.get(TL_MODE_COOKIE)?.value;
@@ -54,6 +61,23 @@ export function middleware(request: NextRequest) {
   const email = request.cookies.get(TL_USER_EMAIL_COOKIE)?.value;
   const hasLiveSid = Boolean(request.cookies.get(FRAPPE_SID_COOKIE)?.value);
   const isLiveSession = mode === "live" || hasLiveSid;
+  // Trial is not a Frappe live product session. Sample demo is retired (ADR-033).
+  const wantsLiveProduct =
+    isLiveSession ||
+    (getDataMode() === "live" && mode !== "demo" && mode !== "trial");
+
+  // After explicit sign-out / session repair, never bounce back into a dashboard
+  // even if cookies briefly linger on the first navigation.
+  if (pathname === "/login") {
+    const signedOutIntent =
+      request.nextUrl.searchParams.get("signedOut") === "1" ||
+      request.nextUrl.searchParams.get("repaired") === "1";
+    if (signedOutIntent) {
+      const response = NextResponse.next();
+      clearLiveCookies(response);
+      return response;
+    }
+  }
 
   if ((pathname === "/login" || pathname === "/login/live") && signedIn) {
     if (isLiveSession && isPlatformOperatorOnly()) {
@@ -69,12 +93,10 @@ export function middleware(request: NextRequest) {
     const next = safeNextPath(request.nextUrl.searchParams.get("next"));
     const opsGate = assertOpsAccess(email);
 
-    // Platform operators land on Executive Board, not the customer /app desk.
     if (isLiveSession && opsGate.ok) {
       if (next?.startsWith("/ops")) {
         return NextResponse.redirect(new URL(next, request.url));
       }
-      // Explicit product inspect only when next is /app...
       if (next?.startsWith("/app")) {
         return NextResponse.redirect(new URL(next, request.url));
       }
@@ -91,11 +113,13 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(dest);
     }
     return NextResponse.redirect(
-      new URL(next && next.startsWith("/app") ? next : "/app/dashboard", request.url),
+      new URL(
+        next && next.startsWith("/app") ? next : "/app/dashboard",
+        request.url,
+      ),
     );
   }
 
-  // Platform Ops command centre — always allowlist + live session
   if (pathname === "/ops" || pathname.startsWith("/ops/")) {
     if (!signedIn || !isLiveSession) {
       const dest = new URL("/login/live", request.url);
@@ -110,14 +134,8 @@ export function middleware(request: NextRequest) {
       const dest = new URL("/login/live", request.url);
       dest.searchParams.set("error", opsGate.reason);
       dest.searchParams.set("next", "/ops/executive");
-      const response = NextResponse.redirect(dest);
-      return response;
+      return NextResponse.redirect(dest);
     }
-  }
-
-  // Demo picker only auto-skips in demo mode; live users may revisit /demo intentionally.
-  if (pathname === "/demo" && signedIn && mode !== "live") {
-    return NextResponse.redirect(new URL("/app/dashboard", request.url));
   }
 
   const protectedPrefixes = ["/app", "/dashboard", "/issues", "/incidents"];
@@ -125,7 +143,15 @@ export function middleware(request: NextRequest) {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 
-  // Operators belong on Executive Board — bounce customer dashboard entry points.
+  // ADR-033 — sample demo workspace retired; clear cookies and send to /product.
+  if (isProtected && mode === "demo" && !isLiveSession) {
+    const dest = new URL("/product", request.url);
+    dest.searchParams.set("retired", "1");
+    const response = NextResponse.redirect(dest);
+    clearDemoSession(response);
+    return response;
+  }
+
   if (
     signedIn &&
     isLiveSession &&
@@ -137,20 +163,27 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/ops/executive", request.url));
   }
 
+  // Trial is open (no login). Live product still requires sign-in.
+  // Operator public lock only applies to live sessions, not open trial guests.
   if (isProtected && !signedIn) {
-    if (isPlatformOperatorLockPublic()) {
+    if (wantsLiveProduct) {
+      if (isPlatformOperatorLockPublic()) {
+        const dest = new URL("/login/live", request.url);
+        dest.searchParams.set("error", "not_operator");
+        dest.searchParams.set(
+          "next",
+          pathname.startsWith("/app") ? pathname : "/app/dashboard",
+        );
+        return NextResponse.redirect(dest);
+      }
       const dest = new URL("/login/live", request.url);
-      dest.searchParams.set("error", "not_operator");
       dest.searchParams.set(
         "next",
         pathname.startsWith("/app") ? pathname : "/app/dashboard",
       );
       return NextResponse.redirect(dest);
     }
-    // Live product mode (or an existing live cookie) → live sign-in, not demo.
-    const entry =
-      mode === "live" || getDataMode() === "live" ? "/login/live" : "/demo";
-    const dest = new URL(entry, request.url);
+    const dest = new URL("/trial", request.url);
     dest.searchParams.set(
       "next",
       pathname.startsWith("/app") ? pathname : "/app/dashboard",
@@ -159,6 +192,10 @@ export function middleware(request: NextRequest) {
   }
 
   if (isProtected && signedIn && isPlatformOperatorLockPublic()) {
+    // Product trial is a public workspace — lockdown is live-only.
+    if (mode === "trial") {
+      return NextResponse.next();
+    }
     if (!isLiveSession || !isPlatformOperatorIdentity(email)) {
       const dest = new URL("/login/live", request.url);
       dest.searchParams.set("error", "not_operator");
@@ -167,7 +204,12 @@ export function middleware(request: NextRequest) {
       response.cookies.set(SESSION_ROLE_COOKIE, "", { path: "/", maxAge: 0 });
       return response;
     }
-  } else if (isProtected && signedIn && isLiveSession && isPlatformOperatorOnly()) {
+  } else if (
+    isProtected &&
+    signedIn &&
+    isLiveSession &&
+    isPlatformOperatorOnly()
+  ) {
     const gate = assertLiveOperatorAccess(email);
     if (!gate.ok) {
       const dest = new URL("/login/live", request.url);
@@ -185,7 +227,6 @@ export const config = {
   matcher: [
     "/login",
     "/login/live",
-    "/demo",
     "/ops",
     "/ops/:path*",
     "/app",

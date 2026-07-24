@@ -78,6 +78,34 @@ export function useRecaptcha(action: string) {
   return { enabled, ready, getToken };
 }
 
+/** Google requires attribution when the reCAPTCHA badge is hidden/minimised. */
+export function RecaptchaLegalNote() {
+  if (!SITE_KEY) return null;
+  return (
+    <p className="text-[11px] leading-relaxed text-tl-ink-muted">
+      Protected by reCAPTCHA. Google{" "}
+      <a
+        href="https://policies.google.com/privacy"
+        className="underline"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Privacy Policy
+      </a>{" "}
+      and{" "}
+      <a
+        href="https://policies.google.com/terms"
+        className="underline"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Terms
+      </a>{" "}
+      apply.
+    </p>
+  );
+}
+
 /**
  * Invisible honeypot — leave empty.
  * Avoid names like company_url / website: browsers and password managers

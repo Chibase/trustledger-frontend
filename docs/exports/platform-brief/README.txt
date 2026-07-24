@@ -1,0 +1,1 @@
+TrustLedger export pack\n=======================\n\nFiles:\n- TrustLedger_Platform_Strategic_Brief.docx / .pdf  (main living brief)\n- TrustLedger_Product_Versions.docx / .pdf\n- TrustLedger_Operational_Delivery.docx / .pdf\n- TrustLedger_Roadmap_V002.docx / .pdf\n\nSource of truth remains the markdown in docs/. Re-export after major packets.\n

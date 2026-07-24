@@ -1,4 +1,7 @@
 import type { Incident } from "@/types/incident";
+import { defaultTargetHours } from "@/lib/grievanceProcess";
+
+const targets = defaultTargetHours();
 
 export const mockIncidents: Incident[] = [
   {
@@ -13,14 +16,30 @@ export const mockIncidents: Incident[] = [
     projectId: "PRJ-001",
     projectName: "Ward 12 Access Road Repair",
     reportedByRole: "community",
+    filedByTier: "clo",
     reportedAt: "2026-07-08T09:20:00+02:00",
     slaDueBy: "2026-07-08T13:20:00+02:00",
     slaBreached: true,
     escalationLevel: "L3",
     ownerName: "N. Mokoena",
     category: "Water / utilities disruption",
+    nature: "water",
     impactScore: 82,
     sentimentScore: -75,
+    processStages: {
+      reportedAt: "2026-07-08T09:20:00+02:00",
+      resourceDeployedAt: "2026-07-08T14:30:00+02:00",
+      investigatedAt: "2026-07-09T10:00:00+02:00",
+      resolvedAt: null,
+      verifiedAt: null,
+      closedAt: null,
+      targetHours: targets,
+    },
+    escalationPolicy: {
+      seniorFromPriority: "P2-High",
+      suggestedTier: "senior",
+      reason: "P1-Critical meets or exceeds client senior threshold (P2-High).",
+    },
     timeline: [
       {
         id: "ev-1",
@@ -54,14 +73,30 @@ export const mockIncidents: Incident[] = [
     projectId: "PRJ-001",
     projectName: "Ward 12 Access Road Repair",
     reportedByRole: "community",
+    filedByTier: "clo",
     reportedAt: "2026-07-09T18:05:00+02:00",
     slaDueBy: "2026-07-10T06:05:00+02:00",
     slaBreached: false,
     escalationLevel: "L1",
     ownerName: "S. Dlamini",
     category: "Construction nuisance",
+    nature: "dust",
     impactScore: 58,
     sentimentScore: -45,
+    processStages: {
+      reportedAt: "2026-07-09T18:05:00+02:00",
+      resourceDeployedAt: "2026-07-09T20:00:00+02:00",
+      investigatedAt: null,
+      resolvedAt: null,
+      verifiedAt: null,
+      closedAt: null,
+      targetHours: targets,
+    },
+    escalationPolicy: {
+      seniorFromPriority: "P2-High",
+      suggestedTier: "senior",
+      reason: "P2-High meets or exceeds client senior threshold (P2-High).",
+    },
     timeline: [
       {
         id: "ev-4",
@@ -89,14 +124,30 @@ export const mockIncidents: Incident[] = [
     projectId: "PRJ-001",
     projectName: "Ward 12 Access Road Repair",
     reportedByRole: "community",
+    filedByTier: "clo",
     reportedAt: "2026-07-10T07:40:00+02:00",
     slaDueBy: "2026-07-10T11:40:00+02:00",
     slaBreached: false,
     escalationLevel: "None",
     ownerName: "Unassigned",
     category: "Safety / access hazard",
+    nature: "safety",
     impactScore: 76,
     sentimentScore: -60,
+    processStages: {
+      reportedAt: "2026-07-10T07:40:00+02:00",
+      resourceDeployedAt: null,
+      investigatedAt: null,
+      resolvedAt: null,
+      verifiedAt: null,
+      closedAt: null,
+      targetHours: targets,
+    },
+    escalationPolicy: {
+      seniorFromPriority: "P2-High",
+      suggestedTier: "senior",
+      reason: "P1-Critical meets or exceeds client senior threshold (P2-High).",
+    },
     timeline: [
       {
         id: "ev-6",
@@ -118,14 +169,30 @@ export const mockIncidents: Incident[] = [
     projectId: "PRJ-002",
     projectName: "Community Water Reticulation Phase 2",
     reportedByRole: "community",
+    filedByTier: "clo",
     reportedAt: "2026-07-07T11:15:00+02:00",
     slaDueBy: "2026-07-07T23:15:00+02:00",
     slaBreached: true,
     escalationLevel: "L2",
     ownerName: "T. Naidoo",
     category: "Water / utilities disruption",
+    nature: "water",
     impactScore: 64,
     sentimentScore: -40,
+    processStages: {
+      reportedAt: "2026-07-07T11:15:00+02:00",
+      resourceDeployedAt: "2026-07-07T15:00:00+02:00",
+      investigatedAt: "2026-07-08T09:00:00+02:00",
+      resolvedAt: null,
+      verifiedAt: null,
+      closedAt: null,
+      targetHours: targets,
+    },
+    escalationPolicy: {
+      seniorFromPriority: "P2-High",
+      suggestedTier: "senior",
+      reason: "P2-High meets or exceeds client senior threshold (P2-High).",
+    },
     timeline: [
       {
         id: "ev-7",
@@ -153,14 +220,31 @@ export const mockIncidents: Incident[] = [
     projectId: "PRJ-001",
     projectName: "Ward 12 Access Road Repair",
     reportedByRole: "client",
+    filedByTier: "supervisor",
     reportedAt: "2026-07-06T14:00:00+02:00",
     slaDueBy: "2026-07-07T14:00:00+02:00",
     slaBreached: true,
     escalationLevel: "L1",
     ownerName: "Thari Civils PM",
     category: "Documentation / evidence",
+    nature: "other",
     impactScore: 28,
     sentimentScore: null,
+    processStages: {
+      reportedAt: "2026-07-06T14:00:00+02:00",
+      resourceDeployedAt: "2026-07-06T16:00:00+02:00",
+      investigatedAt: null,
+      resolvedAt: null,
+      verifiedAt: null,
+      closedAt: null,
+      targetHours: targets,
+    },
+    escalationPolicy: {
+      seniorFromPriority: "P2-High",
+      suggestedTier: "junior",
+      reason:
+        "P3-Medium is below senior threshold (P2-High) — junior staff may handle.",
+    },
     timeline: [
       {
         id: "ev-9",

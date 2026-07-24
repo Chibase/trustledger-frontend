@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
+import { TrialExpiredWall } from "@/components/shell/TrialExpiredWall";
 import { isLiveMode } from "@/config/api";
 import { getCurrentUser } from "@/lib/auth";
 import {
@@ -18,7 +19,7 @@ export default async function ProductLayout({
     redirect(
       isLiveMode()
         ? "/login/live?next=/app/dashboard"
-        : "/demo?next=/app/dashboard",
+        : "/trial?next=/app/dashboard",
     );
   }
 
@@ -29,6 +30,21 @@ export default async function ProductLayout({
     }
   }
 
+  if (
+    user.mode === "trial" &&
+    user.trial &&
+    (user.trial.status === "expired" || user.trial.status === "purged")
+  ) {
+    return (
+      <TrialExpiredWall
+        trial={user.trial}
+        planId={user.trialPlan}
+        email={user.email}
+        name={user.name}
+      />
+    );
+  }
+
   const showOperatorBanner =
     user.mode === "live" && isPlatformOperatorOnly();
 
@@ -36,9 +52,11 @@ export default async function ProductLayout({
     <AppShell
       role={user.role}
       userName={user.name}
+      userEmail={user.email}
       mode={user.mode}
-      showDemoBanner={user.mode !== "live"}
-      showLeadGate={user.mode !== "live"}
+      trial={user.trial}
+      trialPlan={user.trialPlan}
+      isGuest={Boolean(user.isGuest)}
       showOperatorBanner={showOperatorBanner}
     >
       {children}

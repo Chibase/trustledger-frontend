@@ -1,6 +1,6 @@
 # Launch checklist — TrustLedger
 
-## Fixed in code (this pass)
+## Fixed in code (baseline)
 
 - Demo soft-gate leads → HubSpot (`POST /api/demo/lead`)
 - Assessment lead fails closed in production if HubSpot unset
@@ -9,21 +9,30 @@
 - Login copy no longer says “Dev”
 - `NEXT_PUBLIC_DEV_ROLE` ignored in Vercel production
 - Dynamic `robots.ts` + `/reports` redirect
-- Placeholder phone removed from Assessment WP paste kit
+- Plan Owner org + ranked desk invites (T1–T2); invite accept re-checks plan desk
+- Trial opt-out verifies Paystack reference + email before deactivating authorization
+- Production requires `TRIAL_TOKEN_SECRET` or `PAYSTACK_SECRET_KEY` (no silent fallback)
 
-## Human actions before public launch
+## Human actions — public soft launch + live Paystack
 
-1. **Hard-refresh / re-paste WP Assessment** if footer still shows `+00 000 000 0000` — use updated `docs/wordpress/page-assessment.txt`.
-2. **Confirm HubSpot** receives demo-gate + assessment leads (check Contacts after a test).
-3. **Decide final product domain** (keep `*.vercel.app` or attach custom domain) and set `NEXT_PUBLIC_SITE_URL` to match; update Frappe Cloud CORS if domain changes.
-4. **Frappe Cloud / `app.trustledger.co.za`** — domain Active; set Vercel `NEXT_PUBLIC_API_BASE_URL` + `FRAPPE_BASE_URL`; CORS + API keys per `docs/FRAPPE_CLOUD_SETUP.md`. Interserv is retired — see `docs/INTERSERV_CANCEL.md`.
-5. **Legal** — confirm Privacy + Terms on `trustledger.co.za` have real entity name/address (placeholders remain).
-6. **Phone / Calendly** — add when ready (removed fake phone from paste kit).
-7. **Demo banner** — keep for sample-data honesty, or hide only for live users (already the case).
-8. **Revoke any Vercel tokens** shared in chat.
-9. **Support Phase A** — smoke `/status`, Repair session, and one Support ticket from `/app` (HubSpot message starts with `[Source: support_ticket]`).
-10. **Platform Operator lockdown** — on Vercel set `PLATFORM_OPERATOR_ONLY=1` and `PLATFORM_OPERATOR_EMAILS` to your live login email (e.g. `admin@chibaseconsulting.co.za`). Confirm only you can `/login/live`. See `docs/PLATFORM_OPERATOR.md`.
+Follow **`docs/PUBLIC_LAUNCH.md`** end-to-end. Short form:
+
+1. **Paystack Live** — KYC complete; copy `pk_live_` / `sk_live_` into Vercel; set webhook to `/api/paystack/webhook`.
+2. **`NEXT_PUBLIC_SITE_URL`** — production host (custom domain or Vercel URL); must match Paystack callbacks.
+3. **`TRIAL_TOKEN_SECRET`** — long random string on Vercel (separate from Paystack secret).
+4. **`RESEND_API_KEY`** — welcome email with temp password (strongly recommended for live).
+5. **Keep `PLATFORM_OPERATOR_ONLY=1`** + your email in `PLATFORM_OPERATOR_EMAILS` — buyers use `/pay` + `/trial`, not `/login/live`, until T5.
+6. **`PLATFORM_OPERATOR_LOCK_PUBLIC=0`** — demo/assessment stay public.
+7. **Smoke** — live R1 verify on Practitioner → thank-you + login → banner opt-out → CRM lead.
+8. **Cursor Bugbot** — enable on this GitHub repo; PRs use `.cursor/BUGBOT.md`.
+9. **Security Agents** (Team) — run before/after live key cutover.
+10. **HubSpot** — confirm Trial Authorize / Opt-Out / demo leads.
+11. **Legal** — Privacy + Terms on `trustledger.co.za` (real entity details).
+12. **WordPress CTAs** — point Subscribe at `/pay`, explore at `/trial` (`docs/WORDPRESS_CTA.md`).
 
 ## Recommended launch mode
 
-**Marketing + interactive demo + assessment** (current default `NEXT_PUBLIC_DATA_MODE=demo`) is safest for public launch. Turn on live product DocTypes only for named pilots after Frappe Cloud smoke passes.
+**Public:** marketing + demo + assessment + **live Paystack trial/subscribe**.  
+**Operator-only:** Frappe live login + `/ops` + BFF until Plan Owner SoT (ADR-013 / T5).
+
+See `docs/CURSOR_AGENTS.md` for Cloud Agent / Bugbot / Security / Best-of-N usage.

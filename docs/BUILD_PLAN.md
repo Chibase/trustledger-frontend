@@ -2,7 +2,9 @@
 
 > **Single source of truth** for scope, locked decisions, packet order, and agent behaviour.
 > **Phase 1 (Done):** full functional Demo on Vercel.
-> **Phase 2 (Active):** Frappe-ready wiring in the frontend (still mock-default); WordPress/Cloudflare remain external.
+> **Phase 2–5 (Done / partial):** Frappe-ready + ops + pay soft paths.
+> **Phase 6 (Active):** **Version 002** Stakeholder Intelligence core (geo → stakeholders → engagements → commitments → grievance → reports → ESG). Soft launch may wait (ADR-023).
+> Current public product label: **Version 001**.
 
 ## 1. Product
 
@@ -15,9 +17,11 @@
 | Marketing | WordPress `trustledger.co.za` on Webway (CTA later) |
 | Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
-**Current phase:** Phase 2 — Frappe-ready on **Frappe Cloud**. Demo remains default and must keep working without live product DocTypes. Interserv is retired (ADR-018).
+**Current phase:** Phase 6 — **Version 002** core (ADR-023). Product label in market: **Version 001**. Demo/mock remains default until Frappe DocTypes land.
 
 ## 2. Locked decisions (do not re-ask)
+
+See `docs/DECISIONS.md`. Strategic packaging / evaluation / public agent scripts: **`docs/PLATFORM_STRATEGIC_BRIEF.md`**.
 
 See `docs/DECISIONS.md`. Agents **must not** reopen these unless the user explicitly overrides.
 
@@ -48,33 +52,35 @@ When implementing:
 ## 4. Information architecture
 
 ```
-/                     Marketing-lite app home → CTA to /demo
-/demo                 Demo landing: role picker + “Demo data” notice + lead CTA
+/                     Marketing home → CTA to /trial (and /product)
+/product              Onboarding + feature purpose (ADR-033) — no sample workspace
+/demo                 301 → /product (legacy)
 /assessment           Public SRM Readiness & Risk Diagnostic (lead-gated results)
-/login                Dev/demo role session (cookie) — same as today, restyled
-/app                  Authenticated shell (sidebar + topbar)
-/app/dashboard        Role home (real widgets, not bullet lists)
+/login                Sign-in chooser → live / trial (no sample demo)
+/app                  Authenticated shell (trial or live)
+/app/dashboard        Role home
 /app/projects         Project list + detail
 /app/incidents        Incident list
 /app/incidents/[id]   Case desk + AI assist
+/app/stakeholders     Stakeholder Intelligence CRM (Cloud when live)
+/app/engagements      Engagements
+/app/commitments      Commitments board
 /app/issues/report    Assisted intake
 /app/reports          Client/admin briefs
-/app/settings         Profile/role display (demo)
+/app/settings         Profile / org
 ```
 
 Legacy routes (`/dashboard`, `/incidents`, …) **redirect** into `/app/...` so old links work.
 
-## 5. Demo behaviour
+## 5. Workspace behaviour (ADR-033)
 
 | Behaviour | Rule |
 |-----------|------|
-| Entry | `/demo` explains demo, picks role, sets `session-role` + `tl-mode=demo` cookie |
-| Banner | Persistent “Demo mode — sample data” on all `/app` pages |
-| Data | `src/data/mock/*` only |
-| AI | `NEXT_PUBLIC_AI_MOCK=true` (default) |
-| Lead capture | Soft gate modal after N meaningful actions (default 3) OR “Book a demo” in shell |
-| Persistence | localStorage for demo actions optional; no server writes |
-| Live mode | `NEXT_PUBLIC_DATA_MODE=live` + API base; falls back to mock if unset |
+| Public entry | `/product` educates; `/trial` opens own-data workspace; `/login/live` for Cloud |
+| Sample demo | **Retired** — no `tl-mode=demo` guest funnel; `/demo` → `/product` |
+| Data | Trial = browser org store; Live = Frappe Cloud; empty Cloud ≠ mock seed |
+| AI | Suggest → apply → save; keys server-side only |
+| Live fallback | ADR-010 mock only when Frappe unreachable **and** not a customer/trial workspace |
 
 Meaningful actions: submit issue, apply AI suggestion, generate brief, open incident assist.
 
@@ -135,11 +141,55 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 | 23g | Vercel Paystack | `/pay` checkout + webhook → Ops Finance/Executive; manual CRM | **Done** |
 | 23h | Trial → pay funnel | `/trial` capture then demo or subscribe; banner/WP CTAs | **Done** |
 | 23i | Quote + EFT bridge | `/quote` CRM Lead; Ops Confirm EFT paid; trial/WP CTAs | **Done** |
+| 23j | Open trial explore | No-login `/demo`→`/app`; email on print/save; plan catalogue docs | **Done** |
 | 23b | Ops reports | Filterable intake/feedback/assessment reports + CSV | Planned |
 | 23c | Ops accounts | Customer plan/status/seat controls | Planned |
 | 23d | Ops support packs | Per-person/org context for support | Planned |
 
 See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
+
+### Phase 6 — Version 002 Stakeholder Intelligence core (ACTIVE)
+
+> Soft launch may wait until V002 core is credible (ADR-023).  
+> Detail: `docs/VERSIONING.md`, `docs/ROADMAP_V002.md`.
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **24a** | Geo foundation | SA hierarchy types/mock, `/app/geo`, place fields, ingest hook | **Done (ZA MDB pack)** |
+| **24b** | Stakeholders registry | List/detail/create; Cloud DocType + BFF | **Done (Cloud SI path)** |
+| **24c** | Engagements | Meetings / consultations; Cloud DocType + BFF | **Done (Cloud SI path)** |
+| **24d** | Commitments | Promise board; Cloud DocType + BFF | **Done (Cloud SI path)** |
+| **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (UI); Cloud stamps next** |
+| **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** |
+| **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | **Done (demo indicators)** |
+| **D1** | Product onboarding | `/product` replaces public `/demo` sample entry | **Done** |
+| **D2** | Kill demo mode | No guest `tl-mode=demo`; retarget CTAs; clear lingering demo sessions | **Done** |
+
+### Client org / tenancy (demo → Cloud)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **T1** | Plan Owner master | Org store, session cookies, master desk strip, Team shell | **Done** |
+| **T2** | Invites + seats | Owner invites, `/invite/accept`, locked junior desk tier, plan seat caps | **Done** |
+| **T3** | Org data space | Org-scoped store, no demo seed in trial, CSV deposit | **Done** |
+| **T4** | Media + quotas | Registers/minutes/photos/video; plan storage quotas | **Done** |
+| **T5** | Frappe SoT | Customer/User contract + operator provision prep (lockdown stays) | **Done** |
+| **OD-1** | Operational Step 1 | Desk Customer/User fields + issuance smoke; Ops `/ops/readiness` ladder (ADR-032) | **Done** |
+| **OD-2** | Product DocTypes + File | TL Project / Incident / Evidence ensure + smoke + upload BFF | **Done** |
+| **OD-3** | Sync + auto-provision | Paystack → Cloud Owner; migrate tl-org-data on live login | **Done** |
+| **OD-4** | Billing + lift lockdown | Day-14 cron charge-due; entitlement gate; lift ADR-013 | **Done** |
+| **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Done (UI modules)** |
+| **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
+| **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
+
+### HubSpot cutover (ACTIVE)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **HS-1** | Frappe-first leads | Production default `frappe` when Cloud keys set; Ops/health gate; ADR-034 + `docs/HS_CUTOVER.md` | **Active** |
+| **HS-2** | Production smoke | All Vercel forms → CRM Lead; explicit `LEAD_BACKEND=frappe`; pause HubSpot form workflows | Planned |
+| **HS-3** | Remove HubSpot config | Drop portal/form env; strip WP embeds (Webway) | Planned |
+| **HS-4** | Delete HubSpot client | Remove `submitHubSpotLead`; relocate `siteBaseUrl` | Planned |
 
 ## 8. Quality gates (every packet)
 
@@ -148,7 +198,7 @@ npm run lint
 npm run build
 ```
 
-Manual smoke (packet 09+): `/demo` → each role → one AI action → lead CTA visible.
+Manual smoke: `/product` → `/trial` or `/login/live` → Stakeholders create/list on Cloud when live.
 
 ## 9. Repository layout (target)
 
@@ -179,3 +229,9 @@ src/
 | Date | Change |
 |------|--------|
 | 2026-07-11 | Initial Demo-first BUILD_PLAN (Packet 00) |
+| 2026-07-21 | Phase 6 Version 002 core; Version 001 public label (ADR-023) |
+| 2026-07-22 | Operational delivery path (ADR-032); OD-1 active — delay paid prod until Cloud SoT |
+| 2026-07-23 | GO LIVE Done — operational-grade Cloud ops for paying customers |
+| 2026-07-23 | ADR-033 — retire public sample demo; `/product` + Cloud SI active |
+| 2026-07-23 | PLATFORM_STRATEGIC_BRIEF — living brief for plans, agents, evaluation |
+| 2026-07-23 | HS-1 active — cut HubSpot; Frappe CRM Lead acquisition SoT (ADR-034) |

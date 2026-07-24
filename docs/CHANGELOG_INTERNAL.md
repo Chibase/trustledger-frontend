@@ -1,15 +1,367 @@
 # Internal changelog
 
-## 2026-07-18 — Trial form: trial-only copy (no quote/pay)
+## 2026-07-24 — WP Contact CTAs → Vercel `/contact`
 
-- `/trial` is capture → enter guided trial only; removed quote/EFT/Paystack CTAs from the form
-- Demo banner + soft-gate ask for conversation (`/contact`), not quote/payment
-- WP Resources “Start trial” blurb + WORDPRESS_CTA updated
+- `docs/WORDPRESS_CTA.md` + `page-home.txt`: absolute Vercel Contact URLs (no relative `/contact` / mailto-only nav).
+- Rebased onto master (demo gate retired; trial/pay paths unchanged).
 
-## 2026-07-17 — WP Contact → Vercel `/contact`
+## 2026-07-23 — HS-1: start HubSpot cutover (Frappe CRM Lead SoT)
 
-- Footer/nav Contact and Book walkthrough CTAs point to absolute Vercel contact (not WP `/contact` 404, not mailto-as-primary)
-- `docs/wordpress/page-home.txt`, `page-assessment.txt`, `WORDPRESS_CTA.md` updated — re-paste Home HTML on live WP
+- ADR-034: Frappe CRM Lead is acquisition SoT; ADR-011 superseded for HubSpot-first magnet.
+- Production: unset `LEAD_BACKEND` + Frappe keys ⇒ **frappe-only** (no HubSpot fallback). Explicit `auto` / `hubspot` remain for emergency.
+- Ops readiness + `/api/health`: `leadBackend` / `leadBackendCutover` / `hubspotFallbackActive`.
+- Runbook `docs/HS_CUTOVER.md`; CRM_HANDOFF / LEAD_FORMS / ACCESS_MODEL / FRAPPE_CLOUD_SETUP aligned.
+- BUILD_PLAN packets HS-1 (active) → HS-4 (delete HubSpot client).
+
+## 2026-07-23 — VIP complimentary access (Ops)
+
+- `provisionOwnerCloud` / `POST /api/frappe/provision-owner`: `complimentaryVip` + `complimentaryUntil` → Customer `VIP Pilot — …`, plan default **institutional**, status **active**, Paystack billing cleared, Desk Comment stamped; no Frappe welcome email (operator shares temp password).
+- Ops **Accounts**: **VIP complimentary access** panel (dry-run + create + temp password).
+- Runbook: `docs/VIP_ACCESS.md`.
+- Public `/trial` and `/pay` unchanged; VIP guests use `/login/live` only.
+
+## 2026-07-23 — Platform Strategic Brief (living)
+
+- Added `docs/PLATFORM_STRATEGIC_BRIEF.md`: achievements journey, front/back architecture, keep/improve/cut inventory, plan packaging matrix, public agent scripts, evaluation cadence, future upgrades
+- Pointed `AGENTS.md` + `VERSIONING.md` + BUILD_PLAN + PUBLIC_LAUNCH at the brief
+
+## 2026-07-23 — ADR-033: retire sample demo; Cloud SI north star
+
+- Public `/demo` → `/product` (onboarding + feature purpose); no guest `tl-mode=demo` workspace
+- Active packets: D1/D2 + SI-Cloud (TL Stakeholder / Engagement / Commitment)
+- CTAs retarget `/product` or `/trial`; lingering demo sessions cleared from `/app`
+- Ops: ensure DocTypes now includes SI; smoke Stakeholder→Engagement→Commitment
+- Live BFF `GET/POST /api/frappe/si`; CRM create + services persist to Cloud when live
+
+## 2026-07-23 — Access email verification (live OTP + trial gate)
+
+- Live `/login/live`: password then 6-digit email OTP (Resend) before session cookies
+- Trial `/pay/success`: no auto workspace — verify via emailed `/pay/activate` link
+- `ACCESS_EMAIL_VERIFICATION` (auto-on in Production when Resend set); readiness + health gates
+
+## 2026-07-23 — First-days hardening: reCAPTCHA + launch gates
+
+- Production forms: tighter rate limit without captcha keys; verify whenever keys set
+- `FORM_REQUIRE_RECAPTCHA=1` fail-closed when keys missing; Google attribution on forms
+- Ops readiness + `/api/health` expose launch hardening (auto-provision, cron, Resend, reCAPTCHA)
+- Docs: LEAD_FORMS / LAUNCH_WATCHLIST — turn on reCAPTCHA env steps
+
+## 2026-07-23 — Launch hardening: no demo INC-* in customer desks
+
+- Live incident/project lists: empty Cloud ≠ mock seed; customer/trial never fall back to demo data
+- Invite accept uses `trial` mode (customer workspace) instead of `demo`
+- Settings lockdown copy: TrustLedger ops (not Chibase product framing)
+- `docs/LAUNCH_WATCHLIST.md` + refreshed `PUBLIC_LAUNCH.md` (GO LIVE posture)
+
+## 2026-07-23 — GO LIVE Done (operator confirmed)
+
+- Ops `/ops/readiness` green on Production; TrustLedger operational-grade for paying customers
+- OPERATIONAL_DELIVERY / ROADMAP / PLATFORM_OPERATOR mark GO LIVE Done
+- Next: Cloud V002 deepening (Engagement/Commitment DocTypes, Stats SA, live Grok)
+
+## 2026-07-23 — GO LIVE ladder: Done when gates green
+
+- GO LIVE lane → **done** when `goLiveReady` (env + `PLATFORM_OPERATOR_ONLY=0`)
+- Lockdown-ON listed in `blockedReasons`; clearer Ops badge copy
+- `deploySha` on readiness panel + `GET /api/health` for Production smoke
+- Docs: do not re-set `PLATFORM_OPERATOR_ONLY=1` (re-blocks GO LIVE)
+
+## 2026-07-23 — Step 5 Done → GO LIVE active on Ops ladder
+
+- `step5Complete=true`; Ops `/ops/readiness` advances to GO LIVE
+- GO LIVE desk checklist; `goLiveReady` when env gates + lockdown lifted
+- OPERATIONAL_DELIVERY marks Steps 1–5 Done; GO LIVE Active
+
+## 2026-07-23 — Packet 24g: Intelligence / ESG indicators (demo)
+
+- `/app/intelligence` — place picker, indicator KPI cards, AI brief suggest→apply→save
+- `mockIndicators` + geoService merge; local `tl-esg-briefs` store
+- Mock `generateIndicatorBrief` only (no LLM keys / no Cloud brief call)
+- Project/demo `esgIndicators` capability; V002 demo packets 24c–24g complete
+
+## 2026-07-23 — Packet 24e: Grievance verify/close on case desk
+
+- Process stages add **Verified** between Resolved and Closed
+- Case desk: Advance stage + Verify & close; stamps + timeline events
+- `incidentService.save` persists overlays (demo/org); list/get merge local
+- Cloud TL Incident workflow stamps still follow-up
+
+## 2026-07-23 — Packet 24d: Commitments status board (demo)
+
+- `Commitment` type + mocks from engagement action items; `commitmentService`
+- `/app/commitments` board + list + detail (status updates); nav + Project/demo capability
+- Engagement detail: **Promote to commitment** on action items
+- Cloud Commitment DocType still follow-up
+
+## 2026-07-23 — Packet 24c: Engagements module (demo)
+
+- `Engagement` type + mocks; `engagementService` (seed + localStorage; live list reserved)
+- `/app/engagements` list + detail; nav + Project/demo capability
+- Capture **Apply** also saves an Engagement linked to applied stakeholders
+- noteService reads via engagements; Cloud Engagement DocType still follow-up
+
+## 2026-07-23 — Step 4 complete → Step 5 active
+
+- Buyer `/login/live` smoke passed with `PLATFORM_OPERATOR_ONLY=0`
+- Ops readiness ladder: Steps 1–4 Done; active Step 5 (V002 depth)
+- Lockdown gate flipped to “lifted” (no longer blocks readiness after ADR-013 lift)
+
+## 2026-07-23 — Sign-out: stop middleware dashboard bounce
+
+- `/login?signedOut=1` and `?repaired=1` bypass the signed-in redirect and clear session cookies
+- Sign-out / session repair use hard navigation (`location.assign`) to avoid soft-nav cookie races
+
+## 2026-07-23 — Sign-out → account chooser
+
+- Sign out / leave trial clears demo + live sessions and lands on `/login?signedOut=1` (no auto-demo)
+- `/login` chooser: live again / different account, trial, demo; quick demo role collapsed
+- Support session repair redirects to `/login?repaired=1`
+
+## 2026-07-23 — OD-4: Day-14 charge cron + entitlement gate
+
+- Customer billing fields: `custom_bill_at`, `custom_authorization_code`, `custom_plan_amount_cents`
+- `GET|POST /api/cron/charge-due` (+ `vercel.json` daily cron); Ops Finance dry-run/charge panel
+- Charge success → `active`; fail → `past_due`; live login blocks past_due/cancelled when not Ops
+- Step 3 Done; Step 4 active — human lifts `PLATFORM_OPERATOR_ONLY=0` after smoke
+
+## 2026-07-22 — OD-3: Paystack auto-provision + org migrate
+
+- Shared `provisionOwnerOnCloud` (API-key, idempotent); Ops provision-owner uses it
+- Paystack verify/webhook creates Customer+User when `FRAPPE_AUTO_PROVISION=1`
+- `POST /api/frappe/migrate-org` + `/login/live` one-shot browser → Cloud DocTypes
+- Step 2 Done; Step 3 active on Ops readiness; lockdown stays ON
+
+## 2026-07-22 — OD-2: Product DocTypes + Cloud File BFF
+
+- Step 1 marked Done; Step 2 active on Ops readiness
+- `POST /api/frappe/ensure-product-doctypes` — TL Project / Incident / Evidence
+- `POST /api/frappe/product-smoke` + Ops smoke button (Project→Incident→Evidence)
+- `POST /api/frappe/upload-file` — Frappe `upload_file` proxy
+- `docs/PRODUCT_DOCTYPES.md`; OPERATIONAL_DELIVERY Step 2 checklist
+
+## 2026-07-22 — Live password reset + Ops set temp password
+
+- `/login/live` → Forgot password? → `POST /api/auth/live/forgot-password` (Frappe email reset)
+- Ops Accounts → Set temp password → `POST /api/frappe/set-user-password` (operator + issuance; returns one-time temp password)
+- Unblocks Step 1 Owner smoke when welcome/reset email is missing
+
+## 2026-07-22 — OD-1b: Auto-ensure Desk custom fields
+
+- `POST /api/frappe/ensure-custom-fields` (operator + issuance) creates Customer/User `custom_*` fields via API
+- Live `provision-owner` auto-ensures fields before Customer/User create; User payload includes desk/owner/customer customs
+- Ops Accounts: Check / Create Desk fields buttons
+- Step 1 human scope reduced to Vercel env + smoke clicks (`docs/OPERATIONAL_DELIVERY.md`)
+
+## 2026-07-22 — OD-1: Operational delivery Step 1 (ADR-032)
+
+- Policy: delay paid production until Cloud operational grade (`docs/OPERATIONAL_DELIVERY.md`)
+- Ops `/ops/readiness` + `GET /api/ops/readiness` env gate ladder (Steps 1→GO LIVE)
+- T4/T5 marked Done; active packet **OD-1** (Desk Customer/User + provision smoke)
+- ADR-032; do not lift ADR-013 until Step 4
+
+## 2026-07-22 — Packets T4 + T5: media quotas + Frappe SoT prep
+
+- T4: Org media library (`tl-org-media`) with plan storage quotas + Settings meter
+- Case desk file upload for trial/org; over-quota blocks with upgrade CTA
+- T5: `docs/FRAPPE_SOT.md` + `POST /api/frappe/provision-owner` (operator + FRAPPE_OWNER_ISSUANCE)
+- Ops Accounts: dry-run / create Customer+Owner drafts; ADR-013 lockdown stays on
+- ADR-030, ADR-031
+
+## 2026-07-22 — Packet T3: Org data space (no demo contamination)
+
+- Customer/trial workspaces never merge `mockIncidents` / `mockProjects`
+- Org-scoped store `tl-org-data` + CSV import (projects & cases) for Plan Owner
+- Settings → Org data space; Activity/Reports/Create report use workspace lists
+- Intake saves to org data space; ADR-029
+
+## 2026-07-22 — Packet 24f: Activity + Reports dual dashboards
+
+- `/app/dashboard` → Activity dashboard (nav + project activity pulse)
+- `/app/reports` → Reports hub: Monthly (text+graphs), Executive (strategic/high-risk graphs), Board pack (presentation)
+- Plan seniority gates packs; Plan Owner grants desks in Settings → Report pack access
+- ADR-028; nav label “Reports”; evidence AI writer still under each pack
+
+## 2026-07-22 — Hard-block Cloud report AI + reject user’s Month/Year template
+
+- `/api/frappe` returns 403 for `compose_activity_report` / `generate_report_brief`
+- Template detector covers “comprehensive monthly report”, `[Month/Year]`, Topic 1 placeholders
+- Create report clears stale editor body; refuses drafts without `INC-*` or `trustledger-evidence` model
+
+## 2026-07-22 — Reports ignore Frappe seed; purge browser templates
+
+- Create report grounds only on `mockIncidents` / local demo·trial stores — never live Frappe lists
+- Auto-purge Month-End / `[Insert …]` drafts from `tl-authored-reports`; library “Clear browser library”
+- Removed dead Cloud compose/brief method paths from `FRAPPE_METHODS`
+- Docs: `docs/FRAPPE_SAMPLE_DATA.md` — deleting ERPNext sample DocTypes does not fix LLM templates
+
+## 2026-07-22 — Report AI: never use Frappe/Grok templates
+
+- `generateReportBrief` and `composeActivityReport` both use local evidence writer only
+- Template detector expanded for Month-End / `[Insert …]` / sales-metric placeholders
+- Create report always seeds `mockIncidents` even when live Frappe list is empty
+- Briefs cite real INC-* titles from demo data
+
+## 2026-07-22 — Soft public launch + live Paystack readiness
+
+- ADR-027: public trial/pay with live Paystack; Frappe live login stays operator-gated
+- Bugbot rules (`.cursor/BUGBOT.md`), PR template, `docs/CURSOR_AGENTS.md`, `docs/PUBLIC_LAUNCH.md`
+- Invite accept re-checks plan desk cap; opt-out verifies Paystack reference+email (no client auth-code)
+- Stable trial temp password per reference; production requires trial/Paystack secret
+- Launch checklist updated for live key cutover
+
+## 2026-07-22 — Desk ranks 1 (Client/Board) → 5 (CLO)
+
+- Five desks ordered high→low: funder, executive (CEO/MD), delivery, supervisor, clo
+- Plan Owner desk by plan (Practitioner supervisor, Project delivery, Institutional funder)
+- Invites only ranks strictly below Owner; higher options greyed in picker + privilege matrix
+- Legacy `site` / `oversight` ids normalize to supervisor / executive
+
+## 2026-07-22 — Invite desk exposure gated by plan
+
+- Desk exposure on invite lists all tiers; desks above the plan are greyed / disabled
+- Project: CLO / site / supervisor; Institutional: full ladder; Practitioner: no invites
+- Privilege matrix columns for above-plan desks greyed; createOrgInvite enforces the cap
+
+## 2026-07-22 — Settings: plan on top; Owner invites & privileges only
+
+- Read-only plan banner at top of Settings (no plan / desk self-toggle for clients)
+- Removed demo role switcher from Settings
+- Plan Owner section: Team invites + desk privileges matrix for lower ranks
+- Juniors see assigned desk only; off-plan privilege rows stay greyed
+
+## 2026-07-22 — Grey out off-plan Settings controls
+
+- Visibility-by-desk-tier rows outside the current plan are greyed / disabled with upgrade hint
+- Plan capabilities locked rows visually muted; matrix edit is Plan Owner only
+- Practitioner trial: graphs, CRM, capture, supervisor, ESG stay visible but unusable
+
+## 2026-07-22 — Plan capabilities: Owner-only, plan-gated toggles
+
+- Settings → Plan capabilities visible only to Plan Owner (juniors never see it)
+- Full catalogue always listed; modules outside the plan are locked with upgrade CTA
+- Only Institutional may toggle every feature; lower plans toggle included modules only
+- Above-plan force-on overrides ignored; ADR-024 amended
+
+## 2026-07-22 — T1+T2: Plan Owner org + team invites (demo)
+
+- Browser org tenancy: Plan Owner workspace on trial/subscribe; seat caps per ACCESS_MODEL
+- Dashboard master strip; Settings → Team / Seats invites (role + desk exposure)
+- `/invite/accept` joins as junior with locked desk tier; Practitioner = Owner-only
+- Data space / media quotas / Frappe User SoT deferred (T3–T5); ADR-026
+
+## 2026-07-22 — Report AI: hard-bind to demo cases (no LLM guides)
+
+- Create report always seeds `mockIncidents` / `mockProjects` into evidence
+- Activity-report compose never calls Cloud LLM (was returning `[Month/Year]` guides when `AI_MOCK=false`)
+- UI shows case IDs in scope before write; template detector expanded
+
+## 2026-07-22 — AI report writes finished prose (not a template guide)
+
+- Activity report AI always uses evidence-based local writer from picked topics + demo/workspace cases
+- Rejects fill-in-the-blank / “how to write a report” LLM guides
+- Output includes real case findings, trust pulse, dates, and author — apply into editor on generate
+
+## 2026-07-22 — AI report write from picked topics (demo data)
+
+- Create report: pick topics → AI writes narrative sections from workspace/demo cases, trust pulse, and Capture evidence
+- Suggest → apply → save; project scope filters facts; mock compose uses structured section writers
+- Desk-gated topics stay greyed / non-selectable
+
+## 2026-07-22 — Trial subscribe (card verify + deferred charge)
+
+- `/pay` default = 14-day trial: Paystack card verification, authorization on file, bill at trial end
+- Success: thank you + login/temp password (email via Resend when configured); no Contact us CTA
+- Trial activates immediately; first-login password change prompt; `/login/trial` + `/pay/activate`
+- Banner opt-out cancels scheduled charge (`Trial Opt-Out` + deactivate authorization)
+- Ops `/api/paystack/charge-due` for day-14 collection; ADR-025
+- CRM sources: `Trial Authorize`, `Trial Opt-Out`
+
+## 2026-07-22 — Create report (evidence-based, seniority-gated)
+
+- `/app/reports` → Create a report wizard: kinds (monthly, GRM, ESG, H&S, B-BBEE, CSI, MEL, board…)
+- Sections selectable; options above desk grade greyed (visible, not selectable)
+- AI compose from workspace incidents + Capture evidence; save for performance/dispute use
+- Dashboard Report library views packs by desk level
+- Nav label: Create report
+
+- Capability catalogue + plan defaults + sellable add-ons (`entitlements` types/config/lib)
+- `FeatureGate`, nav capability filters, Settings add-on/override preview (admin)
+- Desk panels honour plan capabilities alongside desk-tier visibility
+- Pricing/seats unchanged — packaging revisit later; switches are ready
+
+- Professional desk tiers (CLO → supervisor → site → delivery → oversight → funder) with admin visibility matrix in Settings
+- Capture hub: minutes / attendance / social intel / pasted report → AI stakeholder extract + brief (suggest → apply)
+- Stakeholder CRM framed as demo placeholder; growth via capture
+- Supervisor ranked queue of CLO/site filings; senior desks get charts (ops chart primitives)
+- Issue intake requires project (select or create) — projects merge into dashboard/list
+
+- Report flow: issue → reporter (or anonymous) → sequential dialogs for city, DM, TC, ward
+- Geo pack powers `/api/geo` for the form only; place KPIs and Places browse removed from client dashboard/report
+- Case still stores full geo path for tracking and categorisation
+
+- Removed TEDS maturity panels from `/app/*` (ops-only: `/ops`, `/ops/executive`)
+- Cascading geo picker (any-order province/DM/city/TC/ward) via `/api/geo`
+- Intake: complaint natures, urgency, client junior/senior threshold, TAT stage targets
+- AI triage suggests nature + staff routing (suggest → apply)
+- Trust pulse (sentiment → trust index + TAT) on all role dashboards and client reports
+- Case desk shows process stage timeline vs client targets
+
+- `buildClientPortfolioBrief` aggregates projects, grievances, CRM, geo (same Frappe contract shapes)
+- Client home → governance portfolio KPIs + CRM/geo panels
+- `/app/reports` → printable portfolio trust brief for client/admin
+- Geo + stakeholder services call live Frappe with seed fallback
+
+## 2026-07-21 — TEDS maturity report (ops-only)
+
+- `src/lib/tedsMaturity.ts` + `docs/TEDS_MATURITY_REPORT.md` (~36% MVP progress)
+- Panels on `/ops/executive` (full) and `/ops` only — not on public product `/app` surfaces
+
+## 2026-07-21 — ZA geo pack + stakeholder CRM seed
+
+- Ingested MDB Wards 2020 (4 468 wards) + 15 traditional councils into `data/geo/za-mdb-2020.places.json`
+- Multi-country pack schema (add NA/BW/… packs beside ZA)
+- `/app/geo` browse by province → municipality → wards; TC list
+- Stakeholder CRM kinds expanded; list + detail; Stats SA indicators deferred
+- `scripts/ingest_za_geo.py` to regenerate
+
+## 2026-07-21 — Version 001 label + Version 002 core kickoff (ADR-023)
+
+- Soft launch may wait for V002 core; public Now/Next messaging (`HomeVersionStrip`)
+- Docs: `VERSIONING.md`, `ROADMAP_V002.md`, Phase 6 packets 24a–24g
+- Scaffold: `/app/geo`, `/app/stakeholders`, geo/stakeholder mocks + API contract rows
+- App shell shows **Version 001**
+
+## 2026-07-21 — Fix Vercel build (next/headers on client)
+
+- Split server `readTrialSnapshot` into `trial.server.ts`
+- Client `/trial` + incident service no longer import `next/headers` via `auth`/`trial`
+
+## 2026-07-21 — WP plan links → Paystack + trial
+
+- Home paste: plan cards → `/pay?plan=…` and `/trial?plan=…` (Institutional → contact)
+- Assessment paste: remaining trial CTAs off `/demo` onto `/trial`
+- `/trial` reads `?plan=` for pre-selected checkout plan
+- Paste checklist: `docs/wordpress/PASTE_PLANS.md`
+
+## 2026-07-21 — Own-data trial + upgrade to Paystack
+
+- Start trial → `/trial` workspace (not `/demo` sample data)
+- Banner Upgrade → `/pay`; expired wall with plan checkout + 90-day retention copy
+- Subscribe form maze removed from trial funnel (ADR-022)
+
+## 2026-07-20 — Pricing → Paystack plans
+
+- Practitioner R5,399 / Project R14,999 defaults in `paystackPlans.ts`
+- Home + WP pricing cards Subscribe → `/pay?plan=…` (quote demoted to fallback)
+- Trial funnel choose-step uses Paystack subscribe links
+
+## 2026-07-20 — Open trial (no login until print/save)
+
+- `/demo` auto-enters `/app` as trial guest; email only on print/save
+- Plan catalogue `src/config/plans.ts` + `docs/LAUNCH_PLANS.md` / `docs/PAYSTACK_SETUP.md`
+- Soft lead gate retired in shell; `/trial` + Paystack subscribe paths remain
+- WP paste refreshed: Home + Assessment CTAs → open trial (`docs/WORDPRESS_CTA.md`, `page-home.txt`, `page-assessment.txt`)
+- ADR-021
 
 ## 2026-07-17 — Conversion homepage (Vercel `/`)
 

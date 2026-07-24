@@ -1,13 +1,28 @@
 import { FRAPPE_METHODS } from "@/config/api";
+import { mockIncidents } from "@/data/mockIncidents";
 import { callFrappeMethod } from "@/lib/frappeClient";
+import {
+  composeActivityReportMarkdown,
+  looksLikeReportTemplateGuide,
+  type PeriodActivityFacts,
+} from "@/lib/reportComposer";
+import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
+import type { ReportSectionId } from "@/types/activityReport";
+import { REPORT_SECTION_IDS } from "@/types/activityReport";
 import type {
   DraftResponseRequest,
   DraftResponseSuggestion,
   IncidentTriageSuggestion,
+  IndicatorBriefRequest,
+  IndicatorBriefSuggestion,
   ReportBriefRequest,
   ReportBriefSuggestion,
   SentimentRequest,
   SentimentSuggestion,
+  StakeholderExtractRequest,
+  StakeholderExtractSuggestion,
+  ActivityReportComposeRequest,
+  ActivityReportComposeSuggestion,
   TriageRequest,
 } from "@/types/ai";
 
@@ -15,45 +30,101 @@ const USE_MOCK =
   process.env.NEXT_PUBLIC_AI_MOCK !== "false" &&
   process.env.NEXT_PUBLIC_AI_MOCK !== "0";
 
-const MODEL = "grok-4.5";
-const PROMPT_VERSION = "srm-ai-v0";
+const MODEL = "trustledger-evidence";
+const PROMPT_VERSION = "srm-ai-v0-evidence";
 
 function delay(ms = 650) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function incidentsForBrief(ids: string[] | undefined) {
+  const wanted = ids?.length ? ids : ["INC-1001", "INC-1004"];
+  const fromMock = wanted
+    .map((id) => mockIncidents.find((i) => i.id === id))
+    .filter(Boolean);
+  return fromMock.length ? fromMock : mockIncidents.slice(0, 3);
+}
+
 function mockTriage(input: TriageRequest): IncidentTriageSuggestion {
   const text = input.description.toLowerCase();
   const isWater = /water|pipe|leak|flood/.test(text);
-  const isSafety = /safety|injury|accident|danger|road/.test(text);
-  const isNoise = /noise|dust|blast/.test(text);
+  const isSafety = /safety|injury|accident|danger|unsafe|trench/.test(text);
+  const isDust = /dust/.test(text);
+  const isNoise = /noise|blast|night work/.test(text);
+  const isDisgruntlement =
+    /disgruntl|protest|angry|community unrest|boycott/.test(text);
+  const isEmployment = /job|employ|labour|labor|hiring/.test(text);
+  const isLand = /land|resettle|expropriat/.test(text);
+  const isEnv = /pollut|spill|environment|chemical/.test(text);
 
   let category = "General grievance";
+  let natureId = "other";
   let suggestedPriority: IncidentTriageSuggestion["suggestedPriority"] =
     "P3-Medium";
   const impactHints: string[] = ["Community relations"];
 
-  if (isWater) {
-    category = "Water / utilities disruption";
-    suggestedPriority = "P2-High";
-    impactHints.push("Livelihood access", "Service delivery");
-  } else if (isSafety) {
+  if (isSafety) {
     category = "Safety / access hazard";
+    natureId = "safety";
     suggestedPriority = "P1-Critical";
     impactHints.push("Public safety", "Reputation");
-  } else if (isNoise) {
+  } else if (isWater) {
+    category = "Water / utilities disruption";
+    natureId = "water";
+    suggestedPriority = "P2-High";
+    impactHints.push("Livelihood access", "Service delivery");
+  } else if (isDisgruntlement) {
+    category = "Community relations / unrest";
+    natureId = "community_disgruntlement";
+    suggestedPriority = "P1-Critical";
+    impactHints.push("Social licence", "Reputation");
+  } else if (isDust && isNoise) {
     category = "Construction nuisance";
+    natureId = "dust";
+    suggestedPriority = "P2-High";
+    impactHints.push("Amenity", "Health & wellbeing");
+  } else if (isDust) {
+    category = "Construction nuisance — dust";
+    natureId = "dust";
     suggestedPriority = "P3-Medium";
     impactHints.push("Amenity", "Health & wellbeing");
+  } else if (isNoise) {
+    category = "Construction nuisance — noise";
+    natureId = "noise";
+    suggestedPriority = "P3-Medium";
+    impactHints.push("Amenity", "Health & wellbeing");
+  } else if (isEmployment) {
+    category = "Local employment / labour";
+    natureId = "employment";
+    suggestedPriority = "P2-High";
+    impactHints.push("Livelihoods", "Social licence");
+  } else if (isLand) {
+    category = "Land / resettlement";
+    natureId = "land";
+    suggestedPriority = "P1-Critical";
+    impactHints.push("Rights", "Regulatory");
+  } else if (isEnv) {
+    category = "Environment / pollution";
+    natureId = "environment";
+    suggestedPriority = "P2-High";
+    impactHints.push("Environment", "Regulatory");
   }
+
+  const needsSenior =
+    suggestedPriority === "P1-Critical" || suggestedPriority === "P2-High";
 
   return {
     summary:
       input.description.trim().slice(0, 140) ||
       "Community-reported concern requiring triage.",
     category,
+    natureId,
     geographicAreaHint: input.ward || "Ward 12",
     suggestedPriority,
+    suggestedStaffTier: needsSenior ? "senior" : "junior",
+    escalationRationale: needsSenior
+      ? `${suggestedPriority} — escalate to senior per typical client threshold (P2+).`
+      : `${suggestedPriority} — junior staff may handle under typical client policy.`,
     impactHints,
     languageDetected: "en",
     translatedDescription: undefined,
@@ -97,22 +168,217 @@ TrustLedger Community Desk`,
   };
 }
 
-function mockReportBrief(input: ReportBriefRequest): ReportBriefSuggestion {
+function mockIndicatorBrief(
+  input: IndicatorBriefRequest,
+): IndicatorBriefSuggestion {
+  const rows = input.indicators;
+  const top = rows[0];
+  const highUnemployment = rows.find(
+    (r) => r.key.includes("unemployment") && r.value >= 30,
+  );
+  const water = rows.find((r) => r.key.includes("water"));
+  const watchpoints = [
+    top
+      ? `${top.label}: ${top.value}${top.unit}${top.year ? ` (${top.year})` : ""}`
+      : "Limited indicator coverage for this place",
+    highUnemployment
+      ? `Elevated unemployment (${highUnemployment.value}%) — labour / livelihood grievance risk`
+      : "Watch youth / employment indicators for early social risk",
+    water
+      ? `Service access: ${water.label} at ${water.value}${water.unit}`
+      : "Confirm utility access metrics against ward complaints",
+  ];
   return {
-    title: "Stakeholder risk brief (draft)",
-    executiveSummary:
-      "Open community concerns are concentrated around service disruption and site access. Priority scoring currently blends impact taxonomy with recent sentiment captures. This draft is for human review before board circulation.",
-    keyRisks: [
-      "Unresolved high-priority incidents near active wards",
-      "Sentiment intensity elevating SLA pressure",
-      "Evidence gaps on closed-critical residual risk cases",
-    ],
+    title: `ESG intelligence brief — ${input.placeName}`,
+    executiveSummary: `Demo brief for ${input.placeName} using ${rows.length} socio-economic indicator(s). Figures are illustrative until Stats SA / municipal ingest replaces the seed pack. Use watchpoints below to prioritize engagement and grievance readiness — human apply required before saving.`,
+    watchpoints,
     recommendedActions: [
-      "Confirm owners and investigation tasks on P1/P2 incidents",
-      "Link latest community meeting notes to sentiment captures",
-      "Prepare assurance pack with timeline citations",
+      "Cross-check open grievances in this place against service-access indicators",
+      "Schedule a community engagement where unemployment or NEET is elevated",
+      "Save this brief after review for board / ESG packs",
     ],
-    citedIncidentIds: input.incidentIds ?? ["INC-1001", "INC-1004"],
+    indicatorKeys: rows.map((r) => r.key),
+    confidence: rows.length ? 0.72 : 0.4,
+    model: MODEL,
+    promptVersion: PROMPT_VERSION,
+  };
+}
+
+function mockReportBrief(input: ReportBriefRequest): ReportBriefSuggestion {
+  const fromSource = input.sourceText?.trim();
+  if (fromSource) {
+    const snippet = fromSource.slice(0, 180);
+    return {
+      title: input.sourceLabel
+        ? `Brief from ${input.sourceLabel}`
+        : "Engagement brief (draft)",
+      executiveSummary: `Based on the submitted text: ${snippet}${fromSource.length > 180 ? "…" : ""} Key themes include community relations, delivery risk, and follow-up actions for human review.`,
+      keyRisks: [
+        "Unresolved concerns referenced in the source text",
+        "Attendance or influence gaps if stakeholders were not followed up",
+        "Sentiment intensity may elevate SLA pressure on linked cases",
+      ],
+      recommendedActions: [
+        "Confirm owners for actions noted in the source",
+        "Apply suggested stakeholders to the CRM after review",
+        "Link the capture record to the project and open grievances",
+      ],
+      citedIncidentIds: input.incidentIds ?? [],
+      model: MODEL,
+      promptVersion: PROMPT_VERSION,
+    };
+  }
+
+  const cases = incidentsForBrief(input.incidentIds);
+  const cited = cases.map((c) => c!.id);
+  const lead = cases[0]!;
+  const open = cases.filter((c) => c && c.status !== "Closed");
+  return {
+    title: `Stakeholder risk brief — ${lead.projectName || "portfolio"}`,
+    executiveSummary: `Open community concerns on ${lead.projectName || "the portfolio"} centre on ${open.length} active matter${open.length === 1 ? "" : "s"}, led by ${lead.id} (${lead.title}). Priority ${lead.priority}; ward ${lead.ward || "n/a"}. This draft cites TrustLedger demo/workspace cases only — not generic sales templates.`,
+    keyRisks: cases.slice(0, 3).map((c) => {
+      const row = c!;
+      return `${row.id}: ${row.title} (${row.status}, ${row.priority})`;
+    }),
+    recommendedActions: [
+      `Confirm owner and next stage on ${lead.id}`,
+      "Link latest community meeting notes to sentiment captures",
+      "Prepare assurance pack with timeline citations from the case desk",
+    ],
+    citedIncidentIds: cited,
+    model: MODEL,
+    promptVersion: PROMPT_VERSION,
+  };
+}
+
+function mockActivityReport(
+  input: ActivityReportComposeRequest,
+): ActivityReportComposeSuggestion {
+  let facts: PeriodActivityFacts | null = null;
+  if (input.factsJson) {
+    try {
+      facts = JSON.parse(input.factsJson) as PeriodActivityFacts;
+    } catch {
+      facts = null;
+    }
+  }
+
+  // Minimal facts so we still write a real report if JSON is missing / empty.
+  // Customer workspaces must never fall back to demo INC-* seed.
+  if (!facts || !facts.attended?.length) {
+    if (isCustomerWorkspaceClient()) {
+      throw new Error(
+        "No cases in your org data space — import CSV or log a case before writing a report.",
+      );
+    }
+    const seed = mockIncidents.slice(0, 6);
+    const open = seed.filter((i) => i.status !== "Closed");
+    facts = {
+      attended: seed,
+      escalated: seed.filter((i) => i.escalationLevel !== "None"),
+      resolved: seed.filter((i) => i.status === "Closed"),
+      pending: open,
+      unresolvedBlocked: seed.filter((i) => i.slaBreached),
+      meetingCaptures: facts?.meetingCaptures || [],
+      evidence: [
+        ...(facts?.evidence || []),
+        ...seed.slice(0, 3).map((i) => ({
+          id: `ev-${i.id}`,
+          kind: "other" as const,
+          label: `${i.id} — ${i.title}`,
+          incidentId: i.id,
+        })),
+      ],
+      trustIndex: facts?.trustIndex ?? 55,
+      trustLabel: facts?.trustLabel ?? "Watch",
+      avgSentiment: facts?.avgSentiment ?? null,
+      projectName: input.projectName || seed[0]?.projectName,
+    };
+  }
+
+  const sectionIds = (input.includedSectionIds || []).filter(
+    (id): id is ReportSectionId =>
+      (REPORT_SECTION_IDS as readonly string[]).includes(id),
+  );
+
+  const ids: ReportSectionId[] =
+    sectionIds.length > 0
+      ? sectionIds
+      : (["period_summary", "issues_attended", "appendix_evidence"] as ReportSectionId[]);
+
+  const labels =
+    input.includedSectionLabels.length >= ids.length
+      ? input.includedSectionLabels
+      : ids.map((id) => id.replaceAll("_", " "));
+
+  const composed = composeActivityReportMarkdown({
+    kindLabel: input.kindLabel,
+    audienceLabel: input.audienceLabel,
+    periodLabel: input.periodLabel,
+    authorTierLabel: input.authorTierLabel,
+    authorName: input.authorName,
+    projectName: input.projectName,
+    includedSectionIds: ids,
+    includedSectionLabels: labels.slice(0, ids.length),
+    lockedSectionLabels: input.lockedSectionLabels,
+    facts,
+    tonePreference: input.tonePreference,
+  });
+
+  return {
+    title: composed.title,
+    bodyMarkdown: composed.bodyMarkdown,
+    executiveHighlight: composed.executiveHighlight,
+    confidence: 0.88,
+    model: `${MODEL}-evidence`,
+    promptVersion: `${PROMPT_VERSION}-compose-evidence`,
+  };
+}
+
+function mockStakeholderExtract(
+  input: StakeholderExtractRequest,
+): StakeholderExtractSuggestion {
+  const text = input.text;
+  const lines = text
+    .split(/[\n,;]+/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 2);
+  const names: string[] = [];
+  for (const line of lines) {
+    const titled = line.match(
+      /(?:Chief|Inkosi|Mr|Mrs|Ms|Dr|Councillor|Cllr)\.?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/,
+    );
+    if (titled?.[0]) names.push(titled[0]);
+    const plain = line.match(/\b([A-Z][a-z]+\s+[A-Z][a-z]+)\b/);
+    if (plain?.[1] && !names.includes(plain[1])) names.push(plain[1]);
+    if (names.length >= 5) break;
+  }
+  if (!names.length) {
+    names.push("Community representative", "Ward committee member");
+  }
+  const isTraditional = /chief|inkosi|traditional|council/i.test(text);
+  const isGov = /municipality|councillor|department|dmr|dws/i.test(text);
+  const isSocial = input.source === "social_intel";
+
+  return {
+    stakeholders: names.slice(0, 5).map((name, i) => ({
+      name,
+      kind: isTraditional
+        ? "traditional_authority"
+        : isGov
+          ? "government"
+          : isSocial
+            ? "community_group"
+            : i === 0
+              ? "individual"
+              : "community_group",
+      organisation: input.projectName,
+      influence: i === 0 ? "high" : "medium",
+      rationale: `Mentioned or implied in ${input.source.replaceAll("_", " ")}.`,
+    })),
+    briefTitle: `Capture brief (${input.source.replaceAll("_", " ")})`,
+    briefSummary: `Extracted ${Math.min(names.length, 5)} stakeholder candidates from the source for human review before CRM apply.`,
+    confidence: 0.7,
     model: MODEL,
     promptVersion: PROMPT_VERSION,
   };
@@ -152,10 +418,55 @@ export const aiService = {
   async generateReportBrief(
     input: ReportBriefRequest,
   ): Promise<ReportBriefSuggestion> {
+    // Never call Cloud/Frappe for briefs — srm-core/Grok returns generic
+    // month-end templates with [Insert …] placeholders (no INC-* cases).
+    await delay(400);
+    const local = mockReportBrief(input);
+    const blob = [
+      local.title,
+      local.executiveSummary,
+      ...local.keyRisks,
+      ...local.recommendedActions,
+    ].join("\n");
+    if (looksLikeReportTemplateGuide(blob)) {
+      throw new Error("Evidence brief refused to return a template guide.");
+    }
+    return local;
+  },
+
+  async generateIndicatorBrief(
+    input: IndicatorBriefRequest,
+  ): Promise<IndicatorBriefSuggestion> {
+    // Local mock only — never call LLM from the browser.
+    await delay(350);
+    return mockIndicatorBrief(input);
+  },
+
+  async suggestStakeholdersFromText(
+    input: StakeholderExtractRequest,
+  ): Promise<StakeholderExtractSuggestion> {
     if (USE_MOCK) {
       await delay();
-      return mockReportBrief(input);
+      return mockStakeholderExtract(input);
     }
-    return callFrappeMethod(FRAPPE_METHODS.generateReportBrief, { ...input });
+    return callFrappeMethod(FRAPPE_METHODS.suggestStakeholdersFromText, {
+      ...input,
+    });
+  },
+
+  async composeActivityReport(
+    input: ActivityReportComposeRequest,
+  ): Promise<ActivityReportComposeSuggestion> {
+    // Evidence writer only — never call Cloud LLM for activity reports.
+    // Live Grok/srm-core prompts return how-to templates with placeholders.
+    await delay(450);
+    const local = mockActivityReport(input);
+    if (looksLikeReportTemplateGuide(local.bodyMarkdown)) {
+      throw new Error("Composer refused to return a template guide.");
+    }
+    if (!/\bINC-\d+/i.test(local.bodyMarkdown)) {
+      throw new Error("Composer did not cite workspace case evidence (INC-*).");
+    }
+    return local;
   },
 };

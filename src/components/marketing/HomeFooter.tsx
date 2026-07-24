@@ -8,6 +8,7 @@ const COLS = [
     title: "Product",
     links: [
       { href: "#how-it-works", label: "How it works" },
+      { href: "/product", label: "Product & onboarding" },
       { href: "#sectors", label: "Sectors" },
       { href: "#pricing", label: "Pricing" },
       { href: "/assessment", label: "Readiness assessment" },
@@ -28,7 +29,8 @@ const COLS = [
       { href: "#resources", label: "Guides" },
       { href: "#faq", label: "FAQ" },
       { href: "/status", label: "System status" },
-      { href: "/quote", label: "Request a quote" },
+      { href: "/pay", label: "Subscribe (Paystack)" },
+      { href: "/trial?utm_campaign=trial_14day", label: "Start 14-day trial" },
     ],
   },
 ] as const;
@@ -45,6 +47,9 @@ export function HomeFooter() {
             <p className="mt-2 max-w-xs text-sm text-white/70">
               Stakeholder trust you can operationalise — from community intake
               to governance-grade reporting.
+            </p>
+            <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-tl-trust">
+              Version 001 live · Version 002 in build
             </p>
             <p className="mt-4 text-sm text-white/70">
               <a
@@ -87,18 +92,18 @@ export function HomeFooter() {
         </div>
 
         <div
-          id="pricing"
+          id="pricing-footer"
           className="mt-12 scroll-mt-24 rounded-lg border border-white/10 px-4 py-3 text-sm text-white/70"
         >
-          <p className="font-medium text-white">Pricing</p>
+          <p className="font-medium text-white">Checkout</p>
           <p className="mt-1">
-            Practitioner, Project, and Institutional plans —{" "}
-            <Link href="/quote" className="underline underline-offset-2 hover:text-white">
-              request a quote
-            </Link>{" "}
-            or{" "}
-            <Link href="/trial" className="underline underline-offset-2 hover:text-white">
-              start a trial
+            Practitioner and Project checkout on{" "}
+            <Link href="/pay" className="underline underline-offset-2 hover:text-white">
+              Paystack
+            </Link>
+            . Institutional is sales-led via{" "}
+            <Link href="/contact" className="underline underline-offset-2 hover:text-white">
+              contact
             </Link>
             .
           </p>

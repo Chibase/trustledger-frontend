@@ -15,23 +15,24 @@ export function HomeFinalCta() {
           id="final-cta-title"
           className="font-display text-2xl font-semibold text-white sm:text-3xl"
         >
-          See measurable trust outcomes in two minutes
+          See measurable trust outcomes on your own data
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-base text-white/85">
-          Preview grievance resolution, trust visibility, and ESG evidence on
-          sample data — then save results when you are ready.
+          Start a 14-day trial workspace, then upgrade straight to Paystack when
+          you are ready. Access pauses when the trial ends; data is kept for 3
+          months.
         </p>
         <div className="mt-8">
           <Link
-            href="/demo?utm_source=home&utm_medium=final_cta&utm_campaign=live_walkthrough"
+            href="/trial?utm_source=home&utm_medium=final_cta&utm_campaign=trial_14day"
             onClick={() =>
               trackMarketingEvent("final_cta_click", {
-                cta: "run_2min_walkthrough",
+                cta: "start_14day_trial",
               })
             }
             className="inline-flex w-full items-center justify-center rounded-md bg-tl-surface px-6 py-3.5 text-base font-semibold text-tl-trust-ink transition-colors hover:bg-tl-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto"
           >
-            Run 2-minute live walkthrough
+            Start 14-day trial
           </Link>
           <p className="mt-4">
             <Link

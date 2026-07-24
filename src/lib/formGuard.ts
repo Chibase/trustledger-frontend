@@ -51,13 +51,32 @@ export function clientIp(request: Request): string {
 
 export function recaptchaConfigured(): boolean {
   return Boolean(
-    process.env.RECAPTCHA_SECRET_KEY && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+    process.env.RECAPTCHA_SECRET_KEY?.trim() &&
+      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY?.trim(),
   );
 }
 
+/**
+ * Fail closed when FORM_REQUIRE_RECAPTCHA=1 (or true/yes/on).
+ * Set to 0 only as an emergency bypass after keys are live.
+ * When unset: verification runs whenever keys are configured.
+ */
 export function recaptchaRequired(): boolean {
   const raw = (process.env.FORM_REQUIRE_RECAPTCHA || "").trim().toLowerCase();
-  return raw === "1" || raw === "true" || raw === "yes";
+  if (raw === "0" || raw === "false" || raw === "off" || raw === "no") {
+    return false;
+  }
+  return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
+}
+
+/** Launch gate: keys present so v3 tokens are verified on every public form. */
+export function recaptchaLaunchReady(): boolean {
+  return recaptchaConfigured();
+}
+
+/** Stricter bucket when reCAPTCHA is not verifying tokens. */
+export function formRateLimit(): number {
+  return recaptchaConfigured() ? 8 : 3;
 }
 
 type RecaptchaVerifyResult =
@@ -70,13 +89,17 @@ export async function verifyRecaptchaToken(
 ): Promise<RecaptchaVerifyResult> {
   if (!recaptchaConfigured()) {
     if (recaptchaRequired()) {
-      return { ok: false, reason: "reCAPTCHA is required but not configured." };
+      return {
+        ok: false,
+        reason:
+          "Form spam protection is on but reCAPTCHA keys are missing. Set NEXT_PUBLIC_RECAPTCHA_SITE_KEY + RECAPTCHA_SECRET_KEY on Vercel.",
+      };
     }
     return { ok: true, score: 1 };
   }
 
   if (!token?.trim()) {
-    return { ok: false, reason: "Missing reCAPTCHA token." };
+    return { ok: false, reason: "Missing reCAPTCHA token. Refresh and try again." };
   }
 
   const secret = process.env.RECAPTCHA_SECRET_KEY!;
@@ -90,6 +113,7 @@ export async function verifyRecaptchaToken(
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
+      signal: AbortSignal.timeout(8000),
     });
     const data = (await res.json()) as {
       success?: boolean;
@@ -139,7 +163,7 @@ export async function assertLeadFormGuards(
   }
 
   const ip = clientIp(request);
-  if (!rateLimitAllow(`${opts.routeKey}:${ip}`)) {
+  if (!rateLimitAllow(`${opts.routeKey}:${ip}`, formRateLimit())) {
     return {
       ok: false,
       status: 429,

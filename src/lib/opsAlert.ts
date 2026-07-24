@@ -8,7 +8,7 @@ export type OpsAlertPayload = {
   title: string;
   summary: string;
   href?: string;
-  kind: "quote_request" | "eft_payment" | "paystack_payment";
+  kind: "quote_request" | "eft_payment" | "paystack_payment" | "trial_authorize" | "trial_opt_out";
 };
 
 export async function notifyOpsAlert(

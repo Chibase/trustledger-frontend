@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { incidentService } from "@/services/incidentService";
 import { listDemoIncidents } from "@/lib/demoStore";
+import { listTrialIncidents } from "@/lib/trialStore";
+import { readTrialModeFromDocument } from "@/lib/trial";
 import type { Incident, IncidentStatus } from "@/types/incident";
 
 const STATUSES: Array<IncidentStatus | "All"> = [
@@ -23,10 +25,11 @@ export default function AppIncidentsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     incidentService.list().then((rows) => {
       if (cancelled) return;
-      const local = listDemoIncidents();
+      const local = readTrialModeFromDocument()
+        ? listTrialIncidents()
+        : listDemoIncidents();
       const byId = new Map<string, Incident>();
       for (const row of [...local, ...rows]) {
         byId.set(row.id, row);
