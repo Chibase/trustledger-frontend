@@ -96,7 +96,10 @@ Suggested groups: `TL Warm Contacts`, `TL Quote Pipeline`, `TL Trial Invites`.
 
 - [ ] Email Domain + Email Account green (test mail received).
 - [ ] Paste `01-soft-launch.html` into an Email Template; send **test to yourself**.
-- [ ] Build Email Group from contacts you have permission to email.
+- [ ] Build Email Group **`TL Warm Contacts`** from cleaned HubSpot export:
+  - Import file: `docs/exports/email-marketing/contacts/TL_Warm_Contacts_email_group.csv`
+  - Cleaning notes: `docs/exports/email-marketing/contacts/CLEANING_NOTES.md`
+  - Do **not** import `hubspot_export_excluded.csv` (Quora/SaaS spam).
 - [ ] Soft-launch Newsletter / Campaign with UTM links.
 - [ ] Spot-check: CTA opens TrustLedger Vercel (not HubSpot / not Google mailto).
 - [ ] Log campaign name + date on a CRM Lead note or Ops activity for later.

@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-24 — Clean HubSpot export → TL Warm Contacts Email Group
+
+- Cleaned HubSpot CRM export (83 → **21** ICP contacts) for Frappe Email Group import.
+- Files under `docs/exports/email-marketing/contacts/` (keep / excluded / review + notes).
+- Dropped Quora/SaaS vendor noise and internal Chibase inboxes; live Desk Email Account send still operator-side (no SMTP secrets in agent env).
+
 ## 2026-07-24 — EM-1: branded Frappe bulk email pack
 
 - `docs/FRAPPE_EMAIL_MARKETING.md`: Desk Email Domain → Email Group → Newsletter/Campaign; Resend stays transactional only.
