@@ -30,6 +30,15 @@ type Body = {
   dryRun?: boolean;
   /** On live create, ensure Desk custom fields first (default true). */
   ensureFields?: boolean;
+  /**
+   * Complimentary VIP pilot — full package, entitlement active, no Paystack
+   * billing fields (safe for charge-due isolation).
+   */
+  complimentaryVip?: boolean;
+  /** YYYY-MM-DD reminder for 8-week (or custom) complimentary end. */
+  complimentaryUntil?: string;
+  /** Explicit entitlement when not using complimentaryVip / paystack heuristics. */
+  status?: "trial" | "active" | "past_due" | "cancelled";
 };
 
 /**
@@ -67,9 +76,12 @@ export async function POST(request: Request) {
   const ownerEmail = (body.ownerEmail || "").trim().toLowerCase();
   const ownerName = (body.ownerName || "").trim();
   const organization = (body.organization || "").trim();
+  const complimentaryVip = Boolean(body.complimentaryVip);
   const planId: PlanId = isPlanId(body.planId || "")
     ? (body.planId as PlanId)
-    : "practitioner";
+    : complimentaryVip
+      ? "institutional"
+      : "practitioner";
   if (!ownerEmail.includes("@") || !ownerName) {
     return NextResponse.json(
       { error: "ownerEmail and ownerName required" },
@@ -78,13 +90,26 @@ export async function POST(request: Request) {
   }
 
   const dryRun = body.dryRun !== false;
+  const status =
+    complimentaryVip
+      ? "active"
+      : body.status ||
+        (body.paystackReference ? "active" : "trial");
+  const orgLabel = complimentaryVip
+    ? organization || `${ownerName} pilot`
+    : organization || `${ownerName}'s TrustLedger`;
+
   const customer = buildCustomerDraft({
-    organization: organization || `${ownerName}'s TrustLedger`,
+    organization: complimentaryVip
+      ? orgLabel.startsWith("VIP Pilot")
+        ? orgLabel
+        : `VIP Pilot — ${orgLabel}`
+      : orgLabel,
     ownerEmail,
     ownerName,
     planId,
     orgId: body.orgId,
-    status: body.paystackReference ? "active" : "trial",
+    status,
   });
   const user = buildOwnerUserDraft({
     email: ownerEmail,
@@ -104,22 +129,32 @@ export async function POST(request: Request) {
   if (dryRun) {
     return NextResponse.json({
       dryRun: true,
+      complimentaryVip,
+      complimentaryUntil: body.complimentaryUntil || null,
       customer,
       user,
       checklist,
-      message:
-        "Draft only — set dryRun:false with FRAPPE_API_KEY/SECRET to create on Cloud.",
+      message: complimentaryVip
+        ? "VIP draft only — set dryRun:false to create complimentary Cloud access (active, no Paystack auth)."
+        : "Draft only — set dryRun:false with FRAPPE_API_KEY/SECRET to create on Cloud.",
     });
   }
 
   const result = await provisionOwnerOnCloud({
-    organization: organization || `${ownerName}'s TrustLedger`,
+    organization: orgLabel,
     ownerEmail,
     ownerName,
     planId,
     orgId: body.orgId,
-    status: body.paystackReference ? "active" : "trial",
+    status,
     ensureFields: body.ensureFields !== false,
+    complimentaryVip,
+    complimentaryUntil: body.complimentaryUntil || null,
+    billAt: complimentaryVip ? null : undefined,
+    authorizationCode: complimentaryVip ? null : undefined,
+    planAmountCents: complimentaryVip ? 0 : undefined,
+    // Operator shares /login/live + temp password; avoid Frappe welcome clash.
+    sendWelcomeEmail: complimentaryVip ? false : undefined,
   });
 
   if (!result.ok) {
@@ -138,13 +173,20 @@ export async function POST(request: Request) {
   return NextResponse.json({
     dryRun: false,
     ok: true,
+    complimentaryVip,
+    complimentaryUntil: body.complimentaryUntil || null,
     skipped: result.skipped || false,
     customerName: result.customerName,
     customer: result.customer,
     user: result.user,
     checklist,
-    message: result.skipped
-      ? "Customer + User already on Cloud — skipped create."
-      : "Customer + User created on Frappe Cloud. Keep ADR-013 on until Step 4.",
+    loginUrl: "/login/live",
+    message: complimentaryVip
+      ? result.skipped
+        ? "VIP Customer + User already on Cloud — refreshed complimentary fields (active, billing cleared)."
+        : "VIP complimentary Customer + User created. Set temp password, then share /login/live."
+      : result.skipped
+        ? "Customer + User already on Cloud — skipped create."
+        : "Customer + User created on Frappe Cloud.",
   });
 }

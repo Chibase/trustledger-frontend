@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "@/config/api";
 import {
   hubspotConfigured,
+  isProductionRuntime,
   submitHubSpotLead,
   type HubSpotLeadInput,
 } from "@/lib/hubspot";
@@ -101,10 +102,43 @@ export function frappeLeadConfigured(): boolean {
   return Boolean(frappeKeyPair());
 }
 
-function leadBackendPreference(): "frappe" | "hubspot" | "auto" {
-  const raw = (process.env.LEAD_BACKEND || "auto").trim().toLowerCase();
-  if (raw === "frappe" || raw === "hubspot") return raw;
+/**
+ * Lead write target (ADR-034 / HS-1).
+ * - Explicit `LEAD_BACKEND=frappe|hubspot|auto` always wins.
+ * - Unset in Production with Frappe keys ⇒ **frappe** (HubSpot cutover; no fallback).
+ * - Otherwise ⇒ **auto** (Frappe first, HubSpot fallback) for local/preview safety.
+ */
+export function leadBackendPreference(): "frappe" | "hubspot" | "auto" {
+  const raw = (process.env.LEAD_BACKEND || "").trim().toLowerCase();
+  if (raw === "frappe" || raw === "hubspot" || raw === "auto") return raw;
+  if (isProductionRuntime() && frappeLeadConfigured()) return "frappe";
   return "auto";
+}
+
+/** Ops / health snapshot — never exposes secrets. */
+export function leadBackendStatus(): {
+  preference: "frappe" | "hubspot" | "auto";
+  envExplicit: boolean;
+  frappeConfigured: boolean;
+  hubspotConfigured: boolean;
+  /** True when HubSpot may still receive leads (hubspot mode or auto fallback). */
+  hubspotFallbackActive: boolean;
+  /** Production SoT cutover: Frappe-only writes. */
+  cutoverComplete: boolean;
+} {
+  const preference = leadBackendPreference();
+  const frappe = frappeLeadConfigured();
+  const hubspot = hubspotConfigured();
+  const hubspotFallbackActive =
+    hubspot && (preference === "hubspot" || preference === "auto");
+  return {
+    preference,
+    envExplicit: Boolean((process.env.LEAD_BACKEND || "").trim()),
+    frappeConfigured: frappe,
+    hubspotConfigured: hubspot,
+    hubspotFallbackActive,
+    cutoverComplete: preference === "frappe" && frappe,
+  };
 }
 
 function firstNameFrom(fullName: string): string {
@@ -432,8 +466,8 @@ export type LeadSubmitResult = {
 };
 
 /**
- * Prefer Frappe Cloud when API keys exist; otherwise HubSpot.
- * LEAD_BACKEND=frappe|hubspot|auto overrides preference.
+ * Prefer Frappe Cloud CRM Lead; HubSpot only when preference allows.
+ * See `leadBackendPreference` / docs/HS_CUTOVER.md (ADR-034).
  */
 export async function submitProductLead(
   input: ProductLeadInput,

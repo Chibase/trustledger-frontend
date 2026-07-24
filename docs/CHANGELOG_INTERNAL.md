@@ -6,6 +6,26 @@
 - Live login sanitises pasted credentials; clearer error if Vercel env keys were truncated with `…`
 - Cookie name/email values forced ASCII-safe (OTP verify + login)
 
+## 2026-07-23 — HS-1: start HubSpot cutover (Frappe CRM Lead SoT)
+
+- ADR-034: Frappe CRM Lead is acquisition SoT; ADR-011 superseded for HubSpot-first magnet.
+- Production: unset `LEAD_BACKEND` + Frappe keys ⇒ **frappe-only** (no HubSpot fallback). Explicit `auto` / `hubspot` remain for emergency.
+- Ops readiness + `/api/health`: `leadBackend` / `leadBackendCutover` / `hubspotFallbackActive`.
+- Runbook `docs/HS_CUTOVER.md`; CRM_HANDOFF / LEAD_FORMS / ACCESS_MODEL / FRAPPE_CLOUD_SETUP aligned.
+- BUILD_PLAN packets HS-1 (active) → HS-4 (delete HubSpot client).
+
+## 2026-07-23 — VIP complimentary access (Ops)
+
+- `provisionOwnerCloud` / `POST /api/frappe/provision-owner`: `complimentaryVip` + `complimentaryUntil` → Customer `VIP Pilot — …`, plan default **institutional**, status **active**, Paystack billing cleared, Desk Comment stamped; no Frappe welcome email (operator shares temp password).
+- Ops **Accounts**: **VIP complimentary access** panel (dry-run + create + temp password).
+- Runbook: `docs/VIP_ACCESS.md`.
+- Public `/trial` and `/pay` unchanged; VIP guests use `/login/live` only.
+
+## 2026-07-23 — Platform Strategic Brief (living)
+
+- Added `docs/PLATFORM_STRATEGIC_BRIEF.md`: achievements journey, front/back architecture, keep/improve/cut inventory, plan packaging matrix, public agent scripts, evaluation cadence, future upgrades
+- Pointed `AGENTS.md` + `VERSIONING.md` + BUILD_PLAN + PUBLIC_LAUNCH at the brief
+
 ## 2026-07-23 — ADR-033: retire sample demo; Cloud SI north star
 
 - Public `/demo` → `/product` (onboarding + feature purpose); no guest `tl-mode=demo` workspace
