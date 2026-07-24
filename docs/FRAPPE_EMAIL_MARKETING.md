@@ -37,13 +37,43 @@ CTAs → Vercel /trial /contact /quote /assessment /pay
 
 Do this once on `https://app.trustledger.co.za` (System Manager / Email Manager).
 
-### A. Sending identity
+### A. Sending identity — `sales@trustledger.co.za`
 
-1. **Email Domain** for `trustledger.co.za` — add SPF / DKIM / DMARC as Desk instructs (DNS on Webway).
-2. **Email Account** — SMTP/IMAP for the from address; enable **Default Outgoing**.
-3. Send a test to yourself from Desk → Email Account → **Send Test**.
+**Do not paste the mailbox password into GitHub, chat, or this repo.** Enter it only in Frappe Desk.
 
-Until domain is verified, do **not** send bulk; deliverability will fail or land in spam.
+#### Blocker: Email Delivery Service app
+
+If Desk shows:
+
+> You have Email Delivery Service app installed due to which emails won't be sent from this account. Please uninstall the app to use current Email Account for sending.
+
+Frappe Cloud’s **Email Delivery Service** overrides custom SMTP (including Webway `sales@`). Uninstall it to use your own mailbox:
+
+1. [Frappe Cloud](https://frappecloud.com) → site **`app.trustledger.co.za`** → **Apps**.
+2. **Email Delivery Service** → ⋯ → **Uninstall**.
+3. Wait for the job → reload Desk → retry **Send Test** on the Email Account.
+
+Cloud docs: [Uninstall an app](https://docs.frappe.io/cloud/how-to-uninstall-an-app-from-the-site).  
+If Apps/Uninstall is missing, open a ticket at [support.frappe.io](https://support.frappe.io).
+
+**Alternative:** keep EDS and send only via Cloud quota (not `sales@` SMTP). For TrustLedger brand from Webway, prefer **uninstall EDS**.
+
+#### Webway SSL/TLS → Desk Email Account
+
+| Field | Value |
+|-------|--------|
+| Email / Username | `sales@trustledger.co.za` |
+| IMAP | `mail.trustledger.co.za` · **993** SSL |
+| SMTP | `mail.trustledger.co.za` · **465** SSL |
+| Password | Mailbox password (Desk only) |
+
+1. Desk → **Email Account** → New (or edit `sales@…`).
+2. Enable **Outgoing** + **Default Outgoing**; SMTP 465 SSL; login as above.
+3. Optional: **Incoming** IMAP 993 SSL for reply tracking.
+4. **Send Test** to yourself. Until it arrives, do not send bulk.
+5. Ensure **Email Domain** `trustledger.co.za` exists (SPF/DKIM/DMARC on Webway DNS).
+
+Operator checklist: `docs/exports/email-marketing/DESK_EMAIL_ACCOUNT_SALES.md`.
 
 ### B. Templates
 
