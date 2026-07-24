@@ -23,8 +23,8 @@ CTAs → Vercel /trial /contact /quote /assessment /pay
 | Element | Value |
 |---------|--------|
 | Product name | **TrustLedger** only (no AccordBridge / HubSpot chrome) |
-| From name | `TrustLedger` |
-| From address | Verified domain, e.g. `hello@trustledger.co.za` or `info@trustledger.co.za` |
+| From name | `TrustLedger Sales` (or `TrustLedger`) |
+| From address | **`sales@trustledger.co.za`** (Webway mailbox — bulk/marketing) |
 | Accent | `#0e7c66` buttons; header `#12202a` |
 | CTAs | Absolute `https://trustledger-frontend-pi.vercel.app/...` with `utm_source=email&utm_medium=bulk&utm_campaign=…` |
 | Forms | Prefer Vercel branded forms — **not** HubSpot embeds, not unbranded Frappe Web Forms for public marketing |
@@ -37,13 +37,41 @@ CTAs → Vercel /trial /contact /quote /assessment /pay
 
 Do this once on `https://app.trustledger.co.za` (System Manager / Email Manager).
 
-### A. Sending identity
+### A. Sending identity — `sales@trustledger.co.za`
 
-1. **Email Domain** for `trustledger.co.za` — add SPF / DKIM / DMARC as Desk instructs (DNS on Webway).
-2. **Email Account** — SMTP/IMAP for the from address; enable **Default Outgoing**.
-3. Send a test to yourself from Desk → Email Account → **Send Test**.
+**Do not paste the mailbox password into GitHub, chat, or this repo.** Enter it only in Frappe Desk (or your password manager).
 
-Until domain is verified, do **not** send bulk; deliverability will fail or land in spam.
+Webway **Secure SSL/TLS** (recommended):
+
+| Field | Value |
+|-------|--------|
+| Email Address | `sales@trustledger.co.za` |
+| Username | `sales@trustledger.co.za` |
+| Incoming | `mail.trustledger.co.za` · IMAP **993** (or POP3 **995**) |
+| Outgoing | `mail.trustledger.co.za` · SMTP **465** (SSL) |
+| Auth | Same as mailbox password |
+
+#### Desk → Email Account (create / edit)
+
+1. Open `https://app.trustledger.co.za` as System Manager.
+2. **Email Account** → New (or open existing `sales@…`).
+3. Set:
+   - **Email Address:** `sales@trustledger.co.za`
+   - **Email Account Name:** `TrustLedger Sales`
+   - **Enable Outgoing:** ✓  
+   - **Default Outgoing:** ✓ (for Newsletter / bulk)
+   - **SMTP Server:** `mail.trustledger.co.za`
+   - **SMTP Port:** `465`
+   - **Use SSL:** ✓ (or “SSL/TLS” — not STARTTLS on 587 unless Webway says otherwise)
+   - **Login ID / Password:** username `sales@trustledger.co.za` + mailbox password
+4. Optional inbound (track replies in Desk):
+   - **Enable Incoming:** ✓ · IMAP · `mail.trustledger.co.za` · port **993** · SSL ✓
+5. Save → **Send Test** to `thozi@chibaseconsulting.co.za` (or your inbox).
+6. Confirm SPF/DKIM/DMARC for `trustledger.co.za` on Webway DNS still include this host (Email Domain wizard if prompted).
+
+Until the test mail arrives, do **not** send bulk.
+
+Also create **Email Domain** `trustledger.co.za` if missing so Desk knows the brand domain.
 
 ### B. Templates
 

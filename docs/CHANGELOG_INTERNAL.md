@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-24 — Document sales@ Email Account (SMTP 465 / IMAP 993)
+
+- `docs/FRAPPE_EMAIL_MARKETING.md`: Webway SSL settings for `sales@trustledger.co.za` → Frappe Email Account (no password in repo).
+- Operator checklist: `docs/exports/email-marketing/DESK_EMAIL_ACCOUNT_SALES.md`.
+
 ## 2026-07-24 — EM-1: branded Frappe bulk email pack
 
 - `docs/FRAPPE_EMAIL_MARKETING.md`: Desk Email Domain → Email Group → Newsletter/Campaign; Resend stays transactional only.
