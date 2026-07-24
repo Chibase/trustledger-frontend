@@ -22,18 +22,49 @@ export type LoginOtpEmailInput = {
   expiresMinutes: number;
 };
 
+const RESEND_KEY_ENV_CANDIDATES = [
+  "RESEND_API_KEY",
+  "RESEND_KEY",
+  "RESEND",
+] as const;
+
+/** Normalize pasted secrets: strip Bearer, quotes, whitespace, junk. */
+function normalizeResendSecret(raw: string | undefined): string {
+  let value = cleanSecret(raw);
+  // Accidental "Bearer re_…" paste would become Authorization: Bearer Bearer re_…
+  value = value.replace(/^Bearer\s+/i, "");
+  value = cleanSecret(value);
+  return value;
+}
+
 /**
  * Resend API key from Vercel.
- * Prefer `RESEND_API_KEY`. Also accept common misnames (`RESEND`, `RESEND_KEY`).
+ * Prefers a value that starts with `re_`. Among those, prefers RESEND_API_KEY.
  * The Resend dashboard *key name* (e.g. "resend") is cosmetic and ignored.
  */
 export function resendApiKey(): string {
-  return cleanSecret(
-    process.env.RESEND_API_KEY ||
-      process.env.RESEND_KEY ||
-      process.env.RESEND ||
-      "",
-  );
+  const found: Array<{ source: string; value: string }> = [];
+  for (const name of RESEND_KEY_ENV_CANDIDATES) {
+    const value = normalizeResendSecret(process.env[name]);
+    if (value) found.push({ source: name, value });
+  }
+  const withPrefix = found.filter((row) => row.value.startsWith("re_"));
+  if (withPrefix.length) {
+    return (
+      withPrefix.find((row) => row.source === "RESEND_API_KEY")?.value ||
+      withPrefix[0].value
+    );
+  }
+  return found[0]?.value || "";
+}
+
+export function resendApiKeySource(): string | null {
+  const key = resendApiKey();
+  if (!key) return null;
+  for (const name of RESEND_KEY_ENV_CANDIDATES) {
+    if (normalizeResendSecret(process.env[name]) === key) return name;
+  }
+  return "RESEND_API_KEY";
 }
 
 /**
@@ -56,14 +87,78 @@ export function transactionalEmailConfigured(): boolean {
   return Boolean(resendApiKey());
 }
 
+/** Safe diagnostics for /api/health — never includes the secret. */
+export function resendPublicDiagnostics(): {
+  configured: boolean;
+  envSource: string | null;
+  keyStartsWithRe: boolean;
+  keyLength: number;
+  keyPrefix: string | null;
+  from: string;
+} {
+  const key = resendApiKey();
+  return {
+    configured: Boolean(key),
+    envSource: resendApiKeySource(),
+    keyStartsWithRe: key.startsWith("re_"),
+    keyLength: key.length,
+    keyPrefix: key ? `${key.slice(0, 3)}…` : null,
+    from: resendFromAddress(),
+  };
+}
+
+/** Probe Resend auth without sending mail (GET /domains). */
+export async function probeResendAuth(): Promise<{
+  ok: boolean;
+  status?: number;
+  detail?: string;
+}> {
+  const apiKey = resendApiKey();
+  if (!apiKey) {
+    return { ok: false, detail: "RESEND_API_KEY missing" };
+  }
+  if (!apiKey.startsWith("re_")) {
+    return { ok: false, detail: "key must start with re_" };
+  }
+  try {
+    const res = await fetch("https://api.resend.com/domains", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: "application/json",
+        "User-Agent": "TrustLedger/1.0",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(6000),
+    });
+    if (res.ok) return { ok: true, status: res.status };
+    const body = await res.text().catch(() => "");
+    return {
+      ok: false,
+      status: res.status,
+      detail: body.slice(0, 160) || `HTTP ${res.status}`,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      detail: err instanceof Error ? err.message : "Resend probe failed",
+    };
+  }
+}
+
 function explainResendFailure(status: number, body: string): string {
   const snippet = body.slice(0, 240);
+  const diag = resendPublicDiagnostics();
+  const hint = `env=${diag.envSource || "none"} len=${diag.keyLength} prefix=${diag.keyPrefix || "none"} from=${diag.from}`;
   const lower = body.toLowerCase();
-  if (status === 401 || /api key is invalid|missing_api_key|invalid_api_key/i.test(body)) {
+  if (
+    status === 401 ||
+    /api key is invalid|missing_api_key|invalid_api_key/i.test(body)
+  ) {
     return (
-      "Resend rejected the API key. On Vercel Production set RESEND_API_KEY to the full re_… secret " +
-      "(not the dashboard key name), then Redeploy. " +
-      `Detail: ${snippet}`
+      "Resend rejected the API key (often a revoked key still on Vercel, or a bad paste). " +
+      "In Vercel Production: delete RESEND_API_KEY, create a new key in Resend, paste only the re_… secret, Redeploy. " +
+      `Or set ACCESS_EMAIL_VERIFICATION=0 temporarily. (${hint}) Detail: ${snippet}`
     );
   }
   if (
@@ -71,12 +166,12 @@ function explainResendFailure(status: number, body: string): string {
     status === 403
   ) {
     return (
-      "Resend blocked the From address. Set RESEND_FROM_EMAIL to a verified domain sender " +
-      "(or temporarily TrustLedger <onboarding@resend.dev>), verify trustledger.co.za in Resend → Domains, Redeploy. " +
-      `Detail: ${snippet}`
+      "Resend blocked the From address. Set RESEND_FROM_EMAIL to TrustLedger <onboarding@resend.dev> " +
+      "(or a verified @trustledger.co.za sender), Redeploy. " +
+      `(${hint}) Detail: ${snippet}`
     );
   }
-  return `Resend HTTP ${status}: ${snippet}`;
+  return `Resend HTTP ${status}: ${snippet} (${hint})`;
 }
 
 async function sendResendEmail(input: {

@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { recaptchaConfigured, recaptchaRequired } from "@/lib/formGuard";
 import { isFrappeAutoProvisionEnabled } from "@/lib/provisionOwnerCloud";
-import { transactionalEmailConfigured } from "@/lib/transactionalEmail";
+import {
+  probeResendAuth,
+  resendPublicDiagnostics,
+  transactionalEmailConfigured,
+} from "@/lib/transactionalEmail";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import { isPlatformOperatorOnly } from "@/lib/platformOperator";
 import { paystackConfigured } from "@/lib/paystackServer";
@@ -40,7 +44,7 @@ async function probe(
 }
 
 export async function GET() {
-  const [app, cloud] = await Promise.all([
+  const [app, cloud, resendAuth] = await Promise.all([
     probe(
       "TrustLedger app",
       `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app"}/`,
@@ -49,6 +53,7 @@ export async function GET() {
       "TrustLedger Cloud",
       `${FRAPPE_SITE.replace(/\/$/, "")}/api/method/frappe.ping`,
     ),
+    probeResendAuth(),
   ]);
 
   const checks = [app, cloud];
@@ -60,6 +65,7 @@ export async function GET() {
     null;
 
   const leads = leadBackendStatus();
+  const resendDiag = resendPublicDiagnostics();
 
   const launch = {
     lockdownLifted: !isPlatformOperatorOnly(),
@@ -68,6 +74,9 @@ export async function GET() {
     paystack: paystackConfigured(),
     cronSecret: Boolean(process.env.CRON_SECRET?.trim()),
     resend: transactionalEmailConfigured(),
+    resendAuthOk: resendAuth.ok,
+    resendAuthStatus: resendAuth.status ?? null,
+    resendDiag,
     recaptcha: recaptchaConfigured(),
     recaptchaFailClosed: recaptchaRequired(),
     accessEmailVerification: accessEmailVerificationEnabled(),
