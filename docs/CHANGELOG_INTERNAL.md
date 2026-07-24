@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-24 — ADR-034 Frappe-only + Webway cutover checklist
+
+- Clarified ADR-034: acquisition CRM = Frappe CRM Lead only; WP CTAs → Vercel → Frappe; HubSpot not required.
+- Added `docs/WEBWAY_CUTOVER.md` (operator checklist for removing HubSpot embeds / pointing CTAs).
+- Expanded `docs/HS_CUTOVER.md` phases 0–4; CRM_HANDOFF / WORDPRESS_CTA / BUILD_PLAN HS-2 active; AGENTS rule 12.
+
 ## 2026-07-24 — Resend key load + health auth probe
 
 - Prefer valid `re_…` among RESEND_API_KEY / RESEND / RESEND_KEY; strip accidental `Bearer ` prefix.
