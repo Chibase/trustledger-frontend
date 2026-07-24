@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-24 — Fix Home footer Contact → Vercel (not Gmail)
+
+- WP `page-home.txt`: footer Contact is absolute Vercel `/contact` (fix `className`→`class`); mailto kept as email text only.
+- Vercel `HomeFooter`: brand row Contact → `/contact` (mailto no longer the only/primary CTA).
+- `WEBWAY_CUTOVER`: never label mailto as “Contact” (opens Google/Gmail on many PCs).
+
 ## 2026-07-24 — ADR-034 Frappe-only + Webway cutover checklist
 
 - Clarified ADR-034: acquisition CRM = Frappe CRM Lead only; WP CTAs → Vercel → Frappe; HubSpot not required.

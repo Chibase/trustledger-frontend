@@ -47,7 +47,8 @@ Full phases: `docs/HS_CUTOVER.md`. CTA URLs: `docs/WORDPRESS_CTA.md`. Paste pack
 
 4. **Footer / nav Contact**
    - [ ] No relative `/contact` (404 on WP).
-   - [ ] Prefer Vercel Contact over `mailto:` for “Contact” nav (mailto may remain as secondary for `info@trustledger.co.za`).
+   - [ ] **Never label a `mailto:` link “Contact”** — on many PCs that opens Gmail/Google. Use absolute Vercel `/contact` for the Contact label; keep `mailto:info@trustledger.co.za` as the email address text only.
+   - [ ] Prefer Vercel Contact over `mailto:` for “Contact” nav.
 
 5. **Cache**
    - [ ] Purge SpeedyCache (or host cache).
