@@ -46,7 +46,7 @@ export const REPORT_PACKS: Record<ReportPackId, ReportPackDef> = {
     description:
       "Text narrative plus graphs for period activity, cases attended, and trust pulse — suitable for supervisor and delivery review.",
     composition: "Text + graphs",
-    minPlan: "practitioner",
+    minPlan: "solo",
     minDesk: "clo",
     defaultKind: "monthly_activity",
     defaultAudience: "supervisor",
@@ -78,9 +78,10 @@ export const REPORT_PACKS: Record<ReportPackId, ReportPackDef> = {
 };
 
 export const PLAN_RANK: Record<PlanId, number> = {
-  practitioner: 1,
-  project: 2,
-  institutional: 3,
+  solo: 1,
+  practitioner: 2,
+  project: 3,
+  institutional: 4,
 };
 
 /** Plans at or above the pack’s minPlan. */

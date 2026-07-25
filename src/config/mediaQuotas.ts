@@ -1,5 +1,6 @@
 /**
  * T4 — plan media storage quotas (browser until Cloud File / T5).
+ * Solo = 10 MB (ADR-035).
  */
 
 import type { PlanId } from "@/config/plans";
@@ -7,6 +8,7 @@ import { PLANS } from "@/config/plans";
 
 /** Soft caps in bytes for org media in the browser data space. */
 export const PLAN_MEDIA_QUOTA_BYTES: Record<PlanId, number> = {
+  solo: 10 * 1024 * 1024, // 10 MB
   practitioner: 25 * 1024 * 1024, // 25 MB
   project: 250 * 1024 * 1024, // 250 MB
   institutional: 2 * 1024 * 1024 * 1024, // 2 GB soft demo cap
@@ -47,22 +49,29 @@ export function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
+const UPGRADE_PLAN: Record<PlanId, PlanId | null> = {
+  solo: "practitioner",
+  practitioner: "project",
+  project: "institutional",
+  institutional: null,
+};
+
 export function upgradeHrefForMedia(planId?: PlanId | null): string {
-  if (!planId || planId === "practitioner") {
-    return "/pay?plan=project&utm_source=settings&utm_medium=media_quota&utm_campaign=upgrade_project";
+  const next = planId ? UPGRADE_PLAN[planId] : "practitioner";
+  if (!next) {
+    return "/contact?utm_source=settings&utm_medium=media_quota";
   }
-  if (planId === "project") {
+  if (next === "institutional") {
     return "/pay?plan=institutional&utm_source=settings&utm_medium=media_quota&utm_campaign=upgrade_institutional";
   }
-  return "/contact?utm_source=settings&utm_medium=media_quota";
+  return `/pay?plan=${next}&utm_source=settings&utm_medium=media_quota&utm_campaign=upgrade_${next}`;
 }
 
 export function upgradeLabelForMedia(planId?: PlanId | null): string {
-  if (!planId || planId === "practitioner") {
-    return `Upgrade to ${PLANS.project.name} (${formatBytes(PLAN_MEDIA_QUOTA_BYTES.project)})`;
-  }
-  if (planId === "project") {
+  const next = planId ? UPGRADE_PLAN[planId] : "practitioner";
+  if (!next) return "Contact sales for dedicated storage";
+  if (next === "institutional") {
     return `Upgrade to ${PLANS.institutional.name} for larger media`;
   }
-  return "Contact sales for dedicated storage";
+  return `Upgrade to ${PLANS[next].name} (${formatBytes(PLAN_MEDIA_QUOTA_BYTES[next])})`;
 }

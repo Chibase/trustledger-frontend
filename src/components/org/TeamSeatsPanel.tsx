@@ -261,7 +261,18 @@ export function TeamSeatsPanel({
           <h3 className="font-medium">Invite junior</h3>
           {!seats.canInvite ? (
             <p className="text-xs text-tl-ink-muted">
-              {org.planId === "practitioner" ? (
+              {org.planId === "solo" ? (
+                <>
+                  Solo is Owner-only.{" "}
+                  <a
+                    href="/pay?plan=project"
+                    className="text-tl-trust-ink underline"
+                  >
+                    Upgrade to Project
+                  </a>{" "}
+                  to invite seats.
+                </>
+              ) : org.planId === "practitioner" ? (
                 <>
                   Practitioner is Owner-only.{" "}
                   <a

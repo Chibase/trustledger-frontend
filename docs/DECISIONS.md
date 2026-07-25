@@ -103,6 +103,20 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
 
+### ADR-035: Solo entry plan (1 seat, essentials)
+
+- **Date:** 2026-07-24
+- **Status:** Accepted
+- **Context:** Lone consultants and subcontractor practitioners often cannot justify Practitioner (R5,399 / owner-only with AI). Without an entry SKU they stay informal or under a larger firm’s Project seats — TrustLedger loses the bottom of the funnel and the “professionalise before you scale” story.
+- **Decision:**
+  1. Add commercial plan **`solo`** — **R1,999 / month**, **1 named seat** (owner only; **zero** junior seats), **1 active project**, **10 MB** media, **no AI Assist**, **no SI / governance packs**.
+  2. Entitlements: dashboard, projects, incidents, issue intake, geo intake, Trust Pulse (+ monthly operational report). See `docs/SOLO_PLAN.md`.
+  3. Ladder: **Solo → Practitioner → Project → Institutional**. Default entry UTM / marketing plan may be `solo`; Practitioner remains the AI / light-governance step-up.
+  4. Paystack plan code: `solo` (+ `PAYSTACK_AMOUNT_SOLO_CENTS`). EFT / VIP / Customer `custom_plan_code` accept `solo`.
+  5. No new DocType — reuse Customer + subscription plan code.
+- **Consequences:** Pricing UI is four commercial columns (+ Institutional sales). Seat math and report-pack gates treat Solo below Practitioner. Ops must create Paystack plan `solo` before live charge.
+- **Alternatives considered:** Discount Practitioner only (rejected — still oversells AI/governance); free forever tier (rejected — support cost); junior seats on Solo (rejected — that is Project’s commercial line).
+
 ### ADR-034: Frappe-only acquisition CRM (cut HubSpot)
 
 - **Date:** 2026-07-23 (clarified 2026-07-24)

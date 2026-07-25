@@ -29,13 +29,14 @@ export function HomePricing() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => {
             const href = plan.selfServe
               ? `/pay?plan=${plan.id}&utm_source=home&utm_medium=pricing&utm_campaign=buy_${plan.id}`
               : `/contact?utm_source=home&utm_medium=pricing&utm_campaign=buy_${plan.id}`;
             const cta = plan.selfServe ? "Subscribe" : "Talk to sales";
-            const highlighted = plan.id === "project";
+            /** Practitioner = AI / light-governance step-up (ADR-035). */
+            const highlighted = plan.id === "practitioner";
 
             return (
               <article

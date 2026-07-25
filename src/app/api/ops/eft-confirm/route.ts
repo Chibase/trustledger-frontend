@@ -27,7 +27,12 @@ type EftBody = {
 };
 
 function planIdOf(raw: string | undefined): PaystackPlanId | null {
-  if (raw === "practitioner" || raw === "project" || raw === "institutional") {
+  if (
+    raw === "solo" ||
+    raw === "practitioner" ||
+    raw === "project" ||
+    raw === "institutional"
+  ) {
     return raw;
   }
   return null;

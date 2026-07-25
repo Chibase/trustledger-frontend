@@ -1,14 +1,15 @@
 /**
- * Paystack checkout catalogue (ADR-012 / ADR-019).
+ * Paystack checkout catalogue (ADR-012 / ADR-019 / ADR-035).
  * Amounts are ZAR cents. Override via env without code change.
  *
  * Launch defaults (excl. VAT, monthly):
+ * - Solo R1,999 → 199900
  * - Practitioner R5,399 → 539900
  * - Project R14,999 → 1499900
  * - Institutional → sales (0)
  */
 
-export type PaystackPlanId = "practitioner" | "project" | "institutional";
+export type PaystackPlanId = "solo" | "practitioner" | "project" | "institutional";
 
 export type PaystackPlan = {
   id: PaystackPlanId;
@@ -23,6 +24,7 @@ export type PaystackPlan = {
 
 /** Launch list prices in ZAR (whole rands) — source for WP paste and defaults. */
 export const LAUNCH_PRICES_ZAR = {
+  solo: 1999,
   practitioner: 5399,
   project: 14999,
   institutional: null as number | null,
@@ -37,16 +39,29 @@ function envCents(key: string, fallback: number): number {
 
 /**
  * Plan catalogue for Vercel checkout.
- * Override: PAYSTACK_AMOUNT_PRACTITIONER_CENTS, PAYSTACK_AMOUNT_PROJECT_CENTS,
- * PAYSTACK_AMOUNT_INSTITUTIONAL_CENTS (0 = contact sales).
+ * Override: PAYSTACK_AMOUNT_SOLO_CENTS, PAYSTACK_AMOUNT_PRACTITIONER_CENTS,
+ * PAYSTACK_AMOUNT_PROJECT_CENTS, PAYSTACK_AMOUNT_INSTITUTIONAL_CENTS (0 = contact sales).
  */
 export function getPaystackPlans(): PaystackPlan[] {
   return [
     {
+      id: "solo",
+      label: "Solo",
+      summary:
+        "Lone consultant — one seat, essential grievance desk (no AI Assist).",
+      amountCents: envCents(
+        "PAYSTACK_AMOUNT_SOLO_CENTS",
+        LAUNCH_PRICES_ZAR.solo * 100,
+      ),
+      currency: "ZAR",
+      period: "month",
+      selfServe: true,
+    },
+    {
       id: "practitioner",
       label: "Practitioner",
       summary:
-        "Single Plan Owner — dashboard, reporting, and standard AI assist.",
+        "Independent desk — AI Assist, light governance, higher media quota.",
       amountCents: envCents(
         "PAYSTACK_AMOUNT_PRACTITIONER_CENTS",
         LAUNCH_PRICES_ZAR.practitioner * 100,

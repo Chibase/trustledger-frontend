@@ -126,9 +126,11 @@ export function createOrgInvite(input: {
     return {
       ok: false,
       error:
-        org.planId === "practitioner"
-          ? "Practitioner includes the Plan Owner only. Upgrade to Project to invite juniors."
-          : "No seats remaining on this plan.",
+        org.planId === "solo"
+          ? "Solo includes the Plan Owner only. Upgrade to Practitioner for AI Assist, or Project to invite juniors."
+          : org.planId === "practitioner"
+            ? "Practitioner includes the Plan Owner only. Upgrade to Project to invite juniors."
+            : "No seats remaining on this plan.",
     };
   }
 
@@ -238,7 +240,10 @@ export function acceptOrgInvite(input: {
   }
   const seats = buildSeatSummary(org);
   // Pending invite already counted in seats; accepting converts pending → member.
-  if (seats.additionalSeatCap === 0 && org.planId === "practitioner") {
+  if (
+    seats.additionalSeatCap === 0 &&
+    (org.planId === "solo" || org.planId === "practitioner")
+  ) {
     return {
       ok: false,
       error: "This plan does not allow junior seats.",

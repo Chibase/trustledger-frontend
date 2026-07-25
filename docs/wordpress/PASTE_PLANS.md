@@ -8,6 +8,7 @@ Repo paste files already point at Vercel Paystack + trial. **Live WP does not up
 
 | Plan | Subscribe | Trial |
 |------|-----------|-------|
+| Solo | `/pay?plan=solo` | `/trial?plan=solo` |
 | Practitioner | `/pay?plan=practitioner` | `/trial?plan=practitioner` |
 | Project | `/pay?plan=project` | `/trial?plan=project` |
 | Institutional | `/contact` (sales) | — |
@@ -25,6 +26,7 @@ Never put Paystack secret/public keys in WordPress.
 5. Repeat for **Assessment** using `docs/wordpress/page-assessment.txt` if that page is live.
 6. Purge **SpeedyCache** (or host cache).
 7. Smoke-test on `https://trustledger.co.za/#pricing`:
+   - Solo Subscribe → Paystack checkout for Solo (R1,999)
    - Practitioner Subscribe → Paystack checkout for Practitioner
    - Project Subscribe → Paystack checkout for Project
    - Trial links → `/trial` with plan pre-selected
@@ -35,3 +37,4 @@ Never put Paystack secret/public keys in WordPress.
 - `docs/wordpress/page-home.txt` — pricing cards + CTAs
 - `docs/wordpress/page-assessment.txt` — nav / footer CTAs
 - `docs/WORDPRESS_CTA.md` — journey table
+- `docs/SOLO_PLAN.md` — Solo packaging (ADR-035)

@@ -33,11 +33,12 @@ There is **no** second “super-admin” above Owner for a customer org. **Platf
 
 ## Plan → seats (entitlements)
 
-Aligned to marketing tiers (prices unchanged on site until you say otherwise):
+Aligned to marketing tiers (ADR-035 Solo entry):
 
 | Plan | Owner | Additional seats | Notes |
 |------|-------|------------------|-------|
-| **Practitioner** (lower tier) | 1 × **admin** (purchaser) | **0** by default (optional later: +1–2 paid add-ons) | Single-user: owner does login, reporting, dashboard |
+| **Solo** (entry) | 1 × **admin** (purchaser) | **0** | Lone consultant essentials — no AI Assist, 1 project |
+| **Practitioner** | 1 × **admin** (purchaser) | **0** by default (optional later: +1–2 paid add-ons) | Owner + AI Assist + light governance |
 | **Project** | 1 × **admin** | Unlimited **per project environment** at client/contractor/community | Owner assigns people to projects |
 | **Institutional** | 1+ owners (custom) | Custom roles/seats/regions | Sales-defined |
 
@@ -45,17 +46,17 @@ Aligned to marketing tiers (prices unchanged on site until you say otherwise):
 
 ## Plan entitlement matrix (what we limit)
 
-| Limit | Practitioner | Project | Institutional |
-|-------|--------------|---------|---------------|
-| **Owner seats** | 1 admin | 1 admin | Custom |
-| **Team seats** | 0 (owner only) | Unlimited **per project** | Custom |
-| **Active projects** | Up to **2** | 1+ (per purchased project env) | Multi-region / many |
-| **Roles invitees may get** | — (no invites) | client, contractor, community | Custom + extra admins if sold |
-| **Reports / briefs** | Standard | Full project + predictive views | Deep / custom analytics |
-| **AI assist** | Standard sentiment / triage | Full assist set | Custom / higher limits |
-| **API / integrations** | No | No (or light) | Yes (custom) |
-| **Hosting / compliance** | Shared | Shared | Dedicated options |
-| **Support** | In-app + HubSpot | In-app + HubSpot | Named + Helpdesk |
+| Limit | Solo | Practitioner | Project | Institutional |
+|-------|------|--------------|---------|---------------|
+| **Owner seats** | 1 admin | 1 admin | 1 admin | Custom |
+| **Team seats** | 0 (owner only) | 0 (owner only) | Unlimited **per project** | Custom |
+| **Active projects** | **1** | Up to **2** | 1+ (per purchased project env) | Multi-region / many |
+| **Roles invitees may get** | — (no invites) | — (no invites) | client, contractor, community | Custom + extra admins if sold |
+| **Reports / briefs** | Monthly operational | Standard + light governance | Full project + predictive views | Deep / custom analytics |
+| **AI assist** | **No** | Standard sentiment / triage | Full assist set | Custom / higher limits |
+| **API / integrations** | No | No | No (or light) | Yes (custom) |
+| **Hosting / compliance** | Shared | Shared | Shared | Dedicated options |
+| **Support** | In-app | In-app | In-app | Named + Helpdesk |
 
 Demo mode ignores paid entitlements (sample data only).
 

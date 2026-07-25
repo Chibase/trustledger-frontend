@@ -10,9 +10,14 @@ import type { PaystackPlanId } from "@/lib/paystackPlans";
 
 const PLANS: { id: PaystackPlanId; label: string; blurb: string }[] = [
   {
+    id: "solo",
+    label: "Solo",
+    blurb: "Lone consultant — 1 seat, essential desk (no AI Assist).",
+  },
+  {
     id: "practitioner",
     label: "Practitioner",
-    blurb: "Single Plan Owner — dashboard and standard reporting.",
+    blurb: "Independent desk — AI Assist and light governance.",
   },
   {
     id: "project",
@@ -32,7 +37,7 @@ function QuoteForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
-  const [plan, setPlan] = useState<PaystackPlanId>("practitioner");
+  const [plan, setPlan] = useState<PaystackPlanId>("solo");
   const [message, setMessage] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [utmLabel, setUtmLabel] = useState("None");
@@ -49,6 +54,7 @@ function QuoteForm() {
       setUtmLabel(formatUtmSummary(captured ?? readUtm()));
       const prefillPlan = searchParams.get("plan");
       if (
+        prefillPlan === "solo" ||
         prefillPlan === "practitioner" ||
         prefillPlan === "project" ||
         prefillPlan === "institutional"

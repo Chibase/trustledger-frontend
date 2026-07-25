@@ -180,28 +180,40 @@
       <h2 class="section-header__title">Launch plans — Paystack checkout</h2>
       <p class="section-header__desc">ZAR excl. VAT. Subscribe on Paystack, or start a 14-day trial on your own data.</p>
     </div>
-    <div class="grid grid--3" style="margin-top:2rem">
+    <div class="grid grid--3" style="margin-top:2rem;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr))">
       <article class="pricing-card">
+        <h3 class="pricing-card__name">Solo</h3>
+        <p class="pricing-card__desc">Lone consultant — 1 seat, essential grievance desk (no AI Assist)</p>
+        <div class="pricing-card__row">
+          <span class="pricing-card__amount">R1,999</span>
+          <span class="pricing-card__period">/mo</span>
+        </div>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=solo&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_solo" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Subscribe with Paystack</a>
+        <p class="mt-4" style="text-align:center">
+          <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?plan=solo&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=trial_solo" target="_blank" rel="noopener noreferrer">Start 14-day trial</a>
+        </p>
+      </article>
+      <article class="pricing-card pricing-card--highlighted">
+        <span class="pricing-card__badge">AI step-up</span>
         <h3 class="pricing-card__name">Practitioner</h3>
-        <p class="pricing-card__desc">Single Plan Owner — dashboard, reporting, standard AI assist</p>
+        <p class="pricing-card__desc">Independent desk — AI Assist, light governance, higher media quota</p>
         <div class="pricing-card__row">
           <span class="pricing-card__amount">R5,399</span>
           <span class="pricing-card__period">/mo</span>
         </div>
-        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_practitioner" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Subscribe with Paystack</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_practitioner" class="btn btn--primary btn--block" target="_blank" rel="noopener noreferrer">Subscribe with Paystack</a>
         <p class="mt-4" style="text-align:center">
           <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?plan=practitioner&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=trial_practitioner" target="_blank" rel="noopener noreferrer">Start 14-day trial</a>
         </p>
       </article>
-      <article class="pricing-card pricing-card--highlighted">
-        <span class="pricing-card__badge">Most popular</span>
+      <article class="pricing-card">
         <h3 class="pricing-card__name">Project</h3>
         <p class="pricing-card__desc">Owner + per-project seats for client, contractor, community</p>
         <div class="pricing-card__row">
           <span class="pricing-card__amount">R14,999</span>
           <span class="pricing-card__period">/mo</span>
         </div>
-        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=project&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_project" class="btn btn--primary btn--block" target="_blank" rel="noopener noreferrer">Subscribe with Paystack</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/pay?plan=project&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_project" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Subscribe with Paystack</a>
         <p class="mt-4" style="text-align:center">
           <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?plan=project&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=trial_project" target="_blank" rel="noopener noreferrer">Start 14-day trial</a>
         </p>
@@ -237,7 +249,7 @@
       </article>
       <article class="card">
         <h3 class="card__title">Subscribe</h3>
-        <p class="card__desc">Practitioner or Project on Paystack checkout.</p>
+        <p class="card__desc">Solo, Practitioner, or Project on Paystack checkout.</p>
         <p class="mt-4"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/pay?utm_source=wordpress&amp;utm_medium=resources&amp;utm_campaign=subscribe">Go to checkout</a></p>
       </article>
     </div>
@@ -260,7 +272,7 @@
     </details>
     <details class="faq__item">
       <summary class="faq__button">How do I buy a plan?</summary>
-      <div class="faq__panel">Subscribe on Paystack for Practitioner or Project. Institutional plans are sales-led via contact.</div>
+      <div class="faq__panel">Subscribe on Paystack for Solo, Practitioner, or Project. Institutional plans are sales-led via contact.</div>
     </details>
   </div>
 </section>

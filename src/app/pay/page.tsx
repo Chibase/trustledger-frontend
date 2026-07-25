@@ -20,10 +20,10 @@ type PageProps = {
 export default async function PayPage({ searchParams }: PageProps) {
   const params = searchParams ? await searchParams : {};
   const plans = getPaystackPlans();
-  const requested = (params.plan || "practitioner") as PaystackPlanId;
+  const requested = (params.plan || "solo") as PaystackPlanId;
   const initialPlan = plans.some((p) => p.id === requested)
     ? requested
-    : "practitioner";
+    : "solo";
   const initialMode =
     params.mode === "pay_now" ? "pay_now" : "trial_authorize";
 

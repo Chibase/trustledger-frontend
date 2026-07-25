@@ -160,6 +160,7 @@ export function VipAccessPanel({ isOperator }: VipAccessPanelProps) {
             <option value="institutional">{PLANS.institutional.name} (full)</option>
             <option value="project">{PLANS.project.name}</option>
             <option value="practitioner">{PLANS.practitioner.name}</option>
+            <option value="solo">{PLANS.solo.name}</option>
           </select>
         </label>
         <label className="block text-sm sm:col-span-2">
