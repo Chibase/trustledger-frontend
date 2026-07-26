@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-26 — VIP beta terms v2 (tester feedback)
+
+- Revised Beta Testing Terms: mock/anonymised/public data only; no live client/beneficiary PII required.
+- Explicit data governance: isolation, access, no external LLM training, purge rights; flexible 8-week time (no hours quota).
+- Pack: `docs/exports/vip-beta/` + reply template; VIP_ACCESS points at v2.
+
 ## 2026-07-24 — CP-1 / ADR-035: Solo entry plan
 
 - New commercial plan **`solo`** — R1,999/mo, 1 seat, 1 project, 10 MB, no AI Assist / SI / governance packs.
