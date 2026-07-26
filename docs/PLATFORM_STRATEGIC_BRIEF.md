@@ -223,7 +223,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | AI assist (suggest→apply) | — | ✓ | ✓ | ✓ | Never “auto-resolve” in sales |
 | Geo intake / place fields | ✓ | ✓ | ✓ | ✓ | ZA pack; not full GIS |
 | Trust pulse | ✓ | ✓ | ✓ | ✓ | Desk signal |
-| Governance reports | — | ✓ | ✓ | ✓ | Pack depth differs (below) |
+| Governance reports | ✓ (monthly) | ✓ | ✓ | ✓ | Pack depth differs (below) |
 | Capture hub | — | — | ✓ | ✓ | V002 field evidence |
 | Stakeholder CRM | — | — | ✓ | ✓ | **SRM engine — do not undersell** |
 | Engagements | — | — | ✓ | ✓ | SI core |

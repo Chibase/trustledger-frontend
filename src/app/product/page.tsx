@@ -57,17 +57,17 @@ const STEPS = [
   },
   {
     n: "2",
-    title: "Sign in live on Cloud",
-    body: "After provision, use live login for multi-device durable ops on Frappe Cloud.",
-    href: "/login/live",
-    cta: "Live sign-in",
+    title: "Follow the setup wizard",
+    body: "On first entry, TrustLedger opens a plan-aware setup wizard: seed Project → people → contact → promises → cases → reports. Reopen anytime from Guide.",
+    href: "/trial",
+    cta: "Start trial & setup",
   },
   {
     n: "3",
-    title: "Build Stakeholder Intelligence",
-    body: "Add stakeholders, log engagements, track commitments — the SRM engine without which there is no programme trust.",
-    href: "/app/stakeholders",
-    cta: "Open CRM (after sign-in)",
+    title: "Sign in live on Cloud",
+    body: "After provision, use live login for multi-device durable ops on Frappe Cloud. Guide stays in the nav.",
+    href: "/login/live",
+    cta: "Live sign-in",
   },
 ] as const;
 

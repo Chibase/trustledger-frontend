@@ -103,6 +103,19 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
 
+### ADR-036: In-app setup wizard + user manual (UG-1)
+
+- **Date:** 2026-07-26
+- **Status:** Accepted
+- **Context:** New clients (especially Solo / first Project Owners) land on an empty desk and need a guided seeding order. External video scripts alone do not change in-product behaviour.
+- **Decision:**
+  1. Ship written **`docs/USER_MANUAL.md`** as the operator SoT (companion to `docs/ONBOARDING_VIDEO_SCRIPT.md`).
+  2. On first trial/live entry, show a **plan-aware Setup wizard** (spine: Project → SI modules if entitled → Incidents → Capture → Reports). Persist progress in `tl-onboarding-v1`; “Later” snoozes for the session; “Don’t show again” dismisses until Settings/Guide reopen.
+  3. Add **`/app/guide`** + nav **Guide** + Settings controls to relaunch the wizard and tick the checklist.
+  4. Wizard waits behind the temporary-password prompt when that is open.
+- **Consequences:** Solo skips SI steps; monthly reports remain available on Solo via `governanceReports` + pack rank. No sample INC-* seeding.
+- **Alternatives considered:** Marketing-only PDF (rejected — unused); forced blocking tour every login (rejected — snooze/dismiss); third-party product tour SaaS (rejected — brand + cost).
+
 ### ADR-035: Solo entry plan (1 seat, essentials)
 
 - **Date:** 2026-07-24

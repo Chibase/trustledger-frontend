@@ -29,7 +29,7 @@
 | Issue intake | Stakeholder CRM / engagements / commitments |
 | Geo / place fields | ESG intelligence cards |
 | Trust pulse (light) | Desk graphs / supervisor queue |
-| Monthly operational report | Executive / board packs |
+| Monthly operational report (Reports hub) | Executive / board packs |
 
 ## Ladder
 

@@ -6,6 +6,7 @@ import { EntitlementsSettingsPanel } from "@/components/settings/EntitlementsSet
 import { ReportPackAccessPanel } from "@/components/settings/ReportPackAccessPanel";
 import { DataSpacePanel } from "@/components/org/DataSpacePanel";
 import { MediaLibraryPanel } from "@/components/org/MediaLibraryPanel";
+import { OnboardingSettingsControls } from "@/components/onboarding/OnboardingSettingsControls";
 import { SettingsPlanBanner } from "@/components/settings/SettingsPlanBanner";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
 import { getCurrentUser } from "@/lib/auth";
@@ -46,6 +47,8 @@ export default async function AppSettingsPage() {
         trial={user.trial}
         isPlanOwner={isPlanOwner}
       />
+
+      <OnboardingSettingsControls />
 
       {isPlanOwner ? (
         <section className="space-y-4">

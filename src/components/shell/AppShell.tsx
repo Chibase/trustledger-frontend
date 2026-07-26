@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { OperatorBanner } from "@/components/shell/OperatorBanner";
 import { TrialBanner } from "@/components/shell/TrialBanner";
+import { SetupWizard } from "@/components/onboarding/SetupWizard";
 import { TrialPasswordChangePrompt } from "@/components/shell/TrialPasswordChangePrompt";
 import { AppNav } from "@/components/shell/AppNav";
 import { MobileNav } from "@/components/shell/MobileNav";
@@ -42,6 +43,9 @@ export function AppShell({
   const planLabel = trialPlan ? PLANS[trialPlan].name : null;
   const modeLabel =
     mode === "live" ? "live" : mode === "trial" ? "trial" : "workspace";
+  /** Plan Owners get the first-login wizard; juniors use Guide on demand. */
+  const showSetupWizard =
+    mode === "trial" || mode === "live";
 
   return (
     <ToastProvider>
@@ -50,6 +54,7 @@ export function AppShell({
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
         ) : null}
         {mode === "trial" ? <TrialPasswordChangePrompt /> : null}
+        {showSetupWizard ? <SetupWizard planId={trialPlan} enabled /> : null}
         {showOperatorBanner ? <OperatorBanner /> : null}
         <MobileNav
           role={role}

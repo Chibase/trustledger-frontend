@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-26 — UG-1 / ADR-036: User manual + first-login setup wizard
+
+- `docs/USER_MANUAL.md` — seeding spine, nav map, daily loop, plans, AI rules.
+- In-app **Setup wizard** (plan-aware) on trial/live first entry; snooze / dismiss; reopen from Settings or Guide.
+- `/app/guide` checklist + nav **Guide**; dashboard setup progress strip for Plan Owners.
+- Solo gains `governanceReports` so Monthly pack hub matches SOLO_PLAN (executive/board still rank-gated).
+- Companion video script unchanged: `docs/ONBOARDING_VIDEO_SCRIPT.md`.
+
 ## 2026-07-24 — CP-1 / ADR-035: Solo entry plan
 
 - New commercial plan **`solo`** — R1,999/mo, 1 seat, 1 project, 10 MB, no AI Assist / SI / governance packs.
