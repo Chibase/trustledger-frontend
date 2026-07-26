@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-07-26 — VIP-1 / ADR-037: VIP invitees view + comment only
+
+- VIP Pilot Owners invite freely; invitees get `vip_viewer` access (view + Comments).
+- Comments capture role on project, rank, entity, email, optional face photo, website publish consent.
+- Print / PDF / download gated; org data saves blocked for viewers; Report issue nav hidden.
+- Live VIP login stamps VIP cookies + browser org for Team / Seats; Owners export publishable JSON for website wall.
+- Docs: `docs/VIP_ACCESS.md`, ADR-037.
+
 ## 2026-07-24 — CP-1 / ADR-035: Solo entry plan
 
 - New commercial plan **`solo`** — R1,999/mo, 1 seat, 1 project, 10 MB, no AI Assist / SI / governance packs.

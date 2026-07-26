@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import {
   FRAPPE_SID_COOKIE,
   SESSION_ROLE_COOKIE,
+  TL_ACCESS_MODE_COOKIE,
   TL_DESK_TIER_COOKIE,
   TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
@@ -11,6 +12,7 @@ import {
   TL_TRIAL_STARTED_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_ORG_COOKIE,
   type TlMode,
 } from "@/lib/auth.constants";
 import { isPlanId, type PlanId } from "@/config/plans";
@@ -21,6 +23,7 @@ import {
   type TrialSnapshot,
 } from "@/lib/trial";
 import { normalizeDeskTier, type DeskTier } from "@/types/deskTier";
+import { isVipAccessMode, type VipAccessMode } from "@/types/vipAccess";
 
 export type { UserRole };
 
@@ -38,6 +41,10 @@ export type AppUser = {
   isPlanOwner?: boolean;
   deskTier?: DeskTier;
   deskTierLocked?: boolean;
+  /** VIP Pilot org (Owner invites view-only guests). */
+  isVipOrg?: boolean;
+  /** Invitees on VIP orgs are vip_viewer. */
+  accessMode?: VipAccessMode;
 };
 
 export { SESSION_ROLE_COOKIE } from "@/lib/auth.constants";
@@ -79,6 +86,8 @@ function userFromRole(
     | "isPlanOwner"
     | "deskTier"
     | "deskTierLocked"
+    | "isVipOrg"
+    | "accessMode"
   >,
 ): AppUser {
   return { id, name, email, role, mode, ...extras };
@@ -109,6 +118,9 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   ) ?? undefined;
   const deskTierLocked =
     cookieStore.get(TL_DESK_TIER_LOCKED_COOKIE)?.value === "1";
+  const isVipOrg = cookieStore.get(TL_VIP_ORG_COOKIE)?.value === "1";
+  const accessRaw = cookieStore.get(TL_ACCESS_MODE_COOKIE)?.value;
+  const accessMode = isVipAccessMode(accessRaw) ? accessRaw : "full";
 
   if (sessionRole && isUserRole(sessionRole)) {
     const name =
@@ -128,6 +140,8 @@ export async function getCurrentUser(): Promise<AppUser | null> {
         isPlanOwner: orgId ? isPlanOwner || sessionRole === "admin" : undefined,
         deskTier,
         deskTierLocked: orgId ? deskTierLocked : undefined,
+        isVipOrg: isVipOrg || undefined,
+        accessMode,
       },
     );
   }

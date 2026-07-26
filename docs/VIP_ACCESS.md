@@ -64,16 +64,32 @@ Response includes `temporaryPassword`. Share `/login/live` + email + password wi
 - **Calendar end:** In Frappe Desk → Customer → set `custom_entitlement_status` to `cancelled` (or disable User login). Optionally add a Comment.
 - **Convert to paying:** Guest uses branded `/pay` (or Ops Owner provision with Paystack) so authorization is captured and status follows normal trial→active rules. Clear the “VIP Pilot” naming if you prefer a commercial Customer name.
 
+## VIP guest invites (view + comment only) — ADR-037
+
+VIP Plan Owners may invite as many guests as they need. **Invitees are locked to view + comment:**
+
+| Allowed | Blocked |
+|---------|---------|
+| Browse desk modules they can see | Create / edit / delete desk data |
+| Post on **Comments** (`/app/comments`) | Print / PDF |
+| Provide role, rank, entity, email, optional face photo | Download / share desk exports |
+
+Comment profile fields are shaped for a future **website client-comment wall**. Owners can **Export publishable JSON** from Comments (rows with website consent).
+
+Cookies: `tl-vip-org=1` (VIP Pilot Customer), `tl-access-mode=vip_viewer` (invitee). Live VIP Owner login stamps VIP cookies when Customer name matches `VIP Pilot — …` and bootstraps a browser org so Team / Seats invites work on that device.
+
 ## Safety notes
 
 - Keep VIP Customers **named distinctly** so finance never confuses them with billed accounts.
 - Do not put VIP emails through HubSpot “buy now” CTAs unless you intend a commercial lead.
 - Refreshing an existing Customer with `complimentaryVip: true` clears Paystack tokens and forces `active` — use only for intentional comps, never on a paying account by mistake.
 - Agent / CI environments without `FRAPPE_API_KEY` cannot create Cloud rows; use Production Ops with Cloud env vars set.
+- Browser-local seats until Cloud User seat issuance — share accept links from the same Owner device.
 
 ## Related code
 
 - `src/lib/provisionOwnerCloud.ts` — `complimentaryVip` / `vipPilotOrganizationName`
 - `src/app/api/frappe/provision-owner/route.ts`
 - `src/components/ops/VipAccessPanel.tsx`
+- `src/lib/vipAccess.ts`, `src/lib/vipComments.ts`, `src/components/vip/*`
 - Charge-due: `src/lib/entitlementCloud.ts` (trial + authorization only)

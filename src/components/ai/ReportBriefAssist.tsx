@@ -6,6 +6,7 @@ import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { useToast } from "@/components/ui/Toast";
 import { aiService } from "@/services/aiService";
+import { clientIsVipViewer } from "@/lib/vipAccess";
 import type { AiSuggestionStatus, ReportBriefSuggestion } from "@/types/ai";
 
 export function ReportBriefAssist() {
@@ -34,6 +35,13 @@ export function ReportBriefAssist() {
 
   function handleSave() {
     if (!brief) return;
+    if (clientIsVipViewer()) {
+      pushToast(
+        "Downloads are disabled for VIP guest seats (view and comment only).",
+        "error",
+      );
+      return;
+    }
     requireEmailThen("save", () => {
       const blob = new Blob(
         [
@@ -53,6 +61,13 @@ export function ReportBriefAssist() {
 
   function handlePrint() {
     if (!brief) return;
+    if (clientIsVipViewer()) {
+      pushToast(
+        "Printing is disabled for VIP guest seats (view and comment only).",
+        "error",
+      );
+      return;
+    }
     requireEmailThen("print", () => {
       window.print();
     });

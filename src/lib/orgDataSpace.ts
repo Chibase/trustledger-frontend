@@ -9,6 +9,7 @@ import type { Project } from "@/types/project";
 import type { Stakeholder } from "@/types/stakeholder";
 import type { SavedReport } from "@/types/activityReport";
 import { getActiveOrgId } from "@/lib/orgStore";
+import { assertClientCanMutateDesk } from "@/lib/vipAccess";
 import {
   listTrialEvidence,
   listTrialIncidents,
@@ -108,6 +109,7 @@ export function listOrgStakeholders(orgId?: string | null): Stakeholder[] {
 }
 
 export function saveOrgProject(project: Project, orgId?: string | null) {
+  assertClientCanMutateDesk();
   const id = orgId || getActiveOrgId();
   if (!id) {
     saveTrialProject(project);
@@ -125,6 +127,7 @@ export function saveOrgProject(project: Project, orgId?: string | null) {
 }
 
 export function saveOrgIncident(incident: Incident, orgId?: string | null) {
+  assertClientCanMutateDesk();
   const id = orgId || getActiveOrgId();
   if (!id) {
     saveTrialIncident(incident);
@@ -141,6 +144,7 @@ export function saveOrgIncident(incident: Incident, orgId?: string | null) {
 }
 
 export function saveOrgEvidence(file: EvidenceStub, orgId?: string | null) {
+  assertClientCanMutateDesk();
   const id = orgId || getActiveOrgId();
   if (!id) {
     saveTrialEvidence(file);
@@ -156,6 +160,7 @@ export function saveOrgStakeholder(
   row: Stakeholder,
   orgId?: string | null,
 ) {
+  assertClientCanMutateDesk();
   const id = orgId || getActiveOrgId();
   if (!id) return;
   const bucket = getOrgDataBucket(id) || emptyBucket(id);

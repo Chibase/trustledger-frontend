@@ -5,6 +5,7 @@
 
 import type { PlanId } from "@/config/plans";
 import type { DeskTier } from "@/types/deskTier";
+import type { VipAccessMode } from "@/types/vipAccess";
 import type { UserRole } from "@/types/rbac";
 
 /** Roles an Owner may invite (never admin). */
@@ -20,6 +21,8 @@ export type OrgInvite = {
   name: string;
   role: InviteableRole;
   deskTier: DeskTier;
+  /** VIP orgs force vip_viewer on accept (ADR-037). */
+  accessMode?: VipAccessMode;
   projectId?: string;
   projectName?: string;
   status: OrgInviteStatus;
@@ -36,6 +39,7 @@ export type OrgMember = {
   isPlanOwner: boolean;
   /** When true, member cannot raise desk tier in Settings. */
   deskTierLocked: boolean;
+  accessMode?: VipAccessMode;
   projectId?: string;
   joinedAt: string;
 };
@@ -47,6 +51,8 @@ export type OrgRecord = {
   createdAt: string;
   ownerEmail: string;
   ownerName: string;
+  /** Complimentary VIP Pilot org — invitees are view + comment only. */
+  complimentaryVip?: boolean;
   members: OrgMember[];
   invites: OrgInvite[];
 };

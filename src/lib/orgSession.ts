@@ -4,6 +4,7 @@
 
 import {
   SESSION_ROLE_COOKIE,
+  TL_ACCESS_MODE_COOKIE,
   TL_DESK_TIER_COOKIE,
   TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
@@ -13,10 +14,12 @@ import {
   TL_TRIAL_STARTED_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_ORG_COOKIE,
   SESSION_MAX_AGE_SECONDS,
 } from "@/lib/auth.constants";
 import type { PlanId } from "@/config/plans";
 import { PLAN_OWNER_DESK_TIER, type DeskTier } from "@/types/deskTier";
+import type { VipAccessMode } from "@/types/vipAccess";
 import type { UserRole } from "@/types/rbac";
 import { ensureOwnerOrg } from "@/lib/orgStore";
 
@@ -29,9 +32,10 @@ export function applyOrgOwnerSession(input: {
   email: string;
   name: string;
   planId: PlanId;
-  mode?: "demo" | "trial";
+  mode?: "demo" | "trial" | "live";
   startedAt?: string;
   maxAge?: number;
+  complimentaryVip?: boolean;
 }) {
   const mode = input.mode || "demo";
   const maxAge = input.maxAge ?? SESSION_MAX_AGE_SECONDS;
@@ -44,6 +48,8 @@ export function applyOrgOwnerSession(input: {
   setCookie(TL_ORG_OWNER_COOKIE, "1", maxAge);
   setCookie(TL_DESK_TIER_COOKIE, PLAN_OWNER_DESK_TIER[input.planId], maxAge);
   setCookie(TL_DESK_TIER_LOCKED_COOKIE, "0", maxAge);
+  setCookie(TL_ACCESS_MODE_COOKIE, "full", maxAge);
+  setCookie(TL_VIP_ORG_COOKIE, input.complimentaryVip ? "1" : "0", maxAge);
   if (mode === "trial" && input.startedAt) {
     setCookie(TL_TRIAL_STARTED_COOKIE, input.startedAt, maxAge);
   }
@@ -57,8 +63,11 @@ export function applyOrgInviteeSession(input: {
   deskTier: DeskTier;
   planId: PlanId;
   mode?: "demo" | "trial";
+  accessMode?: VipAccessMode;
+  complimentaryVip?: boolean;
 }) {
   const mode = input.mode || "demo";
+  const accessMode = input.accessMode || "full";
   setCookie(SESSION_ROLE_COOKIE, input.role);
   setCookie(TL_MODE_COOKIE, mode);
   setCookie(TL_USER_EMAIL_COOKIE, input.email.toLowerCase());
@@ -68,6 +77,8 @@ export function applyOrgInviteeSession(input: {
   setCookie(TL_ORG_OWNER_COOKIE, "0");
   setCookie(TL_DESK_TIER_COOKIE, input.deskTier);
   setCookie(TL_DESK_TIER_LOCKED_COOKIE, "1");
+  setCookie(TL_ACCESS_MODE_COOKIE, accessMode);
+  setCookie(TL_VIP_ORG_COOKIE, input.complimentaryVip || accessMode === "vip_viewer" ? "1" : "0");
 }
 
 /** Create/reuse org and stamp Plan Owner session cookies. */
@@ -76,15 +87,17 @@ export function bootstrapPlanOwnerOrg(input: {
   name: string;
   planId: PlanId;
   organization?: string;
-  mode?: "demo" | "trial";
+  mode?: "demo" | "trial" | "live";
   startedAt?: string;
   maxAge?: number;
+  complimentaryVip?: boolean;
 }) {
   const org = ensureOwnerOrg({
     email: input.email,
     name: input.name,
     planId: input.planId,
     organization: input.organization,
+    complimentaryVip: input.complimentaryVip,
   });
   applyOrgOwnerSession({
     orgId: org.id,
@@ -94,6 +107,7 @@ export function bootstrapPlanOwnerOrg(input: {
     mode: input.mode,
     startedAt: input.startedAt,
     maxAge: input.maxAge,
+    complimentaryVip: Boolean(org.complimentaryVip || input.complimentaryVip),
   });
   return org;
 }

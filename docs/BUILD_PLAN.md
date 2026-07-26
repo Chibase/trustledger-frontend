@@ -203,6 +203,12 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 |--------|------|-------|--------|
 | **CP-1** | Solo entry plan | ADR-035 — `solo` R1,999 / 1 seat / essentials; wire Paystack + entitlements + seats + docs (`docs/SOLO_PLAN.md`) | **Done** |
 
+### VIP guest enablement
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **VIP-1** | VIP view + comment guests | ADR-037 — VIP Owners invite freely; invitees view-only + Comments profile; print/share locked; website export JSON | **Done** |
+
 ## 8. Quality gates (every packet)
 
 ```bash
@@ -250,3 +256,4 @@ src/
 | 2026-07-24 | ADR-034 clarified Frappe-only; WEBWAY_CUTOVER checklist; HS-2 active |
 | 2026-07-24 | EM-1 — branded Frappe bulk email templates + FRAPPE_EMAIL_MARKETING |
 | 2026-07-24 | CP-1 / ADR-035 — Solo entry plan (R1,999, 1 seat, essentials) |
+| 2026-07-26 | VIP-1 / ADR-037 — VIP invitees view + comment only |

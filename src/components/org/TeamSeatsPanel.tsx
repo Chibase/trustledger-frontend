@@ -26,6 +26,7 @@ import {
   revokeOrgInvite,
 } from "@/lib/orgStore";
 import { bootstrapPlanOwnerOrg } from "@/lib/orgSession";
+import { readVipOrgCookie } from "@/lib/vipAccess";
 
 type TeamSeatsPanelProps = {
   isPlanOwner: boolean;
@@ -67,8 +68,12 @@ export function TeamSeatsPanel({
   }, [planId]);
 
   function handleBootstrap() {
-    const plan: PlanId =
-      planId && isPlanId(planId) ? planId : "project";
+    const vip = readVipOrgCookie();
+    const plan: PlanId = vip
+      ? "institutional"
+      : planId && isPlanId(planId)
+        ? planId
+        : "project";
     const emailSafe =
       userEmail ||
       `owner+${Date.now().toString(36)}@demo.trustledger.local`;
@@ -76,11 +81,17 @@ export function TeamSeatsPanel({
       email: emailSafe,
       name: userName || "Plan Owner",
       planId: plan,
-      mode: "demo",
+      mode: vip ? "live" : "demo",
+      complimentaryVip: vip,
     });
     refresh();
     setDeskTier(defaultInviteDeskTier(plan));
-    pushToast("Plan Owner workspace created on this device", "success");
+    pushToast(
+      vip
+        ? "VIP workspace ready — invitees will be view + comment only"
+        : "Plan Owner workspace created on this device",
+      "success",
+    );
   }
 
   function handleInvite(event: React.FormEvent) {
@@ -162,6 +173,7 @@ export function TeamSeatsPanel({
   const seats = buildSeatSummary(org);
   const planName = PLANS[org.planId]?.name || org.planId;
   const pending = org.invites.filter((i) => i.status === "pending");
+  const vipOrg = Boolean(org.complimentaryVip);
 
   return (
     <section
@@ -177,12 +189,20 @@ export function TeamSeatsPanel({
         </p>
         <p className="mt-2 text-xs text-tl-ink-muted">
           Seats:{" "}
-          {seats.additionalSeatCap === null
-            ? `${seats.membersUsed} juniors (unlimited)`
+          {vipOrg || seats.additionalSeatCap === null
+            ? `${seats.membersUsed} juniors (VIP / unlimited)`
             : seats.additionalSeatCap === 0
               ? "Owner only"
               : `${seats.membersUsed + seats.invitesPending} / ${seats.additionalSeatCap} used (incl. pending)`}
         </p>
+        {vipOrg ? (
+          <p className="mt-2 rounded-md border border-tl-amber/40 bg-tl-amber/10 px-3 py-2 text-xs text-tl-ink">
+            VIP Pilot: invite freely. Every invitee is{" "}
+            <strong>view + comment only</strong> — no desk edits, printing,
+            downloads, or sharing. They use <strong>Comments</strong> with role,
+            rank, entity, email, and optional photo (website consent optional).
+          </p>
+        ) : null}
       </div>
 
       <div>
