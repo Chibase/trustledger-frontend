@@ -2,6 +2,8 @@
 
 Invite a small number of people to the **full Institutional** package for a fixed period (default **8 weeks**) with **no Paystack**, without changing how paying or trial customers work.
 
+**Beta legal pack (v2):** `docs/exports/vip-beta/BETA_TESTING_TERMS_OF_USE_v2.md` — mock/anonymised data only; privacy & purge; flexible time. Do **not** ask VIP testers for live client/beneficiary data.
+
 ## What “VIP” means in Cloud
 
 | Field | Value |
