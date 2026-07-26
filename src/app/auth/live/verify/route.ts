@@ -4,9 +4,13 @@ import {
   FRAPPE_SID_COOKIE,
   SESSION_MAX_AGE_SECONDS,
   SESSION_ROLE_COOKIE,
+  TL_ACCESS_MODE_COOKIE,
   TL_MODE_COOKIE,
+  TL_ORG_OWNER_COOKIE,
+  TL_TRIAL_PLAN_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_ORG_COOKIE,
 } from "@/lib/auth.constants";
 import {
   TL_AUTH_PENDING_COOKIE,
@@ -20,6 +24,8 @@ import {
 import { sendLoginOtpEmail } from "@/lib/transactionalEmail";
 import { rateLimitAllow, clientIp } from "@/lib/formGuard";
 import { cookieSafeValue } from "@/lib/leadCapture";
+import { getCustomerEntitlementByOwnerEmail } from "@/lib/entitlementCloud";
+import { isVipPilotCustomerName } from "@/types/vipAccess";
 
 /** Complete live login after email OTP. */
 export async function POST(request: Request) {
@@ -63,6 +69,12 @@ export async function POST(request: Request) {
     );
   }
 
+  let complimentaryVip = false;
+  if (!pending.platformOperator) {
+    const ent = await getCustomerEntitlementByOwnerEmail(pending.email);
+    complimentaryVip = isVipPilotCustomerName(ent?.customerName);
+  }
+
   const response = NextResponse.json({
     ok: true,
     user: pending.email,
@@ -70,6 +82,8 @@ export async function POST(request: Request) {
     role: pending.role,
     platformOperator: pending.platformOperator,
     home: pending.home,
+    complimentaryVip,
+    planId: complimentaryVip ? "institutional" : undefined,
   });
 
   const cookieBase = {
@@ -95,6 +109,12 @@ export async function POST(request: Request) {
     cookieSafeValue(pending.email, 120),
     cookieBase,
   );
+  if (complimentaryVip) {
+    response.cookies.set(TL_VIP_ORG_COOKIE, "1", cookieBase);
+    response.cookies.set(TL_ACCESS_MODE_COOKIE, "full", cookieBase);
+    response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);
+    response.cookies.set(TL_TRIAL_PLAN_COOKIE, "institutional", cookieBase);
+  }
   response.cookies.set(TL_AUTH_PENDING_COOKIE, "", {
     path: "/",
     maxAge: 0,

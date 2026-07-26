@@ -4,10 +4,15 @@ import {
   FRAPPE_SID_COOKIE,
   SESSION_MAX_AGE_SECONDS,
   SESSION_ROLE_COOKIE,
+  TL_ACCESS_MODE_COOKIE,
   TL_MODE_COOKIE,
+  TL_ORG_OWNER_COOKIE,
+  TL_TRIAL_PLAN_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_ORG_COOKIE,
 } from "@/lib/auth.constants";
+import { isVipPilotCustomerName } from "@/types/vipAccess";
 import { fetchSessionContext, frappeLogin } from "@/lib/frappeServer";
 import {
   assertLiveOperatorAccess,
@@ -171,6 +176,12 @@ export async function POST(request: Request) {
       return response;
     }
 
+    let complimentaryVip = false;
+    if (!opsGate.ok) {
+      const ent = await getCustomerEntitlementByOwnerEmail(email);
+      complimentaryVip = isVipPilotCustomerName(ent?.customerName);
+    }
+
     const response = NextResponse.json({
       ok: true,
       user: session.user,
@@ -179,6 +190,8 @@ export async function POST(request: Request) {
       roles: session.roles,
       platformOperator: opsGate.ok,
       home,
+      complimentaryVip,
+      planId: complimentaryVip ? "institutional" : undefined,
     });
 
     const cookieBase = {
@@ -204,6 +217,12 @@ export async function POST(request: Request) {
       cookieSafeValue(email, 120),
       cookieBase,
     );
+    if (complimentaryVip) {
+      response.cookies.set(TL_VIP_ORG_COOKIE, "1", cookieBase);
+      response.cookies.set(TL_ACCESS_MODE_COOKIE, "full", cookieBase);
+      response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);
+      response.cookies.set(TL_TRIAL_PLAN_COOKIE, "institutional", cookieBase);
+    }
 
     return response;
   } catch (error) {

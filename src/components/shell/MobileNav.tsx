@@ -7,6 +7,7 @@ import { ShellSignOut } from "@/components/shell/ShellSignOut";
 import { FeedbackDrawer } from "@/components/shell/FeedbackDrawer";
 import { SupportDrawer } from "@/components/shell/SupportDrawer";
 import type { PlanId } from "@/config/plans";
+import type { VipAccessMode } from "@/types/vipAccess";
 import type { UserRole } from "@/types/rbac";
 
 type MobileNavProps = {
@@ -15,6 +16,8 @@ type MobileNavProps = {
   mode: "demo" | "live";
   isGuest?: boolean;
   planId?: PlanId | null;
+  accessMode?: VipAccessMode;
+  isVipOrg?: boolean;
 };
 
 export function MobileNav({
@@ -23,8 +26,11 @@ export function MobileNav({
   mode,
   isGuest = false,
   planId,
+  accessMode = "full",
+  isVipOrg = false,
 }: MobileNavProps) {
   const [open, setOpen] = useState(false);
+  const vipViewer = accessMode === "vip_viewer";
 
   return (
     <div className="border-b border-tl-line bg-tl-surface md:hidden">
@@ -38,6 +44,7 @@ export function MobileNav({
           </Link>
           <p className="text-xs text-tl-ink-muted">
             {userName} · {role}
+            {vipViewer ? " · VIP view" : ""}
           </p>
         </div>
         <button
@@ -52,9 +59,14 @@ export function MobileNav({
       </div>
       {open ? (
         <div id="mobile-nav-panel" className="space-y-3 px-2 pb-4">
-          <AppNav role={role} planId={planId} />
+          <AppNav
+            role={role}
+            planId={planId}
+            accessMode={accessMode}
+            isVipOrg={isVipOrg}
+          />
           <div className="space-y-2 px-2">
-            <FeedbackDrawer variant="light" />
+            {!vipViewer ? <FeedbackDrawer variant="light" /> : null}
             <SupportDrawer
               userName={userName}
               role={role}

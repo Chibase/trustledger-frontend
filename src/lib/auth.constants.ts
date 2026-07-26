@@ -11,6 +11,10 @@ export const TL_ORG_ID_COOKIE = "tl-org-id";
 export const TL_ORG_OWNER_COOKIE = "tl-org-owner";
 export const TL_DESK_TIER_COOKIE = "tl-desk-tier";
 export const TL_DESK_TIER_LOCKED_COOKIE = "tl-desk-tier-locked";
+/** VIP complimentary org (Plan Owner may invite view-only guests). */
+export const TL_VIP_ORG_COOKIE = "tl-vip-org";
+/** `full` | `vip_viewer` — invitees on VIP orgs are vip_viewer (ADR-037). */
+export const TL_ACCESS_MODE_COOKIE = "tl-access-mode";
 
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 

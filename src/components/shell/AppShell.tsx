@@ -7,6 +7,8 @@ import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
 import { FeedbackDrawer } from "@/components/shell/FeedbackDrawer";
 import { SupportDrawer } from "@/components/shell/SupportDrawer";
+import { VipPrintShareLock } from "@/components/vip/VipPrintShareLock";
+import { VipViewerBanner } from "@/components/vip/VipViewerBanner";
 import { ToastProvider } from "@/components/ui/Toast";
 import { PLANS, type PlanId } from "@/config/plans";
 import {
@@ -14,6 +16,7 @@ import {
 } from "@/config/productVersion";
 import type { TlMode } from "@/lib/auth.constants";
 import type { TrialSnapshot } from "@/lib/trial";
+import type { VipAccessMode } from "@/types/vipAccess";
 import type { UserRole } from "@/types/rbac";
 
 type AppShellProps = {
@@ -26,6 +29,8 @@ type AppShellProps = {
   trialPlan?: PlanId;
   trial?: TrialSnapshot;
   isGuest?: boolean;
+  accessMode?: VipAccessMode;
+  isVipOrg?: boolean;
 };
 
 export function AppShell({
@@ -38,10 +43,13 @@ export function AppShell({
   trialPlan,
   trial,
   isGuest = false,
+  accessMode = "full",
+  isVipOrg = false,
 }: AppShellProps) {
   const planLabel = trialPlan ? PLANS[trialPlan].name : null;
   const modeLabel =
     mode === "live" ? "live" : mode === "trial" ? "trial" : "workspace";
+  const vipViewer = accessMode === "vip_viewer";
 
   return (
     <ToastProvider>
@@ -50,6 +58,8 @@ export function AppShell({
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
         ) : null}
         {mode === "trial" ? <TrialPasswordChangePrompt /> : null}
+        {vipViewer ? <VipViewerBanner /> : null}
+        {vipViewer ? <VipPrintShareLock active /> : null}
         {showOperatorBanner ? <OperatorBanner /> : null}
         <MobileNav
           role={role}
@@ -57,6 +67,8 @@ export function AppShell({
           mode={mode === "live" ? "live" : "demo"}
           isGuest={isGuest || mode === "trial"}
           planId={trialPlan}
+          accessMode={accessMode}
+          isVipOrg={isVipOrg}
         />
 
         <div className="flex min-h-[calc(100vh-2.25rem)]">
@@ -80,11 +92,17 @@ export function AppShell({
               <p className="mb-2 px-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-white/40">
                 Workspace
               </p>
-              <AppNav role={role} variant="ink" planId={trialPlan} />
+              <AppNav
+                role={role}
+                variant="ink"
+                planId={trialPlan}
+                accessMode={accessMode}
+                isVipOrg={isVipOrg}
+              />
             </div>
 
             <div className="space-y-3 border-t border-white/10 px-4 py-4">
-              <FeedbackDrawer variant="ink" />
+              {!vipViewer ? <FeedbackDrawer variant="ink" /> : null}
               <SupportDrawer
                 userName={userName}
                 role={role}
@@ -98,6 +116,7 @@ export function AppShell({
                 <p className="mt-0.5 text-xs capitalize text-white/55">
                   {role}
                   {planLabel ? ` · ${planLabel}` : ""}
+                  {vipViewer ? " · VIP view" : ""}
                   {` · ${modeLabel}`}
                   {showOperatorBanner ? " · operator" : ""}
                 </p>

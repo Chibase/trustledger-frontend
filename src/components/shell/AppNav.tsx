@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { PlanId } from "@/config/plans";
 import { hasCapability } from "@/lib/entitlements";
 import type { CapabilityId } from "@/types/entitlements";
+import type { VipAccessMode } from "@/types/vipAccess";
 import type { UserRole } from "@/types/rbac";
 
 export type NavItem = {
@@ -13,6 +14,10 @@ export type NavItem = {
   label: string;
   roles?: UserRole[];
   capability?: CapabilityId;
+  /** Hide from VIP guest viewers (view + comment only). */
+  hideForVipViewer?: boolean;
+  /** Show for VIP orgs / viewers even without a capability. */
+  vipComments?: boolean;
   icon:
     | "dashboard"
     | "projects"
@@ -20,6 +25,7 @@ export type NavItem = {
     | "report"
     | "reports"
     | "settings"
+    | "comments"
     | "geo"
     | "stakeholders"
     | "capture"
@@ -40,6 +46,7 @@ const NAV: NavItem[] = [
     label: "Capture",
     icon: "capture",
     capability: "captureHub",
+    hideForVipViewer: true,
   },
   {
     href: "/app/engagements",
@@ -82,6 +89,7 @@ const NAV: NavItem[] = [
     roles: ["community", "contractor", "admin", "client"],
     icon: "report",
     capability: "issueIntake",
+    hideForVipViewer: true,
   },
   {
     href: "/app/reports",
@@ -89,6 +97,12 @@ const NAV: NavItem[] = [
     roles: ["community", "contractor", "client", "admin"],
     icon: "reports",
     capability: "governanceReports",
+  },
+  {
+    href: "/app/comments",
+    label: "Comments",
+    icon: "comments",
+    vipComments: true,
   },
   { href: "/app/settings", label: "Settings", icon: "settings" },
 ];
@@ -143,6 +157,12 @@ function NavIcon({ name }: { name: NavItem["icon"] }) {
           <path d="M12 3v2M12 19v2M4.9 6.5l1.4 1.4M17.7 16.1l1.4 1.4M3 12h2M19 12h2M4.9 17.5l1.4-1.4M17.7 7.9l1.4-1.4" />
         </svg>
       );
+    case "comments":
+      return (
+        <svg {...common}>
+          <path d="M4 5h16v10H8l-4 4V5Z" />
+        </svg>
+      );
     case "geo":
       return (
         <svg {...common}>
@@ -193,16 +213,29 @@ type AppNavProps = {
   role: UserRole;
   variant?: "light" | "ink";
   planId?: PlanId | null;
+  accessMode?: VipAccessMode;
+  isVipOrg?: boolean;
 };
 
-export function AppNav({ role, variant = "light", planId }: AppNavProps) {
+export function AppNav({
+  role,
+  variant = "light",
+  planId,
+  accessMode = "full",
+  isVipOrg = false,
+}: AppNavProps) {
   const pathname = usePathname();
   const [capsReady, setCapsReady] = useState(false);
   const [allowed, setAllowed] = useState<Record<string, boolean>>({});
+  const vipViewer = accessMode === "vip_viewer";
 
   useEffect(() => {
     const map: Record<string, boolean> = {};
     for (const item of NAV) {
+      if (item.vipComments) {
+        map[item.href] = vipViewer || isVipOrg;
+        continue;
+      }
       map[item.href] = item.capability
         ? hasCapability(item.capability, planId)
         : true;
@@ -212,10 +245,12 @@ export function AppNav({ role, variant = "light", planId }: AppNavProps) {
       setCapsReady(true);
     }, 0);
     return () => window.clearTimeout(handle);
-  }, [planId]);
+  }, [planId, vipViewer, isVipOrg]);
 
   const items = NAV.filter((item) => {
     if (item.roles && !item.roles.includes(role)) return false;
+    if (vipViewer && item.hideForVipViewer) return false;
+    if (item.vipComments && !(vipViewer || isVipOrg)) return false;
     if (!capsReady) return !item.capability || item.capability === "dashboard";
     return allowed[item.href] !== false;
   });

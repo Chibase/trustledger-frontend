@@ -64,12 +64,13 @@ function newId(prefix: string): string {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-/** Ensure a Plan Owner org exists for this purchaser (demo/trial). */
+/** Ensure a Plan Owner org exists for this purchaser (demo/trial/VIP). */
 export function ensureOwnerOrg(input: {
   email: string;
   name: string;
   planId: PlanId;
   organization?: string;
+  complimentaryVip?: boolean;
 }): OrgRecord {
   const email = input.email.trim().toLowerCase();
   const planId = isPlanId(input.planId) ? input.planId : "practitioner";
@@ -77,6 +78,11 @@ export function ensureOwnerOrg(input: {
     (o) => o.ownerEmail === email && o.planId === planId,
   );
   if (existing) {
+    if (input.complimentaryVip && !existing.complimentaryVip) {
+      existing.complimentaryVip = true;
+      if (input.organization?.trim()) existing.name = input.organization.trim();
+      saveOrg(existing);
+    }
     setActiveOrgId(existing.id);
     return existing;
   }
@@ -91,6 +97,7 @@ export function ensureOwnerOrg(input: {
     deskTier: PLAN_OWNER_DESK_TIER[planId],
     isPlanOwner: true,
     deskTierLocked: false,
+    accessMode: "full",
     joinedAt: now,
   };
   const org: OrgRecord = {
@@ -102,9 +109,18 @@ export function ensureOwnerOrg(input: {
     createdAt: now,
     ownerEmail: email,
     ownerName: owner.name,
+    complimentaryVip: Boolean(input.complimentaryVip),
     members: [owner],
     invites: [],
   };
+  saveOrg(org);
+  return org;
+}
+
+export function markOrgComplimentaryVip(orgId: string, vip = true): OrgRecord | null {
+  const org = getOrg(orgId);
+  if (!org) return null;
+  org.complimentaryVip = vip;
   saveOrg(org);
   return org;
 }
@@ -122,7 +138,7 @@ export function createOrgInvite(input: {
   if (!org) return { ok: false, error: "Organisation not found." };
 
   const seats = buildSeatSummary(org);
-  if (!seats.canInvite) {
+  if (!seats.canInvite && !org.complimentaryVip) {
     return {
       ok: false,
       error:
@@ -167,6 +183,8 @@ export function createOrgInvite(input: {
     name: input.name.trim() || email.split("@")[0] || "Invitee",
     role: input.role,
     deskTier: input.deskTier,
+    /** VIP Pilot orgs: every invitee is view + comment only (ADR-037). */
+    accessMode: org.complimentaryVip ? "vip_viewer" : "full",
     projectId: input.projectId,
     projectName: input.projectName,
     status: "pending",
@@ -240,7 +258,9 @@ export function acceptOrgInvite(input: {
   }
   const seats = buildSeatSummary(org);
   // Pending invite already counted in seats; accepting converts pending → member.
+  // VIP complimentary orgs may invite freely (Institutional lens).
   if (
+    !org.complimentaryVip &&
     seats.additionalSeatCap === 0 &&
     (org.planId === "solo" || org.planId === "practitioner")
   ) {
@@ -249,6 +269,10 @@ export function acceptOrgInvite(input: {
       error: "This plan does not allow junior seats.",
     };
   }
+
+  const accessMode =
+    invite.accessMode ||
+    (org.complimentaryVip ? "vip_viewer" : "full");
 
   const now = new Date().toISOString();
   const member: OrgMember = {
@@ -259,6 +283,7 @@ export function acceptOrgInvite(input: {
     deskTier,
     isPlanOwner: false,
     deskTierLocked: true,
+    accessMode,
     projectId: invite.projectId,
     joinedAt: now,
   };

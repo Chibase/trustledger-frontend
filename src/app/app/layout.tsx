@@ -58,6 +58,8 @@ export default async function ProductLayout({
       trialPlan={user.trialPlan}
       isGuest={Boolean(user.isGuest)}
       showOperatorBanner={showOperatorBanner}
+      accessMode={user.accessMode || "full"}
+      isVipOrg={Boolean(user.isVipOrg)}
     >
       {children}
     </AppShell>

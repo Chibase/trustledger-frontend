@@ -46,8 +46,27 @@ function LiveLoginForm() {
   async function finishLogin(payload: {
     home?: string;
     platformOperator?: boolean;
+    complimentaryVip?: boolean;
+    fullName?: string;
+    planId?: string;
   }) {
     document.cookie = "tl-mode=live; path=/; max-age=604800; samesite=lax";
+
+    if (payload.complimentaryVip && !payload.platformOperator) {
+      try {
+        const { bootstrapPlanOwnerOrg } = await import("@/lib/orgSession");
+        bootstrapPlanOwnerOrg({
+          email: usr.trim().toLowerCase(),
+          name: payload.fullName || usr.trim(),
+          planId: "institutional",
+          organization: undefined,
+          mode: "live",
+          complimentaryVip: true,
+        });
+      } catch {
+        /* non-blocking */
+      }
+    }
 
     try {
       const { migrateActiveOrgToCloud } = await import("@/lib/migrateOrgClient");
@@ -103,6 +122,9 @@ function LiveLoginForm() {
         needsVerification?: boolean;
         emailHint?: string;
         message?: string;
+        complimentaryVip?: boolean;
+        fullName?: string;
+        planId?: string;
       };
       if (!response.ok) {
         throw new Error(payload.error || "Login failed");
@@ -138,6 +160,9 @@ function LiveLoginForm() {
         error?: string;
         home?: string;
         platformOperator?: boolean;
+        complimentaryVip?: boolean;
+        fullName?: string;
+        planId?: string;
       };
       if (!response.ok) {
         throw new Error(payload.error || "Verification failed");

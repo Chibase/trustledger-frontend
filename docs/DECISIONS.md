@@ -103,6 +103,19 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
 
+### ADR-037: VIP invitees are view + comment only
+
+- **Date:** 2026-07-26
+- **Status:** Accepted
+- **Context:** Complimentary VIP Pilot Owners need to bring stakeholders into the desk without giving them editable, printable, or shareable rights. Marketing also wants structured guest comments (role, rank, entity, email, optional face) for a future website client-comment wall.
+- **Decision:**
+  1. VIP Plan Owners (`VIP Pilot — …` Customers / `complimentaryVip` orgs) may invite freely.
+  2. Every VIP invitee session is `tl-access-mode=vip_viewer`: view desk modules + **Comments** only; no create/edit of org data; no print/PDF/download/share of desk content.
+  3. Comments require name, email, role on project, rank, entity; optional face photo; optional publish consent for website use. Owners export publishable JSON from `/app/comments`.
+  4. Live VIP Owner login stamps `tl-vip-org` + Institutional plan cookies and bootstraps a browser org so Team / Seats invites work on that device (Cloud User seats still later).
+- **Consequences:** Soft print lock + mutation asserts on org data saves; Report issue nav hidden for viewers. Clipboard/OS share cannot be fully prevented in-browser — policy is stated in the VIP banner.
+- **Alternatives considered:** Block invites entirely (rejected — VIP need guest eyes); full Institutional seats for guests (rejected — leak/print risk); HubSpot form for comments (rejected — brand + ADR-034).
+
 ### ADR-035: Solo entry plan (1 seat, essentials)
 
 - **Date:** 2026-07-24

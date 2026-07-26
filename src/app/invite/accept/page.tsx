@@ -51,11 +51,17 @@ function AcceptInviteForm() {
         role: accepted.member.role,
         deskTier: accepted.member.deskTier,
         planId: accepted.org.planId,
+        accessMode: accepted.member.accessMode || "full",
+        complimentaryVip: Boolean(accepted.org.complimentaryVip),
         // Trial mode = customer workspace (no demo INC-* seed). Browser-local
         // until Cloud User seats; password not persisted to Frappe yet.
         mode: "trial",
       });
-      router.replace("/app/dashboard");
+      router.replace(
+        accepted.member.accessMode === "vip_viewer"
+          ? "/app/comments"
+          : "/app/dashboard",
+      );
       router.refresh();
     } finally {
       setBusy(false);
@@ -112,6 +118,12 @@ function AcceptInviteForm() {
         <strong className="text-tl-ink">{DESK_TIER_LABELS[invite.deskTier]}</strong>{" "}
         ({invite.role}). Your Plan Owner sets seats and desk exposure.
       </p>
+      {org.complimentaryVip || invite.accessMode === "vip_viewer" ? (
+        <p className="rounded-md border border-tl-amber/40 bg-tl-amber/10 px-3 py-2 text-sm text-tl-ink">
+          This is a VIP guest seat: <strong>view and comment only</strong>. You
+          cannot edit desk data, print, download, or share what you view.
+        </p>
+      ) : null}
       <label className="block text-sm">
         <span className="mb-1 block font-medium">Work email</span>
         <input
