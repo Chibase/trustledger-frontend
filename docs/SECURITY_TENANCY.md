@@ -121,6 +121,8 @@ Add these rows to pricing / WP / `/` packaging (honest current → target):
 
 Do **not** publish Isolation prices until a Frappe Cloud quote is locked — sell as “from …” or sales-scoped.
 
+**When a client asks for a private bench:** follow `docs/PRIVATE_BENCH_REQUEST.md` (intake → quote → contract → provision → point frontend → run).
+
 ---
 
 ## 5. Client-facing one-liners (safe)

@@ -211,7 +211,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **SEC-1** | Hard User Permissions | Frappe per-Customer permissions + A≠B smoke (L2) | Planned |
 | **SEC-2** | Purge + subprocessors | Runbook + public subprocessors note (L3/L4 lite) | Planned |
 | **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | Planned |
-| **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial | Planned |
+| **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
 | **SEC-5** | Cloud invitee seats | Replace browser-only junior seats | Planned |
 
 ## 8. Quality gates (every packet)

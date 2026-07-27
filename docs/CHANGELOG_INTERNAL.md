@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-27 — Private bench request playbook
+
+- `docs/PRIVATE_BENCH_REQUEST.md`: client-funded private Frappe bench — intake, quote, contract, provision, frontend pointing, run/offboard.
+- Linked from SECURITY_TENANCY (L5); SEC-4 playbook marked done pending live Cloud quote.
+
 ## 2026-07-27 — SEC-0 / ADR-038: Multi-tenant security ladder on plans
 
 - `docs/SECURITY_TENANCY.md`: L1–L5 ladder (identity → hard permissions → ops privacy → DPA → dedicated isolation).
