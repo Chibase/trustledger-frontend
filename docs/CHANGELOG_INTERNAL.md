@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-27 — EM-1: Ops push for bulk email templates
+
+- `src/lib/emailMarketingSetup.ts` + `POST /api/frappe/ensure-email-marketing` — probe Desk (Email Account, EDS app) and upsert TL Email Templates + empty Email Groups from `docs/exports/email-marketing/`.
+- Ops Accounts panel: Probe Desk / Push templates.
+- Human-only remainder: `docs/exports/email-marketing/HUMAN_ONLY.md` (EDS uninstall, sales@ password + Send Test, DNS, CSV import, Newsletter send).
+
 ## 2026-07-27 — Pricing: optional privacy extras + foldable comparison
 
 - Home `#pricing`: short TrustLedger data-protection blurb; foldable Compare plans matrix; optional privacy layers (Trust Pack, private cloud workspace, support-access visibility).

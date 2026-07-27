@@ -122,14 +122,18 @@ Suggested groups: `TL Warm Contacts`, `TL Quote Pipeline`, `TL Trial Invites`.
 
 ---
 
-## 3. First campaign checklist (today)
+## 3. First campaign checklist
 
-- [ ] Email Domain + Email Account green (test mail received).
-- [ ] Paste `01-soft-launch.html` into an Email Template; send **test to yourself**.
-- [ ] Build Email Group from contacts you have permission to email.
-- [ ] Soft-launch Newsletter / Campaign with UTM links.
-- [ ] Spot-check: CTA opens TrustLedger Vercel (not HubSpot / not Google mailto).
-- [ ] Log campaign name + date on a CRM Lead note or Ops activity for later.
+**Human-only steps (secrets / Cloud UI):** `docs/exports/email-marketing/HUMAN_ONLY.md`
+
+**Agent / Ops (no mailbox password):**
+1. Deploy with `FRAPPE_API_KEY` + `FRAPPE_API_SECRET`.
+2. Platform Operator → `/ops/accounts` → **Bulk email marketing** → Probe Desk → **Push templates**.
+   Or: `POST /api/frappe/ensure-email-marketing` with `{ "dryRun": false }` and header
+   `x-tl-email-marketing-setup: <EMAIL_MARKETING_SETUP_TOKEN or CRM_SETUP_TOKEN>`.
+3. Confirm templates `TL Soft Launch` (+ trial / quote / assessment) and groups exist in Desk.
+
+Then complete HUMAN_ONLY (EDS uninstall if needed, sales@ Send Test, DNS, import list, Newsletter send).
 
 ---
 
@@ -158,4 +162,4 @@ Suggested groups: `TL Warm Contacts`, `TL Quote Pipeline`, `TL Trial Invites`.
 - Brand tokens: `docs/DESIGN_SYSTEM.md`
 - Acquisition path: `docs/HS_CUTOVER.md` · `docs/WEBWAY_CUTOVER.md`
 - Lead sources: `docs/CRM_VIEWS.md`
-- HTML files: `docs/exports/email-marketing/`
+- Related: `docs/exports/email-marketing/HUMAN_ONLY.md` · Ops push `/api/frappe/ensure-email-marketing`
