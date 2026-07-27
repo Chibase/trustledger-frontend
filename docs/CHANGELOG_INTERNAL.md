@@ -5,6 +5,7 @@
 - Home `#pricing`: short TrustLedger data-protection blurb; foldable Compare plans matrix; optional privacy layers (Trust Pack, private cloud workspace, support-access visibility).
 - Client copy uses **cloud** / TrustLedger only (no Frappe/Vercel on marketing).
 - Contact form prefills from `?plan=` / `?extras=`. Config: `src/config/planComparison.ts`.
+- WordPress paste: same blurb + foldable comparison + privacy extras in `docs/wordpress/page-home.txt` (+ CSS patch). Re-paste home + append CSS, then purge SpeedyCache.
 
 ## 2026-07-27 — Private bench request playbook
 
