@@ -66,12 +66,12 @@ Not a magic “privacy shell.” It means, in order:
 
 | Option | What client buys | Cost driver |
 |--------|------------------|-------------|
-| Dedicated Frappe **site** / DB | Stronger “our data isn’t in the shared pool” story | Frappe Cloud plan tier |
+| Dedicated **cloud site** / DB (internal: private bench) | Stronger “our data isn’t in the shared pool” story | Cloud plan tier |
 | Region / residency preference | Procurement comfort | Host pricing |
 | Named success + security contact | Human assurance | Staff time |
 | Custom retention / private networking (later) | Enterprise RFPs | High |
 
-**Cost:** Yes — **recurring**. This is why Institutional is sales-scoped and should stay **Custom**, with an explicit **Trust & Isolation** line item.
+**Cost:** Yes — **recurring**. This is why Institutional is sales-scoped and should stay **Custom**, with an explicit **Trust & Isolation** line item. Client copy: “private cloud workspace.”
 
 ---
 
@@ -115,26 +115,31 @@ Add these rows to pricing / WP / `/` packaging (honest current → target):
 | Offer | Who | Pricing idea |
 |-------|-----|----------------|
 | Shared tenancy (default) | Solo → Project | Included in list price |
-| **Trust Pack** (DPA + purge SLA + security FAQ) | Project | Included or +R1–2k/mo |
-| **Isolation** (dedicated Frappe site) | Project add-on / Institutional | **+R8–25k/mo** band (host-driven — confirm Frappe Cloud quote) |
+| **Trust Pack** (DPA + purge SLA + security FAQ) | Practitioner+ on request; Project optional | From ~R1.5k/mo or included in Institutional scoping |
+| **Private cloud workspace** (Isolation) | Project add-on / Institutional | **From ~R8k/mo** band (host-driven — confirm cloud quote) |
+| Support access visibility | Project / Institutional optional | From ~R900/mo |
 | Institutional programme | Public / multi-entity | Custom = platform + isolation + success |
 
-Do **not** publish Isolation prices until a Frappe Cloud quote is locked — sell as “from …” or sales-scoped.
+Do **not** lock Isolation list prices until a cloud host quote is locked — sell as “from …” or sales-scoped on `/#pricing`.
 
 **When a client asks for a private bench:** follow `docs/PRIVATE_BENCH_REQUEST.md` (intake → quote → contract → provision → point frontend → run).
 
 ---
 
-## 5. Client-facing one-liners (safe)
+## 5. Client-facing language (safe)
+
+**Brand rule (marketing / pricing / contact):** Say **TrustLedger** only. For hosting, say **“cloud”** or **“private cloud workspace”** — do **not** name Frappe, Vercel, or other subprocessors on public pricing. Internal docs and DPA annexes may list subprocessors.
+
+**Home pricing (`HomePricing`):** Short data-protection blurb + foldable plan comparison + optional privacy extras (Trust Pack, private cloud workspace, support-access visibility). Most depth is opt-in; base workspace protections stay included.
 
 **Now (truthful):**  
-“Your organisation is a separate TrustLedger Customer. Other clients cannot open your desk. Operators who support the platform are allowlisted. We don’t sell your content or use it to train external AI models. Beta testers use mock or anonymised data; you can request deletion when access ends.”
+“Your organisation is a separate TrustLedger workspace. Other clients cannot open your desk. Operators who support the platform are allowlisted. We don’t sell your content or use it to train external AI models. Beta testers use mock or anonymised data; you can request deletion when access ends.”
 
 **After L2 ships:**  
 “Access is enforced with per-customer permissions on the server — not only in the app screens.”
 
 **Institutional / Isolation:**  
-“For programmes that require it, we can run your workspace on a dedicated site so tenancy isn’t only logical.”
+“For programmes that require it, we can run your desk on a private cloud workspace so tenancy isn’t only logical.”
 
 **Never say until true:** SOC 2 certified, air-gapped, “military-grade encryption shells,” “your data never touches any processor.”
 

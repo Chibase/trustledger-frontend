@@ -112,8 +112,9 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   1. Adopt the ladder in `docs/SECURITY_TENANCY.md`: L1 tenant identity → L2 hard permissions → L3 ops privacy → L4 DPA/assurance → L5 dedicated isolation.
   2. **L2 (hard tenancy)** is a product credibility baseline for live paid plans over time — not a Solo upsell forever.
   3. **L4 Trust Pack** (DPA, subprocessors, purge SLA) is sold / included from **Project** upward; Institutional always.
-  4. **L5 Isolation** (dedicated Frappe site / residency options) is **Institutional** (or paid Project add-on once quoted) — recurring cost recovered in plan price.
+  4. **L5 Isolation** (dedicated cloud site / residency options) is **Institutional** (or paid Project add-on once quoted) — recurring cost recovered in plan price.
   5. Sales language must match shipped controls; VIP beta continues mock/anonymised data (TOU v2).
+  6. **Client-facing copy** names **TrustLedger** only; hosting is “cloud” / “private cloud workspace” (no Frappe/Vercel on marketing). Privacy depth beyond baseline is **optional extras** with a short protection blurb and foldable plan comparison on home pricing.
 - **Consequences:** Pricing pages and ACCESS_MODEL gain explicit Trust & tenancy rows. SEC-1…SEC-5 packets schedule the climb. Isolation prices stay sales-scoped until host quotes lock.
 - **Alternatives considered:** Charge all plans for dedicated sites (rejected — kills Solo/Practitioner); claim SOC2 before starting (rejected); stay silent on security in packaging (rejected — loses trust-sensitive buyers).
 

@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-27 — Pricing: optional privacy extras + foldable comparison
+
+- Home `#pricing`: short TrustLedger data-protection blurb; foldable Compare plans matrix; optional privacy layers (Trust Pack, private cloud workspace, support-access visibility).
+- Client copy uses **cloud** / TrustLedger only (no Frappe/Vercel on marketing).
+- Contact form prefills from `?plan=` / `?extras=`. Config: `src/config/planComparison.ts`.
+
 ## 2026-07-27 — Private bench request playbook
 
 - `docs/PRIVATE_BENCH_REQUEST.md`: client-funded private Frappe bench — intake, quote, contract, provision, frontend pointing, run/offboard.
