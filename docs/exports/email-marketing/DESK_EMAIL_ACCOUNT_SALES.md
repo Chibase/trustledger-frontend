@@ -24,7 +24,9 @@ If Desk says Email Delivery Service is installed and blocks this account:
 2. [ ] Enable **Outgoing** + **Default Outgoing**.
 3. [ ] (Optional) Enable **Incoming** IMAP 993.
 4. [ ] **Send Test** to yourself — must arrive.
-5. [ ] Email Group **TL Warm Contacts** → import cleaned CSV when available.
-6. [ ] Newsletter → paste `01-soft-launch.html` → test → send.
+5. [ ] Ops `/ops/accounts` → **Push templates** (or paste HTML manually).
+6. [ ] Email Group **TL Warm Contacts** → import cleaned CSV when available.
+7. [ ] Newsletter → **TL Soft Launch** → test → send.
 
+Human-only summary: `HUMAN_ONLY.md`  
 Full runbook: `docs/FRAPPE_EMAIL_MARKETING.md`.

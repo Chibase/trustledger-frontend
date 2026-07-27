@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EmailMarketingPanel } from "@/components/ops/EmailMarketingPanel";
 import { ProvisionOwnerPanel } from "@/components/ops/ProvisionOwnerPanel";
 import { VipAccessPanel } from "@/components/ops/VipAccessPanel";
 import { getCurrentUser } from "@/lib/auth";
@@ -55,6 +56,7 @@ export default async function OpsAccountsPage() {
       {isOperator ? (
         <>
           <VipAccessPanel isOperator />
+          <EmailMarketingPanel />
           <ProvisionOwnerPanel
             isOperator
             defaultEmail={user?.email}

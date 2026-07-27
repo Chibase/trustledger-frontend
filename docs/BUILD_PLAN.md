@@ -195,7 +195,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| **EM-1** | Branded bulk email | TrustLedger HTML templates + Desk runbook (`docs/FRAPPE_EMAIL_MARKETING.md`); Frappe Email Domain/Newsletter — not HubSpot / not Resend blasts | **Active** |
+| **EM-1** | Branded bulk email | TrustLedger HTML + Desk runbook + Ops push (`ensure-email-marketing`); human: EDS uninstall / sales@ SMTP / DNS / list / send | **Agent done** — waiting HUMAN_ONLY |
 
 ### Commercial packaging (ACTIVE)
 
@@ -259,7 +259,7 @@ src/
 | 2026-07-23 | PLATFORM_STRATEGIC_BRIEF — living brief for plans, agents, evaluation |
 | 2026-07-23 | HS-1 active — cut HubSpot; Frappe CRM Lead acquisition SoT (ADR-034) |
 | 2026-07-24 | ADR-034 clarified Frappe-only; WEBWAY_CUTOVER checklist; HS-2 active |
-| 2026-07-24 | EM-1 — branded Frappe bulk email templates + FRAPPE_EMAIL_MARKETING |
+| 2026-07-27 | EM-1 — Ops probe/push for Email Templates + HUMAN_ONLY Desk checklist |
 | 2026-07-24 | CP-1 / ADR-035 — Solo entry plan (R1,999, 1 seat, essentials) |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
