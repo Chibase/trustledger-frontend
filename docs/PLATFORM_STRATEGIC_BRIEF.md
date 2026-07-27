@@ -257,10 +257,11 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 
 1. **Solo** = survive and professionalise — personal grievance desk, 1 seat, no AI / SI. Entry for lone consultants.
 2. **Practitioner** = earn with AI Assist + light governance. Do **not** promise full SI registry as included.
-3. **Project** = default “real SRM” SKU — desk + Stakeholder Intelligence modules + junior seats.
-4. **Institutional** = Project capabilities + board pack + commercial/custom (sales-led).
+3. **Project** = default “real SRM” SKU — desk + Stakeholder Intelligence modules + junior seats; **Trust Pack** (DPA / purge SLA) target.
+4. **Institutional** = Project capabilities + board pack + **Isolation / dedicated tenancy options** + commercial/custom (sales-led).
 5. Keep **add-ons** for upsell; do not silently unlock Institutional-only toggles on lower plans (ADR-024).
-6. Revisit prices only with evidence from Ops Finance + win/loss — matrix above is the feature switchboard.
+6. Multi-tenant security ladder (L1–L5): `docs/SECURITY_TENANCY.md` (ADR-038). Do not claim SOC2 / dedicated shells until shipped.
+7. Revisit prices only with evidence from Ops Finance + win/loss — matrix above is the feature switchboard.
 
 ### 5.4 What each plan should *not* include in the box (yet)
 

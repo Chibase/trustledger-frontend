@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-27 — SEC-0 / ADR-038: Multi-tenant security ladder on plans
+
+- `docs/SECURITY_TENANCY.md`: L1–L5 ladder (identity → hard permissions → ops privacy → DPA → dedicated isolation).
+- Package Trust Pack on Project+; Isolation / dedicated site on Institutional (cost-recovered); L2 baseline not a Solo tax.
+- ACCESS_MODEL + PLATFORM_STRATEGIC_BRIEF updated; SEC-1…SEC-5 planned.
+
 ## 2026-07-24 — CP-1 / ADR-035: Solo entry plan
 
 - New commercial plan **`solo`** — R1,999/mo, 1 seat, 1 project, 10 MB, no AI Assist / SI / governance packs.
