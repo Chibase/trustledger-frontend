@@ -3,6 +3,9 @@ import {
   formatPlanPrice,
   getPaystackPlans,
 } from "@/lib/paystackPlans";
+import { DATA_PROTECTION_BLURB } from "@/config/planComparison";
+import { HomePricingComparison } from "@/components/marketing/HomePricingComparison";
+import { HomePricingPrivacyExtras } from "@/components/marketing/HomePricingPrivacyExtras";
 
 export function HomePricing() {
   const plans = getPaystackPlans();
@@ -60,7 +63,9 @@ export function HomePricing() {
                   {formatPlanPrice(plan)}
                 </p>
                 <p className="mt-1 text-xs text-tl-ink-muted">
-                  {plan.selfServe ? "14-day trial available" : "Scoped to your assurance needs"}
+                  {plan.selfServe
+                    ? "14-day trial available"
+                    : "Scoped to your assurance needs"}
                 </p>
                 <div className="mt-6 flex flex-1 flex-col justify-end gap-2">
                   <Link
@@ -86,6 +91,13 @@ export function HomePricing() {
             );
           })}
         </div>
+
+        <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-tl-ink-muted">
+          {DATA_PROTECTION_BLURB}
+        </p>
+
+        <HomePricingComparison />
+        <HomePricingPrivacyExtras />
       </div>
     </section>
   );
