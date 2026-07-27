@@ -33,3 +33,46 @@
   text-underline-offset: 3px;
 }
 .nav-actions { gap: 1rem; }
+
+/* Pricing — foldable comparison (SEC-0 / ADR-038) */
+.pricing-compare { margin-top: 2.5rem; }
+.pricing-compare__item { margin-top: 0.75rem; }
+.pricing-compare__scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.pricing-compare__table {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  text-align: left;
+}
+.pricing-compare__table th,
+.pricing-compare__table td {
+  padding: 0.5rem 0.625rem;
+  border-top: 1px solid var(--color-slate-200, #e2e8f0);
+  vertical-align: top;
+}
+.pricing-compare__table thead th {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-slate-500, #64748b);
+  font-weight: 600;
+  border-top: 0;
+}
+.pricing-compare__table tbody th {
+  font-weight: 500;
+  color: var(--color-slate-800, #1e293b);
+  max-width: 14rem;
+}
+.pricing-compare__table td {
+  text-align: center;
+  color: var(--color-slate-700, #334155);
+}
+.pricing-extras__item::after {
+  content: "";
+  display: table;
+  clear: both;
+}
