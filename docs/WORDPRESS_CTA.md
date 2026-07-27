@@ -30,6 +30,8 @@ Product (Vercel): `https://trustledger-frontend-pi.vercel.app`
 
 See `docs/wordpress/PASTE_PLANS.md`. After each CTA change, paste `page-home.txt` (and Assessment if live), then purge SpeedyCache.
 
+**Privacy extras (SEC-0):** `#pricing` in `page-home.txt` includes the TrustLedger data-protection blurb, foldable plan comparison, and optional privacy layer CTAs (Trust Pack / private cloud / support-access visibility). Append `home-conversion-css-patch.css` for comparison table styles. Client copy says **cloud**, not host brand names.
+
 **Contact fix (if footer still opens mail/search):** replace every footer/nav Contact `mailto:info@trustledger.co.za` (or relative `/contact`) with the absolute Contact URL above, or re-paste full `page-home.txt`. Purge SpeedyCache after.
 
 **Do not** paste HubSpot Free form embeds on trustledger.co.za.

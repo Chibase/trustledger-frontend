@@ -227,6 +227,123 @@
         <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_institutional" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Talk to sales</a>
       </article>
     </div>
+
+    <p class="pricing-trust-blurb" style="margin:2.5rem auto 0;max-width:40rem;text-align:center;font-size:0.9375rem;color:var(--color-slate-600,#475569)">
+      Each organisation runs in its own TrustLedger workspace. Connections are encrypted, support access is allowlisted, and your content is not used to train external AI models. Optional layers — Trust Pack, private cloud workspace, and support-access visibility — add contract and isolation depth when procurement needs them.
+    </p>
+
+    <div class="pricing-compare" style="margin-top:2.5rem">
+      <div class="section-header section-header--center">
+        <h3 class="section-header__title" style="font-size:1.25rem">Compare plans</h3>
+        <p class="section-header__desc">Click a section to learn more. Base protections are included; deeper privacy is optional.</p>
+      </div>
+
+      <details class="pricing-compare__item faq__item">
+        <summary class="faq__button">Desk &amp; delivery</summary>
+        <div class="faq__panel pricing-compare__panel">
+          <div class="pricing-compare__scroll">
+            <table class="pricing-compare__table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Solo</th>
+                  <th>Practitioner</th>
+                  <th>Project</th>
+                  <th>Institutional</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Seats</th><td>1 (you)</td><td>1 (you)</td><td>Owner + juniors</td><td>Custom</td></tr>
+                <tr><th scope="row">Active projects</th><td>1</td><td>Up to 2</td><td>Multi-project</td><td>Programme-scale</td></tr>
+                <tr><th scope="row">Grievance / incident desk</th><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+                <tr><th scope="row">AI Assist (suggest → apply → save)</th><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+                <tr><th scope="row">Stakeholder Intelligence</th><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
+                <tr><th scope="row">Report packs</th><td>Monthly</td><td>Monthly + light governance</td><td>Monthly + executive</td><td>Full incl. board</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+
+      <details class="pricing-compare__item faq__item">
+        <summary class="faq__button">Trust &amp; data protection (included)</summary>
+        <div class="faq__panel pricing-compare__panel">
+          <div class="pricing-compare__scroll">
+            <table class="pricing-compare__table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Solo</th>
+                  <th>Practitioner</th>
+                  <th>Project</th>
+                  <th>Institutional</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Separate TrustLedger workspace</th><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+                <tr><th scope="row">Encrypted connection</th><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+                <tr><th scope="row">Content not used to train external AI</th><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+                <tr><th scope="row">Platform support access allowlisted</th><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+
+      <details class="pricing-compare__item faq__item">
+        <summary class="faq__button">Optional privacy layers (add-on)</summary>
+        <div class="faq__panel pricing-compare__panel">
+          <div class="pricing-compare__scroll">
+            <table class="pricing-compare__table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Solo</th>
+                  <th>Practitioner</th>
+                  <th>Project</th>
+                  <th>Institutional</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Trust Pack — processing terms, subprocessors note, purge SLA</th><td>On request</td><td>On request</td><td>Optional</td><td>Included in scoping</td></tr>
+                <tr><th scope="row">Private cloud workspace — dedicated site for your organisation</th><td>—</td><td>—</td><td>Optional</td><td>Optional / typical</td></tr>
+                <tr><th scope="row">Enhanced support-access visibility</th><td>—</td><td>—</td><td>Optional</td><td>Optional</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="pricing-extras" style="margin-top:2.5rem">
+      <div class="section-header section-header--center">
+        <h3 class="section-header__title" style="font-size:1.25rem">Optional privacy layers</h3>
+        <p class="section-header__desc">Most privacy depth is optional — add only what your clients or funders require. Request via Contact; we reply with options for your plan.</p>
+      </div>
+      <ul class="pricing-extras__list" style="list-style:none;padding:0;margin:1.5rem auto 0;max-width:40rem;display:grid;gap:0.75rem">
+        <li class="pricing-extras__item" style="border:1px solid var(--color-slate-200,#e2e8f0);border-radius:0.5rem;padding:1rem;background:#fff">
+          <strong>Trust Pack</strong>
+          <span style="float:right;font-size:0.75rem;color:var(--color-slate-500,#64748b)">From R1,500/mo</span>
+          <p style="margin:0.5rem 0 0;font-size:0.875rem;color:var(--color-slate-600,#475569)">Written processing terms, who supports your workspace, and a clear purge timeline when access ends.</p>
+          <p style="margin:0.75rem 0 0"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=privacy_extras&amp;plan=project&amp;extras=trust_pack" target="_blank" rel="noopener noreferrer">Request Trust Pack</a></p>
+        </li>
+        <li class="pricing-extras__item" style="border:1px solid var(--color-slate-200,#e2e8f0);border-radius:0.5rem;padding:1rem;background:#fff">
+          <strong>Private cloud workspace</strong>
+          <span style="float:right;font-size:0.75rem;color:var(--color-slate-500,#64748b)">From R8,000/mo</span>
+          <p style="margin:0.5rem 0 0;font-size:0.875rem;color:var(--color-slate-600,#475569)">A dedicated cloud site for your organisation’s desk data — at your cost — with TrustLedger pointed only at that workspace.</p>
+          <p style="margin:0.75rem 0 0"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=privacy_extras&amp;plan=project&amp;extras=isolation" target="_blank" rel="noopener noreferrer">Request private cloud</a></p>
+        </li>
+        <li class="pricing-extras__item" style="border:1px solid var(--color-slate-200,#e2e8f0);border-radius:0.5rem;padding:1rem;background:#fff">
+          <strong>Support access visibility</strong>
+          <span style="float:right;font-size:0.75rem;color:var(--color-slate-500,#64748b)">From R900/mo</span>
+          <p style="margin:0.5rem 0 0;font-size:0.875rem;color:var(--color-slate-600,#475569)">Clearer logging when TrustLedger support opens your workspace for break-glass help.</p>
+          <p style="margin:0.75rem 0 0"><a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=privacy_extras&amp;plan=project&amp;extras=audit_visibility" target="_blank" rel="noopener noreferrer">Request access visibility</a></p>
+        </li>
+      </ul>
+      <p style="margin-top:1.25rem;text-align:center">
+        <a class="btn btn--primary" href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=privacy_extras&amp;plan=project" target="_blank" rel="noopener noreferrer">Ask about privacy options</a>
+      </p>
+    </div>
   </div>
 </section>
 

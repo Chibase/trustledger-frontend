@@ -31,10 +31,13 @@ Never put Paystack secret/public keys in WordPress.
    - Project Subscribe → Paystack checkout for Project
    - Trial links → `/trial` with plan pre-selected
    - Institutional → contact / sales
+   - Foldable Compare plans sections expand
+   - Privacy layer CTAs → Contact with `extras=` prefill
 
 ## Source files
 
-- `docs/wordpress/page-home.txt` — pricing cards + CTAs
+- `docs/wordpress/page-home.txt` — pricing cards + CTAs + data-protection blurb + foldable Compare plans + optional privacy layers
+- `docs/wordpress/home-conversion-css-patch.css` — append for comparison table styles
 - `docs/wordpress/page-assessment.txt` — nav / footer CTAs
 - `docs/WORDPRESS_CTA.md` — journey table
 - `docs/SOLO_PLAN.md` — Solo packaging (ADR-035)
