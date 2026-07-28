@@ -6,7 +6,7 @@ Generated Word (`.docx`) and PDF copies of key TrustLedger docs for offline shar
 
 Folder: [`taskade/`](./taskade/)
 
-Interactive Feature Showcase prompts (not a WP homepage clone), public agent knowledge, Free→Pro checklist. Aligned to `PLATFORM_STRATEGIC_BRIEF.md` §5–§6. WP owns marketing/pricing; Taskade owns hands-on capability exploration.
+Interactive Feature Showcase + **presentation report dashboard** prompts (not a WP homepage clone). WP owns marketing/pricing; Taskade owns hands-on capability exploration and board-style analytics storytelling.
 
 ## Platform brief pack
 

@@ -38,8 +38,9 @@ GUIDE THE SHOWCASE
 - Readiness scoring: send to /assessment (different tool).
 
 CONVERSATION STARTERS
-- How does the walkthrough work?
-- Show me Stakeholder Intelligence
+- Show me the presentation dashboard
+- How did trust grow from baseline?
+- Trace the incident to closure
 - How does AI Assist work?
 - Which capabilities are on Solo vs Project?
 - Take me to a real trial
