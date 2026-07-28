@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-28 — Taskade landing + public agent paste pack
+
+- `docs/exports/taskade/`: Genesis SaaS landing prompt, public agent system/knowledge pack, Free→Pro publish & automation checklist.
+- Aligned to PLATFORM_STRATEGIC_BRIEF §5–§6 (plans, approved lines, never-say). CTAs point at Production Vercel paths; leads stay Frappe CRM Lead (ADR-034).
+
 ## 2026-07-27 — Pricing: optional privacy extras + foldable comparison
 
 - Home `#pricing`: short TrustLedger data-protection blurb; foldable Compare plans matrix; optional privacy layers (Trust Pack, private cloud workspace, support-access visibility).

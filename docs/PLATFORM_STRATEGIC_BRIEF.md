@@ -312,7 +312,12 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 | “Mobile?” | Responsive web in the browser; no separate App Store app yet. |
 | “Is GO LIVE done?” | Yes for operational grade (2026-07-23). Continuous improvement continues on SI depth and data feeds. |
 
-### 6.5 Internal agents (coding / ops)
+### 6.5 Taskade public surface (optional acquisition layer)
+
+Paste pack: `docs/exports/taskade/` — Genesis landing prompt, public agent knowledge, Free→Pro checklist.  
+Taskade is for campaign landing + Q&A only; product SoT remains Vercel + `app.trustledger.co.za`. Do not dual-write CRM outside Frappe Lead (ADR-034).
+
+### 6.6 Internal agents (coding / ops)
 
 Follow `AGENTS.md`: active packet only; DECISIONS locked; Design System; lint+build+changelog; Cloud host only; AI keys server-side; customer lists never mock-bleed.
 
