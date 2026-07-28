@@ -2,11 +2,11 @@
 
 Generated Word (`.docx`) and PDF copies of key TrustLedger docs for offline sharing.
 
-## Taskade pack (landing + public agent)
+## Taskade pack (Feature Showcase + public agent)
 
 Folder: [`taskade/`](./taskade/)
 
-Paste-ready Genesis landing prompt, public agent knowledge, and Free→Pro publish checklist. Aligned to `PLATFORM_STRATEGIC_BRIEF.md` §5–§6. Does not replace WordPress CTAs or the Vercel product.
+Interactive Feature Showcase prompts (not a WP homepage clone), public agent knowledge, Free→Pro checklist. Aligned to `PLATFORM_STRATEGIC_BRIEF.md` §5–§6. WP owns marketing/pricing; Taskade owns hands-on capability exploration.
 
 ## Platform brief pack
 
