@@ -1,9 +1,14 @@
 # Internal changelog
 
-## 2026-07-28 — Taskade landing + public agent paste pack
+## 2026-07-28 — Taskade Feature Showcase pack (not a WP clone)
 
-- `docs/exports/taskade/`: Genesis SaaS landing prompt, public agent system/knowledge pack, Free→Pro publish & automation checklist.
-- Aligned to PLATFORM_STRATEGIC_BRIEF §5–§6 (plans, approved lines, never-say). CTAs point at Production Vercel paths; leads stay Frappe CRM Lead (ADR-034).
+- `docs/exports/taskade/`: Genesis prompts for an **interactive Feature Showcase** (walkthrough, capability map, SI chain, role lens, plan fitness) — explicitly not a second marketing homepage.
+- WP / Vercel `/` keep story+pricing; `/product` keeps static education; Taskade owns hands-on capability exploration.
+- Public agent + Free→Pro checklist; CTAs to Production; Frappe CRM Lead (ADR-034).
+
+## 2026-07-28 — Taskade landing + public agent paste pack (superseded framing)
+
+- Initial pack framed as SaaS landing; reframed same day to Feature Showcase to avoid WP duplication.
 
 ## 2026-07-27 — Pricing: optional privacy extras + foldable comparison
 

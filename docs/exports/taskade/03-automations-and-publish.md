@@ -1,89 +1,78 @@
-# Taskade publish, automations, Free → Pro checklist
+# Taskade Feature Showcase — publish & Free→Pro
 
-## A. Publish the landing app
+## Positioning (read first)
 
-1. Open the generated TrustLedger landing Space.
-2. **Publish** → visibility:
-   - **Secret** first (internal review link).
-   - **Public** after copy sign-off; optionally submit to Community Gallery later (optional — brand preference may be to stay Secret/Public without gallery).
-3. Configure:
-   - Page title: `TrustLedger — Resolution you can audit`
-   - Description: grievance + Stakeholder Intelligence one-liner (see landing prompt).
-   - Site name: `TrustLedger`
-   - Search indexing: off until Public + approved.
-4. Embed the public agent widget (bottom-right).
-5. Share Secret link in Ops / sales Slack (or email) for a 10-minute copy review against `PLATFORM_STRATEGIC_BRIEF` §6.
+| Surface | Job |
+|---------|-----|
+| WordPress `trustledger.co.za` | Marketing story, sectors, **pricing**, conversion CTAs |
+| Vercel `/` | Parallel marketing home |
+| Vercel `/product` | Static feature education |
+| Vercel `/assessment` | 16-question SRM readiness diagnostic |
+| **Taskade Feature Showcase** | **Interactive** walkthrough + capability map + SI chain + role lens + short plan fitness |
 
-### Free vs Pro publish notes
+If the Taskade app looks like another TrustLedger homepage, **delete the brochure sections** and rebuild from `01-landing-genesis-prompt.md` using a dashboard/portal-style template — not SaaS Landing Page.
 
-| Need | Free | Pro ($10/mo annual) |
-|------|:----:|:-------------------:|
-| Live hosted landing | ✓ | ✓ |
-| Visitor traffic without burning credits | ✓ | ✓ |
-| Remove “Powered by Taskade” | — | ✓ |
-| Unlimited agents / apps | — | ✓ |
-| Password-protected prospect portal | limited | ✓ |
-| Custom domain `app.yoursite.com` | — | Business+ |
+## A. Publish
 
-Keep CTAs on Vercel even if the landing lives on `*.taskade.app`.
+1. Generate from the Feature Showcase prompt (or rebuild existing app with that prompt as “replace marketing page with interactive showcase”).
+2. **Publish → Secret** for review.
+3. Title: `TrustLedger Feature Showcase`
+4. Meta: interactive walkthrough — not a live workspace.
+5. Consider **noindex** so WP keeps SEO for the brand homepage.
+6. Embed public agent widget.
+7. Review checklist:
+   - [ ] No full pricing wall / sector grid / marketing FAQ
+   - [ ] AI step requires Apply before Save
+   - [ ] Illustrative labels visible
+   - [ ] Exits to /trial /product /assessment /pay /quote /contact
+   - [ ] No INC-* as “your workspace”
 
-## B. Automations (stay within Free: max 3)
+## B. Automations (Free: max 3)
 
-Suggested Free set:
+1. Optional: showcase “Request walkthrough” → email you (`source=taskade_showcase`).
+2. Agent Inbox triage reminder.
+3. Spare for Pro webhook → file as Frappe CRM Lead (ADR-034).
 
-1. **Form → notify** — If the landing has a waitlist form: on submit → email you (work inbox) with source `taskade_landing`.
-2. **Daily Agent Inbox digest** — Optional: reminder to triage public chats into Frappe CRM Lead.
-3. **Spare** — Hold for Pro (e.g. webhook to a future BFF).
-
-Do **not** auto-send discounts from Taskade. Follow `docs/LEAD_FORMS.md`: incentives via Frappe CRM tagging only.
-
-When Pro unlocks 100+ integrations: prefer webhook → internal Ops note, then human creates **Frappe CRM Lead** (ADR-034). No HubSpot.
+No HubSpot. No auto-discounts from Taskade (`docs/LEAD_FORMS.md`).
 
 ## C. Week plan
 
-### This week (Free)
+### Free (now)
 
-- [ ] Create Taskade account (no card).
-- [ ] Paste `01-landing-genesis-prompt.md` → generate app (or clone SaaS Landing Page then customise).
-- [ ] Create agent from `02-public-agent-knowledge.md`.
-- [ ] Publish landing as **Secret**; embed agent.
-- [ ] Smoke-test CTAs: /product /trial /assessment /pay /quote /contact.
-- [ ] Ask agent the objection table questions; fix knowledge if it invents features.
+- [ ] Rebuild/create as **Feature Showcase** (not landing clone).
+- [ ] Agent from `02-public-agent-knowledge.md`.
+- [ ] Secret publish + QA below.
+- [ ] Share Secret link for internal copy review.
 
-### Next week (Pro)
+### Pro (next week)
 
-- [ ] Upgrade Pro (annual $10/mo).
-- [ ] Remove Taskade branding on landing + agent.
-- [ ] Second agent optional: “Sales / plans” vs keep one guide agent.
-- [ ] Password-gated **Secret** “Trust Pack preview” app for hot prospects (still CTAs to real product).
-- [ ] Wire one Pro automation: form → webhook/email you file as CRM Lead.
-- [ ] Optional: embed agent widget on WordPress `trustledger.co.za` (CTA pages only).
+- [ ] Remove Taskade branding.
+- [ ] Password-gated variant for hot prospects (same showcase, Secret).
+- [ ] Webhook → CRM Lead filing workflow.
+- [ ] Optional WordPress embed: **iframe the showcase** on a “See how it works” page — keep homepage as WP marketing.
 
-### Later (client request / Business)
+### Later / on request
 
-- [ ] Client portal satellite (branded domain needs Business).
-- [ ] Quote as implementation add-on — not as Solo/Practitioner included feature.
-- [ ] Never replace Frappe SI / grievance SoT with Taskade data.
+- [ ] Client-branded satellite portals = paid add-on (Business for custom domain).
+- [ ] Never replace Frappe SI / grievance SoT.
 
-## D. QA script (5 minutes)
+## D. QA script (8 minutes)
 
-Ask the public agent:
+1. Walkthrough: does Apply gate Save?
+2. Capability map: Solo vs Project unlocks correct?
+3. SI chain: incomplete vs complete messaging honest?
+4. Plan fitness ≠ assessment (assessment linked out)?
+5. Agent: “Where is the demo?” → showcase + /product + /trial, not sample desk.
+6. Agent: “Does AI close cases?” → No.
+7. Page has **no** duplicate WP pricing/FAQ/sectors?
+8. All CTAs hit Production Vercel?
 
-1. What is TrustLedger?  
-2. Where is the demo?  
-3. Does AI close cases?  
-4. What’s in Solo vs Project?  
-5. Is the CRM real on trial?
+## E. If Genesis still builds a brochure site
 
-Pass = answers match knowledge pack; fail = edit knowledge and re-test before Public.
+Reply in the builder with:
 
-## E. Relationship to this repo
-
-| Surface | Role |
-|---------|------|
-| Taskade landing + agent | Fast public story + Q&A |
-| `trustledger.co.za` (WordPress) | Brand CTAs |
-| Vercel frontend | Product of record |
-| `app.trustledger.co.za` | Frappe Cloud SoT |
-
-Update this pack when `PLATFORM_STRATEGIC_BRIEF.md` §5–§6 or prices change.
+```text
+Remove all marketing homepage sections (hero sales pitch, benefits strip, sectors, pricing table, FAQ).
+Replace with an app shell and these interactive modules only: Guided walkthrough, Capability explorer, SI chain builder, Role lens, Plan fitness, AI micro-lab.
+Keep a slim exit bar to trial/product/pay. This must feel like a product tour tool, not a second trustledger.co.za homepage.
+```

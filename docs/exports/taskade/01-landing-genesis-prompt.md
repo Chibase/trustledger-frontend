@@ -1,91 +1,125 @@
-# TrustLedger SaaS landing — Taskade Genesis prompt
+# TrustLedger Feature Showcase — Taskade Genesis prompt
 
-Copy everything inside the fenced block below into Taskade Genesis (Create app / prompt box).  
-Optional: clone gallery **SaaS Landing Page** first, then paste this as a rebuild/customise instruction.
+**Job of this app:** Let visitors *experience* TrustLedger capabilities interactively — not another marketing homepage.
+
+WordPress (`trustledger.co.za`) and Vercel `/` already sell the story (hero, pricing, CTAs).  
+`/product` already lists features as static text.  
+**This Taskade app must not repeat those.** It is a living capability explorer + guided walkthrough.
+
+Copy everything inside the fenced block into Taskade Genesis (Create app). Prefer starting from a **dashboard / portal / interactive tool** template — **not** “SaaS Landing Page.”
 
 ```text
-Build a public SaaS marketing landing page for TrustLedger — a South African stakeholder relationship and grievance resolution platform for infrastructure and community-trust projects.
+Build an interactive PUBLIC Feature Showcase app for TrustLedger — NOT a marketing landing page, NOT a pricing page, NOT a clone of a SaaS homepage.
 
-PRODUCT
-- Official name: TrustLedger only (never AccordBridge, Interserv, or dual brands).
-- Promise / tagline: “Resolution you can audit.”
-- One-line: TrustLedger helps operators run grievance resolution and Stakeholder Intelligence for projects where social licence decides whether work moves.
-- Tone: clear, calm, institutional — Global South infrastructure & community trust. No hype, no startup slang, no emojis.
-- Operator company (footer only): Chibase Consulting — not a second product brand.
+PURPOSE
+Visitors should click, step, and explore what TrustLedger can do: the grievance desk path, Stakeholder Intelligence chain, AI suggest→apply→save, roles, and which plan unlocks what. When they are ready to buy or trial, send them OUT to existing TrustLedger URLs. Do not rebuild WordPress marketing sections (hero value-prop wall, sector grid, FAQ, full pricing wall, benefit strips).
+
+PRODUCT FACTS
+- Name: TrustLedger only.
+- Promise: “Resolution you can audit.”
+- What it is: grievance resolution + Stakeholder Intelligence for projects where social licence decides whether work moves.
+- Tone: clear, calm, institutional. No hype, emojis, or slang.
+- Version honesty: Version 001 = live resolution desk. Version 002 = Stakeholder Intelligence (registry, engagements, commitments) on Cloud for entitled plans — still deepening. Never claim full ESIP, GIS editing, public community portal, offline native app, or auto-closing AI.
+- Sample demo desk is RETIRED. This showcase is a guided simulator with clearly labelled ILLUSTRATIVE examples — never pretend the visitor is inside a real workspace, and never show fictional INC-* as “your cases.”
 
 VISUAL DIRECTION (“Field ledger”)
-- Cool stone / paper surfaces, deep ink text, single teal trust accent, amber only for urgency.
 - Colours: ink #12202a, muted #5b6b76, paper #f3f5f7, surface #ffffff, line #d7dee4, trust #0e7c66, trust-ink #085f4d, amber #c47a10.
-- Typography: Source Serif 4 for the brand wordmark and one hero title; Source Sans 3 for all body/UI. No Inter, Roboto, purple gradients, neon glow, cream/serif brochure look, or dark-mode default.
-- First viewport = ONE composition: brand “TrustLedger” as hero-level signal, one headline, one short supporting sentence, one CTA group, one full-bleed atmospheric/product visual plane (edge-to-edge — not an inset card or floating collage).
-- No cards in the hero. No floating badges, pills, stat strips, or overlays on the hero image.
-- After the hero: one job per section — one headline + short support line. Prefer open sections over card grids. Cards only where interaction requires a container (e.g. plan chooser).
-- Mobile-first; 2–3 intentional motions max (e.g. soft hero fade, CTA hover, section reveal). No continuous parallax or glow pulses.
+- Fonts: Source Serif 4 for “TrustLedger” wordmark only; Source Sans 3 everywhere else. No Inter/Roboto/purple/neon/dark-mode default.
+- Layout: app-shell feel (left or top nav of showcase modules), not a long marketing scroll. Prefer interactive panels over brochure sections. Cards only for clickable capability modules.
+- Persistent slim footer bar with exits: Start trial · Product overview · Assessment · Subscribe (links below).
 
-HERO COPY (use exactly)
-- Brand: TrustLedger
-- Headline: Resolution you can audit.
-- Support: Grievance desk and Stakeholder Intelligence for projects where community trust decides whether work moves.
-- Primary CTA button: Start 14-day trial → https://trustledger-frontend-pi.vercel.app/trial
-- Secondary CTA button: See the product → https://trustledger-frontend-pi.vercel.app/product
+EXTERNAL LINKS (always use these — product of record)
+- Product overview: https://trustledger-frontend-pi.vercel.app/product
+- 14-day trial: https://trustledger-frontend-pi.vercel.app/trial
+- Subscribe: https://trustledger-frontend-pi.vercel.app/pay
+- Assessment: https://trustledger-frontend-pi.vercel.app/assessment
+- Quote: https://trustledger-frontend-pi.vercel.app/quote
+- Contact: https://trustledger-frontend-pi.vercel.app/contact
+- Live login: https://trustledger-frontend-pi.vercel.app/login/live
 
-SECTIONS (in order — keep lean)
+APP STRUCTURE — six interactive modules (primary UI)
 
-1) Problem (one job)
-   Headline: When grievances stall, projects stall.
-   Body: Operators need a durable desk for cases, evidence, and stakeholder commitments — not spreadsheets and chat threads that cannot be audited.
+MODULE 0 — Entry (compact, not a marketing hero)
+- Brand wordmark: TrustLedger
+- Title: Feature Showcase
+- One line: Explore how the desk, Stakeholder Intelligence, and AI Assist actually work — then open a real trial with your own data.
+- Buttons: Begin walkthrough | Jump to capability map | Find my plan fit
+- Tiny note: Illustrative walkthrough · not a live workspace · sample desk retired
 
-2) What you get (Version honesty)
-   Headline: Version 001 desk. Version 002 intelligence where entitled.
-   Body: Version 001 is the live resolution desk (projects, incidents/grievance, human-applied AI assist, reports). Version 002 Stakeholder Intelligence — registry, engagements, commitments — runs on Cloud for entitled plans and is still deepening. Do not claim full ESIP, GIS editing, public community portal, offline native app, or auto-closing AI.
+MODULE 1 — Guided walkthrough (6 steps, progress indicator)
+Scripted UI mock only. Label every screen “Illustrative.”
+Step 1 Intake — Community/field issue captured with place/geo fields.
+Step 2 Case desk — Ownership, status, evidence hooks on a grievance/incident record.
+Step 3 AI Assist — Show a suggestion panel; visitor MUST click “Apply suggestion” before a “Saved” state appears. Caption: Suggest → Apply → Save. AI never auto-closes cases.
+Step 4 Engagement — Meeting/outreach logged against a stakeholder.
+Step 5 Commitment — Promise with due date linked to that engagement.
+Step 6 Report depth — Toggle Monthly / Executive / Board and show what each pack is for (Monthly on Solo+; Executive Project+; Board Institutional). CTA: Start trial with your own data.
 
-3) How AI works
-   Headline: Suggest. Apply. Save.
-   Body: AI only suggests. A human applies before anything is saved. Never “AI closes cases automatically.”
+MODULE 2 — Capability explorer (plan-aware map)
+Interactive grid/list. Click a capability → detail panel shows: what it does, who needs it, which plan unlocks it, optional add-on code.
+Capabilities and unlocks (exact):
+- Dashboard / activity — all plans
+- Projects (light) — all (Solo: 1 project)
+- Incidents / grievance desk — all (V001 heart)
+- Issue intake — all
+- Geo / place fields — all
+- Trust pulse — all
+- AI Assist (suggest→apply) — Practitioner+
+- Governance / monthly reports — Practitioner+
+- Capture hub — Project+ (or addon_capture)
+- Stakeholder CRM — Project+ (or addon_crm)
+- Engagements — Project+ (or addon_commitments)
+- Commitments — Project+ (or addon_commitments)
+- ESG / intelligence cards — Project+ (or addon_esg)
+- Desk graphs — Project+ (or addon_graphs)
+- Supervisor queue — Project+ (or addon_supervisor)
+- Executive report pack — Project+
+- Board presentation pack — Institutional
+Detail panel always includes “Open in product” → /product and “Try with my data” → /trial.
+Do NOT put list prices on this module (prices live on WP / pay). Optional: “See plans on trustledger.co.za” text link only.
 
-4) How to start
-   Three clear paths with buttons:
-   - Learn features → https://trustledger-frontend-pi.vercel.app/product
-   - 14-day own-data trial → https://trustledger-frontend-pi.vercel.app/trial
-   - SRM readiness assessment → https://trustledger-frontend-pi.vercel.app/assessment
-   Note: Sample demo desk is retired. No fictional INC-* preview workspace.
+MODULE 3 — Stakeholder Intelligence chain builder
+Interactive: connect Stakeholder → Engagement → Commitment in order.
+When the chain is complete, show: “This is the SRM engine. Without it you mainly have a case list.”
+When broken/incomplete, show what is missing.
+Caption: Available on Project / Institutional (or CRM + commitments add-ons). Still deepening vs full TEDS.
+CTA: Project plan / Quote.
 
-5) Plans (honest packaging — prices excl. VAT, monthly ZAR)
-   Present as a simple comparison, not a flashy pricing wall:
-   - Solo — R1,999/mo — Lone consultant entry desk: dashboard, projects (light), grievance/incidents, issue intake. No AI Assist. No Stakeholder CRM in the box.
-   - Practitioner — R5,399/mo — Independent desk with AI Assist (suggest→apply) + light governance reports. Still no full SI registry included.
-   - Project — R14,999/mo — Default real SRM SKU: desk + Stakeholder Intelligence (CRM, engagements, commitments), capture hub, ESG cards, supervisor queue, junior seats.
-   - Institutional — Contact sales — Multi-project / public sector; board pack and commercial options.
-   CTAs: Subscribe → https://trustledger-frontend-pi.vercel.app/pay · Quote → https://trustledger-frontend-pi.vercel.app/quote · Contact → https://trustledger-frontend-pi.vercel.app/contact
-   Mention sellable add-ons only briefly: capture, CRM, commitments, ESG, graphs, supervisor — for practitioners who need one V002 slice without jumping to Project.
+MODULE 4 — Role lens
+Visitor picks a role: community | contractor | client | admin.
+Show which surfaces that role typically touches (intake vs case desk vs CRM vs reports vs supervisor). Grounded in TrustLedger’s four roles — no invented roles.
+CTA: Start trial (they will pick role in-product).
 
-6) Trust & data
-   Headline: Your workspace is yours.
-   Body: Paying and trial workspaces never show fictional sample incidents. Live Cloud host is app.trustledger.co.za. After provision, sign in at https://trustledger-frontend-pi.vercel.app/login/live.
+MODULE 5 — Plan fitness (short) — NOT the SRM readiness assessment
+3–5 questions only: team size (solo / small / project team / multi-project); need AI Assist?; need stakeholder registry + commitments?; need junior seats?; need board pack?
+Output: recommended plan name + one sentence why + link to /pay or /quote or /contact. Mention assessment separately: “For a governance maturity score, use the SRM assessment” → /assessment.
+Do not duplicate the 16-question assessment.
 
-7) Footer
-   Product: TrustLedger · Promise: Resolution you can audit.
-   Links: Product, Trial, Assessment, Quote, Contact, Privacy (link to marketing site https://trustledger.co.za if privacy page lives there).
-   Small line: Operated by Chibase Consulting.
+MODULE 6 — AI Assist micro-lab (can be embedded in walkthrough)
+Standalone mini panel: fake suggestion text → disabled Save until Apply → then Saved confirmation. Reinforce human-in-the-loop.
 
-FORMS / LEADS
-- Prefer CTA buttons that leave to TrustLedger URLs above (system of record).
-- If you include one waitlist/contact form on this page: fields = work email, name, organisation, short note (min 10 chars). Label source as “taskade_landing”. Show a privacy consent line. Do not promise instant discounts. Do not use HubSpot embeds.
+OPTIONAL: Public guide agent
+Floating chat trained only on showcase + approved product facts. Defers pricing detail to WP/pay and never invents features.
+
+EXPLICITLY DO NOT BUILD
+- Long marketing homepage (problem/benefits/sectors/FAQ/pricing wall)
+- Fake live workspace with guest login or INC-* as “your incidents”
+- HubSpot embeds
+- Claims of auto-resolve AI, offline native app, full GIS, public community portal
+- Parallel CRM that replaces Frappe Lead — CTAs out to TrustLedger forms only
 
 PUBLISH
-- App title: TrustLedger — Resolution you can audit
+- App title: TrustLedger Feature Showcase
 - Site name: TrustLedger
-- Meta description (≤160 chars): TrustLedger is the grievance resolution and Stakeholder Intelligence desk for projects where social licence decides whether work moves.
-- Visibility: Secret for first review; Public when copy is approved.
-- Allow search indexing only after Public + copy sign-off.
-- Embed a public TrustLedger guide agent as a floating chat widget once the agent is published (bottom-right).
-
-Do not invent features. Do not show fake dashboards with INC-* sample tickets as “your workspace.” Do not say demo desk is available without signup.
+- Meta: Interactive walkthrough of TrustLedger grievance desk, Stakeholder Intelligence, and AI Assist — not a live workspace.
+- Visibility: Secret for review, then Public.
+- Indexing: optional after approval (this is a product tool, not a duplicate SEO homepage — consider noindex if WP owns SEO).
 ```
 
-## After generate — quick edits
+## After generate — must-fix edits
 
-1. Replace any purple/generic fonts Taskade may default to with the Field ledger tokens above.
-2. Confirm every CTA hits the Production URLs (not localhost).
-3. Publish **Secret** → share link for internal review → then **Public**.
-4. Attach the public agent from `02-public-agent-knowledge.md`.
+1. Delete any sections that look like WP home (hero sales copy, sector cards, full price table, FAQ).
+2. Confirm every exit CTA hits Production Vercel URLs.
+3. Walkthrough must force Apply before Save on the AI step.
+4. Publish **Secret** → internal review → Public.
+5. Attach public agent from `02-public-agent-knowledge.md` (updated for showcase framing).

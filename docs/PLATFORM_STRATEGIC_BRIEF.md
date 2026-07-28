@@ -314,8 +314,8 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 
 ### 6.5 Taskade public surface (optional acquisition layer)
 
-Paste pack: `docs/exports/taskade/` — Genesis landing prompt, public agent knowledge, Free→Pro checklist.  
-Taskade is for campaign landing + Q&A only; product SoT remains Vercel + `app.trustledger.co.za`. Do not dual-write CRM outside Frappe Lead (ADR-034).
+Paste pack: `docs/exports/taskade/` — **Feature Showcase** (interactive walkthrough / capability map / SI chain), public agent, Free→Pro checklist.  
+**Do not** rebuild the WordPress or Vercel marketing homepage on Taskade — WP owns story/pricing; `/product` owns static feature blurbs; Taskade owns hands-on capability exploration. Product SoT remains Vercel + `app.trustledger.co.za`. Do not dual-write CRM outside Frappe Lead (ADR-034).
 
 ### 6.6 Internal agents (coding / ops)
 
