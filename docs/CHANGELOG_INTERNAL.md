@@ -1,5 +1,20 @@
 # Internal changelog
 
+## 2026-07-28 — Taskade presentation report dashboard prompt
+
+- `docs/exports/taskade/04-presentation-report-dashboard.md`: board/SaaS-analytics style presentation pack — baseline low trust → engagement growth → incident SHOW-2407-014 stage-trace to closure → recovery KPIs/graphs; every line tells a story.
+- Wired as flagship Module 7 in Feature Showcase prompt; clone Finance/Revenue gallery apps then reshape.
+
+## 2026-07-28 — Taskade Feature Showcase pack (not a WP clone)
+
+- `docs/exports/taskade/`: Genesis prompts for an **interactive Feature Showcase** (walkthrough, capability map, SI chain, role lens, plan fitness) — explicitly not a second marketing homepage.
+- WP / Vercel `/` keep story+pricing; `/product` keeps static education; Taskade owns hands-on capability exploration.
+- Public agent + Free→Pro checklist; CTAs to Production; Frappe CRM Lead (ADR-034).
+
+## 2026-07-28 — Taskade landing + public agent paste pack (superseded framing)
+
+- Initial pack framed as SaaS landing; reframed same day to Feature Showcase to avoid WP duplication.
+
 ## 2026-07-27 — Pricing: optional privacy extras + foldable comparison
 
 - Home `#pricing`: short TrustLedger data-protection blurb; foldable Compare plans matrix; optional privacy layers (Trust Pack, private cloud workspace, support-access visibility).

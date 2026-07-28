@@ -2,6 +2,12 @@
 
 Generated Word (`.docx`) and PDF copies of key TrustLedger docs for offline sharing.
 
+## Taskade pack (Feature Showcase + public agent)
+
+Folder: [`taskade/`](./taskade/)
+
+Interactive Feature Showcase + **presentation report dashboard** prompts (not a WP homepage clone). WP owns marketing/pricing; Taskade owns hands-on capability exploration and board-style analytics storytelling.
+
 ## Platform brief pack
 
 Folder: [`platform-brief/`](./platform-brief/)
