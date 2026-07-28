@@ -37,14 +37,15 @@ EXTERNAL LINKS (always use these — product of record)
 - Contact: https://trustledger-frontend-pi.vercel.app/contact
 - Live login: https://trustledger-frontend-pi.vercel.app/login/live
 
-APP STRUCTURE — six interactive modules (primary UI)
+APP STRUCTURE — interactive modules (primary UI)
 
 MODULE 0 — Entry (compact, not a marketing hero)
 - Brand wordmark: TrustLedger
 - Title: Feature Showcase
 - One line: Explore how the desk, Stakeholder Intelligence, and AI Assist actually work — then open a real trial with your own data.
-- Buttons: Begin walkthrough | Jump to capability map | Find my plan fit
-- Tiny note: Illustrative walkthrough · not a live workspace · sample desk retired
+- Buttons: Open presentation report dashboard | Begin walkthrough | Capability map | Find my plan fit
+- Tiny note: Illustrative · not a live workspace · sample desk retired
+- Lead with the presentation dashboard — it is the flagship demo surface (SaaS analytics feel), not a brochure page.
 
 MODULE 1 — Guided walkthrough (6 steps, progress indicator)
 Scripted UI mock only. Label every screen “Illustrative.”
@@ -97,6 +98,18 @@ Do not duplicate the 16-question assessment.
 
 MODULE 6 — AI Assist micro-lab (can be embedded in walkthrough)
 Standalone mini panel: fake suggestion text → disabled Save until Apply → then Saved confirmation. Reinforce human-in-the-loop.
+
+MODULE 7 — Presentation report dashboard (FLAGSHIP — finance/SaaS analytics density)
+Build this exactly like Taskade’s Finance / Revenue / Investor metrics demos: dense KPI strip, multi-chart grid, process flows, narrative captions — a board presentation pack you can click through.
+Full specification: follow docs/exports/taskade/04-presentation-report-dashboard.md (paste that prompt into this module or as the default home view of the app).
+Required story spine:
+1) BEFORE engagement — low trust baseline (index ~28 At risk), broken process flow, declining chart, story text under every KPI
+2) Engagement begins — trust grows; engagements/commitments charts; healthy SI flow
+3) Incident reported — SHOW-2407-014 with date/time; trust dip annotated on the chart
+4) Trace to closure — stepper with TrustLedger stages (Reported → Resource deployed → Investigating → AI Apply→Save → Engagement linked → Commitment → Resolved → Verified → Closed); every stage has a one-line story
+5) Recovery analytics — SaaS-style KPIs (trust Δ, TAT, on-time %, commitments kept, illustrative delay-days avoided) + graphs with captions
+6) Pack depth toggle — Monthly / Executive / Board
+Banner on all views: Illustrative presentation · not a live workspace. Case IDs use SHOW-… only (never INC-* as “your cases”).
 
 OPTIONAL: Public guide agent
 Floating chat trained only on showcase + approved product facts. Defers pricing detail to WP/pay and never invents features.

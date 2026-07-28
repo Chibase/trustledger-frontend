@@ -12,9 +12,10 @@ Taskade owns an **interactive Feature Showcase**: walkthrough, capability map, S
 
 | File | Use |
 |------|-----|
-| [`01-landing-genesis-prompt.md`](./01-landing-genesis-prompt.md) | Genesis prompt — Feature Showcase app (not SaaS Landing Page) |
+| [`01-landing-genesis-prompt.md`](./01-landing-genesis-prompt.md) | Genesis prompt — Feature Showcase shell (not WP homepage) |
 | [`02-public-agent-knowledge.md`](./02-public-agent-knowledge.md) | In-showcase public guide agent |
 | [`03-automations-and-publish.md`](./03-automations-and-publish.md) | Positioning, publish, Free→Pro, QA |
+| [`04-presentation-report-dashboard.md`](./04-presentation-report-dashboard.md) | **Flagship** board/presentation analytics dashboard (baseline → incident → closure → recovery) |
 
 ## Production exit URLs
 
@@ -31,9 +32,10 @@ Taskade owns an **interactive Feature Showcase**: walkthrough, capability map, S
 
 ## Free-tier spend (3 apps / 1 agent)
 
-1. **App 1:** Feature Showcase (this pack).
-2. **Agent 1:** Showcase guide.
-3. Reserve apps 2–3 for Secret prospect variants after Pro.
+1. **App 1 (recommended first):** Presentation report dashboard (`04-…`) — clone a Finance/Revenue analytics gallery app, then paste the prompt. This is the “wow” surface.
+2. **Or** one combined Feature Showcase (`01-…`) with Module 7 = presentation dashboard.
+3. **Agent 1:** Showcase guide (`02-…`).
+4. Reserve remaining Free apps for Secret prospect variants after Pro.
 
 ## Lead routing (ADR-034)
 

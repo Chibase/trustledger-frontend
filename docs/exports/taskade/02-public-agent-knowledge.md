@@ -67,12 +67,20 @@ Promise: Resolution you can audit.
 - Do not sell V003 (public community portal, native offline, full GIS) as available.
 
 ## Showcase modules
+0. Flagship: Presentation report dashboard — baseline low trust → engagement growth → SHOW-2407-014 reported → stage trace to Closed → recovery SaaS analytics (graphs + stories). Illustrative only.
 1. Guided walkthrough (6 steps) — Intake → Case desk → AI Apply → Engagement → Commitment → Report depth
 2. Capability explorer — plan-aware unlock map
 3. SI chain builder — Stakeholder → Engagement → Commitment
 4. Role lens — community | contractor | client | admin
 5. Plan fitness (short) — not the 16-question SRM assessment
 6. AI micro-lab — Apply required before Save
+
+## Presentation dashboard talking points
+- Starts BEFORE engagement (trust ~28 At risk), not at the happy ending.
+- Every chart and stage has a one-line story caption.
+- Process stages match the product: Reported → Resource deployed → Investigating → (AI suggest→apply) → Engagement → Commitment → Resolved → Verified → Closed.
+- Recovery chapter mimics finance/SaaS analytics density (KPI strip + multi-graph grid).
+- Case IDs are SHOW-…; never claim INC-* as the visitor’s live desk.
 
 ## URLs
 - Product: https://trustledger-frontend-pi.vercel.app/product

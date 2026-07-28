@@ -39,7 +39,8 @@ No HubSpot. No auto-discounts from Taskade (`docs/LEAD_FORMS.md`).
 
 ### Free (now)
 
-- [ ] Rebuild/create as **Feature Showcase** (not landing clone).
+- [ ] **First:** build Presentation report dashboard from `04-presentation-report-dashboard.md` (clone Finance/Revenue analytics gallery app, then reshape). Confirm story starts at baseline/low trust.
+- [ ] Optionally wrap it inside Feature Showcase (`01-…`) as Module 7 / home view.
 - [ ] Agent from `02-public-agent-knowledge.md`.
 - [ ] Secret publish + QA below.
 - [ ] Share Secret link for internal copy review.
@@ -56,16 +57,16 @@ No HubSpot. No auto-discounts from Taskade (`docs/LEAD_FORMS.md`).
 - [ ] Client-branded satellite portals = paid add-on (Business for custom domain).
 - [ ] Never replace Frappe SI / grievance SoT.
 
-## D. QA script (8 minutes)
+## D. QA script (10 minutes)
 
-1. Walkthrough: does Apply gate Save?
-2. Capability map: Solo vs Project unlocks correct?
-3. SI chain: incomplete vs complete messaging honest?
-4. Plan fitness ≠ assessment (assessment linked out)?
-5. Agent: “Where is the demo?” → showcase + /product + /trial, not sample desk.
-6. Agent: “Does AI close cases?” → No.
-7. Page has **no** duplicate WP pricing/FAQ/sectors?
-8. All CTAs hit Production Vercel?
+1. Presentation dashboard opens on **before engagement / low trust**, not the recovery end-state?
+2. SHOW-2407-014 traces every stage to Closed with a story line under each step?
+3. Graphs present (trust trend, funnel/status, SLA, engagements) with captions?
+4. Recovery chapter feels like finance/SaaS analytics (KPI strip + chart grid)?
+5. Walkthrough AI: Apply gates Save?
+6. Capability map: Solo vs Project unlocks correct?
+7. Agent: “Where is the demo?” → showcase + /product + /trial, not sample desk.
+8. No WP pricing/FAQ/sectors duplicate; CTAs hit Production Vercel?
 
 ## E. If Genesis still builds a brochure site
 

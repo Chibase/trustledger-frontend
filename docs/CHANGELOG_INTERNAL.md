@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-28 — Taskade presentation report dashboard prompt
+
+- `docs/exports/taskade/04-presentation-report-dashboard.md`: board/SaaS-analytics style presentation pack — baseline low trust → engagement growth → incident SHOW-2407-014 stage-trace to closure → recovery KPIs/graphs; every line tells a story.
+- Wired as flagship Module 7 in Feature Showcase prompt; clone Finance/Revenue gallery apps then reshape.
+
 ## 2026-07-28 — Taskade Feature Showcase pack (not a WP clone)
 
 - `docs/exports/taskade/`: Genesis prompts for an **interactive Feature Showcase** (walkthrough, capability map, SI chain, role lens, plan fitness) — explicitly not a second marketing homepage.
