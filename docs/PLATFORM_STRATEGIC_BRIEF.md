@@ -441,6 +441,7 @@ If three or more answers are “no,” do not ship in the current plan box.
 | `src/config/entitlements.ts` | Plan feature switchboard |
 | `src/lib/tedsMaturity.ts` | Living maturity scores |
 | `docs/AEO_VISIBILITY.md` | AI search / AEO playbook (schema, FAQ, off-domain entity) |
+| `docs/ARCHITECTURE_EXTRAS_MAP.md` | Agents / Helpdesk / Insights extras vs locked TrustLedger paths |
 | `src/lib/aeo/siteFacts.ts` | Canonical product definition + public FAQ corpus |
 | `AGENTS.md` | Coding agent rules |
 
