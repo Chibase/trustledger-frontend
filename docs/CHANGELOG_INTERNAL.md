@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-29 — ADR-039: public brand TrustLedger only; voice = Trust
+
+- Scrubbed FAQ/AEO public copy: no Frappe/Vercel in answers; say TrustLedger Cloud. WP `page-home.txt` FAQ + how-it-works aligned.
+- Locked in `docs/DECISIONS.md` ADR-039, `DESIGN_SYSTEM.md` Brand, `PLATFORM_STRATEGIC_BRIEF` §6, `AGENTS.md` rule 7.
+- Primary public voice: **Trust** must dominate hero/FAQ/agents/social.
+- Re-paste WP home after merge for live site.
+
 ## 2026-07-29 — WordPress home paste: AEO + ADR-033 trial copy
 
 - `docs/wordpress/page-home.txt`: declarative SRM definition in hero; How it works / final CTA / resources use own-data trial (sample demo retired); expanded FAQ aligned to `siteFacts.ts`; Organization/SoftwareApplication/FAQPage JSON-LD; links to Vercel `/faq` + `/product`.

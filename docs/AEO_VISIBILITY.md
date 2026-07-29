@@ -115,3 +115,5 @@ Avoid only long narrative without extractable facts.
 - Taskade Feature Showcase helps demos; it is **not** a substitute for indexed FAQ/schema on WP/Vercel.
 
 When product facts change, edit `src/lib/aeo/siteFacts.ts` first, then WP paste and LinkedIn one-liners.
+
+**Public brand (ADR-039):** TrustLedger only; primary voice = **Trust**. Never put Frappe/Vercel/HubSpot in FAQ or marketing prose.

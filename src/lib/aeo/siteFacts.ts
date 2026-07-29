@@ -53,7 +53,7 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "What is the difference between Version 001 and Version 002?",
     answer:
-      "Version 001 is the live grievance resolution desk (projects, incidents, human-applied AI assist on entitled plans, reports). Version 002 is Stakeholder Intelligence — registry, engagements, and commitments on Frappe Cloud for entitled plans (Project, Institutional, or add-ons). Version 002 is in active use and still deepening versus a full TEDS blueprint.",
+      "Version 001 is the live grievance resolution desk (projects, incidents, human-applied AI assist on entitled plans, reports). Version 002 is Stakeholder Intelligence — registry, engagements, and commitments on TrustLedger Cloud for entitled plans (Project, Institutional, or add-ons). Version 002 is in active use and still deepening versus a full TEDS blueprint.",
   },
   {
     question: "Does TrustLedger use AI to close grievance cases automatically?",
@@ -63,7 +63,7 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "How do I start a TrustLedger trial?",
     answer:
-      "Open a 14-day trial at /trial with your own projects and cases. Learn features on /product. Subscribe via /pay, or request a quote for Institutional. The sample demo desk is retired.",
+      "Open a 14-day trial with your own projects and cases. Learn features on the product overview, then subscribe or request a quote for Institutional. The sample demo desk is retired.",
   },
   {
     question: "Which TrustLedger plan includes Stakeholder CRM and commitments?",
@@ -73,7 +73,7 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "Where does TrustLedger store live customer data?",
     answer:
-      "Live Cloud operations use Frappe Cloud at app.trustledger.co.za. The product UI runs on the TrustLedger frontend (Vercel). Marketing content lives on trustledger.co.za. TrustLedger is operated by Chibase Consulting.",
+      "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. You use the TrustLedger product app for day-to-day work; marketing content lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",
   },
   {
     question: "What is the best way to assess SRM readiness before buying?",
