@@ -27,7 +27,7 @@ const COLS = [
     title: "Resources",
     links: [
       { href: "#resources", label: "Guides" },
-      { href: "#faq", label: "FAQ" },
+      { href: "/faq", label: "FAQ" },
       { href: "/status", label: "System status" },
       { href: "/pay", label: "Subscribe (Paystack)" },
       { href: "/trial?utm_campaign=trial_14day", label: "Start 14-day trial" },
@@ -125,9 +125,25 @@ export function HomeFooter() {
         >
           <p className="font-medium text-white">FAQ</p>
           <p className="mt-2 max-w-2xl">
-            Preview needs no signup. Email is only required to save or export
-            full results. Live admin access is separate from the public
-            walkthrough.
+            TrustLedger is Stakeholder Relationship Management (SRM) software
+            for grievance resolution and Stakeholder Intelligence. AI only
+            suggests — a human applies before save. Sample demo desk is
+            retired; start a 14-day own-data trial or read the full FAQ.
+          </p>
+          <p className="mt-3">
+            <Link
+              href="/faq"
+              className="font-medium text-white underline underline-offset-2 hover:text-tl-trust"
+            >
+              Open the FAQ hub
+            </Link>
+            {" · "}
+            <Link
+              href="/assessment"
+              className="underline underline-offset-2 hover:text-white"
+            >
+              SRM readiness assessment
+            </Link>
           </p>
         </div>
 

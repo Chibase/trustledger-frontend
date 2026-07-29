@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { PRODUCT_DEFINITION } from "@/lib/aeo/siteFacts";
 import { trackMarketingEvent } from "@/lib/marketingAnalytics";
 
 export function HomeHero() {
@@ -13,7 +14,7 @@ export function HomeHero() {
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.15fr)] lg:gap-12 lg:px-8 lg:py-20">
         <div className="animate-[tl-banner-in_400ms_ease-out]">
           <p className="text-sm font-semibold text-tl-trust">
-            Trust &amp; governance for the Global South
+            TrustLedger · Resolution you can audit
           </p>
           <h1
             id="hero-title"
@@ -22,9 +23,7 @@ export function HomeHero() {
             Turn Community Risk into Measurable Trust Outcomes
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-tl-ink-muted sm:text-lg">
-            Operationalise grievance resolution and governance-grade ESG
-            reporting for low-connectivity, multilingual field environments —
-            where social licence decides whether projects move.
+            {PRODUCT_DEFINITION}
           </p>
 
           <div className="mt-8">

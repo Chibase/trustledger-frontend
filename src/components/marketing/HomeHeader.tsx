@@ -11,7 +11,7 @@ const NAV = [
   { href: "#sectors", label: "Sectors" },
   { href: "#pricing", label: "Pricing" },
   { href: "#resources", label: "Resources" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/faq", label: "FAQ" },
 ] as const;
 
 export function HomeHeader() {
