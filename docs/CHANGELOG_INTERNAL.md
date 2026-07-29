@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-07-29 — LinkedIn weekly content pack
+
+- `docs/exports/linkedin/WEEKLY_CONTENT.md`: 8 weeks of Trust-voice posts showcasing desk, SI, AI Assist, reports, ZA place, funnel CTAs; reply snippets; publishing checklist (ADR-039).
+
 ## 2026-07-29 — Architecture extras map (agents / Helpdesk / Insights)
 
 - `docs/ARCHITECTURE_EXTRAS_MAP.md`: maps Gemini-style “Typebot+Gemini + Helpdesk grievance + Insights BI” blueprint onto TrustLedger ADRs.
