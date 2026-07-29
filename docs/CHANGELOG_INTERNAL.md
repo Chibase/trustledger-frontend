@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-29 — Product in primary marketing nav
+
+- WP `page-home.txt` + `page-assessment.txt`: **Product** in desktop/mobile front nav → Vercel `/product` (platform education, not buried in footer/resources).
+- Vercel `HomeHeader`: same Product link after Solutions.
+
 ## 2026-07-29 — ADR-039: public brand TrustLedger only; voice = Trust
 
 - Scrubbed FAQ/AEO public copy: no Frappe/Vercel in answers; say TrustLedger Cloud. WP `page-home.txt` FAQ + how-it-works aligned.

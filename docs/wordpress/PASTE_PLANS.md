@@ -35,6 +35,7 @@ Never put Paystack secret/public keys in WordPress.
    - Institutional → contact / sales
    - Foldable Compare plans sections expand
    - Privacy layer CTAs → Contact with `extras=` prefill
+   - **Product** in top nav → Vercel `/product`
 8. Smoke-test AEO on `https://trustledger.co.za/#faq`:
    - Hero states TrustLedger is SRM software (declarative definition)
    - How it works / final CTA say **own-data trial** (no “sample data / no login”)
