@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-29 — Architecture extras map (agents / Helpdesk / Insights)
+
+- `docs/ARCHITECTURE_EXTRAS_MAP.md`: maps Gemini-style “Typebot+Gemini + Helpdesk grievance + Insights BI” blueprint onto TrustLedger ADRs.
+- Phase 1 (CRM + Vercel) = already built. Helpdesk ≠ grievance SoT; Insights ≠ customer reportComposer; public agents must stay BFF + suggest→apply.
+- Linked from PLATFORM_STRATEGIC_BRIEF §10.
+
 ## 2026-07-29 — Product in primary marketing nav
 
 - WP `page-home.txt` + `page-assessment.txt`: **Product** in desktop/mobile front nav → Vercel `/product` (platform education, not buried in footer/resources).
