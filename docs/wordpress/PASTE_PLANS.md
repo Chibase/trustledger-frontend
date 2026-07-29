@@ -4,6 +4,8 @@ Repo paste files already point at Vercel Paystack + trial. **Live WP does not up
 
 **HubSpot cutover:** follow `docs/WEBWAY_CUTOVER.md` (ADR-034). Do not paste HubSpot forms.
 
+**AEO / AI search:** after home paste, confirm FAQ + definition match `docs/AEO_VISIBILITY.md`. Prefer Yoast/Rank Math for Organization + FAQPage if Custom HTML strips `<script>`.
+
 ## Link map
 
 | Plan | Subscribe | Trial |
@@ -33,11 +35,20 @@ Never put Paystack secret/public keys in WordPress.
    - Institutional → contact / sales
    - Foldable Compare plans sections expand
    - Privacy layer CTAs → Contact with `extras=` prefill
+8. Smoke-test AEO on `https://trustledger.co.za/#faq`:
+   - Hero states TrustLedger is SRM software (declarative definition)
+   - How it works / final CTA say **own-data trial** (no “sample data / no login”)
+   - FAQ answers What is TrustLedger / SRM / AI Assist / municipalities
+   - Links to Vercel `/faq`, `/product`, `/trial`
+   - View source: JSON-LD `@graph` present, **or** schema added in Yoast/Rank Math
+9. Search Console: submit WP sitemap; Bing Webmaster for `trustledger.co.za`
 
 ## Source files
 
-- `docs/wordpress/page-home.txt` — pricing cards + CTAs + data-protection blurb + foldable Compare plans + optional privacy layers
+- `docs/wordpress/page-home.txt` — pricing cards + CTAs + data-protection blurb + foldable Compare plans + optional privacy layers + **AEO FAQ / definition / JSON-LD**
+- `docs/wordpress/faq-aeo-snippet.txt` — minimal FAQ hub link (superseded by full FAQ in `page-home.txt`)
 - `docs/wordpress/home-conversion-css-patch.css` — append for comparison table styles
 - `docs/wordpress/page-assessment.txt` — nav / footer CTAs
+- `docs/AEO_VISIBILITY.md` — AI-search playbook
 - `docs/WORDPRESS_CTA.md` — journey table
 - `docs/SOLO_PLAN.md` — Solo packaging (ADR-035)

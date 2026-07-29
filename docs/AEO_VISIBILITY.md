@@ -54,13 +54,15 @@ Validate after deploy:
 
 Marketing still owns the brand homepage. Align WP with Vercel facts:
 
-1. **Declarative opening** (above the fold or first paragraph): paste the definition from `PRODUCT_DEFINITION` in `siteFacts.ts` (no ™ required; product name is TrustLedger only).
-2. **FAQ block:** mirror the questions in `PUBLIC_FAQS` (or iframe/link prominently to `https://trustledger-frontend-pi.vercel.app/faq`). Remove any “preview needs no signup / sample desk” language — sample demo is retired (ADR-033).
-3. **Schema:** add Organization + FAQPage via Yoast/Rank Math/custom HTML to match Vercel (same definition, `sameAs` → Chibase + Vercel product URL).
+1. **Re-paste home** from `docs/wordpress/page-home.txt` (declarative SRM definition, own-data trial copy, expanded FAQ, JSON-LD `@graph`). Follow `docs/wordpress/PASTE_PLANS.md`.
+2. **FAQ block:** now inlined in `page-home.txt` (mirrors `PUBLIC_FAQS`). Link to `https://trustledger-frontend-pi.vercel.app/faq` remains. Minimal fallback: `docs/wordpress/faq-aeo-snippet.txt`.
+3. **Schema:** home paste includes Organization + SoftwareApplication + FAQPage. If WP strips `<script>`, add the same via Yoast/Rank Math (`sameAs` → Chibase + Vercel product URL).
 4. **robots.txt / sitemap:** confirm SpeedyCache or security plugins are **not** blocking `GPTBot`, `ChatGPT-User`, `OAI-SearchBot`, `PerplexityBot`, `ClaudeBot`, `Google-Extended`, `Bingbot`. Prefer allow-all for public marketing paths.
 5. **Search Console:** property for `trustledger.co.za` + submit WP sitemap; separately add Vercel host property and submit `https://trustledger-frontend-pi.vercel.app/sitemap.xml`.
 6. **Bing Webmaster Tools:** same two hosts (ChatGPT Search leans on Bing’s index).
 7. After paste: purge SpeedyCache (`docs/wordpress/PASTE_PLANS.md`).
+
+**Live site stays old until you paste on Webway.** Repo paste ≠ published WP.
 
 ---
 
