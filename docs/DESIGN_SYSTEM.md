@@ -4,9 +4,12 @@ Agents must follow this file. Do not substitute Inter, Roboto, purple gradients,
 
 ## Brand
 
-- **Name:** TrustLedger
-- **Voice:** Clear, calm, institutional — Global South infrastructure & community trust
+- **Name:** TrustLedger only (public surfaces)
+- **Primary brand voice:** **Trust** — must dominate public-facing communications (hero, FAQ, emails, agents, social). Lead with trust outcomes, auditability, and social licence — not vendor stack or generic SaaS hype.
 - **Promise:** Resolution you can audit
+- **Tone:** Clear, calm, institutional — Global South infrastructure & community trust
+- **Public brand ban:** Do not name Frappe, Vercel, HubSpot, Interserv, AccordBridge, or other stack vendors in marketing, FAQ, or public agents. Hosting = “TrustLedger Cloud” / “cloud”. Operator **Chibase Consulting** only in footer/legal/ops — never as a co-brand.
+- **Checkout:** Prefer “Subscribe on TrustLedger”; payment-provider names only where the UI must label the checkout button.
 
 ## Direction
 

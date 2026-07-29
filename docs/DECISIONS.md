@@ -391,6 +391,21 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Rollout may slip; customers who pay early stay on browser tenancy until Cloud catch-up. Agents lead one step at a time and wait for “Step N complete”.
 - **Alternatives considered:** Ship browser-only as “production” (rejected — not durable); lift lockdown now without DocTypes (rejected — incomplete SoT).
 
+### ADR-039: Public brand = TrustLedger only; voice = Trust
+
+- **Date:** 2026-07-29
+- **Status:** Accepted
+- **Context:** FAQ/AEO copy drifted into naming Frappe/Vercel. Public buyers should hear TrustLedger and *trust*, not the implementation stack. ADR-038 §6 already banned Frappe/Vercel on marketing; this ADR locks the voice rule for all public agents and surfaces.
+- **Decision:**
+  1. **Public product name:** TrustLedger only.
+  2. **Primary brand voice:** **Trust** dominates public-facing communications (hero, FAQ, assessment, emails, public agents, social). Lead with trust outcomes, auditability, social licence.
+  3. **Vendor ban on public copy:** Do not name Frappe, Vercel, HubSpot, Interserv, AccordBridge (or similar stack brands) in marketing, FAQ, WP paste, `/faq`, `llms.txt` prose, or public agents. Say **TrustLedger Cloud** / **cloud** / **private cloud workspace**.
+  4. **Chibase Consulting:** footer, legal, and ops allowlists only — never co-brand the product.
+  5. **Checkout labels:** Prefer “Subscribe on TrustLedger”; payment-provider names only on checkout buttons where required for clarity.
+  6. Internal docs, Ops, and engineer comments may name stack tools freely.
+- **Consequences:** `src/lib/aeo/siteFacts.ts`, WP `page-home.txt`, Design System, and agent briefs stay scrubbed. Re-paste WP after FAQ fixes.
+- **Alternatives considered:** Keep vendor names for “transparency” (rejected — dilutes TrustLedger); hide Chibase entirely including footer (rejected — legal/operator clarity).
+
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 
 - **Date:** 2026-07-23

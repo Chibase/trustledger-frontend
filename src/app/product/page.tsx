@@ -63,7 +63,7 @@ const STEPS = [
   {
     n: "2",
     title: "Sign in live on Cloud",
-    body: "After provision, use live login for multi-device durable ops on Frappe Cloud.",
+    body: "After provision, use live login for multi-device durable ops on TrustLedger Cloud.",
     href: "/login/live",
     cta: "Live sign-in",
   },

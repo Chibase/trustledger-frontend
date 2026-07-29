@@ -277,21 +277,23 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 
 ### 6.1 Identity & voice
 
-- Product: **TrustLedger** — “Resolution you can audit.”
-- Operator company (footer/ops only): Chibase Consulting — not a second product brand.
+- Product: **TrustLedger** only — “Resolution you can audit.”
+- **Primary public voice: Trust** — every public surface should foreground trust, auditability, and social licence. Do not lead with tech stack or vendor names.
+- Operator company (footer/ops/legal only): Chibase Consulting — not a second product brand.
 - Tone: clear, calm, institutional; Global South infrastructure & community trust.
 - Never invent features. If unsure, point to `/product` or `/ops/readiness` truth.
+- Public copy hosts: “TrustLedger Cloud” / “cloud” — never Frappe, Vercel, HubSpot, Interserv on marketing/FAQ/public agents (ADR-038 §6 / ADR-039).
 
 ### 6.2 What to say (approved)
 
 | Topic | Approved line |
 |-------|----------------|
 | What it is | TrustLedger helps operators run **grievance resolution** and **Stakeholder Intelligence** for projects where social licence decides whether work moves. |
-| Version | **Version 001** is the live resolution desk. **Version 002** Stakeholder Intelligence (registry, engagements, commitments) is in active use on Cloud for entitled plans — still deepening vs full TEDS blueprint. |
+| Version | **Version 001** is the live resolution desk. **Version 002** Stakeholder Intelligence (registry, engagements, commitments) is in active use on **TrustLedger Cloud** for entitled plans — still deepening vs full TEDS blueprint. |
 | How to start | Start a **14-day trial** (`/trial`) with your own data, or **Subscribe** (`/pay`). Learn features on `/product`. |
-| Live access | After provision, sign in at `/login/live` (email OTP when Resend is on). |
+| Live access | After provision, sign in at `/login/live` (email OTP when access email is on). |
 | AI | Suggestions only — a human **applies** before anything is saved. |
-| Data | Paying / trial workspaces never show fictional sample incidents. |
+| Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. |
 
 ### 6.3 What never to say
 
@@ -299,7 +301,8 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 - “No signup needed sample desk” (retired).  
 - “AI closes cases automatically.”  
 - “Works offline as a native app.”  
-- Dual names (AccordBridge, Interserv as product host).  
+- Dual product names (AccordBridge); Interserv as product host.  
+- **Vendor brands in public copy:** Frappe, Vercel, HubSpot (or similar) in FAQ, hero, emails, or public agents.  
 - Promising multi-device durable ops for unpaid browser-only trial without Cloud provision.
 
 ### 6.4 Objection handling (agents)
