@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-29 — WordPress home paste: AEO + ADR-033 trial copy
+
+- `docs/wordpress/page-home.txt`: declarative SRM definition in hero; How it works / final CTA / resources use own-data trial (sample demo retired); expanded FAQ aligned to `siteFacts.ts`; Organization/SoftwareApplication/FAQPage JSON-LD; links to Vercel `/faq` + `/product`.
+- `PASTE_PLANS.md` AEO smoke steps; `faq-aeo-snippet.txt` noted as minimal fallback; `AEO_VISIBILITY.md` §3 points at full home paste.
+- **Live WP still needs Webway paste + SpeedyCache purge.**
+
 ## 2026-07-29 — AEO / AI-search visibility foundation
 
 - Playbook: `docs/AEO_VISIBILITY.md` (maps Gemini-style AEO advice to WP + Vercel + off-domain entity work).
