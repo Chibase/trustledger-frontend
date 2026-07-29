@@ -7,6 +7,7 @@ import { trackMarketingEvent } from "@/lib/marketingAnalytics";
 
 const NAV = [
   { href: "#solutions", label: "Solutions" },
+  { href: "/product", label: "Product" },
   { href: "#how-it-works", label: "How It Works" },
   { href: "#sectors", label: "Sectors" },
   { href: "#pricing", label: "Pricing" },
