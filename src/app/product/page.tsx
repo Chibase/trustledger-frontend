@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  breadcrumbJsonLd,
+  softwareApplicationJsonLd,
+} from "@/lib/aeo/jsonLd";
+import {
+  PRODUCT_DEFINITION,
+  PRODUCT_TAGLINE,
+  SITE_URL,
+} from "@/lib/aeo/siteFacts";
 
 export const metadata: Metadata = {
   title: "Product — TrustLedger Stakeholder Intelligence",
-  description:
-    "How TrustLedger runs Stakeholder Relationship Management: registry, engagements, commitments, grievance resolution, and audit-ready evidence on Cloud.",
+  description: PRODUCT_DEFINITION,
   alternates: { canonical: "/product" },
   openGraph: {
     title: "TrustLedger — Product & onboarding",
-    description:
-      "Stakeholder Intelligence is the SRM engine. Learn the features, then start a trial or sign in live.",
-    url: `${siteUrl}/product`,
+    description: PRODUCT_DEFINITION,
+    url: `${SITE_URL}/product`,
     siteName: "TrustLedger",
     locale: "en_ZA",
     type: "website",
@@ -81,6 +86,15 @@ export default async function ProductPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-full bg-gradient-to-b from-[#e8eef2] via-tl-paper to-tl-paper">
+      <JsonLd
+        data={[
+          softwareApplicationJsonLd(),
+          breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Product", path: "/product" },
+          ]),
+        ]}
+      />
       <header className="border-b border-tl-line/80 bg-tl-surface/70 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <Link
@@ -90,6 +104,12 @@ export default async function ProductPage({ searchParams }: PageProps) {
             TrustLedger
           </Link>
           <nav className="flex flex-wrap items-center gap-3 text-sm">
+            <Link
+              href="/faq"
+              className="font-medium text-tl-trust-ink underline-offset-2 hover:underline"
+            >
+              FAQ
+            </Link>
             <Link
               href="/trial"
               className="rounded-md bg-tl-trust px-3 py-1.5 font-medium text-white hover:bg-tl-trust-ink"
@@ -128,12 +148,15 @@ export default async function ProductPage({ searchParams }: PageProps) {
               </p>
             ) : null}
             <p className="animate-[tl-banner-in_320ms_ease-out] text-sm font-semibold text-tl-trust">
-              TrustLedger
+              TrustLedger · {PRODUCT_TAGLINE}
             </p>
             <h1 className="mt-3 max-w-3xl animate-[tl-banner-in_400ms_ease-out] font-display text-4xl font-semibold tracking-tight text-tl-ink sm:text-5xl">
               Stakeholder Intelligence for durable SRM
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-tl-ink-muted sm:text-lg">
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-tl-ink sm:text-lg">
+              {PRODUCT_DEFINITION}
+            </p>
+            <p className="mt-3 max-w-2xl text-base leading-relaxed text-tl-ink-muted">
               Registry, engagements, and commitments are the engine of the
               platform. Without them there is no Stakeholder Relationship
               Management — only a case list. TrustLedger runs that engine on

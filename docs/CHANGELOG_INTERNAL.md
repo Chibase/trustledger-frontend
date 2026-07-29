@@ -1,5 +1,14 @@
 # Internal changelog
 
+## 2026-07-29 — AEO / AI-search visibility foundation
+
+- Playbook: `docs/AEO_VISIBILITY.md` (maps Gemini-style AEO advice to WP + Vercel + off-domain entity work).
+- Canonical facts + FAQ corpus: `src/lib/aeo/siteFacts.ts`; Schema.org builders + `JsonLd` component.
+- New `/faq` hub with FAQPage JSON-LD + plan capability table; `public/llms.txt` for AI crawlers.
+- Organization / SoftwareApplication / WebSite JSON-LD on root layout; product + home front-load `PRODUCT_DEFINITION`.
+- robots/sitemap: allow FAQ/contact/quote/pay; add `/faq` + `/pay`; keep `/app` `/ops` blocked. No AI-bot blocks.
+- Home FAQ stub fixed (ADR-033); footer/header link to `/faq`. Stale “Demo” OG copy removed from root metadata.
+
 ## 2026-07-27 — Pricing: optional privacy extras + foldable comparison
 
 - Home `#pricing`: short TrustLedger data-protection blurb; foldable Compare plans matrix; optional privacy layers (Trust Pack, private cloud workspace, support-access visibility).

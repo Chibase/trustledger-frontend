@@ -437,6 +437,8 @@ If three or more answers are “no,” do not ship in the current plan box.
 | `docs/CHANGELOG_INTERNAL.md` | What changed when |
 | `src/config/entitlements.ts` | Plan feature switchboard |
 | `src/lib/tedsMaturity.ts` | Living maturity scores |
+| `docs/AEO_VISIBILITY.md` | AI search / AEO playbook (schema, FAQ, off-domain entity) |
+| `src/lib/aeo/siteFacts.ts` | Canonical product definition + public FAQ corpus |
 | `AGENTS.md` | Coding agent rules |
 
 ---

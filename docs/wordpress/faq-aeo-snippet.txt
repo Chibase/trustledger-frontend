@@ -1,0 +1,14 @@
+<!--
+  WP paste helper — FAQ / AEO alignment
+  Full playbook: docs/AEO_VISIBILITY.md
+  Prefer linking to Vercel FAQ hub so one corpus stays SoT:
+  https://trustledger-frontend-pi.vercel.app/faq
+  Or mirror questions from src/lib/aeo/siteFacts.ts PUBLIC_FAQS.
+  Remove any “sample demo / preview needs no signup” FAQ language (ADR-033).
+-->
+
+<section id="faq" class="tl-faq">
+  <h2>TrustLedger FAQ</h2>
+  <p><strong>TrustLedger</strong> is a Stakeholder Relationship Management (SRM) software platform designed for grievance resolution, community engagement, Stakeholder Intelligence, and audit-ready reporting on infrastructure and community-trust projects in South Africa and the Global South. Promise: Resolution you can audit.</p>
+  <p><a href="https://trustledger-frontend-pi.vercel.app/faq">Open the full FAQ hub</a> · <a href="https://trustledger-frontend-pi.vercel.app/assessment">SRM readiness assessment</a> · <a href="https://trustledger-frontend-pi.vercel.app/trial">14-day trial</a></p>
+</section>
