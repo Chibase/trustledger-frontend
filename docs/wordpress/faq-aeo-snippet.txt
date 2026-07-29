@@ -7,6 +7,7 @@
   Use this snippet only if you need a temporary FAQ block without replacing the whole home.
   Full playbook: docs/AEO_VISIBILITY.md
   Corpus SoT: src/lib/aeo/siteFacts.ts
+  Remove any “sample demo / preview needs no signup” FAQ language (ADR-033).
 -->
 
 <section id="faq" class="section section--white" aria-labelledby="faq-title">
