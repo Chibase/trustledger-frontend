@@ -4,6 +4,16 @@
 
 Pre-installed **platform reference** data ships as `*.places.json` packs (not per-tenant demo seed). The product model is **multi-country**: drop another pack (e.g. `na-…places.json`, `bw-…places.json`) beside the ZA file — same schema. Default for SA SKUs: `za-mdb-2020`.
 
+## Capture sequence (ADR-041)
+
+Site population (issue intake, stakeholder place, etc.) uses **dropdowns** in this order:
+
+**Country → Province → Town → DM → Traditional council → Ward**
+
+- Options come from the pack (`GeoCascadePicker` / `/api/geo`).
+- Each level has **Add if not listed** for tenant-authored places (browser `tl-custom-geo-places`).
+- TC may be skipped when none apply or none are seeded for that DM.
+
 ## Current pack
 
 | File | Content |

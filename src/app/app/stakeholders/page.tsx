@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { GeoCascadePicker } from "@/components/geo/GeoCascadePicker";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import {
   createStakeholderId,
   stakeholderService,
 } from "@/services/stakeholderService";
+import type { IncidentGeoContext } from "@/types/incident";
 import {
   STAKEHOLDER_KIND_LABELS,
   type Stakeholder,
@@ -33,6 +35,7 @@ export default function AppStakeholdersPage() {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const [createKind, setCreateKind] = useState<StakeholderKind>("individual");
+  const [placeGeo, setPlaceGeo] = useState<IncidentGeoContext | null>(null);
   const [organisation, setOrganisation] = useState("");
   const [influence, setInfluence] =
     useState<StakeholderInfluence>("medium");
@@ -76,7 +79,8 @@ export default function AppStakeholdersPage() {
         kind: createKind,
         status: "active",
         organisation: organisation.trim() || undefined,
-        countryCode: "ZA",
+        countryCode: placeGeo?.countryCode || "ZA",
+        placeId: placeGeo?.placeId || placeGeo?.wardId || undefined,
         influence,
         interests: [],
         tags: [],
@@ -90,6 +94,7 @@ export default function AppStakeholdersPage() {
       setName("");
       setOrganisation("");
       setSummary("");
+      setPlaceGeo(null);
       setShowCreate(false);
       setReloadToken((n) => n + 1);
     } catch {
@@ -190,6 +195,16 @@ export default function AppStakeholdersPage() {
                 className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               />
             </label>
+            <div className="sm:col-span-2">
+              <GeoCascadePicker
+                requireWard={false}
+                onChange={(ctx) => setPlaceGeo(ctx)}
+              />
+              <p className="mt-1 text-xs text-tl-ink-muted">
+                Optional — same sequence as incident capture. Add missing places
+                via each dropdown.
+              </p>
+            </div>
           </div>
           <button
             type="submit"

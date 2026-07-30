@@ -420,6 +420,21 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Packaging and `/product` copy treat ZA geo as included; national TC expansion and Stats SA indicators remain enrichment packets, not blockers for this promise.
 - **Alternatives considered:** Charge for geo as an add-on (rejected — table stakes for SA SRM); seed sample stakeholders with each plan (rejected — ADR-033); wait for Cloud Geo DocTypes before shipping pickers (rejected — browser pack is launch SoT).
 
+### ADR-041: Site location cascade sequence (Country → … → Ward)
+
+- **Date:** 2026-07-30
+- **Status:** Accepted
+- **Context:** Site population (issue intake and other place capture) drifted into any-order pickers and a City→DM→TC→Ward wizard that skipped Country/Province and lacked “add if missing.” Field teams need one agreed sequence backed by the ZA pack.
+- **Decision:**
+  1. Locked capture sequence: **Country → Province → Town → DM → TC → Ward**.
+  2. Each step is a **dropdown** fed by platform pack data (`za-mdb-2020` for SA).
+  3. Each step offers **Add if not listed** for tenant-authored places (browser workspace today; never invent INC-*/STK-* seed).
+  4. TC may be **None / not applicable**; when the pack has no TCs for the DM, skip automatically and unlock wards.
+  5. Canonical UI: `GeoCascadePicker`; issue report dialog wraps it via `GeoLocationWizard`. Reuse the picker anywhere site geo is collected.
+  6. Supersedes “any-order” cascade behaviour for intake.
+- **Consequences:** Report copy and validation use the full sequence. Custom places store under `tl-custom-geo-places` for the workspace browser.
+- **Alternatives considered:** Keep any-order free pick (rejected — breaks training); town search only without province (rejected — harder audit trail); force TC always (rejected — metros / no-TC DMs).
+
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 
 - **Date:** 2026-07-23

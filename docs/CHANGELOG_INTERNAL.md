@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-30 — ADR-041: site location cascade sequence
+
+- Locked capture order: **Country → Province → Town → DM → TC → Ward** with pack dropdowns + **Add if not listed** per level.
+- `GeoCascadePicker` rewritten; `GeoLocationWizard` wraps it for issue report; stakeholder create reuses the picker.
+- TC optional / auto-skip when pack has none for the DM. Custom places in browser `tl-custom-geo-places`.
+
 ## 2026-07-30 — ADR-040: ZA baseline intel with SA plans
 
 - Locked packaging: SA plans ship platform ZA place intel (municipalities, wards, TCs where packed); clients add project/situation data only — never fictional INC-*/STK-* seed.
