@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   GeoCascadePicker,
   labelFromGeoCtx,
@@ -27,6 +27,20 @@ export function GeoLocationWizard({
   const [draft, setDraft] = useState<IncidentGeoContext | null>(null);
   const [label, setLabel] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [session, setSession] = useState(0);
+
+  useEffect(() => {
+    if (!open) {
+      setDraft(null);
+      setLabel("");
+      setError(null);
+      return;
+    }
+    setDraft(null);
+    setLabel("");
+    setError(null);
+    setSession((n) => n + 1);
+  }, [open]);
 
   if (!open) return null;
 
@@ -36,7 +50,9 @@ export function GeoLocationWizard({
       return;
     }
     if (!draft.provinceName || !draft.municipalityName || !draft.districtName) {
-      setError("Follow the sequence: Country → Province → Town → DM → TC → Ward.");
+      setError(
+        "Follow the sequence: Country → Province → Town → DM → TC → Ward.",
+      );
       return;
     }
     onComplete(draft, label || labelFromGeoCtx(draft));
@@ -68,6 +84,7 @@ export function GeoLocationWizard({
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           <GeoCascadePicker
+            key={session}
             onChange={(ctx, nextLabel) => {
               setDraft(ctx);
               setLabel(nextLabel);
