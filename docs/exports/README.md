@@ -2,6 +2,12 @@
 
 Generated Word (`.docx`) and PDF copies of key TrustLedger docs for offline sharing.
 
+## LinkedIn weekly content
+
+Folder: [`linkedin/`](./linkedin/)
+
+Ready-to-post weekly LinkedIn pack (Trust voice, capability showcase, CTAs). See `WEEKLY_CONTENT.md`.
+
 ## Platform brief pack
 
 Folder: [`platform-brief/`](./platform-brief/)

@@ -48,7 +48,7 @@ const FEATURES = [
   },
   {
     title: "Geo context",
-    body: "South African place hierarchy so stakeholders and cases sit on ward and municipality — not a floating spreadsheet.",
+    body: "South African municipalities, wards, and traditional councils (where packed) ship with every plan — you add the project and situation, not the country map.",
   },
 ] as const;
 
@@ -56,7 +56,7 @@ const STEPS = [
   {
     n: "1",
     title: "Start a trial or subscribe",
-    body: "Open your own workspace (no sample INC-* data). Card path via Subscribe, or quote/EFT when needed.",
+    body: "Open your own workspace with ZA place intel ready. No sample INC-* cases — add your projects and people only.",
     href: "/trial",
     cta: "Start 14-day trial",
   },
