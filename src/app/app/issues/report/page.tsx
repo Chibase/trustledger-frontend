@@ -207,7 +207,7 @@ export default function AppReportIssuePage() {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!geo?.wardId) {
-      pushToast("Complete location (City → DM → TC → Ward) first", "error");
+      pushToast("Complete location (Country → Province → Town → DM → TC → Ward) first", "error");
       return;
     }
     requireEmailThen("save", () => {
@@ -310,9 +310,9 @@ export default function AppReportIssuePage() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Report an issue</h1>
         <p className="mt-2 text-sm text-tl-ink-muted">
-          Link to a project, capture reporter and location (City → DM → TC →
-          Ward), then categorise. Junior filings surface on the supervisor
-          queue.
+          Link to a project, capture reporter and location (Country → Province →
+          Town → DM → TC → Ward), then categorise. Junior filings surface on the
+          supervisor queue.
         </p>
       </div>
 
@@ -432,7 +432,9 @@ export default function AppReportIssuePage() {
           <div className="rounded-md border border-dashed border-tl-line bg-tl-paper/50 px-3 py-3 text-sm text-tl-ink-muted">
             <p className="font-medium text-tl-ink">4. Location (next)</p>
             <p className="mt-1">
-              Continue opens City → DM → Traditional council → Ward dialogues.
+              Continue opens Country → Province → Town → DM → Traditional
+              council → Ward. Choose from pre-loaded places, or add if yours is
+              missing.
             </p>
           </div>
 
