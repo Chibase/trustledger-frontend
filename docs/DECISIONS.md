@@ -406,6 +406,20 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** `src/lib/aeo/siteFacts.ts`, WP `page-home.txt`, Design System, and agent briefs stay scrubbed. Re-paste WP after FAQ fixes.
 - **Alternatives considered:** Keep vendor names for “transparency” (rejected — dilutes TrustLedger); hide Chibase entirely including footer (rejected — legal/operator clarity).
 
+### ADR-040: ZA baseline intel ships with South African plans
+
+- **Date:** 2026-07-30
+- **Status:** Accepted
+- **Context:** SA buyers should not rebuild municipalities, wards, or traditional councils before they can run a desk. That baseline is platform reference data — distinct from retired sample INC-*/STK-* workspaces (ADR-033).
+- **Decision:**
+  1. Every SA commercial plan (Solo → Institutional) and SA trial includes **platform ZA place intel** via `geoIntake` + pack `za-mdb-2020` (provinces, districts, municipalities/metros, wards, traditional councils where seeded).
+  2. Clients **only add situation data**: projects/sites, stakeholders, engagements, commitments, incidents, evidence. Optional custom villages/notes under the hierarchy.
+  3. Platform packs are **shared reference**, never per-tenant fictional seed. Empty Cloud lists stay empty of cases/people — not empty of country geography.
+  4. Sales / onboarding language: *baseline place intel included; you add the project.* Do not over-claim national TC completeness while the pack is partial.
+  5. Detail + gaps: `docs/ZA_BASELINE_INTEL.md`. Enrich TC/wards/indicators in the pack; do not invent tenant geo seed files.
+- **Consequences:** Packaging and `/product` copy treat ZA geo as included; national TC expansion and Stats SA indicators remain enrichment packets, not blockers for this promise.
+- **Alternatives considered:** Charge for geo as an add-on (rejected — table stakes for SA SRM); seed sample stakeholders with each plan (rejected — ADR-033); wait for Cloud Geo DocTypes before shipping pickers (rejected — browser pack is launch SoT).
+
 ### ADR-041: Site location cascade sequence (Country → … → Ward)
 
 - **Date:** 2026-07-30
