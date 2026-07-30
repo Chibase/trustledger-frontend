@@ -98,8 +98,12 @@ function makeCustomPlace(args: {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
+    .slice(0, 40);
+  const parentKey = (args.parentId || "root")
+    .toLowerCase()
+    .replace(/[^a-z0-9:_-]+/g, "-")
     .slice(0, 48);
-  const id = `custom:${args.level}:${slug || Date.now()}`;
+  const id = `custom:${args.level}:${parentKey}:${slug || Date.now()}`;
   return {
     id,
     code: `CUSTOM-${args.level.toUpperCase().slice(0, 3)}`,
