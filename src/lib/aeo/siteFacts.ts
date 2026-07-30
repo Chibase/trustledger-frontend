@@ -48,7 +48,7 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "Is TrustLedger suitable for local municipalities and public-sector projects in South Africa?",
     answer:
-      "Yes. TrustLedger supports South African geo/place context (ward and municipality), grievance desks, Stakeholder Intelligence, and board or funder reporting packs. Institutional plans are sales-scoped for multi-project and public-sector needs. Start with the SRM readiness assessment or a 14-day own-data trial.",
+      "Yes. TrustLedger includes South African place context (municipalities, wards, and traditional councils where packed) on every plan — you add the project and situation. Grievance desks, Stakeholder Intelligence, and board or funder reporting packs sit on that baseline. Institutional plans are sales-scoped for multi-project and public-sector needs. Start with the SRM readiness assessment or a 14-day own-data trial.",
   },
   {
     question: "What is the difference between Version 001 and Version 002?",

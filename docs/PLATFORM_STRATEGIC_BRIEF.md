@@ -151,6 +151,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Dual reports hub | Activity vs packs (ADR-028) | Pack tier by plan |
 | Public `/product` onboarding | Replaces sample demo | All public agents |
 | Brand / design system | TrustLedger field ledger | All surfaces |
+| ZA baseline place intel | MDB pack + geoIntake on all plans (ADR-040) | All SA plans — client adds project data only |
 
 ### 4.2 Needs improvement (invest next)
 
@@ -159,7 +160,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Stale “demo” copy in product UI | Capture/projects/settings still say demo | Copy sweep — say trial/live/Cloud |
 | Project/incident continuous Cloud save | Stronger on migrate/smoke than every UI save | Wire save → productCloud / srm_core consistently |
 | `srm_core` method dependency | Live list may 404 until app installed | Prefer resource BFF pattern (as SI) or install srm-core |
-| Geo depth | ZA pack seeded; lat/lng & Frappe Geo DocTypes incomplete | Enrich wards; optional Cloud sync |
+| Geo depth / TC coverage | Wards national; **TC pack only ~15** (EC-weighted); lat/lng & Cloud Geo incomplete | National TC ingest; optional Cloud sync — `docs/ZA_BASELINE_INTEL.md` |
 | Grievance Cloud stamps | UI stamps exist; TL Incident lifecycle fields incomplete | Mirror process stamps on Cloud |
 | CRM relationships | No graph / merge / influence matrix | V002 deepening packet |
 | Report packs from live SI/geo | Composer uses local evidence | Bind packs to Cloud lists |
@@ -221,7 +222,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Incidents / grievance desk | ✓ | ✓ | ✓ | ✓ | **V001 sellable heart** |
 | Issue intake | ✓ | ✓ | ✓ | ✓ | Field reporting |
 | AI assist (suggest→apply) | — | ✓ | ✓ | ✓ | Never “auto-resolve” in sales |
-| Geo intake / place fields | ✓ | ✓ | ✓ | ✓ | ZA pack; not full GIS |
+| Geo intake / place fields | ✓ | ✓ | ✓ | ✓ | **ZA baseline included** (ADR-040); not full GIS |
 | Trust pulse | ✓ | ✓ | ✓ | ✓ | Desk signal |
 | Governance reports | — | ✓ | ✓ | ✓ | Pack depth differs (below) |
 | Capture hub | — | — | ✓ | ✓ | V002 field evidence |
@@ -262,6 +263,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 5. Keep **add-ons** for upsell; do not silently unlock Institutional-only toggles on lower plans (ADR-024).
 6. Multi-tenant security ladder (L1–L5): `docs/SECURITY_TENANCY.md` (ADR-038). Do not claim SOC2 / dedicated shells until shipped.
 7. Revisit prices only with evidence from Ops Finance + win/loss — matrix above is the feature switchboard.
+8. **SA baseline intel (ADR-040):** every SA plan includes platform ZA place data (municipalities, wards, TCs where packed). Client adds projects/stakeholders/cases only — never rebuild the country map. Detail: `docs/ZA_BASELINE_INTEL.md`.
 
 ### 5.4 What each plan should *not* include in the box (yet)
 
@@ -442,6 +444,7 @@ If three or more answers are “no,” do not ship in the current plan box.
 | `src/lib/tedsMaturity.ts` | Living maturity scores |
 | `docs/AEO_VISIBILITY.md` | AI search / AEO playbook (schema, FAQ, off-domain entity) |
 | `docs/ARCHITECTURE_EXTRAS_MAP.md` | Agents / Helpdesk / Insights extras vs locked TrustLedger paths |
+| `docs/ZA_BASELINE_INTEL.md` | SA plan packaging: platform place pack vs client situation data (ADR-040) |
 | `src/lib/aeo/siteFacts.ts` | Canonical product definition + public FAQ corpus |
 | `AGENTS.md` | Coding agent rules |
 

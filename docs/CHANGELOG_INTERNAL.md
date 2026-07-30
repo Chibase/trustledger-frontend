@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-30 — ADR-040: ZA baseline intel with SA plans
+
+- Locked packaging: SA plans ship platform ZA place intel (municipalities, wards, TCs where packed); clients add project/situation data only — never fictional INC-*/STK-* seed.
+- `docs/ZA_BASELINE_INTEL.md`, ADR-040 in `DECISIONS.md`; strategic brief §4–§5; geo README; Solo plan; `/product` + FAQ siteFacts; `AGENTS.md` rule 8.
+- Honest gap: national TC pack still thin (~15); enrichment packet next, not a packaging blocker.
+
 ## 2026-07-29 — LinkedIn weekly content pack
 
 - `docs/exports/linkedin/WEEKLY_CONTENT.md`: 8 weeks of Trust-voice posts showcasing desk, SI, AI Assist, reports, ZA place, funnel CTAs; reply snippets; publishing checklist (ADR-039).
