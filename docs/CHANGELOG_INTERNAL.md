@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-07-31 — LinkedIn article: Municipal / IDP Trust Desk
+
+- `docs/exports/linkedin/ARTICLE_MUNICIPAL_IDP_TRUST_DESK.md` — long-form LinkedIn article + publish checklist.
+- Cover image: `docs/exports/linkedin/municipal-idp-trust-desk.png` (participation → TrustLedger desk → owned commitments & feedback).
+
 ## 2026-07-31 — IP-1 / ADR-042: Institutional sector packs (quote-only)
 
 - Sector packs under plan code `institutional` only: Municipal / IDP Trust Desk, Housing, Infrastructure, Renewable.
