@@ -14,7 +14,7 @@
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
 | Backend | **Frappe Cloud** `app.trustledger.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
-| Marketing | WordPress `trustledger.co.za` on Webway (CTA later) |
+| Marketing | **ADR-042:** single public site — Next.js at `trustledger.co.za` (retire WP brochure); Cloud app stays `app.trustledger.co.za` |
 | Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
 **Current phase:** Phase 6 — **Version 002** core (ADR-023). Product label in market: **Version 001**. Demo/mock remains default until Frappe DocTypes land.

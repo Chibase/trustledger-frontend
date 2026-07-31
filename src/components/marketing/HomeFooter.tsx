@@ -9,6 +9,7 @@ const COLS = [
     links: [
       { href: "#how-it-works", label: "How it works" },
       { href: "/product", label: "Product & onboarding" },
+      { href: "#solutions", label: "Solutions" },
       { href: "#sectors", label: "Sectors" },
       { href: "#pricing", label: "Pricing" },
       { href: "/assessment", label: "Readiness assessment" },
@@ -19,17 +20,18 @@ const COLS = [
     links: [
       { href: "https://chibaseconsulting.co.za", label: "Chibase Consulting", external: true },
       { href: "/contact?utm_source=home&utm_medium=footer&utm_campaign=contact", label: "Contact" },
-      { href: "https://trustledger.co.za/privacy/", label: "Privacy", external: true },
-      { href: "https://trustledger.co.za/terms/", label: "Terms", external: true },
+      { href: "/privacy", label: "Privacy" },
+      { href: "/terms", label: "Terms" },
     ],
   },
   {
     title: "Resources",
     links: [
-      { href: "#resources", label: "Guides" },
+      { href: "/compare", label: "Compare platforms" },
+      { href: "/guides/ess10-ifc-grievance", label: "ESS10 / IFC guide" },
       { href: "/faq", label: "FAQ" },
       { href: "/status", label: "System status" },
-      { href: "/pay", label: "Subscribe (Paystack)" },
+      { href: "/pay", label: "Subscribe" },
       { href: "/trial?utm_campaign=trial_14day", label: "Start 14-day trial" },
     ],
   },
@@ -106,7 +108,7 @@ export function HomeFooter() {
           <p className="mt-1">
             Practitioner and Project checkout on{" "}
             <Link href="/pay" className="underline underline-offset-2 hover:text-white">
-              Paystack
+              Subscribe
             </Link>
             . Institutional is sales-led via{" "}
             <Link

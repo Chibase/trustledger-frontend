@@ -8,7 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 1. Read `docs/BUILD_PLAN.md` before coding. Implement **only the active packet**.
 2. Obey `docs/DECISIONS.md` and `docs/DESIGN_SYSTEM.md` — do not re-ask locked choices.
-3. Current phase = **GO LIVE Done** + Cloud Stakeholder Intelligence deepening. Backend host = `app.trustledger.co.za` only (Interserv retired). No Cloudflare/WordPress work in this repo unless asked.
+3. Current phase = **GO LIVE Done** + Cloud Stakeholder Intelligence deepening. Backend host = `app.trustledger.co.za` only (Interserv retired). **Public web (ADR-042):** one marketing+product host at `trustledger.co.za` (Next.js) — retire WordPress brochure; no Cloudflare/WordPress edits in this repo unless asked (`docs/HOST_CONSOLIDATION.md`).
 4. Minimise human interruption: only ask when blocked (secrets, prod destroy, plan conflict).
 5. After each packet: update `docs/CHANGELOG_INTERNAL.md`, run `npm run lint` and `npm run build`.
 6. AI features stay suggest → apply → save. Never put LLM API keys in client code.
@@ -17,5 +17,5 @@ This version has breaking changes — APIs, conventions, and file structure may 
 9. **Client-facing PRs:** Bugbot must review (`.cursor/BUGBOT.md`). Use Security Agents before Paystack/live auth changes. Best-of-N only for rare UI forks — see `docs/CURSOR_AGENTS.md`.
 10. **Public launch / plan packaging / agent scripts:** treat `docs/PLATFORM_STRATEGIC_BRIEF.md` as the living brief. Do not over-claim V002/V003. Sample `/demo` is retired → `/product`.
 11. **Report AI:** Activity reports and compliance briefs must use the local evidence composer (`reportComposer`). Never call Frappe/Grok for those — it returns fill-in-the-blank month-end templates.
-12. **Acquisition CRM (ADR-034):** Frappe CRM Lead only. WordPress = CTAs (`docs/WEBWAY_CUTOVER.md`). Do not add HubSpot embeds or treat HubSpot as required.
+12. **Acquisition CRM (ADR-034):** Frappe CRM Lead only. Until apex cutover, WordPress = CTAs only (`docs/WEBWAY_CUTOVER.md`); after ADR-042, forms live on the single public Next.js host. Do not add HubSpot embeds or treat HubSpot as required.
 13. **Bulk email marketing:** Brand via Frappe Email Template / Newsletter using `docs/FRAPPE_EMAIL_MARKETING.md` + `docs/exports/email-marketing/`. Do not blast from Resend OTP keys or HubSpot.

@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/demo", destination: "/product", permanent: true },
       { source: "/demo/:path*", destination: "/product", permanent: true },
+      { source: "/privacy/", destination: "/privacy", permanent: true },
+      { source: "/terms/", destination: "/terms", permanent: true },
       { source: "/dashboard", destination: "/app/dashboard", permanent: false },
       { source: "/projects", destination: "/app/projects", permanent: false },
       { source: "/incidents", destination: "/app/incidents", permanent: false },
