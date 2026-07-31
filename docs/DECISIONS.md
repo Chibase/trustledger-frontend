@@ -103,6 +103,19 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
 
+### ADR-039: WhatsApp Business via Frappe WhatsApp (CRM)
+
+- **Date:** 2026-07-31
+- **Status:** Accepted
+- **Context:** Prospects already message on WhatsApp (e.g. soft-launch interest). Installing a WhatsApp app on Frappe Cloud does not by itself connect Meta or TrustLedger. Operators need a locked path: Desk chat on CRM Lead/Deal, not a second inbox on Vercel.
+- **Decision:**
+  1. Use **Frappe WhatsApp** (`frappe_whatsapp`) on `app.trustledger.co.za` with **Meta WhatsApp Cloud API** credentials and webhook to Cloud.
+  2. **TrustLedger Vercel does not call Meta** — no WA tokens in frontend env. Ops only probes Desk, ensures CRM Lead Source **WhatsApp**, and can log chats as Leads (with `mobile_no`).
+  3. Sales chat happens on **CRM Lead / Deal WhatsApp tab**; outbound cold start uses **approved templates** only.
+  4. Personal WhatsApp remains optional for humans; it is not the system of record.
+- **Consequences:** `docs/WHATSAPP_SETUP.md` + HUMAN_ONLY Meta checklist; packet WA-1. Full two-way sync depends on Meta verify (operator secrets).
+- **Alternatives considered:** Build a Vercel↔Meta webhook bridge (rejected — duplicates Desk app); use only personal WhatsApp with no CRM (rejected — no audit trail).
+
 ### ADR-038: Multi-tenant security ladder packaged on plans
 
 - **Date:** 2026-07-27

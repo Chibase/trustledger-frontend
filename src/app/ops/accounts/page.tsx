@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ProvisionOwnerPanel } from "@/components/ops/ProvisionOwnerPanel";
 import { VipAccessPanel } from "@/components/ops/VipAccessPanel";
+import { WhatsAppCrmPanel } from "@/components/ops/WhatsAppCrmPanel";
 import { getCurrentUser } from "@/lib/auth";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import {
@@ -55,6 +56,7 @@ export default async function OpsAccountsPage() {
       {isOperator ? (
         <>
           <VipAccessPanel isOperator />
+          <WhatsAppCrmPanel />
           <ProvisionOwnerPanel
             isOperator
             defaultEmail={user?.email}
