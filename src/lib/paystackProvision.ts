@@ -8,6 +8,7 @@ import type { VerifiedPaystackTransaction } from "@/lib/paystackServer";
 import { getPaystackPlan } from "@/lib/paystackPlans";
 import {
   computeBillAt,
+  computeNextBillAt,
   hashTrialPassword,
   signTrialActivationToken,
   tempPasswordForReference,
@@ -84,6 +85,11 @@ export async function provisionAfterPaystackVerify(
       paidAt: verified.paidAt,
     });
 
+    /** First month paid — schedule next monthly charge on the reusable auth. */
+    const nextBillAt = computeNextBillAt(
+      verified.paidAt ? new Date(verified.paidAt) : new Date(),
+    ).toISOString();
+
     let cloudProvision: TrialProvisionResult["cloudProvision"];
     if (
       isFrappeAutoProvisionEnabled() &&
@@ -98,6 +104,8 @@ export async function provisionAfterPaystackVerify(
         status: "active",
         sendWelcomeEmail: true,
         planAmountCents: planAmountCents,
+        billAt: nextBillAt,
+        authorizationCode: verified.authorizationCode,
       });
       cloudProvision = {
         ok: cloud.ok,
@@ -117,7 +125,7 @@ export async function provisionAfterPaystackVerify(
       reference: verified.reference,
       amountCents: verified.amountCents,
       currency: verified.currency,
-      billAt: null,
+      billAt: nextBillAt,
       tempPassword: null,
       activationToken: null,
       emailSent: false,

@@ -3,8 +3,8 @@ import { cookies } from "next/headers";
 import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import { ensureTrustLedgerCustomFields } from "@/lib/frappeCustomFields";
 import {
-  listDueTrialCustomers,
-  setCustomerEntitlement,
+  listDueBillCustomers,
+  patchCustomerBilling,
 } from "@/lib/entitlementCloud";
 import { assertOpsAccess } from "@/lib/platformOperator";
 import { recordPaystackPayment } from "@/lib/paymentIntel";
@@ -14,6 +14,7 @@ import {
 } from "@/lib/paystackServer";
 import type { PaystackPlanId } from "@/lib/paystackPlans";
 import { getPaystackPlan } from "@/lib/paystackPlans";
+import { computeNextBillAt } from "@/lib/trialProvision";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,8 +27,9 @@ function authorizeCron(request: Request): boolean {
 }
 
 /**
- * OD-4 — charge all due trial Customers (cron or Ops with dryRun).
+ * OD-4 — charge due Customers (trial end + monthly renewals). Cron or Ops dryRun.
  * Auth: Bearer CRON_SECRET, or Platform Operator session.
+ * On success: entitlement active + custom_bill_at advanced one month (recurring).
  */
 export async function GET(request: Request) {
   return runChargeDue(request, { dryRun: false });
@@ -64,7 +66,7 @@ async function runChargeDue(
 
   await ensureTrustLedgerCustomFields({ dryRun: false }).catch(() => undefined);
 
-  const due = await listDueTrialCustomers();
+  const due = await listDueBillCustomers();
   if (options.dryRun) {
     return NextResponse.json({
       ok: true,
@@ -79,7 +81,7 @@ async function runChargeDue(
       })),
       message: due.length
         ? `${due.length} Customer(s) due — set dryRun:false or wait for cron to charge.`
-        : "No due trial Customers.",
+        : "No due Customers (trial or renewal).",
     });
   }
 
@@ -88,6 +90,7 @@ async function runChargeDue(
     email: string;
     ok: boolean;
     status?: string;
+    nextBillAt?: string;
     error?: string;
   }> = [];
 
@@ -116,7 +119,7 @@ async function runChargeDue(
         amountCents,
         reference,
         metadata: {
-          checkout_mode: "trial_due",
+          checkout_mode: "recurring_due",
           plan: planId,
           plan_label: plan?.label || planId,
           product: "TrustLedger",
@@ -135,15 +138,20 @@ async function runChargeDue(
           reference: charged.reference,
           paidAt: new Date().toISOString(),
         });
-        await setCustomerEntitlement(row.name, "active");
+        const nextBillAt = computeNextBillAt(new Date());
+        await patchCustomerBilling(row.name, {
+          status: "active",
+          billAt: nextBillAt,
+        });
         results.push({
           customer: row.name,
           email: row.ownerEmail,
           ok: true,
           status: charged.status,
+          nextBillAt: nextBillAt.toISOString(),
         });
       } else {
-        await setCustomerEntitlement(row.name, "past_due");
+        await patchCustomerBilling(row.name, { status: "past_due" });
         results.push({
           customer: row.name,
           email: row.ownerEmail,
@@ -153,7 +161,7 @@ async function runChargeDue(
         });
       }
     } catch (err) {
-      await setCustomerEntitlement(row.name, "past_due");
+      await patchCustomerBilling(row.name, { status: "past_due" });
       results.push({
         customer: row.name,
         email: row.ownerEmail,
@@ -171,7 +179,7 @@ async function runChargeDue(
     failed: results.length - okCount,
     results,
     message: due.length
-      ? `Processed ${results.length} due trial(s): ${okCount} charged, ${results.length - okCount} failed/past_due.`
-      : "No due trial Customers.",
+      ? `Processed ${results.length} due bill(s): ${okCount} charged (+ next bill_at), ${results.length - okCount} failed/past_due.`
+      : "No due Customers.",
   });
 }

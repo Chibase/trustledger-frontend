@@ -79,6 +79,16 @@ export function computeBillAt(startedAt = new Date(), trialDays = TRIAL_DAYS): D
   return billAt;
 }
 
+/**
+ * Next monthly bill date after a successful charge (ADR-025 recurring).
+ * Uses calendar months in UTC so day-14 → ~same day next month.
+ */
+export function computeNextBillAt(from = new Date()): Date {
+  const next = new Date(from.getTime());
+  next.setUTCMonth(next.getUTCMonth() + 1);
+  return next;
+}
+
 /** Readable temporary password (no ambiguous chars). */
 export function generateTempPassword(length = 10): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";

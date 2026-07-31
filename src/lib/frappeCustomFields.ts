@@ -53,7 +53,7 @@ export const TRUSTLEDGER_CUSTOM_FIELDS: CustomFieldSpec[] = [
   {
     dt: "Customer",
     fieldname: "custom_bill_at",
-    label: "Trial bill at",
+    label: "Next bill at",
     fieldtype: "Datetime",
     insert_after: "custom_entitlement_status",
   },

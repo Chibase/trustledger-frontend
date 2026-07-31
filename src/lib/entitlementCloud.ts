@@ -78,17 +78,38 @@ export async function setCustomerEntitlement(
   customerName: string,
   status: EntitlementStatus,
 ): Promise<{ ok: boolean; error?: string }> {
+  return patchCustomerBilling(customerName, { status });
+}
+
+/** Update entitlement and/or next bill_at after a charge attempt. */
+export async function patchCustomerBilling(
+  customerName: string,
+  patch: { status?: EntitlementStatus; billAt?: Date | string | null },
+): Promise<{ ok: boolean; error?: string }> {
   const base = frappeBase();
   const headers = authHeaders();
   if (!base || !headers) {
     return { ok: false, error: "Frappe API not configured" };
+  }
+  const body: Record<string, unknown> = {};
+  if (patch.status) body.custom_entitlement_status = patch.status;
+  if (patch.billAt !== undefined) {
+    body.custom_bill_at =
+      patch.billAt === null
+        ? null
+        : toFrappeDatetime(
+            typeof patch.billAt === "string" ? patch.billAt : patch.billAt,
+          );
+  }
+  if (!Object.keys(body).length) {
+    return { ok: false, error: "Nothing to update" };
   }
   const res = await fetch(
     `${base}/api/resource/Customer/${encodeURIComponent(customerName)}`,
     {
       method: "PUT",
       headers,
-      body: JSON.stringify({ custom_entitlement_status: status }),
+      body: JSON.stringify(body),
       cache: "no-store",
     },
   );
@@ -99,8 +120,14 @@ export async function setCustomerEntitlement(
   return { ok: true };
 }
 
-/** Trial Customers whose bill_at is due and still have an authorization code. */
-export async function listDueTrialCustomers(now = new Date()): Promise<DueTrialCustomer[]> {
+/**
+ * Customers due for a Paystack charge (trial end or monthly renewal).
+ * Requires reusable authorization + plan amount + bill_at <= now.
+ * Includes trial, active, and past_due (retry); excludes cancelled.
+ */
+export async function listDueBillCustomers(
+  now = new Date(),
+): Promise<DueTrialCustomer[]> {
   const base = frappeBase();
   const headers = authHeaders();
   if (!base || !headers) return [];
@@ -108,7 +135,11 @@ export async function listDueTrialCustomers(now = new Date()): Promise<DueTrialC
   const nowStr = toFrappeDatetime(now) || "";
   const filters = encodeURIComponent(
     JSON.stringify([
-      ["custom_entitlement_status", "=", "trial"],
+      [
+        "custom_entitlement_status",
+        "in",
+        ["trial", "active", "past_due"],
+      ],
       ["custom_bill_at", "<=", nowStr],
       ["custom_authorization_code", "!=", ""],
     ]),
@@ -122,6 +153,7 @@ export async function listDueTrialCustomers(now = new Date()): Promise<DueTrialC
       "custom_authorization_code",
       "custom_plan_amount_cents",
       "custom_bill_at",
+      "custom_entitlement_status",
     ]),
   );
   const res = await fetch(
@@ -153,4 +185,11 @@ export async function listDueTrialCustomers(now = new Date()): Promise<DueTrialC
       billAt: row.custom_bill_at || "",
     }))
     .filter((row) => row.name && row.amountCents > 0);
+}
+
+/** @deprecated Prefer listDueBillCustomers — kept for callers during rename. */
+export async function listDueTrialCustomers(
+  now = new Date(),
+): Promise<DueTrialCustomer[]> {
+  return listDueBillCustomers(now);
 }
