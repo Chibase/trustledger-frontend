@@ -287,9 +287,10 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   2. Optional **`pay_now`** mode charges the first month immediately (no deferred trial billing).
   3. On verify success: CRM Lead `Trial Authorize`, mint temp password + signed activation token, email when `RESEND_API_KEY` is set, always show credentials on `/pay/success`, activate browser trial workspace immediately.
   4. Banner **Cancel before you are charged** → `/api/billing/opt-out` (CRM `Trial Opt-Out` + Paystack `deactivate_authorization` when code available).
-  5. Ops charges due trials via `/api/paystack/charge-due` (allowlist). Frappe Plan Owner creation stays gated by ADR-013 lockdown.
-- **Consequences:** Subscribe CTAs mean trial-with-card-on-file. Success page has thank-you + login details only. Day-14 collection is operator-triggered until a scheduler lands.
-- **Alternatives considered:** Full charge on Subscribe (rejected — contradicts trial promise); free trial with no card (kept as `/trial` explore only); auto Frappe User create (blocked by lockdown).
+  5. Daily cron `/api/cron/charge-due` (and Ops charge-due) charges due authorizations for **trial end and monthly renewals**. On success: entitlement `active` and `custom_bill_at` advanced **one month**. Failures → `past_due` (retried while auth remains).
+  6. This is TrustLedger-managed recurring via reusable authorizations — not Paystack native Subscription Plan objects (unless Ops later migrates).
+- **Consequences:** Subscribe CTAs mean trial-with-card-on-file. Success page has thank-you + login details only. Monthly billing continues after day-14 while authorization stays active and opt-out has not cleared it.
+- **Alternatives considered:** Full charge on Subscribe (rejected — contradicts trial promise); free trial with no card (kept as `/trial` explore only); auto Frappe User create (blocked by lockdown); Paystack Subscription API only (deferred — current auth + cron path is sufficient and already live).
 
 ### ADR-013: Platform Operator lockdown
 

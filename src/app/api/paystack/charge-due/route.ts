@@ -10,8 +10,9 @@ import {
 import { getPaystackPlan, type PaystackPlanId } from "@/lib/paystackPlans";
 import {
   getCustomerEntitlementByOwnerEmail,
-  setCustomerEntitlement,
+  patchCustomerBilling,
 } from "@/lib/entitlementCloud";
+import { computeNextBillAt } from "@/lib/trialProvision";
 
 export const runtime = "nodejs";
 
@@ -27,8 +28,8 @@ type Body = {
 };
 
 /**
- * Ops-only: charge a stored trial authorization after the 14-day trial.
- * Skip if the customer opted out (ops must check CRM / Trial Opt-Out leads).
+ * Ops-only: charge a stored authorization (trial end or renewal).
+ * On success advances custom_bill_at by one month for recurring billing.
  */
 export async function POST(request: Request) {
   if (!paystackConfigured()) {
@@ -79,13 +80,15 @@ export async function POST(request: Request) {
       amountCents,
       reference,
       metadata: {
-        checkout_mode: "trial_due",
+        checkout_mode: "recurring_due",
         plan: planId,
         plan_label: body.planLabel || plan?.label || planId,
         original_reference: body.originalReference || "",
         product: "TrustLedger",
       },
     });
+
+    const nextBillAt = charged.ok ? computeNextBillAt(new Date()) : null;
 
     if (charged.ok) {
       await recordPaystackPayment({
@@ -101,12 +104,15 @@ export async function POST(request: Request) {
       });
       const ent = await getCustomerEntitlementByOwnerEmail(email);
       if (ent?.customerName) {
-        await setCustomerEntitlement(ent.customerName, "active");
+        await patchCustomerBilling(ent.customerName, {
+          status: "active",
+          billAt: nextBillAt,
+        });
       }
     } else {
       const ent = await getCustomerEntitlementByOwnerEmail(email);
       if (ent?.customerName) {
-        await setCustomerEntitlement(ent.customerName, "past_due");
+        await patchCustomerBilling(ent.customerName, { status: "past_due" });
       }
     }
 
@@ -116,6 +122,7 @@ export async function POST(request: Request) {
       reference: charged.reference,
       amountCents: charged.amountCents,
       message: charged.message,
+      nextBillAt: nextBillAt ? nextBillAt.toISOString() : null,
     });
   } catch (err) {
     return NextResponse.json(

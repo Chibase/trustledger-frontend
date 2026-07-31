@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-31 — Paystack recurring: advance bill_at after each charge
+
+- Gap: day-14 charge set entitlement `active` but never scheduled the next month, and due-list only queried `trial` — so billing was one-shot, not recurring.
+- Fix: `listDueBillCustomers` includes trial/active/past_due; success advances `custom_bill_at` +1 month; `pay_now` seeds next bill + auth.
+- Docs: `PAYSTACK_SETUP.md` + ADR-025 clarified (auth + cron, not Paystack Subscription objects).
+
 ## 2026-07-30 — ADR-041: site location cascade sequence
 
 - Locked capture order: **Country → Province → Town → DM → TC → Ward** with pack dropdowns + **Add if not listed** per level.

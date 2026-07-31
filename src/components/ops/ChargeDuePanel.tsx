@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 
 /**
- * OD-4 — Ops Finance helper for day-14 charge-due batch.
+ * OD-4 — Ops Finance helper for trial-end + monthly recurring charge-due.
  */
 export function ChargeDuePanel() {
   const { pushToast } = useToast();
@@ -41,12 +41,16 @@ export function ChargeDuePanel() {
 
   return (
     <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
-      <h2 className="font-display text-lg font-semibold">Day-14 charge due (OD-4)</h2>
+      <h2 className="font-display text-lg font-semibold">
+        Recurring charge due (OD-4)
+      </h2>
       <p className="mt-1 text-sm text-tl-ink-muted">
-        Lists trial Customers with <code className="font-mono">custom_bill_at</code>{" "}
-        due and a stored Paystack authorization. Success →{" "}
-        <code className="font-mono">active</code>; failure →{" "}
-        <code className="font-mono">past_due</code>. Cron:{" "}
+        Lists Customers (trial, active, or past_due) with{" "}
+        <code className="font-mono">custom_bill_at</code> due and a stored
+        Paystack authorization. Success →{" "}
+        <code className="font-mono">active</code> and{" "}
+        <code className="font-mono">bill_at</code> advanced one month; failure →{" "}
+        <code className="font-mono">past_due</code> (daily cron retries). Cron:{" "}
         <code className="font-mono">GET /api/cron/charge-due</code> with{" "}
         <code className="font-mono">CRON_SECRET</code>.
       </p>
