@@ -86,7 +86,8 @@ export function getPaystackPlans(): PaystackPlan[] {
     {
       id: "institutional",
       label: "Institutional",
-      summary: "Custom seats, regions, and compliance — sales-scoped.",
+      summary:
+        "Quote-based programmes — municipal / IDP, housing, infrastructure, renewable.",
       amountCents: envCents("PAYSTACK_AMOUNT_INSTITUTIONAL_CENTS", 0),
       currency: "ZAR",
       period: "month",
@@ -103,7 +104,7 @@ export function getPaystackPlan(
 }
 
 export function formatZarFromCents(cents: number): string {
-  if (!cents) return "Contact sales";
+  if (!cents) return "Quote";
   return `R ${(cents / 100).toLocaleString("en-ZA", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -111,6 +112,6 @@ export function formatZarFromCents(cents: number): string {
 }
 
 export function formatPlanPrice(plan: PaystackPlan): string {
-  if (!plan.amountCents) return "Contact sales";
+  if (!plan.amountCents) return "Quote";
   return `${formatZarFromCents(plan.amountCents)}/mo`;
 }

@@ -103,6 +103,19 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
 
+### ADR-042: Institutional sector packs (quote-only)
+
+- **Date:** 2026-07-31
+- **Status:** Accepted
+- **Context:** Public-sector and programme buyers (municipal IDP, housing, infrastructure, renewables) need named offers, but list-price Paystack SKUs would under-scope seats, Trust Pack, and Isolation. The IDP “information gap” narrative is a flagship municipal sell — still one product desk.
+- **Decision:**
+  1. Keep a single commercial plan code **`institutional`** (not self-serve).
+  2. Market **sector packs** as quote lenses only: `municipal`, `housing`, `infrastructure`, `renewable` (`docs/INSTITUTIONAL_SECTOR_PACKS.md`, `src/config/institutionalPacks.ts`).
+  3. All packs share the Institutional entitlement floor (full SI, board pack, custom seats, Trust/Isolation scoping); packs change story and quote notes, not a second Paystack catalogue row.
+  4. Marketing CTAs use `/quote?plan=institutional&pack=…` (home + WP). Municipal / IDP Trust Desk is the flagship public-sector pack.
+- **Consequences:** Pricing shows Institutional as **Quote** with a programme strip; quote form collects pack; CRM Lead job title includes pack short name.
+- **Alternatives considered:** Separate Paystack SKUs per sector (rejected — pricing chaos); bury municipal under generic “enterprise” (rejected — weak IDP sell).
+
 ### ADR-038: Multi-tenant security ladder packaged on plans
 
 - **Date:** 2026-07-27

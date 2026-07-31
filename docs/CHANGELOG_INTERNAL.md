@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-31 — IP-1 / ADR-042: Institutional sector packs (quote-only)
+
+- Sector packs under plan code `institutional` only: Municipal / IDP Trust Desk, Housing, Infrastructure, Renewable.
+- Config `src/config/institutionalPacks.ts`; docs `docs/INSTITUTIONAL_SECTOR_PACKS.md`.
+- Home `#pricing` + WP paste: Institutional → Request quote; programme strip → `/quote?plan=institutional&pack=…`.
+- Quote form collects pack; CRM Lead job title includes pack short name.
+
 ## 2026-07-30 — ADR-041: site location cascade sequence
 
 - Locked capture order: **Country → Province → Town → DM → TC → Ward** with pack dropdowns + **Add if not listed** per level.
