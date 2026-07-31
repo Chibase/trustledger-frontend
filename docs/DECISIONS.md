@@ -435,6 +435,21 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Report copy and validation use the full sequence. Custom places store under `tl-custom-geo-places` for the workspace browser.
 - **Alternatives considered:** Keep any-order free pick (rejected — breaks training); town search only without province (rejected — harder audit trail); force TC always (rejected — metros / no-TC DMs).
 
+### ADR-042: Single public web host — retire WordPress marketing
+
+- **Date:** 2026-07-31
+- **Status:** Accepted
+- **Context:** BrandRadar AI Visibility Audit (Cape Town, 31 Jul 2026) scored TrustLedger **0/15** prompt mentions. AI answers cited UK fintech / US accounting / defunct crypto name-collisions and SRM competitors (Jambo, Borealis, grievance.app, Simply Stakeholders, Cultiver ENGAGE!). Parent `chibaseconsulting.co.za` appeared in 3/15; **`trustledger.co.za` never surfaced**. Running **two public marketing surfaces** (WordPress on Webway + Next.js on Vercel) splits entity signals, duplicate FAQ/schema, and Search Console/Bing properties — the opposite of what answer engines need for a new brand.
+- **Decision:**
+  1. **One public product + marketing host:** the TrustLedger Next.js app (today hosted on Vercel) is the sole public site for home, pricing story, `/product`, `/faq`, assessment, trial, pay, contact, Privacy/Terms.
+  2. **Canonical entity URL:** apex **`https://trustledger.co.za`** must resolve to that Next.js deployment (custom domain + `NEXT_PUBLIC_SITE_URL=https://trustledger.co.za`). Stop treating `*.vercel.app` as the long-term public identity.
+  3. **Retire WordPress as a parallel marketing CMS.** After apex cutover: 301 all former WP paths to matching Next.js routes (or `/`), then decommission Elementor/SpeedyCache content. Do not keep two editable homes.
+  4. **Keep** `app.trustledger.co.za` as TrustLedger Cloud (login/API) — not a marketing index target.
+  5. **Keep** Chibase site as operator/legal parent with clear outbound links to TrustLedger; do not co-brand the product (ADR-039).
+  6. Ops checklist: `docs/HOST_CONSOLIDATION.md`. AEO playbook: `docs/AEO_VISIBILITY.md`.
+- **Consequences:** Webway paste packs become transitional only; new marketing copy ships in-repo. DNS / SSL / SpeedyCache cutover is human Ops on Webway + Vercel domains. Agents do not change Cloudflare unless asked.
+- **Alternatives considered:** Keep WP as brochure + Vercel product (rejected — dual hosts diluted BrandRadar signals); retire Next.js marketing and rebuild on WP (rejected — FAQ/JSON-LD/`llms.txt`/forms/trial/pay already live in-repo); two equal hosts with cross-canonicals (rejected — still confuses AI crawlers).
+
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 
 - **Date:** 2026-07-23

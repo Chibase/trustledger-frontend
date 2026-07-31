@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-31 — ADR-042: BrandRadar AEO + retire WP marketing host
+
+- BrandRadar audit (0/15 TrustLedger mentions; name collisions; `trustledger.co.za` never cited) captured in `docs/AEO_VISIBILITY.md`.
+- **ADR-042:** single public host — Next.js at apex `trustledger.co.za`; **retire WordPress** as parallel marketing CMS; keep `app.trustledger.co.za` for Cloud.
+- Ops checklist: `docs/HOST_CONSOLIDATION.md`. Disambiguation FAQs + schema `alternateName` / `knowsAbout` in `siteFacts` / `jsonLd`.
+
 ## 2026-07-30 — ADR-041: site location cascade sequence
 
 - Locked capture order: **Country → Province → Town → DM → TC → Ward** with pack dropdowns + **Add if not listed** per level.

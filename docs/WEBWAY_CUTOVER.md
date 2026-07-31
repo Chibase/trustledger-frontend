@@ -1,11 +1,11 @@
 # Webway cutover checklist (HubSpot out)
 
 **Locked:** ADR-034 — Frappe-only acquisition CRM.  
-**Marketing host:** WordPress on Webway (`https://trustledger.co.za`).  
-**Product/forms host:** Vercel (`https://trustledger-frontend-pi.vercel.app`).  
+**Superseded for hosts:** **ADR-042** — retire WordPress as parallel marketing; apex `trustledger.co.za` → Next.js. See `docs/HOST_CONSOLIDATION.md`.  
+**Until DNS flip:** WordPress on Webway may still be the live apex; product/forms on the Next.js deploy.  
 **CRM host:** Frappe Cloud (`https://app.trustledger.co.za`).
 
-WordPress is **brochure + buttons only**. It must not host HubSpot forms, HubSpot tracking that owns leads, or relative `/contact` links.
+While WP remains live, it is **brochure + buttons only**. It must not host HubSpot forms, HubSpot tracking that owns leads, or relative `/contact` links. Prefer investing in host consolidation over new Elementor paste.
 
 Full phases: `docs/HS_CUTOVER.md`. CTA URLs: `docs/WORDPRESS_CTA.md`. Paste packs: `docs/wordpress/PASTE_PLANS.md`.
 
