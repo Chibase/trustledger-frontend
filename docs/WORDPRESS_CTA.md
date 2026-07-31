@@ -11,7 +11,7 @@ Product (Vercel): `https://trustledger-frontend-pi.vercel.app`
 | **Subscribe Solo** | `…/pay?plan=solo` | Entry — lone consultant, 1 seat |
 | **Subscribe Practitioner** | `…/pay?plan=practitioner` | Paystack checkout |
 | **Subscribe Project** | `…/pay?plan=project` | Paystack checkout |
-| Institutional / Talk to sales | `https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&utm_medium=cta&utm_campaign=buy_institutional` | Sales-led → Vercel branded form → Frappe CRM Lead |
+| Institutional / Request quote | `…/quote?plan=institutional` (optional `&pack=municipal\|housing\|infrastructure\|renewable`) | Quote-led Institutional sector packs (ADR-042) → CRM Lead |
 | Contact / Book walkthrough | `https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&utm_medium=nav&utm_campaign=book_walkthrough` | Same form |
 | Product onboarding | `…/product` | Feature purpose (ADR-033); `/demo` redirects here |
 

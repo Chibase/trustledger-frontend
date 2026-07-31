@@ -209,7 +209,18 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | **Solo** | R1,999 | Lone consultant barely surviving / entry desk | Owner only (0 juniors) | 10 MB |
 | **Practitioner** | R5,399 | Independent SRM ready for AI Assist | Owner only (0 juniors) | 25 MB |
 | **Project** | R14,999 | Active project / site team | Owner + juniors | 250 MB |
-| **Institutional** | Contact sales | Multi-project / public sector / enterprise | Custom | 2 GB soft |
+| **Institutional** | Quote (no list price) | Multi-project / public sector / sector programmes | Custom | 2 GB soft |
+
+**Institutional sector packs (ADR-042)** — same plan code `institutional`, quote-only lenses:
+
+| Pack | Marketing name |
+|------|----------------|
+| `municipal` | Municipal / IDP Trust Desk |
+| `housing` | Housing programmes |
+| `infrastructure` | Infrastructure programmes |
+| `renewable` | Renewable energy & just transition |
+
+Detail: `docs/INSTITUTIONAL_SECTOR_PACKS.md`. CTA: `/quote?plan=institutional&pack=…`.
 
 **Trial:** 14 days; default Paystack path `trial_authorize` (small verify charge, bill day 14) — ADR-025. Entry SKU detail: `docs/SOLO_PLAN.md` (ADR-035).
 
@@ -259,11 +270,12 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 1. **Solo** = survive and professionalise — personal grievance desk, 1 seat, no AI / SI. Entry for lone consultants.
 2. **Practitioner** = earn with AI Assist + light governance. Do **not** promise full SI registry as included.
 3. **Project** = default “real SRM” SKU — desk + Stakeholder Intelligence modules + junior seats; **Trust Pack** (DPA / purge SLA) target.
-4. **Institutional** = Project capabilities + board pack + **Isolation / dedicated tenancy options** + commercial/custom (sales-led).
+4. **Institutional** = Project capabilities + board pack + **Isolation / dedicated tenancy options** + **quote-only sector packs** (municipal / housing / infrastructure / renewable — ADR-042).
 5. Keep **add-ons** for upsell; do not silently unlock Institutional-only toggles on lower plans (ADR-024).
 6. Multi-tenant security ladder (L1–L5): `docs/SECURITY_TENANCY.md` (ADR-038). Do not claim SOC2 / dedicated shells until shipped.
 7. Revisit prices only with evidence from Ops Finance + win/loss — matrix above is the feature switchboard.
 8. **SA baseline intel (ADR-040):** every SA plan includes platform ZA place data (municipalities, wards, TCs where packed). Client adds projects/stakeholders/cases only — never rebuild the country map. Detail: `docs/ZA_BASELINE_INTEL.md`.
+9. Do **not** sell Institutional sector packs as separate Paystack SKUs — always quote under `institutional`.
 
 ### 5.4 What each plan should *not* include in the box (yet)
 

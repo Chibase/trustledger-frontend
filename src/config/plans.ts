@@ -109,12 +109,13 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
   institutional: {
     id: "institutional",
     name: "Institutional",
-    description: "Organisation-wide deployment and assurance.",
+    description:
+      "Quote-based programmes — municipal / IDP, housing, infrastructure, renewable.",
     monthlyLaunchZar: null,
     trialDays: null,
     cta: "sales",
     payHref:
-      "/contact?utm_source=pricing&utm_medium=cta&utm_campaign=buy_institutional",
+      "/quote?plan=institutional&utm_source=pricing&utm_medium=cta&utm_campaign=buy_institutional",
   },
 };
 
@@ -130,6 +131,6 @@ export function getMarketingPlans(): PlanDefinition[] {
     payHref:
       p.selfServe
         ? `/pay?plan=${p.id}&utm_source=pricing&utm_medium=cta&utm_campaign=buy_${p.id}`
-        : `/contact?utm_source=pricing&utm_medium=cta&utm_campaign=buy_${p.id}`,
+        : `/quote?plan=institutional&utm_source=pricing&utm_medium=cta&utm_campaign=buy_${p.id}`,
   }));
 }

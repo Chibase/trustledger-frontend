@@ -228,12 +228,48 @@
       </article>
       <article class="pricing-card">
         <h3 class="pricing-card__name">Institutional</h3>
-        <p class="pricing-card__desc">Organisation-wide deployment and assurance</p>
+        <p class="pricing-card__desc">Quote-based programmes — municipal / IDP, housing, infrastructure, renewable</p>
         <div class="pricing-card__row">
-          <span class="pricing-card__amount">Custom</span>
+          <span class="pricing-card__amount">Quote</span>
         </div>
-        <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_institutional" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Talk to sales</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/quote?plan=institutional&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=buy_institutional" class="btn btn--secondary btn--block" target="_blank" rel="noopener noreferrer">Request quote</a>
+        <p class="mt-4" style="text-align:center">
+          <a class="btn btn--link" href="#institutional-programmes">View programme packs</a>
+        </p>
       </article>
+    </div>
+
+    <div id="institutional-programmes" style="margin-top:2.5rem">
+      <div class="section-header section-header--center">
+        <h3 class="section-header__title" style="font-size:1.25rem">Institutional programmes — quote-based</h3>
+        <p class="section-header__desc">Municipal, housing, infrastructure, and renewable programmes run on Institutional. Pricing is scoped by quote.</p>
+      </div>
+      <div class="grid grid--2" style="margin-top:1.5rem;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem">
+        <article class="pricing-card">
+          <p style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--color-teal-700,#0e7c66)">Institutional · Municipal</p>
+          <h4 class="pricing-card__name" style="font-size:1.1rem">Municipal / IDP Trust Desk</h4>
+          <p class="pricing-card__desc">Ward- and municipality-aware desk for participation, grievances, and council-ready commitment trails.</p>
+          <a class="btn btn--secondary btn--block" href="https://trustledger-frontend-pi.vercel.app/quote?plan=institutional&amp;pack=municipal&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=institutional_municipal" target="_blank" rel="noopener noreferrer">Request municipal quote</a>
+        </article>
+        <article class="pricing-card">
+          <p style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--color-teal-700,#0e7c66)">Institutional · Housing</p>
+          <h4 class="pricing-card__name" style="font-size:1.1rem">Housing programmes</h4>
+          <p class="pricing-card__desc">Track site grievances, stakeholder engagements, and delivery commitments across housing projects.</p>
+          <a class="btn btn--secondary btn--block" href="https://trustledger-frontend-pi.vercel.app/quote?plan=institutional&amp;pack=housing&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=institutional_housing" target="_blank" rel="noopener noreferrer">Request housing quote</a>
+        </article>
+        <article class="pricing-card">
+          <p style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--color-teal-700,#0e7c66)">Institutional · Infrastructure</p>
+          <h4 class="pricing-card__name" style="font-size:1.1rem">Infrastructure programmes</h4>
+          <p class="pricing-card__desc">Geo-tagged grievance and stakeholder intelligence for multi-site infrastructure programmes.</p>
+          <a class="btn btn--secondary btn--block" href="https://trustledger-frontend-pi.vercel.app/quote?plan=institutional&amp;pack=infrastructure&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=institutional_infrastructure" target="_blank" rel="noopener noreferrer">Request infrastructure quote</a>
+        </article>
+        <article class="pricing-card">
+          <p style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--color-teal-700,#0e7c66)">Institutional · Renewable</p>
+          <h4 class="pricing-card__name" style="font-size:1.1rem">Renewable energy &amp; just transition</h4>
+          <p class="pricing-card__desc">Stakeholder intelligence and grievance desk for renewable sites and community benefit commitments.</p>
+          <a class="btn btn--secondary btn--block" href="https://trustledger-frontend-pi.vercel.app/quote?plan=institutional&amp;pack=renewable&amp;utm_source=wordpress&amp;utm_medium=pricing&amp;utm_campaign=institutional_renewable" target="_blank" rel="noopener noreferrer">Request renewable quote</a>
+        </article>
+      </div>
     </div>
 
     <p class="pricing-trust-blurb" style="margin:2.5rem auto 0;max-width:40rem;text-align:center;font-size:0.9375rem;color:var(--color-slate-600,#475569)">
@@ -412,7 +448,7 @@
     </details>
     <details class="faq__item">
       <summary class="faq__button">Is TrustLedger suitable for local municipalities and public-sector projects in South Africa?</summary>
-      <div class="faq__panel">Yes. TrustLedger supports South African geo/place context (ward and municipality), grievance desks, Stakeholder Intelligence, and board or funder reporting packs. Institutional plans are sales-scoped for multi-project and public-sector needs. Start with the SRM readiness assessment or a 14-day own-data trial.</div>
+      <div class="faq__panel">Yes. TrustLedger supports South African geo/place context (ward and municipality), grievance desks, Stakeholder Intelligence, and board or funder reporting packs. Institutional is quote-based with programme packs for municipal / IDP, housing, infrastructure, and renewable. Start with the SRM readiness assessment or a 14-day own-data trial.</div>
     </details>
     <details class="faq__item">
       <summary class="faq__button">What is the difference between Version 001 and Version 002?</summary>
@@ -440,7 +476,7 @@
     </details>
     <details class="faq__item">
       <summary class="faq__button">How do I buy a plan?</summary>
-      <div class="faq__panel">Subscribe on TrustLedger for Solo, Practitioner, or Project. Institutional plans are sales-led via contact.</div>
+      <div class="faq__panel">Subscribe on TrustLedger for Solo, Practitioner, or Project. Institutional programmes are quote-led (municipal, housing, infrastructure, renewable).</div>
     </details>
     <p style="margin-top:1.5rem;text-align:center">
       <a class="btn btn--secondary" href="https://trustledger-frontend-pi.vercel.app/faq?utm_source=wordpress&amp;utm_medium=faq&amp;utm_campaign=faq_hub" target="_blank" rel="noopener noreferrer">Open full FAQ hub</a>

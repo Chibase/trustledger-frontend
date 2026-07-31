@@ -7,6 +7,12 @@ import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/fo
 import { isWorkEmail } from "@/data/assessment";
 import { captureUtmFromSearchParams, formatUtmSummary, readUtm } from "@/lib/utm";
 import type { PaystackPlanId } from "@/lib/paystackPlans";
+import {
+  INSTITUTIONAL_PACK_IDS,
+  INSTITUTIONAL_PACKS,
+  isInstitutionalPackId,
+  type InstitutionalPackId,
+} from "@/config/institutionalPacks";
 
 const PLANS: { id: PaystackPlanId; label: string; blurb: string }[] = [
   {
@@ -27,7 +33,8 @@ const PLANS: { id: PaystackPlanId; label: string; blurb: string }[] = [
   {
     id: "institutional",
     label: "Institutional",
-    blurb: "Custom seats, regions, and compliance — sales-scoped.",
+    blurb:
+      "Quote-based — municipal / IDP, housing, infrastructure, renewable packs.",
   },
 ];
 
@@ -38,6 +45,7 @@ function QuoteForm() {
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
   const [plan, setPlan] = useState<PaystackPlanId>("solo");
+  const [pack, setPack] = useState<InstitutionalPackId>("municipal");
   const [message, setMessage] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [utmLabel, setUtmLabel] = useState("None");
@@ -60,6 +68,11 @@ function QuoteForm() {
         prefillPlan === "institutional"
       ) {
         setPlan(prefillPlan);
+      }
+      const prefillPack = searchParams.get("pack");
+      if (isInstitutionalPackId(prefillPack)) {
+        setPack(prefillPack);
+        setPlan("institutional");
       }
       const prefillEmail = searchParams.get("email");
       if (prefillEmail) setEmail(prefillEmail);
@@ -105,6 +118,7 @@ function QuoteForm() {
           email: email.trim().toLowerCase(),
           organization: organization.trim() || undefined,
           plan,
+          pack: plan === "institutional" ? pack : undefined,
           message: message.trim(),
           tl_hp: honeypot,
           captchaToken,
@@ -240,6 +254,39 @@ function QuoteForm() {
             ))}
           </div>
         </fieldset>
+        {plan === "institutional" ? (
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium">
+              Institutional programme pack
+            </legend>
+            <div className="space-y-2">
+              {INSTITUTIONAL_PACK_IDS.map((id) => {
+                const p = INSTITUTIONAL_PACKS[id];
+                return (
+                  <label
+                    key={id}
+                    className="flex cursor-pointer gap-3 rounded-md border border-tl-line px-3 py-2 text-sm has-[:checked]:border-tl-trust"
+                  >
+                    <input
+                      type="radio"
+                      name="pack"
+                      value={id}
+                      checked={pack === id}
+                      onChange={() => setPack(id)}
+                      className="mt-1"
+                    />
+                    <span>
+                      <span className="font-semibold">{p.name}</span>
+                      <span className="mt-0.5 block text-tl-ink-muted">
+                        {p.tagline}
+                      </span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        ) : null}
         <div>
           <label
             htmlFor="quote-message"

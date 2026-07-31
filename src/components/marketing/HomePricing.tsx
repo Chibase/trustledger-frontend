@@ -6,6 +6,7 @@ import {
 import { DATA_PROTECTION_BLURB } from "@/config/planComparison";
 import { HomePricingComparison } from "@/components/marketing/HomePricingComparison";
 import { HomePricingPrivacyExtras } from "@/components/marketing/HomePricingPrivacyExtras";
+import { HomeInstitutionalPacks } from "@/components/marketing/HomeInstitutionalPacks";
 
 export function HomePricing() {
   const plans = getPaystackPlans();
@@ -26,18 +27,23 @@ export function HomePricing() {
             Plans connected to Paystack checkout
           </h2>
           <p className="mt-3 text-sm text-tl-ink-muted">
-            ZAR excl. VAT. Subscribe verifies your card, starts a 14-day trial
-            immediately, and bills the plan price only when the trial ends —
-            unless you cancel first.
+            ZAR excl. VAT. Self-serve plans verify your card, start a 14-day
+            trial immediately, and bill only when the trial ends — unless you
+            cancel first. Institutional programmes are quote-based.
           </p>
         </div>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => {
+            const isInstitutional = plan.id === "institutional";
             const href = plan.selfServe
               ? `/pay?plan=${plan.id}&utm_source=home&utm_medium=pricing&utm_campaign=buy_${plan.id}`
-              : `/contact?utm_source=home&utm_medium=pricing&utm_campaign=buy_${plan.id}`;
-            const cta = plan.selfServe ? "Subscribe" : "Talk to sales";
+              : `/quote?plan=institutional&utm_source=home&utm_medium=pricing&utm_campaign=buy_institutional`;
+            const cta = isInstitutional
+              ? "Request quote"
+              : plan.selfServe
+                ? "Subscribe"
+                : "Talk to sales";
             /** Practitioner = AI / light-governance step-up (ADR-035). */
             const highlighted = plan.id === "practitioner";
 
@@ -60,12 +66,12 @@ export function HomePricing() {
                 </h3>
                 <p className="mt-2 text-sm text-tl-ink-muted">{plan.summary}</p>
                 <p className="mt-4 font-display text-2xl font-semibold tabular-nums text-tl-ink">
-                  {formatPlanPrice(plan)}
+                  {isInstitutional ? "Quote" : formatPlanPrice(plan)}
                 </p>
                 <p className="mt-1 text-xs text-tl-ink-muted">
                   {plan.selfServe
                     ? "14-day trial available"
-                    : "Scoped to your assurance needs"}
+                    : "Municipal · housing · infrastructure · renewable"}
                 </p>
                 <div className="mt-6 flex flex-1 flex-col justify-end gap-2">
                   <Link
@@ -85,11 +91,22 @@ export function HomePricing() {
                     >
                       Start 14-day trial
                     </Link>
-                  ) : null}
+                  ) : (
+                    <a
+                      href="#institutional-programmes"
+                      className="text-center text-sm font-medium text-tl-trust-ink underline underline-offset-2"
+                    >
+                      View programme packs
+                    </a>
+                  )}
                 </div>
               </article>
             );
           })}
+        </div>
+
+        <div id="institutional-programmes" className="scroll-mt-24">
+          <HomeInstitutionalPacks />
         </div>
 
         <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-tl-ink-muted">

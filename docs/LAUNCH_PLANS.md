@@ -9,9 +9,9 @@ Source of truth for checkout amounts: `src/lib/paystackPlans.ts` (ADR-012 / ADR-
 | **Solo** | R1,999 | 14 days | `/pay?plan=solo` |
 | **Practitioner** | R5,399 | 14 days | `/pay?plan=practitioner` |
 | **Project** | R14,999 | 14 days | `/pay?plan=project` |
-| **Institutional** | Custom | On request | `/contact` |
+| **Institutional** | Custom (quote) | On request | `/quote?plan=institutional` (+ optional `&pack=municipal\|housing\|infrastructure\|renewable`) |
 
-Ladder: **Solo** (survive desk) → **Practitioner** (AI + light governance) → **Project** (multi-seat SI) → **Institutional** (sales). See `docs/SOLO_PLAN.md`.
+Ladder: **Solo** (survive desk) → **Practitioner** (AI + light governance) → **Project** (multi-seat SI) → **Institutional** (quote — sector packs). See `docs/SOLO_PLAN.md` and `docs/INSTITUTIONAL_SECTOR_PACKS.md` (ADR-042).
 
 ## Paystack (Vercel path)
 

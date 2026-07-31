@@ -107,7 +107,8 @@ export default function FaqPage() {
           </h2>
           <p className="mt-2 text-sm text-tl-ink-muted">
             What TrustLedger includes by commercial plan (excl. VAT, monthly
-            ZAR). Full pricing on the marketing site and Subscribe page.
+            ZAR). Institutional programmes (municipal, housing, infrastructure,
+            renewable) are quote-based — see home pricing.
           </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[28rem] border-collapse text-left text-sm">

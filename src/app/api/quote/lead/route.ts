@@ -16,6 +16,10 @@ import {
   getPaystackPlan,
   type PaystackPlanId,
 } from "@/lib/paystackPlans";
+import {
+  INSTITUTIONAL_PACKS,
+  isInstitutionalPackId,
+} from "@/config/institutionalPacks";
 
 type QuoteBody = {
   email: string;
@@ -23,6 +27,8 @@ type QuoteBody = {
   organization?: string;
   message?: string;
   plan?: string;
+  /** Institutional sector pack (ADR-042). */
+  pack?: string;
   tl_hp?: string;
   company_url?: string;
   captchaToken?: string;
@@ -121,6 +127,11 @@ export async function POST(request: Request) {
   }
 
   const amountLabel = formatZarFromCents(plan.amountCents);
+  const packId =
+    planId === "institutional" && isInstitutionalPackId(body.pack)
+      ? body.pack
+      : null;
+  const pack = packId ? INSTITUTIONAL_PACKS[packId] : null;
   const utmParts = body.utm
     ? [
         body.utm.source,
@@ -136,6 +147,8 @@ export async function POST(request: Request) {
   const composed = [
     "TrustLedger quote request (soft-launch EFT / invoice path).",
     `Plan: ${plan.label}.`,
+    pack ? `Institutional pack: ${pack.name} (${pack.id}).` : null,
+    pack ? `Pack focus: ${pack.sellLine}` : null,
     `List price: ${amountLabel} ZAR (indicative — confirm on quote).`,
     organization ? `Organization: ${organization}.` : null,
     `Message: ${message}`,
@@ -146,7 +159,9 @@ export async function POST(request: Request) {
     .filter(Boolean)
     .join("\n");
 
-  const jobTitle = `Quote request · ${plan.label} · ${amountLabel}`;
+  const jobTitle = pack
+    ? `Quote · Institutional · ${pack.shortName}`
+    : `Quote request · ${plan.label} · ${amountLabel}`;
 
   if (leadCaptureConfigured()) {
     const result = await submitProductLead({
@@ -177,7 +192,7 @@ export async function POST(request: Request) {
     void notifyOpsAlert({
       kind: "quote_request",
       title: "TrustLedger quote request",
-      summary: `${name} · ${email} · ${plan.label} · ${amountLabel}${organization ? ` · ${organization}` : ""}`,
+      summary: `${name} · ${email} · ${plan.label}${pack ? ` · ${pack.shortName}` : ""} · ${amountLabel}${organization ? ` · ${organization}` : ""}`,
       href: `${siteBaseUrl()}/ops/finance`,
     });
 

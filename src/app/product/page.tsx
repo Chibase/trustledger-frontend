@@ -249,13 +249,20 @@ export default async function ProductPage({ searchParams }: PageProps) {
                 Ready when you are
               </p>
               <p className="mt-1 text-sm text-white/75">
-                Questions on plans or pilots — talk to us.
+                Municipal, housing, infrastructure, and renewable programmes —
+                Institutional is quote-based.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
-                href="/contact"
+                href="/quote?plan=institutional&pack=municipal&utm_source=product&utm_medium=cta&utm_campaign=institutional_municipal"
                 className="rounded-md bg-white px-4 py-2.5 text-sm font-semibold text-tl-ink hover:bg-tl-paper"
+              >
+                Municipal quote
+              </Link>
+              <Link
+                href="/contact"
+                className="rounded-md border border-white/40 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
               >
                 Contact
               </Link>

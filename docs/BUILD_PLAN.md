@@ -202,6 +202,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **CP-1** | Solo entry plan | ADR-035 — `solo` R1,999 / 1 seat / essentials; wire Paystack + entitlements + seats + docs (`docs/SOLO_PLAN.md`) | **Done** |
+| **IP-1** | Institutional sector packs | ADR-042 — municipal / housing / infrastructure / renewable as quote-only lenses under `institutional` | **Done** |
 
 ### Security / tenancy packaging
 
@@ -263,3 +264,4 @@ src/
 | 2026-07-24 | CP-1 / ADR-035 — Solo entry plan (R1,999, 1 seat, essentials) |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
+| 2026-07-31 | IP-1 / ADR-042 — Institutional sector packs (municipal, housing, infrastructure, renewable) |
