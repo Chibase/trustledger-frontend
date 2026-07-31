@@ -32,6 +32,7 @@ Hard-refresh Frappe CRM afterward. Remove `CRM_SETUP_TOKEN` from Vercel when don
 | `Trial Opt-Out` | Cancel before end-of-trial charge |
 | `Quote Request` | `/quote` and trial “Request quote” |
 | `EFT Payment` | Ops → Finance → Confirm EFT paid |
+| `WhatsApp` | Frappe WhatsApp / Ops WhatsApp log (ADR-039) |
 
 If a source name is missing, intake still saves (source omitted) and Vercel logs a warning.
 

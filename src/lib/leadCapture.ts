@@ -26,6 +26,8 @@ export type ProductLeadInput = HubSpotLeadInput & {
   role?: string;
   /** Attribution string e.g. source/medium/campaign */
   utm?: string;
+  /** WhatsApp / phone — CRM Lead mobile_no (E.164 preferred) */
+  mobileNo?: string;
 };
 
 export function frappeBase(): string {
@@ -258,6 +260,7 @@ function resolveCrmSource(
     eft_payment: "EFT Payment",
     quote_request: "Quote Request",
     support_ticket: "Support Ticket",
+    whatsapp: "WhatsApp",
   };
   return defaults[sourceTag] || process.env.FRAPPE_LEAD_SOURCE?.trim();
 }
@@ -405,6 +408,9 @@ export async function submitFrappeLead(
   }
   if (input.jobTitle?.trim()) {
     body.job_title = input.jobTitle.trim().slice(0, 140);
+  }
+  if (input.mobileNo?.trim()) {
+    body.mobile_no = input.mobileNo.trim().slice(0, 40);
   }
   if (leadSource) {
     body.source = leadSource;

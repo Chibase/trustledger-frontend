@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-07-31 — WA-1 / ADR-039: WhatsApp ↔ CRM
+
+- WhatsApp chat SoT = Desk **Frappe WhatsApp** + Meta Cloud API (not Vercel).
+- `docs/WHATSAPP_SETUP.md` + `docs/exports/whatsapp/HUMAN_ONLY.md` (Meta token / webhook).
+- Ops `/ops/accounts` WhatsApp panel: probe app, ensure Lead Source **WhatsApp** + queue view, log chat as CRM Lead with `mobile_no`.
+- `POST /api/frappe/ensure-whatsapp`; CRM bootstrap includes WhatsApp source.
+
 ## 2026-07-30 — ADR-041: site location cascade sequence
 
 - Locked capture order: **Country → Province → Town → DM → TC → Ward** with pack dropdowns + **Add if not listed** per level.

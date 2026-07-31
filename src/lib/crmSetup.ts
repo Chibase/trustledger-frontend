@@ -15,6 +15,7 @@ const LEAD_SOURCES = [
   "Website Demo",
   "Website Assessment",
   "Support Ticket",
+  "WhatsApp",
 ] as const;
 
 const LEAD_COLUMNS = [
@@ -304,6 +305,15 @@ export async function bootstrapCrmViews(): Promise<SetupResult> {
   views.Support = await createPinnedView(pair.key, pair.secret, "Support", {
     source: ["=", "Support Ticket"],
   });
+  views["WhatsApp queue"] = await createPinnedView(
+    pair.key,
+    pair.secret,
+    "WhatsApp queue",
+    {
+      source: ["=", "WhatsApp"],
+      status: ["=", "New"],
+    },
+  );
 
   const defaultColumns = await updateDefaultColumns(pair.key, pair.secret);
 

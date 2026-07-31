@@ -197,6 +197,12 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 |--------|------|-------|--------|
 | **EM-1** | Branded bulk email | TrustLedger HTML templates + Desk runbook (`docs/FRAPPE_EMAIL_MARKETING.md`); Frappe Email Domain/Newsletter — not HubSpot / not Resend blasts | **Active** |
 
+### WhatsApp CRM (ACTIVE)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **WA-1** | WhatsApp ↔ CRM | ADR-039 + `docs/WHATSAPP_SETUP.md`; Ops probe/ensure source + log lead; Meta credentials HUMAN_ONLY | **Agent done** — waiting Meta/Desk |
+
 ### Commercial packaging (ACTIVE)
 
 | Packet | Name | Scope | Status |
@@ -263,3 +269,4 @@ src/
 | 2026-07-24 | CP-1 / ADR-035 — Solo entry plan (R1,999, 1 seat, essentials) |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
+| 2026-07-31 | WA-1 / ADR-039 — WhatsApp Business via Frappe WhatsApp + Ops CRM tools |
