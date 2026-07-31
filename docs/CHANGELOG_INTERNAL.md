@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-07-31 — BrandRadar brochure keywords + compare/guides
+
+- Home `#solutions` buyer-topic strip; `/compare` (+ Jambo, Borealis, Simply Stakeholders, grievance.app); `/guides/ess10-ifc-grievance`; `/privacy` + `/terms` on Next.js.
+- Canonical default `SITE_URL` → `https://trustledger.co.za`; sitemap/robots/`llms.txt` updated.
+- **Human:** apex still on WordPress until DNS flip — `docs/HUMAN_ONLY_AEO.md`.
+
 ## 2026-07-31 — ADR-042: BrandRadar AEO + retire WP marketing host
 
 - BrandRadar audit (0/15 TrustLedger mentions; name collisions; `trustledger.co.za` never cited) captured in `docs/AEO_VISIBILITY.md`.

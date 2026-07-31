@@ -1,9 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://trustledger-frontend-pi.vercel.app"
-).replace(/\/$/, "");
+import { SITE_URL } from "@/lib/aeo/siteFacts";
 
 /**
  * Keep public marketing + FAQ crawlable for search and AI bots.
@@ -19,18 +15,22 @@ export default function robots(): MetadataRoute.Robots {
           "/",
           "/product",
           "/faq",
+          "/compare",
+          "/guides",
           "/assessment",
           "/contact",
           "/quote",
           "/trial",
           "/pay",
+          "/privacy",
+          "/terms",
           "/status",
           "/llms.txt",
         ],
         disallow: ["/app/", "/ops/", "/login", "/auth/", "/api/", "/invite/"],
       },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

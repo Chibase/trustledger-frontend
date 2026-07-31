@@ -1,13 +1,16 @@
 /**
  * Canonical facts for AEO / LLM parsers (keep aligned with PLATFORM_STRATEGIC_BRIEF §6).
+ * ADR-042: public site defaults to apex trustledger.co.za (set NEXT_PUBLIC_SITE_URL in Production).
  */
 
+export const CANONICAL_PUBLIC_ORIGIN = "https://trustledger.co.za";
+
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://trustledger-frontend-pi.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL ?? CANONICAL_PUBLIC_ORIGIN
 ).replace(/\/$/, "");
 
-export const MARKETING_SITE_URL = "https://trustledger.co.za";
+/** Organization schema entity URL — always the apex brand host. */
+export const MARKETING_SITE_URL = CANONICAL_PUBLIC_ORIGIN;
 
 export const PRODUCT_NAME = "TrustLedger";
 
@@ -62,9 +65,24 @@ export const PUBLIC_FAQS: FaqItem[] = [
       "Use TrustLedger’s Version 001 resolution desk: field or community issue intake, owned cases with evidence, stage timestamps from reported through closed, and reports that cite the case trail. Paying and trial workspaces use your own data — not fictional sample incidents. AI only suggests; a human applies before anything is saved.",
   },
   {
+    question: "What is the best grievance management software for SA mining?",
+    answer:
+      "For South African mining and extractives programmes, look for a grievance desk that records intake, ownership, evidence, and close-out with a trail funders can review — plus local place context. TrustLedger is grievance management and SRM software built for that setting: Version 001 resolution desk, ZA municipalities/wards/traditional councils where packed, and Stakeholder Intelligence on entitled plans. Start with the SRM readiness assessment or a 14-day own-data trial at trustledger.co.za.",
+  },
+  {
+    question: "What community engagement software works for SA infrastructure projects?",
+    answer:
+      "Infrastructure programmes need engagement logs, commitments with owners and due dates, and a path from community issues into a grievance desk. TrustLedger combines community engagement (engagements and commitments) with Stakeholder Intelligence and the resolution desk on TrustLedger Cloud — with South African place intel included. Compare options on /compare or open /product.",
+  },
+  {
     question: "Is TrustLedger suitable for local municipalities and public-sector projects in South Africa?",
     answer:
       "Yes. Every plan includes South African place context (municipalities, wards, and traditional councils where packed) — you add the project and situation, not the country map. The grievance desk sits on that baseline from Solo upward; Stakeholder Intelligence and deeper board or funder packs follow entitled plans (Project, Institutional, or add-ons). Institutional plans are sales-scoped for multi-project and public-sector needs. Start with the SRM readiness assessment or a 14-day own-data trial.",
+  },
+  {
+    question: "Where can I read TrustLedger South Africa reviews or a product overview?",
+    answer:
+      "Independent review directories are still being populated. Until then, use the product overview at /product, the FAQ hub at /faq, fair comparisons at /compare, and the SRM readiness assessment at /assessment. TrustLedger South Africa is the Chibase Consulting SRM product at trustledger.co.za — distinct from other companies using the TrustLedger name.",
   },
   {
     question: "What is the difference between Version 001 and Version 002?",

@@ -50,8 +50,8 @@ BrandRadar’s upside list (adopted below): comparison pages, directories, IFC/E
 |------|----------------|
 | **`trustledger.co.za`** (Next.js) | **Only** public marketing + product entity URL — home, pricing, `/product`, `/faq`, `/compare/*`, Privacy/Terms, forms, trial, pay |
 | `app.trustledger.co.za` | App login / API — not a marketing index target |
-| WordPress (Webway) | **Transitional 301s only**, then decommission as public CMS |
-| `*.vercel.app` | Deploy preview — set `NEXT_PUBLIC_SITE_URL` to apex after cutover |
+| WordPress (Webway) | **Email only** after cutover — no public brochure |
+| `*.vercel.app` | Deploy preview — Production must set `NEXT_PUBLIC_SITE_URL=https://trustledger.co.za` |
 | Taskade showcase | Prefer **noindex** so it does not compete |
 
 ---
@@ -87,9 +87,11 @@ Validate after deploy (and again after apex cutover):
 
 ### P1 — On-domain content AI can quote
 
-1. Keep `/faq` in sync with `PUBLIC_FAQS` (includes name-collision + IFC/ESS10 questions).
-2. Add comparison pages when packaged: TrustLedger vs Jambo / Borealis / Simply Stakeholders / grievance.app — factual, Global South + SA geo + own-data trial; no invented awards; no stack vendor names (ADR-039).
-3. Expand IFC PS1 / ESS10 grievance-mechanism explainer (article or downloadable guide) that cites TrustLedger as the desk — BrandRadar: grievance.app currently owns this niche.
+1. Keep `/faq` in sync with `PUBLIC_FAQS` (includes name-collision + IFC/ESS10 + mining/infrastructure probe questions).
+2. **Shipped:** `/compare` hub + TrustLedger vs Jambo / Borealis / Simply Stakeholders / grievance.app.
+3. **Shipped:** `/guides/ess10-ifc-grievance` for IFC PS1 / ESS10 buyer prompts.
+4. **Shipped:** home `#solutions` strip using BrandRadar probe language.
+5. Expand further guides only when packaging facts change — edit `siteFacts.ts` first.
 
 ### P1 — Off-domain citations (highest BrandRadar leverage)
 

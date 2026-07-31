@@ -443,11 +443,11 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Decision:**
   1. **One public product + marketing host:** the TrustLedger Next.js app (today hosted on Vercel) is the sole public site for home, pricing story, `/product`, `/faq`, assessment, trial, pay, contact, Privacy/Terms.
   2. **Canonical entity URL:** apex **`https://trustledger.co.za`** must resolve to that Next.js deployment (custom domain + `NEXT_PUBLIC_SITE_URL=https://trustledger.co.za`). Stop treating `*.vercel.app` as the long-term public identity.
-  3. **Retire WordPress as a parallel marketing CMS.** After apex cutover: 301 all former WP paths to matching Next.js routes (or `/`), then decommission Elementor/SpeedyCache content. Do not keep two editable homes.
+  3. **Retire WordPress as a parallel marketing CMS.** After apex cutover: 301 all former WP paths to matching Next.js routes (or `/`), then decommission Elementor brochure content. **WordPress may remain only for email / mailbox hosting** — never as a second public marketing homepage.
   4. **Keep** `app.trustledger.co.za` as TrustLedger Cloud (login/API) — not a marketing index target.
   5. **Keep** Chibase site as operator/legal parent with clear outbound links to TrustLedger; do not co-brand the product (ADR-039).
-  6. Ops checklist: `docs/HOST_CONSOLIDATION.md`. AEO playbook: `docs/AEO_VISIBILITY.md`.
-- **Consequences:** Webway paste packs become transitional only; new marketing copy ships in-repo. DNS / SSL / SpeedyCache cutover is human Ops on Webway + Vercel domains. Agents do not change Cloudflare unless asked.
+  6. Ops checklists: `docs/HOST_CONSOLIDATION.md`, `docs/HUMAN_ONLY_AEO.md`. AEO playbook: `docs/AEO_VISIBILITY.md`.
+- **Consequences:** Marketing copy ships in-repo (`/`, `/faq`, `/compare`, guides). Privacy/Terms live on Next.js. DNS / SSL cutover is human Ops — Vercel “domain connected” is insufficient until apex resolves to Vercel. Agents do not change Cloudflare unless asked.
 - **Alternatives considered:** Keep WP as brochure + Vercel product (rejected — dual hosts diluted BrandRadar signals); retire Next.js marketing and rebuild on WP (rejected — FAQ/JSON-LD/`llms.txt`/forms/trial/pay already live in-repo); two equal hosts with cross-canonicals (rejected — still confuses AI crawlers).
 
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine

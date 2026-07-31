@@ -4,9 +4,8 @@
 
 Promise: Resolution you can audit.
 Operated by: Chibase Consulting (https://chibaseconsulting.co.za)
-Canonical public site: https://trustledger.co.za (ADR-042 — single public host; WordPress brochure retired after cutover)
+Canonical public site: https://trustledger.co.za
 TrustLedger Cloud: https://app.trustledger.co.za
-Deploy preview (until apex DNS cutover): https://trustledger-frontend-pi.vercel.app
 
 ## Product
 
@@ -19,16 +18,29 @@ Deploy preview (until apex DNS cutover): https://trustledger-frontend-pi.vercel.
 
 ## Key URLs
 
-Prefer apex `https://trustledger.co.za/...` after DNS cutover. Until then, product routes resolve on the deploy preview:
+- [Home](https://trustledger.co.za/)
+- [Product overview](https://trustledger.co.za/product)
+- [FAQ hub](https://trustledger.co.za/faq)
+- [Compare platforms](https://trustledger.co.za/compare)
+- [ESS10 / IFC grievance guide](https://trustledger.co.za/guides/ess10-ifc-grievance)
+- [14-day trial](https://trustledger.co.za/trial)
+- [SRM readiness assessment](https://trustledger.co.za/assessment)
+- [Subscribe](https://trustledger.co.za/pay)
+- [Contact](https://trustledger.co.za/contact)
+- [Quote](https://trustledger.co.za/quote)
+- [Privacy](https://trustledger.co.za/privacy)
+- [Terms](https://trustledger.co.za/terms)
 
-- [Product overview](https://trustledger-frontend-pi.vercel.app/product)
-- [FAQ hub](https://trustledger-frontend-pi.vercel.app/faq)
-- [14-day trial](https://trustledger-frontend-pi.vercel.app/trial)
-- [SRM readiness assessment](https://trustledger-frontend-pi.vercel.app/assessment)
-- [Subscribe](https://trustledger-frontend-pi.vercel.app/pay)
-- [Contact](https://trustledger-frontend-pi.vercel.app/contact)
-- [Quote](https://trustledger-frontend-pi.vercel.app/quote)
-- [Public home](https://trustledger.co.za)
+Until apex DNS points at the Next.js deploy, the same paths also resolve on https://trustledger-frontend-pi.vercel.app
+
+## Buyer prompts this site answers
+
+- Best stakeholder relationship management software, SA
+- Best grievance management software for SA mining
+- Community engagement software for SA infrastructure
+- Jambo vs Borealis vs TrustLedger
+- Digitising an ESS10 or IFC PS1 grievance mechanism
+- TrustLedger South Africa reviews / disambiguation
 
 ## Plans (ZAR / month, excl. VAT)
 
@@ -40,4 +52,4 @@ Prefer apex `https://trustledger.co.za/...` after DNS cutover. Until then, produ
 ## Optional
 
 - [AEO visibility playbook](https://github.com/Chibase/trustledger-frontend/blob/master/docs/AEO_VISIBILITY.md)
-- [Host consolidation checklist](https://github.com/Chibase/trustledger-frontend/blob/master/docs/HOST_CONSOLIDATION.md)
+- [Human-only cutover checklist](https://github.com/Chibase/trustledger-frontend/blob/master/docs/HUMAN_ONLY_AEO.md)

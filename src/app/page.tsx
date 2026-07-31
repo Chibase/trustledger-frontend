@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { HomeBenefitStrip } from "@/components/marketing/HomeBenefitStrip";
+import { HomeBuyerTopics } from "@/components/marketing/HomeBuyerTopics";
 import { HomeFinalCta } from "@/components/marketing/HomeFinalCta";
 import { HomeFooter } from "@/components/marketing/HomeFooter";
 import { HomeHeader } from "@/components/marketing/HomeHeader";
@@ -14,11 +15,12 @@ import { faqPageJsonLd } from "@/lib/aeo/jsonLd";
 import { PRODUCT_DEFINITION, SITE_URL } from "@/lib/aeo/siteFacts";
 
 export const metadata: Metadata = {
-  title: "Turn Community Risk into Measurable Trust Outcomes",
+  title:
+    "TrustLedger — SRM & grievance software for South Africa",
   description: PRODUCT_DEFINITION,
   alternates: { canonical: "/" },
   openGraph: {
-    title: "TrustLedger — Measurable Trust Outcomes",
+    title: "TrustLedger — SRM software South Africa",
     description: PRODUCT_DEFINITION,
     url: SITE_URL,
     siteName: "TrustLedger",
@@ -51,6 +53,7 @@ export default function HomePage() {
         <HomeVersionStrip />
         <HomeBenefitStrip />
         <HomeHowItWorks />
+        <HomeBuyerTopics />
         <HomeTrustProof />
         <HomeSectors />
         <HomePricing />

@@ -7,7 +7,7 @@ import {
   softwareApplicationJsonLd,
   webSiteJsonLd,
 } from "@/lib/aeo/jsonLd";
-import { PRODUCT_DEFINITION } from "@/lib/aeo/siteFacts";
+import { PRODUCT_DEFINITION, SITE_URL } from "@/lib/aeo/siteFacts";
 import "./globals.css";
 
 const sourceSans = Source_Sans_3({
@@ -22,20 +22,17 @@ const sourceSerif = Source_Serif_4({
   display: "swap",
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "TrustLedger",
+    default: "TrustLedger — SRM software South Africa",
     template: "%s · TrustLedger",
   },
   description: PRODUCT_DEFINITION,
   openGraph: {
     title: "TrustLedger — Resolution you can audit",
     description: PRODUCT_DEFINITION,
-    url: siteUrl,
+    url: SITE_URL,
     siteName: "TrustLedger",
     locale: "en_ZA",
     type: "website",

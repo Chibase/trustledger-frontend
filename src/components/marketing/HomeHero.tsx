@@ -40,7 +40,7 @@ export function HomeHero() {
               Start 14-day trial
             </Link>
             <p className="mt-3 max-w-md text-sm text-tl-ink-muted">
-              Your own workspace — upgrade anytime via Paystack. Data retained 3
+              Your own workspace — upgrade anytime on Subscribe. Data retained 3
               months after trial if you do not upgrade.
             </p>
             <p className="mt-4">
