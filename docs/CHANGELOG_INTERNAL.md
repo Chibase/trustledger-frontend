@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-08-05 — Readiness engagement funnel
+
+- Promo `/readiness` → quiz `/assessment` → work email + OTP (when Resend ready) → `/readiness/next` choice hub → `/readiness/report` dashboard.
+- Report adds per-dimension DIY outline plus TrustLedger stabilize / operationalize / govern turnaround lanes.
+- Hub CTAs: report, `/product`, `/trial`, `/quote` with readiness UTMs; risk band nudges primary commercial path.
+- APIs: `/api/assessment/lead` returns pending/grant tokens; `/api/assessment/verify` OTP verify + resend.
+- Sitemap/robots/footer/FAQ/contact/siteFacts + assessment email nudge updated; IA in BUILD_PLAN.
+
 ## 2026-07-30 — ADR-041: site location cascade sequence
 
 - Locked capture order: **Country → Province → Town → DM → TC → Ward** with pack dropdowns + **Add if not listed** per level.

@@ -117,10 +117,10 @@ function ContactForm() {
           Product overview
         </Link>
         <Link
-          href="/assessment"
+          href="/readiness"
           className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium hover:bg-tl-paper"
         >
-          Take assessment
+          Take readiness check
         </Link>
       </div>
     </div>
@@ -226,10 +226,10 @@ export default function ContactPage() {
         </Link>{" "}
         or{" "}
         <Link
-          href="/assessment"
+          href="/readiness"
           className="font-medium text-tl-trust-ink underline"
         >
-          run the readiness assessment
+          run the readiness check
         </Link>
         .
       </p>

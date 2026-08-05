@@ -1,6 +1,6 @@
 # Lead forms — spam, feedback, follow-ups
 
-Applies to `/assessment`, `/contact`, `/quote`, soft-gate, product feedback, and in-app Support tickets.
+Applies to `/assessment`, `/readiness/*` unlock, `/contact`, `/quote`, soft-gate, product feedback, and in-app Support tickets.
 
 ## 1. Spam control (shipped)
 
@@ -32,7 +32,7 @@ Without keys, honeypot + tighter rate limit + work-email still run, but spam pro
 
 | Form | Required note |
 |------|----------------|
-| Assessment unlock | “What prompted this assessment?” (min 10 chars) |
+| Assessment unlock | “What prompted this assessment?” (min 10 chars) + work email; OTP confirm when Resend ready → `/readiness/next` hub |
 | Contact (`/contact`) | Message (min 10 chars) → CRM Lead `contact` |
 | Quote (`/quote`) | Message → CRM Lead |
 | Product feedback | Rating 1–5 + note (min 10 chars) → CRM Lead `product_feedback` |

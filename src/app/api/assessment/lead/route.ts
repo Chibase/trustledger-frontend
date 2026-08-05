@@ -2,15 +2,34 @@ import {
   assertLeadFormGuards,
   normalizeComment,
   readHoneypot,
+  rateLimitAllow,
+  clientIp,
 } from "@/lib/formGuard";
 import { isProductionRuntime, siteBaseUrl } from "@/lib/hubspot";
 import {
   leadCaptureConfigured,
   submitProductLead,
 } from "@/lib/leadCapture";
-import type { AssessmentLeadPayload } from "@/types/assessment";
-import { isWorkEmail } from "@/data/assessment";
+import {
+  assessmentGrantMaxAgeMs,
+  assessmentOtpRequired,
+  assessmentPendingMaxAgeMs,
+  hashAssessmentOtp,
+  mintAssessmentOtp,
+  signAssessmentReportGrant,
+  signPendingAssessmentUnlock,
+} from "@/lib/assessmentAccess";
+import { sendAssessmentOtpEmail } from "@/lib/transactionalEmail";
+import type { AssessmentLeadPayload, RiskBand } from "@/types/assessment";
+import { isWorkEmail, riskBandForScore } from "@/data/assessment";
 import { NextResponse } from "next/server";
+
+const RISK_LABEL: Record<RiskBand, string> = {
+  critical: "Critical",
+  elevated: "Elevated",
+  moderate: "Moderate",
+  strong: "Strong",
+};
 
 function isValidPayload(body: unknown): body is AssessmentLeadPayload & {
   company_url?: string;
@@ -61,6 +80,63 @@ function buildAssessmentMessage(
     .join(" ");
 }
 
+function grantResponse(payload: AssessmentLeadPayload) {
+  const riskBand =
+    (payload.riskBand as RiskBand) || riskBandForScore(payload.overallScore);
+  const grantToken = signAssessmentReportGrant({
+    email: payload.email,
+    name: payload.name,
+    overallScore: payload.overallScore,
+    riskBand,
+    exp: Date.now() + assessmentGrantMaxAgeMs(),
+  });
+  return NextResponse.json({
+    ok: true,
+    requiresOtp: false,
+    grantToken,
+    nextPath: "/readiness/next",
+  });
+}
+
+async function otpResponse(payload: AssessmentLeadPayload) {
+  const riskBand =
+    (payload.riskBand as RiskBand) || riskBandForScore(payload.overallScore);
+  const code = mintAssessmentOtp();
+  const otpHash = hashAssessmentOtp(code, payload.email);
+  const pendingToken = signPendingAssessmentUnlock({
+    email: payload.email,
+    name: payload.name,
+    otpHash,
+    overallScore: payload.overallScore,
+    riskBand,
+    exp: Date.now() + assessmentPendingMaxAgeMs(),
+  });
+
+  const sent = await sendAssessmentOtpEmail({
+    to: payload.email,
+    name: payload.name,
+    code,
+    expiresMinutes: 10,
+    score: payload.overallScore,
+    riskLabel: RISK_LABEL[riskBand],
+  });
+
+  if (!sent.sent) {
+    console.warn(
+      "[assessment/lead] OTP email failed — unlocking without OTP",
+      sent.detail,
+    );
+    return grantResponse(payload);
+  }
+
+  return NextResponse.json({
+    ok: true,
+    requiresOtp: true,
+    pendingToken,
+    nextPath: "/readiness/next",
+  });
+}
+
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -82,7 +158,12 @@ export async function POST(request: Request) {
   if (!guard.ok) {
     if (guard.silent) {
       console.warn("[assessment/lead] honeypot tripped — lead not written");
-      return NextResponse.json({ ok: true });
+      // Fake success for bots; still issue a grant so the client funnel completes.
+      return grantResponse({
+        ...body,
+        name: body.name.trim(),
+        email: body.email.trim().toLowerCase(),
+      });
     }
     return NextResponse.json({ error: guard.error }, { status: guard.status });
   }
@@ -152,7 +233,6 @@ export async function POST(request: Request) {
         { status: 502 },
       );
     }
-    return NextResponse.json({ ok: true, backend: result.backend });
   } else if (webhook) {
     try {
       const res = await fetch(webhook, {
@@ -196,5 +276,22 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ ok: true });
+  if (assessmentOtpRequired()) {
+    const ip = clientIp(request);
+    if (!rateLimitAllow(`assessment-otp-send:${email}`, 3, 15 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Too many verification emails. Wait a few minutes." },
+        { status: 429 },
+      );
+    }
+    if (!rateLimitAllow(`assessment-otp-send-ip:${ip}`, 8, 15 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Too many verification emails. Wait a few minutes." },
+        { status: 429 },
+      );
+    }
+    return otpResponse(payload);
+  }
+
+  return grantResponse(payload);
 }

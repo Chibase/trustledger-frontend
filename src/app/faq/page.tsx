@@ -142,10 +142,10 @@ export default function FaqPage() {
 
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
-            href="/assessment"
+            href="/readiness"
             className="inline-flex rounded-md border border-tl-line bg-tl-surface px-4 py-2.5 text-sm font-semibold text-tl-ink hover:border-tl-trust"
           >
-            SRM readiness assessment
+            SRM readiness check
           </Link>
           <Link
             href="/trial"
