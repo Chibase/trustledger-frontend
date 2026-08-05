@@ -78,7 +78,38 @@ export function AssessmentWizard() {
             setAnswers(saved.answers);
             setResult(saved.result);
             setPendingToken(pending);
+            const leadRaw = sessionStorage.getItem(ASSESSMENT_LEAD_KEY);
+            if (leadRaw) {
+              const lead = JSON.parse(leadRaw) as {
+                name?: string;
+                email?: string;
+              };
+              if (lead.name) setName(lead.name);
+              if (lead.email) setEmail(lead.email);
+            }
             setStep("verify");
+            return;
+          }
+        }
+        // Resume lead unlock if the visitor refreshed after finishing questions.
+        if (raw && !unlock && !pending) {
+          const saved = JSON.parse(raw) as {
+            answers: AssessmentAnswers;
+            result: AssessmentResult;
+          };
+          if (saved?.result && saved?.answers) {
+            setAnswers(saved.answers);
+            setResult(saved.result);
+            const leadRaw = sessionStorage.getItem(ASSESSMENT_LEAD_KEY);
+            if (leadRaw) {
+              const lead = JSON.parse(leadRaw) as {
+                name?: string;
+                email?: string;
+              };
+              if (lead.name) setName(lead.name);
+              if (lead.email) setEmail(lead.email);
+            }
+            setStep("lead");
           }
         }
       } catch {

@@ -17,6 +17,14 @@ function pendingSecret(): string {
   if (explicit) return explicit;
   const paystack = process.env.PAYSTACK_SECRET_KEY?.trim();
   if (paystack) return `tl-assessment-access:${paystack}`;
+  const isProd =
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production";
+  if (isProd) {
+    throw new Error(
+      "TRIAL_TOKEN_SECRET (or PAYSTACK_SECRET_KEY) must be set in production for assessment unlock tokens",
+    );
+  }
   return "trustledger-dev-assessment-access";
 }
 

@@ -122,11 +122,15 @@ async function otpResponse(payload: AssessmentLeadPayload) {
   });
 
   if (!sent.sent) {
-    console.warn(
-      "[assessment/lead] OTP email failed — unlocking without OTP",
-      sent.detail,
+    console.error("[assessment/lead] OTP email failed", sent.detail);
+    return NextResponse.json(
+      {
+        error:
+          "Could not send the verification email. Check the address and try again in a few minutes.",
+        detail: process.env.LEAD_DEBUG === "1" ? sent.detail : undefined,
+      },
+      { status: 502 },
     );
-    return grantResponse(payload);
   }
 
   return NextResponse.json({

@@ -1,28 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { ExperienceFeedbackForm } from "@/components/forms/ExperienceFeedbackForm";
 import {
-  ASSESSMENT_LEAD_KEY,
   ASSESSMENT_QUESTIONS,
-  ASSESSMENT_STORAGE_KEY,
   LIKERT_OPTIONS,
   dimensionById,
 } from "@/data/assessment";
 import {
-  ASSESSMENT_UNLOCK_KEY,
   readinessUtm,
   riskToneClass,
 } from "@/lib/assessmentClient";
-import type {
-  AssessmentAnswers,
-  AssessmentResult,
-  LikertValue,
-} from "@/types/assessment";
-
-type LeadMeta = { name?: string; email?: string };
+import { useReadinessSession } from "@/lib/useReadinessSession";
+import type { LikertValue } from "@/types/assessment";
 
 function likertLabel(value: LikertValue | undefined): string {
   if (!value) return "Not answered";
@@ -30,42 +20,9 @@ function likertLabel(value: LikertValue | undefined): string {
 }
 
 export function ReadinessReport() {
-  const router = useRouter();
-  const [result, setResult] = useState<AssessmentResult | null>(null);
-  const [answers, setAnswers] = useState<AssessmentAnswers>({});
-  const [lead, setLead] = useState<LeadMeta>({});
-  const [ready, setReady] = useState(false);
+  const { session, ready } = useReadinessSession();
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      try {
-        const unlock = sessionStorage.getItem(ASSESSMENT_UNLOCK_KEY);
-        const raw = sessionStorage.getItem(ASSESSMENT_STORAGE_KEY);
-        if (!unlock || !raw) {
-          router.replace("/assessment");
-          return;
-        }
-        const saved = JSON.parse(raw) as {
-          result?: AssessmentResult;
-          answers?: AssessmentAnswers;
-        };
-        if (!saved?.result) {
-          router.replace("/assessment");
-          return;
-        }
-        setResult(saved.result);
-        setAnswers(saved.answers ?? {});
-        const leadRaw = sessionStorage.getItem(ASSESSMENT_LEAD_KEY);
-        if (leadRaw) setLead(JSON.parse(leadRaw) as LeadMeta);
-        setReady(true);
-      } catch {
-        router.replace("/assessment");
-      }
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [router]);
-
-  if (!ready || !result) {
+  if (!ready || !session) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-14">
         <p className="text-sm font-medium text-tl-trust">TrustLedger</p>
@@ -73,6 +30,8 @@ export function ReadinessReport() {
       </main>
     );
   }
+
+  const { result, answers } = session;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
@@ -301,8 +260,8 @@ export function ReadinessReport() {
       <div className="mt-10">
         <ExperienceFeedbackForm
           contextPath="/readiness/report"
-          defaultEmail={lead.email}
-          defaultName={lead.name}
+          defaultEmail={session.email}
+          defaultName={session.name}
           heading="How was this report?"
           description="Your notes shape launch readiness — what was clear, missing, or useful."
         />

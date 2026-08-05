@@ -5,7 +5,8 @@
 - Promo `/readiness` → quiz `/assessment` → work email + OTP (when Resend ready) → `/readiness/next` choice hub → `/readiness/report` dashboard.
 - Report adds per-dimension DIY outline plus TrustLedger stabilize / operationalize / govern turnaround lanes.
 - Hub CTAs: report, `/product`, `/trial`, `/quote` with readiness UTMs; risk band nudges primary commercial path.
-- APIs: `/api/assessment/lead` returns pending/grant tokens; `/api/assessment/verify` OTP verify + resend.
+- APIs: `/api/assessment/lead` returns pending/grant tokens; `/api/assessment/verify` OTP verify + resend; `/api/assessment/session` validates grant before hub/report.
+- Hardening: production fails closed without token secret; OTP email failure does not skip inbox proof; lead step resumes after refresh.
 - Sitemap/robots/footer/FAQ/contact/siteFacts + assessment email nudge updated; IA in BUILD_PLAN.
 
 ## 2026-07-30 — ADR-041: site location cascade sequence
