@@ -354,6 +354,46 @@ export async function sendLoginOtpEmail(
   return sendResendEmail({ to: input.to, subject, text, html });
 }
 
+export type AssessmentOtpEmailInput = {
+  to: string;
+  name?: string;
+  code: string;
+  expiresMinutes: number;
+  score?: number;
+  riskLabel?: string;
+};
+
+/** OTP to unlock the public SRM readiness report hub. */
+export async function sendAssessmentOtpEmail(
+  input: AssessmentOtpEmailInput,
+): Promise<{ sent: boolean; detail?: string }> {
+  const name = input.name?.trim() || "there";
+  const subject = "Your TrustLedger readiness report code";
+  const scoreLine =
+    typeof input.score === "number" && input.riskLabel
+      ? `Your diagnostic scored ${input.score}/100 (${input.riskLabel}). `
+      : "";
+  const text = [
+    `Hi ${name},`,
+    "",
+    `${scoreLine}Enter this code to open your SRM readiness report and next steps:`,
+    "",
+    input.code,
+    "",
+    `It expires in ${input.expiresMinutes} minutes. If you did not request a readiness report, ignore this email.`,
+    "",
+    "— TrustLedger",
+  ].join("\n");
+  const html = `
+    <p>Hi ${escapeHtml(name)},</p>
+    <p>${escapeHtml(scoreLine)}Enter this code to open your <strong>SRM readiness report</strong> and choose how to close the gaps:</p>
+    <p style="font-size:28px;letter-spacing:0.2em;font-weight:700"><code>${escapeHtml(input.code)}</code></p>
+    <p style="color:#666;font-size:13px">Expires in ${input.expiresMinutes} minutes. If you did not request a readiness report, ignore this email.</p>
+    <p>— TrustLedger</p>
+  `;
+  return sendResendEmail({ to: input.to, subject, text, html });
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")

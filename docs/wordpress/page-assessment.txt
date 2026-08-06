@@ -13,6 +13,7 @@
         <nav aria-label="Main navigation">
           <ul class="nav-links">
             <li><a href="https://trustledger.co.za/#solutions">Solutions</a></li>
+            <li><a href="https://trustledger-frontend-pi.vercel.app/product?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=product" target="_blank" rel="noopener noreferrer">Product</a></li>
             <li><a href="https://trustledger.co.za/#how-it-works">How It Works</a></li>
             <li><a href="https://trustledger.co.za/#sectors">Sectors</a></li>
             <li><a href="https://trustledger.co.za/#pricing">Pricing</a></li>
@@ -30,6 +31,7 @@
       </div>
       <div class="nav-mobile" id="nav-mobile">
         <a href="https://trustledger.co.za/#solutions">Solutions</a>
+        <a href="https://trustledger-frontend-pi.vercel.app/product?utm_source=wordpress&amp;utm_medium=nav&amp;utm_campaign=product" target="_blank" rel="noopener noreferrer">Product</a>
         <a href="https://trustledger.co.za/#how-it-works">How It Works</a>
         <a href="https://trustledger.co.za/#sectors">Sectors</a>
         <a href="https://trustledger.co.za/#pricing">Pricing</a>

@@ -55,8 +55,11 @@ Aligned to marketing tiers (ADR-035 Solo entry):
 | **Reports / briefs** | Monthly operational | Standard + light governance | Full project + predictive views | Deep / custom analytics |
 | **AI assist** | **No** | Standard sentiment / triage | Full assist set | Custom / higher limits |
 | **API / integrations** | No | No | No (or light) | Yes (custom) |
-| **Hosting / compliance** | Shared | Shared | Shared | Dedicated options |
+| **Hosting / tenancy** | Shared Customer tenancy | Shared | Shared (+ Trust Pack target) | Dedicated / Isolation options |
+| **DPA / subprocessors** | On request | On request | Target included | Contracted |
 | **Support** | In-app | In-app | In-app | Named + Helpdesk |
+
+Detail and ladder: `docs/SECURITY_TENANCY.md` (ADR-038).
 
 Demo mode ignores paid entitlements (sample data only).
 

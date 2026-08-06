@@ -5,15 +5,34 @@ const siteUrl = (
   "https://trustledger-frontend-pi.vercel.app"
 ).replace(/\/$/, "");
 
+/**
+ * Keep public marketing + FAQ crawlable for search and AI bots.
+ * Explicit allow-list includes paths LLMs cite; private app surfaces stay disallowed.
+ * Do not add GPTBot / PerplexityBot / Google-Extended blocks — AEO requires openness.
+ */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/product", "/assessment", "/status", "/trial"],
-        disallow: ["/app/", "/ops/", "/login", "/auth/", "/api/"],
+        allow: [
+          "/",
+          "/product",
+          "/faq",
+          "/assessment",
+          "/readiness",
+          "/resources",
+          "/contact",
+          "/quote",
+          "/trial",
+          "/pay",
+          "/status",
+          "/llms.txt",
+        ],
+        disallow: ["/app/", "/ops/", "/login", "/auth/", "/api/", "/invite/"],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
   };
 }

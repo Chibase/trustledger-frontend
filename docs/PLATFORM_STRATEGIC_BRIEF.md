@@ -85,8 +85,7 @@ Agents and humans should understand this sequence — it explains *why* the arch
 
 | Layer | Location | Role |
 |-------|----------|------|
-| Marketing / funnel | `/`, `/product`, `/trial`, `/pay`, `/assessment`, `/quote`, `/contact` | Acquisition & education |
-| Product shell | `/app/*` | Trial or live workspace |
+| Marketing / funnel | `/`, `/product`, `/trial`, `/pay`, `/readiness`, `/assessment`, `/resources`, `/quote`, `/contact` | Acquisition & education || Product shell | `/app/*` | Trial or live workspace |
 | Ops plane | `/ops/*` | Platform Operator only (`PLATFORM_OPERATOR_EMAILS`) |
 | BFF APIs | `/api/*`, `/auth/live/*` | Secrets stay server-side |
 | Domain services | `src/services/*` | Mode-aware list/get/save |
@@ -151,6 +150,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Dual reports hub | Activity vs packs (ADR-028) | Pack tier by plan |
 | Public `/product` onboarding | Replaces sample demo | All public agents |
 | Brand / design system | TrustLedger field ledger | All surfaces |
+| ZA baseline place intel | MDB pack + geoIntake on all plans (ADR-040) | All SA plans — client adds project data only |
 
 ### 4.2 Needs improvement (invest next)
 
@@ -159,7 +159,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Stale “demo” copy in product UI | Capture/projects/settings still say demo | Copy sweep — say trial/live/Cloud |
 | Project/incident continuous Cloud save | Stronger on migrate/smoke than every UI save | Wire save → productCloud / srm_core consistently |
 | `srm_core` method dependency | Live list may 404 until app installed | Prefer resource BFF pattern (as SI) or install srm-core |
-| Geo depth | ZA pack seeded; lat/lng & Frappe Geo DocTypes incomplete | Enrich wards; optional Cloud sync |
+| Geo depth / TC coverage | Wards national; **TC pack only ~15** (EC-weighted); lat/lng & Cloud Geo incomplete | National TC ingest; optional Cloud sync — `docs/ZA_BASELINE_INTEL.md` |
 | Grievance Cloud stamps | UI stamps exist; TL Incident lifecycle fields incomplete | Mirror process stamps on Cloud |
 | CRM relationships | No graph / merge / influence matrix | V002 deepening packet |
 | Report packs from live SI/geo | Composer uses local evidence | Bind packs to Cloud lists |
@@ -221,7 +221,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Incidents / grievance desk | ✓ | ✓ | ✓ | ✓ | **V001 sellable heart** |
 | Issue intake | ✓ | ✓ | ✓ | ✓ | Field reporting |
 | AI assist (suggest→apply) | — | ✓ | ✓ | ✓ | Never “auto-resolve” in sales |
-| Geo intake / place fields | ✓ | ✓ | ✓ | ✓ | ZA pack; not full GIS |
+| Geo intake / place fields | ✓ | ✓ | ✓ | ✓ | **ZA baseline included** (ADR-040); not full GIS |
 | Trust pulse | ✓ | ✓ | ✓ | ✓ | Desk signal |
 | Governance reports | ✓ (monthly) | ✓ | ✓ | ✓ | Pack depth differs (below) |
 | Capture hub | — | — | ✓ | ✓ | V002 field evidence |
@@ -257,10 +257,12 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 
 1. **Solo** = survive and professionalise — personal grievance desk, 1 seat, no AI / SI. Entry for lone consultants.
 2. **Practitioner** = earn with AI Assist + light governance. Do **not** promise full SI registry as included.
-3. **Project** = default “real SRM” SKU — desk + Stakeholder Intelligence modules + junior seats.
-4. **Institutional** = Project capabilities + board pack + commercial/custom (sales-led).
+3. **Project** = default “real SRM” SKU — desk + Stakeholder Intelligence modules + junior seats; **Trust Pack** (DPA / purge SLA) target.
+4. **Institutional** = Project capabilities + board pack + **Isolation / dedicated tenancy options** + commercial/custom (sales-led).
 5. Keep **add-ons** for upsell; do not silently unlock Institutional-only toggles on lower plans (ADR-024).
-6. Revisit prices only with evidence from Ops Finance + win/loss — matrix above is the feature switchboard.
+6. Multi-tenant security ladder (L1–L5): `docs/SECURITY_TENANCY.md` (ADR-038). Do not claim SOC2 / dedicated shells until shipped.
+7. Revisit prices only with evidence from Ops Finance + win/loss — matrix above is the feature switchboard.
+8. **SA baseline intel (ADR-040):** every SA plan includes platform ZA place data (municipalities, wards, TCs where packed). Client adds projects/stakeholders/cases only — never rebuild the country map. Detail: `docs/ZA_BASELINE_INTEL.md`.
 
 ### 5.4 What each plan should *not* include in the box (yet)
 
@@ -276,21 +278,23 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 
 ### 6.1 Identity & voice
 
-- Product: **TrustLedger** — “Resolution you can audit.”
-- Operator company (footer/ops only): Chibase Consulting — not a second product brand.
+- Product: **TrustLedger** only — “Resolution you can audit.”
+- **Primary public voice: Trust** — every public surface should foreground trust, auditability, and social licence. Do not lead with tech stack or vendor names.
+- Operator company (footer/ops/legal only): Chibase Consulting — not a second product brand.
 - Tone: clear, calm, institutional; Global South infrastructure & community trust.
 - Never invent features. If unsure, point to `/product` or `/ops/readiness` truth.
+- Public copy hosts: “TrustLedger Cloud” / “cloud” — never Frappe, Vercel, HubSpot, Interserv on marketing/FAQ/public agents (ADR-038 §6 / ADR-039).
 
 ### 6.2 What to say (approved)
 
 | Topic | Approved line |
 |-------|----------------|
 | What it is | TrustLedger helps operators run **grievance resolution** and **Stakeholder Intelligence** for projects where social licence decides whether work moves. |
-| Version | **Version 001** is the live resolution desk. **Version 002** Stakeholder Intelligence (registry, engagements, commitments) is in active use on Cloud for entitled plans — still deepening vs full TEDS blueprint. |
+| Version | **Version 001** is the live resolution desk. **Version 002** Stakeholder Intelligence (registry, engagements, commitments) is in active use on **TrustLedger Cloud** for entitled plans — still deepening vs full TEDS blueprint. |
 | How to start | Start a **14-day trial** (`/trial`) with your own data, or **Subscribe** (`/pay`). Learn features on `/product`. |
-| Live access | After provision, sign in at `/login/live` (email OTP when Resend is on). |
+| Live access | After provision, sign in at `/login/live` (email OTP when access email is on). |
 | AI | Suggestions only — a human **applies** before anything is saved. |
-| Data | Paying / trial workspaces never show fictional sample incidents. |
+| Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. |
 
 ### 6.3 What never to say
 
@@ -298,7 +302,8 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 - “No signup needed sample desk” (retired).  
 - “AI closes cases automatically.”  
 - “Works offline as a native app.”  
-- Dual names (AccordBridge, Interserv as product host).  
+- Dual product names (AccordBridge); Interserv as product host.  
+- **Vendor brands in public copy:** Frappe, Vercel, HubSpot (or similar) in FAQ, hero, emails, or public agents.  
 - Promising multi-device durable ops for unpaid browser-only trial without Cloud provision.
 
 ### 6.4 Objection handling (agents)
@@ -436,6 +441,10 @@ If three or more answers are “no,” do not ship in the current plan box.
 | `docs/CHANGELOG_INTERNAL.md` | What changed when |
 | `src/config/entitlements.ts` | Plan feature switchboard |
 | `src/lib/tedsMaturity.ts` | Living maturity scores |
+| `docs/AEO_VISIBILITY.md` | AI search / AEO playbook (schema, FAQ, off-domain entity) |
+| `docs/ARCHITECTURE_EXTRAS_MAP.md` | Agents / Helpdesk / Insights extras vs locked TrustLedger paths |
+| `docs/ZA_BASELINE_INTEL.md` | SA plan packaging: platform place pack vs client situation data (ADR-040) |
+| `src/lib/aeo/siteFacts.ts` | Canonical product definition + public FAQ corpus |
 | `AGENTS.md` | Coding agent rules |
 
 ---

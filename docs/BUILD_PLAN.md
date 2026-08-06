@@ -55,7 +55,12 @@ When implementing:
 /                     Marketing home → CTA to /trial (and /product)
 /product              Onboarding + feature purpose (ADR-033) — no sample workspace
 /demo                 301 → /product (legacy)
-/assessment           Public SRM Readiness & Risk Diagnostic (lead-gated results)
+/readiness            Promo + CTA for SRM readiness diagnostic
+/assessment           Quiz + email/OTP unlock → /readiness/next hub + /readiness/report
+/readiness/next       Post-confirm choice hub (report / product / trial / walkthrough)
+/readiness/report     Score overview + dimension detail + TrustLedger turnaround lanes
+/resources            Free SRM toolkits (email-gated printable packs)
+/resources/[slug]     Pack preview + download gate
 /login                Sign-in chooser → live / trial (no sample demo)
 /app                  Authenticated shell (trial or live)
 /app/dashboard        Role home
@@ -203,11 +208,22 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 |--------|------|-------|--------|
 | **CP-1** | Solo entry plan | ADR-035 — `solo` R1,999 / 1 seat / essentials; wire Paystack + entitlements + seats + docs (`docs/SOLO_PLAN.md`) | **Done** |
 
-### User enablement (ACTIVE)
+### User enablement
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **UG-1** | User manual + first-login setup | `docs/USER_MANUAL.md`; in-app Setup wizard + `/app/guide` checklist (plan-aware spine) | **Done** |
+
+### Security / tenancy packaging
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **SEC-0** | Security ladder docs | ADR-038 + `docs/SECURITY_TENANCY.md` — L1–L5 + plan Trust/Isolation matrix; home pricing blurb + foldable comparison + optional privacy extras | **Done** |
+| **SEC-1** | Hard User Permissions | Frappe per-Customer permissions + A≠B smoke (L2) | Planned |
+| **SEC-2** | Purge + subprocessors | Runbook + public subprocessors note (L3/L4 lite) | Planned |
+| **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | Planned |
+| **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
+| **SEC-5** | Cloud invitee seats | Replace browser-only junior seats | Planned |
 
 ## 8. Quality gates (every packet)
 
@@ -257,3 +273,5 @@ src/
 | 2026-07-24 | EM-1 — branded Frappe bulk email templates + FRAPPE_EMAIL_MARKETING |
 | 2026-07-24 | CP-1 / ADR-035 — Solo entry plan (R1,999, 1 seat, essentials) |
 | 2026-07-26 | UG-1 — user manual + first-login setup wizard / Guide |
+| 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
+| 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |

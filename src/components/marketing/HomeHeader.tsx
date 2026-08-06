@@ -7,11 +7,12 @@ import { trackMarketingEvent } from "@/lib/marketingAnalytics";
 
 const NAV = [
   { href: "#solutions", label: "Solutions" },
+  { href: "/product", label: "Product" },
   { href: "#how-it-works", label: "How It Works" },
   { href: "#sectors", label: "Sectors" },
   { href: "#pricing", label: "Pricing" },
-  { href: "#resources", label: "Resources" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/resources", label: "Resources" },
+  { href: "/faq", label: "FAQ" },
 ] as const;
 
 export function HomeHeader() {

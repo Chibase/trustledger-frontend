@@ -1,6 +1,7 @@
 /**
  * Default capability grants per commercial plan.
  * Solo = essentials only (ADR-035). Revisit packaging via PLATFORM_STRATEGIC_BRIEF.
+ * geoIntake = ZA baseline place intel on all SA plans (ADR-040) — not fictional INC-* seed.
  */
 
 import type { PlanId } from "@/config/plans";

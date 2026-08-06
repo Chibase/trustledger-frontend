@@ -1,0 +1,28 @@
+<!--
+  WP paste helper — FAQ / AEO alignment (minimal)
+
+  Preferred: re-paste the full home from docs/wordpress/page-home.txt
+  (includes expanded FAQ + Organization/SoftwareApplication/FAQPage JSON-LD).
+
+  Use this snippet only if you need a temporary FAQ block without replacing the whole home.
+  Full playbook: docs/AEO_VISIBILITY.md
+  Corpus SoT: src/lib/aeo/siteFacts.ts
+  Remove any “sample demo / preview needs no signup” FAQ language (ADR-033).
+-->
+
+<section id="faq" class="section section--white" aria-labelledby="faq-title">
+  <div class="container" style="max-width:48rem">
+    <div class="section-header section-header--center">
+      <p class="section-header__eyebrow">FAQ</p>
+      <h2 id="faq-title" class="section-header__title">TrustLedger — common questions</h2>
+    </div>
+    <p><strong>TrustLedger</strong> is a Stakeholder Relationship Management (SRM) software platform designed for grievance resolution, community engagement, Stakeholder Intelligence, and audit-ready reporting on infrastructure and community-trust projects in South Africa and the Global South. Promise: Resolution you can audit.</p>
+    <p style="margin-top:1.25rem;text-align:center">
+      <a class="btn btn--secondary" href="https://trustledger-frontend-pi.vercel.app/faq?utm_source=wordpress&amp;utm_medium=faq&amp;utm_campaign=faq_hub" target="_blank" rel="noopener noreferrer">Open full FAQ hub</a>
+      ·
+      <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/assessment?utm_source=wordpress&amp;utm_medium=faq&amp;utm_campaign=assessment" target="_blank" rel="noopener noreferrer">SRM readiness assessment</a>
+      ·
+      <a class="btn btn--link" href="https://trustledger-frontend-pi.vercel.app/trial?utm_source=wordpress&amp;utm_medium=faq&amp;utm_campaign=trial_14day" target="_blank" rel="noopener noreferrer">14-day trial</a>
+    </p>
+  </div>
+</section>

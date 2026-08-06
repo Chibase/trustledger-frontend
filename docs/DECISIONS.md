@@ -103,6 +103,21 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Clear split of tools; see `docs/CRM_HANDOFF.md`. Automate provision later; manual handoff is fine at launch.
 - **Alternatives considered:** All-in on HubSpot paid; all-in on Frappe CRM for top-of-funnel (rejected for time and Free-tier fit).
 
+### ADR-038: Multi-tenant security ladder packaged on plans
+
+- **Date:** 2026-07-27
+- **Status:** Accepted
+- **Context:** Clients (and law) fear data mixing and mining. TrustLedger already uses distinct Customers / org ids (L1) but lacks hard Desk User Permissions (L2), formal DPA/assurances (L4), and dedicated isolation (L5). Selling honesty requires an explicit ladder and plan packaging — not vague “enterprise security.”
+- **Decision:**
+  1. Adopt the ladder in `docs/SECURITY_TENANCY.md`: L1 tenant identity → L2 hard permissions → L3 ops privacy → L4 DPA/assurance → L5 dedicated isolation.
+  2. **L2 (hard tenancy)** is a product credibility baseline for live paid plans over time — not a Solo upsell forever.
+  3. **L4 Trust Pack** (DPA, subprocessors, purge SLA) is sold / included from **Project** upward; Institutional always.
+  4. **L5 Isolation** (dedicated cloud site / residency options) is **Institutional** (or paid Project add-on once quoted) — recurring cost recovered in plan price.
+  5. Sales language must match shipped controls; VIP beta continues mock/anonymised data (TOU v2).
+  6. **Client-facing copy** names **TrustLedger** only; hosting is “cloud” / “private cloud workspace” (no Frappe/Vercel on marketing). Privacy depth beyond baseline is **optional extras** with a short protection blurb and foldable plan comparison on home pricing.
+- **Consequences:** Pricing pages and ACCESS_MODEL gain explicit Trust & tenancy rows. SEC-1…SEC-5 packets schedule the climb. Isolation prices stay sales-scoped until host quotes lock.
+- **Alternatives considered:** Charge all plans for dedicated sites (rejected — kills Solo/Practitioner); claim SOC2 before starting (rejected); stay silent on security in packaging (rejected — loses trust-sensitive buyers).
+
 ### ADR-036: In-app setup wizard + user manual (UG-1)
 
 - **Date:** 2026-07-26
@@ -388,6 +403,50 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   5. Lift `PLATFORM_OPERATOR_ONLY` only at Step 4 after Steps 1–3 smoke.
 - **Consequences:** Rollout may slip; customers who pay early stay on browser tenancy until Cloud catch-up. Agents lead one step at a time and wait for “Step N complete”.
 - **Alternatives considered:** Ship browser-only as “production” (rejected — not durable); lift lockdown now without DocTypes (rejected — incomplete SoT).
+
+### ADR-039: Public brand = TrustLedger only; voice = Trust
+
+- **Date:** 2026-07-29
+- **Status:** Accepted
+- **Context:** FAQ/AEO copy drifted into naming Frappe/Vercel. Public buyers should hear TrustLedger and *trust*, not the implementation stack. ADR-038 §6 already banned Frappe/Vercel on marketing; this ADR locks the voice rule for all public agents and surfaces.
+- **Decision:**
+  1. **Public product name:** TrustLedger only.
+  2. **Primary brand voice:** **Trust** dominates public-facing communications (hero, FAQ, assessment, emails, public agents, social). Lead with trust outcomes, auditability, social licence.
+  3. **Vendor ban on public copy:** Do not name Frappe, Vercel, HubSpot, Interserv, AccordBridge (or similar stack brands) in marketing, FAQ, WP paste, `/faq`, `llms.txt` prose, or public agents. Say **TrustLedger Cloud** / **cloud** / **private cloud workspace**.
+  4. **Chibase Consulting:** footer, legal, and ops allowlists only — never co-brand the product.
+  5. **Checkout labels:** Prefer “Subscribe on TrustLedger”; payment-provider names only on checkout buttons where required for clarity.
+  6. Internal docs, Ops, and engineer comments may name stack tools freely.
+- **Consequences:** `src/lib/aeo/siteFacts.ts`, WP `page-home.txt`, Design System, and agent briefs stay scrubbed. Re-paste WP after FAQ fixes.
+- **Alternatives considered:** Keep vendor names for “transparency” (rejected — dilutes TrustLedger); hide Chibase entirely including footer (rejected — legal/operator clarity).
+
+### ADR-040: ZA baseline intel ships with South African plans
+
+- **Date:** 2026-07-30
+- **Status:** Accepted
+- **Context:** SA buyers should not rebuild municipalities, wards, or traditional councils before they can run a desk. That baseline is platform reference data — distinct from retired sample INC-*/STK-* workspaces (ADR-033).
+- **Decision:**
+  1. Every SA commercial plan (Solo → Institutional) and SA trial includes **platform ZA place intel** via `geoIntake` + pack `za-mdb-2020` (provinces, districts, municipalities/metros, wards, traditional councils where seeded).
+  2. Clients **only add situation data**: projects/sites, stakeholders, engagements, commitments, incidents, evidence. Optional custom villages/notes under the hierarchy.
+  3. Platform packs are **shared reference**, never per-tenant fictional seed. Empty Cloud lists stay empty of cases/people — not empty of country geography.
+  4. Sales / onboarding language: *baseline place intel included; you add the project.* Do not over-claim national TC completeness while the pack is partial.
+  5. Detail + gaps: `docs/ZA_BASELINE_INTEL.md`. Enrich TC/wards/indicators in the pack; do not invent tenant geo seed files.
+- **Consequences:** Packaging and `/product` copy treat ZA geo as included; national TC expansion and Stats SA indicators remain enrichment packets, not blockers for this promise.
+- **Alternatives considered:** Charge for geo as an add-on (rejected — table stakes for SA SRM); seed sample stakeholders with each plan (rejected — ADR-033); wait for Cloud Geo DocTypes before shipping pickers (rejected — browser pack is launch SoT).
+
+### ADR-041: Site location cascade sequence (Country → … → Ward)
+
+- **Date:** 2026-07-30
+- **Status:** Accepted
+- **Context:** Site population (issue intake and other place capture) drifted into any-order pickers and a City→DM→TC→Ward wizard that skipped Country/Province and lacked “add if missing.” Field teams need one agreed sequence backed by the ZA pack.
+- **Decision:**
+  1. Locked capture sequence: **Country → Province → Town → DM → TC → Ward**.
+  2. Each step is a **dropdown** fed by platform pack data (`za-mdb-2020` for SA).
+  3. Each step offers **Add if not listed** for tenant-authored places (browser workspace today; never invent INC-*/STK-* seed).
+  4. TC may be **None / not applicable**; when the pack has no TCs for the DM, skip automatically and unlock wards.
+  5. Canonical UI: `GeoCascadePicker`; issue report dialog wraps it via `GeoLocationWizard`. Reuse the picker anywhere site geo is collected.
+  6. Supersedes “any-order” cascade behaviour for intake.
+- **Consequences:** Report copy and validation use the full sequence. Custom places store under `tl-custom-geo-places` for the workspace browser.
+- **Alternatives considered:** Keep any-order free pick (rejected — breaks training); town search only without province (rejected — harder audit trail); force TC always (rejected — metros / no-TC DMs).
 
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 

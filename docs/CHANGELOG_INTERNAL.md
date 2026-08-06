@@ -1,5 +1,88 @@
 # Internal changelog
 
+## 2026-08-06 — Free SRM resource toolkits
+
+- Public `/resources` library with three printable packs: Community Grievance Checklist, SRM Readiness Planner, Community Engagement Toolkit.
+- Work-email gate → CRM Lead `resource_download` (`Website Resource`) → signed 1-hour download via `/api/resources/file`.
+- Pack preview routes `/resources/[slug]`; nav/footer/sitemap/robots + CRM setup source updated.
+- CTAs into readiness check, trial, and walkthrough after download.
+
+## 2026-08-05 — Readiness engagement funnel
+
+- Promo `/readiness` → quiz `/assessment` → work email + OTP (when Resend ready) → `/readiness/next` choice hub → `/readiness/report` dashboard.
+- Report adds per-dimension DIY outline plus TrustLedger stabilize / operationalize / govern turnaround lanes.
+- Hub CTAs: report, `/product`, `/trial`, `/quote` with readiness UTMs; risk band nudges primary commercial path.
+- APIs: `/api/assessment/lead` returns pending/grant tokens; `/api/assessment/verify` OTP verify + resend; `/api/assessment/session` validates grant before hub/report.
+- Hardening: production fails closed without token secret; OTP email failure does not skip inbox proof; lead step resumes after refresh.
+- Sitemap/robots/footer/FAQ/contact/siteFacts + assessment email nudge updated; IA in BUILD_PLAN.
+
+## 2026-07-30 — ADR-041: site location cascade sequence
+
+- Locked capture order: **Country → Province → Town → DM → TC → Ward** with pack dropdowns + **Add if not listed** per level.
+- `GeoCascadePicker` rewritten; `GeoLocationWizard` wraps it for issue report; stakeholder create reuses the picker.
+- TC optional / auto-skip when pack has none for the DM. Custom places in browser `tl-custom-geo-places`.
+
+## 2026-07-30 — ADR-040: ZA baseline intel with SA plans
+
+- Locked packaging: SA plans ship platform ZA place intel (municipalities, wards, TCs where packed); clients add project/situation data only — never fictional INC-*/STK-* seed.
+- `docs/ZA_BASELINE_INTEL.md`, ADR-040 in `DECISIONS.md`; strategic brief §4–§5; geo README; Solo plan; `/product` + FAQ siteFacts; `AGENTS.md` rule 8.
+- Honest gap: national TC pack still thin (~15); enrichment packet next, not a packaging blocker.
+
+## 2026-07-29 — LinkedIn weekly content pack
+
+- `docs/exports/linkedin/WEEKLY_CONTENT.md`: 8 weeks of Trust-voice posts showcasing desk, SI, AI Assist, reports, ZA place, funnel CTAs; reply snippets; publishing checklist (ADR-039).
+
+## 2026-07-29 — Architecture extras map (agents / Helpdesk / Insights)
+
+- `docs/ARCHITECTURE_EXTRAS_MAP.md`: maps Gemini-style “Typebot+Gemini + Helpdesk grievance + Insights BI” blueprint onto TrustLedger ADRs.
+- Phase 1 (CRM + Vercel) = already built. Helpdesk ≠ grievance SoT; Insights ≠ customer reportComposer; public agents must stay BFF + suggest→apply.
+- Linked from PLATFORM_STRATEGIC_BRIEF §10.
+
+## 2026-07-29 — Product in primary marketing nav
+
+- WP `page-home.txt` + `page-assessment.txt`: **Product** in desktop/mobile front nav → Vercel `/product` (platform education, not buried in footer/resources).
+- Vercel `HomeHeader`: same Product link after Solutions.
+
+## 2026-07-29 — ADR-039: public brand TrustLedger only; voice = Trust
+
+- Scrubbed FAQ/AEO public copy: no Frappe/Vercel in answers; say TrustLedger Cloud. WP `page-home.txt` FAQ + how-it-works aligned.
+- Locked in `docs/DECISIONS.md` ADR-039, `DESIGN_SYSTEM.md` Brand, `PLATFORM_STRATEGIC_BRIEF` §6, `AGENTS.md` rule 7.
+- Primary public voice: **Trust** must dominate hero/FAQ/agents/social.
+- Re-paste WP home after merge for live site.
+
+## 2026-07-29 — WordPress home paste: AEO + ADR-033 trial copy
+
+- `docs/wordpress/page-home.txt`: declarative SRM definition in hero; How it works / final CTA / resources use own-data trial (sample demo retired); expanded FAQ aligned to `siteFacts.ts`; Organization/SoftwareApplication/FAQPage JSON-LD; links to Vercel `/faq` + `/product`.
+- `PASTE_PLANS.md` AEO smoke steps; `faq-aeo-snippet.txt` noted as minimal fallback; `AEO_VISIBILITY.md` §3 points at full home paste.
+- **Live WP still needs Webway paste + SpeedyCache purge.**
+
+## 2026-07-29 — AEO / AI-search visibility foundation
+
+- Playbook: `docs/AEO_VISIBILITY.md` (maps Gemini-style AEO advice to WP + Vercel + off-domain entity work).
+- Canonical facts + FAQ corpus: `src/lib/aeo/siteFacts.ts`; Schema.org builders + `JsonLd` component.
+- New `/faq` hub with FAQPage JSON-LD + plan capability table; `public/llms.txt` for AI crawlers.
+- Organization / SoftwareApplication / WebSite JSON-LD on root layout; product + home front-load `PRODUCT_DEFINITION`.
+- robots/sitemap: allow FAQ/contact/quote/pay; add `/faq` + `/pay`; keep `/app` `/ops` blocked. No AI-bot blocks.
+- Home FAQ stub fixed (ADR-033); footer/header link to `/faq`. Stale “Demo” OG copy removed from root metadata.
+
+## 2026-07-27 — Pricing: optional privacy extras + foldable comparison
+
+- Home `#pricing`: short TrustLedger data-protection blurb; foldable Compare plans matrix; optional privacy layers (Trust Pack, private cloud workspace, support-access visibility).
+- Client copy uses **cloud** / TrustLedger only (no Frappe/Vercel on marketing).
+- Contact form prefills from `?plan=` / `?extras=`. Config: `src/config/planComparison.ts`.
+- WordPress paste: same blurb + foldable comparison + privacy extras in `docs/wordpress/page-home.txt` (+ CSS patch). Re-paste home + append CSS, then purge SpeedyCache.
+
+## 2026-07-27 — Private bench request playbook
+
+- `docs/PRIVATE_BENCH_REQUEST.md`: client-funded private Frappe bench — intake, quote, contract, provision, frontend pointing, run/offboard.
+- Linked from SECURITY_TENANCY (L5); SEC-4 playbook marked done pending live Cloud quote.
+
+## 2026-07-27 — SEC-0 / ADR-038: Multi-tenant security ladder on plans
+
+- `docs/SECURITY_TENANCY.md`: L1–L5 ladder (identity → hard permissions → ops privacy → DPA → dedicated isolation).
+- Package Trust Pack on Project+; Isolation / dedicated site on Institutional (cost-recovered); L2 baseline not a Solo tax.
+- ACCESS_MODEL + PLATFORM_STRATEGIC_BRIEF updated; SEC-1…SEC-5 planned.
+
 ## 2026-07-26 — UG-1 / ADR-036: User manual + first-login setup wizard
 
 - `docs/USER_MANUAL.md` — seeding spine, nav map, daily loop, plans, AI rules.

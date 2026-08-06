@@ -30,13 +30,14 @@ export async function GET(request: Request) {
       const place = await geoService.getPlace(id);
       return NextResponse.json({ place });
     }
+    const countryCode = searchParams.get("countryCode") || undefined;
     const places = await geoService.listPlaces({
       parentId: parentId === null ? undefined : parentId || undefined,
       level: level || undefined,
+      countryCode,
       query,
       limit: Number.isFinite(limit) ? limit : 400,
     });
-    // Support parentId= empty string as country children via parentId=za
     return NextResponse.json({ places });
   } catch (err) {
     return NextResponse.json(

@@ -27,7 +27,7 @@
 | 1 project | Governance report depth |
 | Incidents / grievance desk | Capture hub |
 | Issue intake | Stakeholder CRM / engagements / commitments |
-| Geo / place fields | ESG intelligence cards |
+| Geo / place fields + **ZA baseline pack** (ADR-040) | ESG intelligence cards |
 | Trust pulse (light) | Desk graphs / supervisor queue |
 | Monthly operational report (Reports hub) | Executive / board packs |
 

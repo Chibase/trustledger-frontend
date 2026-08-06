@@ -9,20 +9,18 @@ import { HomePricing } from "@/components/marketing/HomePricing";
 import { HomeSectors } from "@/components/marketing/HomeSectors";
 import { HomeTrustProof } from "@/components/marketing/HomeTrustProof";
 import { HomeVersionStrip } from "@/components/marketing/HomeVersionStrip";
-
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { faqPageJsonLd } from "@/lib/aeo/jsonLd";
+import { PRODUCT_DEFINITION, SITE_URL } from "@/lib/aeo/siteFacts";
 
 export const metadata: Metadata = {
   title: "Turn Community Risk into Measurable Trust Outcomes",
-  description:
-    "TrustLedger helps operators run grievance resolution and Stakeholder Intelligence in low-connectivity, multilingual field environments. Start a 14-day trial with your own workspace.",
+  description: PRODUCT_DEFINITION,
   alternates: { canonical: "/" },
   openGraph: {
     title: "TrustLedger — Measurable Trust Outcomes",
-    description:
-      "Grievance resolution, Stakeholder Intelligence, and audit-ready ESG evidence. Start a trial or sign in live.",
-    url: siteUrl,
+    description: PRODUCT_DEFINITION,
+    url: SITE_URL,
     siteName: "TrustLedger",
     locale: "en_ZA",
     type: "website",
@@ -38,8 +36,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "TrustLedger — Measurable Trust Outcomes",
-    description:
-      "Start a 14-day trial with your own workspace — or sign in live on Cloud.",
+    description: PRODUCT_DEFINITION,
     images: ["/marketing/trustledger-hero-dashboard.png"],
   },
 };
@@ -47,6 +44,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
+      <JsonLd data={faqPageJsonLd()} />
       <HomeHeader />
       <main>
         <HomeHero />

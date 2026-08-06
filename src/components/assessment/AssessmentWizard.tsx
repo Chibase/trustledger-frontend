@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ASSESSMENT_DIMENSIONS,
   ASSESSMENT_LEAD_KEY,
@@ -13,7 +13,10 @@ import {
   isWorkEmail,
   scoreAssessment,
 } from "@/data/assessment";
-import { ExperienceFeedbackForm } from "@/components/forms/ExperienceFeedbackForm";
+import {
+  ASSESSMENT_PENDING_KEY,
+  ASSESSMENT_UNLOCK_KEY,
+} from "@/lib/assessmentClient";
 import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/forms/FormGuards";
 import { captureUtmFromSearchParams, readUtm } from "@/lib/utm";
 import type {
@@ -23,40 +26,10 @@ import type {
   LikertValue,
 } from "@/types/assessment";
 
-type Step = "intro" | "questions" | "lead" | "results";
-
-function productHref(campaign: string): string {
-  const params = new URLSearchParams({
-    utm_source: "assessment",
-    utm_medium: "cta",
-    utm_campaign: campaign,
-  });
-  return `/product?${params.toString()}`;
-}
-
-function dashboardHref(): string {
-  const params = new URLSearchParams({
-    utm_source: "assessment",
-    utm_medium: "cta",
-    utm_campaign: "assessment",
-  });
-  return `/app/dashboard?${params.toString()}`;
-}
-
-function riskTone(band: AssessmentResult["riskBand"]): string {
-  switch (band) {
-    case "critical":
-      return "text-tl-danger";
-    case "elevated":
-      return "text-tl-amber";
-    case "moderate":
-      return "text-tl-demo";
-    case "strong":
-      return "text-tl-trust-ink";
-  }
-}
+type Step = "intro" | "questions" | "lead" | "verify";
 
 export function AssessmentWizard() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const embed = searchParams.get("embed") === "1";
 
@@ -75,6 +48,12 @@ export function AssessmentWizard() {
   const [leadError, setLeadError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const [pendingToken, setPendingToken] = useState("");
+  const [otp, setOtp] = useState("");
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+
   useEffect(() => {
     captureUtmFromSearchParams(
       new URLSearchParams(searchParams.toString()),
@@ -83,16 +62,55 @@ export function AssessmentWizard() {
 
     const timer = window.setTimeout(() => {
       try {
+        const unlock = sessionStorage.getItem(ASSESSMENT_UNLOCK_KEY);
         const raw = sessionStorage.getItem(ASSESSMENT_STORAGE_KEY);
-        if (!raw) return;
-        const saved = JSON.parse(raw) as {
-          answers: AssessmentAnswers;
-          result: AssessmentResult;
-        };
-        if (saved?.result && saved?.answers) {
-          setAnswers(saved.answers);
-          setResult(saved.result);
-          setStep("results");
+        if (unlock && raw) {
+          router.replace("/readiness/next");
+          return;
+        }
+        const pending = sessionStorage.getItem(ASSESSMENT_PENDING_KEY);
+        if (pending && raw) {
+          const saved = JSON.parse(raw) as {
+            answers: AssessmentAnswers;
+            result: AssessmentResult;
+          };
+          if (saved?.result && saved?.answers) {
+            setAnswers(saved.answers);
+            setResult(saved.result);
+            setPendingToken(pending);
+            const leadRaw = sessionStorage.getItem(ASSESSMENT_LEAD_KEY);
+            if (leadRaw) {
+              const lead = JSON.parse(leadRaw) as {
+                name?: string;
+                email?: string;
+              };
+              if (lead.name) setName(lead.name);
+              if (lead.email) setEmail(lead.email);
+            }
+            setStep("verify");
+            return;
+          }
+        }
+        // Resume lead unlock if the visitor refreshed after finishing questions.
+        if (raw && !unlock && !pending) {
+          const saved = JSON.parse(raw) as {
+            answers: AssessmentAnswers;
+            result: AssessmentResult;
+          };
+          if (saved?.result && saved?.answers) {
+            setAnswers(saved.answers);
+            setResult(saved.result);
+            const leadRaw = sessionStorage.getItem(ASSESSMENT_LEAD_KEY);
+            if (leadRaw) {
+              const lead = JSON.parse(leadRaw) as {
+                name?: string;
+                email?: string;
+              };
+              if (lead.name) setName(lead.name);
+              if (lead.email) setEmail(lead.email);
+            }
+            setStep("lead");
+          }
         }
       } catch {
         /* ignore corrupt session */
@@ -100,15 +118,32 @@ export function AssessmentWizard() {
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const total = ASSESSMENT_QUESTIONS.length;
   const question = ASSESSMENT_QUESTIONS[index];
   const answeredProgress = useMemo(() => {
     if (step === "intro") return 0;
-    if (step === "lead" || step === "results") return 100;
+    if (step === "lead" || step === "verify") return 100;
     return Math.round((index / total) * 100);
   }, [index, step, total]);
+
+  function persistResult(nextAnswers: AssessmentAnswers, nextResult: AssessmentResult) {
+    sessionStorage.setItem(
+      ASSESSMENT_STORAGE_KEY,
+      JSON.stringify({ answers: nextAnswers, result: nextResult }),
+    );
+  }
+
+  function finishUnlock(grantToken: string, leadName: string, leadEmail: string) {
+    sessionStorage.setItem(ASSESSMENT_UNLOCK_KEY, grantToken);
+    sessionStorage.setItem(
+      ASSESSMENT_LEAD_KEY,
+      JSON.stringify({ name: leadName, email: leadEmail }),
+    );
+    sessionStorage.removeItem(ASSESSMENT_PENDING_KEY);
+    router.push("/readiness/next");
+  }
 
   function start() {
     setStep("questions");
@@ -116,6 +151,9 @@ export function AssessmentWizard() {
     setAnswers({});
     setResult(null);
     sessionStorage.removeItem(ASSESSMENT_STORAGE_KEY);
+    sessionStorage.removeItem(ASSESSMENT_LEAD_KEY);
+    sessionStorage.removeItem(ASSESSMENT_PENDING_KEY);
+    sessionStorage.removeItem(ASSESSMENT_UNLOCK_KEY);
   }
 
   function selectAnswer(value: LikertValue) {
@@ -128,7 +166,9 @@ export function AssessmentWizard() {
       return;
     }
 
-    setResult(scoreAssessment(nextAnswers));
+    const scored = scoreAssessment(nextAnswers);
+    setResult(scored);
+    persistResult(nextAnswers, scored);
     setStep("lead");
   }
 
@@ -144,6 +184,9 @@ export function AssessmentWizard() {
     if (step === "lead") {
       setStep("questions");
       setIndex(total - 1);
+    }
+    if (step === "verify") {
+      setStep("lead");
     }
   }
 
@@ -214,21 +257,38 @@ export function AssessmentWizard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        requiresOtp?: boolean;
+        pendingToken?: string;
+        grantToken?: string;
+      };
       if (!res.ok) {
         setLeadError(data.error ?? "Could not save your details. Try again.");
         return;
       }
 
-      sessionStorage.setItem(
-        ASSESSMENT_STORAGE_KEY,
-        JSON.stringify({ answers, result }),
-      );
+      persistResult(answers, result);
       sessionStorage.setItem(
         ASSESSMENT_LEAD_KEY,
         JSON.stringify({ name: payload.name, email: payload.email }),
       );
-      setStep("results");
+
+      if (data.requiresOtp && data.pendingToken) {
+        sessionStorage.setItem(ASSESSMENT_PENDING_KEY, data.pendingToken);
+        setPendingToken(data.pendingToken);
+        setOtp("");
+        setVerifyError(null);
+        setStep("verify");
+        return;
+      }
+
+      if (data.grantToken) {
+        finishUnlock(data.grantToken, payload.name, payload.email);
+        return;
+      }
+
+      setLeadError("Could not unlock results. Try again.");
     } catch {
       setLeadError("Network error. Check your connection and try again.");
     } finally {
@@ -236,19 +296,68 @@ export function AssessmentWizard() {
     }
   }
 
-  function retake() {
-    sessionStorage.removeItem(ASSESSMENT_STORAGE_KEY);
-    sessionStorage.removeItem(ASSESSMENT_LEAD_KEY);
-    setAnswers({});
-    setResult(null);
-    setName("");
-    setEmail("");
-    setOrganization("");
-    setSector("");
-    setComment("");
-    setHoneypot("");
-    setIndex(0);
-    setStep("intro");
+  async function submitOtp(event: React.FormEvent) {
+    event.preventDefault();
+    setVerifyError(null);
+    setVerifying(true);
+    try {
+      const res = await fetch("/api/assessment/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: otp.trim(), pendingToken }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        grantToken?: string;
+        name?: string;
+        email?: string;
+      };
+      if (!res.ok) {
+        setVerifyError(data.error ?? "Could not verify code.");
+        return;
+      }
+      if (!data.grantToken) {
+        setVerifyError("Verification succeeded but unlock failed. Try again.");
+        return;
+      }
+      finishUnlock(
+        data.grantToken,
+        data.name || name,
+        data.email || email.trim().toLowerCase(),
+      );
+    } catch {
+      setVerifyError("Network error. Check your connection and try again.");
+    } finally {
+      setVerifying(false);
+    }
+  }
+
+  async function resendOtp() {
+    setVerifyError(null);
+    setResending(true);
+    try {
+      const res = await fetch("/api/assessment/verify", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pendingToken }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        pendingToken?: string;
+      };
+      if (!res.ok) {
+        setVerifyError(data.error ?? "Could not resend code.");
+        return;
+      }
+      if (data.pendingToken) {
+        sessionStorage.setItem(ASSESSMENT_PENDING_KEY, data.pendingToken);
+        setPendingToken(data.pendingToken);
+      }
+    } catch {
+      setVerifyError("Network error. Check your connection and try again.");
+    } finally {
+      setResending(false);
+    }
   }
 
   const shellClass = embed
@@ -261,7 +370,7 @@ export function AssessmentWizard() {
         <p className="text-sm font-medium text-tl-trust">TrustLedger</p>
       )}
 
-      {step !== "intro" && step !== "results" && (
+      {step !== "intro" && (
         <div className="mt-4" aria-hidden="true">
           <div className="h-1.5 overflow-hidden rounded-full bg-tl-line">
             <div
@@ -272,7 +381,9 @@ export function AssessmentWizard() {
           <p className="mt-2 text-xs text-tl-ink-muted">
             {step === "questions"
               ? `Question ${index + 1} of ${total}`
-              : "Almost done — unlock your results"}
+              : step === "verify"
+                ? "Confirm your email to open the hub"
+                : "Almost done — unlock your results"}
           </p>
         </div>
       )}
@@ -290,12 +401,12 @@ export function AssessmentWizard() {
           <ul className="mt-6 space-y-2 text-sm text-tl-ink">
             <li>Readiness score across 6 governance dimensions</li>
             <li>Risk level classification</li>
-            <li>Top 3 priority actions</li>
-            <li>90-day action plan outline</li>
+            <li>Top 3 priority actions with TrustLedger turnaround lanes</li>
+            <li>Choice hub: report, product intro, trial, or walkthrough</li>
           </ul>
           <p className="mt-4 text-xs text-tl-ink-muted">
-            {ASSESSMENT_QUESTIONS.length} questions · Likert scale · Results
-            unlock after work email
+            {ASSESSMENT_QUESTIONS.length} questions · Likert scale · Work email
+            + confirmation unlocks your report
           </p>
           <button
             type="button"
@@ -304,6 +415,14 @@ export function AssessmentWizard() {
           >
             Start assessment
           </button>
+          {!embed && (
+            <p className="mt-4 text-xs text-tl-ink-muted">
+              Prefer the overview first?{" "}
+              <a href="/readiness" className="underline underline-offset-2">
+                Readiness promo
+              </a>
+            </p>
+          )}
         </section>
       )}
 
@@ -366,13 +485,12 @@ export function AssessmentWizard() {
       {step === "lead" && result && (
         <section className="mt-6">
           <h2 className="font-display text-2xl font-semibold text-tl-ink">
-            Unlock your readiness score
+            Unlock your readiness report
           </h2>
           <p className="mt-2 text-sm text-tl-ink-muted">
-            Enter your work details to see your score across six dimensions, risk
-            band, top priorities, and a 90-day outline. We use this to follow up
-            with relevant TrustLedger guidance — not to share your answers
-            publicly.
+            Enter your work details. We email a confirmation code so you can
+            open your score, priorities, and next-step hub — not to share your
+            answers publicly.
           </p>
 
           <form
@@ -417,7 +535,8 @@ export function AssessmentWizard() {
                 htmlFor="lead-org"
                 className="mb-1 block text-sm font-medium"
               >
-                Organization <span className="font-normal text-tl-ink-muted">(optional)</span>
+                Organization{" "}
+                <span className="font-normal text-tl-ink-muted">(optional)</span>
               </label>
               <input
                 id="lead-org"
@@ -433,7 +552,8 @@ export function AssessmentWizard() {
                 htmlFor="lead-sector"
                 className="mb-1 block text-sm font-medium"
               >
-                Sector <span className="font-normal text-tl-ink-muted">(optional)</span>
+                Sector{" "}
+                <span className="font-normal text-tl-ink-muted">(optional)</span>
               </label>
               <select
                 id="lead-sector"
@@ -505,179 +625,80 @@ export function AssessmentWizard() {
                 disabled={submitting}
                 className="rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
               >
-                {submitting ? "Saving…" : "Show my results"}
+                {submitting ? "Saving…" : "Email me the unlock code"}
               </button>
             </div>
           </form>
         </section>
       )}
 
-      {step === "results" && result && (
-        <section className="mt-2 space-y-8">
-          <div>
-            <h1 className="font-display text-3xl font-semibold text-tl-ink">
-              Your readiness results
-            </h1>
-            <p className="mt-2 text-sm text-tl-ink-muted">{result.riskSummary}</p>
-          </div>
+      {step === "verify" && (
+        <section className="mt-6">
+          <h2 className="font-display text-2xl font-semibold text-tl-ink">
+            Confirm your email
+          </h2>
+          <p className="mt-2 text-sm text-tl-ink-muted">
+            We sent a 6-digit code to{" "}
+            <span className="font-medium text-tl-ink">
+              {email || "your work inbox"}
+            </span>
+            . Enter it to open your readiness hub.
+          </p>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
-              <p className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
-                Overall score
-              </p>
-              <p className="mt-2 font-display text-4xl font-semibold tabular-nums text-tl-ink">
-                {result.overallScore}
-                <span className="text-lg font-normal text-tl-ink-muted"> / 100</span>
-              </p>
+          <form onSubmit={submitOtp} className="mt-6 space-y-4">
+            <div>
+              <label htmlFor="assessment-otp" className="mb-1 block text-sm font-medium">
+                Verification code
+              </label>
+              <input
+                id="assessment-otp"
+                name="otp"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="\d{6}"
+                maxLength={6}
+                required
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-center font-mono text-lg tracking-[0.35em]"
+                placeholder="••••••"
+              />
             </div>
-            <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
-              <p className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
-                Risk level
+
+            {verifyError && (
+              <p className="text-sm text-tl-danger" role="alert">
+                {verifyError}
               </p>
-              <p
-                className={`mt-2 font-display text-3xl font-semibold ${riskTone(result.riskBand)}`}
+            )}
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                type="button"
+                onClick={goBack}
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium"
               >
-                {result.riskLabel}
-              </p>
+                Back
+              </button>
+              <button
+                type="submit"
+                disabled={verifying || otp.length !== 6}
+                className="rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
+              >
+                {verifying ? "Verifying…" : "Open readiness hub"}
+              </button>
             </div>
-          </div>
-
-          <div>
-            <h2 className="font-display text-xl font-semibold">
-              Six governance dimensions
-            </h2>
-            <ul className="mt-4 space-y-3">
-              {result.dimensions.map((dim) => (
-                <li key={dim.id}>
-                  <div className="flex items-baseline justify-between gap-3 text-sm">
-                    <span className="font-medium text-tl-ink">{dim.label}</span>
-                    <span className="tabular-nums text-tl-ink-muted">
-                      {dim.score}
-                    </span>
-                  </div>
-                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-tl-line">
-                    <div
-                      className="h-full rounded-full bg-tl-trust"
-                      style={{ width: `${dim.score}%` }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="font-display text-xl font-semibold">
-              Top 3 priority actions
-            </h2>
-            <ol className="mt-4 space-y-4">
-              {result.topPriorities.map((id, i) => {
-                const dim = dimensionById(id);
-                const score =
-                  result.dimensions.find((d) => d.id === id)?.score ?? 0;
-                return (
-                  <li
-                    key={id}
-                    className="rounded-lg border border-tl-line bg-tl-surface p-4"
-                  >
-                    <p className="text-xs font-medium text-tl-ink-muted">
-                      Priority {i + 1} · score {score}
-                    </p>
-                    <h3 className="mt-1 font-medium text-tl-ink">
-                      {dim.priorityTitle}
-                    </h3>
-                    <p className="mt-1 text-sm text-tl-ink-muted">
-                      {dim.prioritySummary}
-                    </p>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-
-          <div>
-            <h2 className="font-display text-xl font-semibold">
-              90-day action plan outline
-            </h2>
-            <div className="mt-4 space-y-4">
-              {result.topPriorities.map((id) => {
-                const dim = dimensionById(id);
-                return (
-                  <article
-                    key={id}
-                    className="border-l-2 border-tl-trust pl-4"
-                  >
-                    <h3 className="text-sm font-semibold text-tl-ink">
-                      {dim.shortLabel}
-                    </h3>
-                    <ul className="mt-2 space-y-1.5 text-sm text-tl-ink-muted">
-                      <li>
-                        <span className="font-medium text-tl-ink">30 days:</span>{" "}
-                        {dim.day30}
-                      </li>
-                      <li>
-                        <span className="font-medium text-tl-ink">60 days:</span>{" "}
-                        {dim.day60}
-                      </li>
-                      <li>
-                        <span className="font-medium text-tl-ink">90 days:</span>{" "}
-                        {dim.day90}
-                      </li>
-                    </ul>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-tl-line bg-tl-surface p-5">
-            <h2 className="font-display text-lg font-semibold">
-              Put this into practice with TrustLedger
-            </h2>
-            <p className="mt-2 text-sm text-tl-ink-muted">
-              Review TrustLedger features and onboarding, or talk to Chibase
-              Consulting about implementing the 90-day plan on your sites.
-            </p>
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <a
-                href={productHref("assessment")}
-                className="inline-flex justify-center rounded-md bg-tl-trust px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-tl-trust-ink"
-              >
-                Product overview
-              </a>
-              <a
-                href={dashboardHref()}
-                className="inline-flex justify-center rounded-md border border-tl-line bg-tl-surface px-4 py-2.5 text-center text-sm font-medium text-tl-ink hover:bg-tl-paper"
-              >
-                Open dashboard
-              </a>
-              <a
-                href="/contact"
-                className="inline-flex justify-center rounded-md border border-tl-line px-4 py-2.5 text-center text-sm font-medium text-tl-ink hover:bg-tl-paper"
-              >
-                Contact us
-              </a>
-            </div>
-          </div>
-
-          <ExperienceFeedbackForm
-            contextPath="/assessment"
-            defaultEmail={email}
-            defaultName={name}
-            heading="How was this assessment?"
-            description="Your notes shape launch readiness — what was clear, missing, or useful."
-          />
+          </form>
 
           <button
             type="button"
-            onClick={retake}
-            className="text-sm font-medium text-tl-trust-ink underline"
+            onClick={resendOtp}
+            disabled={resending}
+            className="mt-4 text-sm font-medium text-tl-trust-ink underline disabled:opacity-60"
           >
-            Retake assessment
+            {resending ? "Sending…" : "Resend code"}
           </button>
 
-          <p className="text-xs text-tl-ink-muted">
+          <p className="mt-6 text-xs text-tl-ink-muted">
             Dimensions covered:{" "}
             {ASSESSMENT_DIMENSIONS.map((d) => d.shortLabel).join(" · ")}
           </p>

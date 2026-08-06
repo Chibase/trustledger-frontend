@@ -252,6 +252,7 @@ function resolveCrmSource(
     demo_entry: "Website Demo",
     demo_soft_gate: "Website Demo",
     assessment: "Website Assessment",
+    resource_download: "Website Resource",
     paystack_payment: "Paystack Payment",
     trial_authorize: "Trial Authorize",
     trial_opt_out: "Trial Opt-Out",

@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  organizationJsonLd,
+  softwareApplicationJsonLd,
+  webSiteJsonLd,
+} from "@/lib/aeo/jsonLd";
+import { PRODUCT_DEFINITION } from "@/lib/aeo/siteFacts";
 import "./globals.css";
 
 const sourceSans = Source_Sans_3({
@@ -24,12 +31,10 @@ export const metadata: Metadata = {
     default: "TrustLedger",
     template: "%s · TrustLedger",
   },
-  description:
-    "Stakeholder relations management — community trust, incident resolution, and governance-grade reporting.",
+  description: PRODUCT_DEFINITION,
   openGraph: {
-    title: "TrustLedger",
-    description:
-      "Try the interactive Demo for community, contractor, client, and admin workflows.",
+    title: "TrustLedger — Resolution you can audit",
+    description: PRODUCT_DEFINITION,
     url: siteUrl,
     siteName: "TrustLedger",
     locale: "en_ZA",
@@ -37,9 +42,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TrustLedger",
-    description:
-      "Stakeholder relations management with an interactive product Demo.",
+    title: "TrustLedger — Resolution you can audit",
+    description: PRODUCT_DEFINITION,
   },
 };
 
@@ -54,6 +58,13 @@ export default function RootLayout({
       className={`${sourceSans.variable} ${sourceSerif.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
+        <JsonLd
+          data={[
+            organizationJsonLd(),
+            softwareApplicationJsonLd(),
+            webSiteJsonLd(),
+          ]}
+        />
         {children}
         <Analytics />
       </body>

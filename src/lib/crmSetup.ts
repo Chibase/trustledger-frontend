@@ -14,6 +14,7 @@ const LEAD_SOURCES = [
   "Website Contact",
   "Website Demo",
   "Website Assessment",
+  "Website Resource",
   "Support Ticket",
 ] as const;
 
