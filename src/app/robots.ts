@@ -21,6 +21,7 @@ export default function robots(): MetadataRoute.Robots {
           "/faq",
           "/assessment",
           "/readiness",
+          "/resources",
           "/contact",
           "/quote",
           "/trial",
