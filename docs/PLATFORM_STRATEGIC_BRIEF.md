@@ -85,8 +85,7 @@ Agents and humans should understand this sequence — it explains *why* the arch
 
 | Layer | Location | Role |
 |-------|----------|------|
-| Marketing / funnel | `/`, `/product`, `/trial`, `/pay`, `/assessment`, `/resources`, `/quote`, `/contact` | Acquisition & education |
-| Product shell | `/app/*` | Trial or live workspace |
+| Marketing / funnel | `/`, `/product`, `/trial`, `/pay`, `/readiness`, `/assessment`, `/resources`, `/quote`, `/contact` | Acquisition & education || Product shell | `/app/*` | Trial or live workspace |
 | Ops plane | `/ops/*` | Platform Operator only (`PLATFORM_OPERATOR_EMAILS`) |
 | BFF APIs | `/api/*`, `/auth/live/*` | Secrets stay server-side |
 | Domain services | `src/services/*` | Mode-aware list/get/save |

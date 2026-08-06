@@ -32,6 +32,12 @@ export const ASSESSMENT_DIMENSIONS: AssessmentDimension[] = [
       "Pilot structured triage categories and mandatory fields for new cases at one priority site.",
     day90:
       "Enforce verified closure checklist and weekly backlog review for open cases older than SLA.",
+    tlStabilize:
+      "Stand up a single case desk on one pilot site with assisted intake and a shared case ID — typically 1–2 weeks.",
+    tlOperationalize:
+      "Roll structured triage categories and mandatory fields across priority sites — about 30 days.",
+    tlGovern:
+      "Enforce verified closure checklists and weekly aging reviews in the desk — 60–90 days.",
   },
   {
     id: "ownership",
@@ -47,6 +53,12 @@ export const ASSESSMENT_DIMENSIONS: AssessmentDimension[] = [
       "Activate automated reminders and an escalation ladder (site → regional → executive) for breached SLAs.",
     day90:
       "Review SLA compliance in a standing governance meeting with action owners minuted.",
+    tlStabilize:
+      "Assign named owners and severity SLAs on open high-severity cases in the desk — week 1–2.",
+    tlOperationalize:
+      "Make breach visibility and escalation ladders (site → regional → executive) routine — ~30 days.",
+    tlGovern:
+      "Standing SLA review with minuted owners in Activity/Reports packs — 60–90 days.",
   },
   {
     id: "field",
@@ -62,6 +74,12 @@ export const ASSESSMENT_DIMENSIONS: AssessmentDimension[] = [
       "Train site liaison officers on assisted intake scripts and multilingual prompts.",
     day90:
       "Measure field submission completeness weekly and close the top two process gaps.",
+    tlStabilize:
+      "Deploy assisted intake scripts for the three highest-friction capture points — week 1–2.",
+    tlOperationalize:
+      "Train liaison officers and measure submission completeness weekly — ~30 days.",
+    tlGovern:
+      "Close the top process gaps and keep field completeness on the governance pack — 60–90 days.",
   },
   {
     id: "engagement",
@@ -77,6 +95,12 @@ export const ASSESSMENT_DIMENSIONS: AssessmentDimension[] = [
       "Run a community feedback session on grievance channels and publish accessible how-to guidance.",
     day90:
       "Track acknowledgment and update compliance; share anonymised trend summaries with community reps.",
+    tlStabilize:
+      "Set acknowledgment and update cadences (e.g. 48h / 14-day) on live cases — week 1–2.",
+    tlOperationalize:
+      "Log engagements and commitments so complainants see credible progress — ~30 days.",
+    tlGovern:
+      "Share anonymised trend summaries with community reps from the reports hub — 60–90 days.",
   },
   {
     id: "reporting",
@@ -92,6 +116,12 @@ export const ASSESSMENT_DIMENSIONS: AssessmentDimension[] = [
       "Automate a monthly social performance pack for one site with consistent definitions.",
     day90:
       "Extend the pack to multi-site roll-up and retain an audit trail for board/regulator asks.",
+    tlStabilize:
+      "Agree a minimum KPI set and pull the first Activity pack from live cases — week 1–2.",
+    tlOperationalize:
+      "Monthly social performance pack for one site with consistent definitions — ~30–60 days.",
+    tlGovern:
+      "Multi-site roll-up with an audit trail for board/regulator asks — ~60–90 days.",
   },
   {
     id: "assurance",
@@ -107,6 +137,12 @@ export const ASSESSMENT_DIMENSIONS: AssessmentDimension[] = [
       "Sample 10% of closed cases for completeness and owner sign-off quality.",
     day90:
       "Document an assurance calendar (quarterly review) with corrective actions tracked to closure.",
+    tlStabilize:
+      "Require evidence stubs on high-severity closures in the desk — week 1–2.",
+    tlOperationalize:
+      "Sample closed cases for completeness and owner sign-off quality — ~30–60 days.",
+    tlGovern:
+      "Quarterly assurance calendar with corrective actions tracked to closure — ~90 days.",
   },
 ];
 

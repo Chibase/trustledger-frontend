@@ -55,7 +55,10 @@ When implementing:
 /                     Marketing home → CTA to /trial (and /product)
 /product              Onboarding + feature purpose (ADR-033) — no sample workspace
 /demo                 301 → /product (legacy)
-/assessment           Public SRM Readiness & Risk Diagnostic (lead-gated results)
+/readiness            Promo + CTA for SRM readiness diagnostic
+/assessment           Quiz + email/OTP unlock → /readiness/next hub + /readiness/report
+/readiness/next       Post-confirm choice hub (report / product / trial / walkthrough)
+/readiness/report     Score overview + dimension detail + TrustLedger turnaround lanes
 /resources            Free SRM toolkits (email-gated printable packs)
 /resources/[slug]     Pack preview + download gate
 /login                Sign-in chooser → live / trial (no sample demo)

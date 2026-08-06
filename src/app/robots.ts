@@ -20,6 +20,7 @@ export default function robots(): MetadataRoute.Robots {
           "/product",
           "/faq",
           "/assessment",
+          "/readiness",
           "/resources",
           "/contact",
           "/quote",

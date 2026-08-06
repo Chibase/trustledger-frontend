@@ -11,7 +11,7 @@ const COLS = [
       { href: "/product", label: "Product & onboarding" },
       { href: "#sectors", label: "Sectors" },
       { href: "#pricing", label: "Pricing" },
-      { href: "/assessment", label: "Readiness assessment" },
+      { href: "/readiness", label: "Readiness check" },
       { href: "/resources", label: "Free toolkits" },
     ],
   },
@@ -28,6 +28,7 @@ const COLS = [
     title: "Resources",
     links: [
       { href: "/resources", label: "Free toolkits" },
+      { href: "/readiness", label: "Readiness check" },
       { href: "/assessment", label: "Readiness assessment" },
       { href: "/faq", label: "FAQ" },
       { href: "/status", label: "System status" },
@@ -141,10 +142,10 @@ export function HomeFooter() {
             </Link>
             {" · "}
             <Link
-              href="/assessment"
+              href="/readiness"
               className="underline underline-offset-2 hover:text-white"
             >
-              SRM readiness assessment
+              SRM readiness check
             </Link>
           </p>
         </div>

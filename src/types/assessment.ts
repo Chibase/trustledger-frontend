@@ -24,9 +24,14 @@ export type AssessmentDimension = {
   issue: string;
   priorityTitle: string;
   prioritySummary: string;
+  /** DIY / process outline without a desk system */
   day30: string;
   day60: string;
   day90: string;
+  /** TrustLedger turnaround lanes (honest Version 001 timelines) */
+  tlStabilize: string;
+  tlOperationalize: string;
+  tlGovern: string;
 };
 
 export type DimensionScore = {
