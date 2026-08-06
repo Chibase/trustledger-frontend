@@ -62,13 +62,20 @@ const STEPS = [
   },
   {
     n: "2",
+    title: "Follow the setup wizard",
+    body: "On first entry, TrustLedger opens a plan-aware setup wizard: seed Project → people → contact → promises → cases → reports. Reopen anytime from Guide.",
+    href: "/trial",
+    cta: "Start trial & setup",
+  },
+  {
+    n: "3",
     title: "Sign in live on Cloud",
-    body: "After provision, use live login for multi-device durable ops on TrustLedger Cloud.",
+    body: "After provision, use live login for multi-device durable ops on TrustLedger Cloud. Guide stays in the nav.",
     href: "/login/live",
     cta: "Live sign-in",
   },
   {
-    n: "3",
+    n: "4",
     title: "Build Stakeholder Intelligence",
     body: "Add stakeholders, log engagements, track commitments — the SRM engine without which there is no programme trust.",
     href: "/app/stakeholders",

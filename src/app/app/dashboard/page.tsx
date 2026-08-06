@@ -1,4 +1,5 @@
 import { ActivityDashboard } from "@/components/dashboard/ActivityDashboard";
+import { SetupChecklistBanner } from "@/components/onboarding/SetupChecklistBanner";
 import { PlanOwnerMasterPanel } from "@/components/org/PlanOwnerMasterPanel";
 import { getCurrentUser } from "@/lib/auth";
 import { isCustomerWorkspaceUser } from "@/lib/workspaceMode";
@@ -24,6 +25,7 @@ export default async function AppDashboardPage() {
 
   return (
     <div className="space-y-7">
+      {isPlanOwner ? <SetupChecklistBanner planId={user.trialPlan} /> : null}
       {isPlanOwner ? <PlanOwnerMasterPanel /> : null}
       <ActivityDashboard
         role={user.role}

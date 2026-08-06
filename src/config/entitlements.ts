@@ -7,7 +7,10 @@
 import type { PlanId } from "@/config/plans";
 import type { CapabilityId } from "@/types/entitlements";
 
-/** Solo essentials — survive desk without AI / SI / governance depth. */
+/**
+ * Solo essentials — survive desk without AI / SI.
+ * Monthly report hub is included (pack depth still gated by plan rank).
+ */
 const SOLO_CORE: CapabilityId[] = [
   "dashboard",
   "projects",
@@ -15,12 +18,12 @@ const SOLO_CORE: CapabilityId[] = [
   "issueIntake",
   "geoIntake",
   "trustPulse",
+  "governanceReports",
 ];
 
 const PRACTITIONER_CORE: CapabilityId[] = [
   ...SOLO_CORE,
   "aiAssist",
-  "governanceReports",
 ];
 
 /** Base plan → enabled capabilities (before add-ons). */

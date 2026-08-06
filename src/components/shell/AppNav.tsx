@@ -20,6 +20,7 @@ export type NavItem = {
     | "report"
     | "reports"
     | "settings"
+    | "guide"
     | "geo"
     | "stakeholders"
     | "capture"
@@ -90,6 +91,7 @@ const NAV: NavItem[] = [
     icon: "reports",
     capability: "governanceReports",
   },
+  { href: "/app/guide", label: "Guide", icon: "guide" },
   { href: "/app/settings", label: "Settings", icon: "settings" },
 ];
 
@@ -141,6 +143,13 @@ function NavIcon({ name }: { name: NavItem["icon"] }) {
         <svg {...common}>
           <circle cx="12" cy="12" r="3" />
           <path d="M12 3v2M12 19v2M4.9 6.5l1.4 1.4M17.7 16.1l1.4 1.4M3 12h2M19 12h2M4.9 17.5l1.4-1.4M17.7 7.9l1.4-1.4" />
+        </svg>
+      );
+    case "guide":
+      return (
+        <svg {...common}>
+          <path d="M5 4h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V6a2 2 0 0 1 2-2Z" />
+          <path d="M9 8h6M9 12h6" />
         </svg>
       );
     case "geo":
