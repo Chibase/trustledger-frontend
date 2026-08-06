@@ -11,7 +11,8 @@ export type MarketingEvent =
   | "nav_book_walkthrough_click"
   | "admin_login_click"
   | "how_it_works_step_view"
-  | "final_cta_click";
+  | "final_cta_click"
+  | "resource_download_click";
 
 export function trackMarketingEvent(
   event: MarketingEvent,
