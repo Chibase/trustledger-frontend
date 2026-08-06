@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { RESOURCE_PACKS } from "@/data/resources";
 
 const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ??
@@ -7,6 +8,13 @@ const siteUrl = (
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
+  const packs = RESOURCE_PACKS.map((pack) => ({
+    url: `${siteUrl}/resources/${pack.id}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
   return [
     {
       url: `${siteUrl}/`,
@@ -26,6 +34,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.92,
     },
+    {
+      url: `${siteUrl}/resources`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    ...packs,
     {
       url: `${siteUrl}/assessment`,
       lastModified: now,

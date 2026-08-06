@@ -12,6 +12,7 @@ const COLS = [
       { href: "#sectors", label: "Sectors" },
       { href: "#pricing", label: "Pricing" },
       { href: "/assessment", label: "Readiness assessment" },
+      { href: "/resources", label: "Free toolkits" },
     ],
   },
   {
@@ -26,7 +27,8 @@ const COLS = [
   {
     title: "Resources",
     links: [
-      { href: "#resources", label: "Guides" },
+      { href: "/resources", label: "Free toolkits" },
+      { href: "/assessment", label: "Readiness assessment" },
       { href: "/faq", label: "FAQ" },
       { href: "/status", label: "System status" },
       { href: "/pay", label: "Subscribe (Paystack)" },

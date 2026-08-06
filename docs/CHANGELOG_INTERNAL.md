@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-06 — Free SRM resource toolkits
+
+- Public `/resources` library with three printable packs: Community Grievance Checklist, SRM Readiness Planner, Community Engagement Toolkit.
+- Work-email gate → CRM Lead `resource_download` (`Website Resource`) → signed 1-hour download via `/api/resources/file`.
+- Pack preview routes `/resources/[slug]`; nav/footer/sitemap/robots + CRM setup source updated.
+- CTAs into readiness check, trial, and walkthrough after download.
+
 ## 2026-07-30 — ADR-041: site location cascade sequence
 
 - Locked capture order: **Country → Province → Town → DM → TC → Ward** with pack dropdowns + **Add if not listed** per level.

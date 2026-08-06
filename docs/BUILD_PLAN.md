@@ -56,6 +56,8 @@ When implementing:
 /product              Onboarding + feature purpose (ADR-033) — no sample workspace
 /demo                 301 → /product (legacy)
 /assessment           Public SRM Readiness & Risk Diagnostic (lead-gated results)
+/resources            Free SRM toolkits (email-gated printable packs)
+/resources/[slug]     Pack preview + download gate
 /login                Sign-in chooser → live / trial (no sample demo)
 /app                  Authenticated shell (trial or live)
 /app/dashboard        Role home
