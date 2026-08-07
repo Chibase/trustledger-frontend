@@ -13,6 +13,10 @@
 - Trial opt-out verifies Paystack reference + email before deactivating authorization
 - Production requires `TRIAL_TOKEN_SECRET` or `PAYSTACK_SECRET_KEY` (no silent fallback)
 
+## Pre–paying client — hosting continuity
+
+Until Pro / paid hosting is funded by the first client, follow **`docs/HOSTING_CONTINGENCY.md`**: free uptime on `/api/health`, fix Resend on Production, keep a smoke-tested Node standby. Frappe holds data; it is not an instant frontend failover.
+
 ## Human actions — public soft launch + live Paystack
 
 Follow **`docs/PUBLIC_LAUNCH.md`** end-to-end. Short form:

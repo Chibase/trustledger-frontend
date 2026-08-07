@@ -275,3 +275,4 @@ src/
 | 2026-07-26 | UG-1 — user manual + first-login setup wizard / Guide |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
+| 2026-08-07 | Hosting contingency runbook — pre–paying-client uptime + Node standby (`docs/HOSTING_CONTINGENCY.md`) |
