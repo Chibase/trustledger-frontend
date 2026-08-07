@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-07 — Hosting contingency runbook (pre–paying client)
+
+- `docs/HOSTING_CONTINGENCY.md`: free uptime watches on `/api/health` + Cloud ping; Resend Production fix; env checklist; $0 Node standby (Render/Railway/Fly) — not Frappe frontend failover; DNS/VIP message; first-paying-client upgrade trigger.
+- Linked from PLATFORM_STRATEGIC_BRIEF + LAUNCH_CHECKLIST. Clarifies: Vercel pause ≠ data wipe; Frappe holds SoT only.
+
 ## 2026-08-06 — Free SRM resource toolkits
 
 - Public `/resources` library with three printable packs: Community Grievance Checklist, SRM Readiness Planner, Community Engagement Toolkit.
