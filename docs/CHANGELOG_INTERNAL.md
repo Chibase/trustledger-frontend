@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-08 — Email Group Member import CSV (TL Warm Contacts)
+
+- Ready Desk file: `docs/exports/email-marketing/contacts/TL_Warm_Contacts_email_group_member.csv` (21 rows: `email_group` + `email`).
+- Steps: `DESK_IMPORT_STEPS.md` — import as **Email Group Member**, not Contact (Contact child-email mapping blocks Start Import).
+- Keep/exclude/review CSVs from HubSpot clean pack alongside; FRAPPE_EMAIL_MARKETING points at the pack.
+
 ## 2026-08-06 — Free SRM resource toolkits
 
 - Public `/resources` library with three printable packs: Community Grievance Checklist, SRM Readiness Planner, Community Engagement Toolkit.
