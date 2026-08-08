@@ -102,7 +102,9 @@ Pick one:
 
 Suggested groups: `TL Warm Contacts`, `TL Quote Pipeline`, `TL Trial Invites`.
 
-**Import columns (minimum):** email, first_name, full_name, organization (optional).
+**Import columns (minimum):** for Newsletter use **Email Group Member** CSV with `email_group` + `email` (see `docs/exports/email-marketing/contacts/DESK_IMPORT_STEPS.md`). Do not rely on Contact import for blasts — email is a child table and often blocks Start Import.
+
+Ready file: `docs/exports/email-marketing/contacts/TL_Warm_Contacts_email_group_member.csv` (21 warm contacts).
 
 ### D. Send a campaign
 
