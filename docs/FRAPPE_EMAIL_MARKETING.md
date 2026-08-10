@@ -75,20 +75,34 @@ If Apps/Uninstall is missing, open a ticket at [support.frappe.io](https://suppo
 
 Operator checklist: `docs/exports/email-marketing/DESK_EMAIL_ACCOUNT_SALES.md`.
 
-### B. Templates
+### B. Templates (branded — DESIGN_SYSTEM)
 
-1. Desk → **Email Template** (or **Newsletter** / **Email Campaign** if CRM Email Campaign is installed).
-2. Create templates matching files in `docs/exports/email-marketing/`:
+**Already on Cloud (2026-08-10):** Email Templates  
+`TL Email Shell` · `TL Soft Launch` · `TL Trial Invite` · `TL Quote Follow-up` · `TL Assessment Nudge`  
+plus a draft **Newsletter** (soft launch → `TL Warm Contacts`). Open Desk → review → Send Test → Send.
 
-| File | Suggested template name | Use |
-|------|-------------------------|-----|
+Brand chrome in every HTML pack:
+
+| Element | Spec |
+|---------|------|
+| Header | Ink `#12202a` bar, wordmark **Trust**Ledger (teal `#7dcfbf` on Ledger), promise *Resolution you can audit* |
+| Accent | 4px trust teal `#0e7c66` stripe under header |
+| CTA | Teal filled button, white label; secondary = line border |
+| Footer | TrustLedger wordmark + Chibase legal only + trustledger.co.za |
+| Voice | Trust outcomes — no HubSpot / Paystack / Frappe / Vercel names in body |
+
+Source files in `docs/exports/email-marketing/`:
+
+| File | Template name | Use |
+|------|----------------|-----|
 | `00-shell.html` | `TL Email Shell` | Wrapper / Jinja shell |
 | `01-soft-launch.html` | `TL Soft Launch` | First blast to warm contacts |
 | `02-trial-invite.html` | `TL Trial Invite` | Trial push |
 | `03-quote-followup.html` | `TL Quote Follow-up` | Quote / Institutional |
 | `04-assessment-nudge.html` | `TL Assessment Nudge` | Diagnostic |
 
-3. Paste **full HTML** into the template body (HTML mode). Replace Jinja `{{ first_name or "there" }}` if your Desk version uses different field names (`{{ doc.first_name }}`, etc.).
+To refresh Cloud after editing HTML: Desk → Email Template → open name → paste full HTML (Use HTML on) → Save.  
+Jinja: `{{ first_name or "there" }}` (or `{{ doc.first_name }}` if your Desk build requires it).
 
 ### C. Contact list (bulk audience)
 
