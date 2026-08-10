@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-10 — HubSpot contacts remapped + Email Groups imported
+
+- Root cause: Desk Data Import used ERPNext **Lead** with invalid HubSpot status/owner/industry maps.
+- Cloud: Email Groups **`TL Warm Contacts`** (21) + **`TL HubSpot Import`** (83); CRM Lead Source **`HubSpot Import`** + 23 warm/review CRM Leads.
+- Remapped CSVs + steps: `docs/exports/email-marketing/contacts/` (`DESK_IMPORT_STEPS.md`).
+
 ## 2026-08-10 — Frappe Cloud config bootstrap + DocType exists probe
 
 - Wired local `.env.local` against `app.trustledger.co.za`; auth OK as API user; CRM Lead smoke `CRM-LEAD-2026-00055`.
