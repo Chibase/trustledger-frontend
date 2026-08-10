@@ -3,9 +3,9 @@
 ## 2026-08-10 — Marketing consolidated on Vercel apex
 
 - Sole public host: `https://trustledger.co.za` (WordPress/Webway brochure retired; ADR-034 amended).
-- `SITE_URL` default → apex; `vercel.json` 308 from `trustledger-frontend-pi.vercel.app` → apex.
+- `SITE_URL` default → apex; `vercel.json` 308 from `trustledger-frontend-pi.vercel.app` → apex (**`/api/*` excluded** for Paystack webhooks).
 - Added `/privacy` + `/terms` (old WP legal URLs 404’d); footer/forms/sitemap/robots updated.
-- Email + LinkedIn CTA packs rewritten to apex; `docs/WEBWAY_CUTOVER.md` / AEO / BUILD_PLAN aligned.
+- Email + LinkedIn CTA packs rewritten to apex; Cloud Email Templates CTAs updated to apex; `docs/WEBWAY_CUTOVER.md` / AEO / BUILD_PLAN aligned.
 
 ## 2026-08-10 — AEO entity + canonical hardening
 
