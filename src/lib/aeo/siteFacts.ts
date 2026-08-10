@@ -2,19 +2,25 @@
  * Canonical facts for AEO / LLM parsers (keep aligned with PLATFORM_STRATEGIC_BRIEF §6).
  *
  * Hosts (do not blur):
- * - MARKETING_SITE_URL — brand / entity URL (WordPress or apex when it serves marketing)
- * - SITE_URL — this Next.js product UI (set NEXT_PUBLIC_SITE_URL in Vercel Production
- *   to the public hostname that serves *this* app — custom domain preferred over *.vercel.app)
+ * - SITE_URL / MARKETING_SITE_URL — public product + marketing on Vercel at trustledger.co.za
+ * - CLOUD_APP_URL — TrustLedger Cloud login / durable data (not a marketing index target)
+ * - PRODUCT_UI_LEGACY_URL — old *.vercel.app host; redirect to apex in vercel.json
+ *
+ * Production: set NEXT_PUBLIC_SITE_URL=https://trustledger.co.za (matches fallback).
  */
 
-/** Fallback when env is unset (preview / local). Prefer env in Production. */
-export const PRODUCT_UI_FALLBACK_URL =
+/** Public brand + product host (Vercel custom domain). */
+export const PUBLIC_SITE_FALLBACK_URL = "https://trustledger.co.za";
+
+/** Legacy deploy hostname — keep for redirects / CORS allowlists only. */
+export const PRODUCT_UI_LEGACY_URL =
   "https://trustledger-frontend-pi.vercel.app";
 
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? PRODUCT_UI_FALLBACK_URL
+  process.env.NEXT_PUBLIC_SITE_URL ?? PUBLIC_SITE_FALLBACK_URL
 ).replace(/\/$/, "");
 
+/** Same apex as SITE_URL after Webway marketing retirement. */
 export const MARKETING_SITE_URL = "https://trustledger.co.za";
 
 export const CLOUD_APP_URL = "https://app.trustledger.co.za";
@@ -109,7 +115,7 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "Where does TrustLedger store live customer data?",
     answer:
-      "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. You use the TrustLedger product app for day-to-day work; marketing content lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",
+      "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. Marketing and the product UI live on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",
   },
   {
     question: "What is the best way to assess SRM readiness before buying?",

@@ -31,5 +31,5 @@ Draft Newsletters exist per segment (and soft launch → TL Marketing).
 Confirm Sender Name per SEGMENT_INTROS.md before Send.
 
 Runbook: docs/FRAPPE_EMAIL_MARKETING.md
-CTAs: https://trustledger-frontend-pi.vercel.app — never HubSpot embeds.
+CTAs: https://trustledger.co.za — never HubSpot embeds.
 Public copy: Trust voice only — no stack vendor names in body copy.

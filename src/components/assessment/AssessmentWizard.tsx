@@ -600,7 +600,7 @@ export function AssessmentWizard() {
               By unlocking results you agree we may contact you about TrustLedger.
               See our{" "}
               <a
-                href="https://trustledger.co.za/privacy/"
+                href="/privacy"
                 className="underline"
                 target="_blank"
                 rel="noopener noreferrer"

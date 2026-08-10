@@ -2,7 +2,7 @@
 
 **Status:** Living document (authoritative for plan packaging, agent training, and ongoing evaluation)  
 **As of:** 2026-07-23  
-**Deploy truth (Production):** `https://trustledger-frontend-pi.vercel.app` · `deploySha` tracked on `/api/health`  
+**Deploy truth (Production):** `https://trustledger.co.za` · `deploySha` tracked on `/api/health`  
 **Cloud SoT:** `https://app.trustledger.co.za` (Frappe Cloud only — Interserv retired)  
 **Product name in UI:** TrustLedger only  
 

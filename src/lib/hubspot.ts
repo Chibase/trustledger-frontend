@@ -28,8 +28,7 @@ export function hubspotConfigured(): boolean {
 
 export function siteBaseUrl(): string {
   return (
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    "https://trustledger-frontend-pi.vercel.app"
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger.co.za"
   ).replace(/\/$/, "");
 }
 

@@ -1,10 +1,9 @@
-# Paste plan links on WordPress (Webway)
+# Paste plan links on WordPress (Webway) — RETIRED
 
-Repo paste files already point at Vercel Paystack + trial. **Live WP does not update until you paste.**
+> **Retired 2026-08-10.** Marketing is Vercel-only at `https://trustledger.co.za`.  
+> Do not paste these packs to revive a WordPress brochure. See `docs/WEBWAY_CUTOVER.md`.
 
-**HubSpot cutover:** follow `docs/WEBWAY_CUTOVER.md` (ADR-034). Do not paste HubSpot forms.
-
-**AEO / AI search:** after home paste, confirm FAQ + definition match `docs/AEO_VISIBILITY.md`. Prefer Yoast/Rank Math for Organization + FAQPage if Custom HTML strips `<script>`.
+Archive only. Historical HubSpot cutover: `docs/WEBWAY_CUTOVER.md` (ADR-034).
 
 ## Link map
 

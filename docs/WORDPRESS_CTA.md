@@ -1,37 +1,18 @@
-# WordPress CTA → TrustLedger product links
+# WordPress CTA guide — RETIRED
 
-Marketing site: `https://trustledger.co.za`  
-Product (Vercel): `https://trustledger-frontend-pi.vercel.app`
+**Status:** Retired 2026-08-10.  
+Marketing and CTAs live on **Vercel** at `https://trustledger.co.za` (ADR-034 amendment).
 
-## Primary journeys
+Use in-app routes and absolute apex URLs only:
 
-| CTA | URL | Behaviour |
-|-----|-----|-----------|
-| **Start 14-day trial** | `https://trustledger-frontend-pi.vercel.app/trial` (optional `?plan=solo\|practitioner\|project`) | Own-data workspace. Upgrade → `/pay`. |
-| **Subscribe Solo** | `…/pay?plan=solo` | Entry — lone consultant, 1 seat |
-| **Subscribe Practitioner** | `…/pay?plan=practitioner` | Paystack checkout |
-| **Subscribe Project** | `…/pay?plan=project` | Paystack checkout |
-| Institutional / Talk to sales | `https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&utm_medium=cta&utm_campaign=buy_institutional` | Sales-led → Vercel branded form → Frappe CRM Lead |
-| Contact / Book walkthrough | `https://trustledger-frontend-pi.vercel.app/contact/?utm_source=wordpress&utm_medium=nav&utm_campaign=book_walkthrough` | Same form |
-| Product onboarding | `…/product` | Feature purpose (ADR-033); `/demo` redirects here |
+| Intent | URL |
+|--------|-----|
+| Start 14-day trial | `https://trustledger.co.za/trial` |
+| Contact / walkthrough | `https://trustledger.co.za/contact` |
+| Quote | `https://trustledger.co.za/quote` |
+| Assessment | `https://trustledger.co.za/assessment` |
+| Subscribe | `https://trustledger.co.za/pay` |
+| Product | `https://trustledger.co.za/product` |
+| FAQ | `https://trustledger.co.za/faq` |
 
-**Do not** use relative `/contact` on WordPress — that becomes a 404 search page. Always use the absolute Vercel contact URL. Prefer Contact over `mailto:` in nav/footer so leads land in CRM.
-
-## Trial rules (product)
-
-- 14 days full access on **your** data (browser workspace today; Frappe tenancy next).
-- **Upgrade** in-app → Paystack plans (no subscribe form maze).
-- After day 14: **access off**; data retained **90 days**; then purged.
-- `/demo` is **not** the trial (redirects to `/product`).
-
-## Paste on Webway
-
-**Cutover checklist (HubSpot out):** `docs/WEBWAY_CUTOVER.md` (ADR-034).
-
-See `docs/wordpress/PASTE_PLANS.md`. After each CTA change, paste `page-home.txt` (and Assessment if live), then purge SpeedyCache.
-
-**Privacy extras (SEC-0):** `#pricing` in `page-home.txt` includes the TrustLedger data-protection blurb, foldable plan comparison, and optional privacy layer CTAs (Trust Pack / private cloud / support-access visibility). Append `home-conversion-css-patch.css` for comparison table styles. Client copy says **cloud**, not host brand names.
-
-**Contact fix (if footer still opens mail/search):** replace every footer/nav Contact `mailto:info@trustledger.co.za` (or relative `/contact`) with the absolute Contact URL above, or re-paste full `page-home.txt`. Purge SpeedyCache after.
-
-**Do not** paste HubSpot Free form embeds on trustledger.co.za.
+Historical Webway paste notes: `docs/WEBWAY_CUTOVER.md`. Old HTML under `docs/wordpress/` is archive only.

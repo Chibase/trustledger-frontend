@@ -29,7 +29,7 @@ Replace test keys with **live** keys from Paystack Dashboard → API Keys:
 
 ```bash
 # Required
-NEXT_PUBLIC_SITE_URL=https://trustledger-frontend-pi.vercel.app   # prefer custom domain that serves this app (AEO §2a)
+NEXT_PUBLIC_SITE_URL=https://trustledger.co.za   # sole public marketing + product host
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_live_…
 PAYSTACK_SECRET_KEY=sk_live_…
 TRIAL_TOKEN_SECRET=<long random string>   # do not reuse Paystack secret
@@ -66,7 +66,7 @@ Webhook auth uses the **Paystack secret key** HMAC (`PAYSTACK_SECRET_KEY`) — t
 - Commit live keys to git.
 - Set `PLATFORM_OPERATOR_ONLY=1` again (re-blocks buyers / GO LIVE ladder).
 - Clear `PLATFORM_OPERATOR_EMAILS` (breaks `/ops`).
-- Point WordPress CTAs at `/login/live` for cold buyers — use `/pay` or `/trial`.
+- Cold buyers use `/pay` or `/trial` on the apex — not `/login/live`.
 
 ## Cursor quality gates (every client-facing PR)
 

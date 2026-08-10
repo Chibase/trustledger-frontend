@@ -8,8 +8,8 @@
 
 | Layer | Host | Role |
 |-------|------|------|
-| Marketing + email | Webway | `trustledger.co.za` |
-| Product UI | Vercel | demo / assessment / `/app` |
+| Marketing + product UI | **Vercel** | `https://trustledger.co.za` (home, forms, `/app`, trial/pay) |
+| Domain mail (optional) | Webway mail | `sales@` / `info@` mailboxes only — not the brochure site |
 | Backend + CRM | **Frappe Cloud** | Desk + **Frappe CRM** (install) + later Helpdesk / `srm-core` |
 
 ## 0. Install Frappe CRM (do this on Cloud)
@@ -76,16 +76,16 @@ Optional when CRM Lead exists (default Resource API):
 
 ```json
 {
-  "allow_cors": "https://trustledger-frontend-pi.vercel.app"
+  "allow_cors": "https://trustledger.co.za"
 }
 ```
 
-If multiple origins later:
+If you still need the legacy deploy hostname during redirect settle:
 ```json
 {
   "allow_cors": [
-    "https://trustledger-frontend-pi.vercel.app",
-    "https://trustledger.co.za"
+    "https://trustledger.co.za",
+    "https://trustledger-frontend-pi.vercel.app"
   ]
 }
 ```

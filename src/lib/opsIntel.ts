@@ -167,8 +167,7 @@ async function fetchRecentLeads(
 async function fetchHealth(): Promise<OpsOverview["health"]> {
   try {
     const base =
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "https://trustledger-frontend-pi.vercel.app";
+      process.env.NEXT_PUBLIC_SITE_URL || "https://trustledger.co.za";
     const res = await fetch(`${base.replace(/\/$/, "")}/api/health`, {
       cache: "no-store",
     });

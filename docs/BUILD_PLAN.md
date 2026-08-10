@@ -14,7 +14,7 @@
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
 | Backend | **Frappe Cloud** `app.trustledger.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
-| Marketing | WordPress `trustledger.co.za` on Webway (CTA later) |
+| Marketing | **Vercel** at `trustledger.co.za` (WordPress/Webway brochure retired) |
 | Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
 **Current phase:** Phase 6 — **Version 002** core (ADR-023). Product label in market: **Version 001**. Demo/mock remains default until Frappe DocTypes land.
@@ -42,7 +42,7 @@ When implementing:
 
 1. **Follow this file** and the active packet only.
 2. **Do not ask** for preference on colours, fonts, IA, or stack — already locked.
-3. **Do not** change Cloudflare or WordPress in this repo (different hosts). Frappe client scaffolding targets **Frappe Cloud** only; do not require live product DocTypes for Demo.
+3. **Do not** change Cloudflare or retired WordPress hosts unless explicitly asked. Frappe client scaffolding targets **Frappe Cloud** only; do not require live product DocTypes for Demo.
 4. **Do** update `docs/CHANGELOG_INTERNAL.md` when a packet completes.
 5. **Do** run `npm run lint` and `npm run build` before considering a packet done.
 6. **Only stop and ask** if: secrets/credentials needed, destructive prod action, or BUILD_PLAN contradiction.
@@ -192,8 +192,8 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **HS-1** | Frappe-first leads | Production default `frappe` when Cloud keys set; Ops/health gate; ADR-034 + `docs/HS_CUTOVER.md` | **Done** (#68) |
-| **HS-2** | Production smoke + Webway | All Vercel forms → CRM Lead; explicit `LEAD_BACKEND=frappe`; `docs/WEBWAY_CUTOVER.md` | **Active** |
-| **HS-3** | Remove HubSpot config | Drop portal/form env; strip WP embeds (Webway) | Planned |
+| **HS-2** | Production smoke + marketing on Vercel | All forms → CRM Lead; apex `trustledger.co.za`; Webway brochure retired (`docs/WEBWAY_CUTOVER.md`) | **Active** |
+| **HS-3** | Remove HubSpot config | Drop portal/form env; confirm no leftover HubSpot embeds | Planned |
 | **HS-4** | Delete HubSpot client | Remove `submitHubSpotLead`; relocate `siteBaseUrl` | Planned |
 
 ### Email marketing on Frappe (ACTIVE with HS-2)
