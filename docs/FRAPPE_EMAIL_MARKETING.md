@@ -114,11 +114,19 @@ Pick one:
 | **Contact** | Import CSV (HubSpot export or spreadsheet) → Email Group |
 | **Manual Email Group** | Email Group → add members by email |
 
-Suggested groups: `TL Warm Contacts`, `TL Quote Pipeline`, `TL Trial Invites`.
+Suggested groups: `TL Warm Contacts`, `TL HubSpot Import`, `TL Quote Pipeline`, `TL Trial Invites`.
 
-**Import columns (minimum):** for Newsletter use **Email Group Member** CSV with `email_group` + `email` (see `docs/exports/email-marketing/contacts/DESK_IMPORT_STEPS.md`). Do not rely on Contact import for blasts — email is a child table and often blocks Start Import.
+**Import columns (minimum):** for Newsletter use **Email Group Member** CSV with `email_group` + `email` (see `docs/exports/email-marketing/contacts/DESK_IMPORT_STEPS.md`). Do not rely on Contact / ERPNext Lead import for blasts — wrong field maps block Start Import.
 
-Ready file: `docs/exports/email-marketing/contacts/TL_Warm_Contacts_email_group_member.csv` (21 warm contacts).
+Ready files:
+
+| File | Rows | Audience |
+|------|-----:|----------|
+| `contacts/TL_Warm_Contacts_email_group_member.csv` | 21 | Soft-launch blast (ICP) |
+| `contacts/TL_HubSpot_Import_email_group_member.csv` | 83 | Full HubSpot archive (not for blind blast) |
+| `contacts/hubspot_to_crm_lead_warm_review.csv` | 23 | CRM Lead remap (status `New`, source `HubSpot Import`) |
+
+HubSpot → ERPNext **Lead** Data Import on Desk should be abandoned (invalid status/owner/industry maps).
 
 ### D. Send a campaign
 
