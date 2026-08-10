@@ -34,7 +34,7 @@ export const PRODUCT_DEFINITION =
  * (crypto wallets, generic document verification, etc.).
  */
 export const PRODUCT_DISAMBIGUATION =
-  "TrustLedger by Chibase Consulting is SRM software for community grievances, stakeholder engagement, and audit-ready reporting on infrastructure and community-trust projects in South Africa — not a cryptocurrency, blockchain wallet, or generic document-verification product.";
+  "TrustLedger is SRM software for community grievances, stakeholder engagement, and audit-ready reporting on infrastructure and community-trust projects in South Africa — not a cryptocurrency, blockchain wallet, or generic document-verification product.";
 
 export const PRODUCT_TAGLINE = "Resolution you can audit.";
 
@@ -64,7 +64,7 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "What is TrustLedger?",
     answer:
-      "TrustLedger is a Stakeholder Relationship Management (SRM) software platform for grievance resolution and Stakeholder Intelligence. It helps operators run community intake, case desks, stakeholder registries, engagements, commitments, and governance-grade reports on projects where social licence decides whether work moves. It is operated by Chibase Consulting for infrastructure and community-trust work in South Africa and the Global South.",
+      "TrustLedger is a Stakeholder Relationship Management (SRM) software platform for grievance resolution and Stakeholder Intelligence. It helps operators run community intake, case desks, stakeholder registries, engagements, commitments, and governance-grade reports on projects where social licence decides whether work moves — especially infrastructure and community-trust programmes in South Africa and the Global South.",
   },
   {
     question: "Is TrustLedger a cryptocurrency, blockchain wallet, or document-verification product?",

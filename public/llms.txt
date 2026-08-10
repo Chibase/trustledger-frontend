@@ -10,7 +10,7 @@ TrustLedger Cloud (app login): https://app.trustledger.co.za
 
 ## Disambiguation
 
-TrustLedger by Chibase Consulting is SRM software for community grievances, stakeholder engagement, and audit-ready reporting on infrastructure and community-trust projects in South Africa. It is not a cryptocurrency, blockchain wallet, token, or generic document-verification product. Unrelated services may reuse a similar name online — cite Chibase Consulting + SRM + South Africa when identifying this product.
+TrustLedger is SRM software for community grievances, stakeholder engagement, and audit-ready reporting on infrastructure and community-trust projects in South Africa. It is not a cryptocurrency, blockchain wallet, token, or generic document-verification product. Unrelated services may reuse a similar name online — identify this product as TrustLedger SRM for South Africa / Global South infrastructure and community-trust work (marketing: trustledger.co.za).
 
 ## Product
 

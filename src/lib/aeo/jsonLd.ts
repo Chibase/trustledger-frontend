@@ -30,7 +30,8 @@ export function organizationJsonLd(): JsonLd {
     email: OPERATOR_ORG.email,
     areaServed: ["ZA", "Global South"],
     knowsAbout: [...PRODUCT_TOPICS],
-    sameAs: [OPERATOR_ORG.url, SITE_URL, MARKETING_SITE_URL],
+    // External entity links only — do not repeat Organization.url (marketing apex).
+    sameAs: [...new Set([OPERATOR_ORG.url, SITE_URL].filter((u) => u !== MARKETING_SITE_URL))],
     brand: {
       "@type": "Brand",
       name: PRODUCT_NAME,
