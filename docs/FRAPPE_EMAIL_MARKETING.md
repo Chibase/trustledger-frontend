@@ -106,7 +106,8 @@ Source files in `docs/exports/email-marketing/`:
 Segment From names, draft Newsletters, and image paths: **`docs/exports/email-marketing/SEGMENT_INTROS.md`**.
 
 To refresh Cloud after editing HTML: Desk → Email Template → open name → paste full HTML (Use HTML on) → Save.  
-Jinja: `{{ first_name or "there" }}` (or `{{ doc.first_name }}` if your Desk build requires it).
+Greeting: `Hello{% if tl_first_name %} {{ tl_first_name }}{% endif %},` — see **`docs/exports/email-marketing/PERSONALIZATION.md`**.  
+Desk Newsletter cannot merge per-recipient names (Frappe limitation); use `scripts/send-personalized-segment-email.mts` for `Hello Lunga,`.
 
 ### C. Contact list (bulk audience)
 

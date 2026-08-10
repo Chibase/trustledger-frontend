@@ -36,7 +36,7 @@
           </tr>
           <tr>
             <td style="padding:28px 28px 8px;">
-              <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">Hello {{ first_name or "there" }},</p>
+              <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">Hello{% if tl_first_name %} {{ tl_first_name }}{% endif %},</p>
               <p style="margin:0 0 14px;font-size:17px;line-height:1.45;color:#12202a;font-family:Georgia,'Times New Roman',serif;">
                 Facilitation skill builds the room. Systems decide whether the room’s promises <strong>survive the week</strong>.
               </p>

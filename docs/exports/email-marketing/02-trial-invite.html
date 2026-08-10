@@ -36,7 +36,7 @@
           </tr>
           <tr>
             <td style="padding:28px;">
-              <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">Hello {{ first_name or "there" }},</p>
+              <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">Hello{% if tl_first_name %} {{ tl_first_name }}{% endif %},</p>
               <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">
                 You’re invited to a <strong>14-day TrustLedger trial</strong> on your own projects and incidents —
                 not sample workspace data.
