@@ -20,8 +20,10 @@ Cloud Email Templates (already created on app.trustledger.co.za):
 - TL Quote Follow-up
 - TL Assessment Nudge
 
-Draft Newsletter (soft launch → TL Warm Contacts) also created — review in Desk
-before Send. Do not blast TL HubSpot Import (83).
+Canonical Newsletter audience: Email Group **TL Marketing** (112 unique).
+Draft soft-launch Newsletter is pointed at TL Marketing — review in Desk, Send Test, then Send.
+
+Legacy segments kept: TL Warm Contacts (21), TL HubSpot Import (83).
 
 Runbook: docs/FRAPPE_EMAIL_MARKETING.md
 CTAs: https://trustledger-frontend-pi.vercel.app — never HubSpot embeds.

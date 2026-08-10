@@ -106,25 +106,16 @@ Jinja: `{{ first_name or "there" }}` (or `{{ doc.first_name }}` if your Desk bui
 
 ### C. Contact list (bulk audience)
 
-Pick one:
+**Canonical Newsletter list:** Email Group **`TL Marketing`** (112 unique emails on Cloud).  
+Union of HubSpot import + warm segment + all CRM Lead emails. Do not maintain parallel blast lists.
 
-| Source | How |
-|--------|-----|
-| **CRM Lead** | Filter by Source / status → add to **Email Group** (or CRM campaign recipients) |
-| **Contact** | Import CSV (HubSpot export or spreadsheet) → Email Group |
-| **Manual Email Group** | Email Group → add members by email |
+| Role | Name |
+|------|------|
+| **Send here** | `TL Marketing` |
+| Optional segments | `TL Warm Contacts` (21), `TL HubSpot Import` (83) |
+| Sales CRM | CRM Lead (pipeline) — feed new leads into `TL Marketing` when you want them on blasts |
 
-Suggested groups: `TL Warm Contacts`, `TL HubSpot Import`, `TL Quote Pipeline`, `TL Trial Invites`.
-
-**Import columns (minimum):** for Newsletter use **Email Group Member** CSV with `email_group` + `email` (see `docs/exports/email-marketing/contacts/DESK_IMPORT_STEPS.md`). Do not rely on Contact / ERPNext Lead import for blasts — wrong field maps block Start Import.
-
-Ready files:
-
-| File | Rows | Audience |
-|------|-----:|----------|
-| `contacts/TL_Warm_Contacts_email_group_member.csv` | 21 | Soft-launch blast (ICP) |
-| `contacts/TL_HubSpot_Import_email_group_member.csv` | 83 | Full HubSpot archive (not for blind blast) |
-| `contacts/hubspot_to_crm_lead_warm_review.csv` | 23 | CRM Lead remap (status `New`, source `HubSpot Import`) |
+**Import columns (minimum):** Email Group Member CSV with `email_group` + `email` (see `docs/exports/email-marketing/contacts/DESK_IMPORT_STEPS.md`). Ready file: `contacts/TL_Marketing_email_group_member.csv`.
 
 HubSpot → ERPNext **Lead** Data Import on Desk should be abandoned (invalid status/owner/industry maps).
 

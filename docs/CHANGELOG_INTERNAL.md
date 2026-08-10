@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-10 — Consolidate marketing audience → TL Marketing
+
+- Created Email Group **`TL Marketing`** with **112** unique emails (Warm 21 + HubSpot 83 + CRM Lead emails; 29 CRM-only).
+- Retargeted soft-launch Newsletter draft to `TL Marketing`.
+- CSV + audit: `TL_Marketing_email_group_member.csv`, `TL_Marketing_sources_audit.csv`; docs updated.
+
 ## 2026-08-10 — Branded Newsletter / Email Templates on Cloud
 
 - Strengthened EM-1 HTML packs: ink header, TrustLedger wordmark, teal accent bar, Trust voice, Chibase footer only.
