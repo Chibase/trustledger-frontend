@@ -12,20 +12,23 @@ Files:
 - 02-trial-invite.html        14-day trial CTA
 - 03-quote-followup.html      Quote / Institutional follow-up
 - 04-assessment-nudge.html    SRM diagnostic CTA
+- 10–15-intro-*.html          Segment platform intros (thought-provoking + dashboard sample)
+- SEGMENT_INTROS.md           From/reply names + send checklist
 
-Cloud Email Templates (already created on app.trustledger.co.za):
-- TL Email Shell
-- TL Soft Launch
-- TL Trial Invite
-- TL Quote Follow-up
-- TL Assessment Nudge
+Dashboard samples: ../../public/marketing/email/*.png (also on Cloud Files).
+
+Cloud Email Templates include:
+- TL Email Shell / Soft Launch / Trial / Quote / Assessment
+- TL Intro Construction / Government / Architects / Engineers /
+  Social Facilitators / Related Industries
 
 Canonical ICP audience: Email Group **TL Marketing** (21 pruned).
 Industry segments: TL Segment Construction / Architects / Engineers /
 Government / Social Facilitators / Related Industries.
-See contacts/SEGMENTATION.md.
+See contacts/SEGMENTATION.md + SEGMENT_INTROS.md.
 
-Draft soft-launch Newsletter → TL Marketing. For industry copy, pick a segment group.
+Draft Newsletters exist per segment (and soft launch → TL Marketing).
+Confirm Sender Name per SEGMENT_INTROS.md before Send.
 
 Runbook: docs/FRAPPE_EMAIL_MARKETING.md
 CTAs: https://trustledger-frontend-pi.vercel.app — never HubSpot embeds.
