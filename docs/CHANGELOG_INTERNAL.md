@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-10 — ICP prune + industry Email Group segments
+
+- Pruned **`TL Marketing`** 112 → **21** ICP (removed 91 vendors/tests/internals).
+- Created segments: Construction (7), Architects (7), Engineers (3), Government (2), Social Facilitators (1), Related (1).
+- Docs/CSVs: `SEGMENTATION.md`, `TL_Marketing_segmentation.csv`, `TL_Marketing_removed.csv`, per-segment member CSVs.
+
 ## 2026-08-10 — Consolidate marketing audience → TL Marketing
 
 - Created Email Group **`TL Marketing`** with **112** unique emails (Warm 21 + HubSpot 83 + CRM Lead emails; 29 CRM-only).

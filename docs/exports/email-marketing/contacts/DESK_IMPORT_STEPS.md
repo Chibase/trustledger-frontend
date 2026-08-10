@@ -20,30 +20,33 @@ For **marketing Newsletter**, use **Email Group Member** (not Contact, not Lead)
 
 ## Already applied on Cloud
 
-### Single marketing list (use this)
+### Single ICP marketing list + industry segments
 
 | Target | Count | Name |
 |--------|------:|------|
-| Email Group | **112** | **`TL Marketing`** — **canonical Newsletter audience** |
+| Email Group | **21** | **`TL Marketing`** — **canonical ICP Newsletter audience** (pruned) |
+| Email Group | 7 | `TL Segment Construction` |
+| Email Group | 7 | `TL Segment Architects` |
+| Email Group | 3 | `TL Segment Engineers` |
+| Email Group | 2 | `TL Segment Government` |
+| Email Group | 1 | `TL Segment Social Facilitators` |
+| Email Group | 1 | `TL Segment Related Industries` |
 
-Deduped union of:
+**91 non-ICP** contacts removed from `TL Marketing` (vendors, Quora, tests, internals).  
+Detail: `SEGMENTATION.md`, `TL_Marketing_removed.csv`.
 
-- `TL Warm Contacts` (21)
-- `TL HubSpot Import` (83)
-- All CRM Lead emails with a valid address (includes website/intake leads beyond HubSpot)
+Draft soft-launch **Newsletter** → **`TL Marketing`**.  
+Industry-specific copy → the matching **`TL Segment …`** group.
 
-Draft soft-launch **Newsletter** is pointed at **`TL Marketing`**.  
-Desk → **Email Group** → `TL Marketing` → Newsletter → Send Test → Send.
-
-### Legacy / segment lists (kept, not required for blasts)
+### Legacy archive (not for blasts)
 
 | Target | Count | Name |
 |--------|------:|------|
-| Email Group | 21 | `TL Warm Contacts` — ICP subset |
-| Email Group | 83 | `TL HubSpot Import` — HubSpot export archive |
-| CRM Lead | many | Pipeline / sales desk (not the Newsletter list) |
+| Email Group | 21 | `TL Warm Contacts` — same ICP as master (historical name) |
+| Email Group | 83 | `TL HubSpot Import` — raw HubSpot archive (includes junk) |
+| CRM Lead | many | Sales pipeline — not the Newsletter list |
 
-CRM Lead remains the sales CRM. **Newsletter always uses Email Group `TL Marketing`.**
+CRM Lead remains the sales CRM. **Blasts use `TL Marketing` or a segment group only.**
 
 ---
 
@@ -51,12 +54,12 @@ CRM Lead remains the sales CRM. **Newsletter always uses Email Group `TL Marketi
 
 | File | DocType | Rows | Use |
 |------|---------|-----:|-----|
-| `TL_Marketing_email_group_member.csv` | Email Group Member | 112 | **Canonical blast list** |
-| `TL_Marketing_sources_audit.csv` | — | 112 | Which source(s) each email came from |
-| `TL_Warm_Contacts_email_group_member.csv` | Email Group Member | 21 | Legacy ICP segment |
-| `TL_HubSpot_Import_email_group_member.csv` | Email Group Member | 83 | Legacy HubSpot archive |
-| `hubspot_to_crm_lead_warm_review.csv` | CRM Lead | 23 | Warm + review CRM rows |
-| `hubspot_to_crm_lead_import.csv` | CRM Lead | 83 | Full remapped CRM Lead (optional) |
+| `TL_Marketing_email_group_member.csv` | Email Group Member | 21 | **Canonical ICP blast list** |
+| `TL_Segment_*_email_group_member.csv` | Email Group Member | varies | Industry segments |
+| `TL_Marketing_segmentation.csv` | — | all | Keep/remove + segment audit |
+| `TL_Marketing_removed.csv` | — | 91 | Non-ICP removals |
+| `TL_Marketing_sources_audit.csv` | — | 112 | Pre-prune provenance |
+| `SEGMENTATION.md` | — | — | Segment angles + send rules |
 
 ### Correct column maps
 
@@ -107,6 +110,6 @@ To refresh the union later: add new CRM Lead / form emails into **`TL Marketing`
 ## Send checklist
 
 1. Email Account / domain for `sales@` or `hello@` (`DESK_EMAIL_ACCOUNT_SALES.md`).
-2. Newsletter audience = **`TL Marketing`** (112 unique).
-3. Optional: prune vendors via Email Group Member unsubscribe / remove before first blast (see `TL_Marketing_sources_audit.csv` + `hubspot_export_excluded.csv`).
+2. Audience = **`TL Marketing`** (general) or a **`TL Segment …`** group (industry-specific).
+3. Match copy to the segment (construction vs municipality vs architects, etc.) — see `SEGMENTATION.md`.
 4. Test to yourself first. See `docs/FRAPPE_EMAIL_MARKETING.md`.

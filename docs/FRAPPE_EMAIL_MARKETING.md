@@ -106,16 +106,21 @@ Jinja: `{{ first_name or "there" }}` (or `{{ doc.first_name }}` if your Desk bui
 
 ### C. Contact list (bulk audience)
 
-**Canonical Newsletter list:** Email Group **`TL Marketing`** (112 unique emails on Cloud).  
-Union of HubSpot import + warm segment + all CRM Lead emails. Do not maintain parallel blast lists.
+**Canonical ICP list:** Email Group **`TL Marketing`** (**21** pruned contacts).  
+Industry segments for targeted copy:
 
-| Role | Name |
-|------|------|
-| **Send here** | `TL Marketing` |
-| Optional segments | `TL Warm Contacts` (21), `TL HubSpot Import` (83) |
-| Sales CRM | CRM Lead (pipeline) — feed new leads into `TL Marketing` when you want them on blasts |
+| Email Group | Angle |
+|-------------|--------|
+| `TL Segment Construction` | Contractors / builders |
+| `TL Segment Architects` | Architecture practices |
+| `TL Segment Engineers` | Engineering consultancies |
+| `TL Segment Government` | Municipal / DPW |
+| `TL Segment Social Facilitators` | Community / CLO / SRM facilitators |
+| `TL Segment Related Industries` | Adjacent practitioners / academia |
 
-**Import columns (minimum):** Email Group Member CSV with `email_group` + `email` (see `docs/exports/email-marketing/contacts/DESK_IMPORT_STEPS.md`). Ready file: `contacts/TL_Marketing_email_group_member.csv`.
+Detail: `contacts/SEGMENTATION.md`. Sales CRM stays on **CRM Lead** — only promote ICP emails into `TL Marketing` + a segment.
+
+**Import columns (minimum):** Email Group Member CSV with `email_group` + `email` (`contacts/DESK_IMPORT_STEPS.md`).
 
 HubSpot → ERPNext **Lead** Data Import on Desk should be abandoned (invalid status/owner/industry maps).
 

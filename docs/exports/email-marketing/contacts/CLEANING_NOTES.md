@@ -4,7 +4,8 @@ Source: HubSpot export `hubspot-crm-exports-all-contacts-2026-07-24.csv` (**83**
 
 | Bucket | Count | File / Cloud target |
 |--------|------:|---------------------|
-| **Canonical blast → Email Group `TL Marketing`** | **112** | `TL_Marketing_email_group_member.csv` (**imported**) — union of Warm + HubSpot + CRM Lead emails |
+| **Canonical ICP blast → Email Group `TL Marketing`** | **21** | Pruned ICP; industry segments in `SEGMENTATION.md` |
+| Pre-prune union (historical) | 112 | Warm + HubSpot + CRM Lead emails before ICP filter |
 | Keep → Email Group `TL Warm Contacts` | 21 | Legacy ICP segment |
 | Full export → Email Group `TL HubSpot Import` | 83 | Legacy HubSpot archive |
 | Excluded (spam/vendor/internal) | 60 | `hubspot_export_excluded.csv` — still inside `TL Marketing` / HubSpot archive; prune before blast if desired |
@@ -32,10 +33,6 @@ Correct path for blasts: **Email Group Member** with only `email_group` + `email
 
 ## Import + send
 
-Cloud lists are already populated (2026-08-10). Next:
-
-1. Confirm **Email Account** outgoing (`docs/exports/email-marketing/DESK_EMAIL_ACCOUNT_SALES.md`).
-2. **Newsletter** → Email Group **`TL Warm Contacts`** → `../01-soft-launch.html`.
-3. Send test to yourself → then send to the group.
-
-See `docs/FRAPPE_EMAIL_MARKETING.md`.
+1. Confirm **Email Account** outgoing (`DESK_EMAIL_ACCOUNT_SALES.md`).
+2. **Newsletter** → **`TL Marketing`** (general) or a **`TL Segment …`** group (industry copy).
+3. Send test to yourself → then send. See `SEGMENTATION.md` + `docs/FRAPPE_EMAIL_MARKETING.md`.

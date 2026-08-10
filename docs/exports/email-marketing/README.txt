@@ -20,10 +20,12 @@ Cloud Email Templates (already created on app.trustledger.co.za):
 - TL Quote Follow-up
 - TL Assessment Nudge
 
-Canonical Newsletter audience: Email Group **TL Marketing** (112 unique).
-Draft soft-launch Newsletter is pointed at TL Marketing — review in Desk, Send Test, then Send.
+Canonical ICP audience: Email Group **TL Marketing** (21 pruned).
+Industry segments: TL Segment Construction / Architects / Engineers /
+Government / Social Facilitators / Related Industries.
+See contacts/SEGMENTATION.md.
 
-Legacy segments kept: TL Warm Contacts (21), TL HubSpot Import (83).
+Draft soft-launch Newsletter → TL Marketing. For industry copy, pick a segment group.
 
 Runbook: docs/FRAPPE_EMAIL_MARKETING.md
 CTAs: https://trustledger-frontend-pi.vercel.app — never HubSpot embeds.
