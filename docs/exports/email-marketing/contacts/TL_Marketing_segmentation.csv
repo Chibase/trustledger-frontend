@@ -1,0 +1,113 @@
+email,segment,segment_group,decision,reason,first_name,last_name,organization,job_title,crm_source
+argitek@icloud.com,architects,TL Segment Architects,keep,manual_icp,Gerhard,Scheepers,,,HubSpot Import
+ev@itmarchitects.co.za,architects,TL Segment Architects,keep,manual_icp,Eugen,Venter,,,HubSpot Import
+hello@aloearchitects.com,architects,TL Segment Architects,keep,manual_icp,Aloe Architects,,,,HubSpot Import
+jn@itmarchitects.co.za,architects,TL Segment Architects,keep,manual_icp,Johan,Nel,,,HubSpot Import
+liam@purseyboucher.co.za,architects,TL Segment Architects,keep,manual_icp,Liam,O’Hagan,,,HubSpot Import
+russell@purseyboucher.co.za,architects,TL Segment Architects,keep,manual_icp,Russell,Boucher,,,HubSpot Import
+umnyamaup@umnyamaarchitects.com,architects,TL Segment Architects,keep,manual_icp,Umnyama Architects,,,,HubSpot Import
+amanzi@aserve.co.za,construction,TL Segment Construction,keep,manual_icp,amanzi,,,,HubSpot Import
+bianca@rudcor.co.za,construction,TL Segment Construction,keep,manual_icp,bianca,,,,HubSpot Import
+info@inyaticonstruction.co.za,construction,TL Segment Construction,keep,manual_icp,info,,,,HubSpot Import
+norlandgroup@norland.co.za,construction,TL Segment Construction,keep,manual_icp,norlandgroup,,,,HubSpot Import
+premierpipesupply@gmail.com,construction,TL Segment Construction,keep,manual_icp,premierpipesupply,,,,HubSpot Import
+rob@intsika.com,construction,TL Segment Construction,keep,manual_icp,Robert,Gilante,,,HubSpot Import
+terry@qalanash.co.za,construction,TL Segment Construction,keep,manual_icp,terry,,,,HubSpot Import
+info@geogroup.co.za,engineers,TL Segment Engineers,keep,manual_icp,info,,,,HubSpot Import
+marketing@bigengroup.com,engineers,TL Segment Engineers,keep,manual_icp,marketing,,,,HubSpot Import
+richard@ntimindustries.com,engineers,TL Segment Engineers,keep,manual_icp,richard,,,,HubSpot Import
+lundi.lutya@dpw.gov.za,government,TL Segment Government,keep,manual_icp,Lundi,Lutya,,,HubSpot Import
+lunga.bobo@capetown.gov.za,government,TL Segment Government,keep,manual_icp,Lunga,Bobo,,,HubSpot Import
+nghonax@cput.ac.za,related,TL Segment Related Industries,keep,manual_icp,Dr. Xolani,Nghona,,,HubSpot Import
+kuku@umthasp.co.za,social_facilitators,TL Segment Social Facilitators,keep,manual_icp,Kuku Rosemary,Jacobs,,,HubSpot Import
+abel.grun@riverside.fm,,,remove,vendor_spam_or_quora,Abel from Riverside,,,,
+admin+nombuso.m@chibaseconsulting.co.za,,,remove,internal_ops,Nombuso,M,Independent / TBD,Contact enquiry · /ops/whatsapp-inbound,Website Contact
+admin@chibaseconsulting.co.za,,,remove,internal_or_placeholder,Thozamile,KaDlanga,Chibase Consulting (PTY) Ltd,Contact enquiry · /contact,Website Contact
+admin@nonunu.com,,,remove,test_or_ops_lead,nonunu,,PDU,Payment · Project · R 14 999 · ref tl_project_mrvrpmgj_648xn7,
+admissions@quantic.edu,,,remove,vendor_spam_or_quora,Matt at Quantic,,,,
+alice.johnson@example.com,,,remove,vendor_or_placeholder,Alice,Johnson,Acme Corp,VP of Engineering,Cold Calling
+another.smoke@chibasetest.co.za,,,remove,internal_ops,Second,Smoke,Chibase,,
+anotherpointofview-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+anthony@magneticmemorymethod.com,,,remove,vendor_spam_or_quora,Anthony Metivier,,,,
+artificialcorner@substack.com,,,remove,vendor_spam_or_quora,Artificial Corner,,,,
+arunsjaihind-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+awesome@inspire3.com,,,remove,vendor_spam_or_quora,⭐ Themiya & Karl,,,,
+baback@lindoai.com,,,remove,vendor_spam_or_quora,Baback from lindo.ai,,,,
+bob.martinez@example.com,,,remove,vendor_or_placeholder,Bob,Martinez,Globex Industries,CEO,Advertisement
+bp-norep@microsoft.com,,,remove,internal_or_placeholder,Bing Places for Business,,,,
+campaigns@woodford.co.za,,,remove,vendor_spam_or_quora,Woodford Car Hire,,,,
+care@pushengage.com,,,remove,vendor_spam_or_quora,PushEngage,,,,
+carol.smith@example.com,,,remove,vendor_or_placeholder,Carol,Smith,BrightPath Ltd,Head of Operations,Email
+contact@lrnkey.com,,,remove,vendor_spam_or_quora,Adriana from Lrnkey,,,,
+corruptiontrumpandgop-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+cpanel@trustledger.co.za,,,remove,internal_ops,cPanel,trustledgercoza,,,Email
+customercare@rfg.com,,,remove,vendor_spam_or_quora,Hinds Spices,,,,
+darren@darrenhardy.com,,,remove,vendor_spam_or_quora,"Brenda, A-Team",,,,
+david.lee@example.com,,,remove,vendor_or_placeholder,David,Lee,TechStart Inc,CTO,Reference
+deals@mondo.co.za,,,remove,vendor_spam_or_quora,Mondo,,,,
+destiny@manifesting.vip,,,remove,vendor_spam_or_quora,Manifest Destiny 💫,,,,
+divorcingthenarcissist-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+emma.williams@example.com,,,remove,vendor_or_placeholder,Emma,Williams,CloudBase LLC,Procurement Manager,Website
+english-quora-digest@quora.com,,,remove,vendor_spam_or_quora,Quora Digest,,,,
+erik@videototextai.com,,,remove,vendor_spam_or_quora,Erik,,,,
+events@byhealthmeans.com,,,remove,vendor_spam_or_quora,HealthMeans,,,,
+fabricatedreview@trustpilot.com,,,remove,vendor_spam_or_quora,Trust - Trustpilot,,,,
+fabrizio@typefully.com,,,remove,vendor_spam_or_quora,Fabrizio Rinaldi,,,,
+failed-payments+acct_1m08h7f5zsuk8eys@stripe.com,,,remove,vendor_spam_or_quora,Consensus,,,,
+familycourtconcerned-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+frank.turner@example.com,,,remove,vendor_or_placeholder,Frank,Turner,DataSync Co,Head of Sales,Email
+frappe-config-smoke+1786347646751@trustledger.co.za,,,remove,internal_ops,Frappe,config smoke,TrustLedger Ops,Config smoke,Website Contact
+funding@quantic.edu,,,remove,vendor_spam_or_quora,Tom Adams,,,,
+grace.park@example.com,,,remove,vendor_or_placeholder,Grace,Park,NextWave Corp,COO,Reference
+hamsa.pillai@elicit.com,,,remove,vendor_spam_or_quora,Hamsa Pillai,,,,
+hello@taskade.com,,,remove,vendor_spam_or_quora,,,,,
+henry.adams@example.com,,,remove,vendor_or_placeholder,Henry,Adams,PivotTech Solutions,CFO,Advertisement
+husbandsandwives-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+info@chibaseconsulting.co.za,,,remove,internal_ops,65Bimbo,,Bimbotravels,Trial · Project · bill 2026-08-05 · ref tl_trial_project_mrwngvhh_upx1ls,
+info@mamasedivineholdings.com,,,remove,no_icp_signal,info,,,,HubSpot Import
+info@mysite.com,,,remove,internal_or_placeholder,,,,,
+interestingfactsever-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+iris.chen@example.com,,,remove,vendor_or_placeholder,Iris,Chen,ScaleUp Labs,VP Engineering,Cold Calling
+jack.morrison@example.com,,,remove,vendor_or_placeholder,Jack,Morrison,Meridian Systems,CEO,Reference
+jagdishaloda8871-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+jamesnewyorkerltd@gmail.com,,,remove,not_icp,,,,,
+juliet.orang@elicit.com,,,remove,vendor_spam_or_quora,Juliet Orang,,,,
+jungwon.byun@elicit.com,,,remove,vendor_spam_or_quora,Jungwon Byun,,,,
+karen.white@example.com,,,remove,vendor_or_placeholder,Karen,White,Vertex Analytics,Director of Strategy,Advertisement
+kate@pictory.ai,,,remove,vendor_spam_or_quora,Kate @ Pictory,,,,
+kendall@riverside.fm,,,remove,vendor_spam_or_quora,Kendall from Riverside,,,,
+kevinlu@orchids.app,,,remove,vendor_spam_or_quora,Orchids,,,,
+knowledgeengine-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+lana.c@patchstack.com,,,remove,vendor_spam_or_quora,Lana from Patchstack,,,,
+leo.brown@example.com,,,remove,vendor_or_placeholder,Leo,Brown,Forge Digital,Head of Product,Cold Calling
+lgbtyou-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+mailer-daemon@mg1.localdomain,,,remove,test_or_noreply,Mail,System,,,Email
+marcom@riverside.fm,,,remove,vendor_spam_or_quora,Abel from Riverside.fm,,,,
+marius@imaginet.co.za,,,remove,vendor_spam_or_quora,Marius,,,,
+navigatingaffairs-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+ndaba@ndabafiles.co.za,,,remove,no_icp_signal,ndaba,,,Feedback · 3/5 · /app/settings,Product Feedback
+nomoretrump-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+noone@example.co.za,,,remove,vendor_or_placeholder,noone,,noone industries,Trial · Project · bill 2026-08-05 · ref tl_trial_project_mrvzsw3f_d9hgw8,
+noone@mendu.co.za,,,remove,test_or_ops_lead,noone,,noonePTYLtd,Payment · Project · R 14 999 · ref tl_project_mrvrn853_mnhgzg,
+olivia@lindo.ai,,,remove,vendor_spam_or_quora,Olivia from lindo.ai,,,,
+onlytruthaboutrussia-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+outreach@getlindo.com,,,remove,vendor_spam_or_quora,lindo.ai,,,,
+outreach@lindoai.com,,,remove,vendor_spam_or_quora,lindo.ai,,,,
+pinoy.pride8791@gmail.com,,,remove,personal_no_icp,Allan Mauricio,Deang,,,HubSpot Import
+replies@emerald.com,,,remove,vendor_spam_or_quora,Emerald,,,,
+retest.contact@chibasetest.co.za,,,remove,internal_ops,Retest,Contact,Chibase Retest,Contact enquiry · /contact,
+retest.demo@chibasetest.co.za,,,remove,internal_ops,Retest,Demo,Chibase Retest,Demo entry lead,
+retest.feedback@chibasetest.co.za,,,remove,internal_ops,Retest,Feedback,,Feedback · 4/5 · /assessment,
+ryan@ryrob.com,,,remove,vendor_spam_or_quora,Ryan Robinson,,,,
+setrosea-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
+shyam@gravitywrite.com,,,remove,vendor_spam_or_quora,Shyam | GravityWrite,,,,
+simphiwe.dnempire@gmail.com,,,remove,not_icp,Simphiwe,.Dnempire,,,
+smoke.lead@trustledgertest.co.za,,,remove,test_or_ops_lead,Auth,Smoke Test,TrustLedger Test Co,,
+somewhere@you.co.za,,,remove,test_or_ops_lead,Nonto,,Non.to,Payment · Project · R 14 999 · ref tl_project_mrvqtisc_f8gicj,
+soul@manifesting.vip,,,remove,vendor_spam_or_quora,Soul Manifesting 🧘,,,,
+source.feedback@chibasetest.co.za,,,remove,internal_ops,Source,Feedback,,Feedback · 2/5 · /assessment,Product Feedback
+source.verify@chibasetest.co.za,,,remove,internal_ops,Source,Verify,,Contact enquiry · /contact,Website Contact
+subscriptions@medium.com,,,remove,vendor_spam_or_quora,The PyCoach,,,,
+support@webway.host,,,remove,vendor_spam_or_quora,,,,,
+thozi@chibaseconsulting.co.za,,,remove,internal_or_placeholder,Thozamile,Peace-Creator Ngcozela,6501135635085,Contact enquiry · /contact,Website Contact
+welovedrugs-space@quora.com,,,remove,vendor_spam_or_quora,Quora Suggested Spaces,,,,
