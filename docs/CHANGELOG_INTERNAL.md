@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-10 — Branded Newsletter / Email Templates on Cloud
+
+- Strengthened EM-1 HTML packs: ink header, TrustLedger wordmark, teal accent bar, Trust voice, Chibase footer only.
+- Created Cloud Email Templates: `TL Email Shell`, `TL Soft Launch`, `TL Trial Invite`, `TL Quote Follow-up`, `TL Assessment Nudge`.
+- Draft Newsletter (soft launch → `TL Warm Contacts`) for Desk review/send.
+
 ## 2026-08-10 — HubSpot contacts remapped + Email Groups imported
 
 - Root cause: Desk Data Import used ERPNext **Lead** with invalid HubSpot status/owner/industry maps.
