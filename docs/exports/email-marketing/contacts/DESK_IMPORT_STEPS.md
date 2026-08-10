@@ -18,18 +18,32 @@ For **marketing Newsletter**, use **Email Group Member** (not Contact, not Lead)
 
 ---
 
-## Already applied on Cloud (2026-08-10)
+## Already applied on Cloud
 
-Via API (same HubSpot file on Desk: `hubspot-crm-exports-all-contacts-2026-07-24.csv`):
+### Single marketing list (use this)
 
 | Target | Count | Name |
 |--------|------:|------|
-| Email Group | 21 | **`TL Warm Contacts`** — ICP blast list |
-| Email Group | 83 | **`TL HubSpot Import`** — full HubSpot export |
-| CRM Lead | 23 | Source **`HubSpot Import`** — warm + review only (spam excluded) |
-| CRM Lead Source | 1 | **`HubSpot Import`** |
+| Email Group | **112** | **`TL Marketing`** — **canonical Newsletter audience** |
 
-You can open Desk → **Email Group** → `TL Warm Contacts` and send a **Newsletter** now.
+Deduped union of:
+
+- `TL Warm Contacts` (21)
+- `TL HubSpot Import` (83)
+- All CRM Lead emails with a valid address (includes website/intake leads beyond HubSpot)
+
+Draft soft-launch **Newsletter** is pointed at **`TL Marketing`**.  
+Desk → **Email Group** → `TL Marketing` → Newsletter → Send Test → Send.
+
+### Legacy / segment lists (kept, not required for blasts)
+
+| Target | Count | Name |
+|--------|------:|------|
+| Email Group | 21 | `TL Warm Contacts` — ICP subset |
+| Email Group | 83 | `TL HubSpot Import` — HubSpot export archive |
+| CRM Lead | many | Pipeline / sales desk (not the Newsletter list) |
+
+CRM Lead remains the sales CRM. **Newsletter always uses Email Group `TL Marketing`.**
 
 ---
 
@@ -37,10 +51,12 @@ You can open Desk → **Email Group** → `TL Warm Contacts` and send a **Newsle
 
 | File | DocType | Rows | Use |
 |------|---------|-----:|-----|
-| `TL_Warm_Contacts_email_group_member.csv` | Email Group Member | 21 | Soft-launch / first blast |
-| `TL_HubSpot_Import_email_group_member.csv` | Email Group Member | 83 | Full archive list (includes vendors — do not blast blindly) |
+| `TL_Marketing_email_group_member.csv` | Email Group Member | 112 | **Canonical blast list** |
+| `TL_Marketing_sources_audit.csv` | — | 112 | Which source(s) each email came from |
+| `TL_Warm_Contacts_email_group_member.csv` | Email Group Member | 21 | Legacy ICP segment |
+| `TL_HubSpot_Import_email_group_member.csv` | Email Group Member | 83 | Legacy HubSpot archive |
 | `hubspot_to_crm_lead_warm_review.csv` | CRM Lead | 23 | Warm + review CRM rows |
-| `hubspot_to_crm_lead_import.csv` | CRM Lead | 83 | Full remapped CRM Lead (optional; includes excluded noise) |
+| `hubspot_to_crm_lead_import.csv` | CRM Lead | 83 | Full remapped CRM Lead (optional) |
 
 ### Correct column maps
 
@@ -70,13 +86,15 @@ Do **not** map: Contact owner, HubSpot Lead Status, Industry, lifecycle dates, d
 
 ## Re-import from Desk (if you need to redo)
 
-1. Email Group already exists (`TL Warm Contacts` / `TL HubSpot Import`) — or create with the exact title.
+1. Email Group **`TL Marketing`** must exist (exact title).
 2. Awesome Bar → **Data Import** → New  
    - Document Type: **`Email Group Member`**  
    - Import Type: Insert New Records  
-   - Upload `TL_Warm_Contacts_email_group_member.csv` (or the HubSpot Import file)
+   - Upload `TL_Marketing_email_group_member.csv`
 3. Map `email_group` → Email Group, `email` → Email → **Save** → **Start Import**.
-4. Newsletter → select **`TL Warm Contacts`** → paste `../01-soft-launch.html` → send test to yourself → send.
+4. Newsletter → select **`TL Marketing`** → branded template → send test to yourself → send.
+
+To refresh the union later: add new CRM Lead / form emails into **`TL Marketing`** (or re-run the consolidate script / re-import the CSV).
 
 ### CRM Lead (optional)
 
@@ -89,5 +107,6 @@ Do **not** map: Contact owner, HubSpot Lead Status, Industry, lifecycle dates, d
 ## Send checklist
 
 1. Email Account / domain for `sales@` or `hello@` (`DESK_EMAIL_ACCOUNT_SALES.md`).
-2. Newsletter audience = **`TL Warm Contacts`** (21), not the full 83.
-3. Test to yourself first. See `docs/FRAPPE_EMAIL_MARKETING.md`.
+2. Newsletter audience = **`TL Marketing`** (112 unique).
+3. Optional: prune vendors via Email Group Member unsubscribe / remove before first blast (see `TL_Marketing_sources_audit.csv` + `hubspot_export_excluded.csv`).
+4. Test to yourself first. See `docs/FRAPPE_EMAIL_MARKETING.md`.

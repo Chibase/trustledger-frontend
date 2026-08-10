@@ -4,11 +4,12 @@ Source: HubSpot export `hubspot-crm-exports-all-contacts-2026-07-24.csv` (**83**
 
 | Bucket | Count | File / Cloud target |
 |--------|------:|---------------------|
-| **Keep → Email Group `TL Warm Contacts`** | 21 | `TL_Warm_Contacts_email_group_member.csv` (**imported**) |
-| **Full export → Email Group `TL HubSpot Import`** | 83 | `TL_HubSpot_Import_email_group_member.csv` (**imported**) |
-| Excluded (spam/vendor/internal) | 60 | `hubspot_export_excluded.csv` — in archive group only, not CRM |
-| Review (borderline) | 2 | `hubspot_export_review.csv` — in CRM + warm/review CRM file |
-| CRM Lead (warm + review) | 23 | Source `HubSpot Import` (**imported**) |
+| **Canonical blast → Email Group `TL Marketing`** | **112** | `TL_Marketing_email_group_member.csv` (**imported**) — union of Warm + HubSpot + CRM Lead emails |
+| Keep → Email Group `TL Warm Contacts` | 21 | Legacy ICP segment |
+| Full export → Email Group `TL HubSpot Import` | 83 | Legacy HubSpot archive |
+| Excluded (spam/vendor/internal) | 60 | `hubspot_export_excluded.csv` — still inside `TL Marketing` / HubSpot archive; prune before blast if desired |
+| Review (borderline) | 2 | `hubspot_export_review.csv` |
+| CRM Lead (warm + review historically) | 23+ | Source `HubSpot Import` + later website leads (feed `TL Marketing`) |
 
 ## Keep (ICP)
 
