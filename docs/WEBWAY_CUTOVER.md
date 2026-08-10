@@ -14,7 +14,7 @@ Full HubSpot phases: `docs/HS_CUTOVER.md`.
 ## Done when marketing left Webway
 
 - [x] Apex `trustledger.co.za` serves the Vercel Next.js app (same product as former `*.vercel.app`).
-- [x] In-repo: `NEXT_PUBLIC_SITE_URL` fallback → `https://trustledger.co.za`; `vercel.json` 308 from legacy Vercel hostname → apex.
+- [x] In-repo: `NEXT_PUBLIC_SITE_URL` fallback → `https://trustledger.co.za`; `vercel.json` 308 from legacy Vercel hostname → apex (**excludes `/api/*`** so Paystack webhooks on the old host still POST).
 - [x] `/privacy` and `/terms` live on Vercel (replace old WP legal URLs).
 - [x] Email / LinkedIn CTA packs use `https://trustledger.co.za/...`.
 
