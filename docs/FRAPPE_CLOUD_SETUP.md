@@ -92,6 +92,36 @@ If multiple origins later:
 
 Save / reload site after change.
 
+## 2b. Local / agent bootstrap (keys in `.env.local` only)
+
+Never commit API keys. Put them in gitignored `.env.local`:
+
+```bash
+FRAPPE_BASE_URL=https://app.trustledger.co.za
+FRAPPE_API_KEY=…
+FRAPPE_API_SECRET=…
+LEAD_BACKEND=frappe
+```
+
+Then:
+
+```bash
+npx tsx scripts/frappe-configure.mts
+```
+
+This idempotently:
+
+1. Probes `frappe.auth.get_logged_user`
+2. Ensures Customer/User custom fields
+3. Ensures product DocTypes (`TL Project` / `Incident` / `Evidence`)
+4. Ensures SI DocTypes (`TL Stakeholder` / `Engagement` / `Commitment`) — **requires System Manager** on the API user
+5. Bootstraps CRM Lead Sources + pinned views (`docs/CRM_VIEWS.md`)
+6. Creates one disposable CRM Lead smoke row (safe to delete in Desk)
+
+If SI ensure returns `PermissionError`, open Desk as Administrator → **User** for the API key owner → add **System Manager** (or generate keys from a System Manager user) → re-run the script.
+
+Mirror the same `FRAPPE_*` + `LEAD_BACKEND=frappe` on **Vercel Production** (Settings → Environment Variables) and redeploy — this repo cannot set Vercel secrets.
+
 ## 3. Smoke checklist
 
 1. Open `https://app.trustledger.co.za` → login page (padlock OK).  

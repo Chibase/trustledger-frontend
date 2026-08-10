@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-08-10 — Frappe Cloud config bootstrap + DocType exists probe
+
+- Wired local `.env.local` against `app.trustledger.co.za`; auth OK as API user; CRM Lead smoke `CRM-LEAD-2026-00055`.
+- Bootstrapped missing CRM Lead Sources (Paystack / Trial / EFT / Quote / Website Resource, etc.).
+- `scripts/frappe-configure.mts` — one-shot ensure fields + product/SI DocTypes + CRM views + lead smoke.
+- `frappeDocTypeExists` — do not treat DocType meta `403` as missing (avoids re-create attempts).
+- SI DocTypes still need **System Manager** on the API user (create blocked with PermissionError).
+
 ## 2026-08-08 — Email Group Member import CSV (TL Warm Contacts)
 
 - Ready Desk file: `docs/exports/email-marketing/contacts/TL_Warm_Contacts_email_group_member.csv` (21 rows: `email_group` + `email`).
