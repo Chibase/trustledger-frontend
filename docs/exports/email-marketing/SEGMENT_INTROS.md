@@ -46,7 +46,12 @@ Images are on Cloud Files (`https://app.trustledger.co.za/files/tl-email-*.png`)
 
 ## Send checklist
 
-1. Desk → **Newsletter** → open the draft for that segment.  
+**Preferred (personalized `Hello Name,`):** see **`PERSONALIZATION.md`** +  
+`npx tsx scripts/send-personalized-segment-email.mts …`
+
+**Desk Newsletter** (same HTML to everyone → greeting becomes `Hello,`):
+
+1. Newsletter → open the draft for that segment.  
 2. Confirm audience = matching **`TL Segment …`** group.  
 3. Confirm **Sender Name** (table above) + **`sales@trustledger.co.za`**.  
 4. **Send Test** to yourself (check image + reply).  

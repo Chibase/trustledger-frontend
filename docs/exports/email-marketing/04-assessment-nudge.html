@@ -36,7 +36,7 @@
           </tr>
           <tr>
             <td style="padding:28px;">
-              <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">Hello {{ first_name or "there" }},</p>
+              <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">Hello{% if tl_first_name %} {{ tl_first_name }}{% endif %},</p>
               <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">
                 A short <strong>SRM Readiness &amp; Risk Diagnostic</strong> is available on TrustLedger —
                 start at the readiness page, score your gaps, confirm email, then open your report hub.

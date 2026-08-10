@@ -36,7 +36,7 @@
           </tr>
           <tr>
             <td style="padding:28px;">
-              <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">Hello {{ first_name or "there" }},</p>
+              <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">Hello{% if tl_first_name %} {{ tl_first_name }}{% endif %},</p>
               <p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:#12202a;">
                 <strong>TrustLedger</strong> is live for early partners: a calm desk for stakeholder trust —
                 from community intake to governance-grade reporting.

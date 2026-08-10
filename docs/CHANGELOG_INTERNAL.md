@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-10 — Fix newsletter greeting personalization
+
+- Root cause: Frappe Newsletter renders Jinja once for all recipients → `Hello there`.
+- Greeting → `Hello` / `Hello {name}`; `custom_first_name` on Email Group Member; ICP names backfilled.
+- `scripts/send-personalized-segment-email.mts` + `PERSONALIZATION.md` for true per-recipient sends.
+
 ## 2026-08-10 — Segment intro emails + dashboard samples
 
 - Six thought-provoking intro HTML packs (`10`–`15-intro-*.html`) with per-segment From names and Cloud File dashboard samples.
