@@ -33,10 +33,6 @@ Correct path for blasts: **Email Group Member** with only `email_group` + `email
 
 ## Import + send
 
-Cloud lists are already populated (2026-08-10). Next:
-
-1. Confirm **Email Account** outgoing (`docs/exports/email-marketing/DESK_EMAIL_ACCOUNT_SALES.md`).
-2. **Newsletter** → Email Group **`TL Warm Contacts`** → `../01-soft-launch.html`.
-3. Send test to yourself → then send to the group.
-
-See `docs/FRAPPE_EMAIL_MARKETING.md`.
+1. Confirm **Email Account** outgoing (`DESK_EMAIL_ACCOUNT_SALES.md`).
+2. **Newsletter** → **`TL Marketing`** (general) or a **`TL Segment …`** group (industry copy).
+3. Send test to yourself → then send. See `SEGMENTATION.md` + `docs/FRAPPE_EMAIL_MARKETING.md`.
