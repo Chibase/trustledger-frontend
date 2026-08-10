@@ -2,8 +2,10 @@ import {
   MARKETING_SITE_URL,
   OPERATOR_ORG,
   PRODUCT_DEFINITION,
+  PRODUCT_DISAMBIGUATION,
   PRODUCT_NAME,
   PRODUCT_TAGLINE,
+  PRODUCT_TOPICS,
   PUBLIC_FAQS,
   SITE_URL,
   type FaqItem,
@@ -16,17 +18,24 @@ export function organizationJsonLd(): JsonLd {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: PRODUCT_NAME,
+    alternateName: [
+      "TrustLedger SRM",
+      "TrustLedger Stakeholder Relationship Management",
+    ],
     legalName: OPERATOR_ORG.name,
     url: MARKETING_SITE_URL,
     logo: `${SITE_URL}/marketing/trustledger-logo.png`,
     description: PRODUCT_DEFINITION,
+    disambiguatingDescription: PRODUCT_DISAMBIGUATION,
     email: OPERATOR_ORG.email,
     areaServed: ["ZA", "Global South"],
-    sameAs: [OPERATOR_ORG.url, SITE_URL],
+    knowsAbout: [...PRODUCT_TOPICS],
+    sameAs: [OPERATOR_ORG.url, SITE_URL, MARKETING_SITE_URL],
     brand: {
       "@type": "Brand",
       name: PRODUCT_NAME,
       slogan: PRODUCT_TAGLINE,
+      description: PRODUCT_DISAMBIGUATION,
     },
   };
 }
@@ -36,11 +45,25 @@ export function softwareApplicationJsonLd(): JsonLd {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: PRODUCT_NAME,
+    alternateName: [
+      "TrustLedger SRM",
+      "TrustLedger Stakeholder Intelligence",
+    ],
     applicationCategory: "BusinessApplication",
     applicationSubCategory: "Stakeholder Relationship Management",
     operatingSystem: "Web",
-    url: SITE_URL,
+    url: `${SITE_URL}/product`,
     description: PRODUCT_DEFINITION,
+    disambiguatingDescription: PRODUCT_DISAMBIGUATION,
+    audience: {
+      "@type": "Audience",
+      audienceType:
+        "Infrastructure operators, municipalities, contractors, and community-trust practitioners",
+      geographicArea: {
+        "@type": "AdministrativeArea",
+        name: "South Africa",
+      },
+    },
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "ZAR",
@@ -62,6 +85,7 @@ export function softwareApplicationJsonLd(): JsonLd {
       "Governance and board report packs",
       "South African geo and place context",
     ],
+    keywords: PRODUCT_TOPICS.join(", "),
   };
 }
 
@@ -70,8 +94,10 @@ export function webSiteJsonLd(): JsonLd {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: PRODUCT_NAME,
+    alternateName: "TrustLedger SRM",
     url: SITE_URL,
     description: PRODUCT_DEFINITION,
+    inLanguage: "en-ZA",
     publisher: {
       "@type": "Organization",
       name: PRODUCT_NAME,

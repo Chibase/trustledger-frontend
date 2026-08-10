@@ -7,7 +7,12 @@ import {
   softwareApplicationJsonLd,
   webSiteJsonLd,
 } from "@/lib/aeo/jsonLd";
-import { PRODUCT_DEFINITION } from "@/lib/aeo/siteFacts";
+import {
+  PRODUCT_DEFINITION,
+  PRODUCT_DISAMBIGUATION,
+  PRODUCT_TITLE_DEFAULT,
+  SITE_URL,
+} from "@/lib/aeo/siteFacts";
 import "./globals.css";
 
 const sourceSans = Source_Sans_3({
@@ -22,28 +27,37 @@ const sourceSerif = Source_Serif_4({
   display: "swap",
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "TrustLedger",
+    default: PRODUCT_TITLE_DEFAULT,
     template: "%s · TrustLedger",
   },
   description: PRODUCT_DEFINITION,
+  keywords: [
+    "TrustLedger",
+    "Stakeholder Relationship Management",
+    "SRM software",
+    "community grievance",
+    "South Africa",
+    "Stakeholder Intelligence",
+    "infrastructure social licence",
+  ],
   openGraph: {
-    title: "TrustLedger — Resolution you can audit",
+    title: PRODUCT_TITLE_DEFAULT,
     description: PRODUCT_DEFINITION,
-    url: siteUrl,
+    url: SITE_URL,
     siteName: "TrustLedger",
     locale: "en_ZA",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "TrustLedger — Resolution you can audit",
+    title: PRODUCT_TITLE_DEFAULT,
     description: PRODUCT_DEFINITION,
+  },
+  other: {
+    "ai:disambiguation": PRODUCT_DISAMBIGUATION,
   },
 };
 

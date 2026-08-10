@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-10 — AEO entity + canonical hardening
+
+- Disambiguation corpus: not crypto / not generic ledger (`PRODUCT_DISAMBIGUATION`, FAQ, `llms.txt`).
+- Niche titles + JSON-LD (`alternateName`, `disambiguatingDescription`, `knowsAbout`, ZA audience).
+- Single `SITE_URL` source for layout / robots / sitemap; ops note: set Production `NEXT_PUBLIC_SITE_URL` to the public host that serves this app (`docs/AEO_VISIBILITY.md` §2a).
+
 ## 2026-08-10 — Segment intro emails + dashboard samples
 
 - Six thought-provoking intro HTML packs (`10`–`15-intro-*.html`) with per-segment From names and Cloud File dashboard samples.

@@ -1,7 +1,7 @@
 # TrustLedger — AI search / AEO visibility playbook
 
 **Status:** Living ops guide (Answer Engine Optimization / generative engine visibility)  
-**As of:** 2026-07-29  
+**As of:** 2026-08-10  
 **Canonical product facts:** `src/lib/aeo/siteFacts.ts` · `docs/PLATFORM_STRATEGIC_BRIEF.md` §6  
 
 > Goal: when someone asks an AI search engine “What SRM tools track community grievances in South Africa?”, TrustLedger should be a *citable* entity — not invisible.
@@ -33,7 +33,9 @@
 | Item | Location |
 |------|----------|
 | Canonical definition + FAQ corpus | `src/lib/aeo/siteFacts.ts` |
-| Schema builders | `src/lib/aeo/jsonLd.ts` |
+| Disambiguation (not crypto / not generic ledger) | `PRODUCT_DISAMBIGUATION` + FAQ + `llms.txt` |
+| Niche titles (SRM + South Africa) | `PRODUCT_TITLE_DEFAULT` · home / product / FAQ metadata |
+| Schema builders | `src/lib/aeo/jsonLd.ts` (`disambiguatingDescription`, `knowsAbout`, `alternateName`) |
 | JSON-LD component | `src/components/seo/JsonLd.tsx` |
 | FAQ hub | `/faq` → `src/app/faq/page.tsx` |
 | AI crawler brief | `public/llms.txt` |
@@ -47,6 +49,20 @@ Validate after deploy:
 - Google [Rich Results Test](https://search.google.com/test/rich-results) on `/`, `/product`, `/faq`
 - [Schema Markup Validator](https://validator.schema.org/)
 - Fetch `https://<site>/llms.txt` and `/robots.txt`
+
+### 2a. Dual-host / canonical fix (in-repo + one Vercel env)
+
+Brand signal splits when this app is reachable on a custom domain **and** `*.vercel.app`, but metadata still advertises the Vercel hostname.
+
+| Layer | Owner | Action |
+|-------|--------|--------|
+| `NEXT_PUBLIC_SITE_URL` | **Ops (Vercel Production)** | Set to the **public hostname that serves this Next app** (custom domain if attached). Rebuild after change. `metadataBase`, canonicals, OG `url`, `robots` `host`, and sitemap all follow this. |
+| Fallback in code | Repo | Defaults to `https://trustledger-frontend-pi.vercel.app` only when env is unset (local/preview). |
+| Organization `url` | Repo | Always `https://trustledger.co.za` (marketing entity URL) — do not point Organization at `*.vercel.app`. |
+| WordPress vs Vercel | Ops | Keep one clear job per host (see §1). If apex DNS moves from WP to Vercel, update WP checklist and paste plans before flipping. |
+| Accidental `*.vercel.app` links | Repo / email | Prefer marketing or product absolute URLs with UTM; do not treat the preview hostname as the brand. |
+
+**Agent cannot flip DNS, Search Console, or Vercel project env from this repo alone.** After you set `NEXT_PUBLIC_SITE_URL`, re-check Rich Results and that `<link rel="canonical">` matches the intended host.
 
 ---
 

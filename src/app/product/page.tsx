@@ -12,11 +12,15 @@ import {
 } from "@/lib/aeo/siteFacts";
 
 export const metadata: Metadata = {
-  title: "Product — TrustLedger Stakeholder Intelligence",
+  title: {
+    absolute:
+      "TrustLedger Product — Stakeholder Relationship Management & Intelligence",
+  },
   description: PRODUCT_DEFINITION,
   alternates: { canonical: "/product" },
   openGraph: {
-    title: "TrustLedger — Product & onboarding",
+    title:
+      "TrustLedger Product — Stakeholder Relationship Management & Intelligence",
     description: PRODUCT_DEFINITION,
     url: `${SITE_URL}/product`,
     siteName: "TrustLedger",

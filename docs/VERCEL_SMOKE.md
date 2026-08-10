@@ -8,7 +8,7 @@
    - `NEXT_PUBLIC_DATA_MODE=demo`
    - `NEXT_PUBLIC_AI_MOCK=true`
    - `NEXT_PUBLIC_API_BASE_URL=https://app.trustledger.co.za` (harmless in demo)
-   - `NEXT_PUBLIC_SITE_URL=https://trustledger-frontend-pi.vercel.app`
+   - `NEXT_PUBLIC_SITE_URL` = public hostname that serves this app (custom domain preferred; otherwise `https://trustledger-frontend-pi.vercel.app`). See `docs/AEO_VISIBILITY.md` §2a.
 4. Production URL should serve `/` and `/demo`
 
 ## Step 4 — Live mode env (Production)

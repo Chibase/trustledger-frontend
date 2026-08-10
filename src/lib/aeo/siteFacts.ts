@@ -1,21 +1,52 @@
 /**
  * Canonical facts for AEO / LLM parsers (keep aligned with PLATFORM_STRATEGIC_BRIEF §6).
+ *
+ * Hosts (do not blur):
+ * - MARKETING_SITE_URL — brand / entity URL (WordPress or apex when it serves marketing)
+ * - SITE_URL — this Next.js product UI (set NEXT_PUBLIC_SITE_URL in Vercel Production
+ *   to the public hostname that serves *this* app — custom domain preferred over *.vercel.app)
  */
 
+/** Fallback when env is unset (preview / local). Prefer env in Production. */
+export const PRODUCT_UI_FALLBACK_URL =
+  "https://trustledger-frontend-pi.vercel.app";
+
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://trustledger-frontend-pi.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL ?? PRODUCT_UI_FALLBACK_URL
 ).replace(/\/$/, "");
 
 export const MARKETING_SITE_URL = "https://trustledger.co.za";
 
+export const CLOUD_APP_URL = "https://app.trustledger.co.za";
+
 export const PRODUCT_NAME = "TrustLedger";
+
+/** Niche title for default metadata (brand + category + geography). */
+export const PRODUCT_TITLE_DEFAULT =
+  "TrustLedger — Stakeholder Relationship Management for South Africa";
 
 /** Front-loaded declarative definition for AI crawlers and humans. */
 export const PRODUCT_DEFINITION =
   "TrustLedger is a Stakeholder Relationship Management (SRM) software platform designed for grievance resolution, community engagement, Stakeholder Intelligence, and audit-ready reporting on infrastructure and community-trust projects in South Africa and the Global South.";
 
+/**
+ * Separates this product from unrelated “TrustLedger” / ledger brands online
+ * (crypto wallets, generic document verification, etc.).
+ */
+export const PRODUCT_DISAMBIGUATION =
+  "TrustLedger by Chibase Consulting is SRM software for community grievances, stakeholder engagement, and audit-ready reporting on infrastructure and community-trust projects in South Africa — not a cryptocurrency, blockchain wallet, or generic document-verification product.";
+
 export const PRODUCT_TAGLINE = "Resolution you can audit.";
+
+/** Topics for Schema.org knowsAbout / AI parsers. */
+export const PRODUCT_TOPICS = [
+  "Stakeholder Relationship Management",
+  "community grievance resolution",
+  "Stakeholder Intelligence",
+  "infrastructure social licence",
+  "South Africa public-sector programmes",
+  "engagements and commitments tracking",
+] as const;
 
 export const OPERATOR_ORG = {
   name: "Chibase Consulting",
@@ -33,7 +64,12 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "What is TrustLedger?",
     answer:
-      "TrustLedger is a Stakeholder Relationship Management (SRM) software platform for grievance resolution and Stakeholder Intelligence. It helps operators run community intake, case desks, stakeholder registries, engagements, commitments, and governance-grade reports on projects where social licence decides whether work moves.",
+      "TrustLedger is a Stakeholder Relationship Management (SRM) software platform for grievance resolution and Stakeholder Intelligence. It helps operators run community intake, case desks, stakeholder registries, engagements, commitments, and governance-grade reports on projects where social licence decides whether work moves. It is operated by Chibase Consulting for infrastructure and community-trust work in South Africa and the Global South.",
+  },
+  {
+    question: "Is TrustLedger a cryptocurrency, blockchain wallet, or document-verification product?",
+    answer:
+      "No. TrustLedger is Stakeholder Relationship Management software for community grievances, engagement, and audit-ready reporting on infrastructure and public-sector programmes. It is unrelated to cryptocurrency tokens, blockchain wallets, or generic online document-verification services that may share a similar name.",
   },
   {
     question: "What is Stakeholder Relationship Management (SRM) software?",

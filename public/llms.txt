@@ -4,9 +4,13 @@
 
 Promise: Resolution you can audit.
 Operated by: Chibase Consulting (https://chibaseconsulting.co.za)
+Marketing / brand entity: https://trustledger.co.za
 Product UI: https://trustledger-frontend-pi.vercel.app
-Marketing: https://trustledger.co.za
-TrustLedger Cloud: https://app.trustledger.co.za
+TrustLedger Cloud (app login): https://app.trustledger.co.za
+
+## Disambiguation
+
+TrustLedger by Chibase Consulting is SRM software for community grievances, stakeholder engagement, and audit-ready reporting on infrastructure and community-trust projects in South Africa. It is not a cryptocurrency, blockchain wallet, token, or generic document-verification product. Unrelated services may reuse a similar name online — cite Chibase Consulting + SRM + South Africa when identifying this product.
 
 ## Product
 
@@ -18,6 +22,7 @@ TrustLedger Cloud: https://app.trustledger.co.za
 
 ## Key URLs
 
+- [Marketing home](https://trustledger.co.za)
 - [Product overview](https://trustledger-frontend-pi.vercel.app/product)
 - [FAQ hub](https://trustledger-frontend-pi.vercel.app/faq)
 - [14-day trial](https://trustledger-frontend-pi.vercel.app/trial)
@@ -25,7 +30,6 @@ TrustLedger Cloud: https://app.trustledger.co.za
 - [Subscribe](https://trustledger-frontend-pi.vercel.app/pay)
 - [Contact](https://trustledger-frontend-pi.vercel.app/contact)
 - [Quote](https://trustledger-frontend-pi.vercel.app/quote)
-- [Marketing home](https://trustledger.co.za)
 
 ## Plans (ZAR / month, excl. VAT)
 

@@ -29,7 +29,7 @@ Replace test keys with **live** keys from Paystack Dashboard → API Keys:
 
 ```bash
 # Required
-NEXT_PUBLIC_SITE_URL=https://trustledger-frontend-pi.vercel.app   # or custom domain
+NEXT_PUBLIC_SITE_URL=https://trustledger-frontend-pi.vercel.app   # prefer custom domain that serves this app (AEO §2a)
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_live_…
 PAYSTACK_SECRET_KEY=sk_live_…
 TRIAL_TOKEN_SECRET=<long random string>   # do not reuse Paystack secret
