@@ -27,7 +27,7 @@ CTAs → Vercel /trial /contact /quote /assessment /pay
 | From address | Verified domain mailbox — Production uses `sales@trustledger.co.za` (aliases optional later) |
 | Reply-To | Same mailbox unless a Webway alias forwards into `sales@` |
 | Accent | `#0e7c66` buttons; header `#12202a` |
-| CTAs | Absolute `https://trustledger-frontend-pi.vercel.app/...` with `utm_source=email&utm_medium=bulk&utm_campaign=…` |
+| CTAs | Absolute `https://trustledger.co.za/...` with `utm_source=email&utm_medium=bulk&utm_campaign=…` |
 | Forms | Prefer Vercel branded forms — **not** HubSpot embeds, not unbranded Frappe Web Forms for public marketing |
 
 **Frappe Web Forms / Desk print:** if you must use a Cloud Web Form, set title/branding text to TrustLedger and link out to Vercel for pay/trial. Public lead capture stays on Vercel (`/contact`, `/quote`, `/assessment`).

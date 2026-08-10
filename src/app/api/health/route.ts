@@ -47,7 +47,7 @@ export async function GET() {
   const [app, cloud, resendAuth] = await Promise.all([
     probe(
       "TrustLedger app",
-      `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app"}/`,
+      `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger.co.za"}/`,
     ),
     probe(
       "TrustLedger Cloud",

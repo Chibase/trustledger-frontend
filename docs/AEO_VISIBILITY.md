@@ -1,7 +1,7 @@
 # TrustLedger — AI search / AEO visibility playbook
 
 **Status:** Living ops guide (Answer Engine Optimization / generative engine visibility)  
-**As of:** 2026-07-29  
+**As of:** 2026-08-10  
 **Canonical product facts:** `src/lib/aeo/siteFacts.ts` · `docs/PLATFORM_STRATEGIC_BRIEF.md` §6  
 
 > Goal: when someone asks an AI search engine “What SRM tools track community grievances in South Africa?”, TrustLedger should be a *citable* entity — not invisible.
@@ -12,19 +12,19 @@
 
 | Gemini recommendation | TrustLedger reality | Action |
 |----------------------|---------------------|--------|
-| **1. Structure for LLM parsing** — declarative defs, Schema.org, open robots | Vercel had robots/sitemap/OG (Packet 21) but **no JSON-LD**; home FAQ was a stub; root OG still said “Demo” | **Shipped in-repo:** Organization + SoftwareApplication + FAQPage JSON-LD, `/faq` hub, `public/llms.txt`, robots/sitemap updates, declarative product definition |
-| **2. Entity footprint off-domain** | Brand lives on `trustledger.co.za` + Vercel + Chibase; almost no third-party citations yet | **Ops / human:** directories, LinkedIn, industry associations, Reddit/civic-tech threads — cannot be faked in this repo |
-| **3. Knowledge & FAQ hub** | WP home has thin `<details>` FAQ; Vercel `#faq` was outdated (sample preview language) | **Shipped:** `/faq` with NL questions + capability table + FAQPage schema. **WP:** paste mirror questions (below) |
-| **4. Feed indexes + PR** | Need Search Console / Bing Webmaster on **both** WP and Vercel hosts | **Ops:** submit sitemaps; LinkedIn/case studies; do not blast from Resend OTP keys |
+| **1. Structure for LLM parsing** — declarative defs, Schema.org, open robots | Marketing + product UI consolidated on Vercel at `trustledger.co.za` | **Shipped:** Organization + SoftwareApplication + FAQPage JSON-LD, `/faq`, `/privacy`, `/terms`, `llms.txt`, robots/sitemap, niche titles, disambiguation |
+| **2. Entity footprint off-domain** | Brand entity URL is `trustledger.co.za`; almost no third-party citations yet | **Ops / human:** directories, LinkedIn, industry associations, Reddit/civic-tech threads |
+| **3. Knowledge & FAQ hub** | `/faq` is the public FAQ; WordPress mirror retired | Keep `PUBLIC_FAQS` in sync with visible `/faq` copy |
+| **4. Feed indexes + PR** | One public marketing host | **Ops:** Search Console + Bing on `trustledger.co.za` only; submit `/sitemap.xml`; LinkedIn/case studies |
 
 ### Surface split (do not blur)
 
 | Host | SEO / AEO job |
 |------|----------------|
-| `trustledger.co.za` (WordPress) | Brand homepage, pricing story, Privacy/Terms, primary **entity URL** in Organization schema `url` |
-| Vercel frontend | Product facts (`/product`, `/faq`), assessment, trial/pay — structured data + `llms.txt` |
-| Taskade showcase | Optional product tour — prefer **noindex** so it does not compete with WP/Vercel |
-| `app.trustledger.co.za` | App login — not a marketing index target |
+| `trustledger.co.za` (Vercel) | **Sole** public marketing + product UI — home, pricing, `/product`, `/faq`, `/privacy`, `/terms`, assessment, trial/pay, `llms.txt`, Organization `url` |
+| `trustledger-frontend-pi.vercel.app` | Legacy deploy host — **308 redirect** to apex (`vercel.json`); do not cite in emails or schema |
+| Taskade showcase | Optional product tour — prefer **noindex** so it does not compete with the apex |
+| `app.trustledger.co.za` | App login / Cloud — not a marketing index target |
 
 ---
 
@@ -33,36 +33,37 @@
 | Item | Location |
 |------|----------|
 | Canonical definition + FAQ corpus | `src/lib/aeo/siteFacts.ts` |
-| Schema builders | `src/lib/aeo/jsonLd.ts` |
+| Disambiguation (not crypto / not generic ledger) | `PRODUCT_DISAMBIGUATION` + FAQ + `llms.txt` |
+| Niche titles (SRM + South Africa) | `PRODUCT_TITLE_DEFAULT` · home / product / FAQ metadata |
+| Schema builders | `src/lib/aeo/jsonLd.ts` (`disambiguatingDescription`, `knowsAbout`, `alternateName`) |
 | JSON-LD component | `src/components/seo/JsonLd.tsx` |
 | FAQ hub | `/faq` → `src/app/faq/page.tsx` |
 | AI crawler brief | `public/llms.txt` |
 | robots allowlist (AI-friendly, private paths blocked) | `src/app/robots.ts` |
-| sitemap includes `/faq`, `/pay` | `src/app/sitemap.ts` |
+| sitemap includes `/faq`, `/pay`, `/privacy`, `/terms` | `src/app/sitemap.ts` |
 | Home + product front-loaded definition + schema | `src/app/page.tsx`, `src/app/product/page.tsx` |
+| Legal pages (Webway privacy/terms replacement) | `/privacy`, `/terms` |
+| Apex canonical + legacy host redirect | `SITE_URL` default + `vercel.json` 308 |
 | Stale “Demo” OG copy removed | `src/app/layout.tsx` |
 
 Validate after deploy:
 
-- Google [Rich Results Test](https://search.google.com/test/rich-results) on `/`, `/product`, `/faq`
+- Google [Rich Results Test](https://search.google.com/test/rich-results) on `https://trustledger.co.za/`, `/product`, `/faq`
 - [Schema Markup Validator](https://validator.schema.org/)
-- Fetch `https://<site>/llms.txt` and `/robots.txt`
+- Fetch `https://trustledger.co.za/llms.txt` and `/robots.txt`
+- Confirm `https://trustledger-frontend-pi.vercel.app/` → 308 to apex
 
----
+### 2a. Canonical host (Vercel-only marketing)
 
-## 3. WordPress (`trustledger.co.za`) checklist
+| Layer | Action |
+|-------|--------|
+| `NEXT_PUBLIC_SITE_URL` | Production value: `https://trustledger.co.za` (code fallback matches). |
+| Organization `url` | `https://trustledger.co.za` |
+| Legacy `*.vercel.app` | Permanent redirect to apex; keep in Frappe CORS allowlist until traffic dies. |
+| Email / LinkedIn CTAs | Absolute `https://trustledger.co.za/...` only |
+| Search Console / Bing | Property for apex; submit `https://trustledger.co.za/sitemap.xml` |
 
-Marketing still owns the brand homepage. Align WP with Vercel facts:
-
-1. **Re-paste home** from `docs/wordpress/page-home.txt` (declarative SRM definition, own-data trial copy, expanded FAQ, JSON-LD `@graph`). Follow `docs/wordpress/PASTE_PLANS.md`.
-2. **FAQ block:** now inlined in `page-home.txt` (mirrors `PUBLIC_FAQS`). Link to `https://trustledger-frontend-pi.vercel.app/faq` remains. Minimal fallback: `docs/wordpress/faq-aeo-snippet.txt`.
-3. **Schema:** home paste includes Organization + SoftwareApplication + FAQPage. If WP strips `<script>`, add the same via Yoast/Rank Math (`sameAs` → Chibase + Vercel product URL).
-4. **robots.txt / sitemap:** confirm SpeedyCache or security plugins are **not** blocking `GPTBot`, `ChatGPT-User`, `OAI-SearchBot`, `PerplexityBot`, `ClaudeBot`, `Google-Extended`, `Bingbot`. Prefer allow-all for public marketing paths.
-5. **Search Console:** property for `trustledger.co.za` + submit WP sitemap; separately add Vercel host property and submit `https://trustledger-frontend-pi.vercel.app/sitemap.xml`.
-6. **Bing Webmaster Tools:** same two hosts (ChatGPT Search leans on Bing’s index).
-7. After paste: purge SpeedyCache (`docs/wordpress/PASTE_PLANS.md`).
-
-**Live site stays old until you paste on Webway.** Repo paste ≠ published WP.
+WordPress on Webway is **retired** for TrustLedger marketing (see `docs/WEBWAY_CUTOVER.md`). Mailboxes may still live on Webway DNS/mail.
 
 ---
 
@@ -101,10 +102,10 @@ Avoid only long narrative without extractable facts.
 
 | Cadence | Check |
 |---------|--------|
-| After each marketing deploy | Rich Results Test on `/faq`; `llms.txt` reachable |
-| Monthly | Search Console coverage (WP + Vercel); Bing URL inspection |
+| After each marketing deploy | Rich Results Test on `/faq`; `llms.txt` reachable on apex |
+| Monthly | Search Console coverage for `trustledger.co.za`; Bing URL inspection |
 | Monthly | Otterly / manual prompts: “SRM software South Africa”, “community grievance tracking tool”, “Stakeholder Relationship Management infrastructure” |
-| Quarterly | Refresh `PUBLIC_FAQS` if packaging or versions change; update WP mirror |
+| Quarterly | Refresh `PUBLIC_FAQS` if packaging or versions change |
 
 ---
 
@@ -112,8 +113,8 @@ Avoid only long narrative without extractable facts.
 
 - AEO is **citation + entity** work. Schema and `/faq` make TrustLedger *parseable*; directories and third-party mentions make it *believable* to models.
 - Visibility lag of weeks–months after publishing is normal.
-- Taskade Feature Showcase helps demos; it is **not** a substitute for indexed FAQ/schema on WP/Vercel.
+- Taskade Feature Showcase helps demos; it is **not** a substitute for indexed FAQ/schema on `trustledger.co.za`.
 
-When product facts change, edit `src/lib/aeo/siteFacts.ts` first, then WP paste and LinkedIn one-liners.
+When product facts change, edit `src/lib/aeo/siteFacts.ts` first, then LinkedIn one-liners.
 
 **Public brand (ADR-039):** TrustLedger only; primary voice = **Trust**. Never put Frappe/Vercel/HubSpot in FAQ or marketing prose.

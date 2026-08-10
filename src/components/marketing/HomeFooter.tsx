@@ -20,8 +20,8 @@ const COLS = [
     links: [
       { href: "https://chibaseconsulting.co.za", label: "Chibase Consulting", external: true },
       { href: "/contact?utm_source=home&utm_medium=footer&utm_campaign=contact", label: "Contact" },
-      { href: "https://trustledger.co.za/privacy/", label: "Privacy", external: true },
-      { href: "https://trustledger.co.za/terms/", label: "Terms", external: true },
+      { href: "/privacy", label: "Privacy" },
+      { href: "/terms", label: "Terms" },
     ],
   },
   {

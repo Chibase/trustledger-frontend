@@ -2,7 +2,7 @@
 
 **Status:** GO LIVE Done (2026-07-23). Use this as the instant-response runbook.
 
-Production: https://trustledger-frontend-pi.vercel.app  
+Production: https://trustledger.co.za  
 Cloud: https://app.trustledger.co.za  
 Ops ladder: `/ops/readiness` · Health: `GET /api/health` (`deploySha`)
 
@@ -126,7 +126,7 @@ RESEND_API_KEY=…       # strongly recommended
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=…
 RECAPTCHA_SECRET_KEY=…
 FORM_REQUIRE_RECAPTCHA=1
-NEXT_PUBLIC_SITE_URL=https://trustledger-frontend-pi.vercel.app
+NEXT_PUBLIC_SITE_URL=https://trustledger.co.za
 NEXT_PUBLIC_DATA_MODE=demo
 NEXT_PUBLIC_AI_MOCK=true
 ```

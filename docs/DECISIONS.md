@@ -147,25 +147,26 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 
 ### ADR-034: Frappe-only acquisition CRM (cut HubSpot)
 
-- **Date:** 2026-07-23 (clarified 2026-07-24)
+- **Date:** 2026-07-23 (clarified 2026-07-24; marketing host 2026-08-10)
 - **Status:** Accepted
-- **Context:** HubSpot Free embeds and dual CRM hurt TrustLedger branding and solo-ops clarity. Vercel already owns branded forms; Frappe Cloud already receives **CRM Lead** when API keys exist. Soft launch no longer needs HubSpot as a required link in the chain.
+- **Context:** HubSpot Free embeds and dual CRM hurt TrustLedger branding and solo-ops clarity. Vercel already owns branded forms; Frappe Cloud already receives **CRM Lead** when API keys exist. Soft launch no longer needs HubSpot as a required link in the chain. **2026-08-10:** WordPress brochure on Webway retired — marketing and product UI are consolidated on Vercel at `https://trustledger.co.za`.
 - **Decision:** **Acquisition CRM = Frappe CRM Lead only.** Target chain:
   ```text
-  WordPress (Webway)  →  CTAs only (no forms / no HubSpot embeds)
+  Vercel TrustLedger (trustledger.co.za)
+          →  marketing + branded forms + Paystack + product UI + Ops
           ↓
-  Vercel TrustLedger  →  branded forms + Paystack + product UI + Ops
-          ↓
-  Frappe Cloud        →  CRM Lead → (commitment/pay) Customer + Owner User
+  Frappe Cloud (app.trustledger.co.za)
+          →  CRM Lead → (commitment/pay) Customer + Owner User
           ↓
   /login/live         →  product
   ```
-  Operating rule: *Strangers fill Vercel forms → Frappe Leads; money/commitment → Frappe Customer + live login. WordPress never owns data. HubSpot is out.*
+  Operating rule: *Strangers fill Vercel forms → Frappe Leads; money/commitment → Frappe Customer + live login. HubSpot is out. Webway may still host mailboxes only.*
   - Production: set `LEAD_BACKEND=frappe` (or leave unset when Frappe keys exist — HS-1 defaults to frappe-only).
+  - `NEXT_PUBLIC_SITE_URL=https://trustledger.co.za`; legacy `*.vercel.app` 308s to apex.
   - HubSpot is **not required**. Optional emergency only via explicit `LEAD_BACKEND=auto` or `hubspot` until HS-4 deletes the client.
-  - WordPress cutover: `docs/WEBWAY_CUTOVER.md`. Full phases: `docs/HS_CUTOVER.md`.
-- **Consequences:** No new HubSpot form embeds or sequences for product intake; Ops readiness + `/api/health` gate lead cutover; follow-ups via Frappe notifications or Webway mailbox (`info@trustledger.co.za`) using Lead comments; commitment still provisions Customer/Owner on Frappe (Paystack / Ops / VIP).
-- **Alternatives considered:** Keep ADR-011 HubSpot-first forever (rejected); hard-delete HubSpot code before Production smoke (rejected — phased HS-2→HS-4).
+  - Cutover notes: `docs/WEBWAY_CUTOVER.md`. Full phases: `docs/HS_CUTOVER.md`.
+- **Consequences:** No new HubSpot form embeds or sequences for product intake; Ops readiness + `/api/health` gate lead cutover; follow-ups via Frappe notifications or mailbox (`info@trustledger.co.za`) using Lead comments; commitment still provisions Customer/Owner on Frappe (Paystack / Ops / VIP).
+- **Alternatives considered:** Keep ADR-011 HubSpot-first forever (rejected); hard-delete HubSpot code before Production smoke (rejected — phased HS-2→HS-4); keep WordPress as brochure host (rejected 2026-08-10 — consolidated on Vercel).
 
 ### ADR-012: Plan Owner admin + Owner-confirmed lower seats
 

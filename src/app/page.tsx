@@ -11,14 +11,20 @@ import { HomeTrustProof } from "@/components/marketing/HomeTrustProof";
 import { HomeVersionStrip } from "@/components/marketing/HomeVersionStrip";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { faqPageJsonLd } from "@/lib/aeo/jsonLd";
-import { PRODUCT_DEFINITION, SITE_URL } from "@/lib/aeo/siteFacts";
+import {
+  PRODUCT_DEFINITION,
+  PRODUCT_TITLE_DEFAULT,
+  SITE_URL,
+} from "@/lib/aeo/siteFacts";
 
 export const metadata: Metadata = {
-  title: "Turn Community Risk into Measurable Trust Outcomes",
+  title: {
+    absolute: PRODUCT_TITLE_DEFAULT,
+  },
   description: PRODUCT_DEFINITION,
   alternates: { canonical: "/" },
   openGraph: {
-    title: "TrustLedger — Measurable Trust Outcomes",
+    title: PRODUCT_TITLE_DEFAULT,
     description: PRODUCT_DEFINITION,
     url: SITE_URL,
     siteName: "TrustLedger",
@@ -35,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TrustLedger — Measurable Trust Outcomes",
+    title: PRODUCT_TITLE_DEFAULT,
     description: PRODUCT_DEFINITION,
     images: ["/marketing/trustledger-hero-dashboard.png"],
   },

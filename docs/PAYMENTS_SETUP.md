@@ -100,7 +100,7 @@ Prefer **Paystack `/pay`** for Practitioner and Project. Use quote → invoice �
 
 ```text
 WordPress / trial CTA
-  → https://trustledger-frontend-pi.vercel.app/quote?plan=practitioner
+  → https://trustledger.co.za/quote?plan=practitioner
   → CRM Lead (source Quote Request) + optional OPS_ALERT_WEBHOOK_URL
   → you send Quotation / Sales Invoice from Frappe Desk
   → buyer pays EFT
@@ -127,7 +127,7 @@ Use this path on the **shared Frappe Cloud bench** (no Marketplace Paystack inst
 
 ```text
 WordPress / pricing Subscribe
-  → https://trustledger-frontend-pi.vercel.app/pay?plan=practitioner
+  → https://trustledger.co.za/pay?plan=practitioner
   → Paystack hosted checkout (default: trial_authorize = small card verify)
   → /pay/success → trial active immediately + temp password (email when Resend set)
   → CRM Lead (source Trial Authorize) · card on file for day-14 charge
@@ -162,7 +162,8 @@ Redeploy after saving.
 
 Dashboard → **Settings → API Keys & Webhooks**:
 
-`https://trustledger-frontend-pi.vercel.app/api/paystack/webhook`
+`https://trustledger.co.za/api/paystack/webhook`  
+(Prefer apex. Legacy `*.vercel.app` webhook URLs still work — `/api/*` is not redirected.)
 
 Event: `charge.success` (signature verified with the secret key).
 

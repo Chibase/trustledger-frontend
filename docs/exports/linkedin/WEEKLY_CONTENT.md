@@ -4,10 +4,10 @@
 **Promise:** Resolution you can audit.  
 **Never claim:** auto-closing AI, sample demo desk, public community portal, full GIS, SOC2, Stats SA feeds.  
 **CTAs (pick one per post):**  
-- Product: https://trustledger-frontend-pi.vercel.app/product  
-- FAQ: https://trustledger-frontend-pi.vercel.app/faq  
-- Assessment: https://trustledger-frontend-pi.vercel.app/assessment  
-- Trial: https://trustledger-frontend-pi.vercel.app/trial  
+- Product: https://trustledger.co.za/product  
+- FAQ: https://trustledger.co.za/faq  
+- Assessment: https://trustledger.co.za/assessment  
+- Trial: https://trustledger.co.za/trial  
 - Marketing: https://trustledger.co.za  
 
 **Cadence:** 2–3 posts/week. Prefer carousel or single image of product UI (dashboard / desk / SI) — no fake INC-* as “your live cases.”  

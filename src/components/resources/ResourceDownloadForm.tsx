@@ -126,7 +126,7 @@ export function ResourceDownloadForm({ pack, onClose }: Props) {
               We may follow up with TrustLedger guidance related to this
               resource. See our{" "}
               <a
-                href="https://trustledger.co.za/privacy/"
+                href="/privacy"
                 className="underline"
                 target="_blank"
                 rel="noopener noreferrer"

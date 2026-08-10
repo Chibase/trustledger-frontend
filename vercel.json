@@ -4,5 +4,39 @@
       "path": "/api/cron/charge-due",
       "schedule": "0 6 * * *"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/((?!api/).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "trustledger-frontend-pi.vercel.app"
+        }
+      ],
+      "destination": "https://trustledger.co.za/$1",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "trustledger-frontend-pi.vercel.app"
+        }
+      ],
+      "destination": "https://trustledger.co.za/",
+      "permanent": true
+    },
+    {
+      "source": "/privacy/",
+      "destination": "/privacy",
+      "permanent": true
+    },
+    {
+      "source": "/terms/",
+      "destination": "/terms",
+      "permanent": true
+    }
   ]
 }

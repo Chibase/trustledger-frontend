@@ -1,5 +1,18 @@
 # Internal changelog
 
+## 2026-08-10 — Marketing consolidated on Vercel apex
+
+- Sole public host: `https://trustledger.co.za` (WordPress/Webway brochure retired; ADR-034 amended).
+- `SITE_URL` default → apex; `vercel.json` 308 from `trustledger-frontend-pi.vercel.app` → apex.
+- Added `/privacy` + `/terms` (old WP legal URLs 404’d); footer/forms/sitemap/robots updated.
+- Email + LinkedIn CTA packs rewritten to apex; `docs/WEBWAY_CUTOVER.md` / AEO / BUILD_PLAN aligned.
+
+## 2026-08-10 — AEO entity + canonical hardening
+
+- Disambiguation corpus: not crypto / not generic ledger (`PRODUCT_DISAMBIGUATION`, FAQ, `llms.txt`).
+- Niche titles + JSON-LD (`alternateName`, `disambiguatingDescription`, `knowsAbout`, ZA audience).
+- Single `SITE_URL` source for layout / robots / sitemap.
+
 ## 2026-08-10 — Segment intro emails + dashboard samples
 
 - Six thought-provoking intro HTML packs (`10`–`15-intro-*.html`) with per-segment From names and Cloud File dashboard samples.
