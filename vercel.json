@@ -7,14 +7,25 @@
   ],
   "redirects": [
     {
-      "source": "/:path*",
+      "source": "/((?!api/).*)",
       "has": [
         {
           "type": "host",
           "value": "trustledger-frontend-pi.vercel.app"
         }
       ],
-      "destination": "https://trustledger.co.za/:path*",
+      "destination": "https://trustledger.co.za/$1",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "trustledger-frontend-pi.vercel.app"
+        }
+      ],
+      "destination": "https://trustledger.co.za/",
       "permanent": true
     },
     {

@@ -20,8 +20,8 @@ export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? PUBLIC_SITE_FALLBACK_URL
 ).replace(/\/$/, "");
 
-/** Same apex as SITE_URL after Webway marketing retirement. */
-export const MARKETING_SITE_URL = "https://trustledger.co.za";
+/** Public brand URL — same host as SITE_URL after Webway marketing retirement. */
+export const MARKETING_SITE_URL = SITE_URL;
 
 export const CLOUD_APP_URL = "https://app.trustledger.co.za";
 

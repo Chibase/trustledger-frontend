@@ -111,10 +111,11 @@ export default function PrivacyPage() {
             <h2 className="font-display text-xl font-semibold">Retention</h2>
             <p className="mt-2 text-tl-ink-muted">
               Lead and marketing records are kept while useful for follow-up or
-              legal need. Trial workspace data is retained for three months after
-              an unused trial ends unless you upgrade or ask us to delete sooner.
-              Paying customers: retention follows your plan and any written purge
-              commitment (Trust Pack / contract).
+              legal need. Trial workspace data is retained for 90 days after the
+              trial period ends (whether or not the workspace was used), unless
+              you upgrade or ask us to delete sooner. Paying customers: retention
+              follows your plan and any written purge commitment (Trust Pack /
+              contract).
             </p>
           </section>
 
