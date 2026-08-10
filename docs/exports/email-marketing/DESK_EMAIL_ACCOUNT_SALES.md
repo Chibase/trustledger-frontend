@@ -1,5 +1,21 @@
 # Desk checklist — Email Account `sales@trustledger.co.za`
 
+## Segment Newsletter From names
+
+Keep **Email / Username** = `sales@trustledger.co.za`.  
+On each segment Newsletter, set **Sender Name** only (does not require new mailboxes):
+
+| Newsletter audience | Sender Name |
+|---------------------|-------------|
+| TL Segment Construction | TrustLedger Construction |
+| TL Segment Government | TrustLedger Municipal |
+| TL Segment Architects | TrustLedger for Architects |
+| TL Segment Engineers | TrustLedger Engineering |
+| TL Segment Social Facilitators | TrustLedger Community Practice |
+| TL Segment Related Industries | TrustLedger Practice |
+
+Optional later: Webway aliases (`construction@…`, etc.) forwarding to `sales@`, then switch Sender Email. See `SEGMENT_INTROS.md`.
+
 Operator-only. **Never commit or chat the mailbox password.**
 
 ## Blocker first

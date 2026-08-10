@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-10 — Segment intro emails + dashboard samples
+
+- Six thought-provoking intro HTML packs (`10`–`15-intro-*.html`) with per-segment From names and Cloud File dashboard samples.
+- Cloud: Email Templates `TL Intro Construction|Government|Architects|Engineers|Social Facilitators|Related Industries` + draft Newsletters per `TL Segment …` group.
+- Assets in `public/marketing/email/`; runbook `SEGMENT_INTROS.md`.
+
 ## 2026-08-10 — ICP prune + industry Email Group segments
 
 - Pruned **`TL Marketing`** 112 → **21** ICP (removed 91 vendors/tests/internals).

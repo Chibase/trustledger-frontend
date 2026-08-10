@@ -23,8 +23,9 @@ CTAs → Vercel /trial /contact /quote /assessment /pay
 | Element | Value |
 |---------|--------|
 | Product name | **TrustLedger** only (no AccordBridge / HubSpot chrome) |
-| From name | `TrustLedger` |
-| From address | Verified domain, e.g. `hello@trustledger.co.za` or `info@trustledger.co.za` |
+| From name | `TrustLedger` for general; **segment intros** use `TrustLedger Construction`, `TrustLedger Municipal`, `TrustLedger for Architects`, `TrustLedger Engineering`, `TrustLedger Community Practice`, `TrustLedger Practice` (`docs/exports/email-marketing/SEGMENT_INTROS.md`) |
+| From address | Verified domain mailbox — Production uses `sales@trustledger.co.za` (aliases optional later) |
+| Reply-To | Same mailbox unless a Webway alias forwards into `sales@` |
 | Accent | `#0e7c66` buttons; header `#12202a` |
 | CTAs | Absolute `https://trustledger-frontend-pi.vercel.app/...` with `utm_source=email&utm_medium=bulk&utm_campaign=…` |
 | Forms | Prefer Vercel branded forms — **not** HubSpot embeds, not unbranded Frappe Web Forms for public marketing |
@@ -100,6 +101,9 @@ Source files in `docs/exports/email-marketing/`:
 | `02-trial-invite.html` | `TL Trial Invite` | Trial push |
 | `03-quote-followup.html` | `TL Quote Follow-up` | Quote / Institutional |
 | `04-assessment-nudge.html` | `TL Assessment Nudge` | Diagnostic |
+| `10-intro-construction.html` … `15-intro-related.html` | `TL Intro …` | Segment platform intros + dashboard sample |
+
+Segment From names, draft Newsletters, and image paths: **`docs/exports/email-marketing/SEGMENT_INTROS.md`**.
 
 To refresh Cloud after editing HTML: Desk → Email Template → open name → paste full HTML (Use HTML on) → Save.  
 Jinja: `{{ first_name or "there" }}` (or `{{ doc.first_name }}` if your Desk build requires it).
