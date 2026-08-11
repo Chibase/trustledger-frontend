@@ -4,7 +4,10 @@ import {
   FRAPPE_SID_COOKIE,
   SESSION_MAX_AGE_SECONDS,
   SESSION_ROLE_COOKIE,
+  TL_DESK_TIER_COOKIE,
+  TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
+  TL_ORG_OWNER_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
 } from "@/lib/auth.constants";
@@ -129,6 +132,8 @@ export async function POST(request: Request) {
         platformOperator: opsGate.ok,
         otpHash,
         exp: Date.now() + maxAge * 1000,
+        isPlanOwner: session.isPlanOwner,
+        deskTier: session.deskTier,
       });
 
       const mail = await sendLoginOtpEmail({
@@ -204,6 +209,13 @@ export async function POST(request: Request) {
       cookieSafeValue(email, 120),
       cookieBase,
     );
+    if (session.isPlanOwner) {
+      response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);
+    }
+    if (session.deskTier) {
+      response.cookies.set(TL_DESK_TIER_COOKIE, session.deskTier, cookieBase);
+      response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "0", cookieBase);
+    }
 
     return response;
   } catch (error) {

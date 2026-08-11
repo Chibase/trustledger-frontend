@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-11 — VIP Plan Owner live login without Frappe roles
+
+- Cloud API often 403s when posting User `roles`; provision now creates User then stamps `custom_tl_*`.
+- Live session maps `custom_tl_plan_owner` → TrustLedger `admin` and sets desk/owner cookies from User customs (needed for VIP Website Users).
+
 ## 2026-08-10 — Segment intro emails + dashboard samples
 
 - Six thought-provoking intro HTML packs (`10`–`15-intro-*.html`) with per-segment From names and Cloud File dashboard samples.

@@ -83,6 +83,9 @@ export type PendingLiveAuth = {
   platformOperator: boolean;
   otpHash: string;
   exp: number;
+  /** Plan Owner VIP / paid — set desk cookies after OTP. */
+  isPlanOwner?: boolean;
+  deskTier?: string;
 };
 
 export function signPendingLiveAuth(payload: PendingLiveAuth): string {
