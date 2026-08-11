@@ -190,7 +190,7 @@ function mockIndicatorBrief(
   ];
   return {
     title: `ESG intelligence brief — ${input.placeName}`,
-    executiveSummary: `Demo brief for ${input.placeName} using ${rows.length} socio-economic indicator(s). Figures are illustrative until Stats SA / municipal ingest replaces the seed pack. Use watchpoints below to prioritize engagement and grievance readiness — human apply required before saving.`,
+    executiveSummary: `Intelligence brief for ${input.placeName} using ${rows.length} socio-economic indicator(s) from the platform Stats SA / Census baseline. Use watchpoints below to prioritize engagement and grievance readiness — human apply required before saving.`,
     watchpoints,
     recommendedActions: [
       "Cross-check open grievances in this place against service-access indicators",

@@ -1,6 +1,6 @@
 /**
  * Geographic intelligence — multi-country packs (Version 002).
- * Default demo pack: South Africa MDB 2020. Additional packs (BW, NA, …)
+ * Default platform pack: South Africa MDB 2020 (+ Stats SA baseline indicators). Additional packs (BW, NA, …)
  * drop in as sibling JSON under data/geo/.
  */
 

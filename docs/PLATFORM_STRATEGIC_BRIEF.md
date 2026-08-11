@@ -172,7 +172,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 
 | Area | Status | Public language |
 |------|--------|-----------------|
-| Stats SA socio-economic ingest | Deferred | “Roadmap — indicators today are illustrative” |
+| Stats SA socio-economic baseline | Shipped (featured places) | Platform baseline on Intelligence / ESG — expand coverage; do not label demo |
 | Live Grok via srm-core | Deferred / mock default | “AI assist — human applies every suggestion” |
 | Full ESIP / GIS editing | V003+ | Never claim imminent |
 | Public community portal | V003+ | Not available |
@@ -228,7 +228,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Stakeholder CRM | — | — | ✓ | ✓ | **SRM engine — do not undersell** |
 | Engagements | — | — | ✓ | ✓ | SI core |
 | Commitments | — | — | ✓ | ✓ | SI core |
-| ESG / intelligence cards | — | — | ✓ | ✓ | Illustrative until Stats SA |
+| ESG / intelligence cards | — | — | ✓ | ✓ | Stats SA / Census baseline |
 | Desk graphs | — | — | ✓ | ✓ | |
 | Supervisor queue | — | — | ✓ | ✓ | |
 

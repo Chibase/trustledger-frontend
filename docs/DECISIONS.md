@@ -430,8 +430,9 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   3. Platform packs are **shared reference**, never per-tenant fictional seed. Empty Cloud lists stay empty of cases/people — not empty of country geography.
   4. Sales / onboarding language: *baseline place intel included; you add the project.* Do not over-claim national TC completeness while the pack is partial.
   5. Detail + gaps: `docs/ZA_BASELINE_INTEL.md`. Enrich TC/wards/indicators in the pack; do not invent tenant geo seed files.
-- **Consequences:** Packaging and `/product` copy treat ZA geo as included; national TC expansion and Stats SA indicators remain enrichment packets, not blockers for this promise.
-- **Alternatives considered:** Charge for geo as an add-on (rejected — table stakes for SA SRM); seed sample stakeholders with each plan (rejected — ADR-033); wait for Cloud Geo DocTypes before shipping pickers (rejected — browser pack is launch SoT).
+  6. **(2026-08-11)** Stats SA / Census socio-economic indicators on featured places are **platform baseline**, not “demo” figures. Product UI must not label ZA geo or Stats SA intelligence as demo/illustrative.
+- **Consequences:** Packaging and `/product` copy treat ZA geo + Stats SA baseline indicators as included; national TC expansion and broader indicator coverage remain enrichment packets. Never brand platform packs as demo seed.
+- **Alternatives considered:** Charge for geo as an add-on (rejected — table stakes for SA SRM); seed sample stakeholders with each plan (rejected — ADR-033); wait for Cloud Geo DocTypes before shipping pickers (rejected — browser pack is launch SoT); keep “demo/illustrative” labels until a second ingest (rejected 2026-08-11 — undermines trust in Stats SA baseline).
 
 ### ADR-041: Site location cascade sequence (Country → … → Ward)
 
