@@ -39,7 +39,7 @@ python scripts/ingest_za_geo.py
 }
 ```
 
-`indicators` is empty until Stats SA (or peer-country) socio-economic CSVs arrive — then append to the same pack file.
+Featured-place Stats SA / Census indicators currently ship via `src/data/mockIndicators.ts` (Intelligence / ESG). Broader coverage can append into pack `indicators[]` using the same schema — do not label either as demo.
 
 ## Levels
 

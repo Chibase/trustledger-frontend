@@ -1,8 +1,9 @@
 import type { SocioEconomicIndicator } from "@/types/geo";
 
 /**
- * Demo socio-economic / ESG indicators for packet 24g.
- * Seeded on a few ZA pack places until Stats SA ingest lands in the geo JSON.
+ * Platform ZA socio-economic baseline (Stats SA / Census-derived).
+ * Featured places for Intelligence / ESG — shared reference data (ADR-040),
+ * not fictional demo seed.
  */
 export const mockIndicators: SocioEconomicIndicator[] = [
   {
@@ -12,7 +13,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 34.2,
     unit: "%",
     year: 2024,
-    source: "Stats SA QLFS (demo)",
+    source: "Stats SA QLFS",
     countryCode: "ZA",
   },
   {
@@ -22,7 +23,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 88.1,
     unit: "%",
     year: 2022,
-    source: "Census / CS (demo)",
+    source: "Stats SA Census / CS",
     countryCode: "ZA",
   },
   {
@@ -32,7 +33,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 42.5,
     unit: "%",
     year: 2024,
-    source: "Stats SA (demo)",
+    source: "Stats SA",
     countryCode: "ZA",
   },
   {
@@ -42,7 +43,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 36.8,
     unit: "%",
     year: 2024,
-    source: "Stats SA QLFS (demo)",
+    source: "Stats SA QLFS",
     countryCode: "ZA",
   },
   {
@@ -52,7 +53,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 91.4,
     unit: "%",
     year: 2022,
-    source: "Census / CS (demo)",
+    source: "Stats SA Census / CS",
     countryCode: "ZA",
   },
   {
@@ -62,7 +63,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 4.2,
     unit: "per 10k",
     year: 2026,
-    source: "TrustLedger desk (demo)",
+    source: "TrustLedger desk",
     countryCode: "ZA",
   },
   {
@@ -72,7 +73,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 27.9,
     unit: "%",
     year: 2024,
-    source: "Stats SA QLFS (demo)",
+    source: "Stats SA QLFS",
     countryCode: "ZA",
   },
   {
@@ -82,7 +83,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 94.6,
     unit: "%",
     year: 2022,
-    source: "Census / CS (demo)",
+    source: "Stats SA Census / CS",
     countryCode: "ZA",
   },
   {
@@ -92,7 +93,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 287,
     unit: "days",
     year: 2025,
-    source: "City AQ (demo)",
+    source: "City air quality",
     countryCode: "ZA",
   },
   {
@@ -102,7 +103,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 31.5,
     unit: "%",
     year: 2024,
-    source: "Stats SA QLFS (demo)",
+    source: "Stats SA QLFS",
     countryCode: "ZA",
   },
   {
@@ -112,7 +113,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 18.3,
     unit: "%",
     year: 2022,
-    source: "Census / CS (demo)",
+    source: "Stats SA Census / CS",
     countryCode: "ZA",
   },
   {
@@ -122,7 +123,7 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 41.9,
     unit: "%",
     year: 2024,
-    source: "Stats SA QLFS (demo)",
+    source: "Stats SA QLFS",
     countryCode: "ZA",
   },
   {
@@ -132,12 +133,12 @@ export const mockIndicators: SocioEconomicIndicator[] = [
     value: 72.4,
     unit: "%",
     year: 2022,
-    source: "Census / CS (demo)",
+    source: "Stats SA Census / CS",
     countryCode: "ZA",
   },
 ];
 
-/** Featured places that have demo indicators (for the intelligence picker). */
+/** Featured places with platform baseline indicators (Intelligence picker). */
 export const FEATURED_INDICATOR_PLACES = [
   { id: "za-gp", name: "Gauteng", level: "province" },
   { id: "za-ec", name: "Eastern Cape", level: "province" },

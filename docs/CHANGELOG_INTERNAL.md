@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-11 — Trust Stats SA / ZA geo as platform baseline
+
+- Removed “demo / illustrative” framing from `/app/geo`, `/app/intelligence`, indicator sources, and AI ESG briefs.
+- ADR-040 + `ZA_BASELINE_INTEL` + geo pack notes: Stats SA / Census indicators are platform baseline, not demo seed.
+
 ## 2026-08-11 — VIP Plan Owner live login without Frappe roles
 
 - Cloud API often 403s when posting User `roles`; provision now creates User then stamps `custom_tl_*`.
