@@ -1,11 +1,16 @@
 import { API_BASE_URL } from "@/config/api";
 import { mapFrappeRolesToTrustLedger } from "@/lib/roleMap";
+import { normalizeDeskTier } from "@/types/deskTier";
 
 export type FrappeSessionContext = {
   user: string;
   fullName: string;
   roles: string[];
   trustLedgerRole: string;
+  /** From User.custom_tl_plan_owner when present. */
+  isPlanOwner?: boolean;
+  /** From User.custom_tl_desk_tier when a known DeskTier. */
+  deskTier?: string;
 };
 
 function parseSetCookieSid(setCookieHeaders: string[]): string | null {
@@ -146,15 +151,23 @@ async function fetchSessionContextFallback(
   }
 
   let fullName = user;
+  /** Plan Owners provisioned as Website Users may lack Frappe desk roles. */
+  let planOwner = false;
+  let deskTier: string | undefined;
   try {
     const doc = await frappeCallWithSid<{
       full_name?: string;
       first_name?: string;
+      custom_tl_plan_owner?: number | boolean | string;
+      custom_tl_desk_tier?: string;
     }>(sid, "/api/method/frappe.client.get", {
       doctype: "User",
       name: user,
     });
     fullName = doc.full_name || doc.first_name || user;
+    const flag = doc.custom_tl_plan_owner;
+    planOwner = flag === 1 || flag === true || flag === "1";
+    deskTier = normalizeDeskTier(doc.custom_tl_desk_tier) || undefined;
   } catch {
     /* keep login id */
   }
@@ -164,11 +177,20 @@ async function fetchSessionContextFallback(
     roles = [...roles, "System Manager"];
   }
 
+  let trustLedgerRole = mapFrappeRolesToTrustLedger(roles);
+  // VIP / Owner issuance often cannot assign Frappe roles via API — honor
+  // TrustLedger Plan Owner flag so live login is not stuck on "community".
+  if (planOwner && trustLedgerRole === "community") {
+    trustLedgerRole = "admin";
+  }
+
   return {
     user,
     fullName,
     roles,
-    trustLedgerRole: mapFrappeRolesToTrustLedger(roles),
+    trustLedgerRole,
+    isPlanOwner: planOwner || undefined,
+    deskTier,
   };
 }
 

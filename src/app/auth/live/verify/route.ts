@@ -4,7 +4,10 @@ import {
   FRAPPE_SID_COOKIE,
   SESSION_MAX_AGE_SECONDS,
   SESSION_ROLE_COOKIE,
+  TL_DESK_TIER_COOKIE,
+  TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
+  TL_ORG_OWNER_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
 } from "@/lib/auth.constants";
@@ -95,6 +98,13 @@ export async function POST(request: Request) {
     cookieSafeValue(pending.email, 120),
     cookieBase,
   );
+  if (pending.isPlanOwner) {
+    response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);
+  }
+  if (pending.deskTier) {
+    response.cookies.set(TL_DESK_TIER_COOKIE, pending.deskTier, cookieBase);
+    response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "0", cookieBase);
+  }
   response.cookies.set(TL_AUTH_PENDING_COOKIE, "", {
     path: "/",
     maxAge: 0,
