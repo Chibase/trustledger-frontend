@@ -1,4 +1,5 @@
 const BANNED: Array<{ re: RegExp; replacement: string }> = [
+  { re: /\bFrappe\s+Cloud\b/gi, replacement: "TrustLedger Cloud" },
   { re: /\bFrappe\b/gi, replacement: "TrustLedger Cloud" },
   { re: /\bVercel\b/gi, replacement: "the TrustLedger product app" },
   { re: /\bHubSpot\b/gi, replacement: "our CRM" },
@@ -12,5 +13,8 @@ export function sanitizeThembaText(text: string): string {
   for (const { re, replacement } of BANNED) {
     out = out.replace(re, replacement);
   }
-  return out.replace(/\s{2,}/g, " ").trim();
+  return out
+    .replace(/\bTrustLedger Cloud Cloud\b/gi, "TrustLedger Cloud")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
