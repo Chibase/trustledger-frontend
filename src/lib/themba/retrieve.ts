@@ -97,17 +97,43 @@ export function retrieveKnowledge(question: string): RetrieveResult {
   let bestScore = 0;
 
   const wantsFeatures =
-    /\b(features?|capabilities|modules|what (can|does) .{0,40}\bdo\b|how (can|does)|what (is|are) (included|in the (box|product)))\b/i.test(
+    /\b(features?|capabilities|modules|what('s| is| are) (in|included)|product (overview|capabilities))\b/i.test(
       qLower,
-    ) || /\b(help|helps|benefit|benefits|value)\b/i.test(qLower);
+    ) ||
+    /\bwhat can (trustledger|this|it|the product)\b/i.test(qLower) ||
+    /\bhow can (trustledger|this|it)\b/i.test(qLower) ||
+    /\b(how does (trustledger|this|it) help|benefits? of (trustledger|this|the product))\b/i.test(
+      qLower,
+    );
+
+  const wantsReadiness =
+    /\b(suitable|suitability|readiness|diagnostic|assessment|maturity|right (fit|for us)|good fit)\b/i.test(
+      qLower,
+    );
+
+  const wantsPlans =
+    /\b(plans?|pricing|solo|practitioner|institutional|subscribe|subscription|sku|tier)\b/i.test(
+      qLower,
+    );
+
+  const wantsCrm =
+    /\b(crm|stakeholder (crm|registry|intelligence)|engagements?|commitments?)\b/i.test(
+      qLower,
+    ) && !/\b(features?|capabilities)\b/i.test(qLower);
 
   for (const item of corpus) {
     let s = scoreItem(queryTokens, item);
-    if (
-      wantsFeatures &&
-      (item.id === "features" || item.id === "how-helps" || item.id === "readiness-guide")
-    ) {
+    if (wantsFeatures && (item.id === "features" || item.id === "how-helps")) {
       s += 0.45;
+    }
+    if (wantsReadiness && item.id === "readiness-guide") {
+      s += 0.5;
+    }
+    if (wantsPlans && (item.id === "plans" || item.id === "subscribe")) {
+      s += 0.5;
+    }
+    if (wantsCrm && (item.id === "crm-real" || item.id === "versions")) {
+      s += 0.55;
     }
     if (s > bestScore) {
       bestScore = s;
