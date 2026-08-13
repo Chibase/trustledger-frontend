@@ -202,7 +202,13 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 |--------|------|-------|--------|
 | **EM-1** | Branded bulk email | TrustLedger HTML templates + Desk runbook (`docs/FRAPPE_EMAIL_MARKETING.md`); Frappe Email Domain/Newsletter — not HubSpot / not Resend blasts | **Active** |
 
-### Commercial packaging (ACTIVE)
+### Public guide agent (ACTIVE)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **THEMBA-A** | Themba Phase A visitor guide | ADR-042 — widget on `/`, `/product`, `/faq`; BFF `/api/themba/chat`; knowledge from `siteFacts` + brief §6; escalate → contact/Lead; no client LLM keys (`docs/THEMBA.md`) | **Done** |
+
+### Commercial packaging
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
@@ -275,3 +281,4 @@ src/
 | 2026-07-26 | UG-1 — user manual + first-login setup wizard / Guide |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
+| 2026-08-13 | THEMBA-A / ADR-042 — Themba (The Trust) visitor guide on marketing routes |
