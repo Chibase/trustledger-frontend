@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-13 — Themba Phase A (visitor guide)
+
+- ADR-042 + packet THEMBA-A: public agent **Themba (The Trust)** on `/`, `/product`, `/faq`.
+- BFF `POST /api/themba/chat` — knowledge retrieval from `siteFacts` + brief §6; escalate → CRM Lead; optional `THEMBA_XAI_API_KEY` polish.
+- Runbook `docs/THEMBA.md`. No client LLM keys; no desk writes.
+
 ## 2026-08-11 — Trust Stats SA / ZA geo as platform baseline
 
 - Removed “demo / illustrative” framing from `/app/geo`, `/app/intelligence`, indicator sources, and AI ESG briefs.

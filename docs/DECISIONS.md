@@ -449,6 +449,20 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Report copy and validation use the full sequence. Custom places store under `tl-custom-geo-places` for the workspace browser.
 - **Alternatives considered:** Keep any-order free pick (rejected — breaks training); town search only without province (rejected — harder audit trail); force TC always (rejected — metros / no-TC DMs).
 
+### ADR-042: Themba (The Trust) — public visitor guide agent
+
+- **Date:** 2026-08-13
+- **Status:** Accepted
+- **Context:** Buyers and visitors need a calm, on-brand guide for simple product Q&A without inventing a second stack brand or putting LLM keys in the browser. Desk AI Assist (suggest→apply→save) stays separate. Complex sales, legal, billing disputes, and account issues need a human path.
+- **Decision:**
+  1. **Name:** Customer-facing agent is **Themba** (subtitle **The Trust**). Voice = Trust (ADR-039). Never name Frappe/Vercel/HubSpot/Interserv/AccordBridge in replies.
+  2. **Phase A (this ADR):** Visitor widget on public marketing routes `/`, `/product`, `/faq` only. Answers from canonical knowledge (`siteFacts` PUBLIC_FAQS + `docs/PLATFORM_STRATEGIC_BRIEF.md` §6, rewritten for public voice). BFF `POST /api/themba/chat` — no client API keys.
+  3. **Behaviour:** Simple FAQ/objection Q&A + CTAs toward `/trial`, `/product`, `/pay`, `/contact`, `/assessment`. Unknown, out-of-scope, or escalate-intent → human handoff (contact + optional CRM Lead via existing leadCapture). Themba does **not** write desk/workspace data and does **not** auto-apply AI suggestions.
+  4. **Phase B (later):** Authenticated in-app help for live/trial users; optional server-side LLM polish when a Themba key is configured — still grounded on the same knowledge corpus; never invent features.
+  5. Detail runbook: `docs/THEMBA.md`. Packet: **THEMBA-A**.
+- **Consequences:** One public agent identity; acquisition stays Frappe CRM Lead; desk AI Assist unchanged. Ops may add `THEMBA_XAI_API_KEY` later without changing the widget contract.
+- **Alternatives considered:** Generic “chatbot” with no brand (rejected — weak Trust voice); wire desk Grok for marketing Q&A (rejected — wrong product surface + over-claim risk); HubSpot chat (rejected — ADR-034).
+
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 
 - **Date:** 2026-07-23
