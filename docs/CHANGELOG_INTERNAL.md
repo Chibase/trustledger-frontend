@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-13 — Themba educates features before signup CTAs
+
+- Feature / help / suitability questions map to dedicated knowledge (capabilities + readiness prompts), not the trial FAQ.
+- Retrieval weights question + keywords over answer-body tokens so CTA phrases cannot steal matches.
+- Widget greeting + starter chips emphasise open education, then soft drive to `/assessment` or `/trial`.
+
 ## 2026-08-13 — Themba Phase A (visitor guide)
 
 - ADR-042 + packet THEMBA-A: public agent **Themba (The Trust)** on `/`, `/product`, `/faq`.
