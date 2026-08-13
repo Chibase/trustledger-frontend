@@ -30,6 +30,86 @@ const CORE: ThembaKnowledgeItem[] = [
     ],
   },
   {
+    id: "features",
+    question: "What are the features of this product?",
+    answer:
+      "TrustLedger is open to explore before you sign up. Core capabilities: (1) Grievance / case desk — intake, owners, stages, and evidence so community issues have an auditable path to close. (2) Stakeholder registry — people and institutions around a project with influence and place. (3) Engagements — meetings and consultations with notes and actions. (4) Commitments — promises with owners and due dates. (5) Reports — activity and executive packs built from the case and engagement trail. (6) South African place context — municipalities, wards, and traditional councils where packed, so you add the project, not the country map. (7) AI Assist on entitled plans — suggestions only; a human applies before save. How it helps: one trust trail from ward to board instead of spreadsheets and lost WhatsApps. Browse /product now; when ready, take the free readiness check or start a 14-day own-data trial.",
+    keywords: [
+      "feature",
+      "features",
+      "capability",
+      "capabilities",
+      "functions",
+      "modules",
+      "include",
+      "offer",
+      "does",
+      "product",
+      "overview",
+      "help",
+      "helps",
+      "benefits",
+      "benefit",
+      "can",
+      "do",
+    ],
+    links: [
+      { href: "/product", label: "Product overview" },
+      { href: "/assessment", label: "Free readiness check" },
+      { href: "/trial", label: "Start 14-day trial" },
+    ],
+  },
+  {
+    id: "how-helps",
+    question: "How can TrustLedger help my project or organisation?",
+    answer:
+      "If grievances arrive on WhatsApp, paper, or inboxes with no single owner, TrustLedger gives you one case desk with stages and evidence. If engagements and promises live in notebooks, the registry, engagements, and commitments modules keep named counterparts and due dates visible. If boards ask for social performance proof, reports cite the trail you already captured. ZA place packs mean South African operators start with municipalities and wards in place. You do not need an account to learn this — read /product, or take the free SRM readiness diagnostic to see which gaps matter most, then trial with your own data.",
+    keywords: [
+      "help",
+      "helps",
+      "benefit",
+      "benefits",
+      "value",
+      "why",
+      "useful",
+      "suitable",
+      "organisation",
+      "organization",
+      "project",
+      "programme",
+      "program",
+    ],
+    links: [
+      { href: "/product", label: "Product overview" },
+      { href: "/assessment", label: "Readiness diagnostic" },
+      { href: "/trial", label: "Start trial" },
+    ],
+  },
+  {
+    id: "readiness-guide",
+    question: "How do I know if TrustLedger is suitable for us?",
+    answer:
+      "Use these readiness prompts (same spine as our free diagnostic): Do you have one clear intake path for community grievances, or many informal channels? Is every open case owned with an SLA and escalation path? Can field teams capture issues consistently on site? Are engagements and commitments logged so complainants see progress? Can you produce board-ready social performance reporting from evidence, not memory? Do you have basic assurance over data quality? If several answers are “ad hoc” or “not in place,” TrustLedger’s desk and Stakeholder Intelligence are built for that gap. Take the full scored diagnostic at /assessment (work email unlocks the report), or start a 14-day trial when you want to practise on your own projects.",
+    keywords: [
+      "suitable",
+      "suitability",
+      "readiness",
+      "ready",
+      "fit",
+      "assessment",
+      "diagnostic",
+      "maturity",
+      "gap",
+      "gaps",
+      "guide",
+    ],
+    links: [
+      { href: "/assessment", label: "Take readiness assessment" },
+      { href: "/readiness", label: "Readiness overview" },
+      { href: "/trial", label: "Start trial" },
+    ],
+  },
+  {
     id: "promise",
     question: "What is TrustLedger’s promise?",
     answer: `${PRODUCT_TAGLINE} TrustLedger helps operators run grievance resolution and Stakeholder Intelligence where social licence decides whether work moves.`,
@@ -51,21 +131,23 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "trial",
     question: "How do I start a trial?",
     answer:
-      "Open a 14-day trial with your own projects and cases. Learn features on the product overview, then subscribe or request a quote for Institutional. The sample demo desk is retired — use /product, then trial or live.",
-    keywords: ["trial", "try", "free", "14", "demo", "sample", "start"],
+      "When you are ready to practise with your own projects and cases, open a 14-day trial — no fictional sample incidents. You can still read the product overview and take the free readiness check first. Subscribe or request a quote for Institutional when you want to go live.",
+    keywords: ["trial", "try", "free-trial", "14", "signup", "sign-up", "register"],
     links: [
       { href: "/trial", label: "Start 14-day trial" },
       { href: "/product", label: "Product overview" },
+      { href: "/assessment", label: "Readiness check first" },
     ],
   },
   {
     id: "demo-retired",
     question: "Where is the demo?",
     answer:
-      "The sample preview desk is retired. Use the product overview for feature purpose, then start a 14-day own-data trial or subscribe. Paying and trial workspaces never show fictional sample incidents.",
-    keywords: ["demo", "sample", "preview", "guest", "inc"],
+      "The sample preview desk is retired so buyers are not confused by fictional cases. Explore capabilities on the product overview and FAQ, take the free readiness diagnostic, then start a 14-day own-data trial or subscribe. Paying and trial workspaces never show fictional sample incidents.",
+    keywords: ["demo", "sample", "preview", "guest"],
     links: [
       { href: "/product", label: "Product overview" },
+      { href: "/assessment", label: "Readiness check" },
       { href: "/trial", label: "Start trial" },
     ],
   },
@@ -210,7 +292,7 @@ export function thembaKnowledgeCorpus(): ThembaKnowledgeItem[] {
 }
 
 export const THEMBA_GREETING =
-  "Hi — I’m Themba, The Trust guide for TrustLedger. Ask about the product, trial, plans, or AI Assist. For contracts, billing disputes, or account help I’ll connect you to a person.";
+  "Hi — I’m Themba, The Trust guide for TrustLedger. Ask about features, how the desk helps, plans, or AI Assist — no signup needed for answers. I can also walk readiness prompts to see what fits, then point you to the free diagnostic or a trial. For contracts, billing disputes, or account help I’ll connect you to a person.";
 
 export const THEMBA_ESCALATE_REPLY =
-  "That’s best handled by a TrustLedger person. Share a work email and a short note, or open Contact — we’ll follow up. Meanwhile you can start a 14-day trial or browse the product overview.";
+  "That’s best handled by a TrustLedger person. Share a work email and a short note, or open Contact — we’ll follow up. Meanwhile you can browse features on the product overview, take the free readiness check, or start a 14-day trial.";
