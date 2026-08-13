@@ -63,7 +63,7 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "How do I start a TrustLedger trial?",
     answer:
-      "Open a 14-day trial with your own projects and cases. Learn features on the product overview, then subscribe or request a quote for Institutional. The sample demo desk is retired.",
+      "When you are ready, open a 14-day trial with your own projects and cases. You can read the product overview and take the free readiness diagnostic first. Subscribe or request a quote for Institutional when you want to go live. The sample demo desk is retired.",
   },
   {
     question: "Which TrustLedger plan includes Stakeholder CRM and commitments?",

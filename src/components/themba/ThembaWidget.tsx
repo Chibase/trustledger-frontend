@@ -49,6 +49,7 @@ export function ThembaWidget({ allowPaths = DEFAULT_PATHS }: ThembaWidgetProps) 
       content: THEMBA_GREETING,
       links: [
         { href: "/product", label: "Product" },
+        { href: "/assessment", label: "Readiness check" },
         { href: "/trial", label: "Trial" },
         { href: "/faq", label: "FAQ" },
       ],
@@ -56,6 +57,18 @@ export function ThembaWidget({ allowPaths = DEFAULT_PATHS }: ThembaWidgetProps) 
   ]);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const turnSeq = useRef(0);
+
+  function nextTurnId(prefix: string): string {
+    turnSeq.current += 1;
+    return `${prefix}-${turnSeq.current}`;
+  }
+
+  const starters = [
+    "What are the features of this product?",
+    "How can TrustLedger help my project?",
+    "How do I know if TrustLedger is suitable for us?",
+  ] as const;
 
   useEffect(() => {
     if (!open) return;
@@ -74,14 +87,13 @@ export function ThembaWidget({ allowPaths = DEFAULT_PATHS }: ThembaWidgetProps) 
 
   if (!allowed) return null;
 
-  async function sendMessage(event?: React.FormEvent) {
-    event?.preventDefault();
-    const text = input.trim();
+  async function askThemba(raw: string) {
+    const text = raw.trim();
     if (!text || busy) return;
     setError(null);
     setInput("");
     const userTurn: ChatTurn = {
-      id: `u-${Date.now()}`,
+      id: nextTurnId("u"),
       role: "user",
       content: text,
     };
@@ -110,7 +122,7 @@ export function ThembaWidget({ allowPaths = DEFAULT_PATHS }: ThembaWidgetProps) 
       setTurns((prev) => [
         ...prev,
         {
-          id: `a-${Date.now()}`,
+          id: nextTurnId("a"),
           role: "assistant",
           content: data.reply ?? "I could not form an answer — please use Contact.",
           links: data.links,
@@ -126,6 +138,11 @@ export function ThembaWidget({ allowPaths = DEFAULT_PATHS }: ThembaWidgetProps) 
     } finally {
       setBusy(false);
     }
+  }
+
+  async function sendMessage(event?: React.FormEvent) {
+    event?.preventDefault();
+    await askThemba(input);
   }
 
   async function submitEscalate(event: React.FormEvent) {
@@ -175,7 +192,7 @@ export function ThembaWidget({ allowPaths = DEFAULT_PATHS }: ThembaWidgetProps) 
       setTurns((prev) => [
         ...prev,
         {
-          id: `a-esc-${Date.now()}`,
+          id: nextTurnId("a-esc"),
           role: "assistant",
           content:
             data.reply ??
@@ -271,6 +288,20 @@ export function ThembaWidget({ allowPaths = DEFAULT_PATHS }: ThembaWidgetProps) 
                   ) : null}
                 </div>
               ))}
+              {turns.length <= 1 && !busy ? (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {starters.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => void askThemba(s)}
+                      className="rounded-md border border-tl-line bg-tl-surface px-2.5 py-1.5 text-left text-xs font-medium text-tl-ink hover:border-tl-trust hover:text-tl-trust-ink"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             {showEscalate ? (
