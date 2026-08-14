@@ -23,34 +23,32 @@ function SuccessBody({ chibaseHost }: { chibaseHost: boolean }) {
   const searchParams = useSearchParams();
   const reference =
     searchParams.get("reference") || searchParams.get("trxref") || "";
-  const [state, setState] = useState<VerifyState>({ phase: "loading" });
-
-  useEffect(() => {
+  const [state, setState] = useState<VerifyState>(() => {
     if (!reference) {
-      setState({
+      return {
         phase: "done",
         ok: false,
         error: "Missing payment reference.",
-      });
-      return;
+      };
     }
-
-    const cacheKey = `cb-verify-cache:${reference}`;
+    if (typeof window === "undefined") return { phase: "loading" };
     try {
-      const cached = sessionStorage.getItem(cacheKey);
+      const cached = sessionStorage.getItem(`cb-verify-cache:${reference}`);
       if (cached) {
         const parsed = JSON.parse(cached) as Extract<
           VerifyState,
           { phase: "done" }
         >;
-        if (parsed.ok) {
-          setState(parsed);
-          return;
-        }
+        if (parsed.ok) return parsed;
       }
     } catch {
       /* ignore */
     }
+    return { phase: "loading" };
+  });
+
+  useEffect(() => {
+    if (!reference || state.phase !== "loading") return;
 
     let cancelled = false;
     (async () => {
@@ -81,7 +79,10 @@ function SuccessBody({ chibaseHost }: { chibaseHost: boolean }) {
         setState(next);
         if (next.ok) {
           try {
-            sessionStorage.setItem(cacheKey, JSON.stringify(next));
+            sessionStorage.setItem(
+              `cb-verify-cache:${reference}`,
+              JSON.stringify(next),
+            );
           } catch {
             /* ignore */
           }
@@ -101,7 +102,7 @@ function SuccessBody({ chibaseHost }: { chibaseHost: boolean }) {
     return () => {
       cancelled = true;
     };
-  }, [reference]);
+  }, [reference, state.phase]);
 
   if (state.phase === "loading") {
     return (
