@@ -115,7 +115,7 @@ export function composeThembaReply(
     };
   }
 
-  if (identityTurn && profile) {
+  if (identityTurn && profile && !bugHint) {
     const topicId =
       profile === "funder"
         ? "funder-value"

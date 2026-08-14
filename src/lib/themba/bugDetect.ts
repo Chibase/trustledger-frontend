@@ -4,11 +4,7 @@
  * not on marketing talk about broken community processes.
  */
 
-const BUG_KEYWORDS = [
-  "broken",
-  "error",
-  "bug",
-  "stuck",
+const BUG_PHRASES = [
   "not working",
   "doesn't work",
   "does not work",
@@ -17,6 +13,13 @@ const BUG_KEYWORDS = [
   "can't load",
   "cannot load",
   "failed to",
+];
+
+const BUG_WORDS = [
+  "broken",
+  "error",
+  "bug",
+  "stuck",
   "crash",
   "glitch",
 ];
@@ -33,7 +36,6 @@ const PRODUCT_HINTS = [
   "the button",
   "login",
   "sign in",
-  "trial",
   "dashboard",
   "checkout",
   "download",
@@ -48,14 +50,25 @@ const PROCESS_HINTS = [
   "paper forms",
 ];
 
+const IDIOM_EXCLUSIONS = ["trial and error", "human error", "margin of error"];
+
+function hasWholeWord(haystack: string, word: string): boolean {
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?:^|[^a-z0-9])${escaped}(?:[^a-z0-9]|$)`, "i").test(
+    haystack,
+  );
+}
+
 export function mentionsBugKeyword(text: string): boolean {
   const q = text.toLowerCase();
-  return BUG_KEYWORDS.some((k) => q.includes(k));
+  if (IDIOM_EXCLUSIONS.some((p) => q.includes(p))) return false;
+  if (BUG_PHRASES.some((p) => q.includes(p))) return true;
+  return BUG_WORDS.some((w) => hasWholeWord(q, w));
 }
 
 /**
  * True when the visitor appears to be reporting a TrustLedger/site defect.
- * Always-on keyword mention is still logged; this flag drives the in-chat
+ * Keyword mention still logs telemetry; this flag drives the in-chat
  * “leave a note” prompt.
  */
 export function isProductDefectReport(text: string): boolean {
