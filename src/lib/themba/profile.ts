@@ -34,6 +34,10 @@ const PROFILE_PATTERNS: Array<{
   re: RegExp;
 }> = [
   {
+    profile: "engineer",
+    re: /\b(civil engineer|engineer|engineering|resident engineer|design engineer)\b/i,
+  },
+  {
     profile: "mel",
     re: /\b(mel|m&e|m and e|monitoring.{0,20}evaluation|evaluation.{0,12}learning|results framework|logframe|indicator (framework|set)|me&l)\b/i,
   },
@@ -43,7 +47,7 @@ const PROFILE_PATTERNS: Array<{
   },
   {
     profile: "community",
-    re: /\b(community member|host community|affected (community|households?)|community representative|community rep|traditional (authority|leader|council|authorities)|kgosi|inkosi|inkosikazi|chief|village committee|ward committee member)\b/i,
+    re: /\b(community member|host community|affected (community|households?)|community representative|community rep|traditional (authority|leader|council|authorities)|kgosi|inkosi|inkosikazi|village chief|chief (and|induna)|village committee|ward committee member)\b/i,
   },
   {
     profile: "funder",
@@ -56,10 +60,6 @@ const PROFILE_PATTERNS: Array<{
   {
     profile: "project_manager",
     re: /\b(project manager|programme manager|program manager|pm\b|epcm|site manager|construction manager)\b/i,
-  },
-  {
-    profile: "engineer",
-    re: /\b(civil engineer|engineer|engineering|resident engineer|design engineer)\b/i,
   },
 ];
 

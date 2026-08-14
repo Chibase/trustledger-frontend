@@ -20,6 +20,7 @@ export function sanitizeThembaText(text: string): string {
   }
   return out
     .replace(/\bTrustLedger Cloud Cloud\b/gi, "TrustLedger Cloud")
-    .replace(/\s{2,}/g, " ")
+    .replace(/[^\S\n]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
