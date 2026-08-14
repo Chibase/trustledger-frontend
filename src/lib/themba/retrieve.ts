@@ -7,6 +7,7 @@ import {
 
 export type RetrieveResult = {
   item: ThembaKnowledgeItem | null;
+  items: ThembaKnowledgeItem[];
   score: number;
   links: ThembaLink[];
 };
@@ -46,6 +47,10 @@ const STOP = new Set([
   "our",
   "your",
 ]);
+
+const TOP_N = 3;
+const MATCH_FLOOR = 0.35;
+const SUPPORT_FLOOR = 0.18;
 
 function hitWeight(
   queryToken: string,
@@ -89,12 +94,24 @@ function scoreItem(queryTokens: string[], item: ThembaKnowledgeItem): number {
   return hits / meaningful;
 }
 
+function uniqueLinks(items: ThembaKnowledgeItem[]): ThembaLink[] {
+  const seen = new Set<string>();
+  const out: ThembaLink[] = [];
+  for (const item of items) {
+    for (const link of item.links ?? []) {
+      const key = `${link.href}:${link.label}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(link);
+    }
+  }
+  return out.slice(0, 4);
+}
+
 export function retrieveKnowledge(question: string): RetrieveResult {
   const queryTokens = tokenize(question);
   const qLower = question.toLowerCase();
   const corpus = thembaKnowledgeCorpus();
-  let best: ThembaKnowledgeItem | null = null;
-  let bestScore = 0;
 
   const wantsFeatures =
     /\b(features?|capabilities|modules|what('s| is| are) (in|included)|product (overview|capabilities))\b/i.test(
@@ -143,7 +160,9 @@ export function retrieveKnowledge(question: string): RetrieveResult {
     );
 
   const wantsMunicipal =
-    /\b(municipality|municipal|mayor|public sector)\b/i.test(qLower);
+    /\b(municipality|municipal|mayor|public sector|local government)\b/i.test(
+      qLower,
+    );
 
   const wantsEngineer =
     /\b(civil engineer|engineer|site team|epcm)\b/i.test(qLower);
@@ -159,59 +178,153 @@ export function retrieveKnowledge(question: string): RetrieveResult {
   const wantsDashboards =
     /\b(impact dashboard|dashboards?|board pack|funder pack)\b/i.test(qLower);
 
-  for (const item of corpus) {
-    let s = scoreItem(queryTokens, item);
-    if (wantsFeatures && (item.id === "features" || item.id === "how-helps")) {
-      s += 0.45;
+  const wantsMel =
+    /\b(mel|m&e|monitoring|evaluation|learning|logframe|indicator)\b/i.test(
+      qLower,
+    );
+
+  const wantsFacilitator =
+    /\b(facilitat|liaison|clo|public participation|community relations|social performance)\b/i.test(
+      qLower,
+    );
+
+  const wantsCommunity =
+    /\b(community member|host community|traditional (authority|authorities|council)|kgosi|inkosi)\b/i.test(
+      qLower,
+    );
+
+  const wantsIks =
+    /\b(iks|indigenous|customary|local knowledge|lived experience)\b/i.test(
+      qLower,
+    );
+
+  const wantsGlobal =
+    /\b(global south|beyond (south africa|sa)|outside (south africa|sa)|other countr|namibia|botswana|kenya|ghana|nigeria|sadc|africa)\b/i.test(
+      qLower,
+    );
+
+  const wantsOps =
+    /\b(how (do|does|to) (i |we )?(use|operate|run|set up|setup|seed)|operating procedure|user manual|daily loop|first week|seeding)\b/i.test(
+      qLower,
+    );
+
+  const wantsBlueprint =
+    /\b(srm blueprint|six dimension|readiness dimension|maturity dimension)\b/i.test(
+      qLower,
+    ) || (wantsMagnet && /\bblueprint\b/i.test(qLower));
+
+  const ranked = corpus
+    .map((item) => {
+      let s = scoreItem(queryTokens, item);
+      if (wantsFeatures && (item.id === "features" || item.id === "how-helps")) {
+        s += 0.45;
+      }
+      if (wantsReadiness && item.id === "readiness-guide") {
+        s += 0.5;
+      }
+      if (wantsPlans && (item.id === "plans" || item.id === "subscribe")) {
+        s += 0.5;
+      }
+      if (wantsCrm && (item.id === "crm-real" || item.id === "versions")) {
+        s += 0.55;
+      }
+      if (wantsFramework && item.id === "social-licence-framework") {
+        s += 0.6;
+      }
+      if (wantsRapid && item.id === "rapid-response") {
+        s += 0.55;
+      }
+      if (wantsRoi && item.id === "roi-risk") {
+        s += 0.5;
+      }
+      if (wantsMagnet && item.id === "lead-magnet") {
+        s += 0.55;
+      }
+      if (wantsFunder && item.id === "funder-value") {
+        s += 0.5;
+      }
+      if (wantsMunicipal && (item.id === "municipal-value" || item.id === "za")) {
+        s += 0.45;
+      }
+      if (wantsEngineer && item.id === "engineer-value") {
+        s += 0.5;
+      }
+      if (wantsPm && item.id === "pm-value") {
+        s += 0.55;
+      }
+      if (wantsDemo && item.id === "book-demo") {
+        s += 0.6;
+      }
+      if (wantsDashboards && item.id === "impact-dashboards") {
+        s += 0.5;
+      }
+      if (wantsMel && item.id === "mel-value") {
+        s += 0.55;
+      }
+      if (wantsFacilitator && item.id === "facilitator-value") {
+        s += 0.55;
+      }
+      if (wantsCommunity && item.id === "community-value") {
+        s += 0.55;
+      }
+      if (wantsIks && item.id === "iks-practice") {
+        s += 0.7;
+      }
+      if (wantsGlobal && (item.id === "global-south" || item.id === "za")) {
+        s += 0.55;
+      }
+      if (wantsOps && (item.id === "ops-spine" || item.id === "ops-first-week")) {
+        s += 0.6;
+      }
+      if (wantsBlueprint && item.id === "srm-blueprint") {
+        s += 0.65;
+      }
+      return { item, score: s };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const bestScore = ranked[0]?.score ?? 0;
+  const primary =
+    bestScore >= MATCH_FLOOR && ranked[0] ? ranked[0].item : null;
+
+  const picked: ThembaKnowledgeItem[] = [];
+  if (primary) {
+    picked.push(primary);
+    for (const row of ranked.slice(1)) {
+      if (picked.length >= TOP_N) break;
+      if (row.score < SUPPORT_FLOOR) break;
+      if (picked.some((p) => p.id === row.item.id)) continue;
+      picked.push(row.item);
     }
-    if (wantsReadiness && item.id === "readiness-guide") {
-      s += 0.5;
+  }
+
+  const skipDocSupport =
+    wantsPlans ||
+    /\b(login|sign in|subscribe|password|otp|pay|pricing)\b/i.test(qLower);
+
+  if (primary && !skipDocSupport) {
+    const byId = new Map(ranked.map((r) => [r.item.id, r]));
+    const ensure = (id: string, min: number) => {
+      if (picked.some((p) => p.id === id)) return;
+      if (picked.length >= TOP_N + 1) return;
+      const row = byId.get(id);
+      if (row && row.score >= min) picked.push(row.item);
+    };
+    if (wantsOps || wantsFeatures || wantsRapid || wantsFacilitator) {
+      ensure("ops-spine", 0.08);
     }
-    if (wantsPlans && (item.id === "plans" || item.id === "subscribe")) {
-      s += 0.5;
+    if (wantsReadiness || wantsBlueprint || wantsMel || wantsFramework) {
+      ensure("srm-blueprint", 0.08);
     }
-    if (wantsCrm && (item.id === "crm-real" || item.id === "versions")) {
-      s += 0.55;
-    }
-    if (wantsFramework && item.id === "social-licence-framework") {
-      s += 0.6;
-    }
-    if (wantsRapid && item.id === "rapid-response") {
-      s += 0.55;
-    }
-    if (wantsRoi && item.id === "roi-risk") {
-      s += 0.5;
-    }
-    if (wantsMagnet && item.id === "lead-magnet") {
-      s += 0.55;
-    }
-    if (wantsFunder && item.id === "funder-value") {
-      s += 0.5;
-    }
-    if (wantsMunicipal && item.id === "municipal-value") {
-      s += 0.45;
-    }
-    if (wantsEngineer && item.id === "engineer-value") {
-      s += 0.5;
-    }
-    if (wantsPm && item.id === "pm-value") {
-      s += 0.55;
-    }
-    if (wantsDemo && item.id === "book-demo") {
-      s += 0.6;
-    }
-    if (wantsDashboards && item.id === "impact-dashboards") {
-      s += 0.5;
-    }
-    if (s > bestScore) {
-      bestScore = s;
-      best = item;
+    if (wantsIks || wantsCommunity || wantsFacilitator || wantsMel) {
+      ensure("iks-practice", 0.08);
     }
   }
 
   return {
-    item: bestScore >= 0.35 ? best : null,
+    item: primary,
+    items: picked,
     score: bestScore,
-    links: bestScore >= 0.35 && best?.links ? best.links : [],
+    links: uniqueLinks(picked),
   };
 }

@@ -17,7 +17,7 @@ import {
 export const metadata: Metadata = {
   title: "FAQ — TrustLedger SRM & grievance software",
   description:
-    "Answers about TrustLedger Stakeholder Relationship Management software: grievances, Stakeholder Intelligence, AI Assist, plans, trials, and South African public-sector use.",
+    "Answers about TrustLedger Stakeholder Relationship Management software: grievances, Stakeholder Intelligence, AI Assist, plans, trials, MEL, community participation, and public-sector use in South Africa and the Global South.",
   alternates: { canonical: "/faq" },
   openGraph: {
     title: "TrustLedger FAQ — SRM & grievance software",

@@ -7,21 +7,21 @@ import {
   PRODUCT_DEFINITION,
   PRODUCT_TAGLINE,
   PUBLIC_FAQS,
-  type FaqItem,
 } from "@/lib/aeo/siteFacts";
+import { thembaDocumentSources } from "@/lib/themba/sources";
+import { THEMBA_SOURCE_TITLES } from "@/lib/themba/sources/types";
+import type { ThembaKnowledgeItem } from "@/lib/themba/types";
 
-export type ThembaLink = { href: string; label: string };
+export type { ThembaKnowledgeItem, ThembaLink } from "@/lib/themba/types";
 
-export type ThembaKnowledgeItem = FaqItem & {
-  id: string;
-  keywords: string[];
-  links?: ThembaLink[];
-};
+const PRODUCT_SRC = THEMBA_SOURCE_TITLES.product;
 
 const CORE: ThembaKnowledgeItem[] = [
   {
     id: "what-is",
     question: "What is TrustLedger?",
+    sourceId: "product",
+    sourceTitle: PRODUCT_SRC,
     answer: PRODUCT_DEFINITION,
     keywords: ["what", "trustledger", "srm", "platform", "software", "about"],
     links: [
@@ -33,7 +33,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "features",
     question: "What are the features of this product?",
     answer:
-      "TrustLedger is open to explore before you sign up. Core capabilities: (1) Grievance / case desk — intake, owners, stages, and evidence so community issues have an auditable path to close. (2) Stakeholder registry — people and institutions around a project with influence and place. (3) Engagements — meetings and consultations with notes and actions. (4) Commitments — promises with owners and due dates. (5) Reports — activity and executive packs built from the case and engagement trail. (6) South African place context — municipalities, wards, and traditional councils where packed, so you add the project, not the country map. (7) AI Assist on entitled plans — suggestions only; a human applies before save. How it helps: one trust trail from ward to board instead of spreadsheets and lost WhatsApps. Browse /product now; when ready, take the free readiness check or start a 14-day own-data trial.",
+      "TrustLedger is open to explore before you sign up. It is SRM software for infrastructure and community-trust programmes in **South Africa and the Global South** — not a South Africa-only municipal product.\n\n**Core capabilities:**\n\n1. **Grievance / case desk** — intake, named owners, stages, and evidence so community issues have an auditable path to close.\n2. **Stakeholder registry** — people and institutions around a project (community members, traditional authorities, local government, contractors, civil society) with influence and place.\n3. **Engagements** — meetings and consultations with notes and actions.\n4. **Commitments** — promises with owners and due dates.\n5. **Reports** — activity and executive packs built from the case and engagement trail (MEL evidence, not memory).\n6. **Place context** — South African municipalities, wards, and traditional councils where packed ship as **included baseline for SA plans**. Other Global South countries use the same place model: you add the project and situation; we do not invent unshipped national maps.\n7. **AI Assist** on entitled plans — suggestions only; a human applies before save.\n\nHow it helps: one trust trail from host community to board instead of spreadsheets and lost WhatsApps. Browse /product now; when ready, take the free readiness check or start a 14-day own-data trial.",
     keywords: [
       "feature",
       "features",
@@ -63,7 +63,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "how-helps",
     question: "How can TrustLedger help my project or organisation?",
     answer:
-      "If grievances arrive on WhatsApp, paper, or inboxes with no single owner, TrustLedger gives you one case desk with stages and evidence. If engagements and promises live in notebooks, the registry, engagements, and commitments modules keep named counterparts and due dates visible. If boards ask for social performance proof, reports cite the trail you already captured. ZA place packs mean South African operators start with municipalities and wards in place. You do not need an account to learn this — read /product, or take the free SRM readiness diagnostic to see which gaps matter most, then trial with your own data.",
+      "If grievances arrive on WhatsApp, paper, or inboxes with no single owner, TrustLedger gives you one case desk with stages and evidence. If engagements and promises live in notebooks, the registry, engagements, and commitments modules keep named counterparts and due dates visible — including community members, social facilitators, and traditional authorities. If boards, funders, or MEL teams ask for social performance proof, reports cite the trail you already captured.\n\nGeography: TrustLedger is built for **Global South** infrastructure and community-trust programmes. South African place packs (municipalities, wards, traditional councils where packed) are included baseline for SA plans — not the whole market. Other countries add the project and situation on the same place model.\n\nYou do not need an account to learn this — read /product, or take the free SRM readiness diagnostic to see which of the six blueprint dimensions is weakest, then trial with your own data.",
     keywords: [
       "help",
       "helps",
@@ -192,9 +192,10 @@ const CORE: ThembaKnowledgeItem[] = [
   },
   {
     id: "za",
-    question: "Is TrustLedger suitable for South African municipalities?",
+    question:
+      "Is TrustLedger suitable for South African municipalities and other Global South public-sector programmes?",
     answer:
-      "Yes. Every plan includes South African place context (municipalities, wards, and traditional councils where packed) — you add the project and situation, not the country map. Start with the SRM readiness assessment or a 14-day own-data trial.",
+      "Yes — and it is not confined to South Africa. TrustLedger is SRM software for infrastructure and community-trust programmes across the **Global South**. Every South African plan includes place context (municipalities, wards, and traditional councils where packed) so you add the project and situation, not the country map. Other countries use the same place model; further national packs are not invented in conversation. Local government, ministries, and public-sector programmes outside SA are in scope. Start with the SRM readiness assessment or a 14-day own-data trial.",
     keywords: [
       "south",
       "africa",
@@ -204,6 +205,14 @@ const CORE: ThembaKnowledgeItem[] = [
       "public",
       "sector",
       "za",
+      "global",
+      "namibia",
+      "botswana",
+      "ghana",
+      "kenya",
+      "nigeria",
+      "zambia",
+      "region",
     ],
     links: [
       { href: "/assessment", label: "SRM readiness assessment" },
@@ -369,7 +378,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "engineer-value",
     question: "How does TrustLedger help civil engineers and site teams?",
     answer:
-      "For **civil engineers** and site teams, unresolved grievances become stoppages, redesign, and standing time. TrustLedger puts intake on the same desk as the project so a complaint has an owner before it becomes a blockade. Rapid-response workflow: log → assign → SLA → evidence → close. You are not asked to run a second CRM in a spreadsheet. ZA place packs mean wards and municipalities are already in context. Practise on a 14-day own-data trial, or take the grievance checklist from /resources.",
+      "For **civil engineers** and site teams, unresolved grievances become stoppages, redesign, and standing time. TrustLedger puts intake on the same desk as the project so a complaint has an owner before it becomes a blockade. Rapid-response workflow: log → assign → SLA → evidence → close. You are not asked to run a second CRM in a spreadsheet. Place context (ZA packs included for South African plans; the same model for other Global South sites) means geography is not an afterthought. Practise on a 14-day own-data trial, or take the grievance checklist from /resources.",
     keywords: [
       "engineer",
       "engineers",
@@ -390,7 +399,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "pm-value",
     question: "How does TrustLedger help project managers?",
     answer:
-      "For **project managers**, TrustLedger is the SRM spine beside delivery: stakeholders with place and influence, engagements with notes, commitments with due dates, and a grievance desk with SLAs. You can see which promises are open before a funder or municipal meeting. Reports cite the trail you already captured. Start with /product, the free readiness diagnostic, or a 14-day trial on your own projects — no fictional sample cases.",
+      "For **project managers**, TrustLedger is the SRM spine beside delivery: stakeholders with place and influence, engagements with notes, commitments with due dates, and a grievance desk with SLAs. You can see which promises are open before a funder or local-government meeting. Reports cite the trail you already captured. Start with /product, the free readiness diagnostic, or a 14-day trial on your own projects — no fictional sample cases.",
     keywords: [
       "project",
       "manager",
@@ -409,9 +418,9 @@ const CORE: ThembaKnowledgeItem[] = [
   },
   {
     id: "municipal-value",
-    question: "How does TrustLedger help municipal leaders?",
+    question: "How does TrustLedger help local government and public-sector teams?",
     answer:
-      "For **municipal leaders**, oversight and funding both ask for engagement evidence you can defend. TrustLedger gives one intake path for community issues, ZA place context (municipalities, wards, traditional councils where packed), and packs that show what was heard, promised, and closed. Institutional plans are sales-scoped for multi-project public-sector needs. Start with the free SRM readiness diagnostic, then trial or request a quote.",
+      "For **local government** and public-sector programmes (municipalities, districts, ministries — in South Africa and across the Global South), oversight and funding both ask for engagement evidence you can defend. TrustLedger gives one intake path for community issues, place context (ZA packs included for South African plans; the same model elsewhere), and packs that show what was heard, promised, and closed. Institutional plans are sales-scoped for multi-project public-sector needs. Start with the free SRM readiness diagnostic, then trial or request a quote.",
     keywords: [
       "municipal",
       "municipality",
@@ -421,6 +430,8 @@ const CORE: ThembaKnowledgeItem[] = [
       "sector",
       "government",
       "ward",
+      "ministry",
+      "district",
     ],
     links: [
       { href: "/assessment", label: "Public-sector readiness" },
@@ -432,7 +443,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "roi-risk",
     question: "What ROI and risk-mitigation should a buyer expect?",
     answer:
-      "TrustLedger’s return is **delay and dispute avoided**, plus audit-ready evidence when funders, regulators, or boards ask. Typical risk it reduces: ownerless WhatsApp grievances, commitments that exist only in notebooks, and month-end packs assembled from memory. We do not quote a universal rand ROI — programmes differ. The honest path is: score gaps on the free diagnostic, run a 14-day own-data trial, then subscribe or quote Institutional. AI does not close cases automatically; a human applies every suggestion.",
+      "TrustLedger’s return is **delay and dispute avoided**, plus audit-ready evidence when funders, regulators, or boards ask. Typical risk it reduces: ownerless WhatsApp grievances, commitments that exist only in notebooks, and month-end packs assembled from memory. We do not quote a universal currency ROI — programmes differ across the Global South. The honest path is: score gaps on the free diagnostic, run a 14-day own-data trial, then subscribe or quote Institutional. AI does not close cases automatically; a human applies every suggestion.",
     keywords: [
       "roi",
       "return",
@@ -493,6 +504,118 @@ const CORE: ThembaKnowledgeItem[] = [
       { href: "/trial", label: "Start 14-day trial" },
     ],
   },
+  {
+    id: "global-south",
+    question:
+      "Does TrustLedger work beyond South Africa, in other Global South countries?",
+    sourceId: "product",
+    sourceTitle: PRODUCT_SRC,
+    answer:
+      "Yes. TrustLedger is built for infrastructure, mining, energy, and community-trust programmes across the **Global South** — Southern, East, West, and Central Africa, and peer regions — not only South Africa.\n\n**What ships today:** the grievance desk, Stakeholder Intelligence (registry, engagements, commitments on entitled plans), reports, and a **place model** that already holds South African municipalities, wards, and traditional councils where packed as included baseline for SA plans. Other countries use the same cascade (country → region/province → local place → customary structure where it applies). You add the project and situation. We do **not** claim a finished national pack for every country in conversation.\n\n**Who it is for:** funders, engineers, project and programme managers, MEL / M&E practitioners, social facilitation practitioners, community members and traditional authorities, local government, and contractors/consultants working those programmes.\n\nStart on /product, take the free SRM diagnostic, or trial with your own data.",
+    keywords: [
+      "global",
+      "south",
+      "africa",
+      "beyond",
+      "outside",
+      "international",
+      "regional",
+      "sadc",
+      "namibia",
+      "botswana",
+      "mozambique",
+      "ghana",
+      "kenya",
+      "nigeria",
+      "zambia",
+      "tanzania",
+      "country",
+      "countries",
+    ],
+    links: [
+      { href: "/product", label: "Product overview" },
+      { href: "/assessment", label: "Readiness diagnostic" },
+      { href: "/trial", label: "Start trial" },
+    ],
+  },
+  {
+    id: "mel-value",
+    question:
+      "How does TrustLedger help MEL and M&E practitioners?",
+    sourceId: "product",
+    sourceTitle: PRODUCT_SRC,
+    answer:
+      "For **MEL / M&E** practitioners, TrustLedger is the evidence spine beside the results framework — not a replacement logframe. You can:\n\n- Pull **intake, SLA, severity, closure, and aging** from one case desk instead of reconstructing month-end from WhatsApp.\n- Treat **engagements and commitments** as MEL events: who was consulted, what was promised, what was fulfilled or broken, with dates and owners.\n- Produce activity and executive packs that cite the trail (the SRM blueprint’s reporting and assurance dimensions).\n- Leave room for **community-defined outcomes and IKS** next to indicator sets — lived experience is not a footnote. Published IKS papers are a planned Themba source; until they are loaded we speak from this practice frame, not invented citations.\n\nScore the six blueprint dimensions on /assessment. The 90-day planner on /resources is a workshop tool. Then trial with your own programme data — never fictional sample incidents.",
+    keywords: [
+      "mel",
+      "m&e",
+      "monitoring",
+      "evaluation",
+      "learning",
+      "indicator",
+      "indicators",
+      "logframe",
+      "results",
+      "evidence",
+      "baseline",
+    ],
+    links: [
+      { href: "/assessment", label: "SRM diagnostic (MEL lens)" },
+      { href: "/resources", label: "Readiness planner" },
+      { href: "/product", label: "Product overview" },
+    ],
+  },
+  {
+    id: "community-value",
+    question:
+      "How does TrustLedger help community members and traditional authorities?",
+    sourceId: "product",
+    sourceTitle: PRODUCT_SRC,
+    answer:
+      "For **community members**, host communities, and **traditional authorities**, TrustLedger is how the operator is supposed to keep a fair trail — not a public community portal you log into yourself today.\n\nWhat you should be able to see, through the people who facilitate with you:\n\n- A concern logged with a **case ID**, a named owner, and an acknowledgment (who is handling it, what happens next).\n- Engagements that record who was in the room — including customary structures — and commitments that do not vanish after the meeting.\n- Place that matches how people actually live (ward, village, traditional council where packed), not a generic “Africa” pin.\n\nThere is **no public community login** in the current product. Operators, facilitators, and local-government teams capture on your behalf. If a programme is not doing that, that is an SRM gap — the readiness diagnostic and engagement toolkit exist to name it. Ask Themba about IKS / participation if you want the practice frame.",
+    keywords: [
+      "community",
+      "member",
+      "traditional",
+      "authority",
+      "authorities",
+      "host",
+      "village",
+      "ward",
+      "imbizo",
+      "kgotla",
+      "complainant",
+    ],
+    links: [
+      { href: "/resources/engagement-toolkit", label: "Engagement toolkit" },
+      { href: "/product", label: "Product overview" },
+    ],
+  },
+  {
+    id: "facilitator-value",
+    question:
+      "How does TrustLedger help social facilitation practitioners?",
+    sourceId: "product",
+    sourceTitle: PRODUCT_SRC,
+    answer:
+      "For **social facilitation practitioners**, CLOs, and public-participation specialists, TrustLedger is the trail that makes facilitation defensible after the meeting ends.\n\n- **Before:** stakeholder map with place and influence — community, traditional authorities, local government, contractor — so you are not facilitating into a blank register.\n- **During:** engagement record (purpose, attendance, notes, actions) and intake of new concerns into the same case convention as the grievance desk.\n- **After:** commitments with owners and due dates; acknowledgment cadences; RACI that consults community reps and customary structures.\n- **IKS:** facilitation is not a Western workshop template only. Named counterparts, place, and lived-experience MEL are the product’s practice frame. Published papers on integrating IKS into facilitation and M&E are a planned Themba source — not loaded yet, so we will not invent citations.\n\nUse the Community Engagement Toolkit on /resources, then the desk on a 14-day own-data trial.",
+    keywords: [
+      "facilitator",
+      "facilitation",
+      "liaison",
+      "clo",
+      "participation",
+      "practitioner",
+      "community relations",
+      "social performance",
+      "ppp",
+    ],
+    links: [
+      { href: "/resources/engagement-toolkit", label: "Engagement toolkit" },
+      { href: "/product", label: "Facilitation trail" },
+      { href: "/trial", label: "Start 14-day trial" },
+    ],
+  },
 ];
 
 /** Merge PUBLIC_FAQS that are not already covered by CORE ids (by question). */
@@ -505,8 +628,19 @@ function fromPublicFaqs(): ThembaKnowledgeItem[] {
       answer: f.answer,
       keywords: tokenize(f.question),
       links: [{ href: "/faq", label: "FAQ" }],
+      sourceId: "product" as const,
+      sourceTitle: PRODUCT_SRC,
     }),
   );
+}
+
+function withProductSource(item: ThembaKnowledgeItem): ThembaKnowledgeItem {
+  if (item.sourceTitle) return item;
+  return {
+    ...item,
+    sourceId: item.sourceId ?? "product",
+    sourceTitle: PRODUCT_SRC,
+  };
 }
 
 export function tokenize(text: string): string[] {
@@ -519,14 +653,18 @@ export function tokenize(text: string): string[] {
 }
 
 export function thembaKnowledgeCorpus(): ThembaKnowledgeItem[] {
-  return [...CORE, ...fromPublicFaqs()];
+  return [
+    ...CORE.map(withProductSource),
+    ...fromPublicFaqs(),
+    ...thembaDocumentSources(),
+  ];
 }
 
 export const THEMBA_BUBBLE_GREETING =
-  "Hi, I'm Themba! Need help navigating TrustLedger or exploring our SRM features?";
+  "Hi, I'm Themba! Need help navigating TrustLedger — for MEL, facilitation, community, or delivery teams across the Global South?";
 
 export const THEMBA_GREETING =
-  "Hi — I’m **Themba**, The Trust guide for TrustLedger. I help funders, engineers, project managers, and municipal leaders navigate SRM: grievance logging, rapid-response workflows, and audit-ready reporting.\n\nTell me your role and I’ll tailor the path. No signup needed for answers. For contracts, billing disputes, or account help I’ll connect you to a person.";
+  "Hi — I’m **Themba**, The Trust guide for TrustLedger. I help funders, engineers, project and programme managers, **MEL practitioners**, **social facilitators**, **community members**, and local-government teams across **South Africa and the Global South** navigate SRM: grievance logging, community participation, rapid-response workflows, and audit-ready reporting.\n\nTell me your role and I’ll tailor the path. Answers are grounded in TrustLedger **operating procedures** and the **SRM blueprint**. No signup needed for answers. For contracts, billing disputes, or account help I’ll connect you to a person.";
 
 export const THEMBA_ESCALATE_REPLY =
   "That’s best handled by a TrustLedger person. Share a work email and a short note, or open Contact — we’ll follow up. Meanwhile you can browse features on the product overview, take the free readiness check, or start a 14-day trial.";

@@ -1,19 +1,24 @@
 const SECTORS = [
   {
     name: "Mining",
-    outcome: "Cut grievance backlog days with ward-to-site escalation clarity.",
+    outcome: "Cut grievance backlog days with host-community to site escalation clarity.",
   },
   {
     name: "Energy",
     outcome: "Keep host-community commitments visible before outage risk rises.",
   },
   {
-    name: "Public Sector",
+    name: "Public sector",
     outcome: "Produce audit-ready engagement evidence for oversight and funding.",
   },
   {
     name: "Infrastructure",
     outcome: "Protect delivery timelines with early trust-signal monitoring.",
+  },
+  {
+    name: "Community programmes",
+    outcome:
+      "Give facilitators, MEL teams, and host communities one trail from consultation to closure.",
   },
 ] as const;
 
@@ -35,6 +40,10 @@ export function HomeSectors() {
           >
             Built for environments where trust is operational risk
           </h2>
+          <p className="mt-3 text-sm leading-relaxed text-tl-ink-muted">
+            Mining, energy, infrastructure, public sector, and community
+            programmes across South Africa and the Global South.
+          </p>
         </div>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">

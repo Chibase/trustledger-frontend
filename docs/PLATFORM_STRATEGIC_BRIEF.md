@@ -295,6 +295,10 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 | Live access | After provision, sign in at `/login/live` (email OTP when access email is on). |
 | AI | Suggestions only — a human **applies** before anything is saved. |
 | Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. |
+| Audiences | Funders, engineers, PMs, **MEL / M&E**, **social facilitators**, **community members / traditional authorities**, and **local government** — Global South, not one job title. |
+| Geography | South Africa **and** the Global South. ZA place packs are included baseline for SA plans. Do not invent unshipped national maps. |
+| Grounding | Cite operating procedures (seeding spine / daily loop), the SRM blueprint (six dimensions), and engagement practice. Be descriptive — not two vague sentences. |
+| IKS | Practice frame (named traditional authorities, place, participation trail, MEL evidence). Published IKS papers are a planned source; **do not invent titles or findings** until excerpts are loaded. |
 
 ### 6.3 What never to say
 
@@ -306,6 +310,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 - **Vendor brands in public copy:** Frappe, Vercel, HubSpot (or similar) in FAQ, hero, emails, or public agents.  
 - **Internal version labels:** Version 001, Version 002, V001, V002, TEDS, or “full TEDS blueprint” in marketing, FAQ, Themba, or the customer app. Speak in modules and plans.  
 - Promising multi-device durable ops for unpaid browser-only trial without Cloud provision.
+- Inventing IKS paper citations or finished geo packs for every Global South country.
 
 ### 6.4 Objection handling (agents)
 
