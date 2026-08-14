@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-14 — Public copy: no Version 001/002 or TEDS (ADR-044)
+
+- Removed Version 001/002 and “full TEDS blueprint” from FAQ, Themba, marketing strip/footer, product page, app shell, module eyebrows, readiness report, resource packs, `/llms.txt`, and WordPress FAQ paste.
+- Public language is modules + plans (grievance desk vs Stakeholder Intelligence). Ops and internal docs unchanged.
+
 ## 2026-08-14 — Themba marketing guru (THEMBA-B)
 
 - Global public widget (root layout); hidden on `/app`, `/ops`, `/login`, `/pay`, `/invite`.

@@ -4,10 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
-import {
-  NEXT_PRODUCT_VERSION_LABEL,
-  PRODUCT_VERSION_LABEL,
-} from "@/config/productVersion";
 import { engagementService } from "@/services/engagementService";
 import {
   ENGAGEMENT_KIND_LABELS,
@@ -51,7 +47,7 @@ export default function AppEngagementsPage() {
     <FeatureGate capability="engagements">
       <div className="space-y-6">
         <PageHeader
-          eyebrow={`${NEXT_PRODUCT_VERSION_LABEL} · ${PRODUCT_VERSION_LABEL} desk remains`}
+          eyebrow="Stakeholder Intelligence"
           title="Engagements"
           description="Meetings, consultations, and walkabouts linked to projects and stakeholders. Capture hub applies create records here."
           actions={

@@ -290,7 +290,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 | Topic | Approved line |
 |-------|----------------|
 | What it is | TrustLedger helps operators run **grievance resolution** and **Stakeholder Intelligence** for projects where social licence decides whether work moves. |
-| Version | **Version 001** is the live resolution desk. **Version 002** Stakeholder Intelligence (registry, engagements, commitments) is in active use on **TrustLedger Cloud** for entitled plans — still deepening vs full TEDS blueprint. |
+| Desk vs SI | The **grievance desk** is the live case path (projects, incidents, evidence, reports). **Stakeholder Intelligence** is registry, engagements, and commitments on TrustLedger Cloud for entitled plans. Never name Version 001/002 or TEDS in public copy. |
 | How to start | Start a **14-day trial** (`/trial`) with your own data, or **Subscribe** (`/pay`). Learn features on `/product`. |
 | Live access | After provision, sign in at `/login/live` (email OTP when access email is on). |
 | AI | Suggestions only — a human **applies** before anything is saved. |
@@ -304,13 +304,14 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 - “Works offline as a native app.”  
 - Dual product names (AccordBridge); Interserv as product host.  
 - **Vendor brands in public copy:** Frappe, Vercel, HubSpot (or similar) in FAQ, hero, emails, or public agents.  
+- **Internal version labels:** Version 001, Version 002, V001, V002, TEDS, or “full TEDS blueprint” in marketing, FAQ, Themba, or the customer app. Speak in modules and plans.  
 - Promising multi-device durable ops for unpaid browser-only trial without Cloud provision.
 
 ### 6.4 Objection handling (agents)
 
 | Objection | Response |
 |-----------|----------|
-| “Is the CRM real?” | On **Project/Institutional** (or CRM add-on), stakeholders/engagements/commitments persist to **Frappe Cloud** when you are live. Trial keeps your own browser data until you go live. |
+| “Is the CRM real?” | On **Project/Institutional** (or CRM add-on), stakeholders/engagements/commitments persist to **TrustLedger Cloud** when you are live. Trial keeps your own browser data until you go live. |
 | “Can I try without paying?” | Yes — `/trial` for 14 days with your own projects; or assessment for readiness scoring. |
 | “Where is the demo?” | Sample preview retired. Use `/product` for feature purpose, then trial or live. |
 | “Mobile?” | Responsive web in the browser; no separate App Store app yet. |

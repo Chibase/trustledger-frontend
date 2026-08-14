@@ -52,7 +52,7 @@ export function HomeFooter() {
               to governance-grade reporting.
             </p>
             <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-tl-trust">
-              Version 001 live · Version 002 in build
+              Resolution you can audit
             </p>
             <p className="mt-4 text-sm text-white/70">
               <Link

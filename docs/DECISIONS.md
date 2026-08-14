@@ -478,6 +478,19 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** One global public widget; acquisition still Frappe CRM Lead; in-app authenticated help still deferred.
 - **Alternatives considered:** Third-party chat vendor (rejected — brand ownership + ADR-034); public funder-only dashboard route (rejected — no such surface; report packs live in entitled workspaces).
 
+### ADR-044: No Version 001/002 or TEDS in public copy
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** Version 001 / Version 002 and “still deepening versus a full TEDS blueprint” are engineering maturity labels. They leaked into FAQ, Themba, marketing footer, and the customer app, which reads as internal roadmap rather than product.
+- **Decision:**
+  1. Public and client-facing surfaces (marketing, FAQ, `/llms.txt`, Themba, resource packs, readiness report, `/app` shell and module pages) **must not** name Version 001, Version 002, V001, V002, or TEDS.
+  2. Public language uses **modules and plans**: grievance resolution desk vs Stakeholder Intelligence (registry, engagements, commitments) on entitled plans.
+  3. Internal docs, Ops (`/ops`), and `tedsMaturity.ts` may keep version/TEDS labels.
+  4. Amends ADR-023 **public labelling** (the V001 badge / Available-now vs Coming-in-V002 copy). Engineering packet names stay Version 002 internally.
+- **Consequences:** Themba sanitizer strips version/TEDS if an optional LLM polish reintroduces them. WordPress paste FAQ in `docs/wordpress/page-home.txt` matches `siteFacts`.
+- **Alternatives considered:** Keep honest version badges on marketing (rejected — internal maturity, not buyer language).
+
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 
 - **Date:** 2026-07-23
