@@ -234,6 +234,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
 | **SEC-5** | Cloud invitee seats | Replace browser-only junior seats | Planned |
 | **SEC-SITE** | Dual-origin public hardening + Chibase site | ADR-046 — `/firm` brochure; retire Chibase WP (no content/plugin import); website DNS to this app; MX stays Webway (`docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`) | **Done** |
+| **CHIBASE-PREVIEW** | Hero preview desk | ADR-047 — local mock cases/people/promises on Chibase home; not a workspace; CTA to own-data trial | **Done** |
 
 ## 8. Quality gates (every packet)
 
@@ -285,6 +286,7 @@ src/
 | 2026-07-26 | UG-1 — user manual + first-login setup wizard / Guide |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
+| 2026-08-14 | CHIBASE-PREVIEW / ADR-047 — local preview desk on Chibase hero |
 | 2026-08-14 | SEC-SITE — retire Chibase WordPress (SP declined cleanup); website DNS only; MX stays Webway |
 | 2026-08-14 | SEC-SITE / ADR-046 — Chibase Next.js brochure + dual-origin public hardening; MX stays Webway |
 | 2026-08-14 | THEMBA-C / ADR-045 — Themba audiences, Global South, document grounding |

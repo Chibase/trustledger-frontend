@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import { FirmDeskPreview } from "@/components/chibase/FirmDeskPreview";
 import {
   CHIBASE_DEFINITION,
   CHIBASE_TAGLINE,
@@ -10,35 +11,45 @@ import { firmPath, isChibaseHost, trustLedgerAbsolute } from "@/lib/security/hos
 
 export default async function FirmHomePage() {
   const chibaseHost = isChibaseHost((await headers()).get("host"));
+  const trialHref = trustLedgerAbsolute(
+    "/trial?utm_source=chibase&utm_medium=hero_desk&utm_campaign=trial",
+  );
   return (
     <>
       <section className="bg-gradient-to-b from-tl-surface to-tl-paper">
-        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
-          <p className="text-sm font-semibold text-tl-trust">
-            Chibase Consulting
-          </p>
-          <h1 className="mt-3 max-w-3xl font-display text-3xl font-semibold tracking-tight text-tl-ink sm:text-4xl">
-            {CHIBASE_TAGLINE}
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-tl-ink-muted sm:text-lg">
-            {CHIBASE_DEFINITION}
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href={firmPath(chibaseHost, "/contact")}
-              className="inline-flex rounded-md bg-tl-trust px-5 py-3 text-sm font-semibold text-white hover:bg-tl-trust-ink"
-            >
-              Book an alignment conversation
-            </Link>
-            <a
-              href={trustLedgerAbsolute(
-                "/product?utm_source=chibase&utm_medium=hero&utm_campaign=see_desk",
-              )}
-              className="inline-flex rounded-md border border-tl-line bg-tl-surface px-5 py-3 text-sm font-semibold text-tl-ink hover:border-tl-trust"
-            >
-              See TrustLedger
-            </a>
+        <div className="mx-auto grid max-w-6xl items-start gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12 lg:py-16">
+          <div>
+            <p className="text-sm font-semibold text-tl-trust">
+              Chibase Consulting
+            </p>
+            <h1 className="mt-3 max-w-xl font-display text-3xl font-semibold tracking-tight text-tl-ink sm:text-4xl">
+              {CHIBASE_TAGLINE}
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-tl-ink-muted sm:text-lg">
+              {CHIBASE_DEFINITION}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href={firmPath(chibaseHost, "/contact")}
+                className="inline-flex rounded-md bg-tl-trust px-5 py-3 text-sm font-semibold text-white hover:bg-tl-trust-ink"
+              >
+                Book an alignment conversation
+              </Link>
+              <a
+                href={trustLedgerAbsolute(
+                  "/product?utm_source=chibase&utm_medium=hero&utm_campaign=see_desk",
+                )}
+                className="inline-flex rounded-md border border-tl-line bg-tl-surface px-5 py-3 text-sm font-semibold text-tl-ink hover:border-tl-trust"
+              >
+                See TrustLedger
+              </a>
+            </div>
+            <p className="mt-4 max-w-md text-sm text-tl-ink-muted">
+              Try the desk on the right. Counts are yours, in this browser.
+              A real programme keeps the trail in a TrustLedger trial.
+            </p>
           </div>
+          <FirmDeskPreview trialHref={trialHref} />
         </div>
       </section>
 

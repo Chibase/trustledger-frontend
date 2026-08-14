@@ -78,6 +78,8 @@ This app serves **both** `chibaseconsulting.co.za` and `www` as the firm site. D
 
 Contact posts to `/api/contact` with `source=chibase` → CRM Lead source **Chibase Consulting**.
 
+Home hero includes a **preview desk** (ADR-047): visitors add mock cases/people/promises in this browser only. It is not a TrustLedger workspace.
+
 Known old WP slugs 308: `/about-us-critical-involvement` → `/about`, `/social-licence-to-build-framework` → `/practice`, `/home-social-licence-to-build` → `/`, `/contact-us` → `/contact`. Injected spam URLs are not migrated; they 404.
 
 ## What we will not do
