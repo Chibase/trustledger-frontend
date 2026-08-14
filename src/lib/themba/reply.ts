@@ -9,7 +9,7 @@ import {
   type ThembaChip,
 } from "@/lib/themba/actions";
 import { THEMBA_BUG_REPLY, isProductDefectReport } from "@/lib/themba/bugDetect";
-import { shouldEscalate } from "@/lib/themba/escalate";
+import { shouldEscalate, wantsHuman } from "@/lib/themba/escalate";
 import { magnetForQuestion, type ThembaMagnet } from "@/lib/themba/magnet";
 import {
   detectThembaProfile,
@@ -114,21 +114,21 @@ export function composeGroundedAnswer(items: ThembaKnowledgeItem[]): string {
   if (items.length === 0) return "";
   const [primary, ...rest] = items;
   let body = primary.answer;
-  const seenSource = new Set<string>([
-    primary.sourceId ?? primary.id,
-  ]);
+  const seenIds = new Set<string>([primary.id]);
 
   for (const extra of rest) {
-    const key = extra.sourceId ?? extra.id;
-    if (seenSource.has(key)) continue;
+    if (seenIds.has(extra.id)) continue;
     const isDoc =
       extra.sourceId === "operatingProcedures" ||
       extra.sourceId === "srmBlueprint" ||
       extra.sourceId === "iksPractice";
-    if (!isDoc && extra.sourceId === (primary.sourceId ?? "product")) {
+    if (
+      !isDoc &&
+      extra.sourceId === (primary.sourceId ?? "product")
+    ) {
       continue;
     }
-    seenSource.add(key);
+    seenIds.add(extra.id);
     const title = extra.sourceTitle ?? extra.question;
     body += `\n\n**From ${title}**\n\n${excerpt(extra.answer)}`;
   }
@@ -179,7 +179,7 @@ export function composeThembaReply(
     };
   }
 
-  if (identityTurn && profile && !bugHint) {
+  if (identityTurn && profile && !bugHint && !wantsHuman(trimmed)) {
     const topicId = PROFILE_TOPIC[profile];
     const extra = retrieved.items.length
       ? `\n\n${composeGroundedAnswer(retrieved.items)}`

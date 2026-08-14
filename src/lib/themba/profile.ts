@@ -88,7 +88,6 @@ export function detectThembaProfile(
   question: string,
   hinted?: ThembaProfile | null,
 ): ThembaProfile | null {
-  if (hinted && hinted !== "other") return hinted;
   const q = question.trim();
   if (!q) return hinted ?? null;
 
@@ -104,5 +103,6 @@ export function detectThembaProfile(
     return "other";
   }
 
+  if (hinted && hinted !== "other") return hinted;
   return hinted ?? null;
 }
