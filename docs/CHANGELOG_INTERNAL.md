@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-08-14 — Chibase site + dual-origin public hardening (SEC-SITE)
+
+- Rebuilt **Chibase Consulting** as short pages under `/firm` (preview, noindex on the product host). After the service provider confirms WordPress cleanup, point `chibaseconsulting.co.za` at this app. **MX for both domains stays on Webway.**
+- Firm host serves consulting pages only; `/app`, `/pay`, `/trial` 302 to TrustLedger with `utm_source=chibase`. Old WP slugs 308 to the short IA. No Themba, no CAPEX form, no product checkout on the firm origin.
+- Contact → `/api/contact` `source=chibase` → CRM Lead source **Chibase Consulting**.
+- Security on both origins: CSP (with violation reports), HSTS, nosniff, probe block (WordPress/PHP/`.env`/SQLi-XSS query shapes → 404), form honeypot/reCAPTCHA/rate-limit events. Optional `SECURITY_ALERT_WEBHOOK_URL`. Request proxy is `src/proxy.ts` (Next.js 16). Honest limit: harden + detect, not “unhackable.”
+- TrustLedger footer “Chibase Consulting” points at `/firm` (not the compromised WordPress origin). ADR-046. Runbooks `docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`.
+
 ## 2026-08-14 — Themba audiences, Global South, document grounding (THEMBA-C)
 
 - Profile chips: MEL / M&E, community member, social facilitator, local government (plus funder, engineer, PM). No longer collapse those roles to “other.”

@@ -1,0 +1,60 @@
+/**
+ * Dual-site host detection (TrustLedger product vs Chibase Consulting firm).
+ * Email MX stays on Webway; these hosts only serve HTTPS sites.
+ */
+
+export const CHIBASE_CANONICAL_HOST = "chibaseconsulting.co.za";
+
+export const TRUSTLEDGER_PRODUCT_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  "https://trustledger-frontend-pi.vercel.app"
+).replace(/\/$/, "");
+
+/**
+ * Canonical firm origin — set only after DNS cutover.
+ * Do not default to the live WordPress host while it is (or was) compromised.
+ */
+export const CHIBASE_PUBLIC_URL = (
+  process.env.NEXT_PUBLIC_CHIBASE_SITE_URL || ""
+).replace(/\/$/, "");
+
+const DEFAULT_CHIBASE_HOSTS = [
+  CHIBASE_CANONICAL_HOST,
+  `www.${CHIBASE_CANONICAL_HOST}`,
+  "chibase.localhost",
+];
+
+export function chibaseHosts(): string[] {
+  const extra = (process.env.CHIBASE_HOSTS || "")
+    .split(",")
+    .map((h) => h.trim().toLowerCase())
+    .filter(Boolean);
+  return [...new Set([...DEFAULT_CHIBASE_HOSTS, ...extra])];
+}
+
+export function hostnameOf(hostHeader: string | null): string {
+  if (!hostHeader) return "";
+  return hostHeader.split(":")[0]?.trim().toLowerCase() ?? "";
+}
+
+export function isChibaseHost(hostHeader: string | null): boolean {
+  const host = hostnameOf(hostHeader);
+  if (!host) return false;
+  return chibaseHosts().includes(host);
+}
+
+/** Preview the firm site on the product host before DNS cutover. */
+export function isChibasePreviewPath(pathname: string): boolean {
+  return pathname === "/firm" || pathname.startsWith("/firm/");
+}
+
+export function trustLedgerAbsolute(path: string): string {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return `${TRUSTLEDGER_PRODUCT_URL}${p}`;
+}
+
+/** Internal app path vs public URL on the firm host after rewrite. */
+export function firmPath(chibaseHost: boolean, path: string): string {
+  if (path === "/") return chibaseHost ? "/" : "/firm";
+  return chibaseHost ? path : `/firm${path}`;
+}

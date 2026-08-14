@@ -18,6 +18,7 @@ const LEAD_SOURCES = [
   "Support Ticket",
   "Themba Guide",
   "Themba Bug",
+  "Chibase Consulting",
 ] as const;
 
 const LEAD_COLUMNS = [
