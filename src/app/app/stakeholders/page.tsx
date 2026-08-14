@@ -17,10 +17,6 @@ import {
   type StakeholderKind,
   type StakeholderStatus,
 } from "@/types/stakeholder";
-import {
-  NEXT_PRODUCT_VERSION_LABEL,
-  PRODUCT_VERSION_LABEL,
-} from "@/config/productVersion";
 
 const KINDS = Object.keys(STAKEHOLDER_KIND_LABELS) as StakeholderKind[];
 
@@ -107,9 +103,9 @@ export default function AppStakeholdersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={`${NEXT_PRODUCT_VERSION_LABEL} · Stakeholder Intelligence · ${PRODUCT_VERSION_LABEL} desk`}
+        eyebrow="Stakeholder Intelligence"
         title="Stakeholder registry"
-        description="The SRM engine starts here — people and organisations linked to place, influence, and engagements. Live sessions persist to Frappe Cloud; trial keeps your own browser workspace (no sample seed)."
+        description="The SRM engine starts here — people and organisations linked to place, influence, and engagements. Live sessions persist to TrustLedger Cloud; trial keeps your own browser workspace (no sample seed)."
         actions={
           <div className="flex flex-wrap gap-2">
             <button

@@ -1,5 +1,17 @@
 # Internal changelog
 
+## 2026-08-14 — Themba audiences, Global South, document grounding (THEMBA-C)
+
+- Profile chips: MEL / M&E, community member, social facilitator, local government (plus funder, engineer, PM). No longer collapse those roles to “other.”
+- Public copy: South Africa **and** the Global South; ZA place packs are included baseline for SA plans, not the whole market.
+- Themba retrieves multiple chunks and cites operating procedures, the SRM blueprint (six dimensions), and the IKS practice frame. IKS published papers are a drop zone (`docs/themba/sources/IKS_PAPERS.md`) — not loaded yet; no invented citations.
+- Home “who it is for” strip. ADR-045. Runbook `docs/THEMBA.md`.
+
+## 2026-08-14 — Public copy: no Version 001/002 or TEDS (ADR-044)
+
+- Removed Version 001/002 and “full TEDS blueprint” from FAQ, Themba, marketing strip/footer, product page, app shell, module eyebrows, readiness report, resource packs, `/llms.txt`, and WordPress FAQ paste.
+- Public language is modules + plans (grievance desk vs Stakeholder Intelligence). Ops and internal docs unchanged.
+
 ## 2026-08-14 — Themba marketing guru (THEMBA-B)
 
 - Global public widget (root layout); hidden on `/app`, `/ops`, `/login`, `/pay`, `/invite`.

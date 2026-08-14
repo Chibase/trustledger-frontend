@@ -82,7 +82,7 @@ export function ThembaChat({ allowPaths }: ThembaChatProps) {
         { href: "/trial", label: "Start 14-day trial" },
         { href: "/faq", label: "FAQ" },
       ],
-      chips: [...THEMBA_PROFILE_CHIPS, ...THEMBA_STARTER_CHIPS],
+      chips: [...THEMBA_PROFILE_CHIPS, ...THEMBA_STARTER_CHIPS.slice(0, 2)],
     },
   ]);
   const listRef = useRef<HTMLDivElement>(null);

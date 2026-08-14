@@ -1,10 +1,10 @@
 # TrustLedger product versions
 
-> Living commercial/public labels. For plan packaging, evaluation, and agent scripts see **`docs/PLATFORM_STRATEGIC_BRIEF.md`**.
+> **Internal** labels for engineering and ops. Public UI, FAQ, Themba, and marketing must **not** name Version 001/002 or TEDS (ADR-044). For plan packaging and public agent scripts see **`docs/PLATFORM_STRATEGIC_BRIEF.md`** §6.
 
 ## Version 001 (current — live resolution desk)
 
-**Name in UI / public:** TrustLedger **Version 001**  
+**Internal name:** TrustLedger Version 001 (not shown in client UI)  
 **What it is:** Grievance / resolution desk + role workspaces + trial/pay + Cloud-backed ops for paying Owners.
 
 | Included | Notes |
@@ -16,7 +16,7 @@
 | Live login + email verification | Buyers after provision (`PLATFORM_OPERATOR_ONLY=0`) |
 | Marketing home, assessment, Ops plane | Not the full ESIP MVP |
 
-**Public line:**  
+**Internal line (ops only — do not paste into marketing):**  
 *Version 001 is live — the trust & grievance resolution desk. Stakeholder Intelligence (registry, engagements, commitments) is available on entitled Version 002 surfaces and continues to deepen on Cloud.*
 
 ## Version 002 (active — Stakeholder Intelligence core)
@@ -33,7 +33,7 @@
 | **Reports** | Operational + executive packs | Dual hub shipped; live SI bind next |
 | **Intelligence / ESG** | Indicators, trust/ESG depth, stronger AI | Demo indicators; live Grok deferred |
 
-**Public line:**  
+**Internal line (ops only — do not paste into marketing):**  
 *Version 002 — Stakeholder Intelligence core on Cloud for entitled plans. Still deepening versus the full Engineering Documentation Series blueprint — Version 001 remains the resolution desk.*
 
 ## Version 003+ (later)
@@ -44,5 +44,5 @@ Public portal, offline/mobile, GIS editing, marketplace — TEDS “future scope
 
 1. Never market Version 002/003 capabilities as “fully available” until the domain is end-to-end (UI + durable data path). Label illustrative data honestly.
 2. Soft commercial honesty: Practitioner ≠ full SI; Project/Institutional carry the SRM engine (`docs/PLATFORM_STRATEGIC_BRIEF.md` §5).
-3. Version badge stays visible in the app shell and marketing footer.
+3. Version numbers stay **internal**. Do not badge Version 001/002 in the app shell, marketing footer, FAQ, or Themba (ADR-044).
 4. Sample guest demo is discontinued (ADR-033).

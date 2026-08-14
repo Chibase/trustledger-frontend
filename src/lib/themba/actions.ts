@@ -1,4 +1,4 @@
-import type { ThembaLink } from "@/lib/themba/knowledge";
+import type { ThembaLink } from "@/lib/themba/types";
 import type { ThembaProfile } from "@/lib/themba/profile";
 
 export type ThembaAction = ThembaLink & {
@@ -21,26 +21,49 @@ export const THEMBA_CONVERSION_ACTIONS: ThembaAction[] = [
 export const THEMBA_PROFILE_CHIPS: ThembaChip[] = [
   {
     id: "funder",
-    label: "I'm a funder",
+    label: "Funder / investor",
     prompt: "I'm a funder — how does TrustLedger help with risk and reporting?",
   },
   {
     id: "engineer",
-    label: "I'm an engineer",
+    label: "Engineer",
     prompt:
       "I'm a civil engineer — how does TrustLedger help keep delivery on track?",
   },
   {
     id: "project_manager",
-    label: "I'm a project manager",
+    label: "Project manager",
     prompt:
       "I'm a project manager — how do I log grievances and keep commitments visible?",
   },
   {
     id: "municipal",
-    label: "I work in a municipality",
+    label: "Local government",
     prompt:
-      "I'm a municipal leader — how does TrustLedger support public-sector SRM?",
+      "I work in local government — how does TrustLedger support public-sector SRM in the Global South?",
+  },
+  {
+    id: "mel",
+    label: "MEL / M&E",
+    prompt:
+      "I work in MEL — how does TrustLedger support monitoring, evaluation, and learning?",
+  },
+  {
+    id: "community",
+    label: "Community member",
+    prompt:
+      "I'm a community member — how does TrustLedger treat community participation and indigenous knowledge?",
+  },
+  {
+    id: "social_facilitator",
+    label: "Social facilitator",
+    prompt:
+      "I'm a social facilitation practitioner — how does TrustLedger support community participation?",
+  },
+  {
+    id: "other",
+    label: "Another role",
+    prompt: "I have another role — how does TrustLedger help generally?",
   },
 ];
 
@@ -54,6 +77,11 @@ export const THEMBA_STARTER_CHIPS: ThembaChip[] = [
     id: "framework",
     label: "Social licence framework",
     prompt: "What is the Social Licence to Build framework?",
+  },
+  {
+    id: "blueprint",
+    label: "SRM blueprint",
+    prompt: "What is the TrustLedger SRM blueprint?",
   },
   {
     id: "readiness",
@@ -81,7 +109,27 @@ const PROFILE_ACTIONS: Record<ThembaProfile, ThembaAction[]> = {
   ],
   municipal: [
     { href: "/assessment", label: "Public-sector readiness", kind: "secondary" },
-    { href: "/product", label: "ZA place context", kind: "secondary" },
+    { href: "/product", label: "Place context & SRM", kind: "secondary" },
+  ],
+  mel: [
+    { href: "/assessment", label: "SRM diagnostic (MEL lens)", kind: "secondary" },
+    { href: "/resources", label: "Readiness planner", kind: "secondary" },
+  ],
+  community: [
+    {
+      href: "/resources/engagement-toolkit",
+      label: "Engagement toolkit",
+      kind: "secondary",
+    },
+    { href: "/product", label: "How participation is recorded", kind: "secondary" },
+  ],
+  social_facilitator: [
+    {
+      href: "/resources/engagement-toolkit",
+      label: "Engagement toolkit",
+      kind: "secondary",
+    },
+    { href: "/product", label: "Facilitation trail", kind: "secondary" },
   ],
   other: [
     { href: "/product", label: "Product overview", kind: "secondary" },
@@ -156,14 +204,66 @@ export function followUpChipsFor(
   if (profile === "municipal") {
     return [
       {
-        id: "za",
-        label: "Municipal fit",
-        prompt: "Is TrustLedger suitable for South African municipalities?",
+        id: "geo",
+        label: "Global South fit",
+        prompt:
+          "Does TrustLedger work beyond South Africa, in other Global South countries?",
       },
       {
         id: "assess",
         label: "Readiness diagnostic",
         prompt: "How do I assess SRM readiness before buying?",
+      },
+      ...common,
+    ];
+  }
+
+  if (profile === "mel") {
+    return [
+      {
+        id: "blueprint",
+        label: "SRM blueprint",
+        prompt: "What is the TrustLedger SRM blueprint?",
+      },
+      {
+        id: "iks",
+        label: "IKS in M&E",
+        prompt:
+          "How does TrustLedger treat Indigenous Knowledge Systems in M&E and community participation?",
+      },
+      ...common,
+    ];
+  }
+
+  if (profile === "community") {
+    return [
+      {
+        id: "iks",
+        label: "Indigenous knowledge",
+        prompt:
+          "How does TrustLedger treat Indigenous Knowledge Systems in community participation?",
+      },
+      {
+        id: "grievance",
+        label: "How a concern is logged",
+        prompt: "How does grievance logging and rapid-response workflow work?",
+      },
+      ...common,
+    ];
+  }
+
+  if (profile === "social_facilitator") {
+    return [
+      {
+        id: "engage",
+        label: "Engagement practice",
+        prompt: "How should community engagement and commitments be run?",
+      },
+      {
+        id: "iks",
+        label: "IKS & facilitation",
+        prompt:
+          "How does TrustLedger treat Indigenous Knowledge Systems in social facilitation?",
       },
       ...common,
     ];

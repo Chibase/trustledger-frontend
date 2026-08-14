@@ -108,7 +108,7 @@ export async function buildClientPortfolioBrief(): Promise<ClientPortfolioBrief>
     dataMode,
     dataSourceNote:
       dataMode === "live"
-        ? "Live Frappe methods when available; otherwise Version 002 seed packs (geo + CRM) and mock portfolio."
+        ? "Live TrustLedger Cloud methods when available; otherwise platform geo and CRM baseline plus mock portfolio."
         : "Demo seed mirrors backend contract (projects, incidents, geo pack, stakeholder CRM).",
     trust: {
       ...trustBase,
