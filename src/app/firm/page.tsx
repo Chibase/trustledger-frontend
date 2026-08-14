@@ -21,8 +21,8 @@ export default async function FirmHomePage() {
   return (
     <>
       <section className="bg-gradient-to-b from-tl-surface to-tl-paper">
-        <div className="mx-auto grid max-w-6xl items-start gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12 lg:py-16">
-          <div>
+        <div className="mx-auto grid max-w-6xl items-start gap-8 px-4 py-8 sm:px-6 md:grid-cols-2 md:gap-10 md:py-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12">
+          <div className="order-2 md:order-1">
             <p className="text-sm font-semibold text-tl-trust">
               Chibase Consulting
             </p>
@@ -55,11 +55,13 @@ export default async function FirmHomePage() {
               </a>
             </div>
             <p className="mt-4 max-w-md text-sm text-tl-ink-muted">
-              Try the desk on the right. Counts are yours, in this browser.
-              A real programme keeps the trail in a TrustLedger trial.
+              Try the preview desk. Counts are yours, in this browser. A real
+              programme keeps the trail in a TrustLedger trial.
             </p>
           </div>
-          <FirmDeskPreview trialHref={trialHref} />
+          <div className="order-1 min-w-0 md:order-2">
+            <FirmDeskPreview trialHref={trialHref} />
+          </div>
         </div>
       </section>
 
