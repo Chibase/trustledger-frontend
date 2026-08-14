@@ -513,13 +513,13 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Decision:**
   1. **Chibase Consulting public site** is rebuilt in this repo under `/firm`, same visual language as TrustLedger, **separate public identity** (ADR-039). Complement, do not merge brands. No product checkout or Themba on the firm host.
   2. **Host routing:** After DNS cutover, `chibaseconsulting.co.za` (and www) serve the firm pages. Product paths (`/app`, `/pay`, `/trial`, …) 302 to the TrustLedger URL with `utm_source=chibase`. Until cutover, preview at `/firm` is **noindex**.
-  3. **Do not cut over DNS** until the service provider confirms the WordPress origin is cleaned (or retired). Do not set `NEXT_PUBLIC_CHIBASE_SITE_URL` while the WordPress origin is still the public hostname.
-  4. **Email:** MX for `chibaseconsulting.co.za` and `trustledger.co.za` **stays on Webway**. This packet only serves HTTPS pages.
+  3. **Retire WordPress; do not clean it.** Webway declined malware/forensic cleanup (out of hosting scope). Do **not** hire a WP specialist to disinfect the brochure. Delete/suspend the Chibase WP document root and database. **Do not import** posts, media, themes, or plugins. Point **website DNS only** (apex A + www CNAME) at this app. Set `NEXT_PUBLIC_CHIBASE_SITE_URL` only after this app is the public hostname.
+  4. **Email:** MX for `chibaseconsulting.co.za` and `trustledger.co.za` **stays on Webway**. Do not change nameservers. `trustledger.co.za` WordPress is unchanged in this packet.
   5. **Security (both origins):** CSP + HSTS + probe block (no PHP/WordPress surface), form honeypot/reCAPTCHA/rate-limit with event log, CSP violation reports. Honest limit: this **hardens and detects**; it does not make either site unhackable (tenant ladder remains ADR-038). Request proxy lives in `src/proxy.ts` (Next.js 16; `middleware.ts` is deprecated).
   6. **Contact:** Short form only (name, work email, note). CRM Lead source **Chibase Consulting**. No CAPEX questionnaire. Rapid-response remains **human field intervention**, not a software division.
-  7. Packet: **SEC-SITE**. Runbooks: `docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`.
-- **Consequences:** TrustLedger footer points at `/firm` instead of the compromised WordPress origin. Operators add the Chibase hostname on the existing app when cleanup is confirmed. Internal docs may name the host; public copy does not name stack vendors (ADR-039).
-- **Alternatives considered:** Clean and keep WordPress (rejected — same attack surface); move MX with the site (rejected — mail stays Webway); claim the sites cannot be compromised (rejected — dishonest).
+  7. Packet: **SEC-SITE**. Runbook: `docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`.
+- **Consequences:** TrustLedger footer points at `/firm` instead of the compromised WordPress origin. Operators add the Chibase hostname on the existing app, ask Webway to delete WP + change website DNS only, then set the canonical env. Internal docs may name the host; public copy does not name stack vendors (ADR-039).
+- **Alternatives considered:** Clean and keep WordPress (rejected — same attack surface; SP will not clean); wait for a WP specialist (rejected — replacement site exists; do not migrate malware); move MX with the site (rejected — mail stays Webway); claim the sites cannot be compromised (rejected — dishonest).
 
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 

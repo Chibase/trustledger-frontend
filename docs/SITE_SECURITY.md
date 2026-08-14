@@ -28,7 +28,7 @@ SECURITY_ALERT_WEBHOOK_URL=https://…
 
 `GET /api/health` → `launch.securityIngest` is true when a secret exists.
 
-Add `chibaseconsulting.co.za` to the reCAPTCHA domain list before DNS cutover.
+Add `chibaseconsulting.co.za` (and www) to the reCAPTCHA domain list **before** website DNS cutover. Cutover runbook: `docs/CHIBASE_SITE.md` (retire WP; do not import it).
 
 ## If you see another “Human Verification / open Terminal / Ctrl+V”
 
