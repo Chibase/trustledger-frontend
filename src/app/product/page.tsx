@@ -40,7 +40,7 @@ const FEATURES = [
   },
   {
     title: "Grievance resolution desk",
-    body: "Version 001 case desk: intake, priority, verification, and close — the trust trail buyers already run in production.",
+    body: "Intake, priority, verification, and close — the trust trail operators already run in production.",
   },
   {
     title: "Evidence & reports",

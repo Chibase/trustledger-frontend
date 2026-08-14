@@ -2,10 +2,6 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { geoService } from "@/services/geoService";
-import {
-  NEXT_PRODUCT_VERSION_LABEL,
-  PRODUCT_VERSION_LABEL,
-} from "@/config/productVersion";
 
 type SearchParams = Promise<{ province?: string; muni?: string }>;
 
@@ -47,7 +43,7 @@ export default async function AppGeoPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={`${PRODUCT_VERSION_LABEL} → ${NEXT_PRODUCT_VERSION_LABEL}`}
+        eyebrow="Place context"
         title="Geographic intelligence"
         description={
           pack

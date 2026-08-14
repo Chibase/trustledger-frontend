@@ -118,10 +118,19 @@ const CORE: ThembaKnowledgeItem[] = [
   },
   {
     id: "versions",
-    question: "What is the difference between Version 001 and Version 002?",
+    question:
+      "What is the difference between the grievance desk and Stakeholder Intelligence?",
     answer:
-      "Version 001 is the live grievance resolution desk (projects, incidents, human-applied AI Assist on entitled plans, reports). Version 002 is Stakeholder Intelligence — registry, engagements, and commitments on TrustLedger Cloud for entitled plans (Project, Institutional, or add-ons). Version 002 is in active use and still deepening versus a full TEDS blueprint.",
-    keywords: ["version", "001", "002", "v001", "v002", "stakeholder intelligence"],
+      "The **grievance desk** is the live case path: projects, incidents, human-applied AI Assist on entitled plans, and reports. **Stakeholder Intelligence** is the SRM layer — registry, engagements, and commitments on TrustLedger Cloud for entitled plans (Project, Institutional, or add-ons).",
+    keywords: [
+      "version",
+      "001",
+      "002",
+      "v001",
+      "v002",
+      "desk",
+      "stakeholder intelligence",
+    ],
     links: [
       { href: "/product", label: "Product overview" },
       { href: "/faq", label: "FAQ" },
@@ -255,7 +264,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "go-live",
     question: "Is TrustLedger live for paying customers?",
     answer:
-      "Yes — the Version 001 resolution desk is operational for paying customers on TrustLedger Cloud. Stakeholder Intelligence continues to deepen; we do not over-claim a full TEDS blueprint.",
+      "Yes — the grievance resolution desk is operational for paying customers on TrustLedger Cloud. Stakeholder Intelligence (registry, engagements, commitments) is included on entitled plans.",
     keywords: ["live", "production", "ready", "launch", "go"],
     links: [
       { href: "/product", label: "Product overview" },
@@ -288,7 +297,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "rapid-response",
     question: "How does grievance logging and rapid-response workflow work?",
     answer:
-      "**Rapid-response** in TrustLedger is the Version 001 case desk, not a separate call centre. Typical path:\n\n- **Log** — field or community intake into one case ID (walk-in, phone, WhatsApp, email mapped to the same record).\n- **Own** — named owner, severity, and SLA so the issue is not ownerless.\n- **Escalate** — breach lists and an escalation path when time or safety risk rises.\n- **Evidence** — notes and files on the case; closure is verified, not informal.\n- **Report** — activity and executive packs cite the trail rather than memory.\n\nAI Assist (on entitled plans) may suggest next steps; a human applies before save. Start on /product, or download the grievance checklist from /resources.",
+      "**Rapid-response** in TrustLedger is the case desk, not a separate call centre. Typical path:\n\n- **Log** — field or community intake into one case ID (walk-in, phone, WhatsApp, email mapped to the same record).\n- **Own** — named owner, severity, and SLA so the issue is not ownerless.\n- **Escalate** — breach lists and an escalation path when time or safety risk rises.\n- **Evidence** — notes and files on the case; closure is verified, not informal.\n- **Report** — activity and executive packs cite the trail rather than memory.\n\nAI Assist (on entitled plans) may suggest next steps; a human applies before save. Start on /product, or download the grievance checklist from /resources.",
     keywords: [
       "grievance",
       "logging",

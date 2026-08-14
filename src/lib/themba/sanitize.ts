@@ -5,6 +5,11 @@ const BANNED: Array<{ re: RegExp; replacement: string }> = [
   { re: /\bHubSpot\b/gi, replacement: "our CRM" },
   { re: /\bInterserv\b/gi, replacement: "TrustLedger Cloud" },
   { re: /\bAccordBridge\b/gi, replacement: "TrustLedger" },
+  { re: /\bVersion 00[123]\b/gi, replacement: "TrustLedger" },
+  { re: /\bV00[123]\b/gi, replacement: "TrustLedger" },
+  { re: /\bfull TEDS blueprint\b/gi, replacement: "the full product blueprint" },
+  { re: /\bTEDS blueprint\b/gi, replacement: "product blueprint" },
+  { re: /\bTEDS\b/g, replacement: "our internal engineering series" },
 ];
 
 /** Strip stack brands from public agent copy (ADR-039 / ADR-042). */

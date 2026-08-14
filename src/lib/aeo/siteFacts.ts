@@ -43,7 +43,7 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "How do I track community grievances securely with TrustLedger?",
     answer:
-      "Use TrustLedger’s Version 001 resolution desk: field or community issue intake, owned cases with evidence, stage timestamps from reported through closed, and reports that cite the case trail. Paying and trial workspaces use your own data — not fictional sample incidents. AI only suggests; a human applies before anything is saved.",
+      "Use TrustLedger’s resolution desk: field or community issue intake, owned cases with evidence, stage timestamps from reported through closed, and reports that cite the case trail. Paying and trial workspaces use your own data — not fictional sample incidents. AI only suggests; a human applies before anything is saved.",
   },
   {
     question: "Is TrustLedger suitable for local municipalities and public-sector projects in South Africa?",
@@ -51,9 +51,10 @@ export const PUBLIC_FAQS: FaqItem[] = [
       "Yes. Every plan includes South African place context (municipalities, wards, and traditional councils where packed) — you add the project and situation, not the country map. The grievance desk sits on that baseline from Solo upward; Stakeholder Intelligence and deeper board or funder packs follow entitled plans (Project, Institutional, or add-ons). Institutional plans are sales-scoped for multi-project and public-sector needs. Start with the SRM readiness assessment or a 14-day own-data trial.",
   },
   {
-    question: "What is the difference between Version 001 and Version 002?",
+    question:
+      "What is the difference between the grievance desk and Stakeholder Intelligence?",
     answer:
-      "Version 001 is the live grievance resolution desk (projects, incidents, human-applied AI assist on entitled plans, reports). Version 002 is Stakeholder Intelligence — registry, engagements, and commitments on TrustLedger Cloud for entitled plans (Project, Institutional, or add-ons). Version 002 is in active use and still deepening versus a full TEDS blueprint.",
+      "The grievance desk is the live case path: projects, incidents, evidence, and reports. Stakeholder Intelligence is the SRM layer — registry, engagements, and commitments on TrustLedger Cloud for entitled plans (Project, Institutional, or add-ons). Both are part of TrustLedger; plan packaging decides which modules you get.",
   },
   {
     question: "Does TrustLedger use AI to close grievance cases automatically?",

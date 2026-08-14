@@ -45,7 +45,7 @@ Do not claim a 24/7 staffed Rapid-Response Division, a public community portal, 
 - **Bug telemetry:** keyword listener → `POST /api/telemetry/bug-report` (timestamp, user_query, page_url, browser_info, last 5 turns). Product-defect wording also opens the human handoff form. CRM source `Themba Bug` when the query looks like a site/product failure.
 - **Optional LLM polish:** `THEMBA_XAI_API_KEY` / `XAI_API_KEY` still server-side only, grounded on retrieved copy (`src/lib/themba/prompt.ts`).
 
-**Still not in scope:** desk writes, AI Assist suggest→apply, authenticated in-app help (later packet), inventing Version 002/003 claims.
+**Still not in scope:** desk writes, AI Assist suggest→apply, authenticated in-app help (later packet), inventing unshipped modules, naming Version 001/002 or TEDS in replies.
 
 ## Visitor education (do not soft-gate)
 
@@ -59,7 +59,7 @@ Lead path: `submitProductLead` with `sourceTag: themba_escalate` (CRM source **T
 
 ## Brand bans in replies
 
-Do not say: Frappe, Vercel, HubSpot, Interserv, AccordBridge. Prefer **TrustLedger Cloud** / **cloud**.
+Do not say: Frappe, Vercel, HubSpot, Interserv, AccordBridge, Version 001, Version 002, TEDS. Prefer **TrustLedger Cloud** / **cloud**. Speak in modules (grievance desk, Stakeholder Intelligence) and plans.
 
 ## Ops checks
 

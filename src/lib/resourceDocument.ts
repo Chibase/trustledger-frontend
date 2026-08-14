@@ -75,7 +75,7 @@ export function buildResourcePackHtml(pack: ResourcePack): string {
 
     <section style="margin:32px 0 0;padding:18px 20px;border:1px solid #d7dee4;border-radius:8px;background:#fff;">
       <h2 style="margin:0 0 8px;font-family:Georgia,'Source Serif 4',serif;font-size:18px;color:#0e7c66;">With TrustLedger</h2>
-      <p style="margin:0 0 10px;font-size:14px;color:#5b6b76;">Honest Version 001 turnaround lanes — stabilize, then operationalise, then govern.</p>
+      <p style="margin:0 0 10px;font-size:14px;color:#5b6b76;">Turnaround lanes — stabilize, then operationalise, then govern.</p>
       <ul style="margin:0;padding-left:1.1rem;font-size:14px;line-height:1.45;">${bridge}</ul>
     </section>
 

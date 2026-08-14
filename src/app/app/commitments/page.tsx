@@ -4,10 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
-import {
-  NEXT_PRODUCT_VERSION_LABEL,
-  PRODUCT_VERSION_LABEL,
-} from "@/config/productVersion";
 import { commitmentService } from "@/services/commitmentService";
 import {
   COMMITMENT_BOARD_STATUSES,
@@ -56,7 +52,7 @@ export default function AppCommitmentsPage() {
     <FeatureGate capability="commitments">
       <div className="space-y-6">
         <PageHeader
-          eyebrow={`${NEXT_PRODUCT_VERSION_LABEL} · ${PRODUCT_VERSION_LABEL} desk remains`}
+          eyebrow="Stakeholder Intelligence"
           title="Commitments"
           description="Promises from engagements — owner, deadline, and evidence toward closed. Promote action items from an engagement detail."
           actions={
