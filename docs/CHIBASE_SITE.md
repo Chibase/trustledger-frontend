@@ -63,7 +63,7 @@ Typical website records (confirm on the domain card before asking Webway):
 | `www` | CNAME | `cname.vercel-dns.com` or `cname.vercel-dns-0.com` (card value) | **Replace** (website) |
 | MX / mail TXT / `mail` | MX, TXT, CNAME, A | existing Webway mail | **Do not touch** |
 
-This app 308s `www` → apex. Add **both** hostnames on the project or `www` 404s.
+This app serves **both** `chibaseconsulting.co.za` and `www` as the firm site. Do **not** also 308 `www` ↔ apex in the app — that fights the project domain redirect and loops. Pick one primary on the **Domains** page (recommended: apex primary, www redirects to apex; or keep Vercel’s default apex → www). Add **both** hostnames or `www` 404s.
 
 ## Pages
 

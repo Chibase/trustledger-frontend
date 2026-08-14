@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-14 — Chibase: do not 308 www↔apex in-app
+
+- Removed the app `www` → apex redirect. It looped against the project domain card (apex → www). Both hostnames now serve the firm site; set the primary redirect only on Domains.
+
 ## 2026-08-14 — Chibase site + dual-origin public hardening (SEC-SITE)
 
 - Rebuilt **Chibase Consulting** as short pages under `/firm` (preview, noindex on the product host). **Retire WordPress** (Webway declined malware cleanup): point website DNS only at this app; **do not import** WP content/plugins. **MX for both domains stays on Webway.** `trustledger.co.za` WP unchanged.

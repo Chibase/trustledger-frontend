@@ -17,8 +17,6 @@ import {
   isPlatformOperatorOnly,
 } from "@/lib/platformOperator";
 import {
-  CHIBASE_CANONICAL_HOST,
-  hostnameOf,
   isChibaseHost,
   isChibasePreviewPath,
   TRUSTLEDGER_PRODUCT_URL,
@@ -182,14 +180,6 @@ function handleChibaseHost(request: NextRequest): NextResponse | null {
     pathname.startsWith("/marketing/")
   ) {
     return null;
-  }
-
-  const host = hostnameOf(request.headers.get("host"));
-  if (host === `www.${CHIBASE_CANONICAL_HOST}`) {
-    const dest = new URL(request.url);
-    dest.hostname = CHIBASE_CANONICAL_HOST;
-    dest.protocol = "https:";
-    return withSecurity(NextResponse.redirect(dest, 308));
   }
 
   const slug = pathname.replace(/\/$/, "") || "/";
