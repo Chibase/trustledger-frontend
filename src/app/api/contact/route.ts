@@ -10,6 +10,7 @@ import {
   leadCaptureConfigured,
   submitProductLead,
 } from "@/lib/leadCapture";
+import { chibaseContactPageUri } from "@/lib/security/hosts";
 
 type ContactKind = "contact" | "feedback";
 
@@ -19,6 +20,7 @@ type ContactBody = {
   organization?: string;
   message?: string;
   kind?: ContactKind;
+  source?: string;
   rating?: number;
   path?: string;
   tl_hp?: string;
@@ -45,7 +47,12 @@ export async function POST(request: Request) {
   }
 
   const kind: ContactKind = body.kind === "feedback" ? "feedback" : "contact";
-  const captchaAction = kind === "feedback" ? "product_feedback" : "contact";
+  const fromChibase = body.source === "chibase";
+  const captchaAction = fromChibase
+    ? "chibase_contact"
+    : kind === "feedback"
+      ? "product_feedback"
+      : "contact";
 
   const guard = await assertLeadFormGuards(request, {
     routeKey: `contact-${kind}`,
@@ -112,9 +119,11 @@ export async function POST(request: Request) {
   }
 
   const composed = [
-    kind === "feedback"
-      ? "TrustLedger experience feedback (user view)."
-      : "TrustLedger contact form enquiry.",
+    fromChibase
+      ? "Chibase Consulting contact form (firm site)."
+      : kind === "feedback"
+        ? "TrustLedger experience feedback (user view)."
+        : "TrustLedger contact form enquiry.",
     rating !== undefined ? `Rating: ${rating}/5.` : null,
     organization ? `Organization: ${organization}.` : null,
     `Message: ${message}`,
@@ -135,12 +144,20 @@ export async function POST(request: Request) {
       name: name || email.split("@")[0],
       company: organization,
       message: composed,
-      pageUri: `${siteBaseUrl()}${path || (kind === "feedback" ? "/feedback" : "/contact")}`,
+      pageUri: fromChibase
+        ? chibaseContactPageUri(request)
+        : `${siteBaseUrl()}${path || (kind === "feedback" ? "/feedback" : "/contact")}`,
       pageName:
-        kind === "feedback"
-          ? "TrustLedger product feedback"
-          : "TrustLedger contact",
-      sourceTag: kind === "feedback" ? "product_feedback" : "contact",
+        fromChibase
+          ? "Chibase Consulting contact"
+          : kind === "feedback"
+            ? "TrustLedger product feedback"
+            : "TrustLedger contact",
+      sourceTag: fromChibase
+        ? "chibase_contact"
+        : kind === "feedback"
+          ? "product_feedback"
+          : "contact",
       jobTitle,
       rating,
       userQuote: message,

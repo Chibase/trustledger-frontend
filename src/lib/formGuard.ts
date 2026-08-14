@@ -2,6 +2,8 @@
  * Shared lead-form guards: honeypot, optional reCAPTCHA v3, light rate limit.
  */
 
+import { recordSecurityEvent } from "@/lib/security/log";
+
 export function honeypotFilled(value: unknown): boolean {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -157,13 +159,32 @@ export async function assertLeadFormGuards(
   | { ok: true }
   | { ok: false; status: number; error: string; silent?: boolean }
 > {
+  const ip = clientIp(request);
+  const host = request.headers.get("host") || "";
+  const ua = request.headers.get("user-agent") || "";
+  const path = new URL(request.url).pathname;
+
   if (honeypotFilled(opts.honeypot)) {
-    // Accept quietly — do not create a lead
+    recordSecurityEvent({
+      kind: "honeypot",
+      reason: opts.routeKey,
+      path,
+      ip,
+      host,
+      ua,
+    });
     return { ok: false, status: 200, error: "ignored", silent: true };
   }
 
-  const ip = clientIp(request);
   if (!rateLimitAllow(`${opts.routeKey}:${ip}`, formRateLimit())) {
+    recordSecurityEvent({
+      kind: "rate_limited",
+      reason: opts.routeKey,
+      path,
+      ip,
+      host,
+      ua,
+    });
     return {
       ok: false,
       status: 429,
@@ -175,6 +196,14 @@ export async function assertLeadFormGuards(
     typeof opts.captchaToken === "string" ? opts.captchaToken : undefined;
   const captcha = await verifyRecaptchaToken(token, opts.captchaAction);
   if (!captcha.ok) {
+    recordSecurityEvent({
+      kind: "form_rejected",
+      reason: captcha.reason.slice(0, 80),
+      path,
+      ip,
+      host,
+      ua,
+    });
     return { ok: false, status: 400, error: captcha.reason };
   }
 

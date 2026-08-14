@@ -83,5 +83,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
       priority: 0.3,
     },
+    ...chibaseSitemap(now),
   ];
+}
+
+function chibaseSitemap(now: Date): MetadataRoute.Sitemap {
+  const firm = (process.env.NEXT_PUBLIC_CHIBASE_SITE_URL || "").replace(
+    /\/$/,
+    "",
+  );
+  if (!firm) return [];
+  const paths = [
+    "/",
+    "/practice",
+    "/trustledger",
+    "/insights",
+    "/about",
+    "/contact",
+  ];
+  return paths.map((path, i) => ({
+    url: path === "/" ? firm : `${firm}${path}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: i === 0 ? 0.8 : 0.6,
+  }));
 }

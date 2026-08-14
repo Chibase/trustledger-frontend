@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { headers } from "next/headers";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ThembaWidget } from "@/components/themba/ThembaWidget";
 import {
@@ -48,26 +49,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const site = (await headers()).get("x-tl-site");
+  const isFirm = site === "chibase";
   return (
     <html
       lang="en"
       className={`${sourceSans.variable} ${sourceSerif.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <JsonLd
-          data={[
-            organizationJsonLd(),
-            softwareApplicationJsonLd(),
-            webSiteJsonLd(),
-          ]}
-        />
+        {isFirm ? null : (
+          <JsonLd
+            data={[
+              organizationJsonLd(),
+              softwareApplicationJsonLd(),
+              webSiteJsonLd(),
+            ]}
+          />
+        )}
         {children}
-        <ThembaWidget />
+        {isFirm ? null : <ThembaWidget />}
         <Analytics />
       </body>
     </html>

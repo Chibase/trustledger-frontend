@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { SECURITY_HEADERS } from "./src/lib/security/headers";
 
 const nextConfig: NextConfig = {
   async redirects() {
@@ -23,26 +24,8 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      {
-        source: "/assessment",
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value:
-              "frame-ancestors 'self' https://trustledger.co.za https://www.trustledger.co.za",
-          },
-        ],
-      },
-      {
-        source: "/assessment/:path*",
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value:
-              "frame-ancestors 'self' https://trustledger.co.za https://www.trustledger.co.za",
-          },
-        ],
-      },
+      { source: "/", headers: SECURITY_HEADERS },
+      { source: "/:path*", headers: SECURITY_HEADERS },
     ];
   },
 };

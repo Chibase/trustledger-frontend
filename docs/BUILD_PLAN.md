@@ -14,7 +14,7 @@
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
 | Backend | **Frappe Cloud** `app.trustledger.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
-| Marketing | WordPress `trustledger.co.za` on Webway (CTA later) |
+| Marketing | TrustLedger WP `trustledger.co.za` on Webway (CTAs). **Chibase Consulting** brochure on this app (`/firm`; DNS after WP cleanup). MX for both domains stays Webway. |
 | Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
 **Current phase:** Phase 6 — **Version 002** core (ADR-023). Product label in market: **Version 001**. Demo/mock remains default until Frappe DocTypes land.
@@ -73,6 +73,7 @@ When implementing:
 /app/issues/report    Assisted intake
 /app/reports          Client/admin briefs
 /app/settings         Profile / org
+/firm                 Chibase Consulting brochure (preview; canonical host after DNS)
 ```
 
 Legacy routes (`/dashboard`, `/incidents`, …) **redirect** into `/app/...` so old links work.
@@ -232,6 +233,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | Planned |
 | **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
 | **SEC-5** | Cloud invitee seats | Replace browser-only junior seats | Planned |
+| **SEC-SITE** | Dual-origin public hardening + Chibase site | ADR-046 — `/firm` brochure; retire Chibase WP (no content/plugin import); website DNS to this app; MX stays Webway (`docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`) | **Done** |
 
 ## 8. Quality gates (every packet)
 
@@ -283,6 +285,8 @@ src/
 | 2026-07-26 | UG-1 — user manual + first-login setup wizard / Guide |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
+| 2026-08-14 | SEC-SITE — retire Chibase WordPress (SP declined cleanup); website DNS only; MX stays Webway |
+| 2026-08-14 | SEC-SITE / ADR-046 — Chibase Next.js brochure + dual-origin public hardening; MX stays Webway |
 | 2026-08-14 | THEMBA-C / ADR-045 — Themba audiences, Global South, document grounding |
 | 2026-08-14 | THEMBA-B / ADR-043 — Themba marketing guru on all public landing pages |
 | 2026-08-13 | THEMBA-A / ADR-042 — Themba (The Trust) visitor guide on marketing routes |

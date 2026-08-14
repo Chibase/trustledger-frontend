@@ -41,7 +41,7 @@ type ThembaChatProps = {
   allowPaths?: string[];
 };
 
-const HIDE_PREFIXES = ["/app", "/ops", "/login", "/pay", "/invite", "/auth"];
+const HIDE_PREFIXES = ["/app", "/ops", "/login", "/pay", "/invite", "/auth", "/firm"];
 
 function isPublicLandingPath(pathname: string): boolean {
   return !HIDE_PREFIXES.some(

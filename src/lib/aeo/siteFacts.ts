@@ -19,7 +19,10 @@ export const PRODUCT_TAGLINE = "Resolution you can audit.";
 
 export const OPERATOR_ORG = {
   name: "Chibase Consulting",
-  url: "https://chibaseconsulting.co.za",
+  /** Preview `/firm` until NEXT_PUBLIC_CHIBASE_SITE_URL is set after DNS cutover. */
+  url: (
+    process.env.NEXT_PUBLIC_CHIBASE_SITE_URL || `${SITE_URL}/firm`
+  ).replace(/\/$/, ""),
   email: "info@trustledger.co.za",
 } as const;
 
