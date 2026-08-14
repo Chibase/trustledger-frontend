@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-14 — Chibase hero preview desk (CHIBASE-PREVIEW)
+
+- Consulting home hero: interactive TrustLedger **preview desk** — add mock cases, named people, and promises; KPIs and list update in this browser only (`sessionStorage`).
+- Not a workspace: no `/app` session, no `INC-*` seed. CTA to 14-day own-data trial. ADR-047.
+
 ## 2026-08-14 — Chibase: do not 308 www↔apex in-app
 
 - Removed the app `www` → apex redirect. It looped against the project domain card (apex → www). Both hostnames now serve the firm site; set the primary redirect only on Domains.

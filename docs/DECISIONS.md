@@ -521,6 +521,19 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** TrustLedger footer points at `/firm` instead of the compromised WordPress origin. Operators add the Chibase hostname on the existing app, ask Webway to delete WP + change website DNS only, then set the canonical env. Internal docs may name the host; public copy does not name stack vendors (ADR-039).
 - **Alternatives considered:** Clean and keep WordPress (rejected — same attack surface; SP will not clean); wait for a WP specialist (rejected — replacement site exists; do not migrate malware); move MX with the site (rejected — mail stays Webway); claim the sites cannot be compromised (rejected — dishonest).
 
+### ADR-047: Chibase hero preview desk (local mock, not a workspace)
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** Buyers landing on Chibase Consulting need a feel of TrustLedger without reopening the retired public sample desk (ADR-033) or mixing a guest `/app` session into the consulting origin (ADR-046).
+- **Decision:**
+  1. The Chibase home hero includes an interactive **preview desk**: add mock cases / named people / promises; KPIs and a list update in place.
+  2. Data lives in **this browser only** (`sessionStorage`). No Cloud, no cookies that enter `/app`, no `INC-*` seed, max 12 rows. Chrome is labelled preview.
+  3. CTA for a real trail remains the TrustLedger **14-day own-data trial** (absolute product URL). Does not restore sample-demo entry.
+  4. Packet: **CHIBASE-PREVIEW**.
+- **Consequences:** Consulting site can demonstrate the desk without a fictional workspace. Trial/live lists stay empty-or-real.
+- **Alternatives considered:** Link only to `/trial` with a static screenshot (rejected — user asked to add mock data and view a dashboard); restore `/demo` guest `/app` (rejected — ADR-033).
+
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 
 - **Date:** 2026-07-23
