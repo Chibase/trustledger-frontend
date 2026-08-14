@@ -13,7 +13,6 @@ import {
   PUBLIC_FAQS,
   SITE_URL,
 } from "@/lib/aeo/siteFacts";
-import { ThembaWidget } from "@/components/themba/ThembaWidget";
 
 export const metadata: Metadata = {
   title: "FAQ — TrustLedger SRM & grievance software",
@@ -162,7 +161,6 @@ export default function FaqPage() {
           </Link>
         </div>
       </main>
-      <ThembaWidget />
     </div>
   );
 }

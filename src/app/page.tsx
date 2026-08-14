@@ -10,7 +10,6 @@ import { HomeSectors } from "@/components/marketing/HomeSectors";
 import { HomeTrustProof } from "@/components/marketing/HomeTrustProof";
 import { HomeVersionStrip } from "@/components/marketing/HomeVersionStrip";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { ThembaWidget } from "@/components/themba/ThembaWidget";
 import { faqPageJsonLd } from "@/lib/aeo/jsonLd";
 import { PRODUCT_DEFINITION, SITE_URL } from "@/lib/aeo/siteFacts";
 
@@ -58,7 +57,6 @@ export default function HomePage() {
         <HomeFinalCta />
       </main>
       <HomeFooter />
-      <ThembaWidget />
     </>
   );
 }

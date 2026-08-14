@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { ThembaWidget } from "@/components/themba/ThembaWidget";
 import {
   organizationJsonLd,
   softwareApplicationJsonLd,
@@ -66,6 +67,7 @@ export default function RootLayout({
           ]}
         />
         {children}
+        <ThembaWidget />
         <Analytics />
       </body>
     </html>

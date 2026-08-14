@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-08-14 — Themba marketing guru (THEMBA-B)
+
+- Global public widget (root layout); hidden on `/app`, `/ops`, `/login`, `/pay`, `/invite`.
+- Avatar `/assets/images/themba-avatar.png`; greeting bubble; Markdown replies; role chips; conversion bar (trial / live demo / advisory).
+- Knowledge: Social Licence to Build framework (mapped to shipped SRM + case desk), funder / engineer / PM / municipal value props. No public funder-dashboard URL.
+- In-chat lead magnet → existing `/resources` packs. Bug keywords → `POST /api/telemetry/bug-report`.
+- CRM sources **Themba Guide** / **Themba Bug**. Runbook `docs/THEMBA.md`. ADR-043.
+
 ## 2026-08-13 — Themba educates features before signup CTAs
 
 - Feature / help / suitability questions map to dedicated knowledge (capabilities + readiness prompts), not the trial FAQ.

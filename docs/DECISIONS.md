@@ -458,10 +458,25 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   1. **Name:** Customer-facing agent is **Themba** (subtitle **The Trust**). Voice = Trust (ADR-039). Never name Frappe/Vercel/HubSpot/Interserv/AccordBridge in replies.
   2. **Phase A (this ADR):** Visitor widget on public marketing routes `/`, `/product`, `/faq` only. Answers from canonical knowledge (`siteFacts` PUBLIC_FAQS + `docs/PLATFORM_STRATEGIC_BRIEF.md` §6, rewritten for public voice). BFF `POST /api/themba/chat` — no client API keys.
   3. **Behaviour:** Simple FAQ/objection Q&A + CTAs toward `/trial`, `/product`, `/pay`, `/contact`, `/assessment`. Unknown, out-of-scope, or escalate-intent → human handoff (contact + optional CRM Lead via existing leadCapture). Themba does **not** write desk/workspace data and does **not** auto-apply AI suggestions.
-  4. **Phase B (later):** Authenticated in-app help for live/trial users; optional server-side LLM polish when a Themba key is configured — still grounded on the same knowledge corpus; never invent features.
-  5. Detail runbook: `docs/THEMBA.md`. Packet: **THEMBA-A**.
+  4. **Later:** Authenticated in-app help for live/trial users remains a future packet (not THEMBA-B). Optional server-side LLM polish when a Themba key is configured — still grounded on the same knowledge corpus; never invent features.
+  5. Detail runbook: `docs/THEMBA.md`. Packet: **THEMBA-A**. Marketing-guru deepening: **ADR-043** / **THEMBA-B**.
 - **Consequences:** One public agent identity; acquisition stays Frappe CRM Lead; desk AI Assist unchanged. Ops may add `THEMBA_XAI_API_KEY` later without changing the widget contract.
 - **Alternatives considered:** Generic “chatbot” with no brand (rejected — weak Trust voice); wire desk Grok for marketing Q&A (rejected — wrong product surface + over-claim risk); HubSpot chat (rejected — ADR-034).
+
+### ADR-043: Themba marketing guru + public conversion (THEMBA-B)
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** Phase A answered FAQ on three routes. Buyers need role-aware guidance (funders, engineers, municipalities), an owned avatar, conversion chips, email-gated toolkits in-chat, and a way for “this page is broken” to reach engineering without putting LLM keys in the browser.
+- **Decision:**
+  1. Mount Themba once from the root layout on **all public landing pages**; hide on `/app`, `/ops`, `/login`, `/pay`, `/invite`, `/auth`.
+  2. Profile early (funder / engineer / project manager / municipal / other) and tailor value props. Dual engine: marketing guru + SRM guide.
+  3. **Social Licence to Build** is positioning mapped to shipped modules (advisory handoff, SRM/SI, rapid-response case desk). Do not sell an unshipped Rapid-Response Division or a public funder dashboard URL.
+  4. Conversion chips: 14-day trial (`/trial`), book live demo (`/contact`), contact advisory (`/contact`). Lead magnets reuse `/api/resources/download`.
+  5. Bug keywords POST `/api/telemetry/bug-report` (rate-limited). Product-defect language also opens human handoff. CRM sources: **Themba Guide**, **Themba Bug**.
+  6. Avatar at `/assets/images/themba-avatar.png`. Markdown subset (bold + bullets) in assistant replies. No third-party chat watermarks.
+- **Consequences:** One global public widget; acquisition still Frappe CRM Lead; in-app authenticated help still deferred.
+- **Alternatives considered:** Third-party chat vendor (rejected — brand ownership + ADR-034); public funder-only dashboard route (rejected — no such surface; report packs live in entitled workspaces).
 
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 
