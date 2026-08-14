@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-14 — Chibase: packages on the home page, nav always visible
+
+- Home now lists all four priced packages (including field). Header nav wraps instead of scrolling off-screen; Packages is first.
+
 ## 2026-08-14 — Chibase footer: drop mail-host note
 
 - Removed “Mail stays on the existing host. This site is the public brochure.” from the public footer (and the matching contact-form aside). MX still stays on Webway in ops docs.

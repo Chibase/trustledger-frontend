@@ -4,12 +4,11 @@ import { FirmDeskPreview } from "@/components/chibase/FirmDeskPreview";
 import {
   CHIBASE_DEFINITION,
   CHIBASE_TAGLINE,
-  SERVICES,
 } from "@/lib/chibase/content";
 import { FIRM_INSIGHTS } from "@/lib/chibase/insights";
 import {
   formatChibasePackagePrice,
-  getChibasePackage,
+  getChibasePackages,
 } from "@/lib/chibase/packages";
 import { firmPath, isChibaseHost, trustLedgerAbsolute } from "@/lib/security/hosts";
 
@@ -18,6 +17,7 @@ export default async function FirmHomePage() {
   const trialHref = trustLedgerAbsolute(
     "/trial?utm_source=chibase&utm_medium=hero_desk&utm_campaign=trial",
   );
+  const packages = getChibasePackages();
   return (
     <>
       <section className="bg-gradient-to-b from-tl-surface to-tl-paper">
@@ -65,46 +65,45 @@ export default async function FirmHomePage() {
 
       <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
         <h2 className="font-display text-2xl font-semibold text-tl-ink">
-          Three ways we work
+          Packages
         </h2>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {SERVICES.map((s) => {
-            const pkg = getChibasePackage(s.packageId);
-            return (
-              <Link
-                key={s.name}
-                href={firmPath(chibaseHost, s.href)}
-                className="rounded-xl border border-tl-line bg-tl-surface p-5 hover:border-tl-trust"
-              >
-                <h3 className="font-semibold text-tl-ink">{s.name}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
-                  {s.body}
-                </p>
-                {pkg ? (
-                  <p className="mt-3 text-sm font-semibold tabular-nums text-tl-ink">
-                    {formatChibasePackagePrice(pkg)}
-                    <span className="ml-1 font-normal text-tl-ink-muted">
-                      starter · excl. VAT
-                    </span>
-                  </p>
-                ) : null}
-              </Link>
-            );
-          })}
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-tl-ink-muted">
+          Listed starter engagements — one programme or site, ZAR excl. VAT.
+          Not a TrustLedger software seat. Larger work is scoped on request.
+        </p>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          {packages.map((pkg) => (
+            <Link
+              key={pkg.id}
+              href={firmPath(chibaseHost, `/packages#${pkg.id}`)}
+              className="rounded-xl border border-tl-line bg-tl-surface p-5 hover:border-tl-trust"
+            >
+              <h3 className="font-semibold text-tl-ink">{pkg.label}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
+                {pkg.summary}
+              </p>
+              <p className="mt-3 font-display text-xl font-semibold tabular-nums text-tl-ink">
+                {formatChibasePackagePrice(pkg)}
+              </p>
+              <p className="mt-1 text-xs text-tl-ink-muted">
+                {pkg.starter} · excl. VAT
+              </p>
+            </Link>
+          ))}
         </div>
         <p className="mt-6">
+          <Link
+            href={firmPath(chibaseHost, "/packages")}
+            className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
+          >
+            Request or pay a package
+          </Link>
+          {" · "}
           <Link
             href={firmPath(chibaseHost, "/practice")}
             className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
           >
             How the practice runs
-          </Link>
-          {" · "}
-          <Link
-            href={firmPath(chibaseHost, "/packages")}
-            className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
-          >
-            See packages
           </Link>
         </p>
       </section>
