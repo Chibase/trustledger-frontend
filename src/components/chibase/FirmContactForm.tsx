@@ -133,7 +133,7 @@ export function FirmContactForm({
       </button>
       <RecaptchaLegalNote />
       <p className="text-xs text-tl-ink-muted">
-        Or write {CHIBASE_EMAIL} — mail is hosted separately from this site.
+        Or write {CHIBASE_EMAIL}.
       </p>
     </form>
   );
