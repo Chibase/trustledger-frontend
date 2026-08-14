@@ -64,7 +64,15 @@ const PRODUCT_ON_FIRM = [
   "/cookies",
   "/invite",
   "/auth",
+  "/dashboard",
+  "/projects",
+  "/incidents",
+  "/issues",
+  "/reports",
 ];
+
+/** Firm origin may only post contact + CSP reports. Product APIs stay on TrustLedger. */
+const FIRM_API_ALLOW = ["/api/contact", "/api/security/csp-report"];
 
 function safeNextPath(raw: string | null): string | null {
   if (!raw) return null;
@@ -155,9 +163,21 @@ function chibaseRewritePath(pathname: string): string | null {
 
 function handleChibaseHost(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
+  if (pathname.startsWith("/api/")) {
+    const allowed = FIRM_API_ALLOW.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`),
+    );
+    if (allowed) return null;
+    return withSecurity(
+      new NextResponse("Not found", {
+        status: 404,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      }),
+    );
+  }
+
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/") ||
     pathname.startsWith("/assets/") ||
     pathname.startsWith("/marketing/")
   ) {

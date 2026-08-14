@@ -15,7 +15,7 @@
 | Ingest API | `POST /api/security/ingest` | Optional extra ingest when `CRON_SECRET` or `SECURITY_INGEST_SECRET` is set |
 | Ops read | `GET /api/security/events` | Allowlisted operators; serverless memory is best-effort |
 | Forms | Honeypot + reCAPTCHA + rate limit | Unchanged path; Chibase contact uses the same guards |
-| Firm host isolation | `src/proxy.ts` | Chibase hostname cannot serve `/app`, `/pay`, `/ops` |
+| Firm host isolation | `src/proxy.ts` | Chibase hostname cannot serve `/app`, `/pay`, `/ops`, or product APIs (`/api/paystack`, `/api/trial`, …). Only `/api/contact` and `/api/security/csp-report` are allowed. |
 
 ## Operator setup
 

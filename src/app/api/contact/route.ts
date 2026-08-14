@@ -10,6 +10,7 @@ import {
   leadCaptureConfigured,
   submitProductLead,
 } from "@/lib/leadCapture";
+import { chibaseContactPageUri } from "@/lib/security/hosts";
 
 type ContactKind = "contact" | "feedback";
 
@@ -143,7 +144,9 @@ export async function POST(request: Request) {
       name: name || email.split("@")[0],
       company: organization,
       message: composed,
-      pageUri: `${siteBaseUrl()}${path || (kind === "feedback" ? "/feedback" : "/contact")}`,
+      pageUri: fromChibase
+        ? chibaseContactPageUri(request)
+        : `${siteBaseUrl()}${path || (kind === "feedback" ? "/feedback" : "/contact")}`,
       pageName:
         fromChibase
           ? "Chibase Consulting contact"

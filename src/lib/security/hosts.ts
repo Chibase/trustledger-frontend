@@ -58,3 +58,15 @@ export function firmPath(chibaseHost: boolean, path: string): string {
   if (path === "/") return chibaseHost ? "/" : "/firm";
   return chibaseHost ? path : `/firm${path}`;
 }
+
+/** Canonical contact URL recorded on CRM Leads (never the compromised WP origin unless env is set after cutover). */
+export function chibaseContactPageUri(request: Request): string {
+  if (CHIBASE_PUBLIC_URL) return `${CHIBASE_PUBLIC_URL}/contact`;
+  const host = request.headers.get("host");
+  if (isChibaseHost(host)) {
+    const proto = request.headers.get("x-forwarded-proto") || "https";
+    const hostname = hostnameOf(host) || CHIBASE_CANONICAL_HOST;
+    return `${proto}://${hostname}/contact`;
+  }
+  return `${TRUSTLEDGER_PRODUCT_URL}/firm/contact`;
+}

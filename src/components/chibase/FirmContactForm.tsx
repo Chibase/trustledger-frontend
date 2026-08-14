@@ -46,7 +46,10 @@ export function FirmContactForm() {
           message: message.trim(),
           kind: "contact",
           source: "chibase",
-          path: "/firm/contact",
+          path:
+            typeof window !== "undefined"
+              ? window.location.pathname
+              : "/firm/contact",
           tl_hp: honeypot,
           captchaToken,
         }),
