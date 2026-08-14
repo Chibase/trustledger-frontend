@@ -10,7 +10,6 @@ import {
   PRODUCT_TAGLINE,
   SITE_URL,
 } from "@/lib/aeo/siteFacts";
-import { ThembaWidget } from "@/components/themba/ThembaWidget";
 
 export const metadata: Metadata = {
   title: "Product — TrustLedger Stakeholder Intelligence",
@@ -277,7 +276,6 @@ export default async function ProductPage({ searchParams }: PageProps) {
           </div>
         </section>
       </main>
-      <ThembaWidget />
     </div>
   );
 }

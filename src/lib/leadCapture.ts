@@ -259,6 +259,8 @@ function resolveCrmSource(
     eft_payment: "EFT Payment",
     quote_request: "Quote Request",
     support_ticket: "Support Ticket",
+    themba_escalate: "Themba Guide",
+    themba_bug: "Themba Bug",
   };
   return defaults[sourceTag] || process.env.FRAPPE_LEAD_SOURCE?.trim();
 }

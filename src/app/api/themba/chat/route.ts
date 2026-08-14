@@ -14,8 +14,10 @@ import {
 } from "@/lib/leadCapture";
 import {
   composeThembaReply,
+  isThembaProfile,
   maybePolishWithLlm,
   type ThembaChatMessage,
+  type ThembaProfile,
 } from "@/lib/themba";
 
 export const runtime = "nodejs";
@@ -30,6 +32,7 @@ type ChatBody = {
   message?: string;
   messages?: ThembaChatMessage[];
   path?: string;
+  profile?: ThembaProfile;
   tl_hp?: string;
   company_url?: string;
   escalate?: EscalatePayload;
@@ -133,6 +136,7 @@ export async function POST(request: Request) {
         sourceTag: "themba_escalate",
         jobTitle: `Themba escalate · ${path}`,
         userQuote: note,
+        role: isThembaProfile(body.profile) ? body.profile : undefined,
       });
       if (!result.ok) {
         return NextResponse.json(
@@ -185,7 +189,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const base = composeThembaReply(question);
+  const profileHint = isThembaProfile(body.profile) ? body.profile : null;
+  const base = composeThembaReply(question, { profile: profileHint });
   const polished = await maybePolishWithLlm(question, base);
 
   return NextResponse.json({
@@ -193,6 +198,11 @@ export async function POST(request: Request) {
     reply: polished.reply,
     escalate: polished.escalate,
     links: polished.links,
+    actions: polished.actions,
+    chips: polished.chips,
     mode: polished.mode,
+    profile: polished.profile,
+    magnet: polished.magnet,
+    bugHint: polished.bugHint,
   });
 }

@@ -207,6 +207,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **THEMBA-A** | Themba Phase A visitor guide | ADR-042 — widget on `/`, `/product`, `/faq`; BFF `/api/themba/chat`; knowledge from `siteFacts` + brief §6; escalate → contact/Lead; no client LLM keys (`docs/THEMBA.md`) | **Done** |
+| **THEMBA-B** | Themba marketing guru | ADR-043 — global public widget + avatar; role profiling; Social Licence framework knowledge; conversion chips; resource magnet; `/api/telemetry/bug-report` | **Done** |
 
 ### Commercial packaging
 
@@ -281,4 +282,5 @@ src/
 | 2026-07-26 | UG-1 — user manual + first-login setup wizard / Guide |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
+| 2026-08-14 | THEMBA-B / ADR-043 — Themba marketing guru on all public landing pages |
 | 2026-08-13 | THEMBA-A / ADR-042 — Themba (The Trust) visitor guide on marketing routes |

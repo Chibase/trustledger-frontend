@@ -1,6 +1,6 @@
 # Lead forms — spam, feedback, follow-ups
 
-Applies to `/assessment`, `/readiness/*` unlock, `/resources` downloads, `/contact`, `/quote`, soft-gate, product feedback, and in-app Support tickets.
+Applies to `/assessment`, `/readiness/*` unlock, `/resources` downloads, `/contact`, `/quote`, soft-gate, product feedback, in-app Support tickets, Themba escalate, and Themba bug telemetry.
 ## 1. Spam control (shipped)
 
 | Layer | Behaviour |

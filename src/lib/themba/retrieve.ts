@@ -121,6 +121,44 @@ export function retrieveKnowledge(question: string): RetrieveResult {
       qLower,
     ) && !/\b(features?|capabilities)\b/i.test(qLower);
 
+  const wantsFramework =
+    /\b(social licence|social license|licence to build|framework|advisory architecture)\b/i.test(
+      qLower,
+    );
+
+  const wantsRapid =
+    /\b(rapid.?response|grievance log|log(ging)? a grievance|sla|case desk)\b/i.test(
+      qLower,
+    );
+
+  const wantsRoi =
+    /\b(roi|return on|risk mitigat|compliance|business case)\b/i.test(qLower);
+
+  const wantsMagnet =
+    /\b(download|checklist|toolkit|blueprint|printable)\b/i.test(qLower);
+
+  const wantsFunder =
+    /\b(funder|investor|dfi|board pack|funder dashboard|funder reporting)\b/i.test(
+      qLower,
+    );
+
+  const wantsMunicipal =
+    /\b(municipality|municipal|mayor|public sector)\b/i.test(qLower);
+
+  const wantsEngineer =
+    /\b(civil engineer|engineer|site team|epcm)\b/i.test(qLower);
+
+  const wantsPm =
+    /\b(project manager|programme manager|program manager)\b/i.test(qLower);
+
+  const wantsDemo =
+    /\b(book (a )?(live )?demo|live demo|advisory team|walkthrough)\b/i.test(
+      qLower,
+    );
+
+  const wantsDashboards =
+    /\b(impact dashboard|dashboards?|board pack|funder pack)\b/i.test(qLower);
+
   for (const item of corpus) {
     let s = scoreItem(queryTokens, item);
     if (wantsFeatures && (item.id === "features" || item.id === "how-helps")) {
@@ -134,6 +172,36 @@ export function retrieveKnowledge(question: string): RetrieveResult {
     }
     if (wantsCrm && (item.id === "crm-real" || item.id === "versions")) {
       s += 0.55;
+    }
+    if (wantsFramework && item.id === "social-licence-framework") {
+      s += 0.6;
+    }
+    if (wantsRapid && item.id === "rapid-response") {
+      s += 0.55;
+    }
+    if (wantsRoi && item.id === "roi-risk") {
+      s += 0.5;
+    }
+    if (wantsMagnet && item.id === "lead-magnet") {
+      s += 0.55;
+    }
+    if (wantsFunder && item.id === "funder-value") {
+      s += 0.5;
+    }
+    if (wantsMunicipal && item.id === "municipal-value") {
+      s += 0.45;
+    }
+    if (wantsEngineer && item.id === "engineer-value") {
+      s += 0.5;
+    }
+    if (wantsPm && item.id === "pm-value") {
+      s += 0.55;
+    }
+    if (wantsDemo && item.id === "book-demo") {
+      s += 0.6;
+    }
+    if (wantsDashboards && item.id === "impact-dashboards") {
+      s += 0.5;
     }
     if (s > bestScore) {
       bestScore = s;
