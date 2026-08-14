@@ -7,6 +7,10 @@ import {
   SERVICES,
 } from "@/lib/chibase/content";
 import { FIRM_INSIGHTS } from "@/lib/chibase/insights";
+import {
+  formatChibasePackagePrice,
+  getChibasePackage,
+} from "@/lib/chibase/packages";
 import { firmPath, isChibaseHost, trustLedgerAbsolute } from "@/lib/security/hosts";
 
 export default async function FirmHomePage() {
@@ -35,6 +39,12 @@ export default async function FirmHomePage() {
               >
                 Book an alignment conversation
               </Link>
+              <Link
+                href={firmPath(chibaseHost, "/packages")}
+                className="inline-flex rounded-md border border-tl-line bg-tl-surface px-5 py-3 text-sm font-semibold text-tl-ink hover:border-tl-trust"
+              >
+                Consulting packages
+              </Link>
               <a
                 href={trustLedgerAbsolute(
                   "/product?utm_source=chibase&utm_medium=hero&utm_campaign=see_desk",
@@ -58,17 +68,29 @@ export default async function FirmHomePage() {
           Three ways we work
         </h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {SERVICES.map((s) => (
-            <article
-              key={s.name}
-              className="rounded-xl border border-tl-line bg-tl-surface p-5"
-            >
-              <h3 className="font-semibold text-tl-ink">{s.name}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
-                {s.body}
-              </p>
-            </article>
-          ))}
+          {SERVICES.map((s) => {
+            const pkg = getChibasePackage(s.packageId);
+            return (
+              <Link
+                key={s.name}
+                href={firmPath(chibaseHost, s.href)}
+                className="rounded-xl border border-tl-line bg-tl-surface p-5 hover:border-tl-trust"
+              >
+                <h3 className="font-semibold text-tl-ink">{s.name}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
+                  {s.body}
+                </p>
+                {pkg ? (
+                  <p className="mt-3 text-sm font-semibold tabular-nums text-tl-ink">
+                    {formatChibasePackagePrice(pkg)}
+                    <span className="ml-1 font-normal text-tl-ink-muted">
+                      starter · excl. VAT
+                    </span>
+                  </p>
+                ) : null}
+              </Link>
+            );
+          })}
         </div>
         <p className="mt-6">
           <Link
@@ -76,6 +98,13 @@ export default async function FirmHomePage() {
             className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
           >
             How the practice runs
+          </Link>
+          {" · "}
+          <Link
+            href={firmPath(chibaseHost, "/packages")}
+            className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
+          >
+            See packages
           </Link>
         </p>
       </section>

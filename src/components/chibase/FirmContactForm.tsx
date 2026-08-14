@@ -4,13 +4,22 @@ import { useState } from "react";
 import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/forms/FormGuards";
 import { isWorkEmail } from "@/data/assessment";
 import { CHIBASE_EMAIL } from "@/lib/chibase/content";
+import type { ChibasePackageCopy } from "@/lib/chibase/packages";
 
-export function FirmContactForm() {
+export function FirmContactForm({
+  initialPackage = null,
+}: {
+  initialPackage?: ChibasePackageCopy | null;
+}) {
   const { getToken } = useRecaptcha("chibase_contact");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(
+    initialPackage
+      ? `I would like to request the ${initialPackage.label} package.`
+      : "",
+  );
   const [honeypot, setHoneypot] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,6 +55,7 @@ export function FirmContactForm() {
           message: message.trim(),
           kind: "contact",
           source: "chibase",
+          package: initialPackage?.id,
           path:
             typeof window !== "undefined"
               ? window.location.pathname
@@ -108,7 +118,7 @@ export function FirmContactForm() {
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="What you need — facilitation, MEL, a live-site issue, or the TrustLedger desk. No CAPEX form."
+        placeholder="What you need — facilitation, MEL, a live-site issue, or the TrustLedger desk."
         rows={5}
         className="w-full rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm text-tl-ink"
         required
@@ -123,7 +133,7 @@ export function FirmContactForm() {
       </button>
       <RecaptchaLegalNote />
       <p className="text-xs text-tl-ink-muted">
-        Or write {CHIBASE_EMAIL} — mail is hosted separately from this site.
+        Or write {CHIBASE_EMAIL}.
       </p>
     </form>
   );

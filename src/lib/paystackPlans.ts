@@ -7,6 +7,9 @@
  * - Practitioner R5,399 → 539900
  * - Project R14,999 → 1499900
  * - Institutional → sales (0)
+ *
+ * TrustLedger software plans only. Chibase Consulting packages live in
+ * `src/lib/chibase/packages.ts` (ADR-048) — do not add them here.
  */
 
 export type PaystackPlanId = "solo" | "practitioner" | "project" | "institutional";

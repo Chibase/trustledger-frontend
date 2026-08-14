@@ -71,12 +71,15 @@ This app serves **both** `chibaseconsulting.co.za` and `www` as the firm site. D
 |-------------------|--------------|---------|
 | `/` | `/firm` | Promise, three services, two CTAs |
 | `/practice` | `/firm/practice` | Facilitation, MEL, IKS, field intervention |
+| `/packages` | `/firm/packages` | Consulting catalogue with listed starter fees |
 | `/trustledger` | `/firm/trustledger` | How the product sits under the firm |
 | `/insights` | `/firm/insights` | Two short notes |
 | `/about` | `/firm/about` | Mother body + paper citation |
 | `/contact` | `/firm/contact` | Name, work email, note — **no CAPEX form** |
 
-Contact posts to `/api/contact` with `source=chibase` → CRM Lead source **Chibase Consulting**.
+Contact posts to `/api/contact` with `source=chibase` (optional `package`) → CRM Lead source **Chibase Consulting**.
+
+Consulting checkout (when `CHIBASE_AMOUNT_*_CENTS` > 0) posts to `/api/chibase/pay/initialize` on the firm host. TrustLedger `/pay` still 302s off this origin. A consulting payment never provisions a TrustLedger workspace (ADR-048).
 
 Home hero includes a **preview desk** (ADR-047): visitors add mock cases/people/promises in this browser only. It is not a TrustLedger workspace.
 
@@ -86,7 +89,8 @@ Known old WP slugs 308: `/about-us-critical-involvement` → `/about`, `/social-
 
 - Import WordPress content, media, themes, or plugins
 - Co-brand TrustLedger hero as “Chibase TrustLedger”
-- Host product checkout on the firm domain
+- Host **TrustLedger** product checkout (`/pay`) on the firm domain
+- Fold consulting SKUs into Solo / Practitioner / Project / Institutional
 - Claim a software Rapid-Response Division (field intervention is a **people** service)
 - Move email hosting off Webway
 - Retire `trustledger.co.za` WordPress in this packet

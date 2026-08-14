@@ -21,9 +21,6 @@ export function FirmFooter({ chibaseHost }: { chibaseHost: boolean }) {
             >
               {CHIBASE_EMAIL}
             </a>
-            <span className="block mt-1 text-xs text-white/50">
-              Mail stays on the existing host. This site is the public brochure.
-            </span>
           </p>
         </div>
         <div>
@@ -32,6 +29,11 @@ export function FirmFooter({ chibaseHost }: { chibaseHost: boolean }) {
             <li>
               <Link href={firmPath(chibaseHost, "/practice")} className="hover:text-white">
                 Practice
+              </Link>
+            </li>
+            <li>
+              <Link href={firmPath(chibaseHost, "/packages")} className="hover:text-white">
+                Packages
               </Link>
             </li>
             <li>

@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import {
+  isChibasePaystackTransaction,
+  recordChibasePackagePayment,
+} from "@/lib/chibase/paystack";
 import { provisionAfterPaystackVerify } from "@/lib/paystackProvision";
 import {
   verifyPaystackSignature,
@@ -43,6 +47,20 @@ export async function POST(request: Request) {
     const verified = await verifyPaystackTransaction(reference);
     if (!verified.ok || !verified.email) {
       return NextResponse.json({ ok: true, pending: true });
+    }
+
+    if (isChibasePaystackTransaction(verified)) {
+      const recorded = await recordChibasePackagePayment(verified);
+      console.info("[paystack/webhook] chibase package", {
+        reference: verified.reference,
+        packageId: verified.packageId,
+        logged: recorded.logged,
+      });
+      return NextResponse.json({
+        ok: true,
+        catalogue: "chibase",
+        logged: recorded.logged,
+      });
     }
 
     const provisioned = await provisionAfterPaystackVerify(verified, {

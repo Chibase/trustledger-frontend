@@ -70,3 +70,39 @@ export function chibaseContactPageUri(request: Request): string {
   }
   return `${TRUSTLEDGER_PRODUCT_URL}/firm/contact`;
 }
+
+/**
+ * Public Chibase URL for a firm path. Uses the canonical firm origin after
+ * cutover; otherwise the product-host `/firm` preview.
+ */
+export function chibasePublicHref(path: string): string {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  if (CHIBASE_PUBLIC_URL) {
+    return p === "/" ? CHIBASE_PUBLIC_URL : `${CHIBASE_PUBLIC_URL}${p}`;
+  }
+  if (p === "/") return `${TRUSTLEDGER_PRODUCT_URL}/firm`;
+  return `${TRUSTLEDGER_PRODUCT_URL}/firm${p}`;
+}
+
+/**
+ * Paystack callback origin for a consulting checkout started from this request.
+ * Firm host → `/packages/success`. Product-host preview → `/firm/packages/success`.
+ */
+export function chibaseCheckoutCallback(request: Request): {
+  origin: string;
+  successPath: string;
+} {
+  const host = request.headers.get("host");
+  const proto = request.headers.get("x-forwarded-proto") || "https";
+  const hostname = hostnameOf(host);
+  if (isChibaseHost(host) && hostname) {
+    return {
+      origin: `${proto}://${hostname}`,
+      successPath: "/packages/success",
+    };
+  }
+  return {
+    origin: TRUSTLEDGER_PRODUCT_URL,
+    successPath: "/firm/packages/success",
+  };
+}

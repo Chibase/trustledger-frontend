@@ -1,5 +1,24 @@
 # Internal changelog
 
+## 2026-08-14 — Chibase footer: drop mail-host note
+
+- Removed “Mail stays on the existing host. This site is the public brochure.” from the public footer (and the matching contact-form aside). MX still stays on Webway in ops docs.
+
+## 2026-08-14 — Chibase listed starter fees
+
+- Public packages: facilitation R95,000, IKS R110,000, MEL R125,000, field R185,000 (excl. VAT, one programme or site). Env still overrides; `0` = request-only. Pay now appears when cents > 0.
+- Shown on `/packages`, home service cards, and the TrustLedger pricing add-on line.
+
+## 2026-08-14 — Chibase About: drop public “what we will not do”
+
+- Removed the editorial don’ts (homepage length, CAPEX form, software-vs-facilitation) from the public About page. That list stays in `docs/CHIBASE_SITE.md` for operators. Contact copy no longer mentions CAPEX to visitors.
+
+## 2026-08-14 — Chibase Consulting packages (CHIBASE-PACK)
+
+- Independent consulting catalogue (`facilitation`, `mel`, `iks`, `field`) — not TrustLedger plan IDs and not desk `AddonId`s. Own env prices `CHIBASE_AMOUNT_*_CENTS`; default 0 = request a package.
+- Firm `/packages`: request via contact, Pay now only when cents are set. Checkout `/api/chibase/pay/*` allowed on the firm host. Metadata `catalogue=chibase`; webhook logs CRM **Chibase Consulting** and never provisions a Plan Owner.
+- TrustLedger home pricing: one add-on line to the Chibase packages URL. ADR-048. ADR-046 amended: TrustLedger `/pay` stays off the firm host; consulting checkout may live there.
+
 ## 2026-08-14 — Chibase hero preview desk (CHIBASE-PREVIEW)
 
 - Consulting home hero: interactive TrustLedger **preview desk** — add mock cases, named people, and promises; KPIs and list update in this browser only (`sessionStorage`).

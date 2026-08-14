@@ -100,6 +100,7 @@ function chibaseSitemap(now: Date): MetadataRoute.Sitemap {
     "/insights",
     "/about",
     "/contact",
+    "/packages",
   ];
   return paths.map((path, i) => ({
     url: path === "/" ? firm : `${firm}${path}`,
