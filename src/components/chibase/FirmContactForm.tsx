@@ -118,7 +118,7 @@ export function FirmContactForm({
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="What you need — facilitation, MEL, a live-site issue, or the TrustLedger desk. No CAPEX form."
+        placeholder="What you need — facilitation, MEL, a live-site issue, or the TrustLedger desk."
         rows={5}
         className="w-full rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm text-tl-ink"
         required

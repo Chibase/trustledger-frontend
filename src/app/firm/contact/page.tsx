@@ -4,7 +4,7 @@ import { chibasePackageCopy } from "@/lib/chibase/packages";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "A short note. No CAPEX questionnaire on first contact.",
+  description: "A short note — name, work email, and what you need.",
 };
 
 type PageProps = {

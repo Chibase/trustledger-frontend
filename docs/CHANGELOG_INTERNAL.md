@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-14 — Chibase About: drop public “what we will not do”
+
+- Removed the editorial don’ts (homepage length, CAPEX form, software-vs-facilitation) from the public About page. That list stays in `docs/CHIBASE_SITE.md` for operators. Contact copy no longer mentions CAPEX to visitors.
+
 ## 2026-08-14 — Chibase Consulting packages (CHIBASE-PACK)
 
 - Independent consulting catalogue (`facilitation`, `mel`, `iks`, `field`) — not TrustLedger plan IDs and not desk `AddonId`s. Own env prices `CHIBASE_AMOUNT_*_CENTS`; default 0 = request a package.
