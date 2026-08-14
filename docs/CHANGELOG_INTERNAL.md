@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-14 — Chibase Consulting packages (CHIBASE-PACK)
+
+- Independent consulting catalogue (`facilitation`, `mel`, `iks`, `field`) — not TrustLedger plan IDs and not desk `AddonId`s. Own env prices `CHIBASE_AMOUNT_*_CENTS`; default 0 = request a package.
+- Firm `/packages`: request via contact, Pay now only when cents are set. Checkout `/api/chibase/pay/*` allowed on the firm host. Metadata `catalogue=chibase`; webhook logs CRM **Chibase Consulting** and never provisions a Plan Owner.
+- TrustLedger home pricing: one add-on line to the Chibase packages URL. ADR-048. ADR-046 amended: TrustLedger `/pay` stays off the firm host; consulting checkout may live there.
+
 ## 2026-08-14 — Chibase hero preview desk (CHIBASE-PREVIEW)
 
 - Consulting home hero: interactive TrustLedger **preview desk** — add mock cases, named people, and promises; KPIs and list update in this browser only (`sessionStorage`).

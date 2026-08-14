@@ -6,6 +6,7 @@ import {
 import { DATA_PROTECTION_BLURB } from "@/config/planComparison";
 import { HomePricingComparison } from "@/components/marketing/HomePricingComparison";
 import { HomePricingPrivacyExtras } from "@/components/marketing/HomePricingPrivacyExtras";
+import { chibasePublicHref } from "@/lib/security/hosts";
 
 export function HomePricing() {
   const plans = getPaystackPlans();
@@ -94,6 +95,23 @@ export function HomePricing() {
 
         <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-tl-ink-muted">
           {DATA_PROTECTION_BLURB}
+        </p>
+
+        <p className="mx-auto mt-6 max-w-2xl text-center text-sm text-tl-ink-muted">
+          Facilitation, MEL, IKS, and field intervention are{" "}
+          <strong className="font-medium text-tl-ink">
+            Chibase Consulting
+          </strong>{" "}
+          packages — separate entity, own pricing, available as an add-on to any
+          of these plans at your request. They do not unlock TrustLedger
+          modules.{" "}
+          <a
+            href={`${chibasePublicHref("/packages")}?utm_source=trustledger&utm_medium=pricing&utm_campaign=consulting_addon`}
+            className="font-medium text-tl-trust-ink underline underline-offset-2"
+          >
+            Request a consulting package
+          </a>
+          .
         </p>
 
         <HomePricingComparison />

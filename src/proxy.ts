@@ -38,6 +38,7 @@ const WP_SLUG_REDIRECTS: Record<string, string> = {
 const FIRM_MAP: Record<string, string> = {
   "/": "/firm",
   "/practice": "/firm/practice",
+  "/packages": "/firm/packages",
   "/about": "/firm/about",
   "/contact": "/firm/contact",
   "/insights": "/firm/insights",
@@ -69,8 +70,12 @@ const PRODUCT_ON_FIRM = [
   "/reports",
 ];
 
-/** Firm origin may only post contact + CSP reports. Product APIs stay on TrustLedger. */
-const FIRM_API_ALLOW = ["/api/contact", "/api/security/csp-report"];
+/** Firm origin: contact, CSP reports, consulting checkout. Product Paystack stays on TrustLedger. */
+const FIRM_API_ALLOW = [
+  "/api/contact",
+  "/api/security/csp-report",
+  "/api/chibase/pay",
+];
 
 function safeNextPath(raw: string | null): string | null {
   if (!raw) return null;
@@ -153,7 +158,7 @@ function withSite(
 function chibaseRewritePath(pathname: string): string | null {
   const trimmed = pathname.replace(/\/$/, "") || "/";
   if (trimmed.startsWith("/firm")) return trimmed === "/firm" ? "/firm" : trimmed;
-  if (trimmed.startsWith("/insights/")) {
+  if (trimmed.startsWith("/insights/") || trimmed.startsWith("/packages/")) {
     return `/firm${trimmed}`;
   }
   return FIRM_MAP[trimmed] ?? FIRM_MAP[pathname] ?? null;

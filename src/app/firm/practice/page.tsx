@@ -65,6 +65,13 @@ export default async function PracticePage() {
       </p>
       <p className="mt-8">
         <Link
+          href={firmPath(chibaseHost, "/packages")}
+          className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
+        >
+          Request a consulting package
+        </Link>
+        {" · "}
+        <Link
           href={firmPath(chibaseHost, "/contact")}
           className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
         >

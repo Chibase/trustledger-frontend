@@ -41,7 +41,11 @@ export const CAPABILITY_LABELS: Record<CapabilityId, string> = {
   esgIndicators: "ESG / socio-economic indicators",
 };
 
-/** Sellable add-ons that can turn individual capabilities on above a base plan. */
+/**
+ * Sellable add-ons that can turn individual capabilities on above a base plan.
+ * Chibase Consulting packages (facilitation / MEL / IKS / field) are NOT AddonIds —
+ * they do not unlock product capabilities (ADR-048).
+ */
 export type AddonId =
   | "addon_capture"
   | "addon_crm"

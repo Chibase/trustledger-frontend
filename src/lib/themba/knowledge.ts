@@ -191,6 +191,31 @@ const CORE: ThembaKnowledgeItem[] = [
     ],
   },
   {
+    id: "chibase-consulting",
+    question: "Can I add Chibase Consulting to a TrustLedger plan?",
+    sourceId: "product",
+    sourceTitle: PRODUCT_SRC,
+    answer:
+      "Yes — as a **separate consulting engagement**, not as a fifth TrustLedger software column and not as a desk add-on like CRM or commitments.\n\nChibase Consulting is an independent practice: social facilitation, MEL and evidence, IKS method embed, and short-cycle field intervention (people on a live site). You can request any of those packages alongside Solo, Practitioner, Project, or Institutional. Pricing is Chibase’s own; paying for consulting does not open a TrustLedger workspace or unlock modules.\n\nSoftware subscribe stays on TrustLedger. Consulting packages are requested on the Chibase site.",
+    keywords: [
+      "chibase",
+      "consulting",
+      "facilitation",
+      "mel",
+      "iks",
+      "field",
+      "intervention",
+      "package",
+      "addon",
+      "add-on",
+      "advisory",
+    ],
+    links: [
+      { href: "/contact", label: "Ask TrustLedger" },
+      { href: "/pay", label: "Software plans" },
+    ],
+  },
+  {
     id: "za",
     question:
       "Is TrustLedger suitable for South African municipalities and other Global South public-sector programmes?",

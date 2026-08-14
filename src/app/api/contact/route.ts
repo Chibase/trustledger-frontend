@@ -10,6 +10,7 @@ import {
   leadCaptureConfigured,
   submitProductLead,
 } from "@/lib/leadCapture";
+import { chibasePackageCopy } from "@/lib/chibase/packages";
 import { chibaseContactPageUri } from "@/lib/security/hosts";
 
 type ContactKind = "contact" | "feedback";
@@ -21,6 +22,7 @@ type ContactBody = {
   message?: string;
   kind?: ContactKind;
   source?: string;
+  package?: string;
   rating?: number;
   path?: string;
   tl_hp?: string;
@@ -73,6 +75,9 @@ export async function POST(request: Request) {
   const organization = body.organization?.trim();
   const message = normalizeComment(body.message, 10);
   const path = typeof body.path === "string" ? body.path : undefined;
+  const requestedPackage = chibasePackageCopy(
+    typeof body.package === "string" ? body.package : undefined,
+  );
 
   if (!isWorkEmail(email)) {
     return NextResponse.json(
@@ -126,6 +131,9 @@ export async function POST(request: Request) {
         : "TrustLedger contact form enquiry.",
     rating !== undefined ? `Rating: ${rating}/5.` : null,
     organization ? `Organization: ${organization}.` : null,
+    requestedPackage
+      ? `Requested Chibase package: ${requestedPackage.label} (${requestedPackage.id}).`
+      : null,
     `Message: ${message}`,
     path ? `Path: ${path}.` : null,
     `Captured: ${new Date().toISOString()}.`,
@@ -136,7 +144,7 @@ export async function POST(request: Request) {
   const jobTitle =
     kind === "feedback"
       ? `Feedback · ${rating}/5${path ? ` · ${path}` : ""}`
-      : `Contact enquiry${path ? ` · ${path}` : ""}`;
+      : `Contact enquiry${requestedPackage ? ` · ${requestedPackage.label}` : ""}${path ? ` · ${path}` : ""}`;
 
   if (leadCaptureConfigured()) {
     const result = await submitProductLead({

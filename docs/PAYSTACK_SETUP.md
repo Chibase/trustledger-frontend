@@ -19,4 +19,19 @@ Full soft-launch cutover: **`docs/PUBLIC_LAUNCH.md`**.
 4. Webhook: `https://<host>/api/paystack/webhook` (`charge.success`)
 5. Smoke: `/pay?plan=practitioner` — test cards in test mode; real small verify in live mode
 
+## Chibase Consulting packages (ADR-048)
+
+Separate catalogue: `src/lib/chibase/packages.ts`. **Do not** add these IDs to `PaystackPlanId`.
+
+| Package | Env (ZAR cents) | Default |
+|---------|-----------------|--------|
+| Social facilitation sprint | `CHIBASE_AMOUNT_FACILITATION_CENTS` | `0` (request) |
+| MEL & evidence | `CHIBASE_AMOUNT_MEL_CENTS` | `0` (request) |
+| IKS method embed | `CHIBASE_AMOUNT_IKS_CENTS` | `0` (request) |
+| Short-cycle field intervention | `CHIBASE_AMOUNT_FIELD_CENTS` | `0` (request) |
+
+Same Paystack keys as TrustLedger. Initialize: `POST /api/chibase/pay/initialize` with metadata `catalogue=chibase`. References start with `cb_`. The existing webhook at `/api/paystack/webhook` detects that catalogue and **only** writes a CRM Lead source **Chibase Consulting** — it must not provision a Plan Owner.
+
+Smoke: `/firm/packages` (or `https://www.chibaseconsulting.co.za/packages`). Request always works. Pay now appears only when a cents env is > 0.
+
 WordPress CTAs: `docs/WORDPRESS_CTA.md` + `docs/wordpress/page-home.txt`.

@@ -200,6 +200,9 @@ export type VerifiedPaystackTransaction = {
   currency: string;
   email: string | null;
   paidAt: string | null;
+  /** trustledger = software plans; chibase = consulting packages (ADR-048). */
+  catalogue: "trustledger" | "chibase";
+  packageId: string | null;
   planId: string | null;
   planLabel: string | null;
   planAmountCents: number | null;
@@ -254,6 +257,17 @@ export async function verifyPaystackTransaction(
     currency: data?.currency || "ZAR",
     email: data?.customer?.email || null,
     paidAt: data?.paid_at || null,
+    catalogue:
+      meta.catalogue === "chibase" ||
+      (data?.reference || reference).startsWith("cb_")
+        ? "chibase"
+        : "trustledger",
+    packageId:
+      typeof meta.package === "string"
+        ? meta.package
+        : typeof meta.package_id === "string"
+          ? meta.package_id
+          : null,
     planId: typeof meta.plan === "string" ? meta.plan : null,
     planLabel: typeof meta.plan_label === "string" ? meta.plan_label : null,
     planAmountCents:

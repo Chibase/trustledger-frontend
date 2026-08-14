@@ -76,6 +76,11 @@ export const PUBLIC_FAQS: FaqItem[] = [
       "Project and Institutional plans include Stakeholder CRM, engagements, and commitments by default. Practitioner can add CRM or commitments via sellable add-ons. Solo is an entry grievance desk without AI Assist or Stakeholder CRM in the box.",
   },
   {
+    question: "Can I add Chibase Consulting to a TrustLedger plan?",
+    answer:
+      "Yes, as a separate consulting engagement — not as a fifth TrustLedger software column. Chibase Consulting is an independent practice (social facilitation, MEL, IKS method, short-cycle field intervention). You can request any of those packages as an add-on to Solo, Practitioner, Project, or Institutional. Pricing is Chibase’s own; the engagement does not unlock desk modules. Software checkout stays on TrustLedger; consulting packages live on the Chibase site.",
+  },
+  {
     question: "Where does TrustLedger store live customer data?",
     answer:
       "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. You use the TrustLedger product app for day-to-day work; marketing content lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",

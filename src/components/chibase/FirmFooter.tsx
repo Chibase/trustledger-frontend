@@ -35,6 +35,11 @@ export function FirmFooter({ chibaseHost }: { chibaseHost: boolean }) {
               </Link>
             </li>
             <li>
+              <Link href={firmPath(chibaseHost, "/packages")} className="hover:text-white">
+                Packages
+              </Link>
+            </li>
+            <li>
               <Link href={firmPath(chibaseHost, "/about")} className="hover:text-white">
                 About
               </Link>

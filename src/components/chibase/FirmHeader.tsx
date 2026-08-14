@@ -3,6 +3,7 @@ import { firmPath } from "@/lib/security/hosts";
 
 const NAV = [
   { path: "/practice", label: "Practice" },
+  { path: "/packages", label: "Packages" },
   { path: "/trustledger", label: "TrustLedger" },
   { path: "/insights", label: "Insights" },
   { path: "/about", label: "About" },

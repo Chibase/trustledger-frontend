@@ -280,7 +280,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 
 - Product: **TrustLedger** only — “Resolution you can audit.”
 - **Primary public voice: Trust** — every public surface should foreground trust, auditability, and social licence. Do not lead with tech stack or vendor names.
-- Operator company (footer/ops/legal only): Chibase Consulting — not a second product brand.
+- Operator company (footer/ops/legal only): Chibase Consulting — not a second product brand. Consulting packages are a **separate catalogue** (facilitation, MEL, IKS, field) available as an add-on to any TrustLedger plan at the client’s request, on Chibase’s own pricing — never a fifth software column (ADR-048).
 - Tone: clear, calm, institutional; Global South infrastructure & community trust.
 - Never invent features. If unsure, point to `/product` or `/ops/readiness` truth.
 - Public copy hosts: “TrustLedger Cloud” / “cloud” — never Frappe, Vercel, HubSpot, Interserv on marketing/FAQ/public agents (ADR-038 §6 / ADR-039).

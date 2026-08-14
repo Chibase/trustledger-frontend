@@ -35,6 +35,12 @@ export default async function FirmHomePage() {
               >
                 Book an alignment conversation
               </Link>
+              <Link
+                href={firmPath(chibaseHost, "/packages")}
+                className="inline-flex rounded-md border border-tl-line bg-tl-surface px-5 py-3 text-sm font-semibold text-tl-ink hover:border-tl-trust"
+              >
+                Consulting packages
+              </Link>
               <a
                 href={trustLedgerAbsolute(
                   "/product?utm_source=chibase&utm_medium=hero&utm_campaign=see_desk",
@@ -59,15 +65,16 @@ export default async function FirmHomePage() {
         </h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           {SERVICES.map((s) => (
-            <article
+            <Link
               key={s.name}
-              className="rounded-xl border border-tl-line bg-tl-surface p-5"
+              href={firmPath(chibaseHost, s.href)}
+              className="rounded-xl border border-tl-line bg-tl-surface p-5 hover:border-tl-trust"
             >
               <h3 className="font-semibold text-tl-ink">{s.name}</h3>
               <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
                 {s.body}
               </p>
-            </article>
+            </Link>
           ))}
         </div>
         <p className="mt-6">
@@ -76,6 +83,13 @@ export default async function FirmHomePage() {
             className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
           >
             How the practice runs
+          </Link>
+          {" · "}
+          <Link
+            href={firmPath(chibaseHost, "/packages")}
+            className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
+          >
+            Request a package
           </Link>
         </p>
       </section>

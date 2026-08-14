@@ -511,7 +511,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Status:** Accepted
 - **Context:** `chibaseconsulting.co.za` WordPress was compromised (casino injection + fake Terminal “Human Verification” / ClickFix). The brochure was also too long and asked for CAPEX on first contact. TrustLedger already runs on this Next.js app. Email for both domains is on Webway and must not move with the website.
 - **Decision:**
-  1. **Chibase Consulting public site** is rebuilt in this repo under `/firm`, same visual language as TrustLedger, **separate public identity** (ADR-039). Complement, do not merge brands. No product checkout or Themba on the firm host.
+  1. **Chibase Consulting public site** is rebuilt in this repo under `/firm`, same visual language as TrustLedger, **separate public identity** (ADR-039). Complement, do not merge brands. No TrustLedger `/pay` or Themba on the firm host. Consulting package checkout may live on the firm host (ADR-048).
   2. **Host routing:** After DNS cutover, `chibaseconsulting.co.za` (and www) serve the firm pages. Product paths (`/app`, `/pay`, `/trial`, …) 302 to the TrustLedger URL with `utm_source=chibase`. Until cutover, preview at `/firm` is **noindex**.
   3. **Retire WordPress; do not clean it.** Webway declined malware/forensic cleanup (out of hosting scope). Do **not** hire a WP specialist to disinfect the brochure. Delete/suspend the Chibase WP document root and database. **Do not import** posts, media, themes, or plugins. Point **website DNS only** (apex A + www CNAME) at this app. Set `NEXT_PUBLIC_CHIBASE_SITE_URL` only after this app is the public hostname.
   4. **Email:** MX for `chibaseconsulting.co.za` and `trustledger.co.za` **stays on Webway**. Do not change nameservers. `trustledger.co.za` WordPress is unchanged in this packet.
@@ -533,6 +533,21 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   4. Packet: **CHIBASE-PREVIEW**.
 - **Consequences:** Consulting site can demonstrate the desk without a fictional workspace. Trial/live lists stay empty-or-real.
 - **Alternatives considered:** Link only to `/trial` with a static screenshot (rejected — user asked to add mock data and view a dashboard); restore `/demo` guest `/app` (rejected — ADR-033).
+
+### ADR-048: Chibase Consulting packages stay independent of TrustLedger plans
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** Chibase Consulting is an independent entity with its own offerings. Folding those into TrustLedger Paystack plan IDs (Solo / Practitioner / Project / Institutional) would merge brands, mix invoices, and risk provisioning software seats from a consulting payment. Consulting should still be available as an add-on to any TrustLedger plan at the client’s request, on Chibase’s own pricing.
+- **Decision:**
+  1. **Separate catalogue** in `src/lib/chibase/packages.ts`: `facilitation`, `mel`, `iks`, `field`. Not `PaystackPlanId`. Not `AddonId` (those unlock desk modules).
+  2. **Own pricing:** `CHIBASE_AMOUNT_*_CENTS` (ZAR cents). Default `0` = request a package until list prices are set. Do not invent ZAR amounts in code.
+  3. **Firm surface:** `/packages` (preview `/firm/packages`). Request → `/contact?package=`. Pay now only when cents > 0. Checkout API `/api/chibase/pay/*` is allowed on the firm host. TrustLedger `/pay` stays 302 off the firm host (ADR-046).
+  4. **Paystack isolation:** Initialize metadata `{ catalogue: "chibase", package }`, reference prefix `cb_`. Same keys, same webhook URL. On `charge.success`, log CRM Lead source **Chibase Consulting** only — never `provisionAfterPaystackVerify`, Plan Owner, or trial seats.
+  5. **TrustLedger:** One add-on line under home pricing (and FAQ / Themba). Link to Chibase packages with UTM. No fifth software column.
+  6. Packet: **CHIBASE-PACK**. Runbook: `docs/CHIBASE_SITE.md`, `docs/PAYSTACK_SETUP.md`.
+- **Consequences:** Operators can add Chibase SKUs on Paystack when cents are set. Software and consulting stay separately invoiced. A consulting payment cannot open a TrustLedger workspace.
+- **Alternatives considered:** Fifth TrustLedger plan column (rejected — merges entities); software `AddonId` for facilitation (rejected — unlocks product capabilities); reuse `/api/paystack/initialize` (rejected — provision path is TrustLedger-plan-only).
 
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 

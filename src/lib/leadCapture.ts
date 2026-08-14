@@ -262,6 +262,7 @@ function resolveCrmSource(
     themba_escalate: "Themba Guide",
     themba_bug: "Themba Bug",
     chibase_contact: "Chibase Consulting",
+    chibase_package: "Chibase Consulting",
   };
   return defaults[sourceTag] || process.env.FRAPPE_LEAD_SOURCE?.trim();
 }

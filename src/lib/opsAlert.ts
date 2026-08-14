@@ -8,7 +8,13 @@ export type OpsAlertPayload = {
   title: string;
   summary: string;
   href?: string;
-  kind: "quote_request" | "eft_payment" | "paystack_payment" | "trial_authorize" | "trial_opt_out";
+  kind:
+    | "quote_request"
+    | "eft_payment"
+    | "paystack_payment"
+    | "trial_authorize"
+    | "trial_opt_out"
+    | "chibase_package";
 };
 
 export async function notifyOpsAlert(

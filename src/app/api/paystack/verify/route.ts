@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isChibasePaystackTransaction } from "@/lib/chibase/paystack";
 import { provisionAfterPaystackVerify } from "@/lib/paystackProvision";
 import {
   paystackConfigured,
@@ -20,6 +21,15 @@ export async function GET(request: Request) {
 
   try {
     const verified = await verifyPaystackTransaction(reference);
+    if (isChibasePaystackTransaction(verified)) {
+      return NextResponse.json(
+        {
+          error:
+            "This reference is a Chibase Consulting package. Verify it on the consulting checkout success page.",
+        },
+        { status: 400 },
+      );
+    }
     let provision: Awaited<ReturnType<typeof provisionAfterPaystackVerify>> =
       null;
     if (verified.ok && verified.email) {
