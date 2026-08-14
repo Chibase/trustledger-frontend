@@ -541,7 +541,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Context:** Chibase Consulting is an independent entity with its own offerings. Folding those into TrustLedger Paystack plan IDs (Solo / Practitioner / Project / Institutional) would merge brands, mix invoices, and risk provisioning software seats from a consulting payment. Consulting should still be available as an add-on to any TrustLedger plan at the client’s request, on Chibase’s own pricing.
 - **Decision:**
   1. **Separate catalogue** in `src/lib/chibase/packages.ts`: `facilitation`, `mel`, `iks`, `field`. Not `PaystackPlanId`. Not `AddonId` (those unlock desk modules).
-  2. **Own pricing:** `CHIBASE_AMOUNT_*_CENTS` (ZAR cents). Default `0` = request a package until list prices are set. Do not invent ZAR amounts in code.
+  2. **Own pricing:** Listed starter fees in `CHIBASE_LAUNCH_PRICES_ZAR` (facilitation R95,000, IKS R110,000, MEL R125,000, field R185,000 — excl. VAT, one programme or site). Override with `CHIBASE_AMOUNT_*_CENTS`. `0` = request a package. Larger programmes stay quote.
   3. **Firm surface:** `/packages` (preview `/firm/packages`). Request → `/contact?package=`. Pay now only when cents > 0. Checkout API `/api/chibase/pay/*` is allowed on the firm host. TrustLedger `/pay` stays 302 off the firm host (ADR-046).
   4. **Paystack isolation:** Initialize metadata `{ catalogue: "chibase", package }`, reference prefix `cb_`. Same keys, same webhook URL. On `charge.success`, log CRM Lead source **Chibase Consulting** only — never `provisionAfterPaystackVerify`, Plan Owner, or trial seats.
   5. **TrustLedger:** One add-on line under home pricing (and FAQ / Themba). Link to Chibase packages with UTM. No fifth software column.

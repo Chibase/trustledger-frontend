@@ -10,16 +10,19 @@ export const CHIBASE_EMAIL = "info@chibaseconsulting.co.za";
 export const SERVICES = [
   {
     href: "/packages#facilitation",
+    packageId: "facilitation",
     name: "Social facilitation",
     body: "Consultations that do not vanish after the meeting: named counterparts, traditional authorities, commitments with owners.",
   },
   {
     href: "/packages#mel",
+    packageId: "mel",
     name: "MEL & evidence",
     body: "Monitoring that cites the trail — grievances, engagements, promises — not a reconstructed month-end pack.",
   },
   {
     href: "/packages#iks",
+    packageId: "iks",
     name: "IKS in the mainstream",
     body: "Indigenous Knowledge Systems as method for participation and M&E, not a courtesy paragraph in the ESIA.",
   },

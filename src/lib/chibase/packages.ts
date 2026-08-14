@@ -1,8 +1,17 @@
 /**
  * Chibase Consulting engagement catalogue (ADR-048).
  * Independent of TrustLedger PaystackPlanId. Amounts are ZAR cents.
- * 0 = request a package (quote) until CHIBASE_AMOUNT_*_CENTS is set.
+ * Listed prices are starter engagements (one programme or site, excl. VAT).
+ * Override via CHIBASE_AMOUNT_*_CENTS; 0 = request a package.
  */
+
+/** Listed starter fees in ZAR (whole rands, excl. VAT) — one programme or site. */
+export const CHIBASE_LAUNCH_PRICES_ZAR = {
+  facilitation: 95000,
+  mel: 125000,
+  iks: 110000,
+  field: 185000,
+} as const;
 
 export const CHIBASE_PACKAGE_IDS = [
   "facilitation",
@@ -17,6 +26,8 @@ export type ChibasePackageCopy = {
   id: ChibasePackageId;
   label: string;
   summary: string;
+  /** Scope the listed fee covers — not a multi-year retainer. */
+  starter: string;
   /** What the client is buying — people and method, not software seats. */
   includes: readonly string[];
 };
@@ -28,6 +39,7 @@ export const CHIBASE_PACKAGE_COPY: readonly ChibasePackageCopy[] = [
     label: "Social facilitation sprint",
     summary:
       "Consultations that do not vanish after the meeting: named counterparts, traditional authorities, and a commitment log with owners.",
+    starter: "About two weeks on one site",
     includes: [
       "Time-boxed facilitation on one programme or site",
       "Named community and customary counterparts",
@@ -39,6 +51,7 @@ export const CHIBASE_PACKAGE_COPY: readonly ChibasePackageCopy[] = [
     label: "MEL & evidence",
     summary:
       "Monitoring that cites the trail — grievances, engagements, promises — not a reconstructed month-end pack.",
+    starter: "Evidence spine for one programme",
     includes: [
       "Evidence spine beside your results framework",
       "Intake, ownership, and assurance scoring",
@@ -50,6 +63,7 @@ export const CHIBASE_PACKAGE_COPY: readonly ChibasePackageCopy[] = [
     label: "IKS method embed",
     summary:
       "Indigenous Knowledge Systems as method for participation and M&E, not a courtesy paragraph in the ESIA.",
+    starter: "Method embed for one team or programme",
     includes: [
       "Place, customary structures, and community-defined outcomes in the register",
       "Facilitation and MEL design that treats IKS as input",
@@ -61,6 +75,7 @@ export const CHIBASE_PACKAGE_COPY: readonly ChibasePackageCopy[] = [
     label: "Short-cycle field intervention",
     summary:
       "When a site is already in friction, we diagnose and de-escalate with people on the ground. A consulting deployment, not a software division.",
+    starter: "Short-cycle deployment on one live site",
     includes: [
       "Human deployment on a live site",
       "Diagnosis, de-escalation, and a written trail of what was agreed",
@@ -97,7 +112,10 @@ export function isChibasePackageId(id: string | null | undefined): id is Chibase
 
 export function getChibasePackages(): ChibasePackage[] {
   return CHIBASE_PACKAGE_COPY.map((copy) => {
-    const amountCents = envCents(AMOUNT_ENV[copy.id], 0);
+    const amountCents = envCents(
+      AMOUNT_ENV[copy.id],
+      CHIBASE_LAUNCH_PRICES_ZAR[copy.id] * 100,
+    );
     return {
       ...copy,
       amountCents,
@@ -128,4 +146,13 @@ export function formatChibasePackagePrice(pkg: Pick<ChibasePackage, "amountCents
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })}`;
+}
+
+/** Cheapest listed starter, or null if all packages are request-only. */
+export function formatChibaseFromPrice(): string | null {
+  const cents = getChibasePackages()
+    .map((p) => p.amountCents)
+    .filter((n) => n > 0);
+  if (!cents.length) return null;
+  return formatChibasePackagePrice({ amountCents: Math.min(...cents) });
 }

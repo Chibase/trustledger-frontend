@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Packages",
   description:
-    "Chibase Consulting packages — facilitation, MEL, IKS, and field intervention. Separate from TrustLedger software plans.",
+    "Chibase Consulting packages — facilitation, MEL, IKS, and field intervention. Listed starter fees, separate from TrustLedger software plans.",
 };
 
 export default async function FirmPackagesPage() {
@@ -29,10 +29,11 @@ export default async function FirmPackagesPage() {
         Consulting packages. Own pricing. Not a software seat.
       </h1>
       <p className="mt-4 max-w-2xl text-base leading-relaxed text-tl-ink-muted">
-        Chibase Consulting is an independent practice. These packages sit beside
-        any TrustLedger plan at your request — they do not replace Solo,
-        Practitioner, Project, or Institutional, and they do not unlock desk
-        modules. List prices go live when set; until then, request the package.
+        Chibase Consulting is an independent practice. These are listed starter
+        engagements — one programme or site, ZAR excl. VAT — not monthly
+        TrustLedger seats. They sit beside any software plan at your request
+        and do not unlock desk modules. Larger or multi-site work is scoped
+        when you request the package.
       </p>
 
       <div className="mt-10 grid gap-6 sm:grid-cols-2">
@@ -62,7 +63,7 @@ export default async function FirmPackagesPage() {
                 {formatChibasePackagePrice(pkg)}
               </p>
               <p className="mt-1 text-xs text-tl-ink-muted">
-                Engagement fee · excl. VAT · not a monthly software subscription
+                Listed starter · {pkg.starter} · excl. VAT
               </p>
               <div className="mt-6 flex flex-1 flex-col justify-end gap-3">
                 <Link
@@ -88,7 +89,8 @@ export default async function FirmPackagesPage() {
       <p className="mt-10 max-w-2xl text-sm leading-relaxed text-tl-ink-muted">
         Already on TrustLedger? Ask for any of these as an add-on to your
         current plan. The desk subscription and the consulting engagement stay
-        on separate invoices.{" "}
+        on separate invoices. The listed fee is the starter; travel, extra
+        sites, and longer deployments are quoted on request.{" "}
         <Link
           href={firmPath(chibaseHost, "/trustledger")}
           className="font-semibold text-tl-trust-ink underline-offset-2 hover:underline"

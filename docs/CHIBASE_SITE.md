@@ -71,7 +71,7 @@ This app serves **both** `chibaseconsulting.co.za` and `www` as the firm site. D
 |-------------------|--------------|---------|
 | `/` | `/firm` | Promise, three services, two CTAs |
 | `/practice` | `/firm/practice` | Facilitation, MEL, IKS, field intervention |
-| `/packages` | `/firm/packages` | Consulting catalogue (request; Pay now when list prices are set) |
+| `/packages` | `/firm/packages` | Consulting catalogue with listed starter fees |
 | `/trustledger` | `/firm/trustledger` | How the product sits under the firm |
 | `/insights` | `/firm/insights` | Two short notes |
 | `/about` | `/firm/about` | Mother body + paper citation |

@@ -7,6 +7,10 @@ import {
   SERVICES,
 } from "@/lib/chibase/content";
 import { FIRM_INSIGHTS } from "@/lib/chibase/insights";
+import {
+  formatChibasePackagePrice,
+  getChibasePackage,
+} from "@/lib/chibase/packages";
 import { firmPath, isChibaseHost, trustLedgerAbsolute } from "@/lib/security/hosts";
 
 export default async function FirmHomePage() {
@@ -64,18 +68,29 @@ export default async function FirmHomePage() {
           Three ways we work
         </h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {SERVICES.map((s) => (
-            <Link
-              key={s.name}
-              href={firmPath(chibaseHost, s.href)}
-              className="rounded-xl border border-tl-line bg-tl-surface p-5 hover:border-tl-trust"
-            >
-              <h3 className="font-semibold text-tl-ink">{s.name}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
-                {s.body}
-              </p>
-            </Link>
-          ))}
+          {SERVICES.map((s) => {
+            const pkg = getChibasePackage(s.packageId);
+            return (
+              <Link
+                key={s.name}
+                href={firmPath(chibaseHost, s.href)}
+                className="rounded-xl border border-tl-line bg-tl-surface p-5 hover:border-tl-trust"
+              >
+                <h3 className="font-semibold text-tl-ink">{s.name}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
+                  {s.body}
+                </p>
+                {pkg ? (
+                  <p className="mt-3 text-sm font-semibold tabular-nums text-tl-ink">
+                    {formatChibasePackagePrice(pkg)}
+                    <span className="ml-1 font-normal text-tl-ink-muted">
+                      starter · excl. VAT
+                    </span>
+                  </p>
+                ) : null}
+              </Link>
+            );
+          })}
         </div>
         <p className="mt-6">
           <Link
@@ -89,7 +104,7 @@ export default async function FirmHomePage() {
             href={firmPath(chibaseHost, "/packages")}
             className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
           >
-            Request a package
+            See packages
           </Link>
         </p>
       </section>
