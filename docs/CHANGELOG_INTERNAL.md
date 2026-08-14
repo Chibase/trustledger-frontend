@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-14 — Chibase: keep the preview desk in the hero
+
+- Hero is two columns from the `md` breakpoint (not only `lg`). On small screens the preview desk sits first, above the copy, so it is not pushed below the fold by the header and CTAs.
+
 ## 2026-08-14 — Chibase: packages on the home page, nav always visible
 
 - Home now lists all four priced packages (including field). Header nav wraps instead of scrolling off-screen; Packages is first.
