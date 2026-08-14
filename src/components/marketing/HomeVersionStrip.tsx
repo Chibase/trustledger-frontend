@@ -24,8 +24,9 @@ export function HomeVersionStrip() {
             Stakeholder Intelligence
           </p>
           <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
-            {VERSION_002_SUMMARY} South African geo and socio-economic depth is a
-            first-class priority.
+            {VERSION_002_SUMMARY} South African place packs are included
+            baseline for SA plans; the product is built for Global South
+            programmes.
           </p>
         </div>
       </div>

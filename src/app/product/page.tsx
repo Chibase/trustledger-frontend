@@ -48,7 +48,7 @@ const FEATURES = [
   },
   {
     title: "Geo context",
-    body: "South African municipalities, wards, and traditional councils (where packed) ship with every plan — you add the project and situation, not the country map.",
+    body: "Place context ships with every plan. South African municipalities, wards, and traditional councils (where packed) are included baseline for SA programmes. Other Global South countries use the same place model — you add the project and situation; we do not invent unshipped national maps.",
   },
 ] as const;
 
@@ -56,7 +56,7 @@ const STEPS = [
   {
     n: "1",
     title: "Start a trial or subscribe",
-    body: "Open your own workspace with ZA place intel ready. No sample INC-* cases — add your projects and people only.",
+    body: "Open your own workspace. South African plans include ZA place intel; other Global South programmes add the project and situation on the same place model. No sample INC-* cases — add your projects and people only.",
     href: "/trial",
     cta: "Start 14-day trial",
   },

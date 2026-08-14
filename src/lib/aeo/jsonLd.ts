@@ -60,7 +60,7 @@ export function softwareApplicationJsonLd(): JsonLd {
       "Engagements and commitments",
       "AI Assist suggest-apply-save",
       "Governance and board report packs",
-      "South African geo and place context",
+      "Place context (South Africa baseline packs; Global South programmes on the same model)",
     ],
   };
 }

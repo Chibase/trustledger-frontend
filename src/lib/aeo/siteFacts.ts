@@ -46,9 +46,10 @@ export const PUBLIC_FAQS: FaqItem[] = [
       "Use TrustLedger’s resolution desk: field or community issue intake, owned cases with evidence, stage timestamps from reported through closed, and reports that cite the case trail. Paying and trial workspaces use your own data — not fictional sample incidents. AI only suggests; a human applies before anything is saved.",
   },
   {
-    question: "Is TrustLedger suitable for local municipalities and public-sector projects in South Africa?",
+    question:
+      "Is TrustLedger suitable for local municipalities and public-sector projects in South Africa and the Global South?",
     answer:
-      "Yes. Every plan includes South African place context (municipalities, wards, and traditional councils where packed) — you add the project and situation, not the country map. The grievance desk sits on that baseline from Solo upward; Stakeholder Intelligence and deeper board or funder packs follow entitled plans (Project, Institutional, or add-ons). Institutional plans are sales-scoped for multi-project and public-sector needs. Start with the SRM readiness assessment or a 14-day own-data trial.",
+      "Yes. TrustLedger is SRM software for infrastructure and community-trust programmes in South Africa and the Global South — not a South Africa-only product. South African plans include place context (municipalities, wards, and traditional councils where packed) so you add the project and situation, not the country map. Other countries use the same place model; we do not invent unshipped national packs. The grievance desk sits on that baseline from Solo upward; Stakeholder Intelligence and deeper board or funder packs follow entitled plans (Project, Institutional, or add-ons). Local government, ministries, MEL teams, social facilitators, and community programmes are in scope. Institutional plans are sales-scoped for multi-project public-sector needs. Start with the SRM readiness assessment or a 14-day own-data trial.",
   },
   {
     question:

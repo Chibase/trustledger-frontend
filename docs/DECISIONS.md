@@ -491,6 +491,20 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Themba sanitizer strips version/TEDS if an optional LLM polish reintroduces them. WordPress paste FAQ in `docs/wordpress/page-home.txt` matches `siteFacts`.
 - **Alternatives considered:** Keep honest version badges on marketing (rejected — internal maturity, not buyer language).
 
+### ADR-045: Themba audiences, Global South, document grounding (THEMBA-C)
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** THEMBA-B profiled only funder / engineer / PM / municipal leader, so MEL, community members, and social facilitation practitioners collapsed to “other.” Copy and municipal CTAs read as South Africa-only even though the product definition is Global South. Themba answers were thin (single FAQ retrieve + 2–6 sentence polish) and did not cite operating procedures or the SRM blueprint. Published IKS papers were offered as training material but are not in the repo yet.
+- **Decision:**
+  1. **Audiences:** Profile chips include MEL / M&E, community member, social facilitator, and local government (Global South public sector), plus funder, engineer, PM. Do not collapse facilitation / community / MEL into “other.”
+  2. **Geography:** Public Themba and marketing speak to South Africa **and** the Global South. ZA place packs remain included baseline for SA plans (ADR-040). Do not invent unshipped national geo packs.
+  3. **Document grounding:** Themba retrieves multiple knowledge chunks and cites public-safe excerpts from operating procedures (`USER_MANUAL` spine/daily loop), the SRM blueprint (six assessment dimensions), and the Community Engagement Toolkit. Optional LLM polish must stay descriptive and faithful — not a two-sentence gloss.
+  4. **IKS:** Until licensed excerpts are filed in `docs/themba/sources/IKS_PAPERS.md` and promoted into `src/lib/themba/sources/iksPractice.ts`, Themba uses a product practice frame (traditional authorities, place, participation trail, MEL evidence) and **must not invent paper titles or findings**.
+  5. Packet: **THEMBA-C**. Runbook: `docs/THEMBA.md`. Source drop zone: `docs/themba/sources/`.
+- **Consequences:** Home “who it is for” strip and FAQ municipal copy match the wider audience. WordPress FAQ paste should be re-pasted when ops next update the marketing host.
+- **Alternatives considered:** Wait for IKS papers before widening audiences (rejected — product already serves those roles); claim finished geo packs for every Global South country (rejected — dishonest).
+
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 
 - **Date:** 2026-07-23
