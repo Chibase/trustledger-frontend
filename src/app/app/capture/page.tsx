@@ -9,6 +9,8 @@ import { CaptureTemplateBar } from "@/components/capture/CaptureTemplateBar";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
+import { TL_TRIAL_PLAN_COOKIE } from "@/lib/auth.constants";
+import { isPlanId, type PlanId } from "@/config/plans";
 import {
   createCaptureId,
   listCaptureRecords,
@@ -95,6 +97,18 @@ export default function AppCapturePage() {
   const [brief, setBrief] = useState<ReportBriefSuggestion | null>(null);
   const [briefStatus, setBriefStatus] = useState<AiSuggestionStatus>("idle");
   const [recent, setRecent] = useState(listCaptureRecords());
+  const [planId, setPlanId] = useState<PlanId | null>(null);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const match = document.cookie.match(
+        new RegExp(`(?:^|; )${TL_TRIAL_PLAN_COOKIE}=([^;]*)`),
+      );
+      const raw = match?.[1] ? decodeURIComponent(match[1]) : "";
+      setPlanId(isPlanId(raw) ? raw : null);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -248,6 +262,7 @@ export default function AppCapturePage() {
   return (
     <FeatureGate
       capability="captureHub"
+      planId={planId}
       lockedBody={
         <p className="mt-2 text-tl-ink-muted">
           Minutes, attendance, and field-note templates are still free on{" "}
@@ -304,6 +319,7 @@ export default function AppCapturePage() {
 
       <CaptureTemplateBar
         source={source}
+        planId={planId}
         onInsert={(skeleton) => setBody(skeleton)}
       />
 

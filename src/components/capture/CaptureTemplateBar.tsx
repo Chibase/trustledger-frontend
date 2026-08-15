@@ -1,16 +1,26 @@
 "use client";
 
 import { fieldTemplateForSource } from "@/data/fieldTemplates";
+import { PLAN_CAPABILITIES } from "@/config/entitlements";
+import type { PlanId } from "@/config/plans";
 import type { CaptureSource } from "@/lib/captureStore";
 
 type Props = {
   source: CaptureSource;
+  planId?: PlanId | null;
   onInsert: (skeleton: string) => void;
 };
 
-export function CaptureTemplateBar({ source, onInsert }: Props) {
+export function CaptureTemplateBar({ source, planId, onInsert }: Props) {
   const template = fieldTemplateForSource(source);
   if (!template) return null;
+
+  const inAppPdf = Boolean(
+    planId && PLAN_CAPABILITIES[planId].includes("captureHub"),
+  );
+  const pdfHref = inAppPdf
+    ? `/api/app/field-templates/file?id=${template.id}`
+    : `/resources/${template.id}`;
 
   return (
     <div className="rounded-lg border border-tl-line bg-tl-paper p-4">
@@ -36,7 +46,7 @@ export function CaptureTemplateBar({ source, onInsert }: Props) {
           Insert blank form
         </button>
         <a
-          href={`/api/app/field-templates/file?id=${template.id}`}
+          href={pdfHref}
           className="inline-flex justify-center rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium text-tl-ink hover:bg-tl-paper"
         >
           Download {template.shortTitle.toLowerCase()} PDF

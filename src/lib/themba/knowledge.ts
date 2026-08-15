@@ -502,9 +502,8 @@ const CORE: ThembaKnowledgeItem[] = [
       "resource",
       "pack",
       "magnet",
-      "minutes",
-      "attendance",
       "template",
+      "attendance",
     ],
     links: [
       { href: "/resources/minutes-template", label: "Meeting minutes" },
