@@ -5,10 +5,15 @@ import { GeoCascadePicker } from "@/components/geo/GeoCascadePicker";
 import { FEATURED_INDICATOR_PLACES } from "@/data/mockIndicators";
 import {
   applyBaselineToCommunityIntel,
+  clearBaselineFromCommunityIntel,
   dossierGeoFromCascade,
+  dossierHasCascadeGeo,
   fetchIndicatorsForGeo,
   fetchIndicatorsForPlace,
+  geoAnchorId,
   geoLabelFromDossier,
+  indicatorPlaceCandidates,
+  isCountryOnlyGeo,
 } from "@/lib/dossierIntel";
 import {
   hydrateDossierFromProject,
@@ -89,13 +94,36 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
   }
 
   const onGeoChange = useCallback((ctx: IncidentGeoContext, label: string) => {
+    // GeoCascadePicker emits country-only on mount — do not wipe a saved cascade.
+    if (isCountryOnlyGeo(ctx)) {
+      setDossier((d) => {
+        if (dossierHasCascadeGeo(d.geo)) return d;
+        return {
+          ...d,
+          geo: dossierGeoFromCascade(ctx, d.geo?.placeLabel),
+        };
+      });
+      return;
+    }
+
     setGeoLabel(label);
-    setDossier((d) => ({
-      ...d,
-      geo: dossierGeoFromCascade(ctx, d.geo?.placeLabel),
-    }));
+    setDossier((d) => {
+      const nextGeo = dossierGeoFromCascade(ctx, d.geo?.placeLabel);
+      const prevAnchor = geoAnchorId(d.geo);
+      const nextAnchor = geoAnchorId(nextGeo);
+      const placeChanged =
+        Boolean(prevAnchor) && Boolean(nextAnchor) && prevAnchor !== nextAnchor;
+      return {
+        ...d,
+        geo: nextGeo,
+        communityIntel: placeChanged
+          ? clearBaselineFromCommunityIntel(d.communityIntel)
+          : d.communityIntel,
+      };
+    });
     setAvailableIndicators([]);
     setSelectedKeys(new Set());
+    setIndicatorPlaceId("");
     setIntelError(null);
   }, []);
 
@@ -167,13 +195,7 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
 
   function clearAttachedBaseline() {
     patch({
-      communityIntel: {
-        ...dossier.communityIntel,
-        attachedIndicators: undefined,
-        baselinePlaceId: undefined,
-        baselineAttachedAt: undefined,
-        baselineSummary: undefined,
-      },
+      communityIntel: clearBaselineFromCommunityIntel(dossier.communityIntel),
     });
   }
 
@@ -185,6 +207,9 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
       return next;
     });
   }
+
+  const canLoadCascadeBaseline =
+    indicatorPlaceCandidates(dossier.geo).length > 0;
 
   function save() {
     setSaving(true);
@@ -533,7 +558,7 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            disabled={intelBusy || !dossier.geo?.placeId}
+            disabled={intelBusy || !canLoadCascadeBaseline}
             onClick={() => void loadBaselineFromCascade()}
             className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
           >

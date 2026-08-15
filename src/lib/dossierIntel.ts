@@ -122,6 +122,86 @@ export function toAttachedIndicators(
   }));
 }
 
+/** True when cascade emitted country-only bootstrap (no province+). */
+export function isCountryOnlyGeo(ctx: IncidentGeoContext): boolean {
+  return Boolean(
+    ctx.countryCode &&
+      !ctx.provinceId &&
+      !ctx.municipalityId &&
+      !ctx.districtId &&
+      !ctx.wardId &&
+      !ctx.traditionalCouncilId &&
+      !ctx.placeId,
+  );
+}
+
+/** True when dossier already has a place selection deeper than country. */
+export function dossierHasCascadeGeo(
+  geo: ProjectDossier["geo"] | undefined,
+): boolean {
+  return Boolean(
+    geo?.provinceId ||
+      geo?.municipalityId ||
+      geo?.districtId ||
+      geo?.wardId ||
+      geo?.placeId ||
+      geo?.provinceName ||
+      geo?.municipalityName ||
+      geo?.wardName,
+  );
+}
+
+export function geoAnchorId(
+  geo: IncidentGeoContext | ProjectDossier["geo"] | undefined,
+): string | undefined {
+  if (!geo) return undefined;
+  return (
+    geo.placeId ||
+    ("wardId" in geo ? geo.wardId : undefined) ||
+    geo.municipalityId ||
+    ("districtId" in geo ? geo.districtId : undefined) ||
+    geo.provinceId
+  );
+}
+
+const BASELINE_NEET_PREFIX = "Youth NEET ";
+
+function stripBaselineNeetLines(notes: string | undefined): string | undefined {
+  if (!notes?.trim()) return undefined;
+  const kept = notes
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith(BASELINE_NEET_PREFIX));
+  return kept.length ? kept.join("\n") : undefined;
+}
+
+/** Remove platform baseline snapshot and autofilled Stats SA fields. */
+export function clearBaselineFromCommunityIntel(
+  current: ProjectDossier["communityIntel"] | undefined,
+): ProjectDossier["communityIntel"] | undefined {
+  if (!current) return undefined;
+  const next = {
+    ...current,
+    attachedIndicators: undefined,
+    baselinePlaceId: undefined,
+    baselineAttachedAt: undefined,
+    baselineSummary: undefined,
+    unemploymentRatePct: undefined as number | undefined,
+    unemploymentSource: undefined as string | undefined,
+    neetYouthNotes: stripBaselineNeetLines(current.neetYouthNotes),
+  };
+  // Drop empty shell
+  if (
+    !next.localBusinessesNotes &&
+    !next.structuresNotes &&
+    !next.neetYouthNotes &&
+    next.unemploymentRatePct == null
+  ) {
+    return undefined;
+  }
+  return next;
+}
+
 /** Merge selected platform rows into communityIntel (unemployment autofill). */
 export function applyBaselineToCommunityIntel(
   current: ProjectDossier["communityIntel"] | undefined,
@@ -139,6 +219,12 @@ export function applyBaselineToCommunityIntel(
     ? `Platform baseline (${baselinePlaceId}):\n${lines.join("\n")}`
     : undefined;
 
+  const tenantNeet = stripBaselineNeetLines(current?.neetYouthNotes);
+  const neetLine =
+    neet != null
+      ? `${BASELINE_NEET_PREFIX}${neet.value}${neet.unit === "%" ? "%" : ` ${neet.unit}`}${neet.year ? ` (${neet.year})` : ""} — ${neet.source || "Stats SA"}`
+      : undefined;
+
   return {
     ...current,
     baselinePlaceId,
@@ -150,15 +236,7 @@ export function applyBaselineToCommunityIntel(
       unemployment?.source ||
       current?.unemploymentSource ||
       "Stats SA / platform baseline",
-    neetYouthNotes:
-      neet != null
-        ? [
-            current?.neetYouthNotes?.trim(),
-            `Youth NEET ${neet.value}${neet.unit === "%" ? "%" : ` ${neet.unit}`}${neet.year ? ` (${neet.year})` : ""} — ${neet.source || "Stats SA"}`,
-          ]
-            .filter(Boolean)
-            .join("\n")
-        : current?.neetYouthNotes,
+    neetYouthNotes: [tenantNeet, neetLine].filter(Boolean).join("\n") || undefined,
     structuresNotes: current?.structuresNotes,
     localBusinessesNotes: current?.localBusinessesNotes,
     baselineSummary: baselineBlock || current?.baselineSummary,
