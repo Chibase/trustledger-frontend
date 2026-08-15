@@ -491,7 +491,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "lead-magnet",
     question: "Can I download a compliance checklist or framework blueprint?",
     answer:
-      "Yes. Free SRM toolkits are on /resources (work email unlocks a PDF): Community Grievance Checklist, SRM Readiness & 90-Day Planner, and Community Engagement Toolkit. They are maturity aids you can adapt to your own programme — not a substitute for a product trial. Share a work email here and I can point you to the matching pack, or open /resources.",
+      "Yes. Free SRM toolkits are on /resources. Each is a separate PDF — download only the one you need (for example the Grievance Checklist without the Community Engagement Toolkit). The three packs: Grievance Checklist, SRM Readiness & 90-Day Planner, and Community Engagement Toolkit. Work email unlocks the chosen file. They are maturity aids you can adapt to your own programme — not a substitute for a product trial. Share a work email here and I can point you to the matching pack, or open /resources.",
     keywords: [
       "download",
       "checklist",
@@ -504,7 +504,9 @@ const CORE: ThembaKnowledgeItem[] = [
       "magnet",
     ],
     links: [
-      { href: "/resources", label: "Free toolkits" },
+      { href: "/resources/grievance-checklist", label: "Grievance checklist" },
+      { href: "/resources/engagement-toolkit", label: "Engagement toolkit" },
+      { href: "/resources", label: "All toolkits" },
       { href: "/assessment", label: "Readiness check" },
     ],
   },

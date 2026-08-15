@@ -7,12 +7,12 @@ import { ResourcesLibrary } from "@/components/resources/ResourcesLibrary";
 export const metadata: Metadata = {
   title: "Free SRM resources",
   description:
-    "Download free SRM toolkits as PDF — grievance checklists, readiness planners, and community engagement packs you can adapt to your programme.",
+    "Download one free SRM PDF at a time — grievance checklist, readiness planner, or community engagement toolkit — and use it as you see fit.",
   alternates: { canonical: "/resources" },
   openGraph: {
     title: "Free SRM resources · TrustLedger",
     description:
-      "Practical checklists and frameworks as PDF for grievance management, readiness planning, and community engagement.",
+      "Choose one PDF: grievance checklist, readiness planner, or community engagement toolkit.",
   },
 };
 
@@ -44,8 +44,8 @@ export default function ResourcesPage() {
               Free tools for audit-ready trust
             </h1>
             <p className="mt-4 max-w-lg animate-[tl-banner-in_600ms_ease-out] text-base leading-relaxed text-white/80 sm:text-lg">
-              Checklists, planners, and engagement packs you can download as
-              PDF and use as you see fit.
+              Choose one PDF at a time — grievance checklist, readiness
+              planner, or community engagement — and use it as you see fit.
             </p>
           </div>
         </section>
@@ -53,8 +53,8 @@ export default function ResourcesPage() {
         <section className="bg-tl-paper px-4 py-12 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl">
             <p className="text-sm text-tl-ink-muted">
-              Work email unlocks each PDF. Prefer a scored diagnostic
-              first?{" "}
+              Each pack is a separate PDF. Unlock only the one you need.
+              Prefer a scored diagnostic first?{" "}
               <Link
                 href="/assessment?utm_source=resources&utm_medium=hero&utm_campaign=readiness"
                 className="font-medium text-tl-trust-ink underline underline-offset-2"

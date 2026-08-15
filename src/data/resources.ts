@@ -25,15 +25,15 @@ export type ResourcePack = {
 export const RESOURCE_PACKS: ResourcePack[] = [
   {
     id: "grievance-checklist",
-    title: "Community Grievance Checklist",
+    title: "Grievance Checklist",
     shortTitle: "Grievance checklist",
     tagline: "Stabilise intake before trust erodes",
     description:
       "A field-ready checklist to map channels, assign case ownership, set severity SLAs, and close grievances with evidence you can defend.",
-    audience: "Community liaison, site managers, social performance leads",
+    audience: "Site managers, social performance leads, liaison officers",
     pagesHint: "PDF · ~6 sections",
     version: "2026.08",
-    filename: "Community-Grievance-Checklist.pdf",
+    filename: "Grievance-Checklist.pdf",
     sections: [
       {
         title: "1. Intake channel map",

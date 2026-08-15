@@ -111,8 +111,8 @@ export function ResourceDownloadForm({ pack, onClose }: Props) {
         {done ? (
           <div className="mt-5 space-y-3">
             <p className="text-sm text-tl-ink">
-              Your PDF is unlocking. If the download did not start, use the
-              button below.
+              Your {pack.shortTitle.toLowerCase()} PDF is unlocking. If the
+              download did not start, use the button below.
             </p>
             {downloadUrl ? (
               <a
@@ -147,8 +147,9 @@ export function ResourceDownloadForm({ pack, onClose }: Props) {
           <form onSubmit={handleSubmit} className="relative mt-5 space-y-3">
             <HoneypotField value={honeypot} onChange={setHoneypot} />
             <p className="text-sm text-tl-ink-muted">
-              Enter a work email to unlock the PDF. We use this to send
-              relevant guidance — not to share your details publicly.
+              Enter a work email to unlock this PDF only —{" "}
+              {pack.shortTitle.toLowerCase()}. We use this to send relevant
+              guidance — not to share your details publicly.
             </p>
             <div>
               <label htmlFor="res-name" className="mb-1 block text-sm font-medium">
