@@ -19,7 +19,6 @@ import {
   statusBars,
 } from "@/lib/dashboardActivity";
 import { readDeskTier } from "@/lib/deskVisibility";
-import { packageLensLabel } from "@/lib/planLabel";
 import { canDeskOpenPack, packsForDesk } from "@/lib/reportPackAccess";
 import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
 import {
@@ -64,8 +63,8 @@ export function ReportsHub({
   authorName,
   planId = null,
   isPlanOwner = false,
-  mode = null,
-  isVip = false,
+  mode: _mode = null,
+  isVip: _isVip = false,
 }: ReportsHubProps) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [pack, setPack] = useState<ReportPackId | null>(null);
@@ -114,17 +113,19 @@ export function ReportsHub({
           Choose a reporting form
         </h1>
         <p className="max-w-2xl text-sm text-tl-ink-muted">
-          Monthly (text + graphs), Executive (strategic / high-risk graphs), or
-          Board pack (presentation for clients, board, and funders). Your package
-          ({packageLensLabel(planId, { mode, vip: isVip })}) and desk (
-          {DESK_TIER_LABELS[tier]}) decide what opens
+          Prefer the project workspace for day-to-day reporting: open a project
+          from the{" "}
+          <Link href="/app/dashboard" className="text-tl-trust-ink underline">
+            Executive portfolio
+          </Link>
+          , then Generate report by kind (ESG, GRM, …) with charts and/or
+          details. This hub keeps plan pack formats (monthly / executive /
+          board) for Owner-controlled seniority. Desk:{" "}
+          {DESK_TIER_LABELS[tier]}
           {isPlanOwner
             ? " — grant desks in Settings → Report pack access"
-            : ""}.
-          {" "}
-          <Link href="/app/dashboard" className="text-tl-trust-ink underline">
-            Back to Activity dashboard
-          </Link>
+            : ""}
+          .
         </p>
       </header>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
@@ -274,6 +274,7 @@ export default function AppCapturePage() {
   );
   const [packSaving, setPackSaving] = useState(false);
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const deepLinkDone = useRef(false);
 
   const narrative = isNarrativeCaptureSource(source);
   const packSource = isPackCaptureSource(source) ? source : null;
@@ -303,7 +304,20 @@ export default function AppCapturePage() {
         const rows = listWorkspaceProjects(seeded);
         setProjects(rows);
         setIncidents(listWorkspaceIncidents());
-        setProjectId((prev) => prev || rows[0]?.id || "");
+        const params =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search)
+            : null;
+        const fromQuery = params?.get("projectId") || "";
+        const sourceQuery = params?.get("source") || "";
+        const preferredProject =
+          fromQuery && rows.some((r) => r.id === fromQuery)
+            ? fromQuery
+            : rows[0]?.id || "";
+        setProjectId((prev) => prev || preferredProject);
+        if (sourceQuery && isPackCaptureSource(sourceQuery)) {
+          setSource(sourceQuery);
+        }
       })();
     });
     return () => {
@@ -311,6 +325,24 @@ export default function AppCapturePage() {
       cancelAnimationFrame(frame);
     };
   }, []);
+
+  // Deep-link once: ?projectId=&source=pack opens that report pack form.
+  useEffect(() => {
+    if (deepLinkDone.current) return;
+    if (!projectId || !isPackCaptureSource(source) || projects.length === 0) {
+      return;
+    }
+    const params =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search)
+        : null;
+    if (!params?.get("source")) return;
+    const forProject = projects.find((p) => p.id === projectId);
+    if (!forProject) return;
+    deepLinkDone.current = true;
+    hydratePackForm(source, forProject);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot deep link
+  }, [projectId, source, projects]);
 
   function issueLogFromIncidents(
     forProject: Project,

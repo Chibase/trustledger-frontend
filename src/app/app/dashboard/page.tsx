@@ -1,4 +1,4 @@
-import { ActivityDashboard } from "@/components/dashboard/ActivityDashboard";
+import { ExecutivePortfolioDashboard } from "@/components/dashboard/ExecutivePortfolioDashboard";
 import { SetupChecklistBanner } from "@/components/onboarding/SetupChecklistBanner";
 import { PlanOwnerMasterPanel } from "@/components/org/PlanOwnerMasterPanel";
 import { getCurrentUser } from "@/lib/auth";
@@ -7,8 +7,8 @@ import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
 
 /**
- * Activity dashboard — overall navigation + project activity pulse.
- * Customer/trial workspaces get empty RSC seeds (no demo contamination).
+ * Executive portfolio — all projects with empowerment / ESG overview.
+ * Open a project for inputs, charts, and kind-based reports.
  */
 export default async function AppDashboardPage() {
   const user = await getCurrentUser();
@@ -27,7 +27,7 @@ export default async function AppDashboardPage() {
     <div className="space-y-7">
       {isPlanOwner ? <SetupChecklistBanner planId={user.trialPlan} /> : null}
       {isPlanOwner ? <PlanOwnerMasterPanel /> : null}
-      <ActivityDashboard
+      <ExecutivePortfolioDashboard
         role={user.role}
         planId={user.trialPlan}
         isPlanOwner={isPlanOwner}

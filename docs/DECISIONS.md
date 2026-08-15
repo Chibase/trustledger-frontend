@@ -338,7 +338,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 ### ADR-028: Dual dashboards — Activity + Reports packs
 
 - **Date:** 2026-07-22
-- **Status:** Accepted
+- **Status:** Accepted — **navigation sequence superseded by ADR-049** (pack gates still apply on `/app/reports`)
 - **Context:** Plan Owner (primary user) needs one surface for navigation/project activity and another for choosing report forms (monthly text+graphs, executive risk graphs, board/client/funder presentation). Formats must follow plan seniority; who may open them is Owner-controlled.
 - **Decision:**
   1. `/app/dashboard` = **Activity dashboard** (overall nav + project activity pulse).
@@ -563,4 +563,18 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   6. Supersedes ADR-001 and ADR-004 **entry** behaviour (Demo-first `/demo` funnel). App shell under `/app` stays.
 - **Consequences:** No public fictional desk; marketing/assessment CTAs retarget `/product` or `/trial`. Ops still ensures SI DocTypes. Stats SA / live Grok deferred.
 - **Alternatives considered:** Keep sample preview beside trial (rejected — bleed + confuses buyers); wait for srm-core methods before SI Cloud (rejected — resource API BFF unblocks Owners now).
+
+### ADR-049: Portfolio → project workspace → kind-based reports
+
+- **Date:** 2026-08-15
+- **Status:** Accepted (supersedes ADR-028 navigation sequence for day-to-day use)
+- **Context:** Users struggled to generate and view reports from the Activity + Reports split. They need an executive overview of all projects, then a project workspace for inputs and reporting.
+- **Decision:**
+  1. `/app/dashboard` = **Executive portfolio** — all projects with empowerment budget / spent / available, targets, % achieved, ESG/employment signals, trust and open cases.
+  2. `/app/projects/[id]` = **Project workspace** — project KPIs + live charts from Capture packs, input shortcuts (employment, B-BBEE, ESG, issue log, cases), and **Generate & view reports** (kind → auto topics, format charts/details/both, audience level, save/print).
+  3. Charts and category bars populate as Capture/case data is entered — no separate chart authoring.
+  4. Report generation = choose **kind** (e.g. ESG) + **format** + **level**; related catalogue sections auto-include.
+  5. `/app/reports` remains Plan Owner **pack seniority** hub (monthly / executive / board) — secondary to the project workspace path.
+- **Consequences:** Nav label “Portfolio”; ActivityDashboard retained as legacy component but not the home. ADR-028 pack gates still apply on `/app/reports`.
+- **Alternatives considered:** Keep Activity home only (rejected — user blocked on reports); single mega Reports page without project drill-in (rejected — mixed jobs).
 
