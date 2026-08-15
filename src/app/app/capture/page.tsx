@@ -81,12 +81,12 @@ const NARRATIVE_SOURCES: {
   {
     id: "minutes",
     label: "Meeting minutes",
-    hint: "Insert the minutes template — labeled fields map attendees and actions.",
+    hint: "Insert minutes — project, date, time, venue, then Item / Description / Action / Date.",
   },
   {
     id: "attendance",
     label: "Attendance register",
-    hint: "Insert the register template — one named person per slot.",
+    hint: "Nature, venue, time — then Initials & Surname, organisation, contact, address, signature.",
   },
   {
     id: "social_intel",

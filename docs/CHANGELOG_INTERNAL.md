@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-15 — Minutes & attendance field templates restructured
+
+- **Meeting minutes:** project details, date of meeting, time, venue; mandatory agenda rows Item · Description · Action · Date. No distribution list (attendance register covers people).
+- **Attendance register:** nature of the meeting, venue, time; rows for Initials and Surname, organisation/structure, contact details, address, signature. No ID number.
+- Capture paste parser accepts the new labels (keeps legacy `Name:` for older pastes).
+
 ## 2026-08-15 — Multi-dashboard: category-mapped project hub (ADR-049 deepen)
 
 - **Executive dashboard** lists all open projects (Draft / Approved / Active / OnHold); Completed/Closed listed separately. Open → **project dashboard**.
