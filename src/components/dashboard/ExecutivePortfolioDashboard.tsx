@@ -14,7 +14,7 @@ import {
   pctLabel,
   zar,
 } from "@/lib/portfolioMetrics";
-import { isActivePortfolioProject } from "@/lib/projectCategoryMap";
+import { isExecutiveDashboardProject } from "@/lib/projectCategoryMap";
 import {
   listWorkspaceIncidents,
   listWorkspaceProjects,
@@ -56,16 +56,22 @@ export function ExecutivePortfolioDashboard({
     return () => cancelAnimationFrame(frame);
   }, [role, seedIncidents, seedProjects]);
 
-  const activeProjects = useMemo(
-    () => projects.filter(isActivePortfolioProject),
+  const openProjects = useMemo(
+    () => projects.filter(isExecutiveDashboardProject),
+    [projects],
+  );
+  const parked = useMemo(
+    () =>
+      projects.filter(
+        (p) => p.status === "Completed" || p.status === "Closed",
+      ),
     [projects],
   );
   const overview = useMemo(
-    () => buildPortfolioOverview(activeProjects, incidents),
-    [activeProjects, incidents],
+    () => buildPortfolioOverview(openProjects, incidents),
+    [openProjects, incidents],
   );
   const { totals, rows } = overview;
-  const inactiveCount = projects.length - activeProjects.length;
 
   const spendBars = rows
     .filter((r) => r.empowermentBudget > 0)
@@ -89,22 +95,19 @@ export function ExecutivePortfolioDashboard({
         <p className="text-sm font-medium text-tl-trust">Executive dashboard</p>
         <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
           {isPlanOwner
-            ? "Active projects overview"
-            : "Active projects you work on"}
+            ? "Projects overview"
+            : "Projects you work on"}
         </h1>
         <p className="max-w-2xl text-sm text-tl-ink-muted">
-          Roll-up of empowerment budgets, targets, and progress across active
-          projects. Open a project dashboard to capture, monitor, edit, and
-          generate reports — that project data feeds this view. Desk:{" "}
-          {DESK_TIER_LABELS[tier]}.
-          {inactiveCount > 0
-            ? ` ${inactiveCount} draft/closed project${inactiveCount === 1 ? "" : "s"} hidden.`
-            : ""}
+          Roll-up of empowerment budgets, targets, and progress across your
+          projects (including Draft). Open a project dashboard to capture,
+          monitor, edit, and generate reports — that data feeds this view.
+          Desk: {DESK_TIER_LABELS[tier]}.
         </p>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Active projects" value={String(totals.projectCount)} />
+        <KpiCard label="Projects" value={String(totals.projectCount)} />
         <KpiCard
           label="Empowerment budget"
           value={zar(totals.empowermentBudget)}
@@ -166,7 +169,7 @@ export function ExecutivePortfolioDashboard({
       <section className="space-y-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="text-base font-semibold text-tl-ink">
-            Active projects
+            Your projects
           </h2>
           <Link
             href="/app/projects"
@@ -177,11 +180,11 @@ export function ExecutivePortfolioDashboard({
         </div>
         {rows.length === 0 ? (
           <p className="rounded-lg border border-dashed border-tl-line bg-tl-surface px-4 py-6 text-sm text-tl-ink-muted">
-            No active projects yet.{" "}
+            No projects yet.{" "}
             <Link href="/app/capture" className="text-tl-trust-ink underline">
               Capture a project dossier
             </Link>{" "}
-            and set status to Active.
+            to start the executive view.
           </p>
         ) : (
           <ul className="divide-y divide-tl-line overflow-hidden rounded-lg border border-tl-line bg-tl-surface">
@@ -261,6 +264,30 @@ export function ExecutivePortfolioDashboard({
           </ul>
         )}
       </section>
+
+      {parked.length > 0 ? (
+        <section className="space-y-2">
+          <h2 className="text-sm font-semibold text-tl-ink-muted">
+            Completed / closed ({parked.length})
+          </h2>
+          <ul className="divide-y divide-tl-line overflow-hidden rounded-lg border border-dashed border-tl-line bg-tl-surface text-sm">
+            {parked.map((project) => (
+              <li key={project.id}>
+                <Link
+                  href={`/app/projects/${encodeURIComponent(project.id)}`}
+                  className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 hover:bg-tl-paper"
+                >
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-tl-ink">{project.name}</span>
+                    <ProjectStatusChip status={project.status} />
+                  </span>
+                  <span className="text-xs text-tl-trust-ink">Open →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

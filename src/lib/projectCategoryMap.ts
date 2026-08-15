@@ -89,13 +89,16 @@ function num(n: number | null | undefined): string {
   return String(n);
 }
 
-/** Active delivery projects for the executive dashboard. */
+/** Projects shown on the executive dashboard (open delivery set). */
+export function isExecutiveDashboardProject(project: Project): boolean {
+  // Include Draft — desks often create a second project before flipping status.
+  // Only Completed / Closed are parked off the main overview.
+  return project.status !== "Completed" && project.status !== "Closed";
+}
+
+/** @deprecated use isExecutiveDashboardProject */
 export function isActivePortfolioProject(project: Project): boolean {
-  return (
-    project.status === "Active" ||
-    project.status === "Approved" ||
-    project.status === "OnHold"
-  );
+  return isExecutiveDashboardProject(project);
 }
 
 /**

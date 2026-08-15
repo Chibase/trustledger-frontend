@@ -2,7 +2,7 @@
 
 ## 2026-08-15 — Multi-dashboard: category-mapped project hub (ADR-049 deepen)
 
-- **Executive dashboard** shows **active** projects only; open → **project dashboard**.
+- **Executive dashboard** lists all open projects (Draft / Approved / Active / OnHold); Completed/Closed listed separately. Open → **project dashboard**.
 - Project dashboard segments data by report category (overview, GRM/incidents, issue log, employment/training, B-BBEE, ESG, budget, stakeholders, CSI) with capture/edit and monitor charts.
 - Report generation = **kind + format + level** only; mapped categories auto-fill the template (no topic checkboxes). Create-report wizard aligns.
 - Nav label **Executive**.
