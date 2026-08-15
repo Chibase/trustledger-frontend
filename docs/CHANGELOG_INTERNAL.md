@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-15 — Project dossier geo cascade + attach community intel
+
+- `ProjectDossierForm` uses `GeoCascadePicker` (Country → Province → Town → DM → TC → Ward) instead of free-text province/muni/ward.
+- Dossier `geo` stores cascade IDs (`provinceId`, `municipalityId`, `wardId`, `placeId`, …); issue intake prefills full geo from dossier.
+- Community intelligence: load Stats SA / Census platform baseline for cascade place or featured packs, select indicators, **Attach selected to project** (unemployment autofill; tenant business/structure notes remain free-text).
+- `GET /api/geo?indicators=1&placeId=` exposes `geoService.indicatorsForPlace`; report composer ESG baseline includes attached indicators.
+
 ## 2026-08-15 — Capture hub project-first workflow
 
 - Capture hub requires a project first (`projectChipLabel`). Thin dossiers open compact `ProjectDossierForm` and block field notes / period packs until basics are saved.

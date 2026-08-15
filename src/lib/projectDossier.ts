@@ -69,9 +69,19 @@ export function hydrateDossierFromProject(project: Project): ProjectDossier {
     },
     geo: {
       countryCode: base.geo?.countryCode || "ZA",
+      countryName: base.geo?.countryName,
+      provinceId: base.geo?.provinceId,
       provinceName: base.geo?.provinceName,
-      municipalityName: base.geo?.municipalityName || project.municipality || undefined,
+      districtId: base.geo?.districtId,
+      districtName: base.geo?.districtName,
+      municipalityId: base.geo?.municipalityId,
+      municipalityName:
+        base.geo?.municipalityName || project.municipality || undefined,
+      traditionalCouncilId: base.geo?.traditionalCouncilId,
+      traditionalCouncilName: base.geo?.traditionalCouncilName,
+      wardId: base.geo?.wardId,
       wardName: base.geo?.wardName || project.ward || undefined,
+      placeId: base.geo?.placeId,
       placeLabel: base.geo?.placeLabel,
     },
     budget: {
@@ -154,7 +164,9 @@ export function projectPlaceOptions(project: Project): string[] {
   const rows = [
     d?.geo?.placeLabel,
     d?.geo?.wardName || project.ward,
+    d?.geo?.traditionalCouncilName,
     d?.geo?.municipalityName || project.municipality,
+    d?.geo?.districtName,
     d?.geo?.provinceName,
   ].filter((v): v is string => Boolean(v && v.trim()));
   return [...new Set(rows)];
@@ -168,7 +180,13 @@ export function dossierSummaryLines(project: Project): string[] {
   if (project.contractorName) lines.push(`Contractor: ${project.contractorName}`);
   const ward = d?.geo?.wardName || project.ward;
   const muni = d?.geo?.municipalityName || project.municipality;
-  if (ward || muni) lines.push(`Geo: ${[ward, muni].filter(Boolean).join(", ")}`);
+  if (ward || muni) {
+    const district = d?.geo?.districtName;
+    const province = d?.geo?.provinceName;
+    lines.push(
+      `Geo: ${[ward, muni, district, province].filter(Boolean).join(", ")}`,
+    );
+  }
   const budget = d?.budget?.authorisedZar ?? project.budgetTotal;
   if (budget) lines.push(`Budget: R${budget.toLocaleString("en-ZA")}`);
   if (d?.dates?.startDate || project.startDate) {
@@ -186,6 +204,12 @@ export function dossierSummaryLines(project: Project): string[] {
   if (d?.communityIntel?.unemploymentRatePct != null) {
     lines.push(
       `Area unemployment: ${d.communityIntel.unemploymentRatePct}%${d.communityIntel.unemploymentSource ? ` (${d.communityIntel.unemploymentSource})` : ""}`,
+    );
+  }
+  const attached = d?.communityIntel?.attachedIndicators?.length || 0;
+  if (attached) {
+    lines.push(
+      `Platform baseline indicators: ${attached}${d?.communityIntel?.baselinePlaceId ? ` (${d.communityIntel.baselinePlaceId})` : ""}`,
     );
   }
   const promiseCount = d?.promises?.length || 0;

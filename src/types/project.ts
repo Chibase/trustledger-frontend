@@ -33,9 +33,19 @@ export type ProjectDossier = {
   promises?: ProjectPromise[];
   geo?: {
     countryCode?: string;
+    countryName?: string;
+    provinceId?: string;
     provinceName?: string;
+    districtId?: string;
+    districtName?: string;
+    municipalityId?: string;
     municipalityName?: string;
+    traditionalCouncilId?: string;
+    traditionalCouncilName?: string;
+    wardId?: string;
     wardName?: string;
+    /** Leaf place used for platform baseline lookup (ADR-040). */
+    placeId?: string;
     placeLabel?: string;
   };
   communityIntel?: {
@@ -44,6 +54,21 @@ export type ProjectDossier = {
     localBusinessesNotes?: string;
     structuresNotes?: string;
     neetYouthNotes?: string;
+    /** Featured / cascade place id the baseline was taken from. */
+    baselinePlaceId?: string;
+    baselineAttachedAt?: string;
+    /** Snapshot of attached Stats SA / Census rows (platform baseline). */
+    attachedIndicators?: Array<{
+      placeId: string;
+      key: string;
+      label: string;
+      value: number;
+      unit: string;
+      year?: number;
+      source?: string;
+    }>;
+    /** Human-readable dump of attached baseline rows. */
+    baselineSummary?: string;
   };
   funder?: {
     name?: string;
@@ -143,7 +168,10 @@ export function projectHasDossierBasics(project: Project): boolean {
       d.empowermentTargets?.localHireTarget != null ||
       (d.promises && d.promises.length > 0) ||
       d.communityIntel?.unemploymentRatePct != null ||
-      d.communityIntel?.structuresNotes,
+      d.communityIntel?.structuresNotes ||
+      (d.communityIntel?.attachedIndicators?.length ?? 0) > 0 ||
+      d.geo?.placeId ||
+      d.geo?.municipalityId,
   );
 }
 
