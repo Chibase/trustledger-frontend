@@ -3,7 +3,9 @@ import { mockIncidents } from "@/data/mockIncidents";
 import { callFrappeMethod } from "@/lib/frappeClient";
 import {
   composeActivityReportMarkdown,
+  emptyAggregatedPackFacts,
   looksLikeReportTemplateGuide,
+  periodFactsHaveWritableEvidence,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import { parseLabeledStakeholders, parseLabeledTitle } from "@/lib/parseFieldTemplate";
@@ -265,59 +267,60 @@ function mockActivityReport(
   }
 
   // Minimal facts so we still write a real report if JSON is missing / empty.
-  // Customer workspaces must never fall back to demo INC-* seed.
+  // Customer workspaces must never fall back to demo INC-* seed — but may write
+  // from project dossier + Capture packs with zero cases.
   if (!facts || !facts.attended?.length) {
-    if (isCustomerWorkspaceClient()) {
+    if (facts && periodFactsHaveWritableEvidence(facts)) {
+      facts = {
+        ...facts,
+        attended: facts.attended || [],
+        escalated: facts.escalated || [],
+        resolved: facts.resolved || [],
+        pending: facts.pending || [],
+        unresolvedBlocked: facts.unresolvedBlocked || [],
+        meetingCaptures: facts.meetingCaptures || [],
+        evidence: facts.evidence || [],
+        packs: facts.packs || emptyAggregatedPackFacts(),
+        trustIndex: facts.trustIndex ?? 55,
+        trustLabel: facts.trustLabel ?? "Watch",
+        avgSentiment: facts.avgSentiment ?? null,
+        projectName: input.projectName || facts.projectName,
+      };
+    } else if (isCustomerWorkspaceClient()) {
       throw new Error(
-        "No cases in your org data space — import CSV or log a case before writing a report.",
+        "No project evidence yet — complete the project dossier or Capture packs (or log a case) before writing a report.",
       );
+    } else {
+      const seed = mockIncidents.slice(0, 6);
+      const open = seed.filter((i) => i.status !== "Closed");
+      facts = {
+        attended: seed,
+        escalated: seed.filter((i) => i.escalationLevel !== "None"),
+        resolved: seed.filter((i) => i.status === "Closed"),
+        pending: open,
+        unresolvedBlocked: seed.filter((i) => i.slaBreached),
+        meetingCaptures: facts?.meetingCaptures || [],
+        evidence: [
+          ...(facts?.evidence || []),
+          ...seed.slice(0, 3).map((i) => ({
+            id: `ev-${i.id}`,
+            kind: "other" as const,
+            label: `${i.id} — ${i.title}`,
+            incidentId: i.id,
+          })),
+        ],
+        trustIndex: facts?.trustIndex ?? 55,
+        trustLabel: facts?.trustLabel ?? "Watch",
+        avgSentiment: facts?.avgSentiment ?? null,
+        projectName: input.projectName || seed[0]?.projectName,
+        packs: facts?.packs || emptyAggregatedPackFacts(),
+        dossier: facts?.dossier,
+      };
     }
-    const seed = mockIncidents.slice(0, 6);
-    const open = seed.filter((i) => i.status !== "Closed");
-    facts = {
-      attended: seed,
-      escalated: seed.filter((i) => i.escalationLevel !== "None"),
-      resolved: seed.filter((i) => i.status === "Closed"),
-      pending: open,
-      unresolvedBlocked: seed.filter((i) => i.slaBreached),
-      meetingCaptures: facts?.meetingCaptures || [],
-      evidence: [
-        ...(facts?.evidence || []),
-        ...seed.slice(0, 3).map((i) => ({
-          id: `ev-${i.id}`,
-          kind: "other" as const,
-          label: `${i.id} — ${i.title}`,
-          incidentId: i.id,
-        })),
-      ],
-      trustIndex: facts?.trustIndex ?? 55,
-      trustLabel: facts?.trustLabel ?? "Watch",
-      avgSentiment: facts?.avgSentiment ?? null,
-      projectName: input.projectName || seed[0]?.projectName,
-      packs: facts?.packs || {
-        projectProfiles: [],
-        bbbee: [],
-        employment: [],
-        csi: [],
-        esg: [],
-        grm: [],
-        issueLogs: [],
-        budget: [],
-      },
-    };
   } else if (!facts.packs) {
     facts = {
       ...facts,
-      packs: {
-        projectProfiles: [],
-        bbbee: [],
-        employment: [],
-        csi: [],
-        esg: [],
-        grm: [],
-        issueLogs: [],
-        budget: [],
-      },
+      packs: emptyAggregatedPackFacts(),
     };
   }
 

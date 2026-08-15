@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-15 — Reports from dossier / Capture packs without cases
+
+- Customer workspaces can draft reports from project dossier + Capture packs when there are zero org cases (no more hard stop requiring CSV import / INC-* only).
+- Wizard no longer requires INC-* citations when the draft is pack/dossier-grounded; data-in-scope shows dossier/packs when case count is 0.
+- Skip demo photo evidence stubs in customer mode.
+
 ## 2026-08-15 — Issue log pack + empowerment spent auto-roll
 
 - Capture hub adds **Issue log** beside GRM / employment packs: desk case list + period log fields; feeds GRM / issue-handling / MEL sections.

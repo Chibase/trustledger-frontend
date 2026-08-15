@@ -9,12 +9,13 @@ import {
   type AggregatedPackFacts,
 } from "@/lib/captureStore";
 import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
+import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type {
   EvidenceStubRef,
   ReportSectionId,
 } from "@/types/activityReport";
 import type { Incident } from "@/types/incident";
-import type { Project } from "@/types/project";
+import type { Project, ProjectDossier } from "@/types/project";
 
 export type PeriodActivityFacts = {
   attended: Incident[];
@@ -29,9 +30,60 @@ export type PeriodActivityFacts = {
   avgSentiment: number | null;
   projectName?: string;
   packs: AggregatedPackFacts;
-  /** Durable programme facts from the selected project dossier. */
-  dossier?: Project["dossier"];
+  dossier?: ProjectDossier;
 };
+
+export function emptyAggregatedPackFacts(): AggregatedPackFacts {
+  return {
+    projectProfiles: [],
+    bbbee: [],
+    employment: [],
+    csi: [],
+    esg: [],
+    grm: [],
+    issueLogs: [],
+    budget: [],
+  };
+}
+
+/** True when dossier / capture packs / meetings can ground a report without cases. */
+export function periodFactsHaveWritableEvidence(
+  facts: PeriodActivityFacts | null | undefined,
+): boolean {
+  if (!facts) return false;
+  if (facts.attended.length > 0) return true;
+  if (facts.meetingCaptures.length > 0) return true;
+  const p = facts.packs;
+  if (
+    p.projectProfiles.length ||
+    p.bbbee.length ||
+    p.employment.length ||
+    p.csi.length ||
+    p.esg.length ||
+    p.grm.length ||
+    p.issueLogs.length ||
+    p.budget.length
+  ) {
+    return true;
+  }
+  const d = facts.dossier;
+  if (!d) return false;
+  return Boolean(
+    d.funder?.name ||
+      d.geo?.wardName ||
+      d.geo?.municipalityName ||
+      d.geo?.placeId ||
+      d.sector ||
+      d.siteDescription ||
+      d.budget?.authorisedZar ||
+      d.empowermentTargets?.localHireTarget != null ||
+      d.empowermentTargets?.empowermentBudgetZar != null ||
+      d.empowermentTargets?.bbbeeLevelTarget ||
+      (d.promises && d.promises.length > 0) ||
+      d.communityIntel?.unemploymentRatePct != null ||
+      (d.communityIntel?.attachedIndicators?.length ?? 0) > 0,
+  );
+}
 
 export type ComposeNarrativeInput = {
   kindLabel: string;
@@ -205,11 +257,17 @@ export function buildPeriodActivityFacts(
         notes: dossier.communityIntel?.neetYouthNotes,
       });
     }
-    if (!packs.budget.length && dossier.budget?.authorisedZar != null) {
-      packs.budget.push({
-        budgetTotalZar: dossier.budget.authorisedZar,
-        contingencyZar: dossier.budget.contingencyZar,
-      });
+    if (!packs.budget.length) {
+      const empBudget = dossier.empowermentTargets?.empowermentBudgetZar;
+      const authorised = dossier.budget?.authorisedZar;
+      const spent = dossier.empowermentTargets?.empowermentSpentZar;
+      if (empBudget != null || authorised != null || spent != null) {
+        packs.budget.push({
+          budgetTotalZar: empBudget ?? authorised,
+          spendToDateZar: spent,
+          contingencyZar: dossier.budget?.contingencyZar,
+        });
+      }
     }
     if (
       !packs.esg.length &&
@@ -266,7 +324,7 @@ export function buildPeriodActivityFacts(
     });
   }
 
-  if (evidence.length < 2) {
+  if (evidence.length < 2 && !isCustomerWorkspaceClient()) {
     evidence.push({
       id: "ev-photo-demo",
       kind: "photo",
@@ -279,6 +337,12 @@ export function buildPeriodActivityFacts(
         label: `Case file ${scoped[0].id} — ${scoped[0].title}`,
       });
     }
+  } else if (evidence.length === 0 && options?.project) {
+    evidence.push({
+      id: `ev-project-${options.project.id}`,
+      kind: "other",
+      label: `Project dossier — ${options.project.name}`,
+    });
   }
 
   const trust = trustIndexFromIncidents(scoped);
@@ -761,15 +825,21 @@ export function composeActivityReportMarkdown(
 **Topics covered:** ${input.includedSectionLabels.join("; ") || "—"}
 `;
 
+  const packHint = periodFactsHaveWritableEvidence(input.facts)
+    ? input.facts.attended.length
+      ? `Lead case set: ${shortList(input.facts.attended)}.`
+      : `Evidence from project dossier / Capture packs (${input.facts.meetingCaptures.length} meeting/note capture${input.facts.meetingCaptures.length === 1 ? "" : "s"}; packs filed for empowerment, employment, GRM, or budget as available).`
+    : `Lead case set: ${shortList(input.facts.attended)}.`;
+
   const highlight =
     tone === "board"
       ? `## Executive highlight
 
-Assurance position for **${scope}** in **${input.periodLabel}**: trust **${input.facts.trustIndex}/100 (${input.facts.trustLabel})**; **${input.facts.attended.length}** cases attended; **${input.facts.escalated.length}** escalations; **${input.facts.unresolvedBlocked.length}** blocked/SLA-pressured. Lead items: ${shortList(input.facts.escalated.length ? input.facts.escalated : input.facts.attended)}.
+Assurance position for **${scope}** in **${input.periodLabel}**: trust **${input.facts.trustIndex}/100 (${input.facts.trustLabel})**; **${input.facts.attended.length}** cases attended; **${input.facts.escalated.length}** escalations; **${input.facts.unresolvedBlocked.length}** blocked/SLA-pressured. ${packHint}
 `
       : `## Summary
 
-This ${input.kindLabel.toLowerCase()} covers **${input.includedSectionLabels.length}** selected topic${input.includedSectionLabels.length === 1 ? "" : "s"} for **${input.periodLabel}** on **${scope}**. Trust pulse: **${input.facts.trustIndex}/100 (${input.facts.trustLabel})**. Lead case set: ${shortList(input.facts.attended)}.
+This ${input.kindLabel.toLowerCase()} covers **${input.includedSectionLabels.length}** selected topic${input.includedSectionLabels.length === 1 ? "" : "s"} for **${input.periodLabel}** on **${scope}**. Trust pulse: **${input.facts.trustIndex}/100 (${input.facts.trustLabel})**. ${packHint}
 `;
 
   const lockedNote = input.lockedSectionLabels.length
