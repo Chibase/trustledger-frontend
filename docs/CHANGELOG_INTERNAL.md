@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-15 — Project detail opens Cloud / VIP projects (no 404)
+
+- `/app/projects/[id]` loads via Cloud resource API (`GET /api/app/projects/[id]`) when `srm_core` get is unavailable — fixes VIP/live projects created from Add project.
+- Detail page is client-side (trial localStorage + live Cloud), matching incident desk pattern.
+
 ## 2026-08-15 — VIP package label + add projects (live)
 
 - Shell / Settings / Reports no longer show **Demo** for live or VIP packages — VIP badge via `packageLabel` / `tl-vip` cookie (Customer `VIP Pilot — …`).
