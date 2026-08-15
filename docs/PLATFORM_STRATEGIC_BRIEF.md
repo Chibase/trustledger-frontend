@@ -5,6 +5,7 @@
 **Deploy truth (Production):** `https://trustledger-frontend-pi.vercel.app` · `deploySha` tracked on `/api/health`  
 **Cloud SoT:** `https://app.trustledger.co.za` (Frappe Cloud only — Interserv retired)  
 **Product name in UI:** TrustLedger only  
+**Pre–paying-client hosting risk:** `docs/HOSTING_CONTINGENCY.md` (uptime watches, Resend, $0 Node standby — not Frappe UI failover)  
 
 > Use this brief when packaging plans, training public-facing agents, evaluating what to keep/improve/cut, and deciding upgrades. Code matrices in `src/config/entitlements.ts` and maturity in `src/lib/tedsMaturity.ts` override stale markdown if they diverge.
 

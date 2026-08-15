@@ -12,6 +12,12 @@
 - Each pack is a separate PDF. The grievance checklist is titled **Grievance Checklist** (`Grievance-Checklist.pdf`) and is not bundled with the community engagement toolkit. Library and preview pages say “choose one pack”.
 - **Field templates** (Meeting Minutes, Attendance Register, Field Note) use labeled fields that Capture maps on first paste. Project and Institutional include them in Capture hub (insert blank form + in-app PDF). Same PDFs are free on `/resources`.
 
+
+## 2026-08-07 — Hosting contingency runbook (pre–paying client)
+
+- `docs/HOSTING_CONTINGENCY.md`: free uptime watches on `/api/health` + Cloud ping; Resend Production fix; env checklist; $0 Node standby (Render/Railway/Fly) — not Frappe frontend failover; DNS/VIP message; first-paying-client upgrade trigger.
+- Linked from PLATFORM_STRATEGIC_BRIEF + LAUNCH_CHECKLIST. Clarifies: Vercel pause ≠ data wipe; Frappe holds SoT only.
+
 ## 2026-08-14 — Chibase: keep the preview desk in the hero
 
 - Hero is two columns from the `md` breakpoint (not only `lg`). On small screens the preview desk sits first, above the copy, so it is not pushed below the fold by the header and CTAs.

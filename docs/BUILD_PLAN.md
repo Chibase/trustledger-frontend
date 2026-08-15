@@ -291,6 +291,7 @@ src/
 | 2026-08-15 | UG-2 — field capture templates (minutes / attendance / field note) |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
+| 2026-08-07 | Hosting contingency runbook — pre–paying-client uptime + Node standby (`docs/HOSTING_CONTINGENCY.md`) |
 | 2026-08-14 | CHIBASE-PACK / ADR-048 — independent Chibase consulting packages; optional Paystack; TrustLedger add-on request only |
 | 2026-08-14 | CHIBASE-PREVIEW / ADR-047 — local preview desk on Chibase hero |
 | 2026-08-14 | SEC-SITE — retire Chibase WordPress (SP declined cleanup); website DNS only; MX stays Webway |
