@@ -111,24 +111,36 @@ export default function AppReportIssuePage() {
   useEffect(() => {
     const project = projects.find((p) => p.id === projectId);
     if (!project?.dossier?.geo && !project?.ward) return;
-    const ward = project.dossier?.geo?.wardName || project.ward;
-    const muni =
-      project.dossier?.geo?.municipalityName || project.municipality;
-    if (!ward && !muni) return;
+    const g = project.dossier?.geo;
+    const ward = g?.wardName || project.ward;
+    const muni = g?.municipalityName || project.municipality;
+    if (!ward && !muni && !g?.provinceName && !g?.placeId) return;
     const frame = requestAnimationFrame(() => {
       setGeo({
-        countryCode: project.dossier?.geo?.countryCode || "ZA",
-        countryName: "South Africa",
-        provinceName: project.dossier?.geo?.provinceName || "",
+        countryCode: g?.countryCode || "ZA",
+        countryName: g?.countryName || "South Africa",
+        provinceId: g?.provinceId,
+        provinceName: g?.provinceName || "",
+        districtId: g?.districtId,
+        districtName: g?.districtName || muni || "",
+        municipalityId: g?.municipalityId,
         municipalityName: muni || "",
+        traditionalCouncilId: g?.traditionalCouncilId,
+        traditionalCouncilName: g?.traditionalCouncilName,
+        wardId: g?.wardId || (ward && !g?.wardId ? `dossier-${ward}` : undefined),
         wardName: ward || "",
-        wardId: ward ? `dossier-${ward}` : undefined,
-        districtName: muni || "",
+        placeId: g?.placeId,
       });
       setGeoLabel(
-        [ward, muni, project.dossier?.geo?.provinceName]
+        [
+          ward,
+          g?.traditionalCouncilName,
+          muni,
+          g?.districtName,
+          g?.provinceName,
+        ]
           .filter(Boolean)
-          .join(", "),
+          .join(" · "),
       );
     });
     return () => cancelAnimationFrame(frame);

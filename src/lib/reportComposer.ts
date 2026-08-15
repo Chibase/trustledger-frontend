@@ -214,12 +214,23 @@ export function buildPeriodActivityFacts(
     if (
       !packs.esg.length &&
       (dossier.communityIntel?.unemploymentRatePct != null ||
-        dossier.communityIntel?.structuresNotes)
+        dossier.communityIntel?.structuresNotes ||
+        (dossier.communityIntel?.attachedIndicators?.length ?? 0) > 0)
     ) {
+      const attached =
+        dossier.communityIntel?.attachedIndicators
+          ?.map(
+            (r) =>
+              `${r.label} ${r.value}${r.unit === "%" ? "%" : ` ${r.unit}`}`,
+          )
+          .join("; ") || null;
       packs.esg.push({
         communityTrustNotes: [
           dossier.communityIntel?.unemploymentRatePct != null
             ? `Area unemployment ${dossier.communityIntel.unemploymentRatePct}%`
+            : null,
+          attached
+            ? `Platform baseline${dossier.communityIntel?.baselinePlaceId ? ` (${dossier.communityIntel.baselinePlaceId})` : ""}: ${attached}`
             : null,
           dossier.communityIntel?.structuresNotes
             ? `Structures: ${dossier.communityIntel.structuresNotes}`

@@ -5,6 +5,7 @@ import type { GeoLevel } from "@/types/geo";
 /**
  * Client-safe geo queries for cascaded place pickers.
  * GET ?parentId=… | ?level=ward | ?id=… (ancestors) | ?counts=1
+ *     | ?indicators=1&placeId=…
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -15,8 +16,15 @@ export async function GET(request: Request) {
   const limit = Number(searchParams.get("limit") || "400");
   const ancestors = searchParams.get("ancestors") === "1";
   const counts = searchParams.get("counts") === "1";
+  const indicators = searchParams.get("indicators") === "1";
+  const placeId = searchParams.get("placeId");
 
   try {
+    if (indicators && placeId) {
+      return NextResponse.json({
+        indicators: await geoService.indicatorsForPlace(placeId),
+      });
+    }
     if (counts) {
       return NextResponse.json({
         counts: await geoService.countsByLevel(),
