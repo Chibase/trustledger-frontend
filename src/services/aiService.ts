@@ -294,6 +294,28 @@ function mockActivityReport(
       trustLabel: facts?.trustLabel ?? "Watch",
       avgSentiment: facts?.avgSentiment ?? null,
       projectName: input.projectName || seed[0]?.projectName,
+      packs: facts?.packs || {
+        projectProfiles: [],
+        bbbee: [],
+        employment: [],
+        csi: [],
+        esg: [],
+        grm: [],
+        budget: [],
+      },
+    };
+  } else if (!facts.packs) {
+    facts = {
+      ...facts,
+      packs: {
+        projectProfiles: [],
+        bbbee: [],
+        employment: [],
+        csi: [],
+        esg: [],
+        grm: [],
+        budget: [],
+      },
     };
   }
 

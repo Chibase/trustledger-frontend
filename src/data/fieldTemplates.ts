@@ -1,9 +1,9 @@
-import type { CaptureSource } from "@/lib/captureStore";
+import type { NarrativeCaptureSource } from "@/lib/captureStore";
 import type { ResourcePack } from "@/data/resources";
 
 export type FieldTemplate = ResourcePack & {
   family: "field-template";
-  captureSource: CaptureSource;
+  captureSource: NarrativeCaptureSource;
   pasteSkeleton: string;
   mapsTo: string[];
 };
@@ -248,7 +248,7 @@ export function fieldTemplateById(id: string): FieldTemplate | undefined {
 }
 
 export function fieldTemplateForSource(
-  source: CaptureSource,
+  source: NarrativeCaptureSource,
 ): FieldTemplate | undefined {
   return FIELD_TEMPLATES.find((t) => t.captureSource === source);
 }
