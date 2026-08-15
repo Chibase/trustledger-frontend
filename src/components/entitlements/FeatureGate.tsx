@@ -23,7 +23,7 @@ type FeatureGateProps = {
 };
 
 /**
- * Soft gate for plan capabilities. Demo uses Project lens by default.
+ * Soft gate for plan capabilities. No-plan sessions use the Project lens.
  */
 export function FeatureGate({
   capability,

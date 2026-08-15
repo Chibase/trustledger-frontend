@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-15 — VIP package label + add projects (live)
+
+- Shell / Settings / Reports no longer show **Demo** for live or VIP packages — VIP badge via `packageLabel` / `tl-vip` cookie (Customer `VIP Pilot — …`).
+- Live login + OTP stamp plan + VIP cookies from Cloud Customer; logout clears them.
+- `/app/projects`: Plan Owners (incl. VIP) get **Add project**; `POST/GET /api/app/projects` creates/lists TL Project on Cloud (VIP skips paid project caps).
+- Customer workspaces no longer merge sample demo project seed into the list.
+
 ## 2026-08-15 — ClickUp newsletter ops playbook (EM-2)
 
 - `docs/CLICKUP_NEWSLETTER_OPS.md`: fortnightly cadence, AI draft prompts, human approve gates, Frappe Newsletter handoff.

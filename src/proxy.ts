@@ -3,9 +3,14 @@ import type { NextRequest } from "next/server";
 import {
   FRAPPE_SID_COOKIE,
   SESSION_ROLE_COOKIE,
+  TL_DESK_TIER_COOKIE,
+  TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
+  TL_ORG_OWNER_COOKIE,
+  TL_TRIAL_PLAN_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_COOKIE,
 } from "@/lib/auth.constants";
 import { isUserRole } from "@/types/rbac";
 import { getDataMode } from "@/config/api";
@@ -104,6 +109,11 @@ function clearLiveCookies(response: NextResponse) {
   response.cookies.set(TL_MODE_COOKIE, "", clear);
   response.cookies.set(TL_USER_NAME_COOKIE, "", clear);
   response.cookies.set(TL_USER_EMAIL_COOKIE, "", clear);
+  response.cookies.set(TL_TRIAL_PLAN_COOKIE, "", clear);
+  response.cookies.set(TL_VIP_COOKIE, "", clear);
+  response.cookies.set(TL_ORG_OWNER_COOKIE, "", clear);
+  response.cookies.set(TL_DESK_TIER_COOKIE, "", clear);
+  response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "", clear);
 }
 
 function clearDemoSession(response: NextResponse) {

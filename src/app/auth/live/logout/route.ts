@@ -3,9 +3,15 @@ import { cookies } from "next/headers";
 import {
   FRAPPE_SID_COOKIE,
   SESSION_ROLE_COOKIE,
+  TL_DESK_TIER_COOKIE,
+  TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
+  TL_ORG_ID_COOKIE,
+  TL_ORG_OWNER_COOKIE,
+  TL_TRIAL_PLAN_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_COOKIE,
 } from "@/lib/auth.constants";
 import { frappeLogout } from "@/lib/frappeServer";
 
@@ -23,5 +29,11 @@ export async function POST() {
   response.cookies.set(TL_MODE_COOKIE, "", clear);
   response.cookies.set(TL_USER_NAME_COOKIE, "", clear);
   response.cookies.set(TL_USER_EMAIL_COOKIE, "", clear);
+  response.cookies.set(TL_TRIAL_PLAN_COOKIE, "", clear);
+  response.cookies.set(TL_VIP_COOKIE, "", clear);
+  response.cookies.set(TL_ORG_OWNER_COOKIE, "", clear);
+  response.cookies.set(TL_ORG_ID_COOKIE, "", clear);
+  response.cookies.set(TL_DESK_TIER_COOKIE, "", clear);
+  response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "", clear);
   return response;
 }

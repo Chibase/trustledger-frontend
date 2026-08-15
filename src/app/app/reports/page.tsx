@@ -17,6 +17,8 @@ export default async function AppReportsPage() {
         authorName={user.name}
         planId={user.trialPlan}
         isPlanOwner={isPlanOwner}
+        mode={user.mode}
+        isVip={Boolean(user.isVip)}
       />
     </FeatureGate>
   );

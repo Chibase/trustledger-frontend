@@ -39,16 +39,34 @@ async function listLive(filters: ProjectListFilters): Promise<Project[]> {
     const rows = await callFrappeMethod<Project[]>(FRAPPE_METHODS.listProjects, {
       ...filters,
     });
-    return Array.isArray(rows) ? rows : [];
-  } catch {
-    const { readTrialModeFromDocument } = await import("@/lib/trial");
-    const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
-    if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
-      return [];
+    if (Array.isArray(rows) && rows.length > 0) {
+      return filterProjects(rows, filters);
     }
-    // Demo / exploratory live only — ADR-010 mock fallback.
-    return listDemo(filters);
+  } catch {
+    /* fall through to resource API / empty */
   }
+
+  try {
+    const res = await fetch("/api/app/projects", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const json = (await res.json()) as { projects?: Project[] };
+      if (Array.isArray(json.projects)) {
+        return filterProjects(json.projects, filters);
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+  if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+    return [];
+  }
+  return listDemo(filters);
 }
 
 export const projectService = {

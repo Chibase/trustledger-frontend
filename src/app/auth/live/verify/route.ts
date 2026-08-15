@@ -8,8 +8,10 @@ import {
   TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
   TL_ORG_OWNER_COOKIE,
+  TL_TRIAL_PLAN_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_COOKIE,
 } from "@/lib/auth.constants";
 import {
   TL_AUTH_PENDING_COOKIE,
@@ -104,6 +106,14 @@ export async function POST(request: Request) {
   if (pending.deskTier) {
     response.cookies.set(TL_DESK_TIER_COOKIE, pending.deskTier, cookieBase);
     response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "0", cookieBase);
+  }
+  if (pending.planId) {
+    response.cookies.set(TL_TRIAL_PLAN_COOKIE, pending.planId, cookieBase);
+  }
+  if (pending.vip) {
+    response.cookies.set(TL_VIP_COOKIE, "1", cookieBase);
+  } else {
+    response.cookies.set(TL_VIP_COOKIE, "", { ...cookieBase, maxAge: 0 });
   }
   response.cookies.set(TL_AUTH_PENDING_COOKIE, "", {
     path: "/",

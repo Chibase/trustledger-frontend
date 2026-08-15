@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import type { PlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
+import { packageLensLabel } from "@/lib/planLabel";
 import {
   allowedDesksForPack,
   defaultDesksForPack,
@@ -26,6 +28,8 @@ import {
 type ReportPackAccessPanelProps = {
   planId?: PlanId | null;
   isPlanOwner: boolean;
+  mode?: TlMode | null;
+  isVip?: boolean;
 };
 
 /**
@@ -35,6 +39,8 @@ type ReportPackAccessPanelProps = {
 export function ReportPackAccessPanel({
   planId,
   isPlanOwner,
+  mode = null,
+  isVip = false,
 }: ReportPackAccessPanelProps) {
   const { pushToast } = useToast();
   const [ready, setReady] = useState(false);
@@ -47,7 +53,7 @@ export function ReportPackAccessPanel({
 
   if (!isPlanOwner) return null;
 
-  const planLabel = planId ? PLANS[planId].name : "Demo (Project lens)";
+  const planLabel = packageLensLabel(planId, { mode, vip: isVip });
 
   function toggleDesk(packId: (typeof REPORT_PACK_IDS)[number], desk: DeskTier) {
     if (!planIncludesPack(planId, packId)) return;

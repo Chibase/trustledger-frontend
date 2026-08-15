@@ -11,6 +11,7 @@ import {
   TL_TRIAL_STARTED_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_COOKIE,
   type TlMode,
 } from "@/lib/auth.constants";
 import { isPlanId, type PlanId } from "@/config/plans";
@@ -33,6 +34,8 @@ export type AppUser = {
   isGuest?: boolean;
   trialPlan?: PlanId;
   trial?: TrialSnapshot;
+  /** Complimentary VIP Pilot packaging (not sample Demo). */
+  isVip?: boolean;
   /** Demo org tenancy */
   orgId?: string;
   isPlanOwner?: boolean;
@@ -75,6 +78,7 @@ function userFromRole(
     | "isGuest"
     | "trialPlan"
     | "trial"
+    | "isVip"
     | "orgId"
     | "isPlanOwner"
     | "deskTier"
@@ -94,6 +98,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   const email = emailRaw ? emailRaw.trim().toLowerCase() : null;
   const planRaw = cookieStore.get(TL_TRIAL_PLAN_COOKIE)?.value;
   const trialPlan = planRaw && isPlanId(planRaw) ? planRaw : undefined;
+  const isVip = cookieStore.get(TL_VIP_COOKIE)?.value === "1";
   const started = parseTrialStarted(
     decodeURIComponent(cookieStore.get(TL_TRIAL_STARTED_COOKIE)?.value || ""),
   );
@@ -123,9 +128,15 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       {
         trialPlan,
         trial,
+        isVip: mode === "live" ? isVip : undefined,
         isGuest: mode === "demo" && !orgId,
         orgId,
-        isPlanOwner: orgId ? isPlanOwner || sessionRole === "admin" : undefined,
+        isPlanOwner:
+          mode === "live"
+            ? isPlanOwner || sessionRole === "admin"
+            : orgId
+              ? isPlanOwner || sessionRole === "admin"
+              : undefined,
         deskTier,
         deskTierLocked: orgId ? deskTierLocked : undefined,
       },

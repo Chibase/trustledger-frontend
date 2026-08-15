@@ -1,5 +1,4 @@
 ﻿import { API_BASE_URL, getDataMode } from "@/config/api";
-import { PLANS } from "@/config/plans";
 import { TeamSeatsPanel } from "@/components/org/TeamSeatsPanel";
 import { DeskSettingsPanel } from "@/components/settings/DeskSettingsPanel";
 import { EntitlementsSettingsPanel } from "@/components/settings/EntitlementsSettingsPanel";
@@ -10,6 +9,7 @@ import { OnboardingSettingsControls } from "@/components/onboarding/OnboardingSe
 import { SettingsPlanBanner } from "@/components/settings/SettingsPlanBanner";
 import { SettingsUtmRow } from "@/components/shell/SettingsUtmRow";
 import { getCurrentUser } from "@/lib/auth";
+import { packageLabel } from "@/lib/planLabel";
 import {
   isPlatformOperatorIdentity,
   isPlatformOperatorLockPublic,
@@ -26,7 +26,11 @@ export default async function AppSettingsPage() {
   const operatorOnly = isPlatformOperatorOnly();
   const isOperator =
     user.mode === "live" && isPlatformOperatorIdentity(user.email);
-  const planName = user.trialPlan ? PLANS[user.trialPlan].name : null;
+  const isVip = Boolean(user.isVip);
+  const planName = packageLabel(user.trialPlan, {
+    mode: user.mode,
+    vip: isVip,
+  });
   const isPlanOwner =
     user.isPlanOwner === true ||
     (user.role === "admin" && (user.mode === "trial" || Boolean(user.orgId)));
@@ -46,6 +50,8 @@ export default async function AppSettingsPage() {
         planId={user.trialPlan}
         trial={user.trial}
         isPlanOwner={isPlanOwner}
+        mode={user.mode}
+        isVip={isVip}
       />
 
       <OnboardingSettingsControls />
@@ -74,15 +80,21 @@ export default async function AppSettingsPage() {
             deskTierLocked={Boolean(user.deskTierLocked)}
             planId={user.trialPlan}
             assignedDeskTier={user.deskTier}
+            mode={user.mode}
+            isVip={isVip}
           />
           <ReportPackAccessPanel
             planId={user.trialPlan}
             isPlanOwner={isPlanOwner}
+            mode={user.mode}
+            isVip={isVip}
           />
           <DataSpacePanel isPlanOwner={isPlanOwner} />
           <MediaLibraryPanel
             planId={user.trialPlan}
             isPlanOwner={isPlanOwner}
+            mode={user.mode}
+            isVip={isVip}
           />
         </section>
       ) : (
@@ -99,6 +111,8 @@ export default async function AppSettingsPage() {
             deskTierLocked
             planId={user.trialPlan}
             assignedDeskTier={user.deskTier}
+            mode={user.mode}
+            isVip={isVip}
           />
         </>
       )}
@@ -106,6 +120,8 @@ export default async function AppSettingsPage() {
       <EntitlementsSettingsPanel
         planId={user.trialPlan}
         isPlanOwner={isPlanOwner}
+        mode={user.mode}
+        isVip={isVip}
       />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
@@ -139,12 +155,10 @@ export default async function AppSettingsPage() {
             <dt className="text-tl-ink-muted">User id</dt>
             <dd className="font-mono text-xs">{user.id}</dd>
           </div>
-          {planName ? (
-            <div className="flex justify-between gap-4">
-              <dt className="text-tl-ink-muted">Plan</dt>
-              <dd>{planName}</dd>
-            </div>
-          ) : null}
+          <div className="flex justify-between gap-4">
+            <dt className="text-tl-ink-muted">Package</dt>
+            <dd>{planName}</dd>
+          </div>
         </dl>
       </section>
 
@@ -192,8 +206,12 @@ export default async function AppSettingsPage() {
           <SettingsUtmRow />
         </dl>
         <p className="mt-4 text-xs text-tl-ink-muted">
-          Demo mode uses sample data. Live mode connects this app to TrustLedger
-          Cloud at <code>https://app.trustledger.co.za</code>.
+          {user.mode === "live"
+            ? "Live mode connects this workspace to TrustLedger Cloud."
+            : user.mode === "trial"
+              ? "Trial mode stores workspace data in this browser until you convert to live."
+              : "Sample preview uses fictional data. Start a trial or live login for your own package."}{" "}
+          Cloud host: <code>https://app.trustledger.co.za</code>.
         </p>
       </section>
     </div>
