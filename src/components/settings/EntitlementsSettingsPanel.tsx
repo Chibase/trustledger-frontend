@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { PlanId } from "@/config/plans";
-import { PLANS } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import {
   canOwnerToggleCapability,
   hasFullCapabilityControl,
@@ -13,6 +13,7 @@ import {
   upgradeHrefForCapability,
   upgradeLabelForCapability,
 } from "@/lib/entitlements";
+import { packageLensLabel } from "@/lib/planLabel";
 import {
   CAPABILITIES,
   CAPABILITY_LABELS,
@@ -24,11 +25,15 @@ type EntitlementsSettingsPanelProps = {
   planId?: PlanId | null;
   /** Plan Owner only — juniors must not receive this panel. */
   isPlanOwner: boolean;
+  mode?: TlMode | null;
+  isVip?: boolean;
 };
 
 export function EntitlementsSettingsPanel({
   planId,
   isPlanOwner,
+  mode = null,
+  isVip = false,
 }: EntitlementsSettingsPanelProps) {
   const { pushToast } = useToast();
   const [enabled, setEnabled] = useState<CapabilityId[]>([]);
@@ -51,7 +56,7 @@ export function EntitlementsSettingsPanel({
 
   if (!isPlanOwner) return null;
 
-  const planLabel = planId ? PLANS[planId].name : "Demo (Project lens)";
+  const planLabel = packageLensLabel(planId, { mode, vip: isVip });
   const fullControl = hasFullCapabilityControl(planId);
 
   function onToggle(id: CapabilityId, nextOn: boolean) {

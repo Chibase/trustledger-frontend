@@ -57,6 +57,7 @@ export default async function ProductLayout({
       trial={user.trial}
       trialPlan={user.trialPlan}
       isGuest={Boolean(user.isGuest)}
+      isVip={Boolean(user.isVip)}
       showOperatorBanner={showOperatorBanner}
     >
       {children}

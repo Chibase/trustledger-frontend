@@ -164,7 +164,7 @@ export function CreateReportWizard({
       setError(
         isCustomerWorkspaceClient()
           ? "No cases in your org data space yet. Import CSV under Data space, or log a case first."
-          : "No demo/workspace cases available to write from. Open Demo mode or log cases first.",
+          : "No workspace cases available to write from. Log a case first, or open a trial / live workspace.",
       );
       setStatus("error");
       return;

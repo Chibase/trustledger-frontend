@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { PlanId } from "@/config/plans";
-import { PLANS } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
+import { packageLensLabel } from "@/lib/planLabel";
 import type { UserRole } from "@/types/rbac";
 import {
   DESK_TIERS,
@@ -40,6 +41,8 @@ type DeskSettingsPanelProps = {
   planId?: PlanId | null;
   /** Server-known desk tier when cookies set it (invitee / Owner). */
   assignedDeskTier?: DeskTier | null;
+  mode?: TlMode | null;
+  isVip?: boolean;
 };
 
 /**
@@ -52,6 +55,8 @@ export function DeskSettingsPanel({
   deskTierLocked = false,
   planId,
   assignedDeskTier = null,
+  mode = null,
+  isVip = false,
 }: DeskSettingsPanelProps) {
   const { pushToast } = useToast();
   const [tier, setTier] = useState<DeskTier>("clo");
@@ -79,7 +84,7 @@ export function DeskSettingsPanel({
     );
   }
 
-  const planLabel = planId ? PLANS[planId].name : "Demo (Project lens)";
+  const planLabel = packageLensLabel(planId, { mode, vip: isVip });
 
   return (
     <div className="space-y-6">

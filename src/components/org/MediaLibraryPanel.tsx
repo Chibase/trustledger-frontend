@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { PlanId } from "@/config/plans";
-import { PLANS } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import {
   formatBytes,
   MEDIA_KIND_LABELS,
@@ -23,10 +23,13 @@ import {
   type OrgMediaItem,
 } from "@/lib/orgMedia";
 import { getActiveOrg } from "@/lib/orgStore";
+import { packageLensLabel } from "@/lib/planLabel";
 
 type MediaLibraryPanelProps = {
   planId?: PlanId | null;
   isPlanOwner: boolean;
+  mode?: TlMode | null;
+  isVip?: boolean;
 };
 
 /**
@@ -35,6 +38,8 @@ type MediaLibraryPanelProps = {
 export function MediaLibraryPanel({
   planId,
   isPlanOwner,
+  mode = null,
+  isVip = false,
 }: MediaLibraryPanelProps) {
   const { pushToast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +62,7 @@ export function MediaLibraryPanel({
 
   if (!isPlanOwner) return null;
 
-  const planLabel = planId ? PLANS[planId].name : "Demo (Project lens)";
+  const planLabel = packageLensLabel(planId, { mode, vip: isVip });
   const org = typeof window !== "undefined" ? getActiveOrg() : null;
 
   async function onFilesSelected(files: FileList | null) {

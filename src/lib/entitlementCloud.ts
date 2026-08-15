@@ -44,8 +44,13 @@ export function entitlementAllowsLiveAccess(status: EntitlementStatus | string |
 export async function getCustomerEntitlementByOwnerEmail(
   ownerEmail: string,
 ): Promise<{
+  /** Frappe Customer document name (link target for TL Project). */
   customerName: string | null;
+  /** Display / VIP Pilot label (may differ from doc name). */
+  customerLabel: string | null;
   status: EntitlementStatus | null;
+  planId: PlanId | null;
+  projectLimit: number | null;
 } | null> {
   const base = frappeBase();
   const headers = authHeaders();
@@ -56,7 +61,13 @@ export async function getCustomerEntitlementByOwnerEmail(
     JSON.stringify([["custom_owner_email", "=", email]]),
   );
   const fields = encodeURIComponent(
-    JSON.stringify(["name", "custom_entitlement_status"]),
+    JSON.stringify([
+      "name",
+      "customer_name",
+      "custom_entitlement_status",
+      "custom_plan_code",
+      "custom_project_limit",
+    ]),
   );
   const res = await fetch(
     `${base}/api/resource/Customer?filters=${filters}&fields=${fields}&limit_page_length=1`,
@@ -64,13 +75,38 @@ export async function getCustomerEntitlementByOwnerEmail(
   );
   if (!res.ok) return null;
   const json = (await res.json()) as {
-    data?: Array<{ name?: string; custom_entitlement_status?: string }>;
+    data?: Array<{
+      name?: string;
+      customer_name?: string;
+      custom_entitlement_status?: string;
+      custom_plan_code?: string;
+      custom_project_limit?: number | null;
+    }>;
   };
   const row = json.data?.[0];
-  if (!row?.name) return { customerName: null, status: null };
+  if (!row?.name) {
+    return {
+      customerName: null,
+      customerLabel: null,
+      status: null,
+      planId: null,
+      projectLimit: null,
+    };
+  }
+  const { isPlanId } = await import("@/config/plans");
+  const code = (row.custom_plan_code || "").trim();
+  const planId = isPlanId(code) ? code : null;
+  const limitRaw = row.custom_project_limit;
+  const label = (row.customer_name || row.name || "").trim() || null;
   return {
     customerName: row.name,
+    customerLabel: label,
     status: (row.custom_entitlement_status as EntitlementStatus) || null,
+    planId,
+    projectLimit:
+      typeof limitRaw === "number" && Number.isFinite(limitRaw)
+        ? limitRaw
+        : null,
   };
 }
 

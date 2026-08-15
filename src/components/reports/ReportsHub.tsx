@@ -11,6 +11,7 @@ import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import { KpiCard } from "@/components/ui/KpiCard";
 import type { PlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import {
   buildProjectActivity,
   priorityBars,
@@ -18,6 +19,7 @@ import {
   statusBars,
 } from "@/lib/dashboardActivity";
 import { readDeskTier } from "@/lib/deskVisibility";
+import { packageLensLabel } from "@/lib/planLabel";
 import { canDeskOpenPack, packsForDesk } from "@/lib/reportPackAccess";
 import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
 import {
@@ -49,6 +51,8 @@ type ReportsHubProps = {
   authorName: string;
   planId?: PlanId | null;
   isPlanOwner?: boolean;
+  mode?: TlMode | null;
+  isVip?: boolean;
 };
 
 /**
@@ -60,6 +64,8 @@ export function ReportsHub({
   authorName,
   planId = null,
   isPlanOwner = false,
+  mode = null,
+  isVip = false,
 }: ReportsHubProps) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [pack, setPack] = useState<ReportPackId | null>(null);
@@ -109,8 +115,8 @@ export function ReportsHub({
         </h1>
         <p className="max-w-2xl text-sm text-tl-ink-muted">
           Monthly (text + graphs), Executive (strategic / high-risk graphs), or
-          Board pack (presentation for clients, board, and funders). Your plan
-          ({planId ? PLANS[planId].name : "Demo · Project lens"}) and desk (
+          Board pack (presentation for clients, board, and funders). Your package
+          ({packageLensLabel(planId, { mode, vip: isVip })}) and desk (
           {DESK_TIER_LABELS[tier]}) decide what opens
           {isPlanOwner
             ? " — grant desks in Settings → Report pack access"

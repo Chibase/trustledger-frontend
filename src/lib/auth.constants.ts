@@ -5,6 +5,8 @@ export const TL_USER_EMAIL_COOKIE = "tl-user-email";
 export const FRAPPE_SID_COOKIE = "tl-frappe-sid";
 /** Active trial plan id */
 export const TL_TRIAL_PLAN_COOKIE = "tl-trial-plan";
+/** Live complimentary VIP Pilot Customer (label + product packaging). */
+export const TL_VIP_COOKIE = "tl-vip";
 export const TL_TRIAL_STARTED_COOKIE = "tl-trial-started";
 /** Demo org tenancy (Plan Owner / invitees) */
 export const TL_ORG_ID_COOKIE = "tl-org-id";

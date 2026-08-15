@@ -9,8 +9,9 @@ import { ShellSignOut } from "@/components/shell/ShellSignOut";
 import { FeedbackDrawer } from "@/components/shell/FeedbackDrawer";
 import { SupportDrawer } from "@/components/shell/SupportDrawer";
 import { ToastProvider } from "@/components/ui/Toast";
-import { PLANS, type PlanId } from "@/config/plans";
+import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
+import { packageLabel } from "@/lib/planLabel";
 import type { TrialSnapshot } from "@/lib/trial";
 import type { UserRole } from "@/types/rbac";
 
@@ -24,6 +25,7 @@ type AppShellProps = {
   trialPlan?: PlanId;
   trial?: TrialSnapshot;
   isGuest?: boolean;
+  isVip?: boolean;
 };
 
 export function AppShell({
@@ -36,13 +38,13 @@ export function AppShell({
   trialPlan,
   trial,
   isGuest = false,
+  isVip = false,
 }: AppShellProps) {
-  const planLabel = trialPlan ? PLANS[trialPlan].name : null;
+  const planLabel = packageLabel(trialPlan, { mode, vip: isVip });
   const modeLabel =
     mode === "live" ? "live" : mode === "trial" ? "trial" : "workspace";
   /** Plan Owners get the first-login wizard; juniors use Guide on demand. */
-  const showSetupWizard =
-    mode === "trial" || mode === "live";
+  const showSetupWizard = mode === "trial" || mode === "live";
 
   return (
     <ToastProvider>

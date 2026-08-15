@@ -8,8 +8,10 @@ import {
   TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
   TL_ORG_OWNER_COOKIE,
+  TL_TRIAL_PLAN_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_COOKIE,
 } from "@/lib/auth.constants";
 import { fetchSessionContext, frappeLogin } from "@/lib/frappeServer";
 import {
@@ -22,6 +24,9 @@ import {
   entitlementAllowsLiveAccess,
   getCustomerEntitlementByOwnerEmail,
 } from "@/lib/entitlementCloud";
+import { isVipCustomerName } from "@/lib/planLabel";
+import { isPlanId } from "@/config/plans";
+import { PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
 import {
   TL_AUTH_PENDING_COOKIE,
   accessEmailVerificationEnabled,
@@ -92,9 +97,20 @@ export async function POST(request: Request) {
     // Operators home to Executive Board — never the customer desk.
     const opsGate = assertOpsAccess(usr, session.user, email);
 
+    const ent = await getCustomerEntitlementByOwnerEmail(email);
+    const vip =
+      isVipCustomerName(ent?.customerLabel) ||
+      isVipCustomerName(ent?.customerName);
+    const planId =
+      (ent?.planId && isPlanId(ent.planId) ? ent.planId : null) ||
+      (vip ? "institutional" : null);
+    /** Customer.custom_owner_email match = Plan Owner; invitees do not match. */
+    const isCustomerOwner = Boolean(ent?.customerName);
+    const treatAsPlanOwner =
+      Boolean(session.isPlanOwner) || isCustomerOwner;
+
     // OD-4 — when lockdown is off, buyers still need trial/active entitlement.
     if (!opsGate.ok) {
-      const ent = await getCustomerEntitlementByOwnerEmail(email);
       if (ent?.status && !entitlementAllowsLiveAccess(ent.status)) {
         return NextResponse.json(
           {
@@ -107,6 +123,9 @@ export async function POST(request: Request) {
     }
 
     const home = opsGate.ok ? "/ops/executive" : "/app/dashboard";
+    const deskTier =
+      session.deskTier ||
+      (planId ? PLAN_OWNER_DESK_TIER[planId] : undefined);
 
     // Email OTP step-up when verification is on.
     if (accessEmailVerificationEnabled()) {
@@ -132,8 +151,10 @@ export async function POST(request: Request) {
         platformOperator: opsGate.ok,
         otpHash,
         exp: Date.now() + maxAge * 1000,
-        isPlanOwner: session.isPlanOwner,
-        deskTier: session.deskTier,
+        isPlanOwner: treatAsPlanOwner,
+        deskTier,
+        planId: planId || undefined,
+        vip: vip || undefined,
       });
 
       const mail = await sendLoginOtpEmail({
@@ -209,12 +230,22 @@ export async function POST(request: Request) {
       cookieSafeValue(email, 120),
       cookieBase,
     );
-    if (session.isPlanOwner) {
+    if (treatAsPlanOwner) {
       response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);
+    } else {
+      response.cookies.set(TL_ORG_OWNER_COOKIE, "", { ...cookieBase, maxAge: 0 });
     }
-    if (session.deskTier) {
-      response.cookies.set(TL_DESK_TIER_COOKIE, session.deskTier, cookieBase);
+    if (deskTier) {
+      response.cookies.set(TL_DESK_TIER_COOKIE, deskTier, cookieBase);
       response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "0", cookieBase);
+    }
+    if (planId) {
+      response.cookies.set(TL_TRIAL_PLAN_COOKIE, planId, cookieBase);
+    }
+    if (vip) {
+      response.cookies.set(TL_VIP_COOKIE, "1", cookieBase);
+    } else {
+      response.cookies.set(TL_VIP_COOKIE, "", { ...cookieBase, maxAge: 0 });
     }
 
     return response;

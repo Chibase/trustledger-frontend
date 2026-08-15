@@ -133,6 +133,74 @@ export async function createCloudProject(
   return resourcePost("TL Project", projectToFrappeDoc(project, customer, orgId));
 }
 
+function mapFrappeProjectRow(row: Record<string, unknown>): Project {
+  return {
+    id: String(row.project_code || row.name || ""),
+    name: String(row.project_title || row.name || "Untitled project"),
+    clientFunder: String(row.client_funder || ""),
+    budgetTotal: Number(row.budget_total) || 0,
+    budgetSpent: Number(row.budget_spent) || 0,
+    ward: String(row.ward || ""),
+    municipality: String(row.municipality || ""),
+    status: (String(row.status || "Active") as Project["status"]) || "Active",
+    contractorName: String(row.contractor_name || ""),
+    startDate: String(row.start_date || ""),
+    targetEndDate: String(row.target_end_date || ""),
+    publicSummary: String(row.public_summary || ""),
+  };
+}
+
+/** List TL Project rows for a Customer via resource API (VIP / live fallback). */
+export async function listCloudProjectsForCustomer(
+  customer: string,
+): Promise<{ ok: true; projects: Project[] } | { ok: false; error: string }> {
+  const base = frappeBase();
+  const headers = authHeaders();
+  if (!base || !headers) {
+    return { ok: false, error: "Frappe API not configured" };
+  }
+  const filters = encodeURIComponent(
+    JSON.stringify([["customer", "=", customer]]),
+  );
+  const fields = encodeURIComponent(
+    JSON.stringify([
+      "name",
+      "project_code",
+      "project_title",
+      "client_funder",
+      "budget_total",
+      "budget_spent",
+      "ward",
+      "municipality",
+      "status",
+      "contractor_name",
+      "start_date",
+      "target_end_date",
+      "public_summary",
+    ]),
+  );
+  const res = await fetch(
+    `${base}/api/resource/TL%20Project?filters=${filters}&fields=${fields}&limit_page_length=200`,
+    { headers, cache: "no-store" },
+  );
+  const text = await res.text();
+  if (!res.ok) {
+    return { ok: false, error: `${res.status}: ${text.slice(0, 280)}` };
+  }
+  try {
+    const json = JSON.parse(text) as { data?: Record<string, unknown>[] };
+    const rows = Array.isArray(json.data) ? json.data : [];
+    return {
+      ok: true,
+      projects: rows
+        .map(mapFrappeProjectRow)
+        .filter((p) => Boolean(p.id)),
+    };
+  } catch {
+    return { ok: false, error: "Invalid TL Project list response" };
+  }
+}
+
 export async function createCloudIncident(
   incident: Incident,
   customer: string,
