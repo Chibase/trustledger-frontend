@@ -34,13 +34,23 @@ import {
   type PackCaptureSource,
 } from "@/lib/captureStore";
 import {
+  computeEmpowermentSpent,
+  empowermentBudgetFromDossier,
+  empowermentSpendFromFacts,
+  hasEmpowermentSpendLines,
+  withEmpowermentSpend,
+} from "@/lib/empowermentSpend";
+import {
   dossierSummaryLines,
   hydrateDossierFromProject,
   persistProjectWithDossier,
 } from "@/lib/projectDossier";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import { ensureTrialSeedProject } from "@/lib/trialStore";
-import { listWorkspaceProjects } from "@/lib/workspaceData";
+import {
+  listWorkspaceIncidents,
+  listWorkspaceProjects,
+} from "@/lib/workspaceData";
 import { aiService } from "@/services/aiService";
 import {
   createEngagementId,
@@ -54,6 +64,7 @@ import type {
   StakeholderExtractSuggestion,
 } from "@/types/ai";
 import type { EngagementKind, EngagementSource } from "@/types/engagement";
+import type { Incident } from "@/types/incident";
 import type { Project, ProjectStatus } from "@/types/project";
 import {
   projectChipLabel,
@@ -173,11 +184,18 @@ function structuredFromProject(
         blackOwnershipPct: targets?.blackOwnershipTargetPct,
         preferentialProcurementZar:
           targets?.preferentialProcurementTargetZar,
-        skillsDevSpendZar: targets?.skillsDevTargetZar,
+        // Do not prefill spend from target — spend is captured when delivered.
       },
     };
   }
   if (pack === "project_profile") {
+    const spent =
+      targets?.empowermentSpentZar ??
+      project.budgetSpent ??
+      computeEmpowermentSpent(project.id);
+    const envelope =
+      empowermentBudgetFromDossier(project.dossier) ??
+      (project.budgetTotal || undefined);
     return {
       pack,
       data: {
@@ -196,10 +214,8 @@ function structuredFromProject(
           project.dossier?.dates?.targetEndDate ||
           project.targetEndDate ||
           undefined,
-        budgetTotal:
-          project.dossier?.budget?.authorisedZar ??
-          (project.budgetTotal || undefined),
-        budgetSpent: project.budgetSpent || undefined,
+        budgetTotal: envelope,
+        budgetSpent: spent || undefined,
         publicSummary: project.publicSummary || undefined,
         sector: project.dossier?.sector,
         siteDescription: project.dossier?.siteDescription,
@@ -207,16 +223,25 @@ function structuredFromProject(
     };
   }
   if (pack === "budget") {
+    const spent =
+      targets?.empowermentSpentZar ??
+      project.budgetSpent ??
+      computeEmpowermentSpent(project.id);
+    const envelope =
+      empowermentBudgetFromDossier(project.dossier) ??
+      project.dossier?.budget?.authorisedZar ??
+      (project.budgetTotal || undefined);
     return {
       pack,
       data: {
-        budgetTotalZar:
-          project.dossier?.budget?.authorisedZar ??
-          (project.budgetTotal || undefined),
-        spendToDateZar: project.budgetSpent || undefined,
+        budgetTotalZar: envelope,
+        spendToDateZar: spent || undefined,
         contingencyZar: project.dossier?.budget?.contingencyZar,
       },
     };
+  }
+  if (pack === "issue_log") {
+    return base;
   }
   return base;
 }
@@ -247,11 +272,13 @@ export default function AppCapturePage() {
     emptyStructured("project_profile"),
   );
   const [packSaving, setPackSaving] = useState(false);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
 
   const narrative = isNarrativeCaptureSource(source);
   const packSource = isPackCaptureSource(source) ? source : null;
   const project = projects.find((p) => p.id === projectId);
   const dossierReady = Boolean(project && projectHasDossierBasics(project));
+  const projectIncidents = incidents.filter((i) => i.projectId === projectId);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -274,6 +301,7 @@ export default function AppCapturePage() {
         // listWorkspaceProjects merges dossiers; customer workspaces never get demo seed.
         const rows = listWorkspaceProjects(seeded);
         setProjects(rows);
+        setIncidents(listWorkspaceIncidents());
         setProjectId((prev) => prev || rows[0]?.id || "");
       })();
     });
@@ -282,6 +310,46 @@ export default function AppCapturePage() {
       cancelAnimationFrame(frame);
     };
   }, []);
+
+  function issueLogFromIncidents(
+    forProject: Project,
+    rows: Incident[],
+  ): CaptureStructured {
+    const scoped = rows.filter((i) => i.projectId === forProject.id);
+    const open = scoped.filter(
+      (i) => i.status === "Open" || i.status === "Investigating",
+    );
+    const escalated = scoped.filter(
+      (i) => i.status === "Escalated" || i.escalationLevel !== "None",
+    );
+    const latest = latestPackCapture(forProject.id, "issue_log");
+    const base =
+      latest?.structured?.pack === "issue_log"
+        ? latest.structured.data
+        : {};
+    return {
+      pack: "issue_log",
+      data: {
+        ...base,
+        // Open / escalated are live desk snapshots; period logged/closed stay user-entered.
+        casesOpen: open.length,
+        casesEscalated: escalated.length,
+        openCaseRefs:
+          base.openCaseRefs ||
+          open
+            .slice(0, 8)
+            .map((i) => i.id)
+            .join(" · ") ||
+          undefined,
+        topThemes:
+          base.topThemes ||
+          [...new Set(scoped.map((i) => i.category).filter(Boolean))]
+            .slice(0, 6)
+            .join(", ") ||
+          undefined,
+      },
+    };
+  }
 
   function selectProject(nextId: string) {
     setProjectId(nextId);
@@ -302,6 +370,14 @@ export default function AppCapturePage() {
     if (pack === "project_profile") {
       setPackData(structuredFromProject(pack, forProject));
       setTitle(`${PACK_SOURCE_META[pack].label} — period pack`);
+      return;
+    }
+    if (pack === "issue_log") {
+      setPackData(issueLogFromIncidents(forProject, incidents));
+      const latest = latestPackCapture(forProject.id, pack);
+      setTitle(
+        latest?.title || `${PACK_SOURCE_META[pack].label} — period pack`,
+      );
       return;
     }
     const latest = latestPackCapture(forProject.id, pack);
@@ -504,6 +580,7 @@ export default function AppCapturePage() {
       targetEndDate: d.targetEndDate?.trim() || project.targetEndDate,
       budgetTotal:
         typeof d.budgetTotal === "number" ? d.budgetTotal : project.budgetTotal,
+      // Keep empowerment spent from rollup unless profile explicitly sets it.
       budgetSpent:
         typeof d.budgetSpent === "number" ? d.budgetSpent : project.budgetSpent,
       publicSummary:
@@ -522,12 +599,20 @@ export default function AppCapturePage() {
           municipalityName:
             d.municipality?.trim() || baseDossier.geo?.municipalityName,
         },
-        budget: {
-          ...baseDossier.budget,
-          authorisedZar:
+        empowermentTargets: {
+          ...baseDossier.empowermentTargets,
+          empowermentBudgetZar:
             typeof d.budgetTotal === "number"
               ? d.budgetTotal
-              : baseDossier.budget?.authorisedZar,
+              : baseDossier.empowermentTargets?.empowermentBudgetZar,
+          empowermentSpentZar:
+            typeof d.budgetSpent === "number"
+              ? d.budgetSpent
+              : baseDossier.empowermentTargets?.empowermentSpentZar,
+        },
+        // Keep CAPEX authorisedZar separate from empowerment envelope.
+        budget: {
+          ...baseDossier.budget,
         },
         dates: {
           ...baseDossier.dates,
@@ -543,6 +628,70 @@ export default function AppCapturePage() {
       },
     });
     setProjects((rows) => rows.map((p) => (p.id === next.id ? next : p)));
+  }
+
+  /** Roll training + B-BBEE empowerment line items into Project.budgetSpent. */
+  function syncEmpowermentSpent(saved: CaptureStructured) {
+    if (!project) return;
+    if (
+      saved.pack !== "employment" &&
+      saved.pack !== "bbbee" &&
+      saved.pack !== "budget"
+    ) {
+      return;
+    }
+    const bbbeeLatest = latestPackCapture(project.id, "bbbee");
+    const empLatest = latestPackCapture(project.id, "employment");
+    let bb =
+      bbbeeLatest?.structured?.pack === "bbbee"
+        ? bbbeeLatest.structured.data
+        : null;
+    let emp =
+      empLatest?.structured?.pack === "employment"
+        ? empLatest.structured.data
+        : null;
+    if (saved.pack === "bbbee") bb = saved.data;
+    if (saved.pack === "employment") emp = saved.data;
+
+    const rolled = empowermentSpendFromFacts({ bbbee: bb, employment: emp });
+    const hasLines = hasEmpowermentSpendLines({ bbbee: bb, employment: emp });
+
+    let spent: number | null = null;
+    if (saved.pack === "budget") {
+      // Budget pack may override or seed spent; prefer explicit figure.
+      if (typeof saved.data.spendToDateZar === "number") {
+        spent = saved.data.spendToDateZar;
+      } else if (hasLines) {
+        spent = rolled;
+      }
+    } else if (hasLines) {
+      spent = rolled;
+    }
+
+    if (spent == null) return;
+
+    const next = persistProjectWithDossier(
+      withEmpowermentSpend(project, spent),
+    );
+    setProjects((rows) => rows.map((p) => (p.id === next.id ? next : p)));
+
+    if (packSource === "budget" || packSource === "project_profile") {
+      setPackData((prev) => {
+        if (prev.pack === "budget") {
+          return {
+            pack: "budget",
+            data: { ...prev.data, spendToDateZar: spent },
+          };
+        }
+        if (prev.pack === "project_profile") {
+          return {
+            pack: "project_profile",
+            data: { ...prev.data, budgetSpent: spent },
+          };
+        }
+        return prev;
+      });
+    }
   }
 
   function savePack() {
@@ -571,10 +720,15 @@ export default function AppCapturePage() {
         };
         saveCaptureRecord(record);
         syncProjectFromProfile(packData);
+        syncEmpowermentSpent(packData);
         setRecent(listCaptureRecords());
         setTitle(record.title);
+        const spentNote =
+          packSource === "employment" || packSource === "bbbee"
+            ? ` · empowerment spent R${computeEmpowermentSpent(project.id).toLocaleString("en-ZA")}`
+            : "";
         pushToast(
-          `${meta.label} saved — available to Reports for this project`,
+          `${meta.label} saved — available to Reports for this project${spentNote}`,
           "success",
         );
       } finally {
@@ -734,8 +888,8 @@ export default function AppCapturePage() {
               </p>
               <p className="text-sm text-tl-ink-muted">
                 Structured inputs mapped to report kinds — fill each pack for
-                this project and period. Employment and B-BBEE targets prefill
-                from the dossier when available.
+                this project and period. Issue log sits beside GRM. Employment
+                training spend and B-BBEE packs auto-update empowerment spent.
               </p>
               <div className="flex flex-wrap gap-2">
                 {PACK_CAPTURE_SOURCES.map((id: PackCaptureSource) => (
@@ -893,6 +1047,8 @@ export default function AppCapturePage() {
                     pack={packSource}
                     value={packData}
                     onChange={setPackData}
+                    projectId={projectId}
+                    projectIncidents={projectIncidents}
                   />
                   <button
                     type="button"

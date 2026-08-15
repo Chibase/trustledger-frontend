@@ -525,6 +525,56 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
               }
             />
           </Field>
+          <Field id="pd-skills" label="Skills development target (ZAR)">
+            <input
+              id="pd-skills"
+              type="number"
+              className={inputClass}
+              value={dossier.empowermentTargets?.skillsDevTargetZar ?? ""}
+              onChange={(e) =>
+                patch({
+                  empowermentTargets: {
+                    ...dossier.empowermentTargets,
+                    skillsDevTargetZar: e.target.value
+                      ? Number(e.target.value)
+                      : undefined,
+                  },
+                })
+              }
+            />
+          </Field>
+          <Field id="pd-emp-budget" label="Empowerment budget authorised (ZAR)">
+            <input
+              id="pd-emp-budget"
+              type="number"
+              className={inputClass}
+              value={dossier.empowermentTargets?.empowermentBudgetZar ?? ""}
+              onChange={(e) =>
+                patch({
+                  empowermentTargets: {
+                    ...dossier.empowermentTargets,
+                    empowermentBudgetZar: e.target.value
+                      ? Number(e.target.value)
+                      : undefined,
+                  },
+                })
+              }
+            />
+          </Field>
+          <Field id="pd-emp-spent" label="Empowerment spent (auto)">
+            <input
+              id="pd-emp-spent"
+              type="number"
+              className={inputClass}
+              value={dossier.empowermentTargets?.empowermentSpentZar ?? ""}
+              readOnly
+              title="Updated when Employment / B-BBEE packs are saved"
+            />
+          </Field>
+          <p className="sm:col-span-2 text-xs text-tl-ink-muted">
+            Project spent tracks empowerment utilisation only (training +
+            skills + preferential procurement + ESD from Capture packs).
+          </p>
           <div className="sm:col-span-2">
             <Field id="pd-wyp" label="Women / youth / PWD targets">
               <textarea

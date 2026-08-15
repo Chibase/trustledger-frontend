@@ -98,7 +98,15 @@ export default function AppReportIssuePage() {
         if (cancelled) return;
         const rows = listWorkspaceProjects(seeded).map(mergeProjectDossier);
         setProjects(rows);
-        if (rows[0]) setProjectId(rows[0].id);
+        const fromQuery =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search).get("projectId")
+            : null;
+        const preferred =
+          (fromQuery && rows.some((p) => p.id === fromQuery) && fromQuery) ||
+          rows[0]?.id ||
+          "";
+        if (preferred) setProjectId(preferred);
       })();
     });
     return () => {

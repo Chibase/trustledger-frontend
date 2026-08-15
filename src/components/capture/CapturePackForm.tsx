@@ -1,15 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import type {
   CaptureStructured,
   PackCaptureSource,
 } from "@/lib/captureStore";
 import { PACK_SOURCE_META } from "@/lib/captureStore";
+import type { Incident } from "@/types/incident";
 
 type Props = {
   pack: PackCaptureSource;
   value: CaptureStructured;
   onChange: (next: CaptureStructured) => void;
+  /** Live desk cases for Issue log pack. */
+  projectIncidents?: Incident[];
+  projectId?: string;
 };
 
 function Field({
@@ -124,7 +129,13 @@ function AreaInput({
   );
 }
 
-export function CapturePackForm({ pack, value, onChange }: Props) {
+export function CapturePackForm({
+  pack,
+  value,
+  onChange,
+  projectIncidents = [],
+  projectId,
+}: Props) {
   const meta = PACK_SOURCE_META[pack];
 
   if (value.pack !== pack) {
@@ -218,7 +229,7 @@ export function CapturePackForm({ pack, value, onChange }: Props) {
           />
           <NumberInput
             id="pp-budget"
-            label="Budget total (ZAR)"
+            label="Empowerment budget authorised (ZAR)"
             value={value.data.budgetTotal}
             onChange={(budgetTotal) =>
               onChange({ pack, data: { ...value.data, budgetTotal } })
@@ -226,12 +237,16 @@ export function CapturePackForm({ pack, value, onChange }: Props) {
           />
           <NumberInput
             id="pp-spent"
-            label="Budget spent (ZAR)"
+            label="Empowerment spent (ZAR)"
             value={value.data.budgetSpent}
             onChange={(budgetSpent) =>
               onChange({ pack, data: { ...value.data, budgetSpent } })
             }
           />
+          <p className="sm:col-span-2 text-xs text-tl-ink-muted">
+            Spent auto-updates from Employment training spend and B-BBEE
+            skills / procurement / ESD when those packs are saved.
+          </p>
           <div className="sm:col-span-2">
             <AreaInput
               id="pp-site"
@@ -298,6 +313,10 @@ export function CapturePackForm({ pack, value, onChange }: Props) {
               onChange({ pack, data: { ...value.data, skillsDevSpendZar } })
             }
           />
+          <p className="sm:col-span-2 text-xs text-tl-ink-muted">
+            Skills, preferential procurement, and ESD spend roll into
+            empowerment spent when this pack is saved.
+          </p>
           <NumberInput
             id="bb-pref"
             label="Preferential procurement (ZAR)"
@@ -433,6 +452,34 @@ export function CapturePackForm({ pack, value, onChange }: Props) {
               onChange({ pack, data: { ...value.data, trainingDays } })
             }
           />
+          <NumberInput
+            id="em-training-spend"
+            label="Training spend (ZAR)"
+            value={value.data.trainingSpendZar}
+            onChange={(trainingSpendZar) =>
+              onChange({ pack, data: { ...value.data, trainingSpendZar } })
+            }
+          />
+          <div className="sm:col-span-2">
+            <AreaInput
+              id="em-training-notes"
+              label="Training activity (what was delivered)"
+              value={value.data.trainingActivityNotes}
+              onChange={(trainingActivityNotes) =>
+                onChange({
+                  pack,
+                  data: { ...value.data, trainingActivityNotes },
+                })
+              }
+              placeholder="e.g. Local labour induction · 12 people · R45 000"
+            />
+          </div>
+          <p className="sm:col-span-2 text-xs text-tl-ink-muted">
+            Saving this pack rolls training spend into project empowerment
+            spent (with B-BBEE preferential procurement / ESD). If the same
+            outlay is also entered under B-BBEE skills, only the larger figure
+            is counted once.
+          </p>
           <NumberInput
             id="em-disputes"
             label="Open labour disputes"
@@ -714,6 +761,140 @@ export function CapturePackForm({ pack, value, onChange }: Props) {
         </div>
       ) : null}
 
+      {pack === "issue_log" && value.pack === "issue_log" ? (
+        <div className="space-y-4">
+          <div className="rounded-md border border-tl-line bg-tl-paper p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-medium text-tl-ink">
+                Desk cases
+                {projectId ? ` · ${projectIncidents.length} on file` : ""}
+              </p>
+              <Link
+                href={
+                  projectId
+                    ? `/app/issues/report?projectId=${encodeURIComponent(projectId)}`
+                    : "/app/issues/report"
+                }
+                className="text-sm font-medium text-tl-trust-ink underline"
+              >
+                Log new issue
+              </Link>
+            </div>
+            {projectIncidents.length === 0 ? (
+              <p className="mt-2 text-sm text-tl-ink-muted">
+                No cases linked to this project yet — use Log new issue or open{" "}
+                <Link href="/app/incidents" className="underline">
+                  Incidents
+                </Link>
+                .
+              </p>
+            ) : (
+              <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto text-sm">
+                {projectIncidents.slice(0, 12).map((inc) => (
+                  <li key={inc.id}>
+                    <Link
+                      href={`/app/incidents/${encodeURIComponent(inc.id)}`}
+                      className="text-tl-trust-ink underline"
+                    >
+                      {inc.id}
+                    </Link>
+                    <span className="text-tl-ink-muted">
+                      {" "}
+                      · {inc.status} · {inc.priority} —{" "}
+                      {inc.title.slice(0, 72)}
+                      {inc.title.length > 72 ? "…" : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextInput
+              id="il-period"
+              label="Reporting period"
+              value={value.data.periodLabel}
+              onChange={(periodLabel) =>
+                onChange({ pack, data: { ...value.data, periodLabel } })
+              }
+            />
+            <NumberInput
+              id="il-logged"
+              label="Cases logged this period"
+              value={value.data.casesLogged}
+              onChange={(casesLogged) =>
+                onChange({ pack, data: { ...value.data, casesLogged } })
+              }
+            />
+            <NumberInput
+              id="il-open"
+              label="Open cases (desk)"
+              value={value.data.casesOpen}
+              onChange={(casesOpen) =>
+                onChange({ pack, data: { ...value.data, casesOpen } })
+              }
+            />
+            <NumberInput
+              id="il-closed"
+              label="Closed this period"
+              value={value.data.casesClosed}
+              onChange={(casesClosed) =>
+                onChange({ pack, data: { ...value.data, casesClosed } })
+              }
+            />
+            <NumberInput
+              id="il-esc"
+              label="Escalated"
+              value={value.data.casesEscalated}
+              onChange={(casesEscalated) =>
+                onChange({ pack, data: { ...value.data, casesEscalated } })
+              }
+            />
+            <div className="sm:col-span-2">
+              <AreaInput
+                id="il-themes"
+                label="Top themes / natures"
+                value={value.data.topThemes}
+                onChange={(topThemes) =>
+                  onChange({ pack, data: { ...value.data, topThemes } })
+                }
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <AreaInput
+                id="il-refs"
+                label="Open case refs"
+                value={value.data.openCaseRefs}
+                onChange={(openCaseRefs) =>
+                  onChange({ pack, data: { ...value.data, openCaseRefs } })
+                }
+                placeholder="INC-… · INC-…"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <AreaInput
+                id="il-desk"
+                label="Desk notes"
+                value={value.data.deskNotes}
+                onChange={(deskNotes) =>
+                  onChange({ pack, data: { ...value.data, deskNotes } })
+                }
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <AreaInput
+                id="il-notes"
+                label="Issue log notes"
+                value={value.data.notes}
+                onChange={(notes) =>
+                  onChange({ pack, data: { ...value.data, notes } })
+                }
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {pack === "budget" && value.pack === "budget" ? (
         <div className="grid gap-3 sm:grid-cols-2">
           <TextInput
@@ -726,7 +907,7 @@ export function CapturePackForm({ pack, value, onChange }: Props) {
           />
           <NumberInput
             id="bud-total"
-            label="Authorised budget (ZAR)"
+            label="Empowerment budget authorised (ZAR)"
             value={value.data.budgetTotalZar}
             onChange={(budgetTotalZar) =>
               onChange({ pack, data: { ...value.data, budgetTotalZar } })
@@ -734,15 +915,19 @@ export function CapturePackForm({ pack, value, onChange }: Props) {
           />
           <NumberInput
             id="bud-ytd"
-            label="Spend to date (ZAR)"
+            label="Empowerment spent to date (ZAR)"
             value={value.data.spendToDateZar}
             onChange={(spendToDateZar) =>
               onChange({ pack, data: { ...value.data, spendToDateZar } })
             }
           />
+          <p className="sm:col-span-2 text-xs text-tl-ink-muted">
+            This pack is the empowerment envelope — not CAPEX. Spent prefills
+            from training + B-BBEE packs when those are saved.
+          </p>
           <NumberInput
             id="bud-period-spend"
-            label="Period spend (ZAR)"
+            label="Period empowerment spend (ZAR)"
             value={value.data.periodSpendZar}
             onChange={(periodSpendZar) =>
               onChange({ pack, data: { ...value.data, periodSpendZar } })
@@ -777,7 +962,7 @@ export function CapturePackForm({ pack, value, onChange }: Props) {
           <div className="sm:col-span-2">
             <AreaInput
               id="bud-notes"
-              label="Budget notes"
+              label="Empowerment budget notes"
               value={value.data.notes}
               onChange={(notes) =>
                 onChange({ pack, data: { ...value.data, notes } })

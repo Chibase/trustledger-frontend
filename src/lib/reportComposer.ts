@@ -321,7 +321,7 @@ export function factsToPromptBlock(facts: PeriodActivityFacts): string {
     line("Unable/blocked", facts.unresolvedBlocked),
     `Meetings/captures (${facts.meetingCaptures.length}): ${facts.meetingCaptures.map((c) => c.title).join("; ") || "none"}`,
     `Evidence stubs: ${facts.evidence.map((e) => e.label).join("; ")}`,
-    `Pack captures — B-BBEE:${facts.packs.bbbee.length} Employment:${facts.packs.employment.length} CSI:${facts.packs.csi.length} ESG:${facts.packs.esg.length} GRM:${facts.packs.grm.length} Budget:${facts.packs.budget.length} Profile:${facts.packs.projectProfiles.length}`,
+    `Pack captures — B-BBEE:${facts.packs.bbbee.length} Employment:${facts.packs.employment.length} CSI:${facts.packs.csi.length} ESG:${facts.packs.esg.length} GRM:${facts.packs.grm.length} Issue log:${facts.packs.issueLogs.length} Budget:${facts.packs.budget.length} Profile:${facts.packs.projectProfiles.length}`,
     facts.dossier
       ? `Project dossier — funder:${facts.dossier.funder?.name || "—"} ward:${facts.dossier.geo?.wardName || "—"} hire target:${facts.dossier.empowermentTargets?.localHireTarget ?? "—"} promises:${facts.dossier.promises?.length ?? 0}`
       : "Project dossier: none",
@@ -483,18 +483,32 @@ Trust index for ${scope} stands at **${facts.trustIndex}/100 (${facts.trustLabel
 
     case "grievance_lifecycle": {
       const grm = facts.packs.grm[0];
+      const issueLog = facts.packs.issueLogs[0];
       const base = `## ${label}
 
 GRM lifecycle for ${scope} in ${period}: **${facts.attended.length}** attended · **${facts.escalated.length}** escalated · **${facts.resolved.length}** resolved · **${facts.pending.length}** pending · **${facts.unresolvedBlocked.length}** blocked. Priority pathway items: ${shortList(facts.escalated.length ? facts.escalated : facts.attended)}.`;
-      if (!grm) return base;
+      if (!grm && !issueLog) return base;
       return `${base}
 
-Period pack capture:
+${
+  grm
+    ? `Period GRM pack:
 - Opened / closed / escalated: ${grm.casesOpened ?? "—"} / ${grm.casesClosed ?? "—"} / ${grm.casesEscalated ?? "—"}
 - Average days to close: ${grm.avgDaysToClose ?? "—"}
 ${grm.topThemes ? `- Themes: ${grm.topThemes}` : ""}
 ${grm.communityFeedback ? `- Community feedback: ${grm.communityFeedback}` : ""}
-${grm.processImprovements ? `- Process improvements: ${grm.processImprovements}` : ""}`;
+${grm.processImprovements ? `- Process improvements: ${grm.processImprovements}` : ""}`
+    : ""
+}
+${
+  issueLog
+    ? `Issue log pack:
+- Logged / open / closed / escalated: ${issueLog.casesLogged ?? "—"} / ${issueLog.casesOpen ?? "—"} / ${issueLog.casesClosed ?? "—"} / ${issueLog.casesEscalated ?? "—"}
+${issueLog.topThemes ? `- Themes: ${issueLog.topThemes}` : ""}
+${issueLog.openCaseRefs ? `- Open refs: ${issueLog.openCaseRefs}` : ""}
+${issueLog.deskNotes ? `- Desk notes: ${issueLog.deskNotes}` : ""}`
+    : ""
+}`;
     }
 
     case "environmental_indicators": {
@@ -596,7 +610,8 @@ Employment interface:
 - **Local hire:** ${emp.localHireActual ?? "—"} / ${emp.localHireTarget ?? "—"} target
 - **Workforce / contractor labour:** ${emp.totalWorkforce ?? "—"} / ${emp.contractorLabour ?? "—"}
 - **Women / youth / PWD:** ${emp.womenEmployed ?? "—"} / ${emp.youthEmployed ?? "—"} / ${emp.personsWithDisability ?? "—"}
-- **Training days:** ${emp.trainingDays ?? "—"}
+- **Training days / spend:** ${emp.trainingDays ?? "—"} / R${emp.trainingSpendZar?.toLocaleString("en-ZA") ?? "—"}
+${emp.trainingActivityNotes ? `- **Training activity:** ${emp.trainingActivityNotes}` : ""}
 - **Open labour disputes:** ${emp.labourDisputesOpen ?? "—"}
 ${emp.wardOfOriginNotes ? `- **Ward / origin:** ${emp.wardOfOriginNotes}` : ""}`
     : ""
@@ -630,6 +645,7 @@ Related meetings on file: ${facts.meetingCaptures.length}. Community cases: ${sh
         ? Math.round((facts.escalated.length / facts.attended.length) * 100)
         : 0;
       const grm = facts.packs.grm[0];
+      const issueLog = facts.packs.issueLogs[0];
       return `## ${label}
 
 MEL snapshot for ${period}:
@@ -643,23 +659,35 @@ ${
     ? `- **GRM pack:** opened ${grm.casesOpened ?? "—"} · closed ${grm.casesClosed ?? "—"} · escalated ${grm.casesEscalated ?? "—"} · avg days ${grm.avgDaysToClose ?? "—"}
 ${grm.topThemes ? `- **Top themes:** ${grm.topThemes}` : ""}`
     : ""
+}
+${
+  issueLog
+    ? `- **Issue log:** logged ${issueLog.casesLogged ?? "—"} · open ${issueLog.casesOpen ?? "—"} · closed ${issueLog.casesClosed ?? "—"}
+${issueLog.openCaseRefs ? `- **Open refs:** ${issueLog.openCaseRefs}` : ""}`
+    : ""
 }`;
     }
 
     case "budget_spend": {
       const bud = facts.packs.budget[0];
       const profile = facts.packs.projectProfiles[0];
+      const bb = facts.packs.bbbee[0];
+      const emp = facts.packs.employment[0];
       const total =
         bud?.budgetTotalZar ?? profile?.budgetTotal;
       const spent =
         bud?.spendToDateZar ?? profile?.budgetSpent;
-      if (bud || profile) {
+      if (bud || profile || bb || emp) {
         return `## ${label}
 
-Budget and spend for ${period} on ${scope}:
-- **Authorised budget:** R${total?.toLocaleString("en-ZA") ?? "—"}
-- **Spend to date:** R${spent?.toLocaleString("en-ZA") ?? "—"}
-${bud?.periodSpendZar != null ? `- **Period spend:** R${bud.periodSpendZar.toLocaleString("en-ZA")}` : ""}
+Empowerment budget and spend for ${period} on ${scope}:
+- **Empowerment budget authorised:** R${total?.toLocaleString("en-ZA") ?? "—"}
+- **Empowerment spent to date:** R${spent?.toLocaleString("en-ZA") ?? "—"}
+${bud?.periodSpendZar != null ? `- **Period empowerment spend:** R${bud.periodSpendZar.toLocaleString("en-ZA")}` : ""}
+${emp?.trainingSpendZar != null ? `- **Training spend (employment pack):** R${emp.trainingSpendZar.toLocaleString("en-ZA")}` : ""}
+${bb?.skillsDevSpendZar != null ? `- **Skills development spend:** R${bb.skillsDevSpendZar.toLocaleString("en-ZA")}` : ""}
+${bb?.preferentialProcurementZar != null ? `- **Preferential procurement:** R${bb.preferentialProcurementZar.toLocaleString("en-ZA")}` : ""}
+${bb?.esdSpendZar != null ? `- **ESD spend:** R${bb.esdSpendZar.toLocaleString("en-ZA")}` : ""}
 ${bud?.contingencyZar != null ? `- **Contingency remaining:** R${bud.contingencyZar.toLocaleString("en-ZA")}` : ""}
 ${bud?.claimsPendingZar != null ? `- **Claims pending:** R${bud.claimsPendingZar.toLocaleString("en-ZA")}` : ""}
 ${bud?.varianceNotes ? `- **Variance:** ${bud.varianceNotes}` : ""}
@@ -668,7 +696,7 @@ Operational blockers tied to claims/evidence: ${shortList(facts.pending.length ?
       }
       return `## ${label}
 
-Progress-claim and evidence documentation risk is concentrated on ${shortList(facts.pending.length ? facts.pending : facts.attended, 3)}. Capture a **Budget / spend** or **Project profile** pack to file authorised budget and spend figures for ${period}.`;
+Progress-claim and evidence documentation risk is concentrated on ${shortList(facts.pending.length ? facts.pending : facts.attended, 3)}. Capture an **Empowerment budget**, **Employment** (training spend), or **B-BBEE** pack to file empowerment utilisation for ${period}.`;
     }
 
     case "portfolio_risk":
