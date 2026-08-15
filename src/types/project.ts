@@ -28,6 +28,10 @@ export type ProjectDossier = {
     blackOwnershipTargetPct?: number;
     preferentialProcurementTargetZar?: number;
     skillsDevTargetZar?: number;
+    /** Authorised empowerment envelope (skills + procurement + ESD). */
+    empowermentBudgetZar?: number;
+    /** Rolled empowerment spent from Capture packs (auto). */
+    empowermentSpentZar?: number;
     womenYouthPwdTargets?: string;
   };
   promises?: ProjectPromise[];

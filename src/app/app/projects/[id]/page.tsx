@@ -132,11 +132,13 @@ export default function AppProjectDetailPage({
             <dd>{project.municipality || "—"}</dd>
           </div>
           <div>
-            <dt className="text-xs text-tl-ink-muted">Budget</dt>
+            <dt className="text-xs text-tl-ink-muted">Empowerment budget</dt>
             <dd>{currency.format(project.budgetTotal)}</dd>
           </div>
           <div>
-            <dt className="text-xs text-tl-ink-muted">Spent ({spendPct}%)</dt>
+            <dt className="text-xs text-tl-ink-muted">
+              Empowerment spent ({spendPct}%)
+            </dt>
             <dd>{currency.format(project.budgetSpent)}</dd>
           </div>
           <div>

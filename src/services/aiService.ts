@@ -301,6 +301,7 @@ function mockActivityReport(
         csi: [],
         esg: [],
         grm: [],
+        issueLogs: [],
         budget: [],
       },
     };
@@ -314,6 +315,7 @@ function mockActivityReport(
         csi: [],
         esg: [],
         grm: [],
+        issueLogs: [],
         budget: [],
       },
     };

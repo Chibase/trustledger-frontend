@@ -1,6 +1,6 @@
 /**
  * Capture hub — field notes + structured project report packs.
- * Structured packs feed ESG / B-BBEE / employment / CSI / GRM / budget report sections.
+ * Structured packs feed ESG / B-BBEE / employment / CSI / GRM / issue log / empowerment budget report sections.
  */
 
 export const NARRATIVE_CAPTURE_SOURCES = [
@@ -17,6 +17,7 @@ export const PACK_CAPTURE_SOURCES = [
   "csi",
   "esg_period",
   "grm_period",
+  "issue_log",
   "budget",
 ] as const;
 
@@ -77,6 +78,9 @@ export type EmploymentFacts = {
   personsWithDisability?: number;
   wardOfOriginNotes?: string;
   trainingDays?: number;
+  /** Training / skills spend captured beside training delivery (ZAR). */
+  trainingSpendZar?: number;
+  trainingActivityNotes?: string;
   labourDisputesOpen?: number;
   notes?: string;
 };
@@ -116,9 +120,24 @@ export type GrmPeriodFacts = {
   notes?: string;
 };
 
+/** Desk issue log for the period — sits beside GRM on Capture hub. */
+export type IssueLogFacts = {
+  periodLabel?: string;
+  casesLogged?: number;
+  casesOpen?: number;
+  casesClosed?: number;
+  casesEscalated?: number;
+  topThemes?: string;
+  openCaseRefs?: string;
+  deskNotes?: string;
+  notes?: string;
+};
+
 export type BudgetFacts = {
   periodLabel?: string;
+  /** Empowerment budget authorised (ZAR) — not CAPEX. */
   budgetTotalZar?: number;
+  /** Empowerment spent to date (auto from training / B-BBEE packs). */
   spendToDateZar?: number;
   periodSpendZar?: number;
   contingencyZar?: number;
@@ -134,6 +153,7 @@ export type CaptureStructured =
   | { pack: "csi"; data: CsiFacts }
   | { pack: "esg_period"; data: EsgPeriodFacts }
   | { pack: "grm_period"; data: GrmPeriodFacts }
+  | { pack: "issue_log"; data: IssueLogFacts }
   | { pack: "budget"; data: BudgetFacts };
 
 export type CaptureRecord = {
@@ -208,6 +228,8 @@ export function emptyStructured(pack: PackCaptureSource): CaptureStructured {
       return { pack, data: {} };
     case "grm_period":
       return { pack, data: {} };
+    case "issue_log":
+      return { pack, data: {} };
     case "budget":
       return { pack, data: {} };
   }
@@ -242,6 +264,7 @@ export type AggregatedPackFacts = {
   csi: CsiFacts[];
   esg: EsgPeriodFacts[];
   grm: GrmPeriodFacts[];
+  issueLogs: IssueLogFacts[];
   budget: BudgetFacts[];
 };
 
@@ -259,6 +282,7 @@ export function aggregatePackFacts(
     csi: [],
     esg: [],
     grm: [],
+    issueLogs: [],
     budget: [],
   };
   for (const row of scoped) {
@@ -283,6 +307,9 @@ export function aggregatePackFacts(
       case "grm_period":
         out.grm.push(s.data);
         break;
+      case "issue_log":
+        out.issueLogs.push(s.data);
+        break;
       case "budget":
         out.budget.push(s.data);
         break;
@@ -297,7 +324,7 @@ export const PACK_SOURCE_META: Record<
 > = {
   project_profile: {
     label: "Project profile",
-    hint: "Site, contractor, budget, geo, and programme summary for every report.",
+    hint: "Site, contractor, empowerment budget, geo, and programme summary for every report.",
     reports: "Monthly · MEL · Board",
   },
   bbbee: {
@@ -307,7 +334,7 @@ export const PACK_SOURCE_META: Record<
   },
   employment: {
     label: "Employment",
-    hint: "Local hire, workforce composition, training, and labour disputes.",
+    hint: "Local hire, workforce composition, training days + spend, and labour disputes.",
     reports: "B-BBEE · ESG · Board",
   },
   csi: {
@@ -325,9 +352,14 @@ export const PACK_SOURCE_META: Record<
     hint: "Case volumes, themes, turnaround, and process improvements.",
     reports: "GRM · Issue handling · Monthly",
   },
+  issue_log: {
+    label: "Issue log",
+    hint: "Desk issue log for the period — open cases, themes, and notes beside GRM.",
+    reports: "Issue handling · GRM · Monthly",
+  },
   budget: {
-    label: "Budget / spend",
-    hint: "Authorised budget, period spend, claims, and variance for finance annexes.",
+    label: "Empowerment budget",
+    hint: "Empowerment envelope and spent (skills, training, procurement, ESD) — not CAPEX.",
     reports: "MEL · Board · Budget section",
   },
 };

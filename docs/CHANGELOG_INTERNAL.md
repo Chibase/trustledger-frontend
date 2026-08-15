@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-15 — Issue log pack + empowerment spent auto-roll
+
+- Capture hub adds **Issue log** beside GRM / employment packs: desk case list + period log fields; feeds GRM / issue-handling / MEL sections.
+- **Budget spent = empowerment utilisation only** — Employment adds training spend next to training days; saving Employment or B-BBEE rolls skills + training + preferential procurement + ESD into `Project.budgetSpent`.
+- Budget pack retitled **Empowerment budget**; dossier exposes empowerment envelope + skills target; project detail labels Empowerment budget / spent.
+
 ## 2026-08-15 — Capture report pack save no longer silent-fails
 
 - Remount `EmailCaptureGate` + `SessionEmailBridge` in `AppShell` so authenticated desks seed `tl-lead-email` and Save is not dropped when the gate UI was missing.
