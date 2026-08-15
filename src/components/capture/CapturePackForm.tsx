@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { IssueLogPathwayForm } from "@/components/capture/IssueLogPathwayForm";
 import type {
   CaptureStructured,
   PackCaptureSource,
@@ -762,137 +762,12 @@ export function CapturePackForm({
       ) : null}
 
       {pack === "issue_log" && value.pack === "issue_log" ? (
-        <div className="space-y-4">
-          <div className="rounded-md border border-tl-line bg-tl-paper p-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-medium text-tl-ink">
-                Desk cases
-                {projectId ? ` · ${projectIncidents.length} on file` : ""}
-              </p>
-              <Link
-                href={
-                  projectId
-                    ? `/app/issues/report?projectId=${encodeURIComponent(projectId)}`
-                    : "/app/issues/report"
-                }
-                className="text-sm font-medium text-tl-trust-ink underline"
-              >
-                Log new issue
-              </Link>
-            </div>
-            {projectIncidents.length === 0 ? (
-              <p className="mt-2 text-sm text-tl-ink-muted">
-                No cases linked to this project yet — use Log new issue or open{" "}
-                <Link href="/app/incidents" className="underline">
-                  Incidents
-                </Link>
-                .
-              </p>
-            ) : (
-              <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto text-sm">
-                {projectIncidents.slice(0, 12).map((inc) => (
-                  <li key={inc.id}>
-                    <Link
-                      href={`/app/incidents/${encodeURIComponent(inc.id)}`}
-                      className="text-tl-trust-ink underline"
-                    >
-                      {inc.id}
-                    </Link>
-                    <span className="text-tl-ink-muted">
-                      {" "}
-                      · {inc.status} · {inc.priority} —{" "}
-                      {inc.title.slice(0, 72)}
-                      {inc.title.length > 72 ? "…" : ""}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <TextInput
-              id="il-period"
-              label="Reporting period"
-              value={value.data.periodLabel}
-              onChange={(periodLabel) =>
-                onChange({ pack, data: { ...value.data, periodLabel } })
-              }
-            />
-            <NumberInput
-              id="il-logged"
-              label="Cases logged this period"
-              value={value.data.casesLogged}
-              onChange={(casesLogged) =>
-                onChange({ pack, data: { ...value.data, casesLogged } })
-              }
-            />
-            <NumberInput
-              id="il-open"
-              label="Open cases (desk)"
-              value={value.data.casesOpen}
-              onChange={(casesOpen) =>
-                onChange({ pack, data: { ...value.data, casesOpen } })
-              }
-            />
-            <NumberInput
-              id="il-closed"
-              label="Closed this period"
-              value={value.data.casesClosed}
-              onChange={(casesClosed) =>
-                onChange({ pack, data: { ...value.data, casesClosed } })
-              }
-            />
-            <NumberInput
-              id="il-esc"
-              label="Escalated"
-              value={value.data.casesEscalated}
-              onChange={(casesEscalated) =>
-                onChange({ pack, data: { ...value.data, casesEscalated } })
-              }
-            />
-            <div className="sm:col-span-2">
-              <AreaInput
-                id="il-themes"
-                label="Top themes / natures"
-                value={value.data.topThemes}
-                onChange={(topThemes) =>
-                  onChange({ pack, data: { ...value.data, topThemes } })
-                }
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <AreaInput
-                id="il-refs"
-                label="Open case refs"
-                value={value.data.openCaseRefs}
-                onChange={(openCaseRefs) =>
-                  onChange({ pack, data: { ...value.data, openCaseRefs } })
-                }
-                placeholder="INC-… · INC-…"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <AreaInput
-                id="il-desk"
-                label="Desk notes"
-                value={value.data.deskNotes}
-                onChange={(deskNotes) =>
-                  onChange({ pack, data: { ...value.data, deskNotes } })
-                }
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <AreaInput
-                id="il-notes"
-                label="Issue log notes"
-                value={value.data.notes}
-                onChange={(notes) =>
-                  onChange({ pack, data: { ...value.data, notes } })
-                }
-              />
-            </div>
-          </div>
-        </div>
+        <IssueLogPathwayForm
+          data={value.data}
+          projectId={projectId}
+          projectIncidents={projectIncidents}
+          onChange={(next) => onChange({ pack: "issue_log", data: next })}
+        />
       ) : null}
 
       {pack === "budget" && value.pack === "budget" ? (

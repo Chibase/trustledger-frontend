@@ -20,6 +20,7 @@ import { TL_TRIAL_PLAN_COOKIE } from "@/lib/auth.constants";
 import { isPlanId, type PlanId } from "@/config/plans";
 import {
   createCaptureId,
+  deriveIssueLogRollup,
   emptyStructured,
   isNarrativeCaptureSource,
   isPackCaptureSource,
@@ -327,13 +328,31 @@ export default function AppCapturePage() {
       latest?.structured?.pack === "issue_log"
         ? latest.structured.data
         : {};
+    const entries = Array.isArray(base.entries) ? base.entries : [];
+    if (entries.some((e) => e.title?.trim())) {
+      const rollup = deriveIssueLogRollup(entries);
+      return {
+        pack: "issue_log",
+        data: {
+          ...base,
+          entries,
+          casesLogged: rollup.casesLogged,
+          casesOpen: rollup.casesOpen,
+          casesClosed: rollup.casesClosed,
+          casesEscalated: rollup.casesEscalated,
+          topThemes: rollup.topThemes || base.topThemes,
+          openCaseRefs: rollup.openCaseRefs || base.openCaseRefs,
+        },
+      };
+    }
     return {
       pack: "issue_log",
       data: {
         ...base,
-        // Open / escalated are live desk snapshots; period logged/closed stay user-entered.
-        casesOpen: open.length,
-        casesEscalated: escalated.length,
+        entries: entries.length ? entries : undefined,
+        // Legacy packs without pathways: desk snapshot for open / escalated.
+        casesOpen: base.casesOpen ?? open.length,
+        casesEscalated: base.casesEscalated ?? escalated.length,
         openCaseRefs:
           base.openCaseRefs ||
           open
@@ -706,8 +725,34 @@ export default function AppCapturePage() {
     requireEmailThen("save", () => {
       setPackSaving(true);
       try {
-        const bodyText = structuredToBody(packData);
+        let structured: CaptureStructured = packData;
+        if (packData.pack === "issue_log") {
+          const entries = Array.isArray(packData.data.entries)
+            ? packData.data.entries
+            : [];
+          const rollup = deriveIssueLogRollup(entries);
+          structured = {
+            pack: "issue_log",
+            data: {
+              ...packData.data,
+              entries,
+              casesLogged: rollup.casesLogged,
+              casesOpen: rollup.casesOpen,
+              casesClosed: rollup.casesClosed,
+              casesEscalated: rollup.casesEscalated,
+              topThemes: rollup.topThemes || packData.data.topThemes,
+              openCaseRefs: rollup.openCaseRefs || packData.data.openCaseRefs,
+            },
+          };
+          setPackData(structured);
+        }
+        const bodyText = structuredToBody(structured);
         const meta = PACK_SOURCE_META[packSource];
+        const pathwayNote =
+          structured.pack === "issue_log" &&
+          (structured.data.entries || []).filter((e) => e.title?.trim()).length
+            ? ` · ${(structured.data.entries || []).filter((e) => e.title?.trim()).length} pathway(s)`
+            : "";
         const record = {
           id: createCaptureId(),
           source: packSource,
@@ -716,11 +761,11 @@ export default function AppCapturePage() {
           projectId: project.id,
           projectName: project.name,
           createdAt: new Date().toISOString(),
-          structured: packData,
+          structured,
         };
         saveCaptureRecord(record);
-        syncProjectFromProfile(packData);
-        syncEmpowermentSpent(packData);
+        syncProjectFromProfile(structured);
+        syncEmpowermentSpent(structured);
         setRecent(listCaptureRecords());
         setTitle(record.title);
         const spentNote =
@@ -728,7 +773,7 @@ export default function AppCapturePage() {
             ? ` · empowerment spent R${computeEmpowermentSpent(project.id).toLocaleString("en-ZA")}`
             : "";
         pushToast(
-          `${meta.label} saved — available to Reports for this project${spentNote}`,
+          `${meta.label} saved — available to Reports for this project${pathwayNote}${spentNote}`,
           "success",
         );
       } finally {

@@ -120,9 +120,60 @@ export type GrmPeriodFacts = {
   notes?: string;
 };
 
+/** Categories for issue log pathway (desk + Capture). */
+export const ISSUE_LOG_CATEGORIES = [
+  { id: "environment", label: "Environment" },
+  { id: "employment", label: "Employment / labour" },
+  { id: "theft", label: "Theft / loss" },
+  { id: "safety", label: "Safety / security" },
+  { id: "dust", label: "Dust" },
+  { id: "noise", label: "Noise" },
+  { id: "water", label: "Water / utilities" },
+  { id: "access_road", label: "Access / roads" },
+  { id: "land", label: "Land / resettlement" },
+  { id: "community_disgruntlement", label: "Community disgruntlement" },
+  { id: "other", label: "Other" },
+] as const;
+
+export type IssueLogCategoryId = (typeof ISSUE_LOG_CATEGORIES)[number]["id"];
+
+/** One follow-up action on the pathway (repeatable). */
+export type IssueLogFollowUp = {
+  id: string;
+  /** Action taken */
+  action: string;
+  /** Outcome of that action */
+  outcome?: string;
+  /** When the follow-up happened (datetime-local or ISO) */
+  at?: string;
+};
+
+/**
+ * Single issue pathway: report → follow-ups → escalate → feedback → resolve → close.
+ * Captured in the Issue log pack and available as report evidence.
+ */
+export type IssueLogEntry = {
+  id: string;
+  title: string;
+  category?: string;
+  reporterName?: string;
+  /** Date/time reported / captured */
+  reportedAt?: string;
+  followUps?: IssueLogFollowUp[];
+  escalatedTo?: string;
+  escalatedAt?: string;
+  feedbackAt?: string;
+  resolvedAt?: string;
+  closedAt?: string;
+  linkedIncidentId?: string;
+  notes?: string;
+};
+
 /** Desk issue log for the period — sits beside GRM on Capture hub. */
 export type IssueLogFacts = {
   periodLabel?: string;
+  /** Structured pathways (preferred SoT for evidence / reports). */
+  entries?: IssueLogEntry[];
   casesLogged?: number;
   casesOpen?: number;
   casesClosed?: number;
@@ -240,13 +291,162 @@ function line(label: string, value: string | number | undefined | null): string 
   return `${label}: ${value}`;
 }
 
+export function createIssueLogEntryId(): string {
+  return `ISL-${Date.now().toString(36).slice(-6)}`;
+}
+
+export function createIssueLogFollowUpId(): string {
+  return `FU-${Date.now().toString(36).slice(-5)}`;
+}
+
+export function emptyIssueLogEntry(): IssueLogEntry {
+  return {
+    id: createIssueLogEntryId(),
+    title: "",
+    category: "",
+    reporterName: "",
+    reportedAt: "",
+    followUps: [
+      {
+        id: createIssueLogFollowUpId(),
+        action: "",
+        outcome: "",
+        at: "",
+      },
+    ],
+    escalatedTo: "",
+    escalatedAt: "",
+    feedbackAt: "",
+    resolvedAt: "",
+    closedAt: "",
+    notes: "",
+  };
+}
+
+/** Derive period rollup counts from pathway entries. */
+export function deriveIssueLogRollup(entries: IssueLogEntry[]): {
+  casesLogged: number;
+  casesOpen: number;
+  casesClosed: number;
+  casesEscalated: number;
+  topThemes: string;
+  openCaseRefs: string;
+} {
+  const logged = entries.filter((e) => e.title.trim());
+  const closed = logged.filter((e) => Boolean(e.closedAt));
+  const escalated = logged.filter((e) => Boolean(e.escalatedTo || e.escalatedAt));
+  const open = logged.filter((e) => !e.closedAt);
+  const themes = [
+    ...new Set(logged.map((e) => e.category).filter(Boolean)),
+  ] as string[];
+  return {
+    casesLogged: logged.length,
+    casesOpen: open.length,
+    casesClosed: closed.length,
+    casesEscalated: escalated.length,
+    topThemes: themes.join(", "),
+    openCaseRefs: open
+      .map((e) => e.linkedIncidentId || e.title.slice(0, 40))
+      .filter(Boolean)
+      .join(" · "),
+  };
+}
+
+export function issueLogCategoryLabel(category?: string): string {
+  if (!category) return "";
+  const hit = ISSUE_LOG_CATEGORIES.find((c) => c.id === category);
+  return hit?.label || category;
+}
+
+/** Markdown blocks for report evidence — report → close pathway. */
+export function formatIssueLogEntries(entries: IssueLogEntry[]): string[] {
+  const blocks: string[] = [];
+  entries.forEach((entry, idx) => {
+    if (!entry.title.trim()) return;
+    const cat = issueLogCategoryLabel(entry.category);
+    const lines: string[] = [
+      `### Issue ${idx + 1}: ${entry.title}`,
+      cat ? `- **Category:** ${cat}` : null,
+      entry.reporterName
+        ? `- **Person reporting:** ${entry.reporterName}`
+        : null,
+      entry.reportedAt
+        ? `- **Reported / captured:** ${entry.reportedAt}`
+        : null,
+    ].filter(Boolean) as string[];
+    const fus = (entry.followUps || []).filter(
+      (fu) => fu.action.trim() || fu.outcome?.trim() || fu.at,
+    );
+    if (fus.length) {
+      lines.push(`- **Follow-ups:**`);
+      fus.forEach((fu, fi) => {
+        lines.push(
+          `  ${fi + 1}. ${fu.action || "—"}${fu.outcome ? ` → outcome: ${fu.outcome}` : ""}${fu.at ? ` (${fu.at})` : ""}`,
+        );
+      });
+    }
+    if (entry.escalatedTo || entry.escalatedAt) {
+      lines.push(
+        `- **Escalated:** ${entry.escalatedTo || "—"}${entry.escalatedAt ? ` @ ${entry.escalatedAt}` : ""}`,
+      );
+    }
+    if (entry.feedbackAt) {
+      lines.push(`- **Feedback:** ${entry.feedbackAt}`);
+    }
+    if (entry.resolvedAt) {
+      lines.push(`- **Resolved:** ${entry.resolvedAt}`);
+    }
+    if (entry.closedAt) {
+      lines.push(`- **Closed:** ${entry.closedAt}`);
+    }
+    if (entry.linkedIncidentId) {
+      lines.push(`- **Linked desk case:** ${entry.linkedIncidentId}`);
+    }
+    if (entry.notes?.trim()) {
+      lines.push(`- **Notes:** ${entry.notes.trim()}`);
+    }
+    blocks.push(lines.join("\n"));
+  });
+  return blocks;
+}
+
+/** Flatten all pathway entries from aggregated issue log packs. */
+export function collectIssueLogEntries(
+  packs: IssueLogFacts[],
+): IssueLogEntry[] {
+  const out: IssueLogEntry[] = [];
+  for (const pack of packs) {
+    for (const entry of pack.entries || []) {
+      if (entry.title?.trim()) out.push(entry);
+    }
+  }
+  return out;
+}
+
 /** Flatten structured packs into searchable narrative for AI / appendix. */
 export function structuredToBody(structured: CaptureStructured): string {
-  const d = structured.data as Record<string, unknown>;
   const header = `CAPTURE PACK: ${structured.pack.toUpperCase().replaceAll("_", " ")}`;
+  if (structured.pack === "issue_log") {
+    const d = structured.data;
+    const rollup = [
+      line("Period", d.periodLabel),
+      line("Cases logged", d.casesLogged),
+      line("Cases open", d.casesOpen),
+      line("Cases closed", d.casesClosed),
+      line("Cases escalated", d.casesEscalated),
+      line("Themes", d.topThemes),
+      line("Open refs", d.openCaseRefs),
+      line("Desk notes", d.deskNotes),
+      line("Notes", d.notes),
+    ].filter(Boolean);
+    const pathways = formatIssueLogEntries(d.entries || []);
+    return [header, "", ...rollup, "", ...pathways].filter(Boolean).join("\n");
+  }
+  const d = structured.data as Record<string, unknown>;
   const rows = Object.entries(d)
     .map(([key, value]) => {
       if (value === undefined || value === null || value === "") return null;
+      if (typeof value === "object") return null;
       const label = key
         .replace(/([A-Z])/g, " $1")
         .replace(/^./, (c) => c.toUpperCase())
@@ -354,8 +554,8 @@ export const PACK_SOURCE_META: Record<
   },
   issue_log: {
     label: "Issue log",
-    hint: "Desk issue log for the period — open cases, themes, and notes beside GRM.",
-    reports: "Issue handling · GRM · Monthly",
+    hint: "Pathway per issue: title → category → reporter → reported → follow-ups → escalate → feedback → resolve → close.",
+    reports: "Issue handling · GRM · Issue pathway · Monthly",
   },
   budget: {
     label: "Empowerment budget",

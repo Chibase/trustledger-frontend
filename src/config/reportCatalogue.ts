@@ -130,6 +130,14 @@ export const REPORT_SECTIONS: ReportSectionDef[] = [
     defaultFor: ["grm", "board_investor"],
   },
   {
+    id: "issue_log_pathway",
+    label: "Issue log pathway",
+    description:
+      "Report → follow-ups → escalate → feedback → resolve → close from Capture Issue log entries.",
+    minTier: "clo",
+    defaultFor: ["issue_handling", "grm", "monthly_activity", "mel"],
+  },
+  {
     id: "environmental_indicators",
     label: "Environmental indicators",
     description: "Env KPIs and incidents.",

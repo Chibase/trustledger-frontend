@@ -5,6 +5,8 @@
 
 import {
   aggregatePackFacts,
+  collectIssueLogEntries,
+  formatIssueLogEntries,
   listCaptureRecords,
   type AggregatedPackFacts,
 } from "@/lib/captureStore";
@@ -316,6 +318,32 @@ export function buildPeriodActivityFacts(
   }));
 
   for (const row of allCaptures.filter((c) => Boolean(c.structured)).slice(0, 8)) {
+    if (
+      row.structured?.pack === "issue_log" &&
+      (row.structured.data.entries || []).some((e) => e.title?.trim())
+    ) {
+      const entries = (row.structured.data.entries || []).filter((e) =>
+        e.title?.trim(),
+      );
+      evidence.push({
+        id: `ev-${row.id}`,
+        kind: "other",
+        label: `Issue log pathway ×${entries.length} — ${entries
+          .slice(0, 3)
+          .map((e) => e.title)
+          .join("; ")}${entries.length > 3 ? "…" : ""}`,
+        linkedCaptureId: row.id,
+      });
+      for (const entry of entries.slice(0, 6)) {
+        evidence.push({
+          id: `ev-${row.id}-${entry.id}`,
+          kind: "other",
+          label: `Pathway: ${entry.title}${entry.closedAt ? " (closed)" : entry.resolvedAt ? " (resolved)" : entry.escalatedAt || entry.escalatedTo ? " (escalated)" : " (open)"}`,
+          linkedCaptureId: row.id,
+        });
+      }
+      continue;
+    }
     evidence.push({
       id: `ev-${row.id}`,
       kind: "other",
@@ -548,10 +576,11 @@ Trust index for ${scope} stands at **${facts.trustIndex}/100 (${facts.trustLabel
     case "grievance_lifecycle": {
       const grm = facts.packs.grm[0];
       const issueLog = facts.packs.issueLogs[0];
+      const pathways = collectIssueLogEntries(facts.packs.issueLogs);
       const base = `## ${label}
 
 GRM lifecycle for ${scope} in ${period}: **${facts.attended.length}** attended · **${facts.escalated.length}** escalated · **${facts.resolved.length}** resolved · **${facts.pending.length}** pending · **${facts.unresolvedBlocked.length}** blocked. Priority pathway items: ${shortList(facts.escalated.length ? facts.escalated : facts.attended)}.`;
-      if (!grm && !issueLog) return base;
+      if (!grm && !issueLog && !pathways.length) return base;
       return `${base}
 
 ${
@@ -572,7 +601,31 @@ ${issueLog.topThemes ? `- Themes: ${issueLog.topThemes}` : ""}
 ${issueLog.openCaseRefs ? `- Open refs: ${issueLog.openCaseRefs}` : ""}
 ${issueLog.deskNotes ? `- Desk notes: ${issueLog.deskNotes}` : ""}`
     : ""
+}
+${
+  pathways.length
+    ? `\nSequenced pathways (report → close):\n\n${formatIssueLogEntries(pathways).join("\n\n")}`
+    : ""
 }`;
+    }
+
+    case "issue_log_pathway": {
+      const pathways = collectIssueLogEntries(facts.packs.issueLogs);
+      const issueLog = facts.packs.issueLogs[0];
+      if (!pathways.length) {
+        return `## ${label}
+
+No sequenced issue pathways were captured for **${scope}** in **${period}**. Under Capture → **Issue log**, record each matter in order: title → category → person reporting → date/time reported → follow-ups (action, outcomes, date/time; add steps as needed) → escalated (to whom, date/time) → feedback → resolved → closed. Saved pathways appear here and in the evidence appendix.`;
+      }
+      return `## ${label}
+
+Clear pathway from report through close for **${scope}** in **${period}** (${pathways.length} issue${pathways.length === 1 ? "" : "s"}):
+${
+  issueLog
+    ? `\nRollup: logged ${issueLog.casesLogged ?? pathways.length} · open ${issueLog.casesOpen ?? "—"} · closed ${issueLog.casesClosed ?? "—"} · escalated ${issueLog.casesEscalated ?? "—"}.\n`
+    : ""
+}
+${formatIssueLogEntries(pathways).join("\n\n")}`;
     }
 
     case "environmental_indicators": {
@@ -727,7 +780,12 @@ ${grm.topThemes ? `- **Top themes:** ${grm.topThemes}` : ""}`
 ${
   issueLog
     ? `- **Issue log:** logged ${issueLog.casesLogged ?? "—"} · open ${issueLog.casesOpen ?? "—"} · closed ${issueLog.casesClosed ?? "—"}
-${issueLog.openCaseRefs ? `- **Open refs:** ${issueLog.openCaseRefs}` : ""}`
+${issueLog.openCaseRefs ? `- **Open refs:** ${issueLog.openCaseRefs}` : ""}
+${
+  (issueLog.entries || []).filter((e) => e.title?.trim()).length
+    ? `- **Sequenced pathways on file:** ${(issueLog.entries || []).filter((e) => e.title?.trim()).length}`
+    : ""
+}`
     : ""
 }`;
     }

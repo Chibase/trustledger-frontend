@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-15 — Issue log sequenced pathway (report → close)
+
+- Capture **Issue log** pack records each matter in fixed order: title → category → person reporting → date/time reported → follow-ups (action, outcomes, date/time; add more steps) → escalated (to whom + date/time) → feedback → resolved → closed.
+- Pathways persist in the pack, roll up open/closed/escalated counts, surface as Create report evidence stubs, and draft via the new **Issue log pathway** topic (also enrich GRM lifecycle).
+
 ## 2026-08-15 — Report create is project-first; pack drafts no longer fail INC-* check
 
 - Create report: choose project first (same list path as Capture, including Cloud/VIP), then type/topics; evidence summary shows dossier + Capture packs for that project.

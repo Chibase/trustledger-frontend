@@ -14,6 +14,7 @@ export const COMPLAINT_NATURES = [
   { id: "safety", label: "Safety / security" },
   { id: "land", label: "Land / resettlement" },
   { id: "environment", label: "Environment / pollution" },
+  { id: "theft", label: "Theft / loss" },
   { id: "other", label: "Other" },
 ] as const;
 

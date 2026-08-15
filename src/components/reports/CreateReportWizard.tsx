@@ -79,15 +79,26 @@ function currentMonthLabel() {
 
 function packEvidenceSummary(projectId: string): string[] {
   const rows = listCaptureRecords().filter((r) => r.projectId === projectId);
-  const byPack = new Map<string, number>();
+  const byPack = new Map<string, { count: number; pathways: number }>();
   for (const row of rows) {
     const pack = row.structured?.pack || row.source;
-    byPack.set(pack, (byPack.get(pack) || 0) + 1);
+    const prev = byPack.get(pack) || { count: 0, pathways: 0 };
+    prev.count += 1;
+    if (row.structured?.pack === "issue_log") {
+      prev.pathways += (row.structured.data.entries || []).filter((e) =>
+        e.title?.trim(),
+      ).length;
+    }
+    byPack.set(pack, prev);
   }
-  return [...byPack.entries()].map(([pack, count]) => {
+  return [...byPack.entries()].map(([pack, meta]) => {
     const label =
       PACK_SOURCE_META[pack as PackCaptureSource]?.label || pack;
-    return `${label} ×${count}`;
+    const pathwayBit =
+      pack === "issue_log" && meta.pathways
+        ? ` (${meta.pathways} pathway${meta.pathways === 1 ? "" : "s"})`
+        : "";
+    return `${label} ×${meta.count}${pathwayBit}`;
   });
 }
 
