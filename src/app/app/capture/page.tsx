@@ -5,8 +5,14 @@ import Link from "next/link";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import {
+  CaptureFieldNoteMeta,
+  fieldNoteMetaPreamble,
+  type FieldNoteMeta,
+} from "@/components/capture/CaptureFieldNoteMeta";
 import { CapturePackForm } from "@/components/capture/CapturePackForm";
 import { CaptureTemplateBar } from "@/components/capture/CaptureTemplateBar";
+import { ProjectDossierForm } from "@/components/projects/ProjectDossierForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
@@ -26,14 +32,11 @@ import {
   type CaptureStructured,
   type PackCaptureSource,
 } from "@/lib/captureStore";
-import { listDemoProjects } from "@/lib/demoStore";
+import { dossierSummaryLines } from "@/lib/projectDossier";
 import { saveOrgProject } from "@/lib/orgDataSpace";
 import { readTrialModeFromDocument } from "@/lib/trial";
-import {
-  ensureTrialSeedProject,
-  listTrialProjects,
-  saveTrialProject,
-} from "@/lib/trialStore";
+import { ensureTrialSeedProject, saveTrialProject } from "@/lib/trialStore";
+import { listWorkspaceProjects } from "@/lib/workspaceData";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
 import {
@@ -47,8 +50,12 @@ import type {
   ReportBriefSuggestion,
   StakeholderExtractSuggestion,
 } from "@/types/ai";
-import type { EngagementSource } from "@/types/engagement";
+import type { EngagementKind, EngagementSource } from "@/types/engagement";
 import type { Project, ProjectStatus } from "@/types/project";
+import {
+  projectChipLabel,
+  projectHasDossierBasics,
+} from "@/types/project";
 import type { Stakeholder, StakeholderKind } from "@/types/stakeholder";
 
 const NARRATIVE_SOURCES: {
@@ -77,6 +84,15 @@ const NARRATIVE_SOURCES: {
     hint: "Any narrative report — brief + stakeholders.",
   },
 ];
+
+const EMPTY_FIELD_META: FieldNoteMeta = {
+  purpose: "",
+  kind: "",
+  place: "",
+  linkedPromiseId: "",
+  concernTheme: "",
+  severity: "",
+};
 
 function asKind(value: string): StakeholderKind {
   const allowed: StakeholderKind[] = [
@@ -114,6 +130,100 @@ function asProjectStatus(value: string | undefined): ProjectStatus | undefined {
     : undefined;
 }
 
+function asEngagementKind(value: string | undefined): EngagementKind | null {
+  const allowed: EngagementKind[] = [
+    "meeting",
+    "consultation",
+    "walkabout",
+    "briefing",
+    "other",
+  ];
+  if (!value) return null;
+  return allowed.includes(value as EngagementKind)
+    ? (value as EngagementKind)
+    : null;
+}
+
+/** Prefill pack targets from the project dossier when present. */
+function structuredFromProject(
+  pack: PackCaptureSource,
+  project: Project | undefined,
+): CaptureStructured {
+  const base = emptyStructured(pack);
+  if (!project) return base;
+  const targets = project.dossier?.empowermentTargets;
+  if (pack === "employment") {
+    return {
+      pack,
+      data: {
+        localHireTarget: targets?.localHireTarget,
+        wardOfOriginNotes:
+          project.dossier?.geo?.wardName || project.ward || undefined,
+      },
+    };
+  }
+  if (pack === "bbbee") {
+    return {
+      pack,
+      data: {
+        bbbeeLevel: targets?.bbbeeLevelTarget,
+        blackOwnershipPct: targets?.blackOwnershipTargetPct,
+        preferentialProcurementZar:
+          targets?.preferentialProcurementTargetZar,
+        skillsDevSpendZar: targets?.skillsDevTargetZar,
+      },
+    };
+  }
+  if (pack === "project_profile") {
+    return {
+      pack,
+      data: {
+        clientFunder:
+          project.dossier?.funder?.name || project.clientFunder || undefined,
+        contractorName: project.contractorName || undefined,
+        ward: project.dossier?.geo?.wardName || project.ward || undefined,
+        municipality:
+          project.dossier?.geo?.municipalityName ||
+          project.municipality ||
+          undefined,
+        status: project.status,
+        startDate:
+          project.dossier?.dates?.startDate || project.startDate || undefined,
+        targetEndDate:
+          project.dossier?.dates?.targetEndDate ||
+          project.targetEndDate ||
+          undefined,
+        budgetTotal:
+          project.dossier?.budget?.authorisedZar ??
+          (project.budgetTotal || undefined),
+        budgetSpent: project.budgetSpent || undefined,
+        publicSummary: project.publicSummary || undefined,
+        sector: project.dossier?.sector,
+        siteDescription: project.dossier?.siteDescription,
+      },
+    };
+  }
+  if (pack === "budget") {
+    return {
+      pack,
+      data: {
+        budgetTotalZar:
+          project.dossier?.budget?.authorisedZar ??
+          (project.budgetTotal || undefined),
+        spendToDateZar: project.budgetSpent || undefined,
+        contingencyZar: project.dossier?.budget?.contingencyZar,
+      },
+    };
+  }
+  return base;
+}
+
+function placeFromMeta(meta: FieldNoteMeta): string | undefined {
+  const place = meta.place.trim();
+  if (!place || place === "__other") return undefined;
+  return place;
+}
+
 export default function AppCapturePage() {
   const { pushToast } = useToast();
   const [source, setSource] = useState<CaptureSource>("minutes");
@@ -121,6 +231,7 @@ export default function AppCapturePage() {
   const [body, setBody] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState("");
+  const [fieldMeta, setFieldMeta] = useState<FieldNoteMeta>(EMPTY_FIELD_META);
   const [status, setStatus] = useState<AiSuggestionStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [extract, setExtract] =
@@ -136,6 +247,8 @@ export default function AppCapturePage() {
 
   const narrative = isNarrativeCaptureSource(source);
   const packSource = isPackCaptureSource(source) ? source : null;
+  const project = projects.find((p) => p.id === projectId);
+  const dossierReady = Boolean(project && projectHasDossierBasics(project));
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -152,22 +265,13 @@ export default function AppCapturePage() {
     let cancelled = false;
     const frame = requestAnimationFrame(() => {
       void (async () => {
-        const trial = readTrialModeFromDocument();
-        const customer = isCustomerWorkspaceClient();
-        if (trial) ensureTrialSeedProject();
+        if (readTrialModeFromDocument()) ensureTrialSeedProject();
         const seeded = await projectService.list();
-        const local = trial
-          ? listTrialProjects()
-          : customer
-            ? []
-            : listDemoProjects();
-        const byId = new Map<string, Project>();
-        for (const p of [...local, ...seeded]) byId.set(p.id, p);
-        if (!cancelled) {
-          const rows = [...byId.values()];
-          setProjects(rows);
-          setProjectId((prev) => prev || rows[0]?.id || "");
-        }
+        if (cancelled) return;
+        // listWorkspaceProjects merges dossiers; customer workspaces never get demo seed.
+        const rows = listWorkspaceProjects(seeded);
+        setProjects(rows);
+        setProjectId((prev) => prev || rows[0]?.id || "");
       })();
     });
     return () => {
@@ -176,7 +280,9 @@ export default function AppCapturePage() {
     };
   }, []);
 
-  const project = projects.find((p) => p.id === projectId);
+  useEffect(() => {
+    setFieldMeta(EMPTY_FIELD_META);
+  }, [projectId]);
 
   function selectSource(next: CaptureSource) {
     setSource(next);
@@ -188,7 +294,7 @@ export default function AppCapturePage() {
     if (isNarrativeCaptureSource(next)) {
       setBody("");
     } else if (isPackCaptureSource(next)) {
-      setPackData(emptyStructured(next));
+      setPackData(structuredFromProject(next, project));
       setTitle((prev) => {
         const meta = PACK_SOURCE_META[next];
         return prev.trim() ? prev : `${meta.label} — period pack`;
@@ -196,9 +302,20 @@ export default function AppCapturePage() {
     }
   }
 
+  function composedBody(): string {
+    const preamble = narrative ? fieldNoteMetaPreamble(fieldMeta) : "";
+    return `${preamble}${body.trim()}`.trim();
+  }
+
   async function runExtract() {
-    if (!body.trim()) {
+    const text = composedBody();
+    if (!text) {
       setError("Paste source text first.");
+      setStatus("error");
+      return;
+    }
+    if (!projectId || !project) {
+      setError("Select a project first.");
       setStatus("error");
       return;
     }
@@ -206,9 +323,13 @@ export default function AppCapturePage() {
     setStatus("loading");
     try {
       const result = await aiService.suggestStakeholdersFromText({
-        text: body,
-        source: source as "minutes" | "attendance" | "social_intel" | "pasted_report",
-        projectName: project?.name,
+        text,
+        source: source as
+          | "minutes"
+          | "attendance"
+          | "social_intel"
+          | "pasted_report",
+        projectName: project.name,
       });
       setExtract(result);
       setStatus("ready");
@@ -220,8 +341,13 @@ export default function AppCapturePage() {
   }
 
   async function runBrief() {
-    if (!body.trim()) {
+    const text = composedBody();
+    if (!text) {
       pushToast("Paste source text first", "error");
+      return;
+    }
+    if (!projectId) {
+      pushToast("Select a project first", "error");
       return;
     }
     setBriefStatus("loading");
@@ -229,7 +355,7 @@ export default function AppCapturePage() {
       const result = await aiService.generateReportBrief({
         audience: "internal",
         projectId: projectId || undefined,
-        sourceText: body,
+        sourceText: text,
         sourceLabel: NARRATIVE_SOURCES.find((s) => s.id === source)?.label,
       });
       setBrief(result);
@@ -242,9 +368,14 @@ export default function AppCapturePage() {
 
   function applyStakeholders() {
     if (!extract || !narrative) return;
+    if (!projectId || !project) {
+      pushToast("Select a project first", "error");
+      return;
+    }
     requireEmailThen("save", () => {
       void (async () => {
         const ids: string[] = [];
+        const savedBody = composedBody();
         for (const row of extract.stakeholders) {
           const id = `STK-C${Date.now().toString().slice(-5)}${ids.length}`;
           const stakeholder: Stakeholder = {
@@ -257,7 +388,7 @@ export default function AppCapturePage() {
             interests: [],
             tags: [source, "from-capture"],
             summary: row.rationale,
-            projectIds: projectId ? [projectId] : [],
+            projectIds: [projectId],
             source: "trial",
             countryCode: "ZA",
             createdAt: new Date().toISOString(),
@@ -270,9 +401,9 @@ export default function AppCapturePage() {
           id: captureId,
           source,
           title: title.trim() || extract.briefTitle,
-          body: body.trim(),
-          projectId: project?.id,
-          projectName: project?.name,
+          body: savedBody,
+          projectId: project.id,
+          projectName: project.name,
           createdAt: new Date().toISOString(),
           appliedStakeholderIds: ids,
         };
@@ -282,26 +413,31 @@ export default function AppCapturePage() {
           .map((b) => b.trim())
           .filter(Boolean)
           .slice(0, 6);
+        // Narrative-only: EngagementSource excludes pack sources.
         const engagementSource = source as EngagementSource;
+        const metaPlace = placeFromMeta(fieldMeta);
+        const kindFromMeta = asEngagementKind(fieldMeta.kind);
+        const kind: EngagementKind =
+          kindFromMeta ??
+          (source === "attendance"
+            ? "meeting"
+            : source === "social_intel"
+              ? "other"
+              : source === "pasted_report"
+                ? "briefing"
+                : "consultation");
         await engagementService.save({
           id: createEngagementId(),
           title: record.title,
-          kind:
-            source === "attendance"
-              ? "meeting"
-              : source === "social_intel"
-                ? "other"
-                : source === "pasted_report"
-                  ? "briefing"
-                  : "consultation",
+          kind,
           status: "held",
           heldOn: new Date().toISOString().slice(0, 10),
-          ward: project?.ward ?? "",
-          placeLabel: project?.name,
-          projectId: project?.id ?? null,
+          ward: metaPlace || project.ward || "",
+          placeLabel: metaPlace || project.name,
+          projectId: project.id,
           summary:
             brief?.executiveSummary?.trim() ||
-            body.trim().slice(0, 480) ||
+            savedBody.slice(0, 480) ||
             extract.briefTitle,
           attendeesLabel:
             extract.stakeholders.map((s) => s.name).join(", ") ||
@@ -356,7 +492,7 @@ export default function AppCapturePage() {
       pushToast("Select a report pack first", "error");
       return;
     }
-    if (!projectId) {
+    if (!projectId || !project) {
       pushToast("Link a project — report packs are project-scoped", "error");
       return;
     }
@@ -368,12 +504,10 @@ export default function AppCapturePage() {
         const record = {
           id: createCaptureId(),
           source: packSource,
-          title:
-            title.trim() ||
-            `${meta.label}${project ? ` — ${project.name}` : ""}`,
+          title: title.trim() || `${meta.label} — ${project.name}`,
           body: bodyText,
-          projectId: project?.id,
-          projectName: project?.name,
+          projectId: project.id,
+          projectName: project.name,
           createdAt: new Date().toISOString(),
           structured: packData,
         };
@@ -384,12 +518,17 @@ export default function AppCapturePage() {
           `${meta.label} saved — available to Reports for this project`,
           "success",
         );
-        setPackData(emptyStructured(packSource));
+        setPackData(structuredFromProject(packSource, project));
         setTitle("");
       } finally {
         setPackSaving(false);
       }
     });
+  }
+
+  function handleDossierSaved(next: Project) {
+    setProjects((rows) => rows.map((p) => (p.id === next.id ? next : p)));
+    pushToast("Project details saved — field notes and packs unlocked", "success");
   }
 
   return (
@@ -412,9 +551,15 @@ export default function AppCapturePage() {
         <PageHeader
           eyebrow="Engagement + report capture"
           title="Capture hub"
-          description="Log meetings and structured project packs that feed Monthly, GRM, ESG, B-BBEE, Employment, CSI, MEL, and Board reports. Review AI suggestions before Apply."
+          description="Start with the project once — funder, place, targets, promises. Then link field notes, issues, and period report packs without re-entering the heavy details."
           actions={
             <div className="flex flex-wrap gap-2">
+              <Link
+                href="/app/projects"
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+              >
+                Projects
+              </Link>
               <Link
                 href="/app/reports"
                 className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
@@ -437,224 +582,274 @@ export default function AppCapturePage() {
           }
         />
 
-        <section className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-tl-ink-muted">
-            Field notes
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {NARRATIVE_SOURCES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => selectSource(s.id)}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium ${
-                  source === s.id
-                    ? "bg-tl-trust text-white"
-                    : "border border-tl-line bg-tl-surface hover:bg-tl-paper"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-tl-ink-muted">
-            Project report packs
-          </p>
-          <p className="text-sm text-tl-ink-muted">
-            Structured inputs mapped to report kinds — fill each pack for the
-            linked project and period.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {PACK_CAPTURE_SOURCES.map((id: PackCaptureSource) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => selectSource(id)}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium ${
-                  source === id
-                    ? "bg-tl-trust text-white"
-                    : "border border-tl-line bg-tl-surface hover:bg-tl-paper"
-                }`}
-              >
-                {PACK_SOURCE_META[id].label}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {narrative ? (
-          <p className="text-sm text-tl-ink-muted">
-            {NARRATIVE_SOURCES.find((s) => s.id === source)?.hint}
-          </p>
-        ) : null}
-
-        <CaptureTemplateBar
-          source={source}
-          planId={planId}
-          onInsert={(skeleton) => setBody(skeleton)}
-        />
-
-        <div className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium" htmlFor="cap-title">
-              Title
-            </label>
-            <input
-              id="cap-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-              placeholder={
-                narrative
-                  ? "e.g. Ward 12 consultation — 18 Jul"
-                  : "e.g. August 2026 B-BBEE pack"
-              }
-            />
-          </div>
+        <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
           <div>
             <label
               className="mb-1 block text-sm font-medium"
               htmlFor="cap-project"
             >
-              Linked project
+              Project <span className="text-tl-ink-muted">(required first)</span>
             </label>
             <select
               id="cap-project"
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
               className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-              required={!narrative}
+              required
             >
-              <option value="">
-                {narrative ? "No project" : "Select project"}
-              </option>
+              <option value="">Select project</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name}
+                  {projectChipLabel(p)}
                 </option>
               ))}
             </select>
-            {!narrative ? (
-              <p className="mt-1 text-xs text-tl-ink-muted">
-                Report packs must link to a project so ESG / B-BBEE / GRM writers
-                can scope evidence.
-              </p>
-            ) : null}
+            <p className="mt-1 text-xs text-tl-ink-muted">
+              No project yet?{" "}
+              <Link href="/app/projects" className="text-tl-trust-ink underline">
+                Add one under Projects
+              </Link>
+              .
+            </p>
           </div>
 
-          {narrative ? (
-            <form
-              className="space-y-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void runExtract();
-              }}
-            >
+          {project && !dossierReady ? (
+            <div className="space-y-3">
+              <p className="text-sm text-tl-ink-muted">
+                Complete the project dossier once. Field notes and period packs
+                stay locked until the basics are saved.
+              </p>
+              <ProjectDossierForm
+                project={project}
+                compact
+                onSaved={handleDossierSaved}
+              />
+            </div>
+          ) : null}
+
+          {project && dossierReady ? (
+            <div className="rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-xs text-tl-ink-muted">
+              <p className="font-medium text-tl-ink">Using saved project details</p>
+              <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                {dossierSummaryLines(project)
+                  .slice(0, 6)
+                  .map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {!projectId ? (
+            <p className="text-sm text-tl-ink-muted">
+              Select a project to unlock field notes and report packs.
+            </p>
+          ) : null}
+        </section>
+
+        {dossierReady && project ? (
+          <>
+            <section className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-tl-ink-muted">
+                Field notes
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {NARRATIVE_SOURCES.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => selectSource(s.id)}
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+                      source === s.id
+                        ? "bg-tl-trust text-white"
+                        : "border border-tl-line bg-tl-surface hover:bg-tl-paper"
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-tl-ink-muted">
+                Project report packs
+              </p>
+              <p className="text-sm text-tl-ink-muted">
+                Structured inputs mapped to report kinds — fill each pack for
+                this project and period. Employment and B-BBEE targets prefill
+                from the dossier when available.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {PACK_CAPTURE_SOURCES.map((id: PackCaptureSource) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => selectSource(id)}
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+                      source === id
+                        ? "bg-tl-trust text-white"
+                        : "border border-tl-line bg-tl-surface hover:bg-tl-paper"
+                    }`}
+                  >
+                    {PACK_SOURCE_META[id].label}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {narrative ? (
+              <p className="text-sm text-tl-ink-muted">
+                {NARRATIVE_SOURCES.find((s) => s.id === source)?.hint}
+              </p>
+            ) : null}
+
+            <CaptureTemplateBar
+              source={source}
+              planId={planId}
+              onInsert={(skeleton) => setBody(skeleton)}
+            />
+
+            <div className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4">
               <div>
                 <label
                   className="mb-1 block text-sm font-medium"
-                  htmlFor="cap-body"
+                  htmlFor="cap-title"
                 >
-                  Source text
+                  Title
                 </label>
-                <textarea
-                  id="cap-body"
-                  required
-                  rows={8}
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
+                <input
+                  id="cap-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-                  placeholder="Insert a blank template, or paste filled minutes / register text…"
-                />
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <AiAssistButton
-                  label="Suggest stakeholders"
-                  onClick={() => void runExtract()}
-                  loading={status === "loading"}
-                  disabled={!body.trim()}
-                />
-                <AiAssistButton
-                  label="Generate brief"
-                  onClick={() => void runBrief()}
-                  loading={briefStatus === "loading"}
-                  disabled={!body.trim()}
+                  placeholder={
+                    narrative
+                      ? "e.g. Ward 12 consultation — 18 Jul"
+                      : "e.g. August 2026 B-BBEE pack"
+                  }
                 />
               </div>
 
-              <AiSuggestionPanel
-                title="Stakeholder suggestions"
-                status={status}
-                error={error}
-                model={extract?.model}
-                promptVersion={extract?.promptVersion}
-                confidence={extract?.confidence}
-                onApply={extract ? applyStakeholders : undefined}
-                applyLabel="Apply to CRM"
-              >
-                {extract ? (
-                  <ul className="space-y-2 text-sm">
-                    {extract.stakeholders.map((s) => (
-                      <li key={`${s.name}-${s.kind}`}>
-                        <span className="font-medium">{s.name}</span>
-                        <span className="text-tl-ink-muted">
-                          {" "}
-                          · {s.kind.replaceAll("_", " ")} · {s.influence}
-                        </span>
-                        <p className="text-xs text-tl-ink-muted">{s.rationale}</p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </AiSuggestionPanel>
-
-              <AiSuggestionPanel
-                title="AI brief from source"
-                status={briefStatus}
-                model={brief?.model}
-                promptVersion={brief?.promptVersion}
-              >
-                {brief ? (
-                  <div className="space-y-2 text-sm">
-                    <p className="font-medium">{brief.title}</p>
-                    <p>{brief.executiveSummary}</p>
-                    <p className="font-medium">Risks</p>
-                    <ul className="list-disc pl-5">
-                      {brief.keyRisks.map((r) => (
-                        <li key={r}>{r}</li>
-                      ))}
-                    </ul>
-                    <p className="font-medium">Actions</p>
-                    <ul className="list-disc pl-5">
-                      {brief.recommendedActions.map((r) => (
-                        <li key={r}>{r}</li>
-                      ))}
-                    </ul>
+              {narrative ? (
+                <form
+                  className="space-y-4"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    void runExtract();
+                  }}
+                >
+                  <CaptureFieldNoteMeta
+                    project={project}
+                    meta={fieldMeta}
+                    onChange={setFieldMeta}
+                  />
+                  <div>
+                    <label
+                      className="mb-1 block text-sm font-medium"
+                      htmlFor="cap-body"
+                    >
+                      Source text
+                    </label>
+                    <textarea
+                      id="cap-body"
+                      required
+                      rows={8}
+                      value={body}
+                      onChange={(e) => setBody(e.target.value)}
+                      className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                      placeholder="Insert a blank template, or paste filled minutes / register text…"
+                    />
                   </div>
-                ) : null}
-              </AiSuggestionPanel>
-            </form>
-          ) : packSource ? (
-            <div className="space-y-4">
-              <CapturePackForm
-                pack={packSource}
-                value={packData}
-                onChange={setPackData}
-              />
-              <button
-                type="button"
-                onClick={savePack}
-                disabled={packSaving}
-                className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-50"
-              >
-                {packSaving ? "Saving…" : "Save report pack"}
-              </button>
+                  <div className="flex flex-wrap gap-2">
+                    <AiAssistButton
+                      label="Suggest stakeholders"
+                      onClick={() => void runExtract()}
+                      loading={status === "loading"}
+                      disabled={!body.trim()}
+                    />
+                    <AiAssistButton
+                      label="Generate brief"
+                      onClick={() => void runBrief()}
+                      loading={briefStatus === "loading"}
+                      disabled={!body.trim()}
+                    />
+                  </div>
+
+                  <AiSuggestionPanel
+                    title="Stakeholder suggestions"
+                    status={status}
+                    error={error}
+                    model={extract?.model}
+                    promptVersion={extract?.promptVersion}
+                    confidence={extract?.confidence}
+                    onApply={extract ? applyStakeholders : undefined}
+                    applyLabel="Apply to CRM"
+                  >
+                    {extract ? (
+                      <ul className="space-y-2 text-sm">
+                        {extract.stakeholders.map((s) => (
+                          <li key={`${s.name}-${s.kind}`}>
+                            <span className="font-medium">{s.name}</span>
+                            <span className="text-tl-ink-muted">
+                              {" "}
+                              · {s.kind.replaceAll("_", " ")} · {s.influence}
+                            </span>
+                            <p className="text-xs text-tl-ink-muted">
+                              {s.rationale}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </AiSuggestionPanel>
+
+                  <AiSuggestionPanel
+                    title="AI brief from source"
+                    status={briefStatus}
+                    model={brief?.model}
+                    promptVersion={brief?.promptVersion}
+                  >
+                    {brief ? (
+                      <div className="space-y-2 text-sm">
+                        <p className="font-medium">{brief.title}</p>
+                        <p>{brief.executiveSummary}</p>
+                        <p className="font-medium">Risks</p>
+                        <ul className="list-disc pl-5">
+                          {brief.keyRisks.map((r) => (
+                            <li key={r}>{r}</li>
+                          ))}
+                        </ul>
+                        <p className="font-medium">Actions</p>
+                        <ul className="list-disc pl-5">
+                          {brief.recommendedActions.map((r) => (
+                            <li key={r}>{r}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </AiSuggestionPanel>
+                </form>
+              ) : packSource ? (
+                <div className="space-y-4">
+                  <CapturePackForm
+                    pack={packSource}
+                    value={packData}
+                    onChange={setPackData}
+                  />
+                  <button
+                    type="button"
+                    onClick={savePack}
+                    disabled={packSaving}
+                    className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-50"
+                  >
+                    {packSaving ? "Saving…" : "Save report pack"}
+                  </button>
+                </div>
+              ) : null}
             </div>
-          ) : null}
-        </div>
+          </>
+        ) : null}
 
         <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
           <h2 className="text-base font-semibold">Recent captures</h2>

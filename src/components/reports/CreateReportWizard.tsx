@@ -50,7 +50,12 @@ import type {
   AiSuggestionStatus,
 } from "@/types/ai";
 import type { Incident } from "@/types/incident";
-import type { Project } from "@/types/project";
+import { dossierSummaryLines } from "@/lib/projectDossier";
+import {
+  projectChipLabel,
+  projectHasDossierBasics,
+  type Project,
+} from "@/types/project";
 import type { UserRole } from "@/types/rbac";
 
 type CreateReportWizardProps = {
@@ -110,9 +115,10 @@ export function CreateReportWizard({
     setError(null);
     setSavedId(null);
     // Customer workspace: org/trial rows only — never demo INC-* seed.
-    setProjects(listWorkspaceProjects());
+    const rows = listWorkspaceProjects();
+    setProjects(rows);
     setAllIncidents(listWorkspaceIncidents());
-    setProjectId("");
+    setProjectId(rows[0]?.id || "");
   }, []);
 
   useEffect(() => {
@@ -120,6 +126,7 @@ export function CreateReportWizard({
     const scopedFacts = buildPeriodActivityFacts(allIncidents, {
       projectId: projectId || undefined,
       projectName: project?.name,
+      project,
     });
     setFacts(scopedFacts);
     setFactsBlock(factsToPromptBlock(scopedFacts));
@@ -147,6 +154,11 @@ export function CreateReportWizard({
 
   async function handleCompose() {
     setError(null);
+    if (!projectId || !project) {
+      setError("Select a project first — reports are generated from its dossier and linked cases.");
+      setStatus("error");
+      return;
+    }
     const included = catalogue.filter(
       (s) => s.allowed && selected.has(s.id),
     );
@@ -161,13 +173,24 @@ export function CreateReportWizard({
       return;
     }
     if (!facts.attended.length) {
-      setError(
-        isCustomerWorkspaceClient()
-          ? "No cases in your org data space yet. Import CSV under Data space, or log a case first."
-          : "No workspace cases available to write from. Log a case first, or open a trial / live workspace.",
-      );
-      setStatus("error");
-      return;
+      const dossierOk = projectHasDossierBasics(project);
+      const dossierKinds: ReportKind[] = [
+        "bbbee",
+        "csi",
+        "esg",
+        "mel",
+        "board_investor",
+        "monthly_activity",
+      ];
+      if (!(dossierOk && dossierKinds.includes(kind))) {
+        setError(
+          isCustomerWorkspaceClient()
+            ? "No cases in your org data space yet. Import CSV under Data space, or log a case first — or complete the project dossier for empowerment / ESG packs."
+            : "No workspace cases available. Log a case, or complete project details under Capture for programme reports.",
+        );
+        setStatus("error");
+        return;
+      }
     }
     setStatus("loading");
     try {
@@ -320,6 +343,56 @@ export function CreateReportWizard({
       </div>
 
       <section className="grid gap-4 rounded-lg border border-tl-line bg-tl-surface p-4 sm:grid-cols-2">
+        <label className="block text-sm sm:col-span-2">
+          <span className="mb-1 block font-medium">Project</span>
+          <select
+            className="w-full rounded-md border border-tl-line px-3 py-2"
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            required
+          >
+            <option value="">Select project</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>
+                {projectChipLabel(p)}
+              </option>
+            ))}
+          </select>
+          {project ? (
+            <div className="mt-2 rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-xs text-tl-ink-muted">
+              {projectHasDossierBasics(project) ? (
+                <ul className="list-disc space-y-0.5 pl-4">
+                  {dossierSummaryLines(project)
+                    .slice(0, 6)
+                    .map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                </ul>
+              ) : (
+                <p>
+                  Project details are thin — complete them once under{" "}
+                  <Link href="/app/capture" className="underline">
+                    Capture
+                  </Link>{" "}
+                  or{" "}
+                  <Link
+                    href={`/app/projects/${project.id}`}
+                    className="underline"
+                  >
+                    project page
+                  </Link>
+                  . Reports reuse that dossier so you do not retype funder,
+                  budget, geo, or empowerment targets.
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="mt-1 text-xs text-tl-ink-muted">
+              Choose the project first. Programme facts come from its dossier —
+              you only pick report type and topics.
+            </p>
+          )}
+        </label>
         <label className="block text-sm">
           <span className="mb-1 block font-medium">Report type</span>
           <select
@@ -348,28 +421,13 @@ export function CreateReportWizard({
             ))}
           </select>
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm sm:col-span-2">
           <span className="mb-1 block font-medium">Period</span>
           <input
             className="w-full rounded-md border border-tl-line px-3 py-2"
             value={periodLabel}
             onChange={(e) => setPeriodLabel(e.target.value)}
           />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium">Project</span>
-          <select
-            className="w-full rounded-md border border-tl-line px-3 py-2"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-          >
-            <option value="">All / portfolio</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
         </label>
       </section>
 

@@ -20,6 +20,7 @@ import {
   listTrialIncidents,
   listTrialProjects,
 } from "@/lib/trialStore";
+import { mergeProjectsWithDossiers } from "@/lib/projectDossier";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
@@ -31,13 +32,12 @@ function mergeById<T extends { id: string }>(rows: T[]): T[] {
   return [...map.values()];
 }
 
-/** Projects for the current browser workspace. */
+/** Projects for the current browser workspace (with dossier overlay). */
 export function listWorkspaceProjects(seed: Project[] = []): Project[] {
-  if (isCustomerWorkspaceClient()) {
-    const orgId = getActiveOrgId();
-    return mergeById([...listOrgProjects(orgId), ...listTrialProjects()]);
-  }
-  return mergeById([...mockProjects, ...seed, ...listDemoProjects()]);
+  const rows = isCustomerWorkspaceClient()
+    ? mergeById([...listOrgProjects(getActiveOrgId()), ...listTrialProjects()])
+    : mergeById([...mockProjects, ...seed, ...listDemoProjects()]);
+  return mergeProjectsWithDossiers(rows);
 }
 
 /** Incidents for the current browser workspace. */

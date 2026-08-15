@@ -27,6 +27,8 @@ import {
 } from "@/lib/trialStore";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import { listWorkspaceProjects } from "@/lib/workspaceData";
+import { dossierSummaryLines, mergeProjectDossier } from "@/lib/projectDossier";
+import { projectChipLabel, projectHasDossierBasics } from "@/types/project";
 import { aiService } from "@/services/aiService";
 import { projectService } from "@/services/projectService";
 import type { AiSuggestionStatus, IncidentTriageSuggestion } from "@/types/ai";
@@ -88,19 +90,46 @@ export default function AppReportIssuePage() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      const trial = readTrialModeFromDocument();
-      if (trial) ensureTrialSeedProject();
-      const seeded = trial ? [] : await projectService.list();
-      if (cancelled) return;
-      const rows = listWorkspaceProjects(seeded);
-      setProjects(rows);
-      if (rows[0]) setProjectId(rows[0].id);
-    })();
+    const frame = requestAnimationFrame(() => {
+      void (async () => {
+        const trial = readTrialModeFromDocument();
+        if (trial) ensureTrialSeedProject();
+        const seeded = trial ? [] : await projectService.list();
+        if (cancelled) return;
+        const rows = listWorkspaceProjects(seeded).map(mergeProjectDossier);
+        setProjects(rows);
+        if (rows[0]) setProjectId(rows[0].id);
+      })();
+    });
     return () => {
       cancelled = true;
+      cancelAnimationFrame(frame);
     };
   }, []);
+
+  // When project changes, prefill geo from its dossier so issue linking stays light.
+  useEffect(() => {
+    const project = projects.find((p) => p.id === projectId);
+    if (!project?.dossier?.geo && !project?.ward) return;
+    const ward = project.dossier?.geo?.wardName || project.ward;
+    const muni =
+      project.dossier?.geo?.municipalityName || project.municipality;
+    if (!ward && !muni) return;
+    setGeo({
+      countryCode: project.dossier?.geo?.countryCode || "ZA",
+      countryName: "South Africa",
+      provinceName: project.dossier?.geo?.provinceName || "",
+      municipalityName: muni || "",
+      wardName: ward || "",
+      wardId: ward ? `dossier-${ward}` : undefined,
+      districtName: muni || "",
+    });
+    setGeoLabel(
+      [ward, muni, project.dossier?.geo?.provinceName]
+        .filter(Boolean)
+        .join(", "),
+    );
+  }, [projectId, projects]);
 
   const selectedProject = projects.find((p) => p.id === projectId);
   const escalation =
@@ -123,8 +152,18 @@ export default function AppReportIssuePage() {
         pushToast("Enter a project name", "error");
         return;
       }
-    } else if (!projectId) {
+      setGeoOpen(true);
+      return;
+    }
+    if (!projectId) {
       pushToast("Select or create a project", "error");
+      return;
+    }
+    // Project dossier already has ward — skip geo wizard and go to categorise.
+    const project = projects.find((p) => p.id === projectId);
+    const ward = project?.dossier?.geo?.wardName || project?.ward;
+    if (ward && geo) {
+      setPhase("categorise");
       return;
     }
     setGeoOpen(true);
@@ -310,9 +349,9 @@ export default function AppReportIssuePage() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Report an issue</h1>
         <p className="mt-2 text-sm text-tl-ink-muted">
-          Link to a project, capture reporter and location (Country → Province →
-          Town → DM → TC → Ward), then categorise. Junior filings surface on the
-          supervisor queue.
+          Pick the project first — funder, geo, and programme facts come from
+          its dossier. Then describe the issue and categorise. New projects need
+          a one-time location capture.
         </p>
       </div>
 
@@ -341,12 +380,79 @@ export default function AppReportIssuePage() {
           onSubmit={handleDetailsContinue}
           className="space-y-5 rounded-lg border border-tl-line bg-tl-surface p-4"
         >
+          <div className="space-y-3">
+            <p className="text-sm font-medium">1. Project</p>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={creatingProject}
+                onChange={(e) => setCreatingProject(e.target.checked)}
+                className="rounded border-tl-line"
+              />
+              Add a new project
+            </label>
+            {creatingProject ? (
+              <input
+                required
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                placeholder="New project name"
+              />
+            ) : (
+              <select
+                required
+                value={projectId}
+                onChange={(e) => setProjectId(e.target.value)}
+                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              >
+                <option value="">Select project</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {projectChipLabel(p)}
+                  </option>
+                ))}
+              </select>
+            )}
+            {selectedProject && !creatingProject ? (
+              <div className="rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-xs text-tl-ink-muted">
+                {projectHasDossierBasics(selectedProject) ? (
+                  <>
+                    <p className="font-medium text-tl-ink">
+                      Using saved project details
+                    </p>
+                    <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                      {dossierSummaryLines(selectedProject)
+                        .slice(0, 5)
+                        .map((line) => (
+                          <li key={line}>{line}</li>
+                        ))}
+                    </ul>
+                    {geoLabel ? (
+                      <p className="mt-2 text-tl-ink">
+                        Location ready: {geoLabel}
+                      </p>
+                    ) : null}
+                  </>
+                ) : (
+                  <p>
+                    Project details are thin. Complete them once under{" "}
+                    <Link href="/app/capture" className="underline">
+                      Capture
+                    </Link>{" "}
+                    so future issues only need a short description.
+                  </p>
+                )}
+              </div>
+            ) : null}
+          </div>
+
           <div>
             <label
               htmlFor="description"
               className="mb-1 block text-sm font-medium"
             >
-              1. Issue to be reported
+              2. Issue to be reported
             </label>
             <textarea
               id="description"
@@ -360,7 +466,7 @@ export default function AppReportIssuePage() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-sm font-medium">2. Reporter</p>
+            <p className="text-sm font-medium">3. Reporter</p>
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -390,51 +496,12 @@ export default function AppReportIssuePage() {
             ) : null}
           </div>
 
-          <div className="space-y-3">
-            <p className="text-sm font-medium">3. Project</p>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={creatingProject}
-                onChange={(e) => setCreatingProject(e.target.checked)}
-                className="rounded border-tl-line"
-              />
-              Add a new project
-            </label>
-            {creatingProject ? (
-              <input
-                required
-                value={newProjectName}
-                onChange={(e) => setNewProjectName(e.target.value)}
-                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-                placeholder="New project name"
-              />
-            ) : (
-              <select
-                required
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-              >
-                <option value="">Select project</option>
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            )}
-            <p className="text-xs text-tl-ink-muted">
-              The project appears on role dashboards after save.
-            </p>
-          </div>
-
           <div className="rounded-md border border-dashed border-tl-line bg-tl-paper/50 px-3 py-3 text-sm text-tl-ink-muted">
-            <p className="font-medium text-tl-ink">4. Location (next)</p>
+            <p className="font-medium text-tl-ink">4. Location</p>
             <p className="mt-1">
-              Continue opens Country → Province → Town → DM → Traditional
-              council → Ward. Choose from pre-loaded places, or add if yours is
-              missing.
+              {geoLabel && !creatingProject
+                ? "Project geo is on file — continue goes straight to categorise. You can still open the full location wizard if needed."
+                : "Continue opens Country → Province → Town → DM → Traditional council → Ward for new projects or when geo is missing."}
             </p>
           </div>
 
@@ -442,7 +509,9 @@ export default function AppReportIssuePage() {
             type="submit"
             className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
           >
-            Continue to location
+            {geoLabel && !creatingProject
+              ? "Continue to categorise"
+              : "Continue to location"}
           </button>
         </form>
       ) : (
