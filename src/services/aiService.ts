@@ -336,30 +336,36 @@ function mockActivityReport(
   };
 }
 
+function labeledExtractSuggestion(
+  input: StakeholderExtractRequest,
+  labeled: ReturnType<typeof parseLabeledStakeholders>,
+): StakeholderExtractSuggestion {
+  const title =
+    parseLabeledTitle(input.text) ||
+    `Capture brief (${input.source.replaceAll("_", " ")})`;
+  return {
+    stakeholders: labeled,
+    briefTitle: title,
+    briefSummary: labeled.length
+      ? `Mapped ${labeled.length} named ${labeled.length === 1 ? "person" : "people"} from labeled fields for human review before CRM apply.`
+      : "Labeled template detected but no filled Name fields yet. Complete the attendee slots, then suggest again.",
+    confidence: labeled.length ? 0.86 : 0.4,
+    model: MODEL,
+    promptVersion: `${PROMPT_VERSION}-labeled-fields`,
+  };
+}
+
+function hasLabeledNameSlots(text: string): boolean {
+  return /(?:^|\n)[ \t]*Name[ \t]*:/i.test(text);
+}
+
 function mockStakeholderExtract(
   input: StakeholderExtractRequest,
 ): StakeholderExtractSuggestion {
   const text = input.text;
   const labeled = parseLabeledStakeholders(text);
-  const looksLikeTemplate =
-    /\b(MEETING MINUTES|ATTENDANCE REGISTER|FIELD NOTE|ATTENDEES)\b/i.test(
-      text,
-    ) || /(?:^|\n)\s*Name\s*:/i.test(text);
-
-  if (labeled.length || looksLikeTemplate) {
-    const title =
-      parseLabeledTitle(text) ||
-      `Capture brief (${input.source.replaceAll("_", " ")})`;
-    return {
-      stakeholders: labeled,
-      briefTitle: title,
-      briefSummary: labeled.length
-        ? `Mapped ${labeled.length} named ${labeled.length === 1 ? "person" : "people"} from labeled fields for human review before CRM apply.`
-        : "Labeled template detected but no filled Name fields yet. Complete the attendee slots, then suggest again.",
-      confidence: labeled.length ? 0.86 : 0.4,
-      model: MODEL,
-      promptVersion: `${PROMPT_VERSION}-labeled-fields`,
-    };
+  if (labeled.length || hasLabeledNameSlots(text)) {
+    return labeledExtractSuggestion(input, labeled);
   }
 
   const lines = text
@@ -468,6 +474,11 @@ export const aiService = {
   async suggestStakeholdersFromText(
     input: StakeholderExtractRequest,
   ): Promise<StakeholderExtractSuggestion> {
+    const labeled = parseLabeledStakeholders(input.text);
+    if (labeled.length || hasLabeledNameSlots(input.text)) {
+      if (USE_MOCK) await delay();
+      return labeledExtractSuggestion(input, labeled);
+    }
     if (USE_MOCK) {
       await delay();
       return mockStakeholderExtract(input);

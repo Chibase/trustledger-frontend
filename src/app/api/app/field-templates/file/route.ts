@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { fieldTemplateById } from "@/data/fieldTemplates";
 import { getCurrentUser } from "@/lib/auth";
+import { hasCapabilityForPlan } from "@/lib/entitlements";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
 import { buildResourcePackPdf } from "@/lib/resourceDocument";
 
@@ -19,6 +20,16 @@ export async function GET(request: Request) {
           "Sign in to a trial or live workspace to download plan templates, or unlock them on /resources.",
       },
       { status: 401 },
+    );
+  }
+
+  if (!hasCapabilityForPlan("captureHub", user.trialPlan)) {
+    return NextResponse.json(
+      {
+        error:
+          "Field templates in Capture hub are on Project and Institutional. Unlock the same PDFs on /resources, or upgrade.",
+      },
+      { status: 403 },
     );
   }
 
