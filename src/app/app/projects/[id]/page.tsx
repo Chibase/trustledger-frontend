@@ -2,14 +2,18 @@
 
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
+import { ProjectDossierForm } from "@/components/projects/ProjectDossierForm";
 import { listDemoProjects } from "@/lib/demoStore";
+import { mergeProjectDossier } from "@/lib/projectDossier";
 import { listTrialProjects } from "@/lib/trialStore";
 import { readTrialModeFromDocument } from "@/lib/trial";
+import { listWorkspaceProjects } from "@/lib/workspaceData";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import { dossierSummaryLines } from "@/lib/projectDossier";
 
 const currency = new Intl.NumberFormat("en-ZA", {
   style: "currency",
@@ -36,14 +40,19 @@ export default function AppProjectDetailPage({
         if (cancelled) return;
         const trial = readTrialModeFromDocument();
         const customer = isCustomerWorkspaceClient();
+        const fromWorkspace = listWorkspaceProjects().find((row) => row.id === id);
         const local = trial
           ? listTrialProjects().find((row) => row.id === id)
           : customer
             ? undefined
             : listDemoProjects().find((row) => row.id === id);
-        const resolved = local ?? remote ?? null;
+        const base = fromWorkspace ?? local ?? remote ?? null;
+        if (!base) {
+          setProject(null);
+          return;
+        }
+        const resolved = mergeProjectDossier(base);
         setProject(resolved);
-        if (!resolved) return;
         try {
           const rows = await incidentService.list({ projectId: resolved.id });
           if (!cancelled) setIncidents(rows);
@@ -139,10 +148,32 @@ export default function AppProjectDetailPage({
             <dd>{project.targetEndDate || "—"}</dd>
           </div>
         </dl>
+        {dossierSummaryLines(project).length ? (
+          <ul className="mt-4 list-disc space-y-1 pl-5 text-xs text-tl-ink-muted">
+            {dossierSummaryLines(project).map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <ProjectDossierForm
+          project={project}
+          onSaved={(next) => setProject(next)}
+        />
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
-        <h2 className="mb-3 font-semibold">Linked incidents</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-semibold">Linked incidents</h2>
+          <Link
+            href="/app/issues/report"
+            className="text-sm font-medium text-tl-trust-ink underline"
+          >
+            Log issue on this project
+          </Link>
+        </div>
         {incidents.length === 0 ? (
           <p className="text-tl-ink-muted">No incidents linked to this project.</p>
         ) : (

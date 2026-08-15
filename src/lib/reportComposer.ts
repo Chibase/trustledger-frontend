@@ -14,6 +14,7 @@ import type {
   ReportSectionId,
 } from "@/types/activityReport";
 import type { Incident } from "@/types/incident";
+import type { Project } from "@/types/project";
 
 export type PeriodActivityFacts = {
   attended: Incident[];
@@ -28,6 +29,8 @@ export type PeriodActivityFacts = {
   avgSentiment: number | null;
   projectName?: string;
   packs: AggregatedPackFacts;
+  /** Durable programme facts from the selected project dossier. */
+  dossier?: Project["dossier"];
 };
 
 export type ComposeNarrativeInput = {
@@ -137,7 +140,11 @@ function shortList(rows: Incident[], limit = 4): string {
 
 export function buildPeriodActivityFacts(
   incidents: Incident[],
-  options?: { projectId?: string; projectName?: string },
+  options?: {
+    projectId?: string;
+    projectName?: string;
+    project?: Project;
+  },
 ): PeriodActivityFacts {
   const scoped = options?.projectId
     ? incidents.filter((i) => i.projectId === options.projectId)
@@ -163,6 +170,69 @@ export function buildPeriodActivityFacts(
       c.source === "social_intel",
   );
   const packs = aggregatePackFacts(allCaptures, options?.projectId);
+  const dossier = options?.project?.dossier;
+
+  // Dossier baselines fill empty period packs so reports do not re-ask for programme facts.
+  if (dossier) {
+    if (!packs.projectProfiles.length) {
+      packs.projectProfiles.push({
+        periodLabel: undefined,
+        clientFunder: dossier.funder?.name,
+        ward: dossier.geo?.wardName,
+        municipality: dossier.geo?.municipalityName,
+        startDate: dossier.dates?.startDate,
+        targetEndDate: dossier.dates?.targetEndDate,
+        budgetTotal: dossier.budget?.authorisedZar,
+        publicSummary: dossier.siteDescription,
+        sector: dossier.sector,
+        siteDescription: dossier.siteDescription,
+      });
+    }
+    if (!packs.bbbee.length && dossier.empowermentTargets) {
+      packs.bbbee.push({
+        bbbeeLevel: dossier.empowermentTargets.bbbeeLevelTarget,
+        blackOwnershipPct: dossier.empowermentTargets.blackOwnershipTargetPct,
+        preferentialProcurementZar:
+          dossier.empowermentTargets.preferentialProcurementTargetZar,
+        skillsDevSpendZar: dossier.empowermentTargets.skillsDevTargetZar,
+        notes: dossier.empowermentTargets.womenYouthPwdTargets,
+      });
+    }
+    if (!packs.employment.length && dossier.empowermentTargets?.localHireTarget != null) {
+      packs.employment.push({
+        localHireTarget: dossier.empowermentTargets.localHireTarget,
+        wardOfOriginNotes: dossier.geo?.wardName,
+        notes: dossier.communityIntel?.neetYouthNotes,
+      });
+    }
+    if (!packs.budget.length && dossier.budget?.authorisedZar != null) {
+      packs.budget.push({
+        budgetTotalZar: dossier.budget.authorisedZar,
+        contingencyZar: dossier.budget.contingencyZar,
+      });
+    }
+    if (
+      !packs.esg.length &&
+      (dossier.communityIntel?.unemploymentRatePct != null ||
+        dossier.communityIntel?.structuresNotes)
+    ) {
+      packs.esg.push({
+        communityTrustNotes: [
+          dossier.communityIntel?.unemploymentRatePct != null
+            ? `Area unemployment ${dossier.communityIntel.unemploymentRatePct}%`
+            : null,
+          dossier.communityIntel?.structuresNotes
+            ? `Structures: ${dossier.communityIntel.structuresNotes}`
+            : null,
+          dossier.communityIntel?.localBusinessesNotes
+            ? `Businesses: ${dossier.communityIntel.localBusinessesNotes}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      });
+    }
+  }
 
   const evidence: EvidenceStubRef[] = meetingCaptures.slice(0, 12).map((c) => ({
     id: `ev-${c.id}`,
@@ -217,8 +287,12 @@ export function buildPeriodActivityFacts(
     trustIndex: trust.trustIndex,
     trustLabel: trust.label,
     avgSentiment: trust.avgSentiment,
-    projectName: options?.projectName || scoped[0]?.projectName,
+    projectName:
+      options?.projectName ||
+      options?.project?.name ||
+      scoped[0]?.projectName,
     packs,
+    dossier,
   };
 }
 
@@ -237,6 +311,9 @@ export function factsToPromptBlock(facts: PeriodActivityFacts): string {
     `Meetings/captures (${facts.meetingCaptures.length}): ${facts.meetingCaptures.map((c) => c.title).join("; ") || "none"}`,
     `Evidence stubs: ${facts.evidence.map((e) => e.label).join("; ")}`,
     `Pack captures — B-BBEE:${facts.packs.bbbee.length} Employment:${facts.packs.employment.length} CSI:${facts.packs.csi.length} ESG:${facts.packs.esg.length} GRM:${facts.packs.grm.length} Budget:${facts.packs.budget.length} Profile:${facts.packs.projectProfiles.length}`,
+    facts.dossier
+      ? `Project dossier — funder:${facts.dossier.funder?.name || "—"} ward:${facts.dossier.geo?.wardName || "—"} hire target:${facts.dossier.empowermentTargets?.localHireTarget ?? "—"} promises:${facts.dossier.promises?.length ?? 0}`
+      : "Project dossier: none",
   ].join("\n");
 }
 
