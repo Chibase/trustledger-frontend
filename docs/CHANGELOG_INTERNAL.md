@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-15 — Report create is project-first; pack drafts no longer fail INC-* check
+
+- Create report: choose project first (same list path as Capture, including Cloud/VIP), then type/topics; evidence summary shows dossier + Capture packs for that project.
+- `composeActivityReport` only requires INC-* citations when the selected project actually has cases — pack/dossier-only drafts no longer error.
+
 ## 2026-08-15 — Reports from dossier / Capture packs without cases
 
 - Customer workspaces can draft reports from project dossier + Capture packs when there are zero org cases (no more hard stop requiring CSV import / INC-* only).
