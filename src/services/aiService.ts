@@ -521,7 +521,17 @@ export const aiService = {
     if (looksLikeReportTemplateGuide(local.bodyMarkdown)) {
       throw new Error("Composer refused to return a template guide.");
     }
-    if (!/\bINC-\d+/i.test(local.bodyMarkdown)) {
+    let attendedCount = 0;
+    try {
+      const parsed = input.factsJson
+        ? (JSON.parse(input.factsJson) as PeriodActivityFacts)
+        : null;
+      attendedCount = parsed?.attended?.length ?? 0;
+    } catch {
+      attendedCount = 0;
+    }
+    // Pack/dossier-only drafts will not cite INC-* — that is expected.
+    if (attendedCount > 0 && !/\bINC-\d+/i.test(local.bodyMarkdown)) {
       throw new Error("Composer did not cite workspace case evidence (INC-*).");
     }
     return local;

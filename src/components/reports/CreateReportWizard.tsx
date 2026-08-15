@@ -27,6 +27,11 @@ import {
   sectionsForKind,
   tierMeetsMinimum,
 } from "@/config/reportCatalogue";
+import {
+  listCaptureRecords,
+  PACK_SOURCE_META,
+  type PackCaptureSource,
+} from "@/lib/captureStore";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPeriodActivityFacts,
@@ -40,18 +45,19 @@ import {
   purgeTemplateGuideReports,
   saveAuthoredReport,
 } from "@/lib/reportStore";
+import { dossierSummaryLines } from "@/lib/projectDossier";
 import {
   listWorkspaceIncidents,
   listWorkspaceProjects,
 } from "@/lib/workspaceData";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
+import { projectService } from "@/services/projectService";
 import type {
   ActivityReportComposeSuggestion,
   AiSuggestionStatus,
 } from "@/types/ai";
 import type { Incident } from "@/types/incident";
-import { dossierSummaryLines } from "@/lib/projectDossier";
 import {
   projectChipLabel,
   projectHasDossierBasics,
@@ -68,6 +74,20 @@ function currentMonthLabel() {
   return new Date().toLocaleString("en-ZA", {
     month: "long",
     year: "numeric",
+  });
+}
+
+function packEvidenceSummary(projectId: string): string[] {
+  const rows = listCaptureRecords().filter((r) => r.projectId === projectId);
+  const byPack = new Map<string, number>();
+  for (const row of rows) {
+    const pack = row.structured?.pack || row.source;
+    byPack.set(pack, (byPack.get(pack) || 0) + 1);
+  }
+  return [...byPack.entries()].map(([pack, count]) => {
+    const label =
+      PACK_SOURCE_META[pack as PackCaptureSource]?.label || pack;
+    return `${label} ×${count}`;
   });
 }
 
@@ -107,6 +127,7 @@ export function CreateReportWizard({
   }, [role]);
 
   useEffect(() => {
+    let cancelled = false;
     // Drop old Cloud LLM month-end drafts from this browser.
     setPurgedTemplates(purgeTemplateGuideReports());
     // Never keep a leftover Month-End paste in the editor across visits.
@@ -115,19 +136,43 @@ export function CreateReportWizard({
     setStatus("idle");
     setError(null);
     setSavedId(null);
-    // Customer workspace: org/trial rows only — never demo INC-* seed.
-    const rows = listWorkspaceProjects();
-    setProjects(rows);
-    setAllIncidents(listWorkspaceIncidents());
-    setProjectId(rows[0]?.id || "");
+
+    const frame = requestAnimationFrame(() => {
+      void (async () => {
+        // Same project list path as Capture — Cloud/VIP + local dossier overlay.
+        const seeded = await projectService.list().catch(() => [] as Project[]);
+        if (cancelled) return;
+        const rows = listWorkspaceProjects(seeded);
+        setProjects(rows);
+        setAllIncidents(listWorkspaceIncidents());
+        const fromQuery =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search).get("projectId")
+            : null;
+        const preferred =
+          (fromQuery && rows.some((p) => p.id === fromQuery) && fromQuery) ||
+          (rows.length === 1 ? rows[0].id : "");
+        setProjectId(preferred);
+      })();
+    });
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
   }, []);
 
   useEffect(() => {
-    const project = projects.find((p) => p.id === projectId);
+    if (!projectId) {
+      setFacts(null);
+      setFactsBlock("");
+      setEvidence([]);
+      return;
+    }
+    const selectedProject = projects.find((p) => p.id === projectId);
     const scopedFacts = buildPeriodActivityFacts(allIncidents, {
-      projectId: projectId || undefined,
-      projectName: project?.name,
-      project,
+      projectId,
+      projectName: selectedProject?.name,
+      project: selectedProject,
     });
     setFacts(scopedFacts);
     setFactsBlock(factsToPromptBlock(scopedFacts));
@@ -152,6 +197,16 @@ export function CreateReportWizard({
 
   const lockedSections = catalogue.filter((s) => !s.allowed);
   const project = projects.find((p) => p.id === projectId);
+  const packLines = projectId ? packEvidenceSummary(projectId) : [];
+
+  function selectProject(nextId: string) {
+    setProjectId(nextId);
+    setDraft(null);
+    setBody("");
+    setStatus("idle");
+    setError(null);
+    setSavedId(null);
+  }
 
   async function handleCompose() {
     setError(null);
@@ -294,10 +349,10 @@ export function CreateReportWizard({
       <div>
         <h1 className="font-display text-2xl font-semibold">Create a report</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Pick topics, then the local evidence writer drafts a finished report
-          from TrustLedger demo cases (e.g. INC-1001). Frappe Cloud / Grok is
-          not called for this step — that path returned generic month-end sales
-          templates. After write, confirm the model label shows{" "}
+          Choose the project first — same as Capture — then the local evidence
+          writer drafts from that project’s dossier, Capture packs, and linked
+          cases. Cloud LLM is not used for this step (it returned fill-in-the-blank
+          templates). Confirm the model label shows{" "}
           <span className="font-mono text-tl-ink">trustledger-evidence</span>.
         </p>
         {purgedTemplates > 0 ? (
@@ -305,26 +360,6 @@ export function CreateReportWizard({
             Removed {purgedTemplates} old placeholder draft
             {purgedTemplates === 1 ? "" : "s"} from this browser’s report
             library (Month-End / [Insert …] templates).
-          </p>
-        ) : null}
-        {facts ? (
-          <p className="mt-2 rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-xs text-tl-ink-muted">
-            <span className="font-medium text-tl-ink">Data in scope:</span>{" "}
-            {facts.attended.length} case
-            {facts.attended.length === 1 ? "" : "s"}
-            {facts.attended[0]
-              ? ` · ${facts.attended
-                  .slice(0, 4)
-                  .map((i) => i.id)
-                  .join(", ")}${facts.attended.length > 4 ? "…" : ""}`
-              : facts.packs.projectProfiles.length ||
-                  facts.packs.bbbee.length ||
-                  facts.packs.employment.length ||
-                  facts.dossier
-                ? " · project dossier / Capture packs"
-                : ""}
-            {" · "}trust {facts.trustIndex}/100 ({facts.trustLabel})
-            {project?.name ? ` · ${project.name}` : ""}
           </p>
         ) : null}
         <p className="mt-2 text-xs text-tl-ink-muted">
@@ -339,13 +374,20 @@ export function CreateReportWizard({
         </p>
       </div>
 
-      <section className="grid gap-4 rounded-lg border border-tl-line bg-tl-surface p-4 sm:grid-cols-2">
-        <label className="block text-sm sm:col-span-2">
-          <span className="mb-1 block font-medium">Project</span>
+      <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
+        <div>
+          <label
+            className="mb-1 block text-sm font-medium"
+            htmlFor="report-project"
+          >
+            Project{" "}
+            <span className="text-tl-ink-muted">(required first)</span>
+          </label>
           <select
-            className="w-full rounded-md border border-tl-line px-3 py-2"
+            id="report-project"
+            className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
             value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
+            onChange={(e) => selectProject(e.target.value)}
             required
           >
             <option value="">Select project</option>
@@ -355,41 +397,80 @@ export function CreateReportWizard({
               </option>
             ))}
           </select>
-          {project ? (
-            <div className="mt-2 rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-xs text-tl-ink-muted">
-              {projectHasDossierBasics(project) ? (
-                <ul className="list-disc space-y-0.5 pl-4">
-                  {dossierSummaryLines(project)
-                    .slice(0, 6)
-                    .map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                </ul>
-              ) : (
-                <p>
-                  Project details are thin — complete them once under{" "}
-                  <Link href="/app/capture" className="underline">
-                    Capture
-                  </Link>{" "}
-                  or{" "}
-                  <Link
-                    href={`/app/projects/${project.id}`}
-                    className="underline"
-                  >
-                    project page
-                  </Link>
-                  . Reports reuse that dossier so you do not retype funder,
-                  budget, geo, or empowerment targets.
-                </p>
-              )}
-            </div>
-          ) : (
-            <p className="mt-1 text-xs text-tl-ink-muted">
-              Choose the project first. Programme facts come from its dossier —
-              you only pick report type and topics.
+          <p className="mt-1 text-xs text-tl-ink-muted">
+            Reports use only the Capture packs and cases linked to this project.
+            No project yet?{" "}
+            <Link href="/app/projects" className="text-tl-trust-ink underline">
+              Add one under Projects
+            </Link>{" "}
+            or complete details under{" "}
+            <Link href="/app/capture" className="text-tl-trust-ink underline">
+              Capture
+            </Link>
+            .
+          </p>
+        </div>
+
+        {!projectId ? (
+          <p className="text-sm text-tl-ink-muted">
+            Select a project to unlock report type, topics, and AI draft.
+          </p>
+        ) : null}
+
+        {project ? (
+          <div className="rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-xs text-tl-ink-muted">
+            <p className="font-medium text-tl-ink">
+              Evidence for {project.name}
             </p>
-          )}
-        </label>
+            {projectHasDossierBasics(project) ? (
+              <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                {dossierSummaryLines(project)
+                  .slice(0, 6)
+                  .map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+              </ul>
+            ) : (
+              <p className="mt-1">
+                Project details are thin — complete them under{" "}
+                <Link href="/app/capture" className="underline">
+                  Capture
+                </Link>{" "}
+                so the report can reuse funder, geo, and empowerment facts.
+              </p>
+            )}
+            {packLines.length ? (
+              <p className="mt-2">
+                <span className="font-medium text-tl-ink">Capture packs:</span>{" "}
+                {packLines.join(" · ")}
+              </p>
+            ) : (
+              <p className="mt-2">
+                No Capture packs saved for this project yet — dossier baselines
+                still apply when present.
+              </p>
+            )}
+            {facts ? (
+              <p className="mt-2">
+                <span className="font-medium text-tl-ink">In scope:</span>{" "}
+                {facts.attended.length} case
+                {facts.attended.length === 1 ? "" : "s"}
+                {facts.attended[0]
+                  ? ` (${facts.attended
+                      .slice(0, 4)
+                      .map((i) => i.id)
+                      .join(", ")}${facts.attended.length > 4 ? "…" : ""})`
+                  : ""}
+                {" · "}trust {facts.trustIndex}/100 ({facts.trustLabel})
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </section>
+
+      {projectId && project ? (
+        <>
+      <section className="grid gap-4 rounded-lg border border-tl-line bg-tl-surface p-4 sm:grid-cols-2">
         <label className="block text-sm">
           <span className="mb-1 block font-medium">Report type</span>
           <select
@@ -431,12 +512,12 @@ export function CreateReportWizard({
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
         <h2 className="text-base font-semibold">Topics to cover</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          AI writes only the topics you select, citing demo/workspace case IDs
+          AI writes only the topics you select for{" "}
+          <span className="font-medium text-tl-ink">{project.name}</span>
           {facts
-            ? ` (${facts.attended.length} in scope · trust ${facts.trustIndex}/100)`
+            ? ` (${facts.attended.length} cases · ${packLines.length} pack type${packLines.length === 1 ? "" : "s"} · trust ${facts.trustIndex}/100)`
             : ""}
-          . Generic Frappe/sales month-end templates are blocked. Greyed topics
-          are above this desk grade.
+          . Greyed topics are above this desk grade.
         </p>
         <ul className="mt-3 space-y-2">
           {catalogue.map((section) => {
@@ -593,6 +674,8 @@ export function CreateReportWizard({
           Saved as <span className="font-medium text-tl-ink">{savedId}</span>.
           Open the dashboard report library to view by desk level.
         </p>
+      ) : null}
+        </>
       ) : null}
     </div>
   );
