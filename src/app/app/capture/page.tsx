@@ -298,6 +298,12 @@ export default function AppCapturePage() {
   }
 
   function hydratePackForm(pack: PackCaptureSource, forProject: Project) {
+    // Project profile SoT is the dossier; period packs SoT is the last capture.
+    if (pack === "project_profile") {
+      setPackData(structuredFromProject(pack, forProject));
+      setTitle(`${PACK_SOURCE_META[pack].label} — period pack`);
+      return;
+    }
     const latest = latestPackCapture(forProject.id, pack);
     if (latest?.structured?.pack === pack) {
       setPackData(latest.structured);
