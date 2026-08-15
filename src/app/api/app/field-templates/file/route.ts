@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { fieldTemplateById } from "@/data/fieldTemplates";
 import { getCurrentUser } from "@/lib/auth";
-import { hasCapabilityForPlan } from "@/lib/entitlements";
+import { PLAN_CAPABILITIES } from "@/config/entitlements";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
 import { buildResourcePackPdf } from "@/lib/resourceDocument";
 
@@ -23,7 +23,10 @@ export async function GET(request: Request) {
     );
   }
 
-  if (!hasCapabilityForPlan("captureHub", user.trialPlan)) {
+  const planAllowsCaptureHub = Boolean(
+    user.trialPlan && PLAN_CAPABILITIES[user.trialPlan].includes("captureHub"),
+  );
+  if (!planAllowsCaptureHub) {
     return NextResponse.json(
       {
         error:

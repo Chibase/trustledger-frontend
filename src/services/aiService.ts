@@ -355,16 +355,12 @@ function labeledExtractSuggestion(
   };
 }
 
-function hasLabeledNameSlots(text: string): boolean {
-  return /(?:^|\n)[ \t]*Name[ \t]*:/i.test(text);
-}
-
 function mockStakeholderExtract(
   input: StakeholderExtractRequest,
 ): StakeholderExtractSuggestion {
   const text = input.text;
   const labeled = parseLabeledStakeholders(text);
-  if (labeled.length || hasLabeledNameSlots(text)) {
+  if (labeled.length) {
     return labeledExtractSuggestion(input, labeled);
   }
 
@@ -475,7 +471,7 @@ export const aiService = {
     input: StakeholderExtractRequest,
   ): Promise<StakeholderExtractSuggestion> {
     const labeled = parseLabeledStakeholders(input.text);
-    if (labeled.length || hasLabeledNameSlots(input.text)) {
+    if (labeled.length) {
       if (USE_MOCK) await delay();
       return labeledExtractSuggestion(input, labeled);
     }
