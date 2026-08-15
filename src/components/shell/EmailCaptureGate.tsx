@@ -24,6 +24,11 @@ export function requireEmailThen(
     onReady();
     return;
   }
+  // If the gate UI is not mounted, never silently drop the action.
+  if (listeners.size === 0) {
+    onReady();
+    return;
+  }
   pending = { reason, onReady };
   notify();
 }
