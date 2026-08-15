@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-15 — ClickUp newsletter ops playbook (EM-2)
+
+- `docs/CLICKUP_NEWSLETTER_OPS.md`: fortnightly cadence, AI draft prompts, human approve gates, Frappe Newsletter handoff.
+- Defaults: audience `TL Marketing`; ClickUp never blasts — Desk send only.
+- Linked from `docs/FRAPPE_EMAIL_MARKETING.md`; packet EM-2 Done (playbook).
+
 ## 2026-08-15 — Resource packs download as PDF, no product CTA in the file
 
 - `/api/resources/file` streams a PDF (not HTML). Packs have no TrustLedger “with us” paragraph, next-step CTAs, or product filename — so teams can use them as they see fit.
