@@ -37,7 +37,7 @@ export function AiSuggestionPanel({
         <div>
           <h3 className="text-sm font-semibold text-tl-ink">{title}</h3>
           <p className="mt-1 text-xs text-tl-ink-muted">
-            Suggestion only — review before saving to the case record.
+            Suggestion only — review before saving.
           </p>
         </div>
         {typeof confidence === "number" && status === "ready" ? (

@@ -32,6 +32,7 @@ import {
   buildPeriodActivityFacts,
   factsToPromptBlock,
   looksLikeReportTemplateGuide,
+  periodFactsHaveWritableEvidence,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import {
@@ -172,25 +173,14 @@ export function CreateReportWizard({
       setStatus("error");
       return;
     }
-    if (!facts.attended.length) {
-      const dossierOk = projectHasDossierBasics(project);
-      const dossierKinds: ReportKind[] = [
-        "bbbee",
-        "csi",
-        "esg",
-        "mel",
-        "board_investor",
-        "monthly_activity",
-      ];
-      if (!(dossierOk && dossierKinds.includes(kind))) {
-        setError(
-          isCustomerWorkspaceClient()
-            ? "No cases in your org data space yet. Import CSV under Data space, or log a case first — or complete the project dossier for empowerment / ESG packs."
-            : "No workspace cases available. Log a case, or complete project details under Capture for programme reports.",
-        );
-        setStatus("error");
-        return;
-      }
+    if (!periodFactsHaveWritableEvidence(facts)) {
+      setError(
+        isCustomerWorkspaceClient()
+          ? "No project evidence yet. Complete project details under Capture (dossier / report packs), or log a case, before writing a report."
+          : "No workspace evidence yet. Log a case or complete project details under Capture.",
+      );
+      setStatus("error");
+      return;
     }
     setStatus("loading");
     try {
@@ -220,7 +210,7 @@ export function CreateReportWizard({
           "AI returned a template guide instead of a report. The evidence writer blocked it — try again.",
         );
       }
-      if (!/\bINC-\d+/i.test(result.bodyMarkdown)) {
+      if (facts.attended.length > 0 && !/\bINC-\d+/i.test(result.bodyMarkdown)) {
         throw new Error(
           "Draft missing case citations (INC-*). Evidence writer did not run — hard-refresh and retry.",
         );
@@ -234,7 +224,9 @@ export function CreateReportWizard({
       setBody(result.bodyMarkdown);
       setStatus("ready");
       pushToast(
-        `Report written from ${facts.attended.length} cases (e.g. ${facts.attended[0]?.id}) — review then save`,
+        facts.attended.length
+          ? `Report written from ${facts.attended.length} cases (e.g. ${facts.attended[0]?.id}) — review then save`
+          : "Report written from project dossier / Capture packs — review then save",
         "success",
       );
     } catch (err) {
@@ -325,7 +317,12 @@ export function CreateReportWizard({
                   .slice(0, 4)
                   .map((i) => i.id)
                   .join(", ")}${facts.attended.length > 4 ? "…" : ""}`
-              : ""}
+              : facts.packs.projectProfiles.length ||
+                  facts.packs.bbbee.length ||
+                  facts.packs.employment.length ||
+                  facts.dossier
+                ? " · project dossier / Capture packs"
+                : ""}
             {" · "}trust {facts.trustIndex}/100 ({facts.trustLabel})
             {project?.name ? ` · ${project.name}` : ""}
           </p>
