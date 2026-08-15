@@ -10,10 +10,6 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import {
-  NEXT_PRODUCT_VERSION_LABEL,
-  PRODUCT_VERSION_LABEL,
-} from "@/config/productVersion";
-import {
   FEATURED_INDICATOR_PLACES,
   mockIndicators,
 } from "@/data/mockIndicators";
@@ -100,9 +96,9 @@ export default function AppIntelligencePage() {
     <FeatureGate capability="esgIndicators">
       <div className="space-y-6">
         <PageHeader
-          eyebrow={`${NEXT_PRODUCT_VERSION_LABEL} · ${PRODUCT_VERSION_LABEL} desk remains`}
+          eyebrow="Intelligence / ESG"
           title="Intelligence / ESG"
-          description="Socio-economic indicator cards for priority places, with AI briefs (suggest → apply → save). Demo figures until Stats SA ingest lands."
+          description="Socio-economic indicator cards for priority places (Stats SA / Census baseline), with AI briefs (suggest → apply → save)."
           actions={
             <Link
               href="/app/geo"
@@ -139,7 +135,7 @@ export default function AppIntelligencePage() {
                 key={`${row.placeId}:${row.key}`}
                 label={row.label}
                 value={`${row.value}${row.unit === "%" ? "%" : ` ${row.unit}`}`}
-                hint={`${row.source ?? "Demo"}${row.year ? ` · ${row.year}` : ""}`}
+                hint={`${row.source ?? "Stats SA"}${row.year ? ` · ${row.year}` : ""}`}
                 tone={
                   row.key.includes("unemployment") && row.value >= 35
                     ? "attention"

@@ -173,7 +173,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 
 | Area | Status | Public language |
 |------|--------|-----------------|
-| Stats SA socio-economic ingest | Deferred | “Roadmap — indicators today are illustrative” |
+| Stats SA socio-economic baseline | Shipped (featured places) | Platform baseline on Intelligence / ESG — expand coverage; do not label demo |
 | Live Grok via srm-core | Deferred / mock default | “AI assist — human applies every suggestion” |
 | Full ESIP / GIS editing | V003+ | Never claim imminent |
 | Public community portal | V003+ | Not available |
@@ -229,7 +229,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Stakeholder CRM | — | — | ✓ | ✓ | **SRM engine — do not undersell** |
 | Engagements | — | — | ✓ | ✓ | SI core |
 | Commitments | — | — | ✓ | ✓ | SI core |
-| ESG / intelligence cards | — | — | ✓ | ✓ | Illustrative until Stats SA |
+| ESG / intelligence cards | — | — | ✓ | ✓ | Stats SA / Census baseline |
 | Desk graphs | — | — | ✓ | ✓ | |
 | Supervisor queue | — | — | ✓ | ✓ | |
 
@@ -281,7 +281,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 
 - Product: **TrustLedger** only — “Resolution you can audit.”
 - **Primary public voice: Trust** — every public surface should foreground trust, auditability, and social licence. Do not lead with tech stack or vendor names.
-- Operator company (footer/ops/legal only): Chibase Consulting — not a second product brand.
+- Operator company (footer/ops/legal only): Chibase Consulting — not a second product brand. Consulting packages are a **separate catalogue** (facilitation, MEL, IKS, field) available as an add-on to any TrustLedger plan at the client’s request, on Chibase’s own pricing — never a fifth software column (ADR-048).
 - Tone: clear, calm, institutional; Global South infrastructure & community trust.
 - Never invent features. If unsure, point to `/product` or `/ops/readiness` truth.
 - Public copy hosts: “TrustLedger Cloud” / “cloud” — never Frappe, Vercel, HubSpot, Interserv on marketing/FAQ/public agents (ADR-038 §6 / ADR-039).
@@ -291,11 +291,15 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 | Topic | Approved line |
 |-------|----------------|
 | What it is | TrustLedger helps operators run **grievance resolution** and **Stakeholder Intelligence** for projects where social licence decides whether work moves. |
-| Version | **Version 001** is the live resolution desk. **Version 002** Stakeholder Intelligence (registry, engagements, commitments) is in active use on **TrustLedger Cloud** for entitled plans — still deepening vs full TEDS blueprint. |
+| Desk vs SI | The **grievance desk** is the live case path (projects, incidents, evidence, reports). **Stakeholder Intelligence** is registry, engagements, and commitments on TrustLedger Cloud for entitled plans. Never name Version 001/002 or TEDS in public copy. |
 | How to start | Start a **14-day trial** (`/trial`) with your own data, or **Subscribe** (`/pay`). Learn features on `/product`. |
 | Live access | After provision, sign in at `/login/live` (email OTP when access email is on). |
 | AI | Suggestions only — a human **applies** before anything is saved. |
 | Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. |
+| Audiences | Funders, engineers, PMs, **MEL / M&E**, **social facilitators**, **community members / traditional authorities**, and **local government** — Global South, not one job title. |
+| Geography | South Africa **and** the Global South. ZA place packs are included baseline for SA plans. Do not invent unshipped national maps. |
+| Grounding | Cite operating procedures (seeding spine / daily loop), the SRM blueprint (six dimensions), and engagement practice. Be descriptive — not two vague sentences. |
+| IKS | Practice frame (named traditional authorities, place, participation trail, MEL evidence). Published IKS papers are a planned source; **do not invent titles or findings** until excerpts are loaded. |
 
 ### 6.3 What never to say
 
@@ -305,13 +309,15 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 - “Works offline as a native app.”  
 - Dual product names (AccordBridge); Interserv as product host.  
 - **Vendor brands in public copy:** Frappe, Vercel, HubSpot (or similar) in FAQ, hero, emails, or public agents.  
+- **Internal version labels:** Version 001, Version 002, V001, V002, TEDS, or “full TEDS blueprint” in marketing, FAQ, Themba, or the customer app. Speak in modules and plans.  
 - Promising multi-device durable ops for unpaid browser-only trial without Cloud provision.
+- Inventing IKS paper citations or finished geo packs for every Global South country.
 
 ### 6.4 Objection handling (agents)
 
 | Objection | Response |
 |-----------|----------|
-| “Is the CRM real?” | On **Project/Institutional** (or CRM add-on), stakeholders/engagements/commitments persist to **Frappe Cloud** when you are live. Trial keeps your own browser data until you go live. |
+| “Is the CRM real?” | On **Project/Institutional** (or CRM add-on), stakeholders/engagements/commitments persist to **TrustLedger Cloud** when you are live. Trial keeps your own browser data until you go live. |
 | “Can I try without paying?” | Yes — `/trial` for 14 days with your own projects; or assessment for readiness scoring. |
 | “Where is the demo?” | Sample preview retired. Use `/product` for feature purpose, then trial or live. |
 | “Mobile?” | Responsive web in the browser; no separate App Store app yet. |

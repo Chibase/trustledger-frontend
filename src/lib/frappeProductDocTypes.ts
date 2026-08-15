@@ -198,16 +198,43 @@ function authHeaders(key: string, secret: string): HeadersInit {
   };
 }
 
-async function docTypeExists(
+/**
+ * DocType meta is often 403 for non–System Manager API users even when the
+ * DocType exists. Treat 404 as missing; 200/403 (and resource list) as present.
+ */
+export async function frappeDocTypeExists(
   base: string,
   headers: HeadersInit,
   name: string,
 ): Promise<boolean> {
-  const res = await fetch(
+  const meta = await fetch(
     `${base}/api/resource/DocType/${encodeURIComponent(name)}`,
     { headers, cache: "no-store" },
   );
-  return res.ok;
+  if (meta.ok) return true;
+  if (meta.status === 404) return false;
+
+  const list = await fetch(
+    `${base}/api/method/frappe.client.get_list?doctype=DocType&fields=${encodeURIComponent(JSON.stringify(["name"]))}&filters=${encodeURIComponent(JSON.stringify([["name", "=", name]]))}&limit_page_length=1`,
+    { headers, cache: "no-store" },
+  );
+  if (list.ok) {
+    const json = (await list.json()) as { message?: unknown[] };
+    if (Array.isArray(json.message) && json.message.length > 0) return true;
+  }
+
+  // Last resort: listing the resource — DoesNotExistError ⇒ missing DocType
+  const resource = await fetch(
+    `${base}/api/resource/${encodeURIComponent(name)}?limit_page_length=1`,
+    { headers, cache: "no-store" },
+  );
+  if (resource.ok) return true;
+  if (resource.status === 404) {
+    const text = await resource.text().catch(() => "");
+    if (/DoesNotExistError|not found/i.test(text)) return false;
+  }
+  // Permission / other errors ⇒ assume exists so we do not re-POST
+  return resource.status !== 404;
 }
 
 /** Idempotently create TL Project / Incident / Evidence DocTypes. */
@@ -234,7 +261,7 @@ export async function ensureProductDocTypes(options?: {
 
   for (const name of PRODUCT_DOCTYPE_NAMES) {
     try {
-      const exists = await docTypeExists(base, headers, name);
+      const exists = await frappeDocTypeExists(base, headers, name);
       if (exists) {
         results.push({ name, status: "exists" });
         continue;

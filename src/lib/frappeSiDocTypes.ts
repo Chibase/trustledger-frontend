@@ -8,9 +8,10 @@ import {
   frappeBase,
   frappeKeyPair,
 } from "@/lib/leadCapture";
-import type {
-  DocTypeEnsureResult,
-  DocTypeEnsureStatus,
+import {
+  frappeDocTypeExists,
+  type DocTypeEnsureResult,
+  type DocTypeEnsureStatus,
 } from "@/lib/frappeProductDocTypes";
 
 export const SI_DOCTYPE_NAMES = [
@@ -281,18 +282,6 @@ function authHeaders(key: string, secret: string): HeadersInit {
   };
 }
 
-async function docTypeExists(
-  base: string,
-  headers: HeadersInit,
-  name: string,
-): Promise<boolean> {
-  const res = await fetch(
-    `${base}/api/resource/DocType/${encodeURIComponent(name)}`,
-    { headers, cache: "no-store" },
-  );
-  return res.ok;
-}
-
 /** Idempotently create TL Stakeholder / Engagement / Commitment DocTypes. */
 export async function ensureSiDocTypes(options?: {
   dryRun?: boolean;
@@ -317,7 +306,7 @@ export async function ensureSiDocTypes(options?: {
 
   for (const name of SI_DOCTYPE_NAMES) {
     try {
-      const exists = await docTypeExists(base, headers, name);
+      const exists = await frappeDocTypeExists(base, headers, name);
       if (exists) {
         results.push({ name, status: "exists" as DocTypeEnsureStatus });
         continue;

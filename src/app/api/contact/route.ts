@@ -10,6 +10,8 @@ import {
   leadCaptureConfigured,
   submitProductLead,
 } from "@/lib/leadCapture";
+import { chibasePackageCopy } from "@/lib/chibase/packages";
+import { chibaseContactPageUri } from "@/lib/security/hosts";
 
 type ContactKind = "contact" | "feedback";
 
@@ -19,6 +21,8 @@ type ContactBody = {
   organization?: string;
   message?: string;
   kind?: ContactKind;
+  source?: string;
+  package?: string;
   rating?: number;
   path?: string;
   tl_hp?: string;
@@ -45,7 +49,12 @@ export async function POST(request: Request) {
   }
 
   const kind: ContactKind = body.kind === "feedback" ? "feedback" : "contact";
-  const captchaAction = kind === "feedback" ? "product_feedback" : "contact";
+  const fromChibase = body.source === "chibase";
+  const captchaAction = fromChibase
+    ? "chibase_contact"
+    : kind === "feedback"
+      ? "product_feedback"
+      : "contact";
 
   const guard = await assertLeadFormGuards(request, {
     routeKey: `contact-${kind}`,
@@ -66,6 +75,9 @@ export async function POST(request: Request) {
   const organization = body.organization?.trim();
   const message = normalizeComment(body.message, 10);
   const path = typeof body.path === "string" ? body.path : undefined;
+  const requestedPackage = chibasePackageCopy(
+    typeof body.package === "string" ? body.package : undefined,
+  );
 
   if (!isWorkEmail(email)) {
     return NextResponse.json(
@@ -112,11 +124,16 @@ export async function POST(request: Request) {
   }
 
   const composed = [
-    kind === "feedback"
-      ? "TrustLedger experience feedback (user view)."
-      : "TrustLedger contact form enquiry.",
+    fromChibase
+      ? "Chibase Consulting contact form (firm site)."
+      : kind === "feedback"
+        ? "TrustLedger experience feedback (user view)."
+        : "TrustLedger contact form enquiry.",
     rating !== undefined ? `Rating: ${rating}/5.` : null,
     organization ? `Organization: ${organization}.` : null,
+    requestedPackage
+      ? `Requested Chibase package: ${requestedPackage.label} (${requestedPackage.id}).`
+      : null,
     `Message: ${message}`,
     path ? `Path: ${path}.` : null,
     `Captured: ${new Date().toISOString()}.`,
@@ -127,7 +144,7 @@ export async function POST(request: Request) {
   const jobTitle =
     kind === "feedback"
       ? `Feedback · ${rating}/5${path ? ` · ${path}` : ""}`
-      : `Contact enquiry${path ? ` · ${path}` : ""}`;
+      : `Contact enquiry${requestedPackage ? ` · ${requestedPackage.label}` : ""}${path ? ` · ${path}` : ""}`;
 
   if (leadCaptureConfigured()) {
     const result = await submitProductLead({
@@ -135,12 +152,20 @@ export async function POST(request: Request) {
       name: name || email.split("@")[0],
       company: organization,
       message: composed,
-      pageUri: `${siteBaseUrl()}${path || (kind === "feedback" ? "/feedback" : "/contact")}`,
+      pageUri: fromChibase
+        ? chibaseContactPageUri(request)
+        : `${siteBaseUrl()}${path || (kind === "feedback" ? "/feedback" : "/contact")}`,
       pageName:
-        kind === "feedback"
-          ? "TrustLedger product feedback"
-          : "TrustLedger contact",
-      sourceTag: kind === "feedback" ? "product_feedback" : "contact",
+        fromChibase
+          ? "Chibase Consulting contact"
+          : kind === "feedback"
+            ? "TrustLedger product feedback"
+            : "TrustLedger contact",
+      sourceTag: fromChibase
+        ? "chibase_contact"
+        : kind === "feedback"
+          ? "product_feedback"
+          : "contact",
       jobTitle,
       rating,
       userQuote: message,

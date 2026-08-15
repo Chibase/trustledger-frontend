@@ -111,8 +111,8 @@ export function ResourceDownloadForm({ pack, onClose }: Props) {
         {done ? (
           <div className="mt-5 space-y-3">
             <p className="text-sm text-tl-ink">
-              Your pack is unlocking. If the download did not start, use the
-              button below — then Print → Save as PDF for an offline copy.
+              Your {pack.shortTitle.toLowerCase()} PDF is unlocking. If the
+              download did not start, use the button below.
             </p>
             {downloadUrl ? (
               <a
@@ -147,9 +147,9 @@ export function ResourceDownloadForm({ pack, onClose }: Props) {
           <form onSubmit={handleSubmit} className="relative mt-5 space-y-3">
             <HoneypotField value={honeypot} onChange={setHoneypot} />
             <p className="text-sm text-tl-ink-muted">
-              Enter a work email to unlock the printable pack. We use this to
-              send relevant TrustLedger guidance — not to share your details
-              publicly.
+              Enter a work email to unlock this PDF only —{" "}
+              {pack.shortTitle.toLowerCase()}. We use this to send relevant
+              guidance — not to share your details publicly.
             </p>
             <div>
               <label htmlFor="res-name" className="mb-1 block text-sm font-medium">
@@ -224,7 +224,7 @@ export function ResourceDownloadForm({ pack, onClose }: Props) {
               disabled={submitting}
               className="w-full rounded-md bg-tl-trust px-4 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
             >
-              {submitting ? "Unlocking…" : "Download free pack"}
+              {submitting ? "Unlocking…" : "Download PDF"}
             </button>
           </form>
         )}

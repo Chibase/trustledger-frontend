@@ -6,6 +6,7 @@ import { HomeHeader } from "@/components/marketing/HomeHeader";
 import { HomeHero } from "@/components/marketing/HomeHero";
 import { HomeHowItWorks } from "@/components/marketing/HomeHowItWorks";
 import { HomePricing } from "@/components/marketing/HomePricing";
+import { HomeAudiences } from "@/components/marketing/HomeAudiences";
 import { HomeSectors } from "@/components/marketing/HomeSectors";
 import { HomeTrustProof } from "@/components/marketing/HomeTrustProof";
 import { HomeVersionStrip } from "@/components/marketing/HomeVersionStrip";
@@ -52,6 +53,7 @@ export default function HomePage() {
         <HomeBenefitStrip />
         <HomeHowItWorks />
         <HomeTrustProof />
+        <HomeAudiences />
         <HomeSectors />
         <HomePricing />
         <HomeFinalCta />

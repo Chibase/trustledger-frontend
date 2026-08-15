@@ -6,6 +6,8 @@
 
 Use this for **bulk campaigns to contacts**. Keep **Resend on Vercel** for transactional OTP / trial welcome only — do **not** blast marketing from `onboarding@resend.dev`.
 
+**Ops cadence / AI draft / human approve:** use ClickUp per `docs/CLICKUP_NEWSLETTER_OPS.md` (fortnightly → you approve → paste into Frappe Newsletter). ClickUp is not the blast engine.
+
 ```text
 Contacts (CRM Lead / Contact / Email Group)
         ↓
@@ -23,8 +25,9 @@ CTAs → Vercel /trial /contact /quote /assessment /pay
 | Element | Value |
 |---------|--------|
 | Product name | **TrustLedger** only (no AccordBridge / HubSpot chrome) |
-| From name | `TrustLedger` |
-| From address | Verified domain, e.g. `hello@trustledger.co.za` or `info@trustledger.co.za` |
+| From name | `TrustLedger` for general; **segment intros** use `TrustLedger Construction`, `TrustLedger Municipal`, `TrustLedger for Architects`, `TrustLedger Engineering`, `TrustLedger Community Practice`, `TrustLedger Practice` (`docs/exports/email-marketing/SEGMENT_INTROS.md`) |
+| From address | Verified domain mailbox — Production uses `sales@trustledger.co.za` (aliases optional later) |
+| Reply-To | Same mailbox unless a Webway alias forwards into `sales@` |
 | Accent | `#0e7c66` buttons; header `#12202a` |
 | CTAs | Absolute `https://trustledger-frontend-pi.vercel.app/...` with `utm_source=email&utm_medium=bulk&utm_campaign=…` |
 | Forms | Prefer Vercel branded forms — **not** HubSpot embeds, not unbranded Frappe Web Forms for public marketing |
@@ -75,34 +78,57 @@ If Apps/Uninstall is missing, open a ticket at [support.frappe.io](https://suppo
 
 Operator checklist: `docs/exports/email-marketing/DESK_EMAIL_ACCOUNT_SALES.md`.
 
-### B. Templates
+### B. Templates (branded — DESIGN_SYSTEM)
 
-1. Desk → **Email Template** (or **Newsletter** / **Email Campaign** if CRM Email Campaign is installed).
-2. Create templates matching files in `docs/exports/email-marketing/`:
+**Already on Cloud (2026-08-10):** Email Templates  
+`TL Email Shell` · `TL Soft Launch` · `TL Trial Invite` · `TL Quote Follow-up` · `TL Assessment Nudge`  
+plus a draft **Newsletter** (soft launch → `TL Warm Contacts`). Open Desk → review → Send Test → Send.
 
-| File | Suggested template name | Use |
-|------|-------------------------|-----|
+Brand chrome in every HTML pack:
+
+| Element | Spec |
+|---------|------|
+| Header | Ink `#12202a` bar, wordmark **Trust**Ledger (teal `#7dcfbf` on Ledger), promise *Resolution you can audit* |
+| Accent | 4px trust teal `#0e7c66` stripe under header |
+| CTA | Teal filled button, white label; secondary = line border |
+| Footer | TrustLedger wordmark + Chibase legal only + trustledger.co.za |
+| Voice | Trust outcomes — no HubSpot / Paystack / Frappe / Vercel names in body |
+
+Source files in `docs/exports/email-marketing/`:
+
+| File | Template name | Use |
+|------|----------------|-----|
 | `00-shell.html` | `TL Email Shell` | Wrapper / Jinja shell |
 | `01-soft-launch.html` | `TL Soft Launch` | First blast to warm contacts |
 | `02-trial-invite.html` | `TL Trial Invite` | Trial push |
 | `03-quote-followup.html` | `TL Quote Follow-up` | Quote / Institutional |
 | `04-assessment-nudge.html` | `TL Assessment Nudge` | Diagnostic |
+| `10-intro-construction.html` … `15-intro-related.html` | `TL Intro …` | Segment platform intros + dashboard sample |
 
-3. Paste **full HTML** into the template body (HTML mode). Replace Jinja `{{ first_name or "there" }}` if your Desk version uses different field names (`{{ doc.first_name }}`, etc.).
+Segment From names, draft Newsletters, and image paths: **`docs/exports/email-marketing/SEGMENT_INTROS.md`**.
+
+To refresh Cloud after editing HTML: Desk → Email Template → open name → paste full HTML (Use HTML on) → Save.  
+Jinja: `{{ first_name or "there" }}` (or `{{ doc.first_name }}` if your Desk build requires it).
 
 ### C. Contact list (bulk audience)
 
-Pick one:
+**Canonical ICP list:** Email Group **`TL Marketing`** (**21** pruned contacts).  
+Industry segments for targeted copy:
 
-| Source | How |
-|--------|-----|
-| **CRM Lead** | Filter by Source / status → add to **Email Group** (or CRM campaign recipients) |
-| **Contact** | Import CSV (HubSpot export or spreadsheet) → Email Group |
-| **Manual Email Group** | Email Group → add members by email |
+| Email Group | Angle |
+|-------------|--------|
+| `TL Segment Construction` | Contractors / builders |
+| `TL Segment Architects` | Architecture practices |
+| `TL Segment Engineers` | Engineering consultancies |
+| `TL Segment Government` | Municipal / DPW |
+| `TL Segment Social Facilitators` | Community / CLO / SRM facilitators |
+| `TL Segment Related Industries` | Adjacent practitioners / academia |
 
-Suggested groups: `TL Warm Contacts`, `TL Quote Pipeline`, `TL Trial Invites`.
+Detail: `contacts/SEGMENTATION.md`. Sales CRM stays on **CRM Lead** — only promote ICP emails into `TL Marketing` + a segment.
 
-**Import columns (minimum):** email, first_name, full_name, organization (optional).
+**Import columns (minimum):** Email Group Member CSV with `email_group` + `email` (`contacts/DESK_IMPORT_STEPS.md`).
+
+HubSpot → ERPNext **Lead** Data Import on Desk should be abandoned (invalid status/owner/industry maps).
 
 ### D. Send a campaign
 

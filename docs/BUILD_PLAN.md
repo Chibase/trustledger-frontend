@@ -14,7 +14,7 @@
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
 | Backend | **Frappe Cloud** `app.trustledger.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
-| Marketing | WordPress `trustledger.co.za` on Webway (CTA later) |
+| Marketing | TrustLedger WP `trustledger.co.za` on Webway (CTAs). **Chibase Consulting** brochure on this app (`/firm`; DNS after WP cleanup). MX for both domains stays Webway. |
 | Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
 **Current phase:** Phase 6 — **Version 002** core (ADR-023). Product label in market: **Version 001**. Demo/mock remains default until Frappe DocTypes land.
@@ -59,7 +59,7 @@ When implementing:
 /assessment           Quiz + email/OTP unlock → /readiness/next hub + /readiness/report
 /readiness/next       Post-confirm choice hub (report / product / trial / walkthrough)
 /readiness/report     Score overview + dimension detail + TrustLedger turnaround lanes
-/resources            Free SRM toolkits (email-gated printable packs)
+/resources            Free SRM toolkits + field templates (email-gated PDF packs)
 /resources/[slug]     Pack preview + download gate
 /login                Sign-in chooser → live / trial (no sample demo)
 /app                  Authenticated shell (trial or live)
@@ -73,6 +73,8 @@ When implementing:
 /app/issues/report    Assisted intake
 /app/reports          Client/admin briefs
 /app/settings         Profile / org
+/firm                 Chibase Consulting brochure (preview; canonical host after DNS)
+/firm/packages        Chibase consulting catalogue (request; Paystack when priced)
 ```
 
 Legacy routes (`/dashboard`, `/incidents`, …) **redirect** into `/app/...` so old links work.
@@ -201,8 +203,17 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **EM-1** | Branded bulk email | TrustLedger HTML templates + Desk runbook (`docs/FRAPPE_EMAIL_MARKETING.md`); Frappe Email Domain/Newsletter — not HubSpot / not Resend blasts | **Active** |
+| **EM-2** | ClickUp newsletter ops | Cadence + AI draft + human approve in ClickUp; send remains Frappe Newsletter (`docs/CLICKUP_NEWSLETTER_OPS.md`) | **Done** (playbook) |
 
-### Commercial packaging (ACTIVE)
+### Public guide agent (ACTIVE)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **THEMBA-A** | Themba Phase A visitor guide | ADR-042 — widget on `/`, `/product`, `/faq`; BFF `/api/themba/chat`; knowledge from `siteFacts` + brief §6; escalate → contact/Lead; no client LLM keys (`docs/THEMBA.md`) | **Done** |
+| **THEMBA-B** | Themba marketing guru | ADR-043 — global public widget + avatar; role profiling; Social Licence framework knowledge; conversion chips; resource magnet; `/api/telemetry/bug-report` | **Done** |
+| **THEMBA-C** | Audiences + document grounding | ADR-045 — MEL / community / facilitator profiles; Global South (ZA packs as SA baseline); retrieve+cite operating procedures, SRM blueprint, IKS practice frame; IKS paper drop zone | **Done** |
+
+### Commercial packaging
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
@@ -213,6 +224,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **UG-1** | User manual + first-login setup | `docs/USER_MANUAL.md`; in-app Setup wizard + `/app/guide` checklist (plan-aware spine) | **Done** |
+| **UG-2** | Field capture templates | Minutes / attendance / field-note PDFs mapped to Capture; bundled on Project+; also `/resources` | **Done** |
 
 ### Security / tenancy packaging
 
@@ -224,6 +236,9 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | Planned |
 | **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
 | **SEC-5** | Cloud invitee seats | Replace browser-only junior seats | Planned |
+| **SEC-SITE** | Dual-origin public hardening + Chibase site | ADR-046 — `/firm` brochure; retire Chibase WP (no content/plugin import); website DNS to this app; MX stays Webway (`docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`) | **Done** |
+| **CHIBASE-PREVIEW** | Hero preview desk | ADR-047 — local mock cases/people/promises on Chibase home; not a workspace; CTA to own-data trial | **Done** |
+| **CHIBASE-PACK** | Consulting packages | ADR-048 — independent Chibase catalogue + optional Paystack; add-on request from any TrustLedger plan; no software entitlements | **Done** |
 
 ## 8. Quality gates (every packet)
 
@@ -273,6 +288,15 @@ src/
 | 2026-07-24 | EM-1 — branded Frappe bulk email templates + FRAPPE_EMAIL_MARKETING |
 | 2026-07-24 | CP-1 / ADR-035 — Solo entry plan (R1,999, 1 seat, essentials) |
 | 2026-07-26 | UG-1 — user manual + first-login setup wizard / Guide |
+| 2026-08-15 | UG-2 — field capture templates (minutes / attendance / field note) |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
 | 2026-08-07 | Hosting contingency runbook — pre–paying-client uptime + Node standby (`docs/HOSTING_CONTINGENCY.md`) |
+| 2026-08-14 | CHIBASE-PACK / ADR-048 — independent Chibase consulting packages; optional Paystack; TrustLedger add-on request only |
+| 2026-08-14 | CHIBASE-PREVIEW / ADR-047 — local preview desk on Chibase hero |
+| 2026-08-14 | SEC-SITE — retire Chibase WordPress (SP declined cleanup); website DNS only; MX stays Webway |
+| 2026-08-14 | SEC-SITE / ADR-046 — Chibase Next.js brochure + dual-origin public hardening; MX stays Webway |
+| 2026-08-14 | THEMBA-C / ADR-045 — Themba audiences, Global South, document grounding |
+| 2026-08-14 | THEMBA-B / ADR-043 — Themba marketing guru on all public landing pages |
+| 2026-08-13 | THEMBA-A / ADR-042 — Themba (The Trust) visitor guide on marketing routes |
+| 2026-08-15 | EM-2 — ClickUp newsletter ops playbook (approve → Frappe send) |

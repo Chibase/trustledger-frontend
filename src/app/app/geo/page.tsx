@@ -2,10 +2,6 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { geoService } from "@/services/geoService";
-import {
-  NEXT_PRODUCT_VERSION_LABEL,
-  PRODUCT_VERSION_LABEL,
-} from "@/config/productVersion";
 
 type SearchParams = Promise<{ province?: string; muni?: string }>;
 
@@ -47,11 +43,11 @@ export default async function AppGeoPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={`${PRODUCT_VERSION_LABEL} → ${NEXT_PRODUCT_VERSION_LABEL}`}
+        eyebrow="Place context"
         title="Geographic intelligence"
         description={
           pack
-            ? `${pack.pack.label}. Pre-installed for demos — add another country pack under data/geo/ without changing the product model. Stats SA socio-economic layers attach later.`
+            ? `${pack.pack.label}. Platform baseline for South African plans (ADR-040) — municipalities, wards, and traditional councils where packed. Other country packs use the same model under data/geo/.`
             : "No geo pack loaded."
         }
       />
@@ -165,8 +161,11 @@ export default async function AppGeoPage({
       </section>
 
       <p className="text-sm text-tl-ink-muted">
-        Socio-economic indicators: placeholder ready in the pack file — add Stats
-        SA (or other country) CSV when available.{" "}
+        Socio-economic indicators use the Stats SA / Census baseline on{" "}
+        <Link href="/app/intelligence" className="text-tl-trust-ink underline">
+          Intelligence / ESG
+        </Link>
+        .{" "}
         <Link href="/app/stakeholders" className="text-tl-trust-ink underline">
           Open stakeholder CRM
         </Link>

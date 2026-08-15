@@ -1,4 +1,10 @@
 import type { MetadataRoute } from "next";
+import { headers } from "next/headers";
+import {
+  CHIBASE_CANONICAL_HOST,
+  CHIBASE_PUBLIC_URL,
+  isChibaseHost,
+} from "@/lib/security/hosts";
 
 const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ??
@@ -10,7 +16,40 @@ const siteUrl = (
  * Explicit allow-list includes paths LLMs cite; private app surfaces stay disallowed.
  * Do not add GPTBot / PerplexityBot / Google-Extended blocks — AEO requires openness.
  */
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const host = (await headers()).get("host");
+  if (isChibaseHost(host)) {
+    const firm =
+      CHIBASE_PUBLIC_URL || `https://${CHIBASE_CANONICAL_HOST}`;
+    return {
+      rules: [
+        {
+          userAgent: "*",
+          allow: [
+            "/",
+            "/practice",
+            "/about",
+            "/contact",
+            "/insights",
+            "/trustledger",
+          ],
+          disallow: [
+            "/app/",
+            "/ops/",
+            "/login",
+            "/auth/",
+            "/api/",
+            "/pay/",
+            "/trial",
+            "/product",
+            "/firm",
+          ],
+        },
+      ],
+      host: firm.replace(/^https?:\/\//, ""),
+    };
+  }
+
   return {
     rules: [
       {
@@ -29,7 +68,7 @@ export default function robots(): MetadataRoute.Robots {
           "/status",
           "/llms.txt",
         ],
-        disallow: ["/app/", "/ops/", "/login", "/auth/", "/api/", "/invite/"],
+        disallow: ["/app/", "/ops/", "/login", "/auth/", "/api/", "/invite/", "/firm"],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,

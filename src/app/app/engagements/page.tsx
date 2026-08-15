@@ -4,10 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
-import {
-  NEXT_PRODUCT_VERSION_LABEL,
-  PRODUCT_VERSION_LABEL,
-} from "@/config/productVersion";
 import { engagementService } from "@/services/engagementService";
 import {
   ENGAGEMENT_KIND_LABELS,
@@ -51,7 +47,7 @@ export default function AppEngagementsPage() {
     <FeatureGate capability="engagements">
       <div className="space-y-6">
         <PageHeader
-          eyebrow={`${NEXT_PRODUCT_VERSION_LABEL} · ${PRODUCT_VERSION_LABEL} desk remains`}
+          eyebrow="Stakeholder Intelligence"
           title="Engagements"
           description="Meetings, consultations, and walkabouts linked to projects and stakeholders. Capture hub applies create records here."
           actions={
@@ -116,9 +112,9 @@ export default function AppEngagementsPage() {
           <p className="text-sm text-tl-ink-muted">
             No engagements yet.{" "}
             <Link href="/app/capture" className="text-tl-trust-ink underline">
-              Capture minutes or attendance
+              Insert a minutes or attendance template
             </Link>{" "}
-            and apply AI suggestions.
+            in Capture, fill labeled fields, then apply suggestions.
           </p>
         ) : (
           <ul className="divide-y divide-tl-line rounded-lg border border-tl-line bg-tl-surface">

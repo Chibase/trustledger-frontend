@@ -430,8 +430,9 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   3. Platform packs are **shared reference**, never per-tenant fictional seed. Empty Cloud lists stay empty of cases/people — not empty of country geography.
   4. Sales / onboarding language: *baseline place intel included; you add the project.* Do not over-claim national TC completeness while the pack is partial.
   5. Detail + gaps: `docs/ZA_BASELINE_INTEL.md`. Enrich TC/wards/indicators in the pack; do not invent tenant geo seed files.
-- **Consequences:** Packaging and `/product` copy treat ZA geo as included; national TC expansion and Stats SA indicators remain enrichment packets, not blockers for this promise.
-- **Alternatives considered:** Charge for geo as an add-on (rejected — table stakes for SA SRM); seed sample stakeholders with each plan (rejected — ADR-033); wait for Cloud Geo DocTypes before shipping pickers (rejected — browser pack is launch SoT).
+  6. **(2026-08-11)** Stats SA / Census socio-economic indicators on featured places are **platform baseline**, not “demo” figures. Product UI must not label ZA geo or Stats SA intelligence as demo/illustrative.
+- **Consequences:** Packaging and `/product` copy treat ZA geo + Stats SA baseline indicators as included; national TC expansion and broader indicator coverage remain enrichment packets. Never brand platform packs as demo seed.
+- **Alternatives considered:** Charge for geo as an add-on (rejected — table stakes for SA SRM); seed sample stakeholders with each plan (rejected — ADR-033); wait for Cloud Geo DocTypes before shipping pickers (rejected — browser pack is launch SoT); keep “demo/illustrative” labels until a second ingest (rejected 2026-08-11 — undermines trust in Stats SA baseline).
 
 ### ADR-041: Site location cascade sequence (Country → … → Ward)
 
@@ -447,6 +448,106 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   6. Supersedes “any-order” cascade behaviour for intake.
 - **Consequences:** Report copy and validation use the full sequence. Custom places store under `tl-custom-geo-places` for the workspace browser.
 - **Alternatives considered:** Keep any-order free pick (rejected — breaks training); town search only without province (rejected — harder audit trail); force TC always (rejected — metros / no-TC DMs).
+
+### ADR-042: Themba (The Trust) — public visitor guide agent
+
+- **Date:** 2026-08-13
+- **Status:** Accepted
+- **Context:** Buyers and visitors need a calm, on-brand guide for simple product Q&A without inventing a second stack brand or putting LLM keys in the browser. Desk AI Assist (suggest→apply→save) stays separate. Complex sales, legal, billing disputes, and account issues need a human path.
+- **Decision:**
+  1. **Name:** Customer-facing agent is **Themba** (subtitle **The Trust**). Voice = Trust (ADR-039). Never name Frappe/Vercel/HubSpot/Interserv/AccordBridge in replies.
+  2. **Phase A (this ADR):** Visitor widget on public marketing routes `/`, `/product`, `/faq` only. Answers from canonical knowledge (`siteFacts` PUBLIC_FAQS + `docs/PLATFORM_STRATEGIC_BRIEF.md` §6, rewritten for public voice). BFF `POST /api/themba/chat` — no client API keys.
+  3. **Behaviour:** Simple FAQ/objection Q&A + CTAs toward `/trial`, `/product`, `/pay`, `/contact`, `/assessment`. Unknown, out-of-scope, or escalate-intent → human handoff (contact + optional CRM Lead via existing leadCapture). Themba does **not** write desk/workspace data and does **not** auto-apply AI suggestions.
+  4. **Later:** Authenticated in-app help for live/trial users remains a future packet (not THEMBA-B). Optional server-side LLM polish when a Themba key is configured — still grounded on the same knowledge corpus; never invent features.
+  5. Detail runbook: `docs/THEMBA.md`. Packet: **THEMBA-A**. Marketing-guru deepening: **ADR-043** / **THEMBA-B**.
+- **Consequences:** One public agent identity; acquisition stays Frappe CRM Lead; desk AI Assist unchanged. Ops may add `THEMBA_XAI_API_KEY` later without changing the widget contract.
+- **Alternatives considered:** Generic “chatbot” with no brand (rejected — weak Trust voice); wire desk Grok for marketing Q&A (rejected — wrong product surface + over-claim risk); HubSpot chat (rejected — ADR-034).
+
+### ADR-043: Themba marketing guru + public conversion (THEMBA-B)
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** Phase A answered FAQ on three routes. Buyers need role-aware guidance (funders, engineers, municipalities), an owned avatar, conversion chips, email-gated toolkits in-chat, and a way for “this page is broken” to reach engineering without putting LLM keys in the browser.
+- **Decision:**
+  1. Mount Themba once from the root layout on **all public landing pages**; hide on `/app`, `/ops`, `/login`, `/pay`, `/invite`, `/auth`.
+  2. Profile early (funder / engineer / project manager / municipal / other) and tailor value props. Dual engine: marketing guru + SRM guide.
+  3. **Social Licence to Build** is positioning mapped to shipped modules (advisory handoff, SRM/SI, rapid-response case desk). Do not sell an unshipped Rapid-Response Division or a public funder dashboard URL.
+  4. Conversion chips: 14-day trial (`/trial`), book live demo (`/contact`), contact advisory (`/contact`). Lead magnets reuse `/api/resources/download`.
+  5. Bug keywords POST `/api/telemetry/bug-report` (rate-limited). Product-defect language also opens human handoff. CRM sources: **Themba Guide**, **Themba Bug**.
+  6. Avatar at `/assets/images/themba-avatar.png`. Markdown subset (bold + bullets) in assistant replies. No third-party chat watermarks.
+- **Consequences:** One global public widget; acquisition still Frappe CRM Lead; in-app authenticated help still deferred.
+- **Alternatives considered:** Third-party chat vendor (rejected — brand ownership + ADR-034); public funder-only dashboard route (rejected — no such surface; report packs live in entitled workspaces).
+
+### ADR-044: No Version 001/002 or TEDS in public copy
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** Version 001 / Version 002 and “still deepening versus a full TEDS blueprint” are engineering maturity labels. They leaked into FAQ, Themba, marketing footer, and the customer app, which reads as internal roadmap rather than product.
+- **Decision:**
+  1. Public and client-facing surfaces (marketing, FAQ, `/llms.txt`, Themba, resource packs, readiness report, `/app` shell and module pages) **must not** name Version 001, Version 002, V001, V002, or TEDS.
+  2. Public language uses **modules and plans**: grievance resolution desk vs Stakeholder Intelligence (registry, engagements, commitments) on entitled plans.
+  3. Internal docs, Ops (`/ops`), and `tedsMaturity.ts` may keep version/TEDS labels.
+  4. Amends ADR-023 **public labelling** (the V001 badge / Available-now vs Coming-in-V002 copy). Engineering packet names stay Version 002 internally.
+- **Consequences:** Themba sanitizer strips version/TEDS if an optional LLM polish reintroduces them. WordPress paste FAQ in `docs/wordpress/page-home.txt` matches `siteFacts`.
+- **Alternatives considered:** Keep honest version badges on marketing (rejected — internal maturity, not buyer language).
+
+### ADR-045: Themba audiences, Global South, document grounding (THEMBA-C)
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** THEMBA-B profiled only funder / engineer / PM / municipal leader, so MEL, community members, and social facilitation practitioners collapsed to “other.” Copy and municipal CTAs read as South Africa-only even though the product definition is Global South. Themba answers were thin (single FAQ retrieve + 2–6 sentence polish) and did not cite operating procedures or the SRM blueprint. Published IKS papers were offered as training material but are not in the repo yet.
+- **Decision:**
+  1. **Audiences:** Profile chips include MEL / M&E, community member, social facilitator, and local government (Global South public sector), plus funder, engineer, PM. Do not collapse facilitation / community / MEL into “other.”
+  2. **Geography:** Public Themba and marketing speak to South Africa **and** the Global South. ZA place packs remain included baseline for SA plans (ADR-040). Do not invent unshipped national geo packs.
+  3. **Document grounding:** Themba retrieves multiple knowledge chunks and cites public-safe excerpts from operating procedures (`USER_MANUAL` spine/daily loop), the SRM blueprint (six assessment dimensions), and the Community Engagement Toolkit. Optional LLM polish must stay descriptive and faithful — not a two-sentence gloss.
+  4. **IKS:** Until licensed excerpts are filed in `docs/themba/sources/IKS_PAPERS.md` and promoted into `src/lib/themba/sources/iksPractice.ts`, Themba uses a product practice frame (traditional authorities, place, participation trail, MEL evidence) and **must not invent paper titles or findings**.
+  5. Packet: **THEMBA-C**. Runbook: `docs/THEMBA.md`. Source drop zone: `docs/themba/sources/`.
+- **Consequences:** Home “who it is for” strip and FAQ municipal copy match the wider audience. WordPress FAQ paste should be re-pasted when ops next update the marketing host.
+- **Alternatives considered:** Wait for IKS papers before widening audiences (rejected — product already serves those roles); claim finished geo packs for every Global South country (rejected — dishonest).
+
+### ADR-046: Chibase site on this app; dual-origin public hardening; MX stays Webway
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** `chibaseconsulting.co.za` WordPress was compromised (casino injection + fake Terminal “Human Verification” / ClickFix). The brochure was also too long and asked for CAPEX on first contact. TrustLedger already runs on this Next.js app. Email for both domains is on Webway and must not move with the website.
+- **Decision:**
+  1. **Chibase Consulting public site** is rebuilt in this repo under `/firm`, same visual language as TrustLedger, **separate public identity** (ADR-039). Complement, do not merge brands. No TrustLedger `/pay` or Themba on the firm host. Consulting package checkout may live on the firm host (ADR-048).
+  2. **Host routing:** After DNS cutover, `chibaseconsulting.co.za` (and www) serve the firm pages. Product paths (`/app`, `/pay`, `/trial`, …) 302 to the TrustLedger URL with `utm_source=chibase`. Until cutover, preview at `/firm` is **noindex**.
+  3. **Retire WordPress; do not clean it.** Webway declined malware/forensic cleanup (out of hosting scope). Do **not** hire a WP specialist to disinfect the brochure. Delete/suspend the Chibase WP document root and database. **Do not import** posts, media, themes, or plugins. Point **website DNS only** (apex A + www CNAME) at this app. Set `NEXT_PUBLIC_CHIBASE_SITE_URL` only after this app is the public hostname.
+  4. **Email:** MX for `chibaseconsulting.co.za` and `trustledger.co.za` **stays on Webway**. Do not change nameservers. `trustledger.co.za` WordPress is unchanged in this packet.
+  5. **Security (both origins):** CSP + HSTS + probe block (no PHP/WordPress surface), form honeypot/reCAPTCHA/rate-limit with event log, CSP violation reports. Honest limit: this **hardens and detects**; it does not make either site unhackable (tenant ladder remains ADR-038). Request proxy lives in `src/proxy.ts` (Next.js 16; `middleware.ts` is deprecated).
+  6. **Contact:** Short form only (name, work email, note). CRM Lead source **Chibase Consulting**. No CAPEX questionnaire. Rapid-response remains **human field intervention**, not a software division.
+  7. Packet: **SEC-SITE**. Runbook: `docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`.
+- **Consequences:** TrustLedger footer points at `/firm` instead of the compromised WordPress origin. Operators add the Chibase hostname on the existing app, ask Webway to delete WP + change website DNS only, then set the canonical env. Internal docs may name the host; public copy does not name stack vendors (ADR-039).
+- **Alternatives considered:** Clean and keep WordPress (rejected — same attack surface; SP will not clean); wait for a WP specialist (rejected — replacement site exists; do not migrate malware); move MX with the site (rejected — mail stays Webway); claim the sites cannot be compromised (rejected — dishonest).
+
+### ADR-047: Chibase hero preview desk (local mock, not a workspace)
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** Buyers landing on Chibase Consulting need a feel of TrustLedger without reopening the retired public sample desk (ADR-033) or mixing a guest `/app` session into the consulting origin (ADR-046).
+- **Decision:**
+  1. The Chibase home hero includes an interactive **preview desk**: add mock cases / named people / promises; KPIs and a list update in place.
+  2. Data lives in **this browser only** (`sessionStorage`). No Cloud, no cookies that enter `/app`, no `INC-*` seed, max 12 rows. Chrome is labelled preview.
+  3. CTA for a real trail remains the TrustLedger **14-day own-data trial** (absolute product URL). Does not restore sample-demo entry.
+  4. Packet: **CHIBASE-PREVIEW**.
+- **Consequences:** Consulting site can demonstrate the desk without a fictional workspace. Trial/live lists stay empty-or-real.
+- **Alternatives considered:** Link only to `/trial` with a static screenshot (rejected — user asked to add mock data and view a dashboard); restore `/demo` guest `/app` (rejected — ADR-033).
+
+### ADR-048: Chibase Consulting packages stay independent of TrustLedger plans
+
+- **Date:** 2026-08-14
+- **Status:** Accepted
+- **Context:** Chibase Consulting is an independent entity with its own offerings. Folding those into TrustLedger Paystack plan IDs (Solo / Practitioner / Project / Institutional) would merge brands, mix invoices, and risk provisioning software seats from a consulting payment. Consulting should still be available as an add-on to any TrustLedger plan at the client’s request, on Chibase’s own pricing.
+- **Decision:**
+  1. **Separate catalogue** in `src/lib/chibase/packages.ts`: `facilitation`, `mel`, `iks`, `field`. Not `PaystackPlanId`. Not `AddonId` (those unlock desk modules).
+  2. **Own pricing:** Listed starter fees in `CHIBASE_LAUNCH_PRICES_ZAR` (facilitation R95,000, IKS R110,000, MEL R125,000, field R185,000 — excl. VAT, one programme or site). Override with `CHIBASE_AMOUNT_*_CENTS`. `0` = request a package. Larger programmes stay quote.
+  3. **Firm surface:** `/packages` (preview `/firm/packages`). Request → `/contact?package=`. Pay now only when cents > 0. Checkout API `/api/chibase/pay/*` is allowed on the firm host. TrustLedger `/pay` stays 302 off the firm host (ADR-046).
+  4. **Paystack isolation:** Initialize metadata `{ catalogue: "chibase", package }`, reference prefix `cb_`. Same keys, same webhook URL. On `charge.success`, log CRM Lead source **Chibase Consulting** only — never `provisionAfterPaystackVerify`, Plan Owner, or trial seats.
+  5. **TrustLedger:** One add-on line under home pricing (and FAQ / Themba). Link to Chibase packages with UTM. No fifth software column.
+  6. Packet: **CHIBASE-PACK**. Runbook: `docs/CHIBASE_SITE.md`, `docs/PAYSTACK_SETUP.md`.
+- **Consequences:** Operators can add Chibase SKUs on Paystack when cents are set. Software and consulting stay separately invoiced. A consulting payment cannot open a TrustLedger workspace.
+- **Alternatives considered:** Fifth TrustLedger plan column (rejected — merges entities); software `AddonId` for facilitation (rejected — unlocks product capabilities); reuse `/api/paystack/initialize` (rejected — provision path is TrustLedger-plan-only).
 
 ### ADR-033: Retire public sample demo; SI Cloud is the SRM engine
 

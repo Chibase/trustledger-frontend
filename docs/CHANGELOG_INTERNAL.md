@@ -1,9 +1,152 @@
 # Internal changelog
 
+## 2026-08-15 — ClickUp newsletter ops playbook (EM-2)
+
+- `docs/CLICKUP_NEWSLETTER_OPS.md`: fortnightly cadence, AI draft prompts, human approve gates, Frappe Newsletter handoff.
+- Defaults: audience `TL Marketing`; ClickUp never blasts — Desk send only.
+- Linked from `docs/FRAPPE_EMAIL_MARKETING.md`; packet EM-2 Done (playbook).
+
+## 2026-08-15 — Resource packs download as PDF, no product CTA in the file
+
+- `/api/resources/file` streams a PDF (not HTML). Packs have no TrustLedger “with us” paragraph, next-step CTAs, or product filename — so teams can use them as they see fit.
+- Each pack is a separate PDF. The grievance checklist is titled **Grievance Checklist** (`Grievance-Checklist.pdf`) and is not bundled with the community engagement toolkit. Library and preview pages say “choose one pack”.
+- **Field templates** (Meeting Minutes, Attendance Register, Field Note) use labeled fields that Capture maps on first paste. Project and Institutional include them in Capture hub (insert blank form + in-app PDF). Same PDFs are free on `/resources`.
+
+
 ## 2026-08-07 — Hosting contingency runbook (pre–paying client)
 
 - `docs/HOSTING_CONTINGENCY.md`: free uptime watches on `/api/health` + Cloud ping; Resend Production fix; env checklist; $0 Node standby (Render/Railway/Fly) — not Frappe frontend failover; DNS/VIP message; first-paying-client upgrade trigger.
 - Linked from PLATFORM_STRATEGIC_BRIEF + LAUNCH_CHECKLIST. Clarifies: Vercel pause ≠ data wipe; Frappe holds SoT only.
+
+## 2026-08-14 — Chibase: keep the preview desk in the hero
+
+- Hero is two columns from the `md` breakpoint (not only `lg`). On small screens the preview desk sits first, above the copy, so it is not pushed below the fold by the header and CTAs.
+
+## 2026-08-14 — Chibase: packages on the home page, nav always visible
+
+- Home now lists all four priced packages (including field). Header nav wraps instead of scrolling off-screen; Packages is first.
+
+## 2026-08-14 — Chibase footer: drop mail-host note
+
+- Removed “Mail stays on the existing host. This site is the public brochure.” from the public footer (and the matching contact-form aside). MX still stays on Webway in ops docs.
+
+## 2026-08-14 — Chibase listed starter fees
+
+- Public packages: facilitation R95,000, IKS R110,000, MEL R125,000, field R185,000 (excl. VAT, one programme or site). Env still overrides; `0` = request-only. Pay now appears when cents > 0.
+- Shown on `/packages`, home service cards, and the TrustLedger pricing add-on line.
+
+## 2026-08-14 — Chibase About: drop public “what we will not do”
+
+- Removed the editorial don’ts (homepage length, CAPEX form, software-vs-facilitation) from the public About page. That list stays in `docs/CHIBASE_SITE.md` for operators. Contact copy no longer mentions CAPEX to visitors.
+
+## 2026-08-14 — Chibase Consulting packages (CHIBASE-PACK)
+
+- Independent consulting catalogue (`facilitation`, `mel`, `iks`, `field`) — not TrustLedger plan IDs and not desk `AddonId`s. Own env prices `CHIBASE_AMOUNT_*_CENTS`; default 0 = request a package.
+- Firm `/packages`: request via contact, Pay now only when cents are set. Checkout `/api/chibase/pay/*` allowed on the firm host. Metadata `catalogue=chibase`; webhook logs CRM **Chibase Consulting** and never provisions a Plan Owner.
+- TrustLedger home pricing: one add-on line to the Chibase packages URL. ADR-048. ADR-046 amended: TrustLedger `/pay` stays off the firm host; consulting checkout may live there.
+
+## 2026-08-14 — Chibase hero preview desk (CHIBASE-PREVIEW)
+
+- Consulting home hero: interactive TrustLedger **preview desk** — add mock cases, named people, and promises; KPIs and list update in this browser only (`sessionStorage`).
+- Not a workspace: no `/app` session, no `INC-*` seed. CTA to 14-day own-data trial. ADR-047.
+
+## 2026-08-14 — Chibase: do not 308 www↔apex in-app
+
+- Removed the app `www` → apex redirect. It looped against the project domain card (apex → www). Both hostnames now serve the firm site; set the primary redirect only on Domains.
+
+## 2026-08-14 — Chibase site + dual-origin public hardening (SEC-SITE)
+
+- Rebuilt **Chibase Consulting** as short pages under `/firm` (preview, noindex on the product host). **Retire WordPress** (Webway declined malware cleanup): point website DNS only at this app; **do not import** WP content/plugins. **MX for both domains stays on Webway.** `trustledger.co.za` WP unchanged.
+- Firm host serves consulting pages only; `/app`, `/pay`, `/trial` 302 to TrustLedger with `utm_source=chibase`. Old WP slugs 308 to the short IA. No Themba, no CAPEX form, no product checkout on the firm origin.
+- Contact → `/api/contact` `source=chibase` → CRM Lead source **Chibase Consulting**.
+- Security on both origins: CSP (with violation reports), HSTS, nosniff, probe block (WordPress/PHP/`.env`/SQLi-XSS query shapes → 404), form honeypot/reCAPTCHA/rate-limit events. Optional `SECURITY_ALERT_WEBHOOK_URL`. Request proxy is `src/proxy.ts` (Next.js 16). Honest limit: harden + detect, not “unhackable.”
+- TrustLedger footer “Chibase Consulting” points at `/firm` (not the compromised WordPress origin). ADR-046. Runbooks `docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`.
+
+## 2026-08-14 — Themba audiences, Global South, document grounding (THEMBA-C)
+
+- Profile chips: MEL / M&E, community member, social facilitator, local government (plus funder, engineer, PM). No longer collapse those roles to “other.”
+- Public copy: South Africa **and** the Global South; ZA place packs are included baseline for SA plans, not the whole market.
+- Themba retrieves multiple chunks and cites operating procedures, the SRM blueprint (six dimensions), and the IKS practice frame. IKS published papers are a drop zone (`docs/themba/sources/IKS_PAPERS.md`) — not loaded yet; no invented citations.
+- Home “who it is for” strip. ADR-045. Runbook `docs/THEMBA.md`.
+
+## 2026-08-14 — Public copy: no Version 001/002 or TEDS (ADR-044)
+
+- Removed Version 001/002 and “full TEDS blueprint” from FAQ, Themba, marketing strip/footer, product page, app shell, module eyebrows, readiness report, resource packs, `/llms.txt`, and WordPress FAQ paste.
+- Public language is modules + plans (grievance desk vs Stakeholder Intelligence). Ops and internal docs unchanged.
+
+## 2026-08-14 — Themba marketing guru (THEMBA-B)
+
+- Global public widget (root layout); hidden on `/app`, `/ops`, `/login`, `/pay`, `/invite`.
+- Avatar `/assets/images/themba-avatar.png`; greeting bubble; Markdown replies; role chips; conversion bar (trial / live demo / advisory).
+- Knowledge: Social Licence to Build framework (mapped to shipped SRM + case desk), funder / engineer / PM / municipal value props. No public funder-dashboard URL.
+- In-chat lead magnet → existing `/resources` packs. Bug keywords → `POST /api/telemetry/bug-report`.
+- CRM sources **Themba Guide** / **Themba Bug**. Runbook `docs/THEMBA.md`. ADR-043.
+
+## 2026-08-13 — Themba educates features before signup CTAs
+
+- Feature / help / suitability questions map to dedicated knowledge (capabilities + readiness prompts), not the trial FAQ.
+- Retrieval weights question + keywords over answer-body tokens so CTA phrases cannot steal matches.
+- Widget greeting + starter chips emphasise open education, then soft drive to `/assessment` or `/trial`.
+
+## 2026-08-13 — Themba Phase A (visitor guide)
+
+- ADR-042 + packet THEMBA-A: public agent **Themba (The Trust)** on `/`, `/product`, `/faq`.
+- BFF `POST /api/themba/chat` — knowledge retrieval from `siteFacts` + brief §6; escalate → CRM Lead; optional `THEMBA_XAI_API_KEY` polish.
+- Runbook `docs/THEMBA.md`. No client LLM keys; no desk writes.
+
+## 2026-08-11 — Trust Stats SA / ZA geo as platform baseline
+
+- Removed “demo / illustrative” framing from `/app/geo`, `/app/intelligence`, indicator sources, and AI ESG briefs.
+- ADR-040 + `ZA_BASELINE_INTEL` + geo pack notes: Stats SA / Census indicators are platform baseline, not demo seed.
+
+## 2026-08-11 — VIP Plan Owner live login without Frappe roles
+
+- Cloud API often 403s when posting User `roles`; provision now creates User then stamps `custom_tl_*`.
+- Live session maps `custom_tl_plan_owner` → TrustLedger `admin` and sets desk/owner cookies from User customs (needed for VIP Website Users).
+
+## 2026-08-10 — Segment intro emails + dashboard samples
+
+- Six thought-provoking intro HTML packs (`10`–`15-intro-*.html`) with per-segment From names and Cloud File dashboard samples.
+- Cloud: Email Templates `TL Intro Construction|Government|Architects|Engineers|Social Facilitators|Related Industries` + draft Newsletters per `TL Segment …` group.
+- Assets in `public/marketing/email/`; runbook `SEGMENT_INTROS.md`.
+
+## 2026-08-10 — ICP prune + industry Email Group segments
+
+- Pruned **`TL Marketing`** 112 → **21** ICP (removed 91 vendors/tests/internals).
+- Created segments: Construction (7), Architects (7), Engineers (3), Government (2), Social Facilitators (1), Related (1).
+- Docs/CSVs: `SEGMENTATION.md`, `TL_Marketing_segmentation.csv`, `TL_Marketing_removed.csv`, per-segment member CSVs.
+
+## 2026-08-10 — Consolidate marketing audience → TL Marketing
+
+- Created Email Group **`TL Marketing`** with **112** unique emails (Warm 21 + HubSpot 83 + CRM Lead emails; 29 CRM-only).
+- Retargeted soft-launch Newsletter draft to `TL Marketing`.
+- CSV + audit: `TL_Marketing_email_group_member.csv`, `TL_Marketing_sources_audit.csv`; docs updated.
+
+## 2026-08-10 — Branded Newsletter / Email Templates on Cloud
+
+- Strengthened EM-1 HTML packs: ink header, TrustLedger wordmark, teal accent bar, Trust voice, Chibase footer only.
+- Created Cloud Email Templates: `TL Email Shell`, `TL Soft Launch`, `TL Trial Invite`, `TL Quote Follow-up`, `TL Assessment Nudge`.
+- Draft Newsletter (soft launch → `TL Warm Contacts`) for Desk review/send.
+
+## 2026-08-10 — HubSpot contacts remapped + Email Groups imported
+
+- Root cause: Desk Data Import used ERPNext **Lead** with invalid HubSpot status/owner/industry maps.
+- Cloud: Email Groups **`TL Warm Contacts`** (21) + **`TL HubSpot Import`** (83); CRM Lead Source **`HubSpot Import`** + 23 warm/review CRM Leads.
+- Remapped CSVs + steps: `docs/exports/email-marketing/contacts/` (`DESK_IMPORT_STEPS.md`).
+
+## 2026-08-10 — Frappe Cloud config bootstrap + DocType exists probe
+
+- Wired local `.env.local` against `app.trustledger.co.za`; auth OK as API user; CRM Lead smoke `CRM-LEAD-2026-00055`.
+- Bootstrapped missing CRM Lead Sources (Paystack / Trial / EFT / Quote / Website Resource, etc.).
+- `scripts/frappe-configure.mts` — one-shot ensure fields + product/SI DocTypes + CRM views + lead smoke.
+- `frappeDocTypeExists` — do not treat DocType meta `403` as missing (avoids re-create attempts).
+- SI DocTypes still need **System Manager** on the API user (create blocked with PermissionError).
+
+## 2026-08-08 — Email Group Member import CSV (TL Warm Contacts)
+
+- Ready Desk file: `docs/exports/email-marketing/contacts/TL_Warm_Contacts_email_group_member.csv` (21 rows: `email_group` + `email`).
+- Steps: `DESK_IMPORT_STEPS.md` — import as **Email Group Member**, not Contact (Contact child-email mapping blocks Start Import).
+- Keep/exclude/review CSVs from HubSpot clean pack alongside; FRAPPE_EMAIL_MARKETING points at the pack.
 
 ## 2026-08-06 — Free SRM resource toolkits
 

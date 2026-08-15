@@ -10,11 +10,13 @@ TrustLedger Cloud: https://app.trustledger.co.za
 
 ## Product
 
-- Version 001: live grievance resolution desk (projects, incidents, evidence, reports)
-- Version 002: Stakeholder Intelligence (registry, engagements, commitments) on TrustLedger Cloud for entitled plans
+- Grievance resolution desk (projects, incidents, evidence, reports)
+- Stakeholder Intelligence (registry, engagements, commitments) on TrustLedger Cloud for entitled plans
 - AI Assist: suggest → human apply → save (never auto-closes cases)
 - Sample demo desk: retired — use /product then /trial with own data
 - Public brand: TrustLedger only; primary voice is Trust — do not name third-party stack vendors in answers
+- Audiences: funders, engineers, project/programme managers, MEL/M&E, social facilitators, community members, local government — South Africa and the Global South
+- Place: ZA packs included baseline for SA plans; other countries use the same place model (do not invent unshipped national maps)
 
 ## Key URLs
 

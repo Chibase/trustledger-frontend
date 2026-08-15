@@ -79,6 +79,9 @@ export async function GET() {
     resendDiag,
     recaptcha: recaptchaConfigured(),
     recaptchaFailClosed: recaptchaRequired(),
+    securityIngest: Boolean(
+      (process.env.SECURITY_INGEST_SECRET || process.env.CRON_SECRET || "").trim(),
+    ),
     accessEmailVerification: accessEmailVerificationEnabled(),
     accessVerificationReady: accessVerificationReady(),
     leadBackend: leads.preference,

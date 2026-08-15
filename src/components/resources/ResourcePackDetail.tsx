@@ -1,12 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import type { ResourcePack } from "@/data/resources";
+import { RESOURCE_PACKS, type ResourcePack } from "@/data/resources";
+import { fieldTemplateById } from "@/data/fieldTemplates";
 import { ResourceDownloadForm } from "@/components/resources/ResourceDownloadForm";
 import { trackMarketingEvent } from "@/lib/marketingAnalytics";
 
 export function ResourcePackDetail({ pack }: { pack: ResourcePack }) {
   const [open, setOpen] = useState(false);
+  const others = RESOURCE_PACKS.filter((p) => p.id !== pack.id);
+  const field = fieldTemplateById(pack.id);
 
   return (
     <>
@@ -19,6 +23,16 @@ export function ResourcePackDetail({ pack }: { pack: ResourcePack }) {
       <p className="mt-2 text-xs text-tl-ink-muted">
         {pack.pagesHint} · v{pack.version} · {pack.audience}
       </p>
+      <p className="mt-2 text-xs text-tl-ink-muted">
+        This download is this pack only — not a combined toolkit.
+      </p>
+      {field ? (
+        <ul className="mt-3 list-disc pl-5 text-sm text-tl-ink-muted">
+          {field.mapsTo.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      ) : null}
 
       <button
         type="button"
@@ -31,7 +45,7 @@ export function ResourcePackDetail({ pack }: { pack: ResourcePack }) {
         }}
         className="mt-6 inline-flex rounded-md bg-tl-trust px-4 py-2.5 text-sm font-semibold text-white hover:bg-tl-trust-ink"
       >
-        Download free pack
+        Download {pack.shortTitle.toLowerCase()}
       </button>
 
       <div className="mt-10 space-y-8">
@@ -57,16 +71,31 @@ export function ResourcePackDetail({ pack }: { pack: ResourcePack }) {
         ))}
       </div>
 
-      <section className="mt-10 border-t border-tl-line pt-8">
-        <h2 className="font-display text-lg font-semibold text-tl-trust-ink">
-          With TrustLedger
-        </h2>
-        <ul className="mt-3 space-y-2 text-sm text-tl-ink-muted">
-          {pack.trustLedgerBridge.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-      </section>
+      {others.length > 0 ? (
+        <nav
+          className="mt-10 border-t border-tl-line pt-8"
+          aria-label="Other resource packs"
+        >
+          <h2 className="font-display text-lg font-semibold text-tl-ink">
+            Other packs
+          </h2>
+          <p className="mt-1 text-sm text-tl-ink-muted">
+            Each PDF is separate. Switch if you need a different toolkit.
+          </p>
+          <ul className="mt-4 space-y-2">
+            {others.map((other) => (
+              <li key={other.id}>
+                <Link
+                  href={`/resources/${other.id}`}
+                  className="text-sm font-medium text-tl-trust-ink underline underline-offset-2"
+                >
+                  {other.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
 
       {open ? (
         <ResourceDownloadForm pack={pack} onClose={() => setOpen(false)} />

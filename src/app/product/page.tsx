@@ -35,12 +35,16 @@ const FEATURES = [
     body: "Meetings, consultations, walkabouts, and briefings with attendance, minutes, and action items. Capture once; link to stakeholders and projects.",
   },
   {
+    title: "Field templates",
+    body: "Minutes, attendance registers, and field notes with labeled fields. Fill them in the meeting, then paste or upload — Capture maps names, place, and actions the first time. Bundled on Project and Institutional; also free on /resources.",
+  },
+  {
     title: "Commitments",
     body: "Promises with owners and due dates. Promote from engagement actions; track open → fulfilled or broken with evidence notes.",
   },
   {
     title: "Grievance resolution desk",
-    body: "Version 001 case desk: intake, priority, verification, and close — the trust trail buyers already run in production.",
+    body: "Intake, priority, verification, and close — the trust trail operators already run in production.",
   },
   {
     title: "Evidence & reports",
@@ -48,7 +52,7 @@ const FEATURES = [
   },
   {
     title: "Geo context",
-    body: "South African municipalities, wards, and traditional councils (where packed) ship with every plan — you add the project and situation, not the country map.",
+    body: "Place context ships with every plan. South African municipalities, wards, and traditional councils (where packed) are included baseline for SA programmes. Other Global South countries use the same place model — you add the project and situation; we do not invent unshipped national maps.",
   },
 ] as const;
 
@@ -56,7 +60,7 @@ const STEPS = [
   {
     n: "1",
     title: "Start a trial or subscribe",
-    body: "Open your own workspace with ZA place intel ready. No sample INC-* cases — add your projects and people only.",
+    body: "Open your own workspace. South African plans include ZA place intel; other Global South programmes add the project and situation on the same place model. No sample INC-* cases — add your projects and people only.",
     href: "/trial",
     cta: "Start 14-day trial",
   },

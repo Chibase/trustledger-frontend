@@ -1,4 +1,5 @@
 import { isPlanId, type PlanId } from "@/config/plans";
+import { isChibasePaystackTransaction } from "@/lib/chibase/paystack";
 import { siteBaseUrl } from "@/lib/hubspot";
 import {
   recordPaystackPayment,
@@ -57,6 +58,10 @@ export async function provisionAfterPaystackVerify(
   options: { mintCredentials?: boolean } = {},
 ): Promise<TrialProvisionResult | null> {
   if (!verified.ok || !verified.email) return null;
+
+  if (isChibasePaystackTransaction(verified)) {
+    return null;
+  }
 
   const mintCredentials = options.mintCredentials !== false;
 

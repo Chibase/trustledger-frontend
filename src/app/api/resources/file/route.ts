@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { resourcePackById } from "@/data/resources";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
 import { readResourceDownloadGrant } from "@/lib/resourceAccess";
-import { buildResourcePackHtml } from "@/lib/resourceDocument";
+import { buildResourcePackPdf } from "@/lib/resourceDocument";
 
-/** Stream a gated resource pack as a downloadable HTML attachment. */
+export const runtime = "nodejs";
+
+/** Stream a gated resource pack as a PDF attachment. */
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const token = url.searchParams.get("token") || undefined;
@@ -41,19 +43,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unknown resource pack." }, { status: 404 });
   }
 
-  const html = buildResourcePackHtml(pack);
+  const pdf = await buildResourcePackPdf(pack);
   const headers = new Headers({
-    "Content-Type": "text/html; charset=utf-8",
+    "Content-Type": "application/pdf",
     "Cache-Control": "no-store",
   });
-  if (inline) {
-    headers.set("Content-Disposition", `inline; filename="${pack.filename}"`);
-  } else {
-    headers.set(
-      "Content-Disposition",
-      `attachment; filename="${pack.filename}"`,
-    );
-  }
+  const disposition = inline ? "inline" : "attachment";
+  headers.set(
+    "Content-Disposition",
+    `${disposition}; filename="${pack.filename}"`,
+  );
 
-  return new NextResponse(html, { status: 200, headers });
+  return new NextResponse(new Uint8Array(pdf), { status: 200, headers });
 }

@@ -79,6 +79,17 @@ export const PLAN_COMPARISON_GROUPS: ComparisonGroup[] = [
         },
       },
       {
+        id: "capture_templates",
+        label: "Field templates (minutes, attendance, field notes)",
+        hint: "Labeled forms mapped to Capture so names, place, and actions read on first paste. Same PDFs are free on /resources.",
+        values: {
+          solo: "Download on /resources",
+          practitioner: "Download on /resources",
+          project: "Included in Capture hub",
+          institutional: "Included in Capture hub",
+        },
+      },
+      {
         id: "reports",
         label: "Report packs",
         values: {

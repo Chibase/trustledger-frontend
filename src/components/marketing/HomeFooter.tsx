@@ -18,7 +18,7 @@ const COLS = [
   {
     title: "Company",
     links: [
-      { href: "https://chibaseconsulting.co.za", label: "Chibase Consulting", external: true },
+      { href: "/firm", label: "Chibase Consulting" },
       { href: "/contact?utm_source=home&utm_medium=footer&utm_campaign=contact", label: "Contact" },
       { href: "https://trustledger.co.za/privacy/", label: "Privacy", external: true },
       { href: "https://trustledger.co.za/terms/", label: "Terms", external: true },
@@ -52,7 +52,7 @@ export function HomeFooter() {
               to governance-grade reporting.
             </p>
             <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-tl-trust">
-              Version 001 live · Version 002 in build
+              Resolution you can audit
             </p>
             <p className="mt-4 text-sm text-white/70">
               <Link

@@ -26,10 +26,9 @@ Traditional councils*        Evidence & reports
 | Sample `INC-*` / `STK-*` / fake engagements | ADR-033 — bleed risk; confuses “own data” |
 | Client’s project boundaries | Only they know the site |
 | Client’s CLO / contractor list | Tenant CRM |
-| Stats SA socio-economic indicators as live facts | Still deferred — keep language honest |
 | Full GIS / ESIP editing | V003+ |
 
-Platform packs are **shared reference data**, not per-tenant demo seed.
+Platform packs are **shared reference data** (MDB places + Stats SA / Census baseline indicators on featured places) — not fictional demo seed. Do not label them “demo” in product UI.
 
 ## What ships today (`za-mdb-2020`)
 
@@ -42,10 +41,11 @@ Platform packs are **shared reference data**, not per-tenant demo seed.
 | Metro | 8 | MDB 2020 |
 | Ward | 4 468 | MDB 2020 |
 | Traditional council | 15 | Early CSV (Eastern Cape–weighted) |
-| Indicators | 0 | Await Stats SA |
+| Socio-economic indicators | Featured places | Stats SA QLFS / Census CS baseline (`src/data/mockIndicators.ts` → Intelligence / ESG) |
 
 Runtime: `data/geo/za-mdb-2020.places.json` → `geoSeed` → `geoService` / `/app/geo` / `GeoCascadePicker`.  
-Entitlement: `geoIntake` on **all** commercial plans (`src/config/entitlements.ts`).
+Indicators: `mockIndicators` merged via `geoService` / `/app/intelligence`.  
+Entitlement: `geoIntake` on **all** commercial plans; `esgIndicators` on entitled plans (`src/config/entitlements.ts`).
 
 ## Plan packaging
 

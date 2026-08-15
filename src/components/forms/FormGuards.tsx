@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
@@ -118,14 +118,16 @@ export function HoneypotField({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const uid = useId();
+  const fieldId = `${uid}-tl-hp`;
   return (
     <div
       aria-hidden="true"
       className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
     >
-      <label htmlFor="tl-hp-field">Leave blank</label>
+      <label htmlFor={fieldId}>Leave blank</label>
       <input
-        id="tl-hp-field"
+        id={fieldId}
         name="tl_hp"
         type="text"
         tabIndex={-1}

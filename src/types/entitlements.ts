@@ -29,7 +29,7 @@ export const CAPABILITY_LABELS: Record<CapabilityId, string> = {
   incidents: "Incidents / grievances",
   issueIntake: "Issue intake",
   aiAssist: "AI assist (suggest → apply)",
-  captureHub: "Capture hub (minutes / attendance / social)",
+  captureHub: "Capture hub (minutes / attendance templates)",
   stakeholdersCrm: "Stakeholder CRM",
   geoIntake: "Cascading geo intake",
   trustPulse: "Trust pulse",
@@ -41,7 +41,11 @@ export const CAPABILITY_LABELS: Record<CapabilityId, string> = {
   esgIndicators: "ESG / socio-economic indicators",
 };
 
-/** Sellable add-ons that can turn individual capabilities on above a base plan. */
+/**
+ * Sellable add-ons that can turn individual capabilities on above a base plan.
+ * Chibase Consulting packages (facilitation / MEL / IKS / field) are NOT AddonIds —
+ * they do not unlock product capabilities (ADR-048).
+ */
 export type AddonId =
   | "addon_capture"
   | "addon_crm"

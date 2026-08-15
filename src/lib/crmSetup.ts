@@ -16,6 +16,9 @@ const LEAD_SOURCES = [
   "Website Assessment",
   "Website Resource",
   "Support Ticket",
+  "Themba Guide",
+  "Themba Bug",
+  "Chibase Consulting",
 ] as const;
 
 const LEAD_COLUMNS = [
@@ -305,6 +308,18 @@ export async function bootstrapCrmViews(): Promise<SetupResult> {
   views.Support = await createPinnedView(pair.key, pair.secret, "Support", {
     source: ["=", "Support Ticket"],
   });
+  views["Themba guide"] = await createPinnedView(
+    pair.key,
+    pair.secret,
+    "Themba guide",
+    { source: ["=", "Themba Guide"] },
+  );
+  views["Themba bugs"] = await createPinnedView(
+    pair.key,
+    pair.secret,
+    "Themba bugs",
+    { source: ["=", "Themba Bug"] },
+  );
 
   const defaultColumns = await updateDefaultColumns(pair.key, pair.secret);
 

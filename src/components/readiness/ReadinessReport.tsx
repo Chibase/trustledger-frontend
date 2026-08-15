@@ -133,8 +133,7 @@ export function ReadinessReport() {
         </h2>
         <p className="mt-2 text-sm text-tl-ink-muted">
           For each response: what you indicated, what it means, a DIY outline,
-          and honest TrustLedger timeframes (Version 001 desk — stabilize,
-          operationalize, govern).
+          and honest TrustLedger timeframes (stabilize, operationalize, govern).
         </p>
 
         <div className="mt-6 space-y-10">

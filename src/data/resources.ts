@@ -1,16 +1,26 @@
+import { FIELD_TEMPLATES } from "@/data/fieldTemplates";
+
 export type ResourcePackId =
+  | "minutes-template"
+  | "attendance-register"
+  | "field-note"
   | "grievance-checklist"
   | "readiness-planner"
   | "engagement-toolkit";
+
+export type ResourceFamily = "toolkit" | "field-template";
 
 export type ResourceSection = {
   title: string;
   intro?: string;
   items: string[];
+  /** field = fill-in lines; checkbox = toolkit ticks */
+  itemStyle?: "checkbox" | "field";
 };
 
 export type ResourcePack = {
   id: ResourcePackId;
+  family: ResourceFamily;
   title: string;
   shortTitle: string;
   tagline: string;
@@ -20,22 +30,21 @@ export type ResourcePack = {
   version: string;
   filename: string;
   sections: ResourceSection[];
-  trustLedgerBridge: string[];
-  nextSteps: { label: string; href: string }[];
 };
 
-export const RESOURCE_PACKS: ResourcePack[] = [
+export const TOOLKIT_PACKS: ResourcePack[] = [
   {
     id: "grievance-checklist",
-    title: "Community Grievance Checklist",
+    family: "toolkit",
+    title: "Grievance Checklist",
     shortTitle: "Grievance checklist",
     tagline: "Stabilise intake before trust erodes",
     description:
       "A field-ready checklist to map channels, assign case ownership, set severity SLAs, and close grievances with evidence you can defend.",
-    audience: "Community liaison, site managers, social performance leads",
-    pagesHint: "Printable · ~6 sections",
+    audience: "Site managers, social performance leads, liaison officers",
+    pagesHint: "PDF · ~6 sections",
     version: "2026.08",
-    filename: "TrustLedger-Community-Grievance-Checklist.html",
+    filename: "Grievance-Checklist.pdf",
     sections: [
       {
         title: "1. Intake channel map",
@@ -95,28 +104,19 @@ export const RESOURCE_PACKS: ResourcePack[] = [
         ],
       },
     ],
-    trustLedgerBridge: [
-      "Week 1–2: single case desk + assisted intake on one pilot site",
-      "~30 days: triage categories, named owners, and SLA breach visibility",
-      "60–90 days: verified closure checklist and board-ready Activity pack",
-    ],
-    nextSteps: [
-      { label: "SRM readiness check", href: "/assessment" },
-      { label: "14-day trial", href: "/trial?utm_source=resources&utm_medium=pack&utm_campaign=grievance_checklist" },
-      { label: "Request walkthrough", href: "/quote?utm_source=resources&utm_medium=pack&utm_campaign=grievance_checklist" },
-    ],
   },
   {
     id: "readiness-planner",
+    family: "toolkit",
     title: "SRM Readiness & 90-Day Planner",
     shortTitle: "Readiness planner",
     tagline: "Turn diagnostic gaps into a 90-day plan",
     description:
-      "Score six governance dimensions, pick your top three gaps, and plan 30 / 60 / 90-day actions — with a parallel TrustLedger turnaround lane.",
+      "Score six governance dimensions, pick your top three gaps, and plan 30 / 60 / 90-day actions you can run with your own tools.",
     audience: "ESG / social performance, project directors, compliance leads",
-    pagesHint: "Worksheet · 6 dimensions",
+    pagesHint: "PDF worksheet · 6 dimensions",
     version: "2026.08",
-    filename: "TrustLedger-SRM-Readiness-Planner.html",
+    filename: "SRM-Readiness-Planner.pdf",
     sections: [
       {
         title: "How to use this planner",
@@ -124,8 +124,7 @@ export const RESOURCE_PACKS: ResourcePack[] = [
           "Rate each dimension 1 (not in place) to 5 (embedded / governed)",
           "Circle your three lowest scores — those become your priorities",
           "Write DIY actions for 30 / 60 / 90 days",
-          "Compare with the TrustLedger lane if you want a faster path to auditability",
-          "Optional: complete the free online diagnostic at /assessment for a scored report",
+          "Optional: complete a scored diagnostic if your organisation uses one",
         ],
       },
       {
@@ -135,7 +134,6 @@ export const RESOURCE_PACKS: ResourcePack[] = [
           "30 days: map every intake channel; define one case ID convention",
           "60 days: pilot structured triage at one priority site",
           "90 days: enforce verified closure + weekly aging review",
-          "With TrustLedger: stabilize intake in ~1–2 weeks on a pilot site",
         ],
       },
       {
@@ -145,7 +143,6 @@ export const RESOURCE_PACKS: ResourcePack[] = [
           "30 days: named owner + SLA on every high-severity open case; simple RACI",
           "60 days: reminders + escalation ladder for breaches",
           "90 days: standing SLA review with minuted owners",
-          "With TrustLedger: breach visibility routine in ~30 days",
         ],
       },
       {
@@ -155,7 +152,6 @@ export const RESOURCE_PACKS: ResourcePack[] = [
           "30 days: identify three highest-friction capture points",
           "60 days: train liaison officers on assisted / multilingual intake",
           "90 days: measure submission completeness weekly",
-          "With TrustLedger: assisted scripts live in week 1–2",
         ],
       },
       {
@@ -165,7 +161,6 @@ export const RESOURCE_PACKS: ResourcePack[] = [
           "30 days: acknowledgment and update cadences (e.g. 48h / 14-day)",
           "60 days: community feedback session on grievance channels",
           "90 days: share anonymised trends with community reps",
-          "With TrustLedger: engagements and commitments logged for credible updates",
         ],
       },
       {
@@ -175,7 +170,6 @@ export const RESOURCE_PACKS: ResourcePack[] = [
           "30 days: agree minimum KPI set (volume, SLA, severity, closure, aging)",
           "60 days: monthly social performance pack for one site",
           "90 days: multi-site roll-up with audit trail",
-          "With TrustLedger: first Activity pack from live cases in week 1–2",
         ],
       },
       {
@@ -185,32 +179,22 @@ export const RESOURCE_PACKS: ResourcePack[] = [
           "30 days: evidence stubs on high-severity closures + duplicate check",
           "60 days: sample 10% of closed cases for quality",
           "90 days: quarterly assurance calendar with corrective actions",
-          "With TrustLedger: evidence on closures from week 1–2",
         ],
       },
-    ],
-    trustLedgerBridge: [
-      "Start with the free online SRM Readiness check for a scored report",
-      "Use this planner in workshops; keep one owner per priority",
-      "Move from spreadsheet scoring to a live desk when intake volume rises",
-    ],
-    nextSteps: [
-      { label: "Take the readiness check", href: "/assessment?utm_source=resources&utm_medium=pack&utm_campaign=readiness_planner" },
-      { label: "Product overview", href: "/product?utm_source=resources&utm_medium=pack&utm_campaign=readiness_planner" },
-      { label: "14-day trial", href: "/trial?utm_source=resources&utm_medium=pack&utm_campaign=readiness_planner" },
     ],
   },
   {
     id: "engagement-toolkit",
+    family: "toolkit",
     title: "Community Engagement Toolkit",
     shortTitle: "Engagement toolkit",
     tagline: "Make engagement continuous, not episodic",
     description:
       "Agendas, RACI, acknowledgment scripts, and a commitment log so communities see credible follow-through — the foundation of social licence.",
     audience: "Community relations, stakeholder managers, project teams",
-    pagesHint: "Toolkit · agendas + logs",
+    pagesHint: "PDF toolkit · agendas + logs",
     version: "2026.08",
-    filename: "TrustLedger-Community-Engagement-Toolkit.html",
+    filename: "Community-Engagement-Toolkit.pdf",
     sections: [
       {
         title: "1. Engagement purpose checklist",
@@ -272,18 +256,17 @@ export const RESOURCE_PACKS: ResourcePack[] = [
         ],
       },
     ],
-    trustLedgerBridge: [
-      "Log engagements and commitments in one place linked to cases",
-      "Keep acknowledgment cadences visible beside open grievances",
-      "Share anonymised trend summaries from the reports hub when ready",
-    ],
-    nextSteps: [
-      { label: "SRM readiness check", href: "/assessment?utm_source=resources&utm_medium=pack&utm_campaign=engagement_toolkit" },
-      { label: "14-day trial", href: "/trial?utm_source=resources&utm_medium=pack&utm_campaign=engagement_toolkit" },
-      { label: "Request walkthrough", href: "/quote?utm_source=resources&utm_medium=pack&utm_campaign=engagement_toolkit" },
-    ],
   },
 ];
+
+export const RESOURCE_PACKS: ResourcePack[] = [
+  ...FIELD_TEMPLATES,
+  ...TOOLKIT_PACKS,
+];
+
+export function resourcePacksByFamily(family: ResourceFamily): ResourcePack[] {
+  return RESOURCE_PACKS.filter((p) => p.family === family);
+}
 
 export function resourcePackById(id: string): ResourcePack | undefined {
   return RESOURCE_PACKS.find((p) => p.id === id);

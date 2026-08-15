@@ -105,6 +105,76 @@ async function userExists(
 }
 
 /**
+ * Create Owner User. Frappe Cloud often 403s when the API key posts `roles`
+ * (even for System Managers) — create without roles, then stamp TL customs.
+ */
+async function createOwnerUser(
+  base: string,
+  headers: HeadersInit,
+  user: FrappeOwnerUserDraft,
+  customerName: string,
+  opts: { sendWelcomeEmail: boolean },
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const payloadWithRoles = {
+    email: user.email,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    send_welcome_email: opts.sendWelcomeEmail ? 1 : 0,
+    roles: user.roles.map((role) => ({ role })),
+    custom_tl_desk_tier: user.tl_desk_tier,
+    custom_tl_plan_owner: user.tl_plan_owner,
+    custom_tl_customer: customerName,
+  };
+
+  let userRes = await fetch(`${base}/api/resource/User`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payloadWithRoles),
+    cache: "no-store",
+  });
+  let userText = await userRes.text();
+
+  if (!userRes.ok && userRes.status === 403) {
+    userRes = await fetch(`${base}/api/resource/User`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        send_welcome_email: opts.sendWelcomeEmail ? 1 : 0,
+      }),
+      cache: "no-store",
+    });
+    userText = await userRes.text();
+  }
+
+  if (!userRes.ok) {
+    return {
+      ok: false,
+      error: `User create failed (${userRes.status}): ${userText.slice(0, 280)}`,
+    };
+  }
+
+  // Stamp TrustLedger Owner fields (and retry without roles if needed).
+  await fetch(`${base}/api/resource/User/${encodeURIComponent(user.email)}`, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({
+      first_name: user.first_name,
+      last_name: user.last_name,
+      custom_tl_desk_tier: user.tl_desk_tier,
+      custom_tl_plan_owner: user.tl_plan_owner,
+      custom_tl_customer: customerName,
+      send_welcome_email: 0,
+    }),
+    cache: "no-store",
+  }).catch(() => undefined);
+
+  return { ok: true };
+}
+
+/**
  * Idempotent Customer + Owner User create.
  * Skips if Customer already exists for owner email (and User exists).
  */
@@ -248,26 +318,13 @@ export async function provisionOwnerOnCloud(
         };
       }
       // Customer exists but User missing — create User only
-      const userRes = await fetch(`${base}/api/resource/User`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          send_welcome_email: input.sendWelcomeEmail === false ? 0 : 1,
-          roles: user.roles.map((role) => ({ role })),
-          custom_tl_desk_tier: user.tl_desk_tier,
-          custom_tl_plan_owner: user.tl_plan_owner,
-          custom_tl_customer: existingCustomer,
-        }),
-        cache: "no-store",
+      const created = await createOwnerUser(base, headers, user, existingCustomer, {
+        sendWelcomeEmail: input.sendWelcomeEmail !== false,
       });
-      const userText = await userRes.text();
-      if (!userRes.ok) {
+      if (!created.ok) {
         return {
           ok: false,
-          error: `User create failed (${userRes.status}): ${userText.slice(0, 280)}`,
+          error: created.error,
           customerName: existingCustomer,
           customer,
           user,
@@ -321,26 +378,13 @@ export async function provisionOwnerOnCloud(
 
     await stampVipComment(customerName);
 
-    const userRes = await fetch(`${base}/api/resource/User`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        send_welcome_email: input.sendWelcomeEmail === false ? 0 : 1,
-        roles: user.roles.map((role) => ({ role })),
-        custom_tl_desk_tier: user.tl_desk_tier,
-        custom_tl_plan_owner: user.tl_plan_owner,
-        custom_tl_customer: customerName,
-      }),
-      cache: "no-store",
+    const created = await createOwnerUser(base, headers, user, customerName, {
+      sendWelcomeEmail: input.sendWelcomeEmail !== false,
     });
-    const userText = await userRes.text();
-    if (!userRes.ok) {
+    if (!created.ok) {
       return {
         ok: false,
-        error: `User create failed (${userRes.status}): ${userText.slice(0, 280)}`,
+        error: created.error,
         customerName,
         customer,
         user,

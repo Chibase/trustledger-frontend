@@ -5,9 +5,12 @@ import Link from "next/link";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { CaptureTemplateBar } from "@/components/capture/CaptureTemplateBar";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
+import { TL_TRIAL_PLAN_COOKIE } from "@/lib/auth.constants";
+import { isPlanId, type PlanId } from "@/config/plans";
 import {
   createCaptureId,
   listCaptureRecords,
@@ -40,17 +43,17 @@ const SOURCES: { id: CaptureSource; label: string; hint: string }[] = [
   {
     id: "minutes",
     label: "Meeting minutes",
-    hint: "Paste minutes — AI extracts attendees and themes.",
+    hint: "Insert the minutes template — labeled fields map attendees and actions.",
   },
   {
     id: "attendance",
     label: "Attendance register",
-    hint: "Names from the register become CRM candidates.",
+    hint: "Insert the register template — one named person per slot.",
   },
   {
     id: "social_intel",
     label: "Social intelligence",
-    hint: "Notes from social listening or community chatter.",
+    hint: "Insert the field-note template — people mentioned and themes.",
   },
   {
     id: "pasted_report",
@@ -94,6 +97,18 @@ export default function AppCapturePage() {
   const [brief, setBrief] = useState<ReportBriefSuggestion | null>(null);
   const [briefStatus, setBriefStatus] = useState<AiSuggestionStatus>("idle");
   const [recent, setRecent] = useState(listCaptureRecords());
+  const [planId, setPlanId] = useState<PlanId | null>(null);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const match = document.cookie.match(
+        new RegExp(`(?:^|; )${TL_TRIAL_PLAN_COOKIE}=([^;]*)`),
+      );
+      const raw = match?.[1] ? decodeURIComponent(match[1]) : "";
+      setPlanId(isPlanId(raw) ? raw : null);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -245,12 +260,25 @@ export default function AppCapturePage() {
   }
 
   return (
-    <FeatureGate capability="captureHub">
+    <FeatureGate
+      capability="captureHub"
+      planId={planId}
+      lockedBody={
+        <p className="mt-2 text-tl-ink-muted">
+          Minutes, attendance, and field-note templates are still free on{" "}
+          <Link href="/resources" className="text-tl-trust-ink underline">
+            /resources
+          </Link>
+          . Project and Institutional plans include Capture hub so the desk
+          maps those labeled fields on first paste.
+        </p>
+      }
+    >
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
         eyebrow="Engagement capture"
         title="Capture hub"
-        description="Grow the stakeholder registry from minutes, attendance registers, social intelligence, or pasted reports. Seed CRM stays demo placeholder until you apply AI suggestions."
+        description="Paste minutes, attendance, or field notes into labeled templates so names, place, and actions map on first capture. Review every AI suggestion before Apply."
         actions={
           <div className="flex flex-wrap gap-2">
             <Link
@@ -288,6 +316,12 @@ export default function AppCapturePage() {
       <p className="text-sm text-tl-ink-muted">
         {SOURCES.find((s) => s.id === source)?.hint}
       </p>
+
+      <CaptureTemplateBar
+        source={source}
+        planId={planId}
+        onInsert={(skeleton) => setBody(skeleton)}
+      />
 
       <form
         className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4"
@@ -340,7 +374,7 @@ export default function AppCapturePage() {
             value={body}
             onChange={(e) => setBody(e.target.value)}
             className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-            placeholder="Paste minutes, register lines, social notes, or a report…"
+            placeholder="Insert a blank template, or paste filled minutes / register text…"
           />
         </div>
         <div className="flex flex-wrap gap-2">

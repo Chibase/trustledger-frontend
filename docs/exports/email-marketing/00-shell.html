@@ -3,22 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TrustLedger email</title>
+  <meta name="color-scheme" content="light" />
+  <title>TrustLedger</title>
+  <!-- Preheader (inbox preview) -->
+  <style type="text/css">
+    .tl-preheader { display:none !important; visibility:hidden; opacity:0; color:transparent; height:0; width:0; overflow:hidden; mso-hide:all; }
+  </style>
 </head>
 <body style="margin:0;padding:0;background:#f3f5f7;font-family:'Source Sans 3',Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#12202a;">
+  <div class="tl-preheader">TrustLedger — stakeholder trust you can operationalise.</div>
   <!--
-    TrustLedger email shell (ADR-034 / EM-1)
-    Paste into Frappe Email Template / Newsletter body.
-    Colours: ink #12202a · muted #5b6b76 · paper #f3f5f7 · trust #0e7c66 · trust-ink #085f4d · line #d7dee4
+    TrustLedger email shell (ADR-034 / EM-1 / DESIGN_SYSTEM)
+    Paste into Frappe Email Template (use HTML) or Newsletter message.
+    Tokens: ink #12202a · muted #5b6b76 · paper #f3f5f7 · trust #0e7c66 · trust-ink #085f4d · line #d7dee4
   -->
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f5f7;padding:24px 12px;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f5f7;padding:28px 12px;">
     <tr>
       <td align="center">
         <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #d7dee4;border-radius:8px;overflow:hidden;">
           <tr>
-            <td style="background:#12202a;padding:20px 28px;">
-              <p style="margin:0;font-family:Georgia,'Source Serif 4',serif;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:0.02em;">TrustLedger</p>
-              <p style="margin:6px 0 0;font-size:12px;color:#d7dee4;letter-spacing:0.04em;text-transform:uppercase;">Stakeholder trust you can operationalise</p>
+            <td style="background:#12202a;padding:0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="padding:22px 28px 18px;">
+                    <p style="margin:0;font-family:Georgia,'Times New Roman','Source Serif 4',serif;font-size:26px;font-weight:700;color:#ffffff;letter-spacing:0.01em;line-height:1.2;">
+                      Trust<span style="color:#7dcfbf;">Ledger</span>
+                    </p>
+                    <p style="margin:8px 0 0;font-size:13px;line-height:1.4;color:#d7dee4;">
+                      Resolution you can audit
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="height:4px;line-height:4px;font-size:0;background:#0e7c66;">&nbsp;</td>
+                </tr>
+              </table>
             </td>
           </tr>
           <tr>
@@ -29,7 +48,7 @@
               <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:28px;">
                 <tr>
                   <td style="background:#0e7c66;border-radius:8px;">
-                    <a href="{{ action_url }}" style="display:inline-block;padding:12px 20px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">{{ action_label }}</a>
+                    <a href="{{ action_url }}" style="display:inline-block;padding:12px 22px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">{{ action_label }}</a>
                   </td>
                 </tr>
               </table>
@@ -37,15 +56,16 @@
           </tr>
           <tr>
             <td style="padding:18px 28px;background:#f3f5f7;border-top:1px solid #d7dee4;">
-              <p style="margin:0;font-size:12px;line-height:1.5;color:#5b6b76;">
-                TrustLedger · a Chibase Consulting product<br />
-                <a href="https://trustledger.co.za" style="color:#085f4d;">trustledger.co.za</a>
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:14px;font-weight:700;color:#12202a;">TrustLedger</p>
+              <p style="margin:6px 0 0;font-size:12px;line-height:1.5;color:#5b6b76;">
+                A Chibase Consulting product ·
+                <a href="https://trustledger.co.za" style="color:#085f4d;text-decoration:none;">trustledger.co.za</a>
                 ·
-                <a href="https://trustledger-frontend-pi.vercel.app/contact" style="color:#085f4d;">Contact</a>
+                <a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=email&amp;utm_medium=bulk&amp;utm_campaign=shell" style="color:#085f4d;text-decoration:none;">Contact</a>
               </p>
               <p style="margin:10px 0 0;font-size:11px;line-height:1.45;color:#5b6b76;">
                 You received this because you asked about TrustLedger or work with us on stakeholder / SRM programmes.
-                Unsubscribe or reply if you prefer not to hear from us.
+                Reply if you prefer not to hear from us.
               </p>
             </td>
           </tr>
