@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-15 — Report packs as labelled evidence SoT (ADR-050)
+
+- Each Capture report pack (B-BBEE, employment, CSI, ESG, GRM, budget, issue log) carries a **mandate** label — it owns that domain’s metrics and evidence for popularising matching reports.
+- Domain packs gain the **same sequenced pathway** as Issue log (title → category → reporter → reported → evidence detail → follow-ups → escalate → feedback → resolve → close) with pack-specific categories; richer evidence fields (verification, supplier notes, hire evidence, delivery/monitoring notes).
+- Pathways store on the project pack and retrieve from the project dashboard category panels; report composer includes them in B-BBEE / CSI / issue sections.
+- Trust pulse blends desk sentiment with **pack pathway health weighted by relevancy** (issue log / GRM / employment / ESG highest).
+
 ## 2026-08-15 — Minutes & attendance field templates restructured
 
 - **Meeting minutes:** project details, date of meeting, time, venue; mandatory agenda rows Item · Description · Action · Date. No distribution list (attendance register covers people).

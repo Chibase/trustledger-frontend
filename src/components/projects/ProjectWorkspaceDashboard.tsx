@@ -287,6 +287,22 @@ function CategoryPanel({
         ))}
       </dl>
 
+      {expanded && category.pathwaySummaries?.length ? (
+        <ul className="mt-3 space-y-1 border-t border-tl-line pt-3 text-xs">
+          <li className="font-medium text-tl-ink">
+            Pathways on this pack (project SoT)
+          </li>
+          {category.pathwaySummaries.slice(0, 8).map((p) => (
+            <li key={p.id} className="text-tl-ink-muted">
+              <span className="font-medium text-tl-ink">{p.title}</span>
+              {" · "}
+              {p.status}
+              {p.category ? ` · ${p.category.replaceAll("_", " ")}` : ""}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
       {expanded && category.chartBars.some((b) => b.value > 0) ? (
         <div className="mt-3">
           <HorizontalBarChart bars={category.chartBars} maxHeight={140} />
@@ -315,7 +331,7 @@ function CategoryPanel({
           onClick={onToggle}
           className="rounded-md border border-tl-line bg-tl-paper px-2.5 py-1 text-xs font-medium text-tl-ink"
         >
-          {expanded ? "Less" : "Monitor charts"}
+          {expanded ? "Less" : "Retrieve / monitor"}
         </button>
         <a
           href="#project-reports"

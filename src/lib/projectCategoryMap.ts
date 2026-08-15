@@ -7,6 +7,8 @@
 import { sectionsForKind } from "@/config/reportCatalogue";
 import {
   latestPackCapture,
+  titledPackEntries,
+  trustFromProjectPackEvidence,
   type BbbeeFacts,
   type BudgetFacts,
   type CsiFacts,
@@ -14,6 +16,7 @@ import {
   type EsgPeriodFacts,
   type GrmPeriodFacts,
   type IssueLogFacts,
+  type PackEvidenceEntry,
 } from "@/lib/captureStore";
 import {
   computeEmpowermentSpent,
@@ -57,7 +60,31 @@ export type ProjectDataCategory = {
   hasData: boolean;
   facts: ProjectCategoryFact[];
   chartBars: Array<{ label: string; value: number }>;
+  /** Sequenced pack pathways for retrieval (title + status). */
+  pathwaySummaries?: Array<{
+    id: string;
+    title: string;
+    status: string;
+    category?: string;
+  }>;
 };
+
+function pathwayStatus(entry: PackEvidenceEntry): string {
+  if (entry.closedAt) return "Closed";
+  if (entry.resolvedAt) return "Resolved";
+  if (entry.escalatedTo || entry.escalatedAt) return "Escalated";
+  if ((entry.followUps || []).some((f) => f.action?.trim())) return "Follow-up";
+  return "Open";
+}
+
+function pathwaySummaries(entries?: PackEvidenceEntry[] | null) {
+  return titledPackEntries(entries).map((e) => ({
+    id: e.id,
+    title: e.title,
+    status: pathwayStatus(e),
+    category: e.category,
+  }));
+}
 
 function pack<T>(
   projectId: string,
@@ -113,7 +140,10 @@ export function buildProjectCategoryMap(args: {
   const { project, incidents } = args;
   const scoped = incidents.filter((i) => i.projectId === project.id);
   const open = scoped.filter((i) => i.status !== "Closed");
-  const pulse = trustIndexFromIncidents(scoped);
+  const pulse = trustFromProjectPackEvidence(
+    project.id,
+    trustIndexFromIncidents(scoped),
+  );
   const stakeholders = (args.stakeholders || []).filter((s) =>
     (s.projectIds || []).includes(project.id),
   );
@@ -178,7 +208,8 @@ export function buildProjectCategoryMap(args: {
     {
       id: "incidents_grm",
       label: "Incidents & GRM",
-      description: "Cases, grievance volumes, turnaround.",
+      description:
+        "Owns case volumes, grievance themes, turnaround — plus GRM matter pathways.",
       reportKinds: [
         "issue_handling",
         "grm",
@@ -188,7 +219,10 @@ export function buildProjectCategoryMap(args: {
       ],
       captureHref: capture("grm_period"),
       moduleHref: `/app/incidents?project=${id}`,
-      hasData: scoped.length > 0 || Boolean(grm),
+      hasData:
+        scoped.length > 0 ||
+        Boolean(grm) ||
+        titledPackEntries(grm?.entries).length > 0,
       facts: [
         { label: "Cases on file", value: num(scoped.length) },
         { label: "Open", value: num(open.length) },
@@ -208,6 +242,18 @@ export function buildProjectCategoryMap(args: {
             : "—",
         },
         { label: "Trust pulse", value: `${pulse.trustIndex}/100 (${pulse.label})` },
+        ...(pulse.packPathwayCount
+          ? [
+              {
+                label: "Pack pathways (trust SoT)",
+                value: String(pulse.packPathwayCount),
+              },
+            ]
+          : []),
+        {
+          label: "GRM pathways",
+          value: num(titledPackEntries(grm?.entries).length),
+        },
       ],
       chartBars: [
         { label: "Open", value: open.length },
@@ -222,11 +268,13 @@ export function buildProjectCategoryMap(args: {
           ).length,
         },
       ],
+      pathwaySummaries: pathwaySummaries(grm?.entries),
     },
     {
       id: "issue_log",
       label: "Issue log pathway",
-      description: "Report → follow-ups → escalate → resolve → close.",
+      description:
+        "Cross-cutting SoT: report → follow-ups → escalate → resolve → close. Same sequence used inside domain packs.",
       reportKinds: ["issue_handling", "grm", "monthly_activity", "mel"],
       captureHref: capture("issue_log"),
       hasData: Boolean(
@@ -251,14 +299,17 @@ export function buildProjectCategoryMap(args: {
         { label: "Closed", value: issueLog?.casesClosed ?? 0 },
         { label: "Escalated", value: issueLog?.casesEscalated ?? 0 },
       ],
+      pathwaySummaries: pathwaySummaries(issueLog?.entries),
     },
     {
       id: "employment_training",
       label: "Employment & training",
-      description: "Local hire, workforce, training days and spend.",
+      description:
+        "Owns local hire, workforce, training — plus employment matter pathways for evidence and trust.",
       reportKinds: ["bbbee", "esg", "board_investor", "mel", "monthly_activity"],
       captureHref: capture("employment"),
-      hasData: Boolean(emp),
+      hasData:
+        Boolean(emp) || titledPackEntries(emp?.entries).length > 0,
       facts: [
         {
           label: "Local hire",
@@ -274,20 +325,29 @@ export function buildProjectCategoryMap(args: {
           label: "Women / youth / PWD",
           value: `${num(emp?.womenEmployed)} / ${num(emp?.youthEmployed)} / ${num(emp?.personsWithDisability)}`,
         },
+        {
+          label: "Employment pathways",
+          value: num(titledPackEntries(emp?.entries).length),
+        },
       ],
       chartBars: [
         { label: "Hire actual", value: emp?.localHireActual ?? 0 },
         { label: "Hire target", value: emp?.localHireTarget ?? 0 },
         { label: "Training days", value: emp?.trainingDays ?? 0 },
       ],
+      pathwaySummaries: pathwaySummaries(emp?.entries),
     },
     {
       id: "bbbee",
       label: "B-BBEE / empowerment",
-      description: "Ownership, skills, procurement, ESD.",
+      description:
+        "Owns ownership, skills, procurement, ESD evidence and B-BBEE-specific pathways.",
       reportKinds: ["bbbee", "esg", "board_investor", "mel"],
       captureHref: capture("bbbee"),
-      hasData: Boolean(bb) || Boolean(project.dossier?.empowermentTargets),
+      hasData:
+        Boolean(bb) ||
+        Boolean(project.dossier?.empowermentTargets) ||
+        titledPackEntries(bb?.entries).length > 0,
       facts: [
         {
           label: "Level",
@@ -303,6 +363,10 @@ export function buildProjectCategoryMap(args: {
           value: money(bb?.preferentialProcurementZar),
         },
         { label: "ESD spend", value: money(bb?.esdSpendZar) },
+        {
+          label: "B-BBEE pathways",
+          value: num(titledPackEntries(bb?.entries).length),
+        },
       ],
       chartBars: [
         {
@@ -318,14 +382,19 @@ export function buildProjectCategoryMap(args: {
           value: Math.round((bb?.esdSpendZar ?? 0) / 1000),
         },
       ],
+      pathwaySummaries: pathwaySummaries(bb?.entries),
     },
     {
       id: "esg",
       label: "ESG",
-      description: "Environment, social trust, H&S period notes.",
+      description:
+        "Owns environment, social trust, H&S period evidence and ESG matter pathways.",
       reportKinds: ["esg", "environmental", "health_safety", "board_investor"],
       captureHref: capture("esg_period"),
-      hasData: Boolean(esg) || Boolean(project.dossier?.communityIntel),
+      hasData:
+        Boolean(esg) ||
+        Boolean(project.dossier?.communityIntel) ||
+        titledPackEntries(esg?.entries).length > 0,
       facts: [
         {
           label: "Env incidents",
@@ -344,11 +413,8 @@ export function buildProjectCategoryMap(args: {
           value: esg?.communityTrustNotes?.slice(0, 80) || "—",
         },
         {
-          label: "Area unemployment",
-          value:
-            project.dossier?.communityIntel?.unemploymentRatePct != null
-              ? `${project.dossier.communityIntel.unemploymentRatePct}%`
-              : "—",
+          label: "ESG pathways",
+          value: num(titledPackEntries(esg?.entries).length),
         },
       ],
       chartBars: [
@@ -356,14 +422,20 @@ export function buildProjectCategoryMap(args: {
         { label: "Near misses", value: esg?.hsNearMisses ?? 0 },
         { label: "LTI", value: esg?.hsLostTimeInjuries ?? 0 },
       ],
+      pathwaySummaries: pathwaySummaries(esg?.entries),
     },
     {
       id: "budget",
       label: "Empowerment budget",
-      description: "Authorised envelope, spent, available.",
+      description:
+        "Owns authorised envelope, spent, available — plus budget matter pathways.",
       reportKinds: ["board_investor", "mel", "bbbee", "esg"],
       captureHref: capture("budget"),
-      hasData: envelope > 0 || spent > 0 || Boolean(budgetPack),
+      hasData:
+        envelope > 0 ||
+        spent > 0 ||
+        Boolean(budgetPack) ||
+        titledPackEntries(budgetPack?.entries).length > 0,
       facts: [
         { label: "Authorised", value: money(envelope) },
         { label: "Spent", value: money(spent) },
@@ -376,11 +448,16 @@ export function buildProjectCategoryMap(args: {
           label: "Period spend (pack)",
           value: money(budgetPack?.periodSpendZar),
         },
+        {
+          label: "Budget pathways",
+          value: num(titledPackEntries(budgetPack?.entries).length),
+        },
       ],
       chartBars: [
         { label: "Spent %", value: spendPct ?? 0 },
         { label: "Available Rk", value: Math.round(available / 1000) },
       ],
+      pathwaySummaries: pathwaySummaries(budgetPack?.entries),
     },
     {
       id: "stakeholders",
@@ -411,15 +488,20 @@ export function buildProjectCategoryMap(args: {
     {
       id: "csi",
       label: "CSI / community investment",
-      description: "Programmes, beneficiaries, spend.",
+      description:
+        "Owns programmes, beneficiaries, spend — plus CSI matter pathways for evidence.",
       reportKinds: ["csi", "esg", "board_investor", "monthly_activity"],
       captureHref: capture("csi"),
-      hasData: Boolean(csi),
+      hasData: Boolean(csi) || titledPackEntries(csi?.entries).length > 0,
       facts: [
         { label: "Programme", value: csi?.programmeName || "—" },
         { label: "Beneficiaries", value: csi?.beneficiaryGroup || "—" },
         { label: "Amount", value: money(csi?.amountZar) },
         { label: "Reached", value: num(csi?.beneficiariesReached) },
+        {
+          label: "CSI pathways",
+          value: num(titledPackEntries(csi?.entries).length),
+        },
       ],
       chartBars: [
         {
@@ -428,6 +510,7 @@ export function buildProjectCategoryMap(args: {
         },
         { label: "Reached", value: csi?.beneficiariesReached ?? 0 },
       ],
+      pathwaySummaries: pathwaySummaries(csi?.entries),
     },
   ];
 

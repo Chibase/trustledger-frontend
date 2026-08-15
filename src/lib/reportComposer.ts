@@ -8,7 +8,10 @@ import {
   collectIssueLogEntries,
   formatIssueLogEntries,
   listCaptureRecords,
+  titledPackEntries,
+  trustFromProjectPackEvidence,
   type AggregatedPackFacts,
+  type PackEvidenceEntry,
 } from "@/lib/captureStore";
 import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
@@ -318,17 +321,17 @@ export function buildPeriodActivityFacts(
   }));
 
   let issueLogEvidenceDone = false;
-  for (const row of allCaptures.filter((c) => Boolean(c.structured)).slice(0, 8)) {
-    if (row.structured?.pack === "issue_log") {
-      // Captures are newest-first — only the latest Issue log pack is evidence SoT.
+  const seenPackPathways = new Set<string>();
+  for (const row of allCaptures.filter((c) => Boolean(c.structured)).slice(0, 16)) {
+    const pack = row.structured?.pack;
+    if (!pack) continue;
+    const data = row.structured!.data as { entries?: PackEvidenceEntry[] };
+    const entries = titledPackEntries(data.entries);
+
+    if (pack === "issue_log") {
       if (issueLogEvidenceDone) continue;
       issueLogEvidenceDone = true;
-      if (
-        (row.structured.data.entries || []).some((e) => e.title?.trim())
-      ) {
-        const entries = (row.structured.data.entries || []).filter((e) =>
-          e.title?.trim(),
-        );
+      if (entries.length) {
         evidence.push({
           id: `ev-${row.id}`,
           kind: "other",
@@ -346,15 +349,32 @@ export function buildPeriodActivityFacts(
             linkedCaptureId: row.id,
           });
         }
-        continue;
       }
+      continue;
     }
-    evidence.push({
-      id: `ev-${row.id}`,
-      kind: "other",
-      label: row.title || row.source,
-      linkedCaptureId: row.id,
-    });
+
+    if (entries.length && !seenPackPathways.has(pack)) {
+      seenPackPathways.add(pack);
+      evidence.push({
+        id: `ev-${row.id}-pathways`,
+        kind: "other",
+        label: `${pack.replaceAll("_", " ")} pathways ×${entries.length} — ${entries
+          .slice(0, 2)
+          .map((e) => e.title)
+          .join("; ")}${entries.length > 2 ? "…" : ""}`,
+        linkedCaptureId: row.id,
+      });
+    }
+
+    if (!seenPackPathways.has(`${pack}-body`)) {
+      seenPackPathways.add(`${pack}-body`);
+      evidence.push({
+        id: `ev-${row.id}`,
+        kind: "other",
+        label: row.title || row.source,
+        linkedCaptureId: row.id,
+      });
+    }
   }
 
   if (evidence.length < 2 && !isCustomerWorkspaceClient()) {
@@ -378,7 +398,10 @@ export function buildPeriodActivityFacts(
     });
   }
 
-  const trust = trustIndexFromIncidents(scoped);
+  const incidentTrust = trustIndexFromIncidents(scoped);
+  const trust = options?.projectId
+    ? trustFromProjectPackEvidence(options.projectId, incidentTrust)
+    : incidentTrust;
 
   return {
     attended: scoped.slice(0, 12),
@@ -704,10 +727,12 @@ ${
     case "bbbee_empowerment": {
       const bb = facts.packs.bbbee[0];
       const emp = facts.packs.employment[0];
+      const bbPathways = titledPackEntries(bb?.entries);
+      const empPathways = titledPackEntries(emp?.entries);
       if (!bb && !emp) {
         return `## ${label}
 
-Local participation and empowerment interface for ${period} is evidenced through community-facing cases (${shortList(facts.attended)}) and Capture records (${facts.meetingCaptures.length} on file). Capture a **B-BBEE / Empowerment** and **Employment** pack under Capture hub to populate ownership, skills, procurement, and local hire figures.`;
+Local participation and empowerment interface for ${period} is evidenced through community-facing cases (${shortList(facts.attended)}) and Capture records (${facts.meetingCaptures.length} on file). Capture a **B-BBEE / Empowerment** and **Employment** pack under Capture hub to populate ownership, skills, procurement, local hire figures, and sequenced domain pathways.`;
       }
       return `## ${label}
 
@@ -720,10 +745,17 @@ ${
 - **Preferential procurement:** R${bb.preferentialProcurementZar?.toLocaleString("en-ZA") ?? "—"}
 - **ESD spend:** R${bb.esdSpendZar?.toLocaleString("en-ZA") ?? "—"}
 - **Local suppliers engaged:** ${bb.localSupplierCount ?? "—"}
-- **Certificate ref:** ${bb.certificateRef || "—"}
+- **Certificate ref:** ${bb.certificateRef || "—"}${bb.verificationDate ? ` (${bb.verificationDate})` : ""}
 - **Management control:** ${bb.managementControlNotes || "—"}
+${bb.ownershipEvidenceNotes ? `- **Ownership evidence:** ${bb.ownershipEvidenceNotes}` : ""}
+${bb.supplierEvidenceNotes ? `- **Supplier / ESD evidence:** ${bb.supplierEvidenceNotes}` : ""}
 ${bb.notes ? `- **Notes:** ${bb.notes}` : ""}`
     : "- B-BBEE pack not yet filed."
+}
+${
+  bbPathways.length
+    ? `\nB-BBEE sequenced pathways (report → close):\n\n${formatIssueLogEntries(bbPathways, { headingPrefix: "B-BBEE matter" }).join("\n\n")}`
+    : ""
 }
 ${
   emp
@@ -734,8 +766,14 @@ Employment interface:
 - **Women / youth / PWD:** ${emp.womenEmployed ?? "—"} / ${emp.youthEmployed ?? "—"} / ${emp.personsWithDisability ?? "—"}
 - **Training days / spend:** ${emp.trainingDays ?? "—"} / R${emp.trainingSpendZar?.toLocaleString("en-ZA") ?? "—"}
 ${emp.trainingActivityNotes ? `- **Training activity:** ${emp.trainingActivityNotes}` : ""}
+${emp.localHireEvidenceNotes ? `- **Local hire evidence:** ${emp.localHireEvidenceNotes}` : ""}
 - **Open labour disputes:** ${emp.labourDisputesOpen ?? "—"}
 ${emp.wardOfOriginNotes ? `- **Ward / origin:** ${emp.wardOfOriginNotes}` : ""}`
+    : ""
+}
+${
+  empPathways.length
+    ? `\nEmployment sequenced pathways:\n\n${formatIssueLogEntries(empPathways, { headingPrefix: "Employment matter" }).join("\n\n")}`
     : ""
 }
 Community cases in period: ${shortList(facts.attended)}.`;
@@ -746,17 +784,17 @@ Community cases in period: ${shortList(facts.attended)}.`;
       if (!csiRows.length) {
         return `## ${label}
 
-CSI and community investment activity in ${period} is reflected in ${facts.meetingCaptures.length} meeting/capture record${facts.meetingCaptures.length === 1 ? "" : "s"} and community cases (${shortList(facts.attended)}). Capture a **CSI programme** pack to record programme name, beneficiaries, and spend.`;
+CSI and community investment activity in ${period} is reflected in ${facts.meetingCaptures.length} meeting/capture record${facts.meetingCaptures.length === 1 ? "" : "s"} and community cases (${shortList(facts.attended)}). Capture a **CSI programme** pack to record programme name, beneficiaries, spend, and CSI matter pathways.`;
       }
       return `## ${label}
 
 CSI programmes captured for ${period}:
 
 ${csiRows
-  .map(
-    (c) =>
-      `- **${c.programmeName || "Programme"}** — ${c.beneficiaryGroup || "beneficiaries"}; R${c.amountZar?.toLocaleString("en-ZA") ?? "—"} · reached ${c.beneficiariesReached ?? "—"}${c.outcomes ? `; outcomes: ${c.outcomes}` : ""}`,
-  )
+  .map((c) => {
+    const paths = titledPackEntries(c.entries);
+    return `- **${c.programmeName || "Programme"}** — ${c.beneficiaryGroup || "beneficiaries"}; R${c.amountZar?.toLocaleString("en-ZA") ?? "—"} · reached ${c.beneficiariesReached ?? "—"}${c.outcomes ? `; outcomes: ${c.outcomes}` : ""}${c.deliveryEvidenceNotes ? `; delivery evidence: ${c.deliveryEvidenceNotes}` : ""}${paths.length ? `\n\n${formatIssueLogEntries(paths, { headingPrefix: "CSI matter" }).join("\n\n")}` : ""}`;
+  })
   .join("\n")}
 
 Related meetings on file: ${facts.meetingCaptures.length}. Community cases: ${shortList(facts.attended)}.`;
