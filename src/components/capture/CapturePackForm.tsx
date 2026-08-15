@@ -476,7 +476,9 @@ export function CapturePackForm({
           </div>
           <p className="sm:col-span-2 text-xs text-tl-ink-muted">
             Saving this pack rolls training spend into project empowerment
-            spent (with B-BBEE skills / procurement / ESD).
+            spent (with B-BBEE preferential procurement / ESD). If the same
+            outlay is also entered under B-BBEE skills, only the larger figure
+            is counted once.
           </p>
           <NumberInput
             id="em-disputes"

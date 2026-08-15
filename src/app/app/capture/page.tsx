@@ -37,6 +37,7 @@ import {
   computeEmpowermentSpent,
   empowermentBudgetFromDossier,
   empowermentSpendFromFacts,
+  hasEmpowermentSpendLines,
   withEmpowermentSpend,
 } from "@/lib/empowermentSpend";
 import {
@@ -318,7 +319,6 @@ export default function AppCapturePage() {
     const open = scoped.filter(
       (i) => i.status === "Open" || i.status === "Investigating",
     );
-    const closed = scoped.filter((i) => i.status === "Closed");
     const escalated = scoped.filter(
       (i) => i.status === "Escalated" || i.escalationLevel !== "None",
     );
@@ -331,9 +331,8 @@ export default function AppCapturePage() {
       pack: "issue_log",
       data: {
         ...base,
-        casesLogged: base.casesLogged ?? scoped.length,
+        // Open / escalated are live desk snapshots; period logged/closed stay user-entered.
         casesOpen: open.length,
-        casesClosed: base.casesClosed ?? closed.length,
         casesEscalated: escalated.length,
         openCaseRefs:
           base.openCaseRefs ||
@@ -611,12 +610,9 @@ export default function AppCapturePage() {
               ? d.budgetSpent
               : baseDossier.empowermentTargets?.empowermentSpentZar,
         },
+        // Keep CAPEX authorisedZar separate from empowerment envelope.
         budget: {
           ...baseDossier.budget,
-          authorisedZar:
-            typeof d.budgetTotal === "number"
-              ? d.budgetTotal
-              : baseDossier.budget?.authorisedZar,
         },
         dates: {
           ...baseDossier.dates,
@@ -658,12 +654,22 @@ export default function AppCapturePage() {
     if (saved.pack === "employment") emp = saved.data;
 
     const rolled = empowermentSpendFromFacts({ bbbee: bb, employment: emp });
-    const spent =
-      rolled > 0
-        ? rolled
-        : saved.pack === "budget" && typeof saved.data.spendToDateZar === "number"
-          ? saved.data.spendToDateZar
-          : rolled;
+    const hasLines = hasEmpowermentSpendLines({ bbbee: bb, employment: emp });
+
+    let spent: number | null = null;
+    if (saved.pack === "budget") {
+      // Budget pack may override or seed spent; prefer explicit figure.
+      if (typeof saved.data.spendToDateZar === "number") {
+        spent = saved.data.spendToDateZar;
+      } else if (hasLines) {
+        spent = rolled;
+      }
+    } else if (hasLines) {
+      spent = rolled;
+    }
+
+    if (spent == null) return;
+
     const next = persistProjectWithDossier(
       withEmpowermentSpend(project, spent),
     );

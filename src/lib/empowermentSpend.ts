@@ -1,6 +1,7 @@
 /**
  * Empowerment budget utilisation — Project.budgetSpent tracks empowerment
- * spend only (skills, training, preferential procurement, ESD), not CAPEX.
+ * spend only (skills/training, preferential procurement, ESD), not CAPEX.
+ * Programme authorisedZar on dossier.budget stays separate.
  */
 
 import {
@@ -14,15 +15,40 @@ export function sumDefined(...values: Array<number | undefined | null>): number 
   return values.reduce<number>((acc, v) => acc + (typeof v === "number" ? v : 0), 0);
 }
 
+/**
+ * Skills + training: if both packs carry a figure, take the larger so the same
+ * outlay entered twice is not fully double-counted.
+ */
+function skillsAndTrainingSpend(
+  bbbee?: BbbeeFacts | null,
+  employment?: EmploymentFacts | null,
+): number {
+  const training = employment?.trainingSpendZar;
+  const skills = bbbee?.skillsDevSpendZar;
+  if (training != null && skills != null) return Math.max(training, skills);
+  return sumDefined(training, skills);
+}
+
 export function empowermentSpendFromFacts(args: {
   bbbee?: BbbeeFacts | null;
   employment?: EmploymentFacts | null;
 }): number {
   return sumDefined(
-    args.bbbee?.skillsDevSpendZar,
+    skillsAndTrainingSpend(args.bbbee, args.employment),
     args.bbbee?.preferentialProcurementZar,
     args.bbbee?.esdSpendZar,
-    args.employment?.trainingSpendZar,
+  );
+}
+
+export function hasEmpowermentSpendLines(args: {
+  bbbee?: BbbeeFacts | null;
+  employment?: EmploymentFacts | null;
+}): boolean {
+  return (
+    args.bbbee?.skillsDevSpendZar != null ||
+    args.bbbee?.preferentialProcurementZar != null ||
+    args.bbbee?.esdSpendZar != null ||
+    args.employment?.trainingSpendZar != null
   );
 }
 
@@ -56,8 +82,9 @@ export function empowermentBudgetFromDossier(
 }
 
 /**
- * Apply rolled empowerment spent (and envelope when known) onto the project.
- * budgetSpent = empowerment utilisation only.
+ * Apply rolled empowerment spent onto the project without touching CAPEX
+ * `dossier.budget.authorisedZar`. When an empowerment envelope exists, use it
+ * as `budgetTotal` for utilisation %; otherwise leave programme total alone.
  */
 export function withEmpowermentSpend(
   project: Project,
@@ -69,13 +96,6 @@ export function withEmpowermentSpend(
     empowermentTargets: {
       ...project.dossier?.empowermentTargets,
       empowermentSpentZar: spentZar,
-    },
-    budget: {
-      ...project.dossier?.budget,
-      authorisedZar:
-        envelope ??
-        project.dossier?.budget?.authorisedZar ??
-        (project.budgetTotal > 0 ? project.budgetTotal : undefined),
     },
   };
   return {
