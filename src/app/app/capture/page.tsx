@@ -280,9 +280,15 @@ export default function AppCapturePage() {
     };
   }, []);
 
-  useEffect(() => {
+  function selectProject(nextId: string) {
+    setProjectId(nextId);
     setFieldMeta(EMPTY_FIELD_META);
-  }, [projectId]);
+    setExtract(null);
+    setBrief(null);
+    setError(null);
+    setStatus("idle");
+    setBriefStatus("idle");
+  }
 
   function selectSource(next: CaptureSource) {
     setSource(next);
@@ -593,7 +599,7 @@ export default function AppCapturePage() {
             <select
               id="cap-project"
               value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
+              onChange={(e) => selectProject(e.target.value)}
               className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               required
             >

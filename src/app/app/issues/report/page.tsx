@@ -115,20 +115,23 @@ export default function AppReportIssuePage() {
     const muni =
       project.dossier?.geo?.municipalityName || project.municipality;
     if (!ward && !muni) return;
-    setGeo({
-      countryCode: project.dossier?.geo?.countryCode || "ZA",
-      countryName: "South Africa",
-      provinceName: project.dossier?.geo?.provinceName || "",
-      municipalityName: muni || "",
-      wardName: ward || "",
-      wardId: ward ? `dossier-${ward}` : undefined,
-      districtName: muni || "",
+    const frame = requestAnimationFrame(() => {
+      setGeo({
+        countryCode: project.dossier?.geo?.countryCode || "ZA",
+        countryName: "South Africa",
+        provinceName: project.dossier?.geo?.provinceName || "",
+        municipalityName: muni || "",
+        wardName: ward || "",
+        wardId: ward ? `dossier-${ward}` : undefined,
+        districtName: muni || "",
+      });
+      setGeoLabel(
+        [ward, muni, project.dossier?.geo?.provinceName]
+          .filter(Boolean)
+          .join(", "),
+      );
     });
-    setGeoLabel(
-      [ward, muni, project.dossier?.geo?.provinceName]
-        .filter(Boolean)
-        .join(", "),
-    );
+    return () => cancelAnimationFrame(frame);
   }, [projectId, projects]);
 
   const selectedProject = projects.find((p) => p.id === projectId);
