@@ -83,10 +83,11 @@ const STEPS: OnboardingStepDef[] = [
   {
     id: "capture",
     title: "Capture evidence",
-    body: "Use Capture for minutes and registers, or attach files on a case. Review every AI extract before Apply. Keep media lean — plans have storage caps.",
+    body: "Use Capture with a minutes or attendance template so labeled fields map on first paste. Review every AI extract before Apply. Keep media lean — plans have storage caps.",
     href: "/app/capture",
     ctaLabel: "Open Capture",
     capability: "captureHub",
+    tip: "Insert a blank minutes or attendance form so labeled fields map the first time.",
   },
   {
     id: "reports",

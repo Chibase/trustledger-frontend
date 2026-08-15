@@ -41,7 +41,7 @@ Do not claim a 24/7 staffed Rapid-Response Division, a public community portal, 
 
 - **Surfaces:** all public landing pages (hidden on `/app`, `/ops`, `/login`, `/pay`, `/invite`, `/auth`). Mounted once from the root layout.
 - **UI:** avatar, greeting bubble, Markdown (bold + bullets), role chips, conversion bar (14-day trial, book live demo, contact advisory).
-- **Lead magnet:** work-email unlock of existing `/resources` packs via `POST /api/resources/download`.
+- **Lead magnet:** work-email unlock of `/resources` packs (field templates + toolkits) via `POST /api/resources/download`.
 - **Bug telemetry:** keyword listener → `POST /api/telemetry/bug-report` (timestamp, user_query, page_url, browser_info, last 5 turns). Product-defect wording also opens the human handoff form. CRM source `Themba Bug` when the query looks like a site/product failure.
 - **Optional LLM polish:** `THEMBA_XAI_API_KEY` / `XAI_API_KEY` still server-side only, grounded on retrieved copy (`src/lib/themba/prompt.ts`).
 

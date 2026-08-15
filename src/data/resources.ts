@@ -1,16 +1,26 @@
+import { FIELD_TEMPLATES } from "@/data/fieldTemplates";
+
 export type ResourcePackId =
+  | "minutes-template"
+  | "attendance-register"
+  | "field-note"
   | "grievance-checklist"
   | "readiness-planner"
   | "engagement-toolkit";
+
+export type ResourceFamily = "toolkit" | "field-template";
 
 export type ResourceSection = {
   title: string;
   intro?: string;
   items: string[];
+  /** field = fill-in lines; checkbox = toolkit ticks */
+  itemStyle?: "checkbox" | "field";
 };
 
 export type ResourcePack = {
   id: ResourcePackId;
+  family: ResourceFamily;
   title: string;
   shortTitle: string;
   tagline: string;
@@ -22,9 +32,10 @@ export type ResourcePack = {
   sections: ResourceSection[];
 };
 
-export const RESOURCE_PACKS: ResourcePack[] = [
+export const TOOLKIT_PACKS: ResourcePack[] = [
   {
     id: "grievance-checklist",
+    family: "toolkit",
     title: "Grievance Checklist",
     shortTitle: "Grievance checklist",
     tagline: "Stabilise intake before trust erodes",
@@ -96,6 +107,7 @@ export const RESOURCE_PACKS: ResourcePack[] = [
   },
   {
     id: "readiness-planner",
+    family: "toolkit",
     title: "SRM Readiness & 90-Day Planner",
     shortTitle: "Readiness planner",
     tagline: "Turn diagnostic gaps into a 90-day plan",
@@ -173,6 +185,7 @@ export const RESOURCE_PACKS: ResourcePack[] = [
   },
   {
     id: "engagement-toolkit",
+    family: "toolkit",
     title: "Community Engagement Toolkit",
     shortTitle: "Engagement toolkit",
     tagline: "Make engagement continuous, not episodic",
@@ -245,6 +258,15 @@ export const RESOURCE_PACKS: ResourcePack[] = [
     ],
   },
 ];
+
+export const RESOURCE_PACKS: ResourcePack[] = [
+  ...FIELD_TEMPLATES,
+  ...TOOLKIT_PACKS,
+];
+
+export function resourcePacksByFamily(family: ResourceFamily): ResourcePack[] {
+  return RESOURCE_PACKS.filter((p) => p.family === family);
+}
 
 export function resourcePackById(id: string): ResourcePack | undefined {
   return RESOURCE_PACKS.find((p) => p.id === id);

@@ -59,7 +59,7 @@ When implementing:
 /assessment           Quiz + email/OTP unlock → /readiness/next hub + /readiness/report
 /readiness/next       Post-confirm choice hub (report / product / trial / walkthrough)
 /readiness/report     Score overview + dimension detail + TrustLedger turnaround lanes
-/resources            Free SRM toolkits (email-gated PDF packs)
+/resources            Free SRM toolkits + field templates (email-gated PDF packs)
 /resources/[slug]     Pack preview + download gate
 /login                Sign-in chooser → live / trial (no sample demo)
 /app                  Authenticated shell (trial or live)
@@ -223,6 +223,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **UG-1** | User manual + first-login setup | `docs/USER_MANUAL.md`; in-app Setup wizard + `/app/guide` checklist (plan-aware spine) | **Done** |
+| **UG-2** | Field capture templates | Minutes / attendance / field-note PDFs mapped to Capture; bundled on Project+; also `/resources` | **Done** |
 
 ### Security / tenancy packaging
 
@@ -286,6 +287,7 @@ src/
 | 2026-07-24 | EM-1 — branded Frappe bulk email templates + FRAPPE_EMAIL_MARKETING |
 | 2026-07-24 | CP-1 / ADR-035 — Solo entry plan (R1,999, 1 seat, essentials) |
 | 2026-07-26 | UG-1 — user manual + first-login setup wizard / Guide |
+| 2026-08-15 | UG-2 — field capture templates (minutes / attendance / field note) |
 | 2026-07-27 | SEC-0 / ADR-038 — multi-tenant security ladder + plan packaging |
 | 2026-07-27 | SEC-0 UI — optional privacy extras + foldable plan comparison on home pricing |
 | 2026-08-14 | CHIBASE-PACK / ADR-048 — independent Chibase consulting packages; optional Paystack; TrustLedger add-on request only |
