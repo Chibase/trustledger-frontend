@@ -102,6 +102,8 @@ export async function POST(request: Request) {
   );
   if (pending.isPlanOwner) {
     response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);
+  } else {
+    response.cookies.set(TL_ORG_OWNER_COOKIE, "", { ...cookieBase, maxAge: 0 });
   }
   if (pending.deskTier) {
     response.cookies.set(TL_DESK_TIER_COOKIE, pending.deskTier, cookieBase);

@@ -76,15 +76,17 @@ export async function POST(request: Request) {
   }
 
   const vip =
-    Boolean(user.isVip) ||
     isVipCustomerName(ent.customerLabel) ||
     isVipCustomerName(ent.customerName);
 
   const existing = await listCloudProjectsForCustomer(ent.customerName);
-  // VIP complimentary = Institutional package (unlimited sites). Paid plans keep Cloud limits.
+  if (!existing.ok) {
+    return NextResponse.json({ error: existing.error }, { status: 502 });
+  }
+  // VIP complimentary = Institutional (unlimited). Paid plans keep Cloud limits.
+  // Do not trust client tl-vip cookie for limit bypass — Cloud Customer name only.
   if (
     !vip &&
-    existing.ok &&
     ent.projectLimit != null &&
     ent.projectLimit >= 0 &&
     existing.projects.length >= ent.projectLimit

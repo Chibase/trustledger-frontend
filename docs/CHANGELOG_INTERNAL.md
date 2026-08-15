@@ -3,8 +3,8 @@
 ## 2026-08-15 — VIP package label + add projects (live)
 
 - Shell / Settings / Reports no longer show **Demo** for live or VIP packages — VIP badge via `packageLabel` / `tl-vip` cookie (Customer `VIP Pilot — …`).
-- Live login + OTP stamp plan + VIP cookies from Cloud Customer; logout clears them.
-- `/app/projects`: Plan Owners (incl. VIP) get **Add project**; `POST/GET /api/app/projects` creates/lists TL Project on Cloud (VIP skips paid project caps).
+- Live login + OTP stamp plan + VIP cookies from Cloud Customer; logout clears them. Plan Owner cookie only when User flag **or** Customer `custom_owner_email` matches (invitees stay juniors). Institutional plan default only for VIP Pilot Customers.
+- `/app/projects`: Plan Owners (incl. VIP) get **Add project**; `POST/GET /api/app/projects` creates/lists TL Project on Cloud. Project-cap bypass uses Cloud VIP name only (not forgeable cookie); list failure fails closed.
 - Customer workspaces no longer merge sample demo project seed into the list.
 
 ## 2026-08-15 — ClickUp newsletter ops playbook (EM-2)
