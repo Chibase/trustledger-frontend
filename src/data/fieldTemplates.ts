@@ -8,33 +8,73 @@ export type FieldTemplate = ResourcePack & {
   mapsTo: string[];
 };
 
-const ATTENDEE_SLOT = `Name: 
-Organisation: 
-Kind: (individual / community_group / traditional_authority / government / contractor / ngo / other)
-Role: 
-Contact: 
-Influence: (high / medium / low)
+const LINE = "______________________________________";
+const SHORT = "____________________";
 
-`;
-
-function attendeeSlots(count: number): string {
-  return Array.from({ length: count }, () => ATTENDEE_SLOT).join("");
-}
-
-const ATTENDEE_FIELDS = [
-  "Name: ______________________________________",
-  "Organisation: ______________________________________",
-  "Kind (individual / community_group / traditional_authority / government / contractor / ngo / other): ______________",
-  "Role: ______________________________________",
-  "Contact: ______________________________________",
-  "Influence (high / medium / low): ______________",
+/** One attendance row — no ID number (stakeholders do not require it). */
+const ATTENDANCE_PERSON_FIELDS = [
+  "Initials and Surname: ______________________________________",
+  "Organisation / structure: ______________________________________",
+  "Contact details: ______________________________________",
+  "Address: ______________________________________",
+  "Signature: ______________________________________",
 ];
 
-function attendeeFieldSections(count: number) {
+function attendancePersonSlots(count: number): string {
+  return Array.from({ length: count }, (_, i) =>
+    [
+      `PERSON ${i + 1}`,
+      "Initials and Surname: ",
+      "Organisation / structure: ",
+      "Contact details: ",
+      "Address: ",
+      "Signature: ",
+      "",
+    ].join("\n"),
+  ).join("");
+}
+
+function attendancePersonSections(count: number) {
   return Array.from({ length: count }, (_, i) => ({
     title: `Attendee ${i + 1}`,
     itemStyle: "field" as const,
-    items: ATTENDEE_FIELDS,
+    items: ATTENDANCE_PERSON_FIELDS,
+  }));
+}
+
+/** One minutes agenda row — Item, Description, Action, Date are mandatory. */
+function minutesItemFields(n: number): string[] {
+  return [
+    `Item ${n}: ______________________________________`,
+    `Description ${n}: ______________________________________`,
+    `Action ${n}: ______________________________________`,
+    `Date ${n} (YYYY-MM-DD): ____________________`,
+  ];
+}
+
+function minutesItemSlots(count: number): string {
+  return Array.from({ length: count }, (_, i) => {
+    const n = i + 1;
+    return [
+      `ITEM ${n}`,
+      `Item: `,
+      `Description: `,
+      `Action: `,
+      `Date (YYYY-MM-DD): `,
+      "",
+    ].join("\n");
+  }).join("");
+}
+
+function minutesItemSections(count: number) {
+  return Array.from({ length: count }, (_, i) => ({
+    title: `Agenda item ${i + 1}`,
+    intro:
+      i === 0
+        ? "Mandatory columns: Item · Description · Action · Date. Leave blank rows unused."
+        : undefined,
+    itemStyle: "field" as const,
+    items: minutesItemFields(i + 1),
   }));
 }
 
@@ -45,95 +85,97 @@ export const FIELD_TEMPLATES: FieldTemplate[] = [
     captureSource: "minutes",
     title: "Meeting Minutes",
     shortTitle: "Meeting minutes",
-    tagline: "Fill in the room; map on first capture",
+    tagline: "Project · date · time · venue · item / description / action / date",
     description:
-      "A blank minutes form with labeled fields for title, date, place, purpose, attendees, summary, actions, and new concerns — so a desk can map the record the first time you paste or upload it.",
+      "Site-style minutes: project details, meeting date, time, and venue, then a mandatory agenda table (Item, Description, Action, Date). Attendance is recorded on the Attendance Register — not in these minutes.",
     audience: "Facilitators, CLOs, site managers, project teams",
-    pagesHint: "PDF form · fill in the field",
-    version: "2026.08",
+    pagesHint: "PDF form · agenda table",
+    version: "2026.08b",
     filename: "Meeting-Minutes.pdf",
     mapsTo: [
-      "Engagement (title, date, place, purpose, summary)",
-      "Stakeholders (name, organisation, kind, role, contact)",
-      "Commitments (promise, owner, due date)",
-      "Grievance intake (new concerns)",
+      "Engagement (project, date, venue, time, purpose)",
+      "Commitments (action + date from agenda rows)",
+      "Capture minutes narrative",
     ],
     pasteSkeleton: `MEETING MINUTES
-Title: 
-Date held (YYYY-MM-DD): 
-Place / ward: 
+
+PROJECT DETAILS
 Project / site: 
-Purpose: (inform / consult / decide / remediate)
-Kind: (meeting / consultation / walkabout / briefing)
+Client / funder: 
+Meeting title: 
+Nature of meeting: (site progress / consultation / briefing / other)
 
-SUMMARY
+MEETING
+Date of meeting (YYYY-MM-DD): 
+Time: 
+Venue: 
+
+Note: Attendance is recorded on the Attendance Register (do not duplicate a distribution list here).
+
+AGENDA ITEMS
+(Mandatory for each row: Item · Description · Action · Date)
+
+${minutesItemSlots(8)}APOLOGIES
+(List names only — full details on the Attendance Register)
 
 
-ATTENDEES
-${attendeeSlots(4)}ACTIONS
-Promise: 
-Owner: 
-Due date (YYYY-MM-DD): 
+NEXT MEETING
+Date (YYYY-MM-DD): 
+Time: 
+Venue: 
 
-Promise: 
-Owner: 
-Due date (YYYY-MM-DD): 
-
-CONCERNS
-Theme: 
-Severity: (critical / high / medium / low)
-Location: 
-Complainant: 
+SIGNED
+Chair / facilitator: 
+Date: 
 `,
     sections: [
       {
-        title: "Meeting header",
+        title: "Project details",
         intro:
-          "Use these labels in the same order when you type or paste. A desk maps labeled fields more reliably than free prose.",
+          "Identify the programme. Do not list attendees here — use the Attendance Register.",
         itemStyle: "field",
         items: [
-          "Title: ______________________________________",
-          "Date held (YYYY-MM-DD): ____________________",
-          "Place / ward: ______________________________________",
-          "Project / site: ______________________________________",
-          "Purpose (inform / consult / decide / remediate): ______________",
-          "Kind (meeting / consultation / walkabout / briefing): ______________",
+          `Project / site: ${LINE}`,
+          `Client / funder: ${LINE}`,
+          `Meeting title: ${LINE}`,
+          "Nature of meeting (site progress / consultation / briefing / other): ______________",
         ],
       },
       {
-        title: "Summary",
-        intro: "What was said and decided, in plain language.",
+        title: "Meeting",
         itemStyle: "field",
         items: [
-          "________________________________________________________________",
-          "________________________________________________________________",
-          "________________________________________________________________",
-        ],
-      },
-      ...attendeeFieldSections(4),
-      {
-        title: "Actions / promises",
-        intro: "Each row can become a commitment: promise, owner, due date.",
-        itemStyle: "field",
-        items: [
-          "Promise 1: ______________________________________",
-          "Owner: ______________________________________",
-          "Due date (YYYY-MM-DD): ____________________",
-          "Promise 2: ______________________________________",
-          "Owner: ______________________________________",
-          "Due date (YYYY-MM-DD): ____________________",
+          `Date of meeting (YYYY-MM-DD): ${SHORT}`,
+          `Time: ${SHORT}`,
+          `Venue: ${LINE}`,
         ],
       },
       {
-        title: "New concerns",
+        title: "Attendance note",
         intro:
-          "Log issues raised in the meeting so they can enter the grievance case convention.",
+          "Attendance and distribution are covered by the Attendance Register. Record apologies by name only if needed.",
         itemStyle: "field",
         items: [
-          "Theme: ______________________________________",
-          "Severity (critical / high / medium / low): ______________",
-          "Location: ______________________________________",
-          "Complainant: ______________________________________",
+          "Apologies (names only): ______________________________________",
+          "________________________________________________________________",
+        ],
+      },
+      ...minutesItemSections(8),
+      {
+        title: "Next meeting",
+        itemStyle: "field",
+        items: [
+          `Date (YYYY-MM-DD): ${SHORT}`,
+          `Time: ${SHORT}`,
+          `Venue: ${LINE}`,
+        ],
+      },
+      {
+        title: "Sign-off",
+        itemStyle: "field",
+        items: [
+          `Chair / facilitator: ${LINE}`,
+          `Date: ${SHORT}`,
         ],
       },
     ],
@@ -144,37 +186,43 @@ Complainant:
     captureSource: "attendance",
     title: "Attendance Register",
     shortTitle: "Attendance register",
-    tagline: "One named person per row",
+    tagline: "Nature · venue · time · named people with signature",
     description:
-      "A blank attendance register with one labeled slot per person — name, organisation, kind, role, and contact — so names become registry candidates instead of an unreadable sign-in sheet.",
+      "Register for community and site meetings: nature of the meeting, venue, and time, then one row per person (Initials and Surname, organisation/structure, contact details, address, signature). No ID number — stakeholder capture does not require it.",
     audience: "Meeting chairs, facilitators, site clerks",
     pagesHint: "PDF form · one person per slot",
-    version: "2026.08",
+    version: "2026.08b",
     filename: "Attendance-Register.pdf",
     mapsTo: [
-      "Stakeholders (name, organisation, kind, role, contact)",
+      "Stakeholders (name, organisation, contact, address)",
       "Engagement attendance list",
     ],
     pasteSkeleton: `ATTENDANCE REGISTER
-Title: 
-Date held (YYYY-MM-DD): 
-Place / ward: 
+
+SESSION
+Nature of the meeting: (site progress / consultation / community / briefing / other)
 Project / site: 
+Date (YYYY-MM-DD): 
+Venue: 
+Time: 
 
 ATTENDEES
-${attendeeSlots(8)}`,
+${attendancePersonSlots(10)}`,
     sections: [
       {
         title: "Session header",
+        intro:
+          "Capture the meeting context. No distribution list is needed on the minutes — this register is the attendance record.",
         itemStyle: "field",
         items: [
-          "Title: ______________________________________",
-          "Date held (YYYY-MM-DD): ____________________",
-          "Place / ward: ______________________________________",
-          "Project / site: ______________________________________",
+          "Nature of the meeting (site progress / consultation / community / briefing / other): ______________",
+          `Project / site: ${LINE}`,
+          `Date (YYYY-MM-DD): ${SHORT}`,
+          `Venue: ${LINE}`,
+          `Time: ${SHORT}`,
         ],
       },
-      ...attendeeFieldSections(8),
+      ...attendancePersonSections(10),
     ],
   },
   {
@@ -205,7 +253,22 @@ SUMMARY
 
 
 PEOPLE MENTIONED
-${attendeeSlots(3)}THEMES
+PERSON 1
+Initials and Surname: 
+Organisation / structure: 
+Contact details: 
+
+PERSON 2
+Initials and Surname: 
+Organisation / structure: 
+Contact details: 
+
+PERSON 3
+Initials and Surname: 
+Organisation / structure: 
+Contact details: 
+
+THEMES
 Theme: 
 Severity: (critical / high / medium / low)
 Location: 
@@ -215,9 +278,9 @@ Location:
         title: "Note header",
         itemStyle: "field",
         items: [
-          "Date (YYYY-MM-DD): ____________________",
-          "Place / ward: ______________________________________",
-          "Project / site: ______________________________________",
+          `Date (YYYY-MM-DD): ${SHORT}`,
+          `Place / ward: ${LINE}`,
+          `Project / site: ${LINE}`,
           "Channel (walkabout / social / rumour / observation): ______________",
         ],
       },
@@ -229,14 +292,40 @@ Location:
           "________________________________________________________________",
         ],
       },
-      ...attendeeFieldSections(3),
+      {
+        title: "People mentioned 1",
+        itemStyle: "field",
+        items: [
+          `Initials and Surname: ${LINE}`,
+          `Organisation / structure: ${LINE}`,
+          `Contact details: ${LINE}`,
+        ],
+      },
+      {
+        title: "People mentioned 2",
+        itemStyle: "field",
+        items: [
+          `Initials and Surname: ${LINE}`,
+          `Organisation / structure: ${LINE}`,
+          `Contact details: ${LINE}`,
+        ],
+      },
+      {
+        title: "People mentioned 3",
+        itemStyle: "field",
+        items: [
+          `Initials and Surname: ${LINE}`,
+          `Organisation / structure: ${LINE}`,
+          `Contact details: ${LINE}`,
+        ],
+      },
       {
         title: "Themes",
         itemStyle: "field",
         items: [
-          "Theme: ______________________________________",
+          `Theme: ${LINE}`,
           "Severity (critical / high / medium / low): ______________",
-          "Location: ______________________________________",
+          `Location: ${LINE}`,
         ],
       },
     ],
