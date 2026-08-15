@@ -44,7 +44,7 @@ function PackRow({
           }}
           className="inline-flex justify-center rounded-md bg-tl-trust px-4 py-2.5 text-sm font-semibold text-white hover:bg-tl-trust-ink"
         >
-          Download free
+          Download PDF
         </button>
         <Link
           href={`/resources/${pack.id}`}

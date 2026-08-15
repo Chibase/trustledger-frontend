@@ -31,7 +31,7 @@ export function ResourcePackDetail({ pack }: { pack: ResourcePack }) {
         }}
         className="mt-6 inline-flex rounded-md bg-tl-trust px-4 py-2.5 text-sm font-semibold text-white hover:bg-tl-trust-ink"
       >
-        Download free pack
+        Download PDF
       </button>
 
       <div className="mt-10 space-y-8">
@@ -56,17 +56,6 @@ export function ResourcePackDetail({ pack }: { pack: ResourcePack }) {
           </section>
         ))}
       </div>
-
-      <section className="mt-10 border-t border-tl-line pt-8">
-        <h2 className="font-display text-lg font-semibold text-tl-trust-ink">
-          With TrustLedger
-        </h2>
-        <ul className="mt-3 space-y-2 text-sm text-tl-ink-muted">
-          {pack.trustLedgerBridge.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-      </section>
 
       {open ? (
         <ResourceDownloadForm pack={pack} onClose={() => setOpen(false)} />

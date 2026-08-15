@@ -59,7 +59,7 @@ When implementing:
 /assessment           Quiz + email/OTP unlock → /readiness/next hub + /readiness/report
 /readiness/next       Post-confirm choice hub (report / product / trial / walkthrough)
 /readiness/report     Score overview + dimension detail + TrustLedger turnaround lanes
-/resources            Free SRM toolkits (email-gated printable packs)
+/resources            Free SRM toolkits (email-gated PDF packs)
 /resources/[slug]     Pack preview + download gate
 /login                Sign-in chooser → live / trial (no sample demo)
 /app                  Authenticated shell (trial or live)

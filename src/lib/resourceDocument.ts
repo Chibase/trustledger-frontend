@@ -1,94 +1,119 @@
+import PDFDocument from "pdfkit";
 import type { ResourcePack } from "@/data/resources";
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+const PAGE_MARGIN = 56;
+const INK = "#12202a";
+const MUTED = "#5b6b76";
+
+function isProductPitch(text: string): boolean {
+  return /trustledger/i.test(text);
 }
 
-/** Branded print-ready HTML for free resource packs (Save as PDF from the browser). */
-export function buildResourcePackHtml(pack: ResourcePack): string {
-  const sections = pack.sections
-    .map((section) => {
-      const items = section.items
-        .map(
-          (item) =>
-            `<li style="margin:0 0 8px;padding-left:4px;">☐ ${escapeHtml(item)}</li>`,
-        )
-        .join("");
-      const intro = section.intro
-        ? `<p style="margin:0 0 10px;color:#5b6b76;font-size:14px;">${escapeHtml(section.intro)}</p>`
-        : "";
-      return `
-      <section style="margin:28px 0 0;page-break-inside:avoid;">
-        <h2 style="margin:0 0 8px;font-family:Georgia,'Source Serif 4',serif;font-size:18px;color:#12202a;">${escapeHtml(section.title)}</h2>
-        ${intro}
-        <ul style="margin:0;padding-left:1.1rem;color:#12202a;font-size:14px;line-height:1.45;">${items}</ul>
-      </section>`;
-    })
-    .join("");
+/** Server-side PDF for free resource packs — no product CTA in the file. */
+export function buildResourcePackPdf(pack: ResourcePack): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({
+      size: "A4",
+      margin: PAGE_MARGIN,
+      info: {
+        Title: pack.title,
+        Subject: pack.tagline,
+        Creator: "SRM toolkit",
+      },
+    });
+    const chunks: Buffer[] = [];
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
 
-  const bridge = pack.trustLedgerBridge
-    .map((line) => `<li style="margin:0 0 6px;">${escapeHtml(line)}</li>`)
-    .join("");
+    const contentWidth =
+      doc.page.width - doc.page.margins.left - doc.page.margins.right;
 
-  const next = pack.nextSteps
-    .map(
-      (step) =>
-        `<li style="margin:0 0 6px;"><strong>${escapeHtml(step.label)}</strong> — trustledger.co.za or app path ${escapeHtml(step.href)}</li>`,
-    )
-    .join("");
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${escapeHtml(pack.title)} · TrustLedger</title>
-  <style>
-    @media print {
-      body { background: #fff !important; }
-      .no-print { display: none !important; }
+    function ensureSpace(needed: number) {
+      const bottom = doc.page.height - doc.page.margins.bottom;
+      if (doc.y + needed > bottom) {
+        doc.addPage();
+      }
     }
-  </style>
-</head>
-<body style="margin:0;padding:0;background:#f3f5f7;color:#12202a;font-family:'Source Sans 3',Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-  <div style="max-width:720px;margin:0 auto;padding:28px 20px 48px;">
-    <header style="background:#12202a;color:#fff;padding:22px 24px;border-radius:8px;">
-      <p style="margin:0;font-family:Georgia,'Source Serif 4',serif;font-size:22px;font-weight:700;">TrustLedger</p>
-      <p style="margin:6px 0 0;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;color:#d7dee4;">Free resource · ${escapeHtml(pack.version)}</p>
-      <h1 style="margin:14px 0 0;font-family:Georgia,'Source Serif 4',serif;font-size:26px;line-height:1.2;">${escapeHtml(pack.title)}</h1>
-      <p style="margin:10px 0 0;font-size:15px;color:#d7dee4;line-height:1.5;">${escapeHtml(pack.tagline)}. ${escapeHtml(pack.description)}</p>
-    </header>
 
-    <p class="no-print" style="margin:16px 0 0;font-size:13px;color:#5b6b76;">
-      Tip: use your browser’s <strong>Print → Save as PDF</strong> for an offline copy.
-    </p>
+    doc.font("Times-Bold").fontSize(18).fillColor(INK).text(pack.title, {
+      width: contentWidth,
+    });
+    doc.moveDown(0.35);
+    doc
+      .font("Times-Roman")
+      .fontSize(11)
+      .fillColor(MUTED)
+      .text(`${pack.tagline}. ${pack.description}`, { width: contentWidth });
+    doc.moveDown(0.4);
+    doc
+      .fontSize(9)
+      .text(`Audience: ${pack.audience}  ·  ${pack.version}`, {
+        width: contentWidth,
+      });
+    doc.moveDown(0.25);
+    doc
+      .strokeColor("#d7dee4")
+      .lineWidth(1)
+      .moveTo(doc.page.margins.left, doc.y)
+      .lineTo(doc.page.margins.left + contentWidth, doc.y)
+      .stroke();
+    doc.moveDown(0.8);
 
-    <p style="margin:18px 0 0;font-size:13px;color:#5b6b76;">
-      Audience: ${escapeHtml(pack.audience)}
-    </p>
+    for (const section of pack.sections) {
+      const items = section.items.filter((item) => !isProductPitch(item));
+      const introHeight = section.intro
+        ? doc.heightOfString(section.intro, {
+            width: contentWidth,
+            lineGap: 2,
+          })
+        : 0;
+      ensureSpace(36 + introHeight);
 
-    ${sections}
+      doc.font("Times-Bold").fontSize(13).fillColor(INK).text(section.title, {
+        width: contentWidth,
+      });
+      doc.moveDown(0.25);
+      if (section.intro && !isProductPitch(section.intro)) {
+        doc
+          .font("Times-Italic")
+          .fontSize(10)
+          .fillColor(MUTED)
+          .text(section.intro, { width: contentWidth });
+        doc.moveDown(0.3);
+      }
 
-    <section style="margin:32px 0 0;padding:18px 20px;border:1px solid #d7dee4;border-radius:8px;background:#fff;">
-      <h2 style="margin:0 0 8px;font-family:Georgia,'Source Serif 4',serif;font-size:18px;color:#0e7c66;">With TrustLedger</h2>
-      <p style="margin:0 0 10px;font-size:14px;color:#5b6b76;">Turnaround lanes — stabilize, then operationalise, then govern.</p>
-      <ul style="margin:0;padding-left:1.1rem;font-size:14px;line-height:1.45;">${bridge}</ul>
-    </section>
+      doc.font("Times-Roman").fontSize(10.5).fillColor(INK);
+      for (const item of items) {
+        const line = `[ ]  ${item}`;
+        const h = doc.heightOfString(line, {
+          width: contentWidth,
+          lineGap: 2,
+        });
+        ensureSpace(h + 6);
+        doc.text(line, { width: contentWidth, lineGap: 2 });
+        doc.moveDown(0.2);
+      }
+      doc.moveDown(0.55);
+    }
 
-    <section style="margin:24px 0 0;padding:18px 20px;border-left:3px solid #0e7c66;background:#fff;">
-      <h2 style="margin:0 0 8px;font-size:16px;color:#12202a;">Next steps</h2>
-      <ul style="margin:0;padding-left:1.1rem;font-size:14px;line-height:1.45;">${next}</ul>
-    </section>
+    ensureSpace(48);
+    doc
+      .strokeColor("#d7dee4")
+      .lineWidth(1)
+      .moveTo(doc.page.margins.left, doc.y)
+      .lineTo(doc.page.margins.left + contentWidth, doc.y)
+      .stroke();
+    doc.moveDown(0.5);
+    doc
+      .font("Times-Roman")
+      .fontSize(9)
+      .fillColor(MUTED)
+      .text(
+        "This pack is free for practical use. Adapt it to your programme. Not legal advice.",
+        { width: contentWidth },
+      );
 
-    <footer style="margin:36px 0 0;padding-top:16px;border-top:1px solid #d7dee4;font-size:12px;color:#5b6b76;">
-      <p style="margin:0;">© TrustLedger · Resolution you can audit. This pack is free for practical use with attribution. Not legal advice.</p>
-      <p style="margin:8px 0 0;">Chibase Consulting operates TrustLedger (footer / legal). Product name in use: TrustLedger only.</p>
-    </footer>
-  </div>
-</body>
-</html>`;
+    doc.end();
+  });
 }

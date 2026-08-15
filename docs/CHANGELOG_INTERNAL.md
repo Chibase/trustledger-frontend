@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-15 — Resource packs download as PDF, no product CTA in the file
+
+- `/api/resources/file` streams a PDF (not HTML). Packs have no TrustLedger “with us” paragraph, next-step CTAs, or product filename — so teams can use them as they see fit.
+
 ## 2026-08-14 — Chibase: keep the preview desk in the hero
 
 - Hero is two columns from the `md` breakpoint (not only `lg`). On small screens the preview desk sits first, above the copy, so it is not pushed below the fold by the header and CTAs.

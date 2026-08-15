@@ -267,7 +267,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "readiness",
     question: "How do I assess SRM readiness before buying?",
     answer:
-      "Start at /readiness, then complete the SRM Readiness & Risk Diagnostic at /assessment. A work email confirmation unlocks a choice hub and detailed report. Free printable toolkits are on /resources. These are maturity aids — not a substitute for a product trial.",
+      "Start at /readiness, then complete the SRM Readiness & Risk Diagnostic at /assessment. A work email confirmation unlocks a choice hub and detailed report. Free PDF toolkits are on /resources — you can adapt them to your own programme. These are maturity aids — not a substitute for a product trial.",
     keywords: ["readiness", "assessment", "diagnostic", "resources", "toolkit"],
     links: [
       { href: "/assessment", label: "Take the assessment" },
@@ -491,7 +491,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "lead-magnet",
     question: "Can I download a compliance checklist or framework blueprint?",
     answer:
-      "Yes. Free printable SRM toolkits are on /resources (work email unlocks the file): Community Grievance Checklist, SRM Readiness & 90-Day Planner, and Community Engagement Toolkit. They are maturity aids — not a substitute for a product trial. Share a work email here and I can point you to the matching pack, or open /resources.",
+      "Yes. Free SRM toolkits are on /resources (work email unlocks a PDF): Community Grievance Checklist, SRM Readiness & 90-Day Planner, and Community Engagement Toolkit. They are maturity aids you can adapt to your own programme — not a substitute for a product trial. Share a work email here and I can point you to the matching pack, or open /resources.",
     keywords: [
       "download",
       "checklist",
