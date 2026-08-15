@@ -71,6 +71,7 @@ export const REPORT_SECTION_IDS = [
   "trust_sentiment",
   "tat_sla",
   "grievance_lifecycle",
+  "issue_log_pathway",
   "environmental_indicators",
   "hs_incidents",
   "esg_scorecard",
