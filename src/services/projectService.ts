@@ -69,6 +69,38 @@ async function listLive(filters: ProjectListFilters): Promise<Project[]> {
   return listDemo(filters);
 }
 
+async function getLive(id: string): Promise<Project | null> {
+  try {
+    const row = await callFrappeMethod<Project | null>(
+      FRAPPE_METHODS.getProject,
+      { name: id },
+    );
+    if (row) return row;
+  } catch {
+    /* fall through to Cloud resource API */
+  }
+
+  try {
+    const res = await fetch(`/api/app/projects/${encodeURIComponent(id)}`, {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const json = (await res.json()) as { project?: Project };
+      if (json.project) return json.project;
+    }
+  } catch {
+    /* ignore */
+  }
+
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+  if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+    return null;
+  }
+  return delay(mockProjects.find((p) => p.id === id) ?? null);
+}
+
 export const projectService = {
   async list(filters: ProjectListFilters = {}): Promise<Project[]> {
     return isLiveMode() ? listLive(filters) : listDemo(filters);
@@ -76,20 +108,7 @@ export const projectService = {
 
   async get(id: string): Promise<Project | null> {
     if (isLiveMode()) {
-      try {
-        const row = await callFrappeMethod<Project | null>(
-          FRAPPE_METHODS.getProject,
-          { name: id },
-        );
-        return row ?? null;
-      } catch {
-        const { readTrialModeFromDocument } = await import("@/lib/trial");
-        const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
-        if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
-          return null;
-        }
-        return delay(mockProjects.find((p) => p.id === id) ?? null);
-      }
+      return getLive(id);
     }
     const { readTrialModeFromDocument } = await import("@/lib/trial");
     if (readTrialModeFromDocument()) {

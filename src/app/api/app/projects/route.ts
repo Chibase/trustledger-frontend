@@ -4,6 +4,7 @@ import { getCustomerEntitlementByOwnerEmail } from "@/lib/entitlementCloud";
 import { isVipCustomerName } from "@/lib/planLabel";
 import {
   createCloudProject,
+  getCloudProjectForCustomer,
   listCloudProjectsForCustomer,
 } from "@/lib/productCloud";
 import type { Project, ProjectStatus } from "@/types/project";
@@ -120,9 +121,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: created.error }, { status: 502 });
   }
 
+  let saved: Project = project;
+  const byCode = await getCloudProjectForCustomer(ent.customerName, project.id);
+  if (byCode.ok && byCode.project) {
+    saved = byCode.project;
+  } else {
+    const byName = await getCloudProjectForCustomer(
+      ent.customerName,
+      created.name,
+    );
+    if (byName.ok && byName.project) saved = byName.project;
+  }
+
   return NextResponse.json({
     ok: true,
-    project: { ...project, id: project.id },
+    project: saved,
     cloudName: created.name,
   });
 }

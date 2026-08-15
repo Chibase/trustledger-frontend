@@ -201,6 +201,80 @@ export async function listCloudProjectsForCustomer(
   }
 }
 
+const PROJECT_FIELDS = [
+  "name",
+  "project_code",
+  "project_title",
+  "client_funder",
+  "budget_total",
+  "budget_spent",
+  "ward",
+  "municipality",
+  "status",
+  "contractor_name",
+  "start_date",
+  "target_end_date",
+  "public_summary",
+] as const;
+
+async function fetchCloudProjects(
+  filters: unknown[][],
+): Promise<{ ok: true; rows: Record<string, unknown>[] } | { ok: false; error: string }> {
+  const base = frappeBase();
+  const headers = authHeaders();
+  if (!base || !headers) {
+    return { ok: false, error: "Frappe API not configured" };
+  }
+  const filtersEnc = encodeURIComponent(JSON.stringify(filters));
+  const fieldsEnc = encodeURIComponent(JSON.stringify([...PROJECT_FIELDS]));
+  const res = await fetch(
+    `${base}/api/resource/TL%20Project?filters=${filtersEnc}&fields=${fieldsEnc}&limit_page_length=5`,
+    { headers, cache: "no-store" },
+  );
+  const text = await res.text();
+  if (!res.ok) {
+    return { ok: false, error: `${res.status}: ${text.slice(0, 280)}` };
+  }
+  try {
+    const json = JSON.parse(text) as { data?: Record<string, unknown>[] };
+    return { ok: true, rows: Array.isArray(json.data) ? json.data : [] };
+  } catch {
+    return { ok: false, error: "Invalid TL Project response" };
+  }
+}
+
+/**
+ * Resolve one TL Project for a Customer by project_code or Frappe name.
+ * List links use project_code; create may also surface the Cloud doc name.
+ */
+export async function getCloudProjectForCustomer(
+  customer: string,
+  id: string,
+): Promise<{ ok: true; project: Project | null } | { ok: false; error: string }> {
+  const code = id.trim();
+  if (!code) return { ok: true, project: null };
+
+  const byCode = await fetchCloudProjects([
+    ["customer", "=", customer],
+    ["project_code", "=", code],
+  ]);
+  if (!byCode.ok) return byCode;
+  if (byCode.rows[0]) {
+    return { ok: true, project: mapFrappeProjectRow(byCode.rows[0]) };
+  }
+
+  const byName = await fetchCloudProjects([
+    ["customer", "=", customer],
+    ["name", "=", code],
+  ]);
+  if (!byName.ok) return byName;
+  if (byName.rows[0]) {
+    return { ok: true, project: mapFrappeProjectRow(byName.rows[0]) };
+  }
+
+  return { ok: true, project: null };
+}
+
 export async function createCloudIncident(
   incident: Incident,
   customer: string,
