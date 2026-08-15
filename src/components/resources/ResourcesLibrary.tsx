@@ -14,7 +14,7 @@ function PackRow({
   onDownload: (pack: ResourcePack) => void;
 }) {
   return (
-    <article className="border-b border-tl-line py-8 first:pt-0 last:border-b-0">
+    <article className="rounded-lg border border-tl-line bg-tl-surface p-5 sm:p-6">
       <p className="text-xs font-medium uppercase tracking-wide text-tl-trust">
         {pack.pagesHint} · v{pack.version}
       </p>
@@ -44,13 +44,13 @@ function PackRow({
           }}
           className="inline-flex justify-center rounded-md bg-tl-trust px-4 py-2.5 text-sm font-semibold text-white hover:bg-tl-trust-ink"
         >
-          Download free
+          Download {pack.shortTitle.toLowerCase()}
         </button>
         <Link
           href={`/resources/${pack.id}`}
-          className="inline-flex justify-center rounded-md border border-tl-line bg-tl-surface px-4 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
+          className="inline-flex justify-center rounded-md border border-tl-line bg-tl-paper px-4 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-surface"
         >
-          Preview contents
+          Preview this pack
         </Link>
       </div>
     </article>
@@ -62,7 +62,7 @@ export function ResourcesLibrary() {
 
   return (
     <>
-      <div className="mt-10 divide-y-0">
+      <div className="mt-10 space-y-4">
         {RESOURCE_PACKS.map((pack) => (
           <PackRow key={pack.id} pack={pack} onDownload={setActive} />
         ))}
@@ -73,7 +73,7 @@ export function ResourcesLibrary() {
           After you download
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Use the packs offline, then close the gaps with a scored readiness
+          Use the pack offline, then close the gaps with a scored readiness
           check, a 14-day own-data trial, or a short walkthrough.
         </p>
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
