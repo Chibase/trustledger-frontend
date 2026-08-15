@@ -310,12 +310,18 @@ export default function AppCapturePage() {
             : null;
         const fromQuery = params?.get("projectId") || "";
         const sourceQuery = params?.get("source") || "";
-        const preferredProject =
-          fromQuery && rows.some((r) => r.id === fromQuery)
-            ? fromQuery
-            : rows[0]?.id || "";
+        const queryProjectOk =
+          Boolean(fromQuery) && rows.some((r) => r.id === fromQuery);
+        const preferredProject = queryProjectOk
+          ? fromQuery
+          : rows[0]?.id || "";
         setProjectId((prev) => prev || preferredProject);
-        if (sourceQuery && isPackCaptureSource(sourceQuery)) {
+        // Only apply pack source deep-link when projectId is valid (or absent).
+        if (
+          sourceQuery &&
+          isPackCaptureSource(sourceQuery) &&
+          (!fromQuery || queryProjectOk)
+        ) {
           setSource(sourceQuery);
         }
       })();
@@ -329,14 +335,22 @@ export default function AppCapturePage() {
   // Deep-link once: ?projectId=&source=pack opens that report pack form.
   useEffect(() => {
     if (deepLinkDone.current) return;
-    if (!projectId || !isPackCaptureSource(source) || projects.length === 0) {
-      return;
-    }
+    if (!isPackCaptureSource(source) || projects.length === 0) return;
     const params =
       typeof window !== "undefined"
         ? new URLSearchParams(window.location.search)
         : null;
-    if (!params?.get("source")) return;
+    const sourceParam = params?.get("source");
+    if (!sourceParam || !isPackCaptureSource(sourceParam)) return;
+    const queryProject = params?.get("projectId") || "";
+    if (queryProject) {
+      const forProject = projects.find((p) => p.id === queryProject);
+      if (!forProject || forProject.id !== projectId) return;
+      deepLinkDone.current = true;
+      hydratePackForm(source, forProject);
+      return;
+    }
+    if (!projectId) return;
     const forProject = projects.find((p) => p.id === projectId);
     if (!forProject) return;
     deepLinkDone.current = true;

@@ -343,7 +343,11 @@ export function ProjectReportStudio({
         </button>
         <button
           type="button"
-          disabled={!body.trim() && !viewing}
+          disabled={
+            format === "charts"
+              ? false
+              : !body.trim() && !viewing
+          }
           onClick={handlePrint}
           className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium disabled:opacity-40"
         >
@@ -473,6 +477,10 @@ export function ProjectReportStudio({
                     setAudience(r.audience);
                     setPeriodLabel(r.periodLabel);
                     setSavedId(r.id);
+                    // Always show narrative when opening a saved draft.
+                    setFormat((prev) =>
+                      prev === "charts" ? "charts_details" : prev,
+                    );
                   }}
                 >
                   View
