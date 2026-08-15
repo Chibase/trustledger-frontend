@@ -9,6 +9,8 @@ import { ShellSignOut } from "@/components/shell/ShellSignOut";
 import { FeedbackDrawer } from "@/components/shell/FeedbackDrawer";
 import { SupportDrawer } from "@/components/shell/SupportDrawer";
 import { ToastProvider } from "@/components/ui/Toast";
+import { EmailCaptureGate } from "@/components/shell/EmailCaptureGate";
+import { SessionEmailBridge } from "@/components/shell/SessionEmailBridge";
 import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import { packageLabel } from "@/lib/planLabel";
@@ -48,6 +50,8 @@ export function AppShell({
 
   return (
     <ToastProvider>
+      <SessionEmailBridge email={userEmail} />
+      <EmailCaptureGate />
       <div className="min-h-full bg-tl-paper text-tl-ink">
         {mode === "trial" && trial ? (
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />

@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-15 — Capture report pack save no longer silent-fails
+
+- Remount `EmailCaptureGate` + `SessionEmailBridge` in `AppShell` so authenticated desks seed `tl-lead-email` and Save is not dropped when the gate UI was missing.
+- `requireEmailThen` proceeds if no gate listeners (never silent no-op).
+- Report packs keep form values after Save; reopening a pack/project reloads the latest `CaptureRecord`.
+- Project profile pack Save persists into the project dossier (`persistProjectWithDossier`), not only flat project fields.
+
 ## 2026-08-15 — Project dossier geo cascade + attach community intel
 
 - `ProjectDossierForm` uses `GeoCascadePicker` (Country → Province → Town → DM → TC → Ward) instead of free-text province/muni/ward.

@@ -23,6 +23,7 @@ import {
   emptyStructured,
   isNarrativeCaptureSource,
   isPackCaptureSource,
+  latestPackCapture,
   listCaptureRecords,
   PACK_CAPTURE_SOURCES,
   PACK_SOURCE_META,
@@ -32,12 +33,14 @@ import {
   type CaptureStructured,
   type PackCaptureSource,
 } from "@/lib/captureStore";
-import { dossierSummaryLines } from "@/lib/projectDossier";
-import { saveOrgProject } from "@/lib/orgDataSpace";
+import {
+  dossierSummaryLines,
+  hydrateDossierFromProject,
+  persistProjectWithDossier,
+} from "@/lib/projectDossier";
 import { readTrialModeFromDocument } from "@/lib/trial";
-import { ensureTrialSeedProject, saveTrialProject } from "@/lib/trialStore";
+import { ensureTrialSeedProject } from "@/lib/trialStore";
 import { listWorkspaceProjects } from "@/lib/workspaceData";
-import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
 import {
   createEngagementId,
@@ -288,6 +291,21 @@ export default function AppCapturePage() {
     setError(null);
     setStatus("idle");
     setBriefStatus("idle");
+    const nextProject = projects.find((p) => p.id === nextId);
+    if (packSource && nextProject) {
+      hydratePackForm(packSource, nextProject);
+    }
+  }
+
+  function hydratePackForm(pack: PackCaptureSource, forProject: Project) {
+    const latest = latestPackCapture(forProject.id, pack);
+    if (latest?.structured?.pack === pack) {
+      setPackData(latest.structured);
+      setTitle(latest.title);
+      return;
+    }
+    setPackData(structuredFromProject(pack, forProject));
+    setTitle(`${PACK_SOURCE_META[pack].label} — period pack`);
   }
 
   function selectSource(next: CaptureSource) {
@@ -300,11 +318,11 @@ export default function AppCapturePage() {
     if (isNarrativeCaptureSource(next)) {
       setBody("");
     } else if (isPackCaptureSource(next)) {
-      setPackData(structuredFromProject(next, project));
-      setTitle((prev) => {
-        const meta = PACK_SOURCE_META[next];
-        return prev.trim() ? prev : `${meta.label} — period pack`;
-      });
+      if (project) hydratePackForm(next, project);
+      else {
+        setPackData(emptyStructured(next));
+        setTitle(`${PACK_SOURCE_META[next].label} — period pack`);
+      }
     }
   }
 
@@ -468,7 +486,8 @@ export default function AppCapturePage() {
     if (structured.pack !== "project_profile" || !project) return;
     const d = structured.data;
     const status = asProjectStatus(d.status);
-    const next: Project = {
+    const baseDossier = hydrateDossierFromProject(project);
+    const next = persistProjectWithDossier({
       ...project,
       clientFunder: d.clientFunder?.trim() || project.clientFunder,
       contractorName: d.contractorName?.trim() || project.contractorName,
@@ -485,11 +504,38 @@ export default function AppCapturePage() {
         d.publicSummary?.trim() ||
         d.siteDescription?.trim() ||
         project.publicSummary,
-    };
-    const trial = readTrialModeFromDocument();
-    const customer = isCustomerWorkspaceClient();
-    if (trial) saveTrialProject(next);
-    else if (customer) saveOrgProject(next);
+      dossier: {
+        ...baseDossier,
+        funder: {
+          ...baseDossier.funder,
+          name: d.clientFunder?.trim() || baseDossier.funder?.name,
+        },
+        geo: {
+          ...baseDossier.geo,
+          wardName: d.ward?.trim() || baseDossier.geo?.wardName,
+          municipalityName:
+            d.municipality?.trim() || baseDossier.geo?.municipalityName,
+        },
+        budget: {
+          ...baseDossier.budget,
+          authorisedZar:
+            typeof d.budgetTotal === "number"
+              ? d.budgetTotal
+              : baseDossier.budget?.authorisedZar,
+        },
+        dates: {
+          ...baseDossier.dates,
+          startDate: d.startDate?.trim() || baseDossier.dates?.startDate,
+          targetEndDate:
+            d.targetEndDate?.trim() || baseDossier.dates?.targetEndDate,
+        },
+        sector: d.sector?.trim() || baseDossier.sector,
+        siteDescription:
+          d.siteDescription?.trim() ||
+          d.publicSummary?.trim() ||
+          baseDossier.siteDescription,
+      },
+    });
     setProjects((rows) => rows.map((p) => (p.id === next.id ? next : p)));
   }
 
@@ -520,12 +566,11 @@ export default function AppCapturePage() {
         saveCaptureRecord(record);
         syncProjectFromProfile(packData);
         setRecent(listCaptureRecords());
+        setTitle(record.title);
         pushToast(
           `${meta.label} saved — available to Reports for this project`,
           "success",
         );
-        setPackData(structuredFromProject(packSource, project));
-        setTitle("");
       } finally {
         setPackSaving(false);
       }

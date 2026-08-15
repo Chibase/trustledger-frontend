@@ -177,6 +177,19 @@ export function saveCaptureRecord(row: CaptureRecord) {
   writeJson(rows);
 }
 
+/** Most recent structured pack for a project (if any). */
+export function latestPackCapture(
+  projectId: string,
+  pack: PackCaptureSource,
+): CaptureRecord | undefined {
+  return listCaptureRecords().find(
+    (r) =>
+      r.projectId === projectId &&
+      r.structured?.pack === pack &&
+      r.source === pack,
+  );
+}
+
 export function createCaptureId(): string {
   return `CAP-${Date.now().toString().slice(-6)}`;
 }
