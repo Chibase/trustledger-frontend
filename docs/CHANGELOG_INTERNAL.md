@@ -5,6 +5,8 @@
 - Capture hub requires a project first (`projectChipLabel`). Thin dossiers open compact `ProjectDossierForm` and block field notes / period packs until basics are saved.
 - Field notes use `CaptureFieldNoteMeta` dropdowns; AI extract/brief and saved body prepend `fieldNoteMetaPreamble`. Stakeholder Apply still saves an engagement (narrative `EngagementSource` only), with place from meta when set.
 - Period packs prefill employment / B-BBEE (and light profile/budget) targets from `project.dossier`. Projects load via `listWorkspaceProjects` + `projectService.list` (customer: no demo seed).
+- Durable `ProjectDossier` (funder, geo, budget, empowerment targets, promises, community intel) persists in `tl-project-dossiers` and merges onto Project lists.
+- Issue intake: project first; dossier geo skips re-entry. Reports: pick project → type → topics; composer uses dossier baselines so programme facts are not retyped.
 
 ## 2026-08-15 — Capture hub report packs (ESG / B-BBEE / employment / CSI / GRM / budget)
 
