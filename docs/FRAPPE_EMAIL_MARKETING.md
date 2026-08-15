@@ -6,6 +6,8 @@
 
 Use this for **bulk campaigns to contacts**. Keep **Resend on Vercel** for transactional OTP / trial welcome only — do **not** blast marketing from `onboarding@resend.dev`.
 
+**Ops cadence / AI draft / human approve:** use ClickUp per `docs/CLICKUP_NEWSLETTER_OPS.md` (fortnightly → you approve → paste into Frappe Newsletter). ClickUp is not the blast engine.
+
 ```text
 Contacts (CRM Lead / Contact / Email Group)
         ↓

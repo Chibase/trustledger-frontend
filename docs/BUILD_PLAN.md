@@ -203,6 +203,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **EM-1** | Branded bulk email | TrustLedger HTML templates + Desk runbook (`docs/FRAPPE_EMAIL_MARKETING.md`); Frappe Email Domain/Newsletter — not HubSpot / not Resend blasts | **Active** |
+| **EM-2** | ClickUp newsletter ops | Cadence + AI draft + human approve in ClickUp; send remains Frappe Newsletter (`docs/CLICKUP_NEWSLETTER_OPS.md`) | **Done** (playbook) |
 
 ### Public guide agent (ACTIVE)
 
@@ -295,3 +296,4 @@ src/
 | 2026-08-14 | THEMBA-C / ADR-045 — Themba audiences, Global South, document grounding |
 | 2026-08-14 | THEMBA-B / ADR-043 — Themba marketing guru on all public landing pages |
 | 2026-08-13 | THEMBA-A / ADR-042 — Themba (The Trust) visitor guide on marketing routes |
+| 2026-08-15 | EM-2 — ClickUp newsletter ops playbook (approve → Frappe send) |
