@@ -15,6 +15,8 @@ import {
 type FeatureGateProps = {
   capability: CapabilityId;
   planId?: PlanId | null;
+  /** Optional extra copy when the module is locked. */
+  lockedBody?: ReactNode;
   children: ReactNode;
   /** When locked, show a compact upsell instead of hiding. */
   fallback?: "hide" | "upsell";
@@ -27,6 +29,7 @@ export function FeatureGate({
   capability,
   planId,
   children,
+  lockedBody,
   fallback = "upsell",
 }: FeatureGateProps) {
   const [allowed, setAllowed] = useState(true);
@@ -50,6 +53,7 @@ export function FeatureGate({
         Your Plan Owner can review the full module list in Settings. Features
         above the current plan stay locked until you upgrade.
       </p>
+      {lockedBody}
       <Link
         href={upgradeHrefForCapability(capability)}
         className="mt-3 inline-block text-sm font-medium text-tl-trust-ink underline"

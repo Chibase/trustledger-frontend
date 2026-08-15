@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { RESOURCE_PACKS, type ResourcePack } from "@/data/resources";
+import { fieldTemplateById } from "@/data/fieldTemplates";
 import { ResourceDownloadForm } from "@/components/resources/ResourceDownloadForm";
 import { trackMarketingEvent } from "@/lib/marketingAnalytics";
 
 export function ResourcePackDetail({ pack }: { pack: ResourcePack }) {
   const [open, setOpen] = useState(false);
   const others = RESOURCE_PACKS.filter((p) => p.id !== pack.id);
+  const field = fieldTemplateById(pack.id);
 
   return (
     <>
@@ -24,6 +26,13 @@ export function ResourcePackDetail({ pack }: { pack: ResourcePack }) {
       <p className="mt-2 text-xs text-tl-ink-muted">
         This download is this pack only — not a combined toolkit.
       </p>
+      {field ? (
+        <ul className="mt-3 list-disc pl-5 text-sm text-tl-ink-muted">
+          {field.mapsTo.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      ) : null}
 
       <button
         type="button"

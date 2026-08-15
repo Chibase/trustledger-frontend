@@ -6,6 +6,7 @@ import {
   looksLikeReportTemplateGuide,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
+import { parseLabeledStakeholders, parseLabeledTitle } from "@/lib/parseFieldTemplate";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type { ReportSectionId } from "@/types/activityReport";
 import { REPORT_SECTION_IDS } from "@/types/activityReport";
@@ -335,10 +336,34 @@ function mockActivityReport(
   };
 }
 
+function labeledExtractSuggestion(
+  input: StakeholderExtractRequest,
+  labeled: ReturnType<typeof parseLabeledStakeholders>,
+): StakeholderExtractSuggestion {
+  const title =
+    parseLabeledTitle(input.text) ||
+    `Capture brief (${input.source.replaceAll("_", " ")})`;
+  return {
+    stakeholders: labeled,
+    briefTitle: title,
+    briefSummary: labeled.length
+      ? `Mapped ${labeled.length} named ${labeled.length === 1 ? "person" : "people"} from labeled fields for human review before CRM apply.`
+      : "Labeled template detected but no filled Name fields yet. Complete the attendee slots, then suggest again.",
+    confidence: labeled.length ? 0.86 : 0.4,
+    model: MODEL,
+    promptVersion: `${PROMPT_VERSION}-labeled-fields`,
+  };
+}
+
 function mockStakeholderExtract(
   input: StakeholderExtractRequest,
 ): StakeholderExtractSuggestion {
   const text = input.text;
+  const labeled = parseLabeledStakeholders(text);
+  if (labeled.length) {
+    return labeledExtractSuggestion(input, labeled);
+  }
+
   const lines = text
     .split(/[\n,;]+/)
     .map((l) => l.trim())
@@ -445,6 +470,11 @@ export const aiService = {
   async suggestStakeholdersFromText(
     input: StakeholderExtractRequest,
   ): Promise<StakeholderExtractSuggestion> {
+    const labeled = parseLabeledStakeholders(input.text);
+    if (labeled.length) {
+      if (USE_MOCK) await delay();
+      return labeledExtractSuggestion(input, labeled);
+    }
     if (USE_MOCK) {
       await delay();
       return mockStakeholderExtract(input);

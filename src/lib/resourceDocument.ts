@@ -84,15 +84,16 @@ export function buildResourcePackPdf(pack: ResourcePack): Promise<Buffer> {
       }
 
       doc.font("Times-Roman").fontSize(10.5).fillColor(INK);
+      const itemStyle = section.itemStyle ?? "checkbox";
       for (const item of items) {
-        const line = `[ ]  ${item}`;
+        const line = itemStyle === "field" ? item : `[ ]  ${item}`;
         const h = doc.heightOfString(line, {
           width: contentWidth,
           lineGap: 2,
         });
-        ensureSpace(h + 6);
+        ensureSpace(h + (itemStyle === "field" ? 10 : 6));
         doc.text(line, { width: contentWidth, lineGap: 2 });
-        doc.moveDown(0.2);
+        doc.moveDown(itemStyle === "field" ? 0.35 : 0.2);
       }
       doc.moveDown(0.55);
     }

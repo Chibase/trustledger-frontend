@@ -19,6 +19,11 @@ const MAGNET_PHRASES = [
   "pdf",
   "resource pack",
   "framework pack",
+  "meeting minutes",
+  "attendance register",
+  "field note",
+  "field template",
+  "sign-in sheet",
 ];
 
 export function wantsLeadMagnet(question: string): boolean {
@@ -32,6 +37,16 @@ export function magnetForQuestion(question: string): ThembaMagnet | null {
   let packId: ResourcePackId = "readiness-planner";
   if (/\b(grievance|complaint|intake|sla|case desk)\b/.test(q)) {
     packId = "grievance-checklist";
+  } else if (
+    /\bmeeting minutes\b|\bminutes template\b|\bminutes of (the )?meeting\b/.test(
+      q,
+    )
+  ) {
+    packId = "minutes-template";
+  } else if (/\b(attendance|register|sign-?in)\b/.test(q)) {
+    packId = "attendance-register";
+  } else if (/\b(field note|walkabout|observation)\b/.test(q)) {
+    packId = "field-note";
   } else if (/\b(engagement|consultation|meeting|community)\b/.test(q)) {
     packId = "engagement-toolkit";
   } else if (/\b(blueprint|framework|readiness|planner|compliance)\b/.test(q)) {

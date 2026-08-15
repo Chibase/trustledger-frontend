@@ -7,12 +7,12 @@ import { ResourcesLibrary } from "@/components/resources/ResourcesLibrary";
 export const metadata: Metadata = {
   title: "Free SRM resources",
   description:
-    "Download one free SRM PDF at a time — grievance checklist, readiness planner, or community engagement toolkit — and use it as you see fit.",
+    "Download one free SRM PDF at a time — meeting minutes, attendance register, field notes, or SRM toolkits — and use it as you see fit.",
   alternates: { canonical: "/resources" },
   openGraph: {
     title: "Free SRM resources · TrustLedger",
     description:
-      "Choose one PDF: grievance checklist, readiness planner, or community engagement toolkit.",
+      "Choose one PDF: field templates (minutes, attendance, field notes) or SRM toolkits.",
   },
 };
 
@@ -44,8 +44,8 @@ export default function ResourcesPage() {
               Free tools for audit-ready trust
             </h1>
             <p className="mt-4 max-w-lg animate-[tl-banner-in_600ms_ease-out] text-base leading-relaxed text-white/80 sm:text-lg">
-              Choose one PDF at a time — grievance checklist, readiness
-              planner, or community engagement — and use it as you see fit.
+              Choose one PDF at a time — field templates (minutes, attendance,
+              field notes) or SRM toolkits — and use it as you see fit.
             </p>
           </div>
         </section>
@@ -54,7 +54,8 @@ export default function ResourcesPage() {
           <div className="mx-auto max-w-3xl">
             <p className="text-sm text-tl-ink-muted">
               Each pack is a separate PDF. Unlock only the one you need.
-              Prefer a scored diagnostic first?{" "}
+              Field templates use labeled fields so a desk can map names and
+              actions on first capture. Prefer a scored diagnostic first?{" "}
               <Link
                 href="/assessment?utm_source=resources&utm_medium=hero&utm_campaign=readiness"
                 className="font-medium text-tl-trust-ink underline underline-offset-2"
