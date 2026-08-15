@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { GeoCascadePicker } from "@/components/geo/GeoCascadePicker";
 import { FEATURED_INDICATOR_PLACES } from "@/data/mockIndicators";
 import {
@@ -69,11 +69,18 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
   const [availableIndicators, setAvailableIndicators] = useState<
     SocioEconomicIndicator[]
   >([]);
-  const [indicatorPlaceId, setIndicatorPlaceId] = useState<string>("");
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [indicatorPlaceId, setIndicatorPlaceId] = useState<string>(
+    () =>
+      hydrateDossierFromProject(project).communityIntel?.baselinePlaceId || "",
+  );
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => {
+    const attached =
+      hydrateDossierFromProject(project).communityIntel?.attachedIndicators;
+    return new Set(attached?.map((a) => a.key) || []);
+  });
   const [intelBusy, setIntelBusy] = useState(false);
   const [intelError, setIntelError] = useState<string | null>(null);
-  const [featuredPick, setFeaturedPick] = useState(
+  const [featuredPick, setFeaturedPick] = useState<string>(
     FEATURED_INDICATOR_PLACES[0]?.id || "",
   );
 
@@ -178,16 +185,6 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
       return next;
     });
   }
-
-  useEffect(() => {
-    const attached = dossier.communityIntel?.attachedIndicators;
-    if (attached?.length && !availableIndicators.length) {
-      setSelectedKeys(new Set(attached.map((a) => a.key)));
-      setIndicatorPlaceId(dossier.communityIntel?.baselinePlaceId || "");
-    }
-    // hydrate attached keys once when opening an existing dossier
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   function save() {
     setSaving(true);
