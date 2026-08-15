@@ -323,6 +323,12 @@ export function emptyIssueLogEntry(): IssueLogEntry {
   };
 }
 
+export function issueLogCategoryLabel(category?: string): string {
+  if (!category) return "";
+  const hit = ISSUE_LOG_CATEGORIES.find((c) => c.id === category);
+  return hit?.label || category;
+}
+
 /** Derive period rollup counts from pathway entries. */
 export function deriveIssueLogRollup(entries: IssueLogEntry[]): {
   casesLogged: number;
@@ -337,8 +343,12 @@ export function deriveIssueLogRollup(entries: IssueLogEntry[]): {
   const escalated = logged.filter((e) => Boolean(e.escalatedTo || e.escalatedAt));
   const open = logged.filter((e) => !e.closedAt);
   const themes = [
-    ...new Set(logged.map((e) => e.category).filter(Boolean)),
-  ] as string[];
+    ...new Set(
+      logged
+        .map((e) => issueLogCategoryLabel(e.category))
+        .filter(Boolean),
+    ),
+  ];
   return {
     casesLogged: logged.length,
     casesOpen: open.length,
@@ -350,12 +360,6 @@ export function deriveIssueLogRollup(entries: IssueLogEntry[]): {
       .filter(Boolean)
       .join(" · "),
   };
-}
-
-export function issueLogCategoryLabel(category?: string): string {
-  if (!category) return "";
-  const hit = ISSUE_LOG_CATEGORIES.find((c) => c.id === category);
-  return hit?.label || category;
 }
 
 /** Markdown blocks for report evidence — report → close pathway. */
@@ -410,17 +414,15 @@ export function formatIssueLogEntries(entries: IssueLogEntry[]): string[] {
   return blocks;
 }
 
-/** Flatten all pathway entries from aggregated issue log packs. */
+/** Flatten pathway entries — latest pack only (captures save newest-first). */
 export function collectIssueLogEntries(
   packs: IssueLogFacts[],
 ): IssueLogEntry[] {
-  const out: IssueLogEntry[] = [];
   for (const pack of packs) {
-    for (const entry of pack.entries || []) {
-      if (entry.title?.trim()) out.push(entry);
-    }
+    const titled = (pack.entries || []).filter((e) => e.title?.trim());
+    if (titled.length) return titled;
   }
-  return out;
+  return [];
 }
 
 /** Flatten structured packs into searchable narrative for AI / appendix. */

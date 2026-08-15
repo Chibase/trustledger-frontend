@@ -4,6 +4,7 @@
 
 - Capture **Issue log** pack records each matter in fixed order: title → category → person reporting → date/time reported → follow-ups (action, outcomes, date/time; add more steps) → escalated (to whom + date/time) → feedback → resolved → closed.
 - Pathways persist in the pack, roll up open/closed/escalated counts, surface as Create report evidence stubs, and draft via the new **Issue log pathway** topic (also enrich GRM lifecycle).
+- Report evidence uses the **latest** Issue log pack only (no duplicate pathways across re-saves); rollups apply only once titled pathways exist (legacy manual counts preserved otherwise).
 
 ## 2026-08-15 — Report create is project-first; pack drafts no longer fail INC-* check
 

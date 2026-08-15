@@ -80,14 +80,16 @@ function currentMonthLabel() {
 function packEvidenceSummary(projectId: string): string[] {
   const rows = listCaptureRecords().filter((r) => r.projectId === projectId);
   const byPack = new Map<string, { count: number; pathways: number }>();
+  let latestIssuePathways: number | null = null;
   for (const row of rows) {
     const pack = row.structured?.pack || row.source;
     const prev = byPack.get(pack) || { count: 0, pathways: 0 };
     prev.count += 1;
-    if (row.structured?.pack === "issue_log") {
-      prev.pathways += (row.structured.data.entries || []).filter((e) =>
+    if (row.structured?.pack === "issue_log" && latestIssuePathways === null) {
+      latestIssuePathways = (row.structured.data.entries || []).filter((e) =>
         e.title?.trim(),
       ).length;
+      prev.pathways = latestIssuePathways;
     }
     byPack.set(pack, prev);
   }

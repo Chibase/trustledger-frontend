@@ -730,20 +730,28 @@ export default function AppCapturePage() {
           const entries = Array.isArray(packData.data.entries)
             ? packData.data.entries
             : [];
-          const rollup = deriveIssueLogRollup(entries);
-          structured = {
-            pack: "issue_log",
-            data: {
-              ...packData.data,
-              entries,
-              casesLogged: rollup.casesLogged,
-              casesOpen: rollup.casesOpen,
-              casesClosed: rollup.casesClosed,
-              casesEscalated: rollup.casesEscalated,
-              topThemes: rollup.topThemes || packData.data.topThemes,
-              openCaseRefs: rollup.openCaseRefs || packData.data.openCaseRefs,
-            },
-          };
+          const titled = entries.filter((e) => e.title?.trim());
+          if (titled.length) {
+            const rollup = deriveIssueLogRollup(entries);
+            structured = {
+              pack: "issue_log",
+              data: {
+                ...packData.data,
+                entries,
+                casesLogged: rollup.casesLogged,
+                casesOpen: rollup.casesOpen,
+                casesClosed: rollup.casesClosed,
+                casesEscalated: rollup.casesEscalated,
+                topThemes: rollup.topThemes || packData.data.topThemes,
+                openCaseRefs: rollup.openCaseRefs || packData.data.openCaseRefs,
+              },
+            };
+          } else {
+            structured = {
+              pack: "issue_log",
+              data: { ...packData.data, entries },
+            };
+          }
           setPackData(structured);
         }
         const bodyText = structuredToBody(structured);

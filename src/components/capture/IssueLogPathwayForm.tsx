@@ -48,6 +48,11 @@ function patchFollowUp(
 }
 
 function withRollup(entries: IssueLogEntry[], base: IssueLogFacts): IssueLogFacts {
+  const titled = entries.filter((e) => e.title.trim());
+  if (!titled.length) {
+    // Keep legacy manual counts until at least one titled pathway exists.
+    return { ...base, entries };
+  }
   const rollup = deriveIssueLogRollup(entries);
   return {
     ...base,

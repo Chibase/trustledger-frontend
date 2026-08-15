@@ -317,32 +317,37 @@ export function buildPeriodActivityFacts(
     linkedCaptureId: c.id,
   }));
 
+  let issueLogEvidenceDone = false;
   for (const row of allCaptures.filter((c) => Boolean(c.structured)).slice(0, 8)) {
-    if (
-      row.structured?.pack === "issue_log" &&
-      (row.structured.data.entries || []).some((e) => e.title?.trim())
-    ) {
-      const entries = (row.structured.data.entries || []).filter((e) =>
-        e.title?.trim(),
-      );
-      evidence.push({
-        id: `ev-${row.id}`,
-        kind: "other",
-        label: `Issue log pathway ×${entries.length} — ${entries
-          .slice(0, 3)
-          .map((e) => e.title)
-          .join("; ")}${entries.length > 3 ? "…" : ""}`,
-        linkedCaptureId: row.id,
-      });
-      for (const entry of entries.slice(0, 6)) {
+    if (row.structured?.pack === "issue_log") {
+      // Captures are newest-first — only the latest Issue log pack is evidence SoT.
+      if (issueLogEvidenceDone) continue;
+      issueLogEvidenceDone = true;
+      if (
+        (row.structured.data.entries || []).some((e) => e.title?.trim())
+      ) {
+        const entries = (row.structured.data.entries || []).filter((e) =>
+          e.title?.trim(),
+        );
         evidence.push({
-          id: `ev-${row.id}-${entry.id}`,
+          id: `ev-${row.id}`,
           kind: "other",
-          label: `Pathway: ${entry.title}${entry.closedAt ? " (closed)" : entry.resolvedAt ? " (resolved)" : entry.escalatedAt || entry.escalatedTo ? " (escalated)" : " (open)"}`,
+          label: `Issue log pathway ×${entries.length} — ${entries
+            .slice(0, 3)
+            .map((e) => e.title)
+            .join("; ")}${entries.length > 3 ? "…" : ""}`,
           linkedCaptureId: row.id,
         });
+        for (const entry of entries.slice(0, 6)) {
+          evidence.push({
+            id: `ev-${row.id}-${entry.id}`,
+            kind: "other",
+            label: `Pathway: ${entry.title}${entry.closedAt ? " (closed)" : entry.resolvedAt ? " (resolved)" : entry.escalatedAt || entry.escalatedTo ? " (escalated)" : " (open)"}`,
+            linkedCaptureId: row.id,
+          });
+        }
+        continue;
       }
-      continue;
     }
     evidence.push({
       id: `ev-${row.id}`,
