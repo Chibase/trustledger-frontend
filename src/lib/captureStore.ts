@@ -26,13 +26,13 @@ export type PackCaptureSource = (typeof PACK_CAPTURE_SOURCES)[number];
 export type CaptureSource = NarrativeCaptureSource | PackCaptureSource;
 
 export function isNarrativeCaptureSource(
-  source: CaptureSource,
+  source: string,
 ): source is NarrativeCaptureSource {
   return (NARRATIVE_CAPTURE_SOURCES as readonly string[]).includes(source);
 }
 
 export function isPackCaptureSource(
-  source: CaptureSource,
+  source: string,
 ): source is PackCaptureSource {
   return (PACK_CAPTURE_SOURCES as readonly string[]).includes(source);
 }

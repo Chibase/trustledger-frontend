@@ -63,8 +63,9 @@ When implementing:
 /resources/[slug]     Pack preview + download gate
 /login                Sign-in chooser → live / trial (no sample demo)
 /app                  Authenticated shell (trial or live)
-/app/dashboard        Role home
-/app/projects         Project list + detail
+/app/dashboard        Executive portfolio (all projects KPIs)
+/app/projects         Project list
+/app/projects/[id]    Project workspace (inputs, charts, generate/view/print reports)
 /app/incidents        Incident list
 /app/incidents/[id]   Case desk + AI assist
 /app/stakeholders     Stakeholder Intelligence CRM (Cloud when live)
@@ -167,7 +168,8 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24c** | Engagements | Meetings / consultations; Cloud DocType + BFF | **Done (Cloud SI path)** |
 | **24d** | Commitments | Promise board; Cloud DocType + BFF | **Done (Cloud SI path)** |
 | **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (UI); Cloud stamps next** |
-| **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** |
+| **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** (superseded nav by UX-1) |
+| **UX-1** | Portfolio → project reports | Executive portfolio home; project workspace with inputs + kind/format report studio | **Active** |
 | **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | **Done (demo indicators)** |
 | **D1** | Product onboarding | `/product` replaces public `/demo` sample entry | **Done** |
 | **D2** | Kill demo mode | No guest `tl-mode=demo`; retarget CTAs; clear lingering demo sessions | **Done** |

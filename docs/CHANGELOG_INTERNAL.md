@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-15 — Portfolio → project workspace → kind-based reports (ADR-049)
+
+- `/app/dashboard` is the **Executive portfolio**: all projects with empowerment budget / spent / available, % achieved, local hire, B-BBEE, trust, open cases, and portfolio charts.
+- Click a project → **project workspace** (`/app/projects/[id]`): KPIs, live charts from Capture data, input shortcuts, and Generate/view/print reports by **kind** (ESG, GRM, …) + **format** (charts / details / both) + audience level; related topics auto-include.
+- Nav label **Portfolio**; `/app/reports` remains pack-seniority hub with pointer to the project path.
+- Capture deep-links `?projectId=&source=` from project input cards.
+
 ## 2026-08-15 — Issue log sequenced pathway (report → close)
 
 - Capture **Issue log** pack records each matter in fixed order: title → category → person reporting → date/time reported → follow-ups (action, outcomes, date/time; add more steps) → escalated (to whom + date/time) → feedback → resolved → closed.
