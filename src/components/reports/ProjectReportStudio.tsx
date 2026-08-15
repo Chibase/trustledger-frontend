@@ -7,7 +7,12 @@ import {
   HorizontalBarChart,
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
-import { allSections, sectionsForKind } from "@/config/reportCatalogue";
+import { defaultAudienceForTier, sectionsForKind } from "@/config/reportCatalogue";
+import {
+  categoriesForReportKind,
+  kindDataCoverageSummary,
+  type ProjectDataCategory,
+} from "@/lib/projectCategoryMap";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPeriodActivityFacts,
@@ -20,11 +25,6 @@ import {
   listSavedReports,
   saveAuthoredReport,
 } from "@/lib/reportStore";
-import {
-  buildProjectPortfolioRow,
-  projectCategoryBars,
-  zar,
-} from "@/lib/portfolioMetrics";
 import { listWorkspaceIncidents } from "@/lib/workspaceData";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
@@ -58,17 +58,17 @@ const FORMAT_OPTIONS: Array<{
   {
     id: "charts",
     label: "Charts",
-    hint: "Category bars from Capture packs and cases",
+    hint: "Category charts from mapped project data",
   },
   {
     id: "details",
     label: "Details",
-    hint: "Narrative sections for the chosen report kind",
+    hint: "Narrative filled from the chosen kind’s map",
   },
   {
     id: "charts_details",
     label: "Charts + details",
-    hint: "Combined view for print and handoff",
+    hint: "Combined print-ready pack",
   },
 ];
 
@@ -77,6 +77,7 @@ type Props = {
   role: UserRole;
   authorName: string;
   incidents?: Incident[];
+  categories: ProjectDataCategory[];
 };
 
 function currentMonthLabel() {
@@ -87,14 +88,15 @@ function currentMonthLabel() {
 }
 
 /**
- * Project-scoped report studio: pick kind (e.g. ESG) → related topics auto-include
- * → choose format/level → generate, view, print.
+ * Report generation on the project dashboard:
+ * choose kind + format + level only — mapped category data fills the template.
  */
 export function ProjectReportStudio({
   project,
   role,
   authorName,
   incidents: seedIncidents,
+  categories,
 }: Props) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [kind, setKind] = useState<ReportKind>("esg");
@@ -111,7 +113,9 @@ export function ProjectReportStudio({
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      setTier(readDeskTier(role));
+      const desk = readDeskTier(role);
+      setTier(desk);
+      setAudience(defaultAudienceForTier(desk));
       setIncidents(
         seedIncidents?.length
           ? seedIncidents
@@ -124,17 +128,21 @@ export function ProjectReportStudio({
     return () => cancelAnimationFrame(frame);
   }, [role, project.id, seedIncidents]);
 
-  const row = useMemo(
-    () => buildProjectPortfolioRow(project, incidents),
-    [project, incidents],
-  );
-  const categoryBars = useMemo(() => projectCategoryBars(row), [row]);
-
   const included = useMemo(() => {
     return sectionsForKind(kind).filter((s) =>
       tierMeetsMinimum(tier, s.minTier),
     );
   }, [kind, tier]);
+
+  const mappedCategories = useMemo(
+    () => categoriesForReportKind(categories, kind),
+    [categories, kind],
+  );
+
+  const coverage = useMemo(
+    () => kindDataCoverageSummary(categories, kind),
+    [categories, kind],
+  );
 
   const facts = useMemo(
     () =>
@@ -149,6 +157,21 @@ export function ProjectReportStudio({
   const showCharts = format === "charts" || format === "charts_details";
   const showDetails = format === "details" || format === "charts_details";
 
+  const kindChartBars = useMemo(() => {
+    const bars: Array<{ label: string; value: number }> = [];
+    for (const cat of mappedCategories) {
+      for (const b of cat.chartBars) {
+        if (b.value > 0) {
+          bars.push({
+            label: `${cat.label.split(" ")[0]}: ${b.label}`.slice(0, 28),
+            value: b.value,
+          });
+        }
+      }
+    }
+    return bars.slice(0, 10);
+  }, [mappedCategories]);
+
   async function handleCompose() {
     setError(null);
     if (!included.length) {
@@ -159,15 +182,26 @@ export function ProjectReportStudio({
     if (!periodFactsHaveWritableEvidence(facts)) {
       setError(
         isCustomerWorkspaceClient()
-          ? "Add Capture packs or project details first — reports draw from what you have already entered."
-          : "No evidence yet for this project. Capture packs or cases first.",
+          ? "Fill at least one category above (Capture packs or cases) before generating."
+          : "No mapped project evidence yet. Capture category data first.",
       );
       setStatus("error");
       return;
     }
     setStatus("loading");
     try {
-      const factsBlock = factsToPromptBlock(facts);
+      const factsBlock = [
+        factsToPromptBlock(facts),
+        "",
+        `MAPPED CATEGORIES FOR ${REPORT_KIND_LABELS[kind]}:`,
+        ...mappedCategories.map((c) => {
+          const lines = c.facts
+            .map((f) => `  - ${f.label}: ${f.value}`)
+            .join("\n");
+          return `${c.label}${c.hasData ? "" : " (empty)"}:\n${lines}`;
+        }),
+      ].join("\n");
+
       const result = await aiService.composeActivityReport({
         kind,
         kindLabel: REPORT_KIND_LABELS[kind],
@@ -179,11 +213,12 @@ export function ProjectReportStudio({
         projectName: project.name,
         includedSectionIds: included.map((s) => s.id),
         includedSectionLabels: included.map((s) => s.label),
-        lockedSectionLabels: allSections()
-          .filter((s) => !tierMeetsMinimum(tier, s.minTier))
-          .map((s) => s.label),
+        lockedSectionLabels: [],
         factsBlock,
-        factsJson: JSON.stringify(facts),
+        factsJson: JSON.stringify({
+          facts,
+          categoryMap: mappedCategories,
+        }),
         tonePreference:
           audience === "board" || audience === "funders_investors"
             ? "board"
@@ -243,17 +278,17 @@ export function ProjectReportStudio({
     <div className="space-y-5 print:space-y-3">
       <div className="print:hidden">
         <h2 className="text-base font-semibold text-tl-ink">
-          Generate & view reports
+          Generate report
         </h2>
         <p className="mt-1 text-sm text-tl-ink-muted">
-          Choose the report kind — related topics from Capture and cases are
-          included automatically. Charts fill as you enter data.
+          Choose the kind, format, and level only. Category data already
+          mapped on this project fills the template — you do not pick topics.
         </p>
       </div>
 
-      <div className="grid gap-3 print:hidden sm:grid-cols-2">
+      <div className="grid gap-3 print:hidden sm:grid-cols-3">
         <label className="block text-sm">
-          <span className="mb-1 block font-medium">Report kind</span>
+          <span className="mb-1 block font-medium">1. Report kind</span>
           <select
             className="w-full rounded-md border border-tl-line bg-tl-surface px-3 py-2"
             value={kind}
@@ -267,7 +302,21 @@ export function ProjectReportStudio({
           </select>
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block font-medium">Audience / level</span>
+          <span className="mb-1 block font-medium">2. Format</span>
+          <select
+            className="w-full rounded-md border border-tl-line bg-tl-surface px-3 py-2"
+            value={format}
+            onChange={(e) => setFormat(e.target.value as ReportFormatId)}
+          >
+            {FORMAT_OPTIONS.map((opt) => (
+              <option key={opt.id} value={opt.id}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">3. Level (audience)</span>
           <select
             className="w-full rounded-md border border-tl-line bg-tl-surface px-3 py-2"
             value={audience}
@@ -280,56 +329,42 @@ export function ProjectReportStudio({
             ))}
           </select>
         </label>
-        <label className="block text-sm sm:col-span-2">
-          <span className="mb-1 block font-medium">Period</span>
-          <input
-            className="w-full rounded-md border border-tl-line bg-tl-surface px-3 py-2"
-            value={periodLabel}
-            onChange={(e) => setPeriodLabel(e.target.value)}
-          />
-        </label>
       </div>
 
-      <fieldset className="print:hidden">
-        <legend className="mb-2 text-sm font-medium">Format</legend>
-        <ul className="grid gap-2 sm:grid-cols-3">
-          {FORMAT_OPTIONS.map((opt) => (
-            <li key={opt.id}>
-              <label
-                className={`flex cursor-pointer flex-col rounded-md border px-3 py-2 text-sm ${
-                  format === opt.id
-                    ? "border-tl-trust bg-tl-paper"
-                    : "border-tl-line bg-tl-surface"
-                }`}
-              >
-                <span className="flex items-center gap-2 font-medium">
-                  <input
-                    type="radio"
-                    name="report-format"
-                    checked={format === opt.id}
-                    onChange={() => setFormat(opt.id)}
-                  />
-                  {opt.label}
-                </span>
-                <span className="mt-1 text-xs text-tl-ink-muted">{opt.hint}</span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      </fieldset>
+      <label className="block text-sm print:hidden sm:max-w-xs">
+        <span className="mb-1 block font-medium">Period label</span>
+        <input
+          className="w-full rounded-md border border-tl-line bg-tl-surface px-3 py-2"
+          value={periodLabel}
+          onChange={(e) => setPeriodLabel(e.target.value)}
+        />
+      </label>
 
       <div className="rounded-md border border-tl-line bg-tl-paper p-3 text-xs text-tl-ink-muted print:hidden">
         <p className="font-medium text-tl-ink">
-          Auto-included for {REPORT_KIND_LABELS[kind]}
+          Auto-mapped for {REPORT_KIND_LABELS[kind]}
         </p>
-        <p className="mt-1">
-          {included.map((s) => s.label).join(" · ") || "—"}
-        </p>
+        <p className="mt-1">{coverage}</p>
+        <ul className="mt-2 flex flex-wrap gap-1.5">
+          {mappedCategories.map((c) => (
+            <li
+              key={c.id}
+              className={`rounded-md px-2 py-0.5 ${
+                c.hasData
+                  ? "bg-tl-surface text-tl-trust-ink"
+                  : "bg-tl-surface text-tl-ink-muted"
+              }`}
+            >
+              {c.label}
+              {c.hasData ? "" : " (empty)"}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="flex flex-wrap gap-2 print:hidden">
         <AiAssistButton
-          label="Generate report"
+          label="Generate from mapped data"
           loading={status === "loading"}
           onClick={() => void handleCompose()}
         />
@@ -343,22 +378,12 @@ export function ProjectReportStudio({
         </button>
         <button
           type="button"
-          disabled={
-            format === "charts"
-              ? false
-              : !body.trim() && !viewing
-          }
+          disabled={format === "charts" ? false : !body.trim() && !viewing}
           onClick={handlePrint}
           className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium disabled:opacity-40"
         >
           Print / PDF
         </button>
-        <Link
-          href={`/app/capture?projectId=${encodeURIComponent(project.id)}`}
-          className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium"
-        >
-          Add Capture data
-        </Link>
       </div>
 
       {error ? (
@@ -368,80 +393,42 @@ export function ProjectReportStudio({
       ) : null}
 
       {showCharts ? (
-        <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
+        <section className="space-y-3 rounded-lg border border-tl-line bg-tl-paper p-4">
           <h3 className="text-sm font-semibold text-tl-ink">
-            Charts — {project.name}
+            Charts — {REPORT_KIND_LABELS[kind]}
           </h3>
-          <p className="text-xs text-tl-ink-muted">
-            Categories grow as Capture packs and cases are saved (
-            {[
-              row.hasEmploymentPack && "employment",
-              row.hasBbbeePack && "B-BBEE",
-              row.hasEsgPack && "ESG",
-              row.hasGrmPack && "GRM",
-              row.hasIssueLogPack && "issue log",
-            ]
-              .filter(Boolean)
-              .join(", ") || "capture packs to populate"}
-            ).
-          </p>
-          <div className="grid gap-4 lg:grid-cols-2">
-            <HorizontalBarChart
-              bars={categoryBars.map((b) => ({
-                label: b.label,
-                value: b.value,
-              }))}
-            />
-            <div className="text-sm">
-              <p>
-                Empowerment: {zar(row.empowermentSpent)} of{" "}
-                {zar(row.empowermentBudget)} (
-                {row.empowermentPct != null ? `${row.empowermentPct}%` : "—"})
-              </p>
-              <p className="mt-1">
-                Available: {zar(row.empowermentAvailable)} · Trust{" "}
-                {row.trustIndex}/100
-              </p>
-              {kind === "esg" || kind === "bbbee" || kind === "mel" ? (
-                <VerticalBarChart
-                  bars={[
-                    {
-                      label: "Spend %",
-                      value: row.empowermentPct ?? 0,
-                    },
-                    {
-                      label: "Hire %",
-                      value: row.localHirePct ?? 0,
-                    },
-                    {
-                      label: "Trust",
-                      value: row.trustIndex,
-                    },
-                  ]}
-                />
-              ) : null}
+          {kindChartBars.length ? (
+            <div className="grid gap-4 lg:grid-cols-2">
+              <HorizontalBarChart bars={kindChartBars} />
+              <VerticalBarChart
+                bars={kindChartBars.slice(0, 6).map((b) => ({
+                  label: b.label.slice(0, 12),
+                  value: b.value,
+                }))}
+              />
             </div>
-          </div>
+          ) : (
+            <p className="text-sm text-tl-ink-muted">
+              No chart values yet for this kind — capture the empty categories
+              above, then generate again.
+            </p>
+          )}
         </section>
       ) : null}
 
       {showDetails ? (
-        <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <section className="rounded-lg border border-tl-line bg-tl-paper p-4">
           <h3 className="mb-2 text-sm font-semibold text-tl-ink print:hidden">
             Details
           </h3>
-          {viewing ? (
+          {viewing || body ? (
             <article className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-tl-ink">
-              {viewing.bodyMarkdown}
-            </article>
-          ) : body ? (
-            <article className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-tl-ink">
-              {body}
+              {viewing?.bodyMarkdown || body}
             </article>
           ) : (
             <p className="text-sm text-tl-ink-muted print:hidden">
-              Generate a report to fill this panel with kind-specific narrative
-              (ESG pulls scorecard, environment, empowerment topics, etc.).
+              Generate to fill narrative sections from the mapped categories
+              for {REPORT_KIND_LABELS[kind]}.
             </p>
           )}
         </section>
@@ -454,7 +441,7 @@ export function ProjectReportStudio({
         {library.length === 0 ? (
           <p className="text-sm text-tl-ink-muted">No saved reports yet.</p>
         ) : (
-          <ul className="divide-y divide-tl-line rounded-md border border-tl-line bg-tl-surface text-sm">
+          <ul className="divide-y divide-tl-line rounded-md border border-tl-line bg-tl-paper text-sm">
             {library.map((r) => (
               <li
                 key={r.id}
@@ -477,7 +464,6 @@ export function ProjectReportStudio({
                     setAudience(r.audience);
                     setPeriodLabel(r.periodLabel);
                     setSavedId(r.id);
-                    // Always show narrative when opening a saved draft.
                     setFormat((prev) =>
                       prev === "charts" ? "charts_details" : prev,
                     );
@@ -489,6 +475,12 @@ export function ProjectReportStudio({
             ))}
           </ul>
         )}
+        <p className="mt-2 text-xs text-tl-ink-muted">
+          Need plan pack formats?{" "}
+          <Link href="/app/reports" className="underline">
+            Reports pack hub
+          </Link>
+        </p>
       </section>
     </div>
   );

@@ -32,7 +32,7 @@ export type NavItem = {
 const NAV: NavItem[] = [
   {
     href: "/app/dashboard",
-    label: "Portfolio",
+    label: "Executive",
     icon: "dashboard",
     capability: "dashboard",
   },

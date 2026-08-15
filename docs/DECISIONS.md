@@ -570,11 +570,11 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Status:** Accepted (supersedes ADR-028 navigation sequence for day-to-day use)
 - **Context:** Users struggled to generate and view reports from the Activity + Reports split. They need an executive overview of all projects, then a project workspace for inputs and reporting.
 - **Decision:**
-  1. `/app/dashboard` = **Executive portfolio** — all projects with empowerment budget / spent / available, targets, % achieved, ESG/employment signals, trust and open cases.
-  2. `/app/projects/[id]` = **Project workspace** — project KPIs + live charts from Capture packs, input shortcuts (employment, B-BBEE, ESG, issue log, cases), and **Generate & view reports** (kind → auto topics, format charts/details/both, audience level, save/print).
-  3. Charts and category bars populate as Capture/case data is entered — no separate chart authoring.
-  4. Report generation = choose **kind** (e.g. ESG) + **format** + **level**; related catalogue sections auto-include.
-  5. `/app/reports` remains Plan Owner **pack seniority** hub (monthly / executive / board) — secondary to the project workspace path.
-- **Consequences:** Nav label “Portfolio”; ActivityDashboard retained as legacy component but not the home. ADR-028 pack gates still apply on `/app/reports`.
-- **Alternatives considered:** Keep Activity home only (rejected — user blocked on reports); single mega Reports page without project drill-in (rejected — mixed jobs).
+  1. `/app/dashboard` = **Executive dashboard** — **active** projects (Active / Approved / OnHold) with empowerment budget / spent / available, targets, % achieved, ESG/employment signals, trust and open cases. Fed by project dashboards.
+  2. `/app/projects/[id]` = **Project dashboard** — sole activity hub for that project: capture, monitor, edit; data **segmented by report category** (ESG, B-BBEE, employment/training, GRM/incidents, budget, stakeholders, CSI, issue log).
+  3. Charts and category panels populate as Capture/case/stakeholder data is entered.
+  4. Report generation = **kind + format + level only**; mapped category data auto-fills the template — **no topic/section picking**.
+  5. `/app/reports` remains Plan Owner **pack seniority** hub (monthly / executive / board) — secondary; wizard also auto-maps topics by kind.
+- **Consequences:** Nav label “Executive”; project dashboards roll up into the executive view. ADR-028 pack gates still apply on `/app/reports`.
+- **Alternatives considered:** Keep Activity home only (rejected — user blocked on reports); single mega Reports page without project drill-in (rejected — mixed jobs); manual topic checkboxes (rejected — user asked for mapped auto-fill).
 

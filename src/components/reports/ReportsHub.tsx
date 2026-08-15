@@ -113,15 +113,13 @@ export function ReportsHub({
           Choose a reporting form
         </h1>
         <p className="max-w-2xl text-sm text-tl-ink-muted">
-          Prefer the project workspace for day-to-day reporting: open a project
-          from the{" "}
+          Day-to-day reporting lives on the{" "}
           <Link href="/app/dashboard" className="text-tl-trust-ink underline">
-            Executive portfolio
+            Executive dashboard
           </Link>
-          , then Generate report by kind (ESG, GRM, …) with charts and/or
-          details. This hub keeps plan pack formats (monthly / executive /
-          board) for Owner-controlled seniority. Desk:{" "}
-          {DESK_TIER_LABELS[tier]}
+          → project dashboard (kind + format + level only). This hub keeps plan
+          pack formats (monthly / executive / board) for Owner-controlled
+          seniority. Desk: {DESK_TIER_LABELS[tier]}
           {isPlanOwner
             ? " — grant desks in Settings → Report pack access"
             : ""}

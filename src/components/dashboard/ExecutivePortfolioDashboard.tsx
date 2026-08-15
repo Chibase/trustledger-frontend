@@ -14,6 +14,7 @@ import {
   pctLabel,
   zar,
 } from "@/lib/portfolioMetrics";
+import { isActivePortfolioProject } from "@/lib/projectCategoryMap";
 import {
   listWorkspaceIncidents,
   listWorkspaceProjects,
@@ -55,11 +56,16 @@ export function ExecutivePortfolioDashboard({
     return () => cancelAnimationFrame(frame);
   }, [role, seedIncidents, seedProjects]);
 
+  const activeProjects = useMemo(
+    () => projects.filter(isActivePortfolioProject),
+    [projects],
+  );
   const overview = useMemo(
-    () => buildPortfolioOverview(projects, incidents),
-    [projects, incidents],
+    () => buildPortfolioOverview(activeProjects, incidents),
+    [activeProjects, incidents],
   );
   const { totals, rows } = overview;
+  const inactiveCount = projects.length - activeProjects.length;
 
   const spendBars = rows
     .filter((r) => r.empowermentBudget > 0)
@@ -80,19 +86,25 @@ export function ExecutivePortfolioDashboard({
   return (
     <div className="space-y-7">
       <header className="space-y-2">
-        <p className="text-sm font-medium text-tl-trust">Executive portfolio</p>
+        <p className="text-sm font-medium text-tl-trust">Executive dashboard</p>
         <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
-          {isPlanOwner ? "All projects at a glance" : "Your project portfolio"}
+          {isPlanOwner
+            ? "Active projects overview"
+            : "Active projects you work on"}
         </h1>
         <p className="max-w-2xl text-sm text-tl-ink-muted">
-          Empowerment budgets, targets, and progress across every project you
-          work on. Open a project for inputs, charts, and report generation.
-          Desk: {DESK_TIER_LABELS[tier]}.
+          Roll-up of empowerment budgets, targets, and progress across active
+          projects. Open a project dashboard to capture, monitor, edit, and
+          generate reports — that project data feeds this view. Desk:{" "}
+          {DESK_TIER_LABELS[tier]}.
+          {inactiveCount > 0
+            ? ` ${inactiveCount} draft/closed project${inactiveCount === 1 ? "" : "s"} hidden.`
+            : ""}
         </p>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Projects" value={String(totals.projectCount)} />
+        <KpiCard label="Active projects" value={String(totals.projectCount)} />
         <KpiCard
           label="Empowerment budget"
           value={zar(totals.empowermentBudget)}
@@ -153,7 +165,9 @@ export function ExecutivePortfolioDashboard({
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-base font-semibold text-tl-ink">Projects</h2>
+          <h2 className="text-base font-semibold text-tl-ink">
+            Active projects
+          </h2>
           <Link
             href="/app/projects"
             className="text-xs font-medium text-tl-trust-ink hover:underline"
@@ -163,11 +177,11 @@ export function ExecutivePortfolioDashboard({
         </div>
         {rows.length === 0 ? (
           <p className="rounded-lg border border-dashed border-tl-line bg-tl-surface px-4 py-6 text-sm text-tl-ink-muted">
-            No projects yet.{" "}
+            No active projects yet.{" "}
             <Link href="/app/capture" className="text-tl-trust-ink underline">
               Capture a project dossier
             </Link>{" "}
-            to start the portfolio.
+            and set status to Active.
           </p>
         ) : (
           <ul className="divide-y divide-tl-line overflow-hidden rounded-lg border border-tl-line bg-tl-surface">
@@ -239,7 +253,7 @@ export function ExecutivePortfolioDashboard({
                     </dl>
                   </div>
                   <span className="shrink-0 text-xs font-medium text-tl-trust-ink">
-                    Open project →
+                    Open project dashboard →
                   </span>
                 </Link>
               </li>
