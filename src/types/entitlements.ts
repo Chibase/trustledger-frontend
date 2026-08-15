@@ -29,7 +29,7 @@ export const CAPABILITY_LABELS: Record<CapabilityId, string> = {
   incidents: "Incidents / grievances",
   issueIntake: "Issue intake",
   aiAssist: "AI assist (suggest → apply)",
-  captureHub: "Capture hub (minutes / attendance / social)",
+  captureHub: "Capture hub (minutes / attendance templates)",
   stakeholdersCrm: "Stakeholder CRM",
   geoIntake: "Cascading geo intake",
   trustPulse: "Trust pulse",

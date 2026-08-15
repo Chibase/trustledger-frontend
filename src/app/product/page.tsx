@@ -35,6 +35,10 @@ const FEATURES = [
     body: "Meetings, consultations, walkabouts, and briefings with attendance, minutes, and action items. Capture once; link to stakeholders and projects.",
   },
   {
+    title: "Field templates",
+    body: "Minutes, attendance registers, and field notes with labeled fields. Fill them in the meeting, then paste or upload — Capture maps names, place, and actions the first time. Bundled on Project and Institutional; also free on /resources.",
+  },
+  {
     title: "Commitments",
     body: "Promises with owners and due dates. Promote from engagement actions; track open → fulfilled or broken with evidence notes.",
   },

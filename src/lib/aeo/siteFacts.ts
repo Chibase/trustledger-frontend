@@ -88,6 +88,6 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "What is the best way to assess SRM readiness before buying?",
     answer:
-      "Start at /readiness, then complete the SRM Readiness & Risk Diagnostic at /assessment. It scores intake, ownership, field practice, engagement, reporting, and assurance; a work email confirmation unlocks a choice hub and detailed report with TrustLedger turnaround lanes. Free PDF toolkits are also on /resources — you can adapt them to your own programme. These are maturity aids — not a substitute for a product trial.",
+      "Start at /readiness, then complete the SRM Readiness & Risk Diagnostic at /assessment. It scores intake, ownership, field practice, engagement, reporting, and assurance; a work email confirmation unlocks a choice hub and detailed report with TrustLedger turnaround lanes. Free PDF field templates (minutes, attendance, field notes) and SRM toolkits are also on /resources — you can adapt them to your own programme. These are maturity aids — not a substitute for a product trial.",
   },
 ];

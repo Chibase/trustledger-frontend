@@ -112,9 +112,9 @@ export default function AppEngagementsPage() {
           <p className="text-sm text-tl-ink-muted">
             No engagements yet.{" "}
             <Link href="/app/capture" className="text-tl-trust-ink underline">
-              Capture minutes or attendance
+              Insert a minutes or attendance template
             </Link>{" "}
-            and apply AI suggestions.
+            in Capture, fill labeled fields, then apply suggestions.
           </p>
         ) : (
           <ul className="divide-y divide-tl-line rounded-lg border border-tl-line bg-tl-surface">

@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { RESOURCE_PACKS, type ResourcePack } from "@/data/resources";
+import {
+  resourcePacksByFamily,
+  type ResourcePack,
+} from "@/data/resources";
 import { ResourceDownloadForm } from "@/components/resources/ResourceDownloadForm";
 import { trackMarketingEvent } from "@/lib/marketingAnalytics";
 
@@ -18,9 +21,9 @@ function PackRow({
       <p className="text-xs font-medium uppercase tracking-wide text-tl-trust">
         {pack.pagesHint} · v{pack.version}
       </p>
-      <h2 className="mt-2 font-display text-2xl font-semibold text-tl-ink">
+      <h3 className="mt-2 font-display text-2xl font-semibold text-tl-ink">
         {pack.title}
-      </h2>
+      </h3>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-tl-ink-muted sm:text-base">
         {pack.description}
       </p>
@@ -59,14 +62,42 @@ function PackRow({
 
 export function ResourcesLibrary() {
   const [active, setActive] = useState<ResourcePack | null>(null);
+  const fieldTemplates = resourcePacksByFamily("field-template");
+  const toolkits = resourcePacksByFamily("toolkit");
 
   return (
     <>
-      <div className="mt-10 space-y-4">
-        {RESOURCE_PACKS.map((pack) => (
-          <PackRow key={pack.id} pack={pack} onDownload={setActive} />
-        ))}
-      </div>
+      <section className="mt-10">
+        <h2 className="font-display text-xl font-semibold text-tl-ink">
+          Field templates
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
+          Separate PDFs — download only the form you need. Fill labeled fields
+          in the meeting, then paste or upload so names, place, and actions
+          map the first time. Project and Institutional plans also insert
+          these from Capture hub.
+        </p>
+        <div className="mt-4 space-y-4">
+          {fieldTemplates.map((pack) => (
+            <PackRow key={pack.id} pack={pack} onDownload={setActive} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="font-display text-xl font-semibold text-tl-ink">
+          SRM toolkits
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
+          Checklists and planners you can adapt to your programme. Each is its
+          own PDF.
+        </p>
+        <div className="mt-4 space-y-4">
+          {toolkits.map((pack) => (
+            <PackRow key={pack.id} pack={pack} onDownload={setActive} />
+          ))}
+        </div>
+      </section>
 
       <section className="mt-6 border-t border-tl-line pt-10">
         <h2 className="font-display text-xl font-semibold text-tl-ink">

@@ -4,6 +4,7 @@
 
 - `/api/resources/file` streams a PDF (not HTML). Packs have no TrustLedger “with us” paragraph, next-step CTAs, or product filename — so teams can use them as they see fit.
 - Each pack is a separate PDF. The grievance checklist is titled **Grievance Checklist** (`Grievance-Checklist.pdf`) and is not bundled with the community engagement toolkit. Library and preview pages say “choose one pack”.
+- **Field templates** (Meeting Minutes, Attendance Register, Field Note) use labeled fields that Capture maps on first paste. Project and Institutional include them in Capture hub (insert blank form + in-app PDF). Same PDFs are free on `/resources`.
 
 ## 2026-08-14 — Chibase: keep the preview desk in the hero
 

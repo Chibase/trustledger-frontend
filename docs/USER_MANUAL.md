@@ -45,7 +45,7 @@ Do **not** start with Reports. Seed in this order:
 | Nav item | Purpose |
 |----------|---------|
 | **Dashboard** | Activity pulse — projects and cases at a glance |
-| **Capture** | Minutes / registers → extract → apply (Project+) |
+| **Capture** | Minutes / registers with field templates → extract → apply (Project+) |
 | **Engagements** | Log meetings and consultations (Project+) |
 | **Commitments** | Promise board and statuses (Project+) |
 | **Intelligence** | ESG / indicator cards (Project+) |
@@ -77,7 +77,7 @@ If a module is missing, it is usually a **plan gate**, not a broken screen. Upgr
 
 ### Ongoing — Contact & promises (Project+)
 
-1. After each meeting, log an **Engagement** linked to project + stakeholders.  
+1. After each meeting, log an **Engagement** linked to project + stakeholders. Prefer the **Meeting minutes** or **Attendance register** template (Capture hub, or `/resources`) so names and actions map on first paste.  
 2. Promote promises to **Commitments** with an owner and status.  
 3. Update commitment status as fieldwork moves — do not wait for month-end.
 
