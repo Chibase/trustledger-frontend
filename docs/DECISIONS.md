@@ -578,3 +578,17 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Nav label “Executive”; project dashboards roll up into the executive view. ADR-028 pack gates still apply on `/app/reports`.
 - **Alternatives considered:** Keep Activity home only (rejected — user blocked on reports); single mega Reports page without project drill-in (rejected — mixed jobs); manual topic checkboxes (rejected — user asked for mapped auto-fill).
 
+### ADR-050: Labelled report packs as project evidence SoT (pathways + trust relevancy)
+
+- **Date:** 2026-08-15
+- **Status:** Accepted (deepens ADR-049 / UX-1)
+- **Context:** Report packs (B-BBEE, employment, CSI, ESG, GRM, budget, issue log) must popularise their domain, capture detailed evidence, stay on the project for retrieval, and support Trust measurement. Issue log already had a report→close sequence; other packs were metrics-only.
+- **Decision:**
+  1. Each Capture **report pack** is labelled with a **mandate** — it owns that domain’s period metrics and evidence.
+  2. Domain packs use the **same pathway sequence** as Issue log: title → category → reporter → reported → evidence detail → follow-ups → escalate → feedback → resolve → close (pack-specific categories).
+  3. Pathways + pack fields persist on the project Capture record and surface on the **project dashboard** category panel for retrieval.
+  4. Trust pulse blends desk-case sentiment with **pack pathway health weighted by pack relevancy** (issue log / GRM / employment / ESG highest).
+  5. Report composer pulls pack pathways into the matching kind sections as evidence — never fill-in templates.
+- **Consequences:** Capture forms grow pathway editors; executive/project trust reflects pack evidence; packs remain the popularising SoT for their report kinds.
+- **Alternatives considered:** Only Issue log pathways (rejected — B-BBEE etc. need domain SoT); free-text notes only (rejected — not sequenced / not measurable for Trust).
+

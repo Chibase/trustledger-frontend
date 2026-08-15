@@ -169,7 +169,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24d** | Commitments | Promise board; Cloud DocType + BFF | **Done (Cloud SI path)** |
 | **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (UI); Cloud stamps next** |
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** (superseded nav by UX-1) |
-| **UX-1** | Portfolio → project reports | Executive dashboard (active projects) → project dashboard with category-mapped data → kind/format/level reports | **Active** |
+| **UX-1** | Portfolio → project reports | Executive dashboard (active projects) → project dashboard with category-mapped data → kind/format/level reports; **ADR-050** labelled packs + evidence pathways + trust-by-relevancy | **Active** |
 | **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | **Done (demo indicators)** |
 | **D1** | Product onboarding | `/product` replaces public `/demo` sample entry | **Done** |
 | **D2** | Kill demo mode | No guest `tl-mode=demo`; retarget CTAs; clear lingering demo sessions | **Done** |

@@ -1,11 +1,20 @@
 "use client";
 
 import { IssueLogPathwayForm } from "@/components/capture/IssueLogPathwayForm";
+import { PackEvidencePathwayForm } from "@/components/capture/PackEvidencePathwayForm";
 import type {
   CaptureStructured,
   PackCaptureSource,
 } from "@/lib/captureStore";
-import { PACK_SOURCE_META } from "@/lib/captureStore";
+import {
+  BBBEE_PACK_CATEGORIES,
+  BUDGET_PACK_CATEGORIES,
+  CSI_PACK_CATEGORIES,
+  EMPLOYMENT_PACK_CATEGORIES,
+  ESG_PACK_CATEGORIES,
+  GRM_PACK_CATEGORIES,
+  PACK_SOURCE_META,
+} from "@/lib/captureStore";
 import type { Incident } from "@/types/incident";
 
 type Props = {
@@ -146,9 +155,13 @@ export function CapturePackForm({
     <div className="space-y-4">
       <div>
         <p className="text-sm font-medium text-tl-ink">{meta.label}</p>
+        <p className="mt-1 text-sm font-medium text-tl-trust-ink">
+          {meta.mandate}
+        </p>
         <p className="mt-1 text-sm text-tl-ink-muted">{meta.hint}</p>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          Feeds: {meta.reports}
+          Feeds: {meta.reports}. Saved on this project — retrieve from the
+          project dashboard category for this pack.
         </p>
       </div>
 
@@ -352,6 +365,14 @@ export function CapturePackForm({
               onChange({ pack, data: { ...value.data, certificateRef } })
             }
           />
+          <TextInput
+            id="bb-verif"
+            label="Verification date (YYYY-MM-DD)"
+            value={value.data.verificationDate}
+            onChange={(verificationDate) =>
+              onChange({ pack, data: { ...value.data, verificationDate } })
+            }
+          />
           <div className="sm:col-span-2">
             <AreaInput
               id="bb-mgmt"
@@ -367,12 +388,51 @@ export function CapturePackForm({
           </div>
           <div className="sm:col-span-2">
             <AreaInput
+              id="bb-own-ev"
+              label="Ownership evidence notes"
+              value={value.data.ownershipEvidenceNotes}
+              onChange={(ownershipEvidenceNotes) =>
+                onChange({
+                  pack,
+                  data: { ...value.data, ownershipEvidenceNotes },
+                })
+              }
+              placeholder="Shareholding proof, agreements, parties…"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <AreaInput
+              id="bb-sup-ev"
+              label="Supplier / ESD evidence notes"
+              value={value.data.supplierEvidenceNotes}
+              onChange={(supplierEvidenceNotes) =>
+                onChange({
+                  pack,
+                  data: { ...value.data, supplierEvidenceNotes },
+                })
+              }
+              placeholder="Named local suppliers, invoices, ESD agreements…"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <AreaInput
               id="bb-notes"
               label="Additional empowerment notes"
               value={value.data.notes}
               onChange={(notes) =>
                 onChange({ pack, data: { ...value.data, notes } })
               }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <PackEvidencePathwayForm
+              packLabel="B-BBEE"
+              categories={BBBEE_PACK_CATEGORIES}
+              entries={value.data.entries || []}
+              onChange={(entries) =>
+                onChange({ pack, data: { ...value.data, entries } })
+              }
+              intro="Capture ownership, skills, procurement, ESD, or verification matters here — they stay on this project’s B-BBEE pack."
             />
           </div>
         </div>
@@ -500,12 +560,37 @@ export function CapturePackForm({
           </div>
           <div className="sm:col-span-2">
             <AreaInput
+              id="em-hire-ev"
+              label="Local hire evidence (gap, placements, lists)"
+              value={value.data.localHireEvidenceNotes}
+              onChange={(localHireEvidenceNotes) =>
+                onChange({
+                  pack,
+                  data: { ...value.data, localHireEvidenceNotes },
+                })
+              }
+              placeholder="Who was hired from which ward; shortlists; placement dates…"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <AreaInput
               id="em-notes"
               label="Employment notes"
               value={value.data.notes}
               onChange={(notes) =>
                 onChange({ pack, data: { ...value.data, notes } })
               }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <PackEvidencePathwayForm
+              packLabel="Employment"
+              categories={EMPLOYMENT_PACK_CATEGORIES}
+              entries={value.data.entries || []}
+              onChange={(entries) =>
+                onChange({ pack, data: { ...value.data, entries } })
+              }
+              intro="Labour, hire, training, and dispute matters for this project’s Employment pack."
             />
           </div>
         </div>
@@ -574,12 +659,36 @@ export function CapturePackForm({
           </div>
           <div className="sm:col-span-2">
             <AreaInput
+              id="csi-del"
+              label="Delivery evidence (handover, attendance, proof)"
+              value={value.data.deliveryEvidenceNotes}
+              onChange={(deliveryEvidenceNotes) =>
+                onChange({
+                  pack,
+                  data: { ...value.data, deliveryEvidenceNotes },
+                })
+              }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <AreaInput
               id="csi-notes"
               label="CSI notes"
               value={value.data.notes}
               onChange={(notes) =>
                 onChange({ pack, data: { ...value.data, notes } })
               }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <PackEvidencePathwayForm
+              packLabel="CSI"
+              categories={CSI_PACK_CATEGORIES}
+              entries={value.data.entries || []}
+              onChange={(entries) =>
+                onChange({ pack, data: { ...value.data, entries } })
+              }
+              intro="Programme delivery, beneficiary access, and spend matters for this CSI pack."
             />
           </div>
         </div>
@@ -664,12 +773,36 @@ export function CapturePackForm({
           </div>
           <div className="sm:col-span-2">
             <AreaInput
+              id="esg-mon"
+              label="Monitoring / permit / sampling evidence"
+              value={value.data.monitoringEvidenceNotes}
+              onChange={(monitoringEvidenceNotes) =>
+                onChange({
+                  pack,
+                  data: { ...value.data, monitoringEvidenceNotes },
+                })
+              }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <AreaInput
               id="esg-notes"
               label="ESG notes"
               value={value.data.notes}
               onChange={(notes) =>
                 onChange({ pack, data: { ...value.data, notes } })
               }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <PackEvidencePathwayForm
+              packLabel="ESG"
+              categories={ESG_PACK_CATEGORIES}
+              entries={value.data.entries || []}
+              onChange={(entries) =>
+                onChange({ pack, data: { ...value.data, entries } })
+              }
+              intro="Dust, water, noise, H&S, rehab, and community-trust matters for this ESG pack."
             />
           </div>
         </div>
@@ -758,6 +891,17 @@ export function CapturePackForm({
               }
             />
           </div>
+          <div className="sm:col-span-2">
+            <PackEvidencePathwayForm
+              packLabel="GRM"
+              categories={GRM_PACK_CATEGORIES}
+              entries={value.data.entries || []}
+              onChange={(entries) =>
+                onChange({ pack, data: { ...value.data, entries } })
+              }
+              intro="Intake, SLA, escalation, and process matters for this GRM period pack (Issue log remains the cross-cutting pathway SoT)."
+            />
+          </div>
         </div>
       ) : null}
 
@@ -842,6 +986,17 @@ export function CapturePackForm({
               onChange={(notes) =>
                 onChange({ pack, data: { ...value.data, notes } })
               }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <PackEvidencePathwayForm
+              packLabel="Budget"
+              categories={BUDGET_PACK_CATEGORIES}
+              entries={value.data.entries || []}
+              onChange={(entries) =>
+                onChange({ pack, data: { ...value.data, entries } })
+              }
+              intro="Envelope, variance, claims, and allocation matters for this empowerment budget pack."
             />
           </div>
         </div>

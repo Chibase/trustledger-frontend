@@ -986,9 +986,11 @@ export default function AppCapturePage() {
                 Project report packs
               </p>
               <p className="text-sm text-tl-ink-muted">
-                Structured inputs mapped to report kinds — fill each pack for
-                this project and period. Issue log sits beside GRM. Employment
-                training spend and B-BBEE packs auto-update empowerment spent.
+                Each labelled pack owns its domain (B-BBEE, employment, CSI,
+                ESG, GRM, budget, issue log). Capture period metrics and
+                sequenced evidence pathways (same report → close spine as Issue
+                log). Saved on the project for reports and Trust measurement by
+                pack relevancy.
               </p>
               <div className="flex flex-wrap gap-2">
                 {PACK_CAPTURE_SOURCES.map((id: PackCaptureSource) => (

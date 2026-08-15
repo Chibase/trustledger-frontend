@@ -1,41 +1,40 @@
 "use client";
 
-import Link from "next/link";
 import {
   createIssueLogFollowUpId,
-  deriveIssueLogRollup,
-  emptyIssueLogEntry,
-  ISSUE_LOG_CATEGORIES,
-  type IssueLogEntry,
-  type IssueLogFacts,
+  emptyPackEvidenceEntry,
+  type PackCategoryOption,
+  type PackEvidenceEntry,
   type IssueLogFollowUp,
 } from "@/lib/captureStore";
-import type { Incident } from "@/types/incident";
 
 const inputClass =
   "w-full rounded-md border border-tl-line px-3 py-2 text-sm bg-tl-surface";
 
 type Props = {
-  data: IssueLogFacts;
-  onChange: (next: IssueLogFacts) => void;
-  projectIncidents?: Incident[];
-  projectId?: string;
+  /** Pack label for headings (e.g. B-BBEE / Empowerment). */
+  packLabel: string;
+  categories: readonly PackCategoryOption[];
+  entries: PackEvidenceEntry[];
+  onChange: (entries: PackEvidenceEntry[]) => void;
+  /** Optional intro under the sequence reminder. */
+  intro?: string;
 };
 
 function patchEntry(
-  entries: IssueLogEntry[],
+  entries: PackEvidenceEntry[],
   id: string,
-  partial: Partial<IssueLogEntry>,
-): IssueLogEntry[] {
+  partial: Partial<PackEvidenceEntry>,
+): PackEvidenceEntry[] {
   return entries.map((e) => (e.id === id ? { ...e, ...partial } : e));
 }
 
 function patchFollowUp(
-  entries: IssueLogEntry[],
+  entries: PackEvidenceEntry[],
   entryId: string,
   followUpId: string,
   partial: Partial<IssueLogFollowUp>,
-): IssueLogEntry[] {
+): PackEvidenceEntry[] {
   return entries.map((e) => {
     if (e.id !== entryId) return e;
     return {
@@ -47,67 +46,28 @@ function patchFollowUp(
   });
 }
 
-function withRollup(entries: IssueLogEntry[], base: IssueLogFacts): IssueLogFacts {
-  const titled = entries.filter((e) => e.title.trim());
-  if (!titled.length) {
-    // Keep legacy manual counts until at least one titled pathway exists.
-    return { ...base, entries };
-  }
-  const rollup = deriveIssueLogRollup(entries);
-  return {
-    ...base,
-    entries,
-    casesLogged: rollup.casesLogged,
-    casesOpen: rollup.casesOpen,
-    casesClosed: rollup.casesClosed,
-    casesEscalated: rollup.casesEscalated,
-    topThemes: rollup.topThemes || base.topThemes,
-    openCaseRefs: rollup.openCaseRefs || base.openCaseRefs,
-  };
-}
-
 /**
- * Sequenced issue pathway editor:
- * title → category → reporter → reported → follow-ups → escalate → feedback → resolve → close
+ * Sequenced evidence pathway editor shared by Issue log and domain report packs:
+ * title → category → reporter → reported → evidence detail → follow-ups →
+ * escalate → feedback → resolve → close.
  */
-export function IssueLogPathwayForm({
-  data,
+export function PackEvidencePathwayForm({
+  packLabel,
+  categories,
+  entries,
   onChange,
-  projectIncidents = [],
-  projectId,
+  intro,
 }: Props) {
-  const entries = data.entries?.length ? data.entries : [];
-
-  function setEntries(next: IssueLogEntry[]) {
-    onChange(withRollup(next, data));
-  }
-
-  function addEntry(from?: Incident) {
-    const base = emptyIssueLogEntry();
-    if (from) {
-      base.title = from.title;
-      base.category = from.nature || from.category || "";
-      base.reporterName = from.reporterName || "";
-      base.reportedAt = from.reportedAt
-        ? from.reportedAt.slice(0, 16)
-        : "";
-      base.linkedIncidentId = from.id;
-      if (from.processStages?.resolvedAt) {
-        base.resolvedAt = from.processStages.resolvedAt.slice(0, 16);
-      }
-      if (from.processStages?.closedAt) {
-        base.closedAt = from.processStages.closedAt.slice(0, 16);
-      }
-    }
-    setEntries([...entries, base]);
+  function addEntry() {
+    onChange([...entries, emptyPackEvidenceEntry()]);
   }
 
   function removeEntry(id: string) {
-    setEntries(entries.filter((e) => e.id !== id));
+    onChange(entries.filter((e) => e.id !== id));
   }
 
   function addFollowUp(entryId: string) {
-    setEntries(
+    onChange(
       entries.map((e) =>
         e.id === entryId
           ? {
@@ -128,7 +88,7 @@ export function IssueLogPathwayForm({
   }
 
   function removeFollowUp(entryId: string, followUpId: string) {
-    setEntries(
+    onChange(
       entries.map((e) =>
         e.id === entryId
           ? {
@@ -140,91 +100,33 @@ export function IssueLogPathwayForm({
     );
   }
 
+  const titled = entries.filter((e) => e.title.trim());
+  const open = titled.filter((e) => !e.closedAt).length;
+  const closed = titled.filter((e) => Boolean(e.closedAt)).length;
+  const escalated = titled.filter((e) =>
+    Boolean(e.escalatedTo || e.escalatedAt),
+  ).length;
+
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border border-tl-line bg-tl-paper p-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-medium text-tl-ink">
-            Desk cases
-            {projectId ? ` · ${projectIncidents.length} on file` : ""}
-          </p>
-          <Link
-            href={
-              projectId
-                ? `/app/issues/report?projectId=${encodeURIComponent(projectId)}`
-                : "/app/issues/report"
-            }
-            className="text-sm font-medium text-tl-trust-ink underline"
-          >
-            Log new issue on desk
-          </Link>
-        </div>
-        {projectIncidents.length === 0 ? (
-          <p className="mt-2 text-sm text-tl-ink-muted">
-            No desk cases yet — capture pathways below, or open{" "}
-            <Link href="/app/incidents" className="underline">
-              Incidents
-            </Link>
-            .
-          </p>
-        ) : (
-          <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-sm">
-            {projectIncidents.slice(0, 12).map((inc) => (
-              <li
-                key={inc.id}
-                className="flex flex-wrap items-center justify-between gap-2"
-              >
-                <span>
-                  <Link
-                    href={`/app/incidents/${encodeURIComponent(inc.id)}`}
-                    className="text-tl-trust-ink underline"
-                  >
-                    {inc.id}
-                  </Link>
-                  <span className="text-tl-ink-muted">
-                    {" "}
-                    · {inc.status} — {inc.title.slice(0, 56)}
-                    {inc.title.length > 56 ? "…" : ""}
-                  </span>
-                </span>
-                <button
-                  type="button"
-                  className="text-xs font-medium text-tl-trust-ink underline"
-                  onClick={() => addEntry(inc)}
-                >
-                  Add to pathway log
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
+    <div className="space-y-4 border-t border-tl-line pt-4">
       <div>
-        <label className="mb-1 block text-sm font-medium" htmlFor="il-period">
-          Reporting period
-        </label>
-        <input
-          id="il-period"
-          className={inputClass}
-          value={data.periodLabel || ""}
-          onChange={(e) =>
-            onChange({ ...data, periodLabel: e.target.value })
-          }
-          placeholder="e.g. August 2026"
-        />
+        <p className="text-sm font-medium text-tl-ink">
+          {packLabel} — evidence pathways
+        </p>
+        <p className="mt-1 text-xs text-tl-ink-muted">
+          Sequence per matter: title → category → person reporting → date/time
+          reported → evidence detail → follow-ups (action, outcome, date/time) →
+          escalated → feedback → resolved → closed. Stored on this project pack
+          for reports and Trust measurement.
+        </p>
+        {intro ? (
+          <p className="mt-1 text-xs text-tl-ink-muted">{intro}</p>
+        ) : null}
       </div>
-
-      <p className="text-xs text-tl-ink-muted">
-        Pathway sequence per issue: title → category → person reporting →
-        date/time reported → follow-ups (action, outcome, date/time) →
-        escalated → feedback → resolved → closed. Add steps as needed. Saved
-        pathways feed Issue handling / GRM reports as evidence.
-      </p>
 
       {entries.length === 0 ? (
         <p className="text-sm text-tl-ink-muted">
-          No pathway entries yet — add the first issue below.
+          No {packLabel} pathways yet — add the first matter below.
         </p>
       ) : null}
 
@@ -236,7 +138,7 @@ export function IssueLogPathwayForm({
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h4 className="text-sm font-semibold text-tl-ink">
-                Issue pathway {index + 1}
+                {packLabel} matter {index + 1}
                 {entry.linkedIncidentId
                   ? ` · ${entry.linkedIncidentId}`
                   : ""}
@@ -246,7 +148,7 @@ export function IssueLogPathwayForm({
                 className="text-xs text-tl-danger underline"
                 onClick={() => removeEntry(entry.id)}
               >
-                Remove issue
+                Remove
               </button>
             </div>
 
@@ -257,11 +159,11 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.title}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, { title: e.target.value }),
                     )
                   }
-                  placeholder="Short issue title"
+                  placeholder={`Short ${packLabel} matter title`}
                 />
               </div>
               <div>
@@ -272,7 +174,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.category || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         category: e.target.value,
                       }),
@@ -280,7 +182,7 @@ export function IssueLogPathwayForm({
                   }
                 >
                   <option value="">Select category</option>
-                  {ISSUE_LOG_CATEGORIES.map((c) => (
+                  {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.label}
                     </option>
@@ -295,7 +197,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.reporterName || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         reporterName: e.target.value,
                       }),
@@ -313,7 +215,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.reportedAt || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         reportedAt: e.target.value,
                       }),
@@ -330,7 +232,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.evidenceDetail || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         evidenceDetail: e.target.value,
                       }),
@@ -347,13 +249,13 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.documentRefs || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         documentRefs: e.target.value,
                       }),
                     )
                   }
-                  placeholder="Register page, photo CAP-…, minutes…"
+                  placeholder="Certificate #, register page, photo CAP-…, meeting minutes…"
                 />
               </div>
             </div>
@@ -377,7 +279,7 @@ export function IssueLogPathwayForm({
                       className={inputClass}
                       value={fu.action}
                       onChange={(e) =>
-                        setEntries(
+                        onChange(
                           patchFollowUp(entries, entry.id, fu.id, {
                             action: e.target.value,
                           }),
@@ -395,7 +297,7 @@ export function IssueLogPathwayForm({
                       className={inputClass}
                       value={fu.outcome || ""}
                       onChange={(e) =>
-                        setEntries(
+                        onChange(
                           patchFollowUp(entries, entry.id, fu.id, {
                             outcome: e.target.value,
                           }),
@@ -412,7 +314,7 @@ export function IssueLogPathwayForm({
                       className={inputClass}
                       value={fu.at || ""}
                       onChange={(e) =>
-                        setEntries(
+                        onChange(
                           patchFollowUp(entries, entry.id, fu.id, {
                             at: e.target.value,
                           }),
@@ -450,7 +352,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.escalatedTo || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         escalatedTo: e.target.value,
                       }),
@@ -468,7 +370,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.escalatedAt || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         escalatedAt: e.target.value,
                       }),
@@ -485,7 +387,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.feedbackAt || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         feedbackAt: e.target.value,
                       }),
@@ -502,7 +404,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.feedbackNotes || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         feedbackNotes: e.target.value,
                       }),
@@ -519,7 +421,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.resolvedAt || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         resolvedAt: e.target.value,
                       }),
@@ -536,7 +438,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.closedAt || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, {
                         closedAt: e.target.value,
                       }),
@@ -553,7 +455,7 @@ export function IssueLogPathwayForm({
                   className={inputClass}
                   value={entry.notes || ""}
                   onChange={(e) =>
-                    setEntries(
+                    onChange(
                       patchEntry(entries, entry.id, { notes: e.target.value }),
                     )
                   }
@@ -566,17 +468,16 @@ export function IssueLogPathwayForm({
 
       <button
         type="button"
-        onClick={() => addEntry()}
+        onClick={addEntry}
         className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium hover:bg-tl-paper"
       >
-        Add issue pathway
+        Add {packLabel} pathway
       </button>
 
-      {entries.length > 0 ? (
+      {titled.length > 0 ? (
         <p className="text-xs text-tl-ink-muted">
-          Rollup: logged {data.casesLogged ?? 0} · open {data.casesOpen ?? 0} ·
-          closed {data.casesClosed ?? 0} · escalated{" "}
-          {data.casesEscalated ?? 0}
+          Rollup: logged {titled.length} · open {open} · closed {closed} ·
+          escalated {escalated}
         </p>
       ) : null}
     </div>

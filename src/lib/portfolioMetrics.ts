@@ -5,6 +5,7 @@
 
 import {
   latestPackCapture,
+  trustFromProjectPackEvidence,
   type BbbeeFacts,
   type EmploymentFacts,
   type EsgPeriodFacts,
@@ -69,7 +70,10 @@ export function buildProjectPortfolioRow(
 ): ProjectPortfolioRow {
   const scoped = incidents.filter((i) => i.projectId === project.id);
   const open = scoped.filter((i) => i.status !== "Closed");
-  const pulse = trustIndexFromIncidents(scoped);
+  const pulse = trustFromProjectPackEvidence(
+    project.id,
+    trustIndexFromIncidents(scoped),
+  );
 
   const emp = packData<EmploymentFacts>(project.id, "employment");
   const bb = packData<BbbeeFacts>(project.id, "bbbee");
