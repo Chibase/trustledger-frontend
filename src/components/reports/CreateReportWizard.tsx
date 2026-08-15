@@ -523,59 +523,45 @@ export function CreateReportWizard({
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-        <h2 className="text-base font-semibold">Topics to cover</h2>
+        <h2 className="text-base font-semibold">Mapped topics (automatic)</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          AI writes only the topics you select for{" "}
-          <span className="font-medium text-tl-ink">{project.name}</span>
+          For{" "}
+          <span className="font-medium text-tl-ink">
+            {REPORT_KIND_LABELS[kind]}
+          </span>{" "}
+          on{" "}
+          <span className="font-medium text-tl-ink">{project.name}</span>,
+          topics are fixed by the report kind — you do not pick them. Prefer
+          the{" "}
+          <Link
+            href={`/app/projects/${encodeURIComponent(project.id)}#project-reports`}
+            className="text-tl-trust-ink underline"
+          >
+            project dashboard
+          </Link>{" "}
+          for category-mapped charts and generation.
           {facts
-            ? ` (${facts.attended.length} cases · ${packLines.length} pack type${packLines.length === 1 ? "" : "s"} · trust ${facts.trustIndex}/100)`
+            ? ` Evidence: ${facts.attended.length} cases · ${packLines.length} pack type${packLines.length === 1 ? "" : "s"} · trust ${facts.trustIndex}/100.`
             : ""}
-          . Greyed topics are above this desk grade.
         </p>
-        <ul className="mt-3 space-y-2">
-          {catalogue.map((section) => {
-            const checked = selected.has(section.id);
-            return (
-              <li key={section.id}>
-                <label
-                  className={`flex items-start gap-2 rounded-md border px-3 py-2 text-sm ${
-                    section.allowed
-                      ? "border-tl-line bg-tl-paper/40"
-                      : "border-tl-line/60 bg-tl-paper/20 opacity-55"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="mt-1"
-                    disabled={!section.allowed}
-                    checked={section.allowed ? checked : false}
-                    onChange={(e) => {
-                      setSelected((prev) => {
-                        const next = new Set(prev);
-                        if (e.target.checked) next.add(section.id);
-                        else next.delete(section.id);
-                        return next;
-                      });
-                    }}
-                  />
-                  <span>
-                    <span className="font-medium text-tl-ink">
-                      {section.label}
-                    </span>
-                    {!section.allowed ? (
-                      <span className="ml-2 text-xs text-tl-ink-muted">
-                        (requires {DESK_TIER_LABELS[section.minTier]}+)
-                      </span>
-                    ) : null}
-                    <span className="mt-0.5 block text-xs text-tl-ink-muted">
-                      {section.description}
-                    </span>
-                  </span>
-                </label>
+        <ul className="mt-3 flex flex-wrap gap-1.5 text-xs">
+          {catalogue
+            .filter((s) => s.allowed && s.preferred)
+            .map((section) => (
+              <li
+                key={section.id}
+                className="rounded-md border border-tl-line bg-tl-paper px-2 py-1 text-tl-ink"
+              >
+                {section.label}
               </li>
-            );
-          })}
+            ))}
         </ul>
+        {lockedSections.length ? (
+          <p className="mt-2 text-xs text-tl-ink-muted">
+            Above this desk:{" "}
+            {lockedSections.map((s) => s.label).join(", ")}.
+          </p>
+        ) : null}
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4">

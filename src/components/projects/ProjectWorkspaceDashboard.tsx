@@ -1,23 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { HorizontalBarChart } from "@/components/ops/charts/BarChart";
 import { ProjectDossierForm } from "@/components/projects/ProjectDossierForm";
 import { ProjectReportStudio } from "@/components/reports/ProjectReportStudio";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import {
-  HorizontalBarChart,
-} from "@/components/ops/charts/BarChart";
+  buildProjectCategoryMap,
+  type ProjectDataCategory,
+} from "@/lib/projectCategoryMap";
 import {
   buildProjectPortfolioRow,
   pctLabel,
-  projectCategoryBars,
   zar,
 } from "@/lib/portfolioMetrics";
 import { dossierSummaryLines } from "@/lib/projectDossier";
+import { stakeholderService } from "@/services/stakeholderService";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { Stakeholder } from "@/types/stakeholder";
 import type { UserRole } from "@/types/rbac";
 
 type Props = {
@@ -28,47 +31,9 @@ type Props = {
   onProjectSaved: (next: Project) => void;
 };
 
-const INPUT_LINKS = [
-  {
-    href: (id: string) =>
-      `/app/capture?projectId=${encodeURIComponent(id)}&source=employment`,
-    label: "Employment pack",
-    hint: "Local hire, training spend",
-  },
-  {
-    href: (id: string) =>
-      `/app/capture?projectId=${encodeURIComponent(id)}&source=bbbee`,
-    label: "B-BBEE / empowerment",
-    hint: "Skills, procurement, ESD",
-  },
-  {
-    href: (id: string) =>
-      `/app/capture?projectId=${encodeURIComponent(id)}&source=esg_period`,
-    label: "ESG period pack",
-    hint: "Environment, H&S, trust notes",
-  },
-  {
-    href: (id: string) =>
-      `/app/capture?projectId=${encodeURIComponent(id)}&source=issue_log`,
-    label: "Issue log pathway",
-    hint: "Report → follow-ups → close",
-  },
-  {
-    href: (id: string) =>
-      `/app/issues/report?projectId=${encodeURIComponent(id)}`,
-    label: "Log issue",
-    hint: "Desk case intake",
-  },
-  {
-    href: () => `/app/stakeholders`,
-    label: "Stakeholders",
-    hint: "Registry for this org",
-  },
-] as const;
-
 /**
- * Project workspace dashboard — details, input shortcuts, live charts,
- * and report generation by kind / format.
+ * Project dashboard — activity hub for one project.
+ * Data is segmented by report category; those segments feed report templates.
  */
 export function ProjectWorkspaceDashboard({
   project,
@@ -78,24 +43,45 @@ export function ProjectWorkspaceDashboard({
   onProjectSaved,
 }: Props) {
   const [showDossier, setShowDossier] = useState(false);
+  const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
+  const [focusCategory, setFocusCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      void stakeholderService.list().then((rows) => {
+        setStakeholders(
+          rows.filter((s) => (s.projectIds || []).includes(project.id)),
+        );
+      }).catch(() => setStakeholders([]));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [project.id]);
+
   const row = useMemo(
     () => buildProjectPortfolioRow(project, incidents),
     [project, incidents],
   );
-  const bars = useMemo(() => projectCategoryBars(row), [row]);
+  const categories = useMemo(
+    () =>
+      buildProjectCategoryMap({
+        project,
+        incidents,
+        stakeholders,
+      }),
+    [project, incidents, stakeholders],
+  );
   const summary = dossierSummaryLines(project);
+  const filledCount = categories.filter((c) => c.hasData).length;
 
   return (
     <div className="space-y-7">
       <header className="space-y-2">
         <p className="text-sm text-tl-ink-muted">
           <Link href="/app/dashboard" className="underline">
-            Executive portfolio
+            Executive dashboard
           </Link>
           {" / "}
-          <Link href="/app/projects" className="underline">
-            Projects
-          </Link>
+          <span className="text-tl-ink">Project dashboard</span>
           {" / "}
           {project.id}
         </p>
@@ -106,9 +92,13 @@ export function ProjectWorkspaceDashboard({
           <ProjectStatusChip status={project.status} />
         </div>
         <p className="max-w-2xl text-sm text-tl-ink-muted">
-          {project.clientFunder || "Client / funder TBD"}
-          {project.ward ? ` · ${project.ward}` : ""}
-          {project.municipality ? ` · ${project.municipality}` : ""}
+          Capture, monitor, and edit this project here. Categories below map
+          straight into report templates — generate with kind, format, and
+          level only. Feeds the{" "}
+          <Link href="/app/dashboard" className="text-tl-trust-ink underline">
+            Executive dashboard
+          </Link>
+          .
         </p>
       </header>
 
@@ -131,38 +121,66 @@ export function ProjectWorkspaceDashboard({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          label="Local hire"
-          value={
-            row.localHireActual != null && row.localHireTarget != null
-              ? `${row.localHireActual} / ${row.localHireTarget}`
-              : pctLabel(row.localHirePct)
-          }
-        />
-        <KpiCard
-          label="B-BBEE target"
-          value={row.bbbeeLevelTarget || "—"}
-        />
         <KpiCard label="Open cases" value={String(row.openCases)} />
         <KpiCard
           label="Trust pulse"
           value={`${row.trustIndex}/100`}
         />
+        <KpiCard
+          label="Categories with data"
+          value={`${filledCount} / ${categories.length}`}
+        />
+        <KpiCard
+          label="B-BBEE / hire"
+          value={
+            row.bbbeeLevelTarget ||
+            (row.localHirePct != null ? pctLabel(row.localHirePct) : "—")
+          }
+        />
       </div>
 
-      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-        <h2 className="mb-2 text-base font-semibold text-tl-ink">
-          Project progress charts
-        </h2>
-        <p className="mb-3 text-xs text-tl-ink-muted">
-          Bars update from Capture packs and desk cases — no separate chart
-          entry step.
-        </p>
-        <HorizontalBarChart
-          bars={bars.map((b) => ({ label: b.label, value: b.value }))}
-        />
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="text-base font-semibold text-tl-ink">
+              Project data by report category
+            </h2>
+            <p className="mt-1 text-xs text-tl-ink-muted">
+              Each block is what you monitor and edit. Choosing a report kind
+              pulls the matching blocks into the template automatically.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="text-sm font-medium text-tl-trust-ink underline"
+            onClick={() => setShowDossier((v) => !v)}
+          >
+            {showDossier ? "Hide dossier editor" : "Edit project dossier"}
+          </button>
+        </div>
+
+        {showDossier ? (
+          <div className="rounded-lg border border-tl-line bg-tl-surface p-4">
+            <ProjectDossierForm project={project} onSaved={onProjectSaved} />
+          </div>
+        ) : null}
+
+        <ul className="grid gap-3 lg:grid-cols-2">
+          {categories.map((cat) => (
+            <li key={cat.id}>
+              <CategoryPanel
+                category={cat}
+                expanded={focusCategory === cat.id}
+                onToggle={() =>
+                  setFocusCategory((id) => (id === cat.id ? null : cat.id))
+                }
+              />
+            </li>
+          ))}
+        </ul>
+
         {summary.length ? (
-          <ul className="mt-4 list-disc space-y-1 pl-5 text-xs text-tl-ink-muted">
+          <ul className="list-disc space-y-1 pl-5 text-xs text-tl-ink-muted">
             {summary.map((line) => (
               <li key={line}>{line}</li>
             ))}
@@ -170,53 +188,22 @@ export function ProjectWorkspaceDashboard({
         ) : null}
       </section>
 
-      <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-semibold text-tl-ink">
-            Make inputs
-          </h2>
-          <button
-            type="button"
-            className="text-sm font-medium text-tl-trust-ink underline"
-            onClick={() => setShowDossier((v) => !v)}
-          >
-            {showDossier ? "Hide project details" : "Edit project details"}
-          </button>
-        </div>
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {INPUT_LINKS.map((link) => (
-            <li key={link.label}>
-              <Link
-                href={link.href(project.id)}
-                className="flex flex-col rounded-lg border border-tl-line bg-tl-surface px-4 py-3 transition hover:border-tl-trust/40 hover:bg-tl-paper"
-              >
-                <span className="font-medium text-tl-ink">{link.label}</span>
-                <span className="mt-0.5 text-xs text-tl-ink-muted">
-                  {link.hint}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-        {showDossier ? (
-          <div className="rounded-lg border border-tl-line bg-tl-surface p-4">
-            <ProjectDossierForm project={project} onSaved={onProjectSaved} />
-          </div>
-        ) : null}
-      </section>
-
-      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
+      <section
+        id="project-reports"
+        className="rounded-lg border border-tl-line bg-tl-surface p-4"
+      >
         <ProjectReportStudio
           project={project}
           role={role}
           authorName={authorName}
           incidents={incidents}
+          categories={categories}
         />
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold text-tl-ink">Linked cases</h2>
+          <h2 className="font-semibold text-tl-ink">Cases on this project</h2>
           <Link
             href={`/app/issues/report?projectId=${encodeURIComponent(project.id)}`}
             className="text-sm font-medium text-tl-trust-ink underline"
@@ -226,12 +213,11 @@ export function ProjectWorkspaceDashboard({
         </div>
         {incidents.length === 0 ? (
           <p className="text-tl-ink-muted">
-            No incidents linked yet — log issues or add an Issue log pathway
-            under Capture.
+            No incidents yet — log issues or capture an Issue log pathway.
           </p>
         ) : (
           <ul className="space-y-2">
-            {incidents.map((incident) => (
+            {incidents.slice(0, 12).map((incident) => (
               <li key={incident.id}>
                 <Link
                   href={`/app/incidents/${incident.id}`}
@@ -239,12 +225,105 @@ export function ProjectWorkspaceDashboard({
                 >
                   {incident.id}
                 </Link>{" "}
-                {incident.title} ({incident.priority})
+                {incident.title} ({incident.priority} · {incident.status})
               </li>
             ))}
           </ul>
         )}
       </section>
     </div>
+  );
+}
+
+function CategoryPanel({
+  category,
+  expanded,
+  onToggle,
+}: {
+  category: ProjectDataCategory;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <article
+      className={`rounded-lg border bg-tl-surface p-4 ${
+        category.hasData
+          ? "border-tl-line"
+          : "border-dashed border-tl-line opacity-90"
+      }`}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h3 className="text-sm font-semibold text-tl-ink">{category.label}</h3>
+          <p className="mt-0.5 text-xs text-tl-ink-muted">
+            {category.description}
+          </p>
+          <p className="mt-1 text-xs text-tl-ink-muted">
+            Feeds:{" "}
+            {category.reportKinds
+              .slice(0, 4)
+              .map((k) => k.replaceAll("_", " "))
+              .join(", ")}
+            {category.reportKinds.length > 4 ? "…" : ""}
+          </p>
+        </div>
+        <span
+          className={`rounded-md px-2 py-0.5 text-xs font-medium ${
+            category.hasData
+              ? "bg-tl-paper text-tl-trust-ink"
+              : "bg-tl-paper text-tl-ink-muted"
+          }`}
+        >
+          {category.hasData ? "Data on file" : "Empty — capture"}
+        </span>
+      </div>
+
+      <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+        {category.facts.slice(0, expanded ? undefined : 4).map((f) => (
+          <div key={f.label}>
+            <dt className="text-tl-ink-muted">{f.label}</dt>
+            <dd className="font-medium text-tl-ink">{f.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {expanded && category.chartBars.some((b) => b.value > 0) ? (
+        <div className="mt-3">
+          <HorizontalBarChart bars={category.chartBars} maxHeight={140} />
+        </div>
+      ) : null}
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {category.captureHref ? (
+          <Link
+            href={category.captureHref}
+            className="rounded-md border border-tl-line bg-tl-paper px-2.5 py-1 text-xs font-medium text-tl-ink hover:border-tl-trust/40"
+          >
+            Capture / edit
+          </Link>
+        ) : null}
+        {category.moduleHref ? (
+          <Link
+            href={category.moduleHref}
+            className="rounded-md border border-tl-line bg-tl-paper px-2.5 py-1 text-xs font-medium text-tl-ink hover:border-tl-trust/40"
+          >
+            Open module
+          </Link>
+        ) : null}
+        <button
+          type="button"
+          onClick={onToggle}
+          className="rounded-md border border-tl-line bg-tl-paper px-2.5 py-1 text-xs font-medium text-tl-ink"
+        >
+          {expanded ? "Less" : "Monitor charts"}
+        </button>
+        <a
+          href="#project-reports"
+          className="rounded-md border border-tl-trust/30 bg-tl-paper px-2.5 py-1 text-xs font-medium text-tl-trust-ink"
+        >
+          Use in report
+        </a>
+      </div>
+    </article>
   );
 }

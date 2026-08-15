@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-15 — Multi-dashboard: category-mapped project hub (ADR-049 deepen)
+
+- **Executive dashboard** shows **active** projects only; open → **project dashboard**.
+- Project dashboard segments data by report category (overview, GRM/incidents, issue log, employment/training, B-BBEE, ESG, budget, stakeholders, CSI) with capture/edit and monitor charts.
+- Report generation = **kind + format + level** only; mapped categories auto-fill the template (no topic checkboxes). Create-report wizard aligns.
+- Nav label **Executive**.
+
 ## 2026-08-15 — Portfolio → project workspace → kind-based reports (ADR-049)
 
 - `/app/dashboard` is the **Executive portfolio**: all projects with empowerment budget / spent / available, % achieved, local hire, B-BBEE, trust, open cases, and portfolio charts.
