@@ -3,7 +3,10 @@
 import { fieldTemplateForSource } from "@/data/fieldTemplates";
 import { PLAN_CAPABILITIES } from "@/config/entitlements";
 import type { PlanId } from "@/config/plans";
-import type { CaptureSource } from "@/lib/captureStore";
+import {
+  isNarrativeCaptureSource,
+  type CaptureSource,
+} from "@/lib/captureStore";
 
 type Props = {
   source: CaptureSource;
@@ -12,6 +15,7 @@ type Props = {
 };
 
 export function CaptureTemplateBar({ source, planId, onInsert }: Props) {
+  if (!isNarrativeCaptureSource(source)) return null;
   const template = fieldTemplateForSource(source);
   if (!template) return null;
 

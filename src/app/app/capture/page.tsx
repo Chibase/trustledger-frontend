@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { CapturePackForm } from "@/components/capture/CapturePackForm";
 import { CaptureTemplateBar } from "@/components/capture/CaptureTemplateBar";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
@@ -13,16 +14,27 @@ import { TL_TRIAL_PLAN_COOKIE } from "@/lib/auth.constants";
 import { isPlanId, type PlanId } from "@/config/plans";
 import {
   createCaptureId,
+  emptyStructured,
+  isNarrativeCaptureSource,
+  isPackCaptureSource,
   listCaptureRecords,
+  PACK_CAPTURE_SOURCES,
+  PACK_SOURCE_META,
   saveCaptureRecord,
+  structuredToBody,
   type CaptureSource,
+  type CaptureStructured,
+  type PackCaptureSource,
 } from "@/lib/captureStore";
 import { listDemoProjects } from "@/lib/demoStore";
+import { saveOrgProject } from "@/lib/orgDataSpace";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import {
   ensureTrialSeedProject,
   listTrialProjects,
+  saveTrialProject,
 } from "@/lib/trialStore";
+import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
 import {
   createEngagementId,
@@ -36,10 +48,14 @@ import type {
   StakeholderExtractSuggestion,
 } from "@/types/ai";
 import type { EngagementSource } from "@/types/engagement";
-import type { Project } from "@/types/project";
+import type { Project, ProjectStatus } from "@/types/project";
 import type { Stakeholder, StakeholderKind } from "@/types/stakeholder";
 
-const SOURCES: { id: CaptureSource; label: string; hint: string }[] = [
+const NARRATIVE_SOURCES: {
+  id: CaptureSource;
+  label: string;
+  hint: string;
+}[] = [
   {
     id: "minutes",
     label: "Meeting minutes",
@@ -83,6 +99,21 @@ function asKind(value: string): StakeholderKind {
     : "individual";
 }
 
+function asProjectStatus(value: string | undefined): ProjectStatus | undefined {
+  const allowed: ProjectStatus[] = [
+    "Draft",
+    "Approved",
+    "Active",
+    "OnHold",
+    "Completed",
+    "Closed",
+  ];
+  if (!value) return undefined;
+  return allowed.includes(value as ProjectStatus)
+    ? (value as ProjectStatus)
+    : undefined;
+}
+
 export default function AppCapturePage() {
   const { pushToast } = useToast();
   const [source, setSource] = useState<CaptureSource>("minutes");
@@ -98,6 +129,13 @@ export default function AppCapturePage() {
   const [briefStatus, setBriefStatus] = useState<AiSuggestionStatus>("idle");
   const [recent, setRecent] = useState(listCaptureRecords());
   const [planId, setPlanId] = useState<PlanId | null>(null);
+  const [packData, setPackData] = useState<CaptureStructured>(
+    emptyStructured("project_profile"),
+  );
+  const [packSaving, setPackSaving] = useState(false);
+
+  const narrative = isNarrativeCaptureSource(source);
+  const packSource = isPackCaptureSource(source) ? source : null;
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -112,26 +150,51 @@ export default function AppCapturePage() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      const trial = readTrialModeFromDocument();
-      if (trial) ensureTrialSeedProject();
-      const seeded = await projectService.list();
-      const local = trial ? listTrialProjects() : listDemoProjects();
-      const byId = new Map<string, Project>();
-      for (const p of [...local, ...seeded]) byId.set(p.id, p);
-      if (!cancelled) {
-        const rows = [...byId.values()];
-        setProjects(rows);
-        if (rows[0] && !projectId) setProjectId(rows[0].id);
-      }
-    })();
+    const frame = requestAnimationFrame(() => {
+      void (async () => {
+        const trial = readTrialModeFromDocument();
+        const customer = isCustomerWorkspaceClient();
+        if (trial) ensureTrialSeedProject();
+        const seeded = await projectService.list();
+        const local = trial
+          ? listTrialProjects()
+          : customer
+            ? []
+            : listDemoProjects();
+        const byId = new Map<string, Project>();
+        for (const p of [...local, ...seeded]) byId.set(p.id, p);
+        if (!cancelled) {
+          const rows = [...byId.values()];
+          setProjects(rows);
+          setProjectId((prev) => prev || rows[0]?.id || "");
+        }
+      })();
+    });
     return () => {
       cancelled = true;
+      cancelAnimationFrame(frame);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- load once
   }, []);
 
   const project = projects.find((p) => p.id === projectId);
+
+  function selectSource(next: CaptureSource) {
+    setSource(next);
+    setExtract(null);
+    setBrief(null);
+    setError(null);
+    setStatus("idle");
+    setBriefStatus("idle");
+    if (isNarrativeCaptureSource(next)) {
+      setBody("");
+    } else if (isPackCaptureSource(next)) {
+      setPackData(emptyStructured(next));
+      setTitle((prev) => {
+        const meta = PACK_SOURCE_META[next];
+        return prev.trim() ? prev : `${meta.label} — period pack`;
+      });
+    }
+  }
 
   async function runExtract() {
     if (!body.trim()) {
@@ -144,7 +207,7 @@ export default function AppCapturePage() {
     try {
       const result = await aiService.suggestStakeholdersFromText({
         text: body,
-        source,
+        source: source as "minutes" | "attendance" | "social_intel" | "pasted_report",
         projectName: project?.name,
       });
       setExtract(result);
@@ -167,7 +230,7 @@ export default function AppCapturePage() {
         audience: "internal",
         projectId: projectId || undefined,
         sourceText: body,
-        sourceLabel: SOURCES.find((s) => s.id === source)?.label,
+        sourceLabel: NARRATIVE_SOURCES.find((s) => s.id === source)?.label,
       });
       setBrief(result);
       setBriefStatus("ready");
@@ -178,7 +241,7 @@ export default function AppCapturePage() {
   }
 
   function applyStakeholders() {
-    if (!extract) return;
+    if (!extract || !narrative) return;
     requireEmailThen("save", () => {
       void (async () => {
         const ids: string[] = [];
@@ -259,6 +322,76 @@ export default function AppCapturePage() {
     });
   }
 
+  function syncProjectFromProfile(structured: CaptureStructured) {
+    if (structured.pack !== "project_profile" || !project) return;
+    const d = structured.data;
+    const status = asProjectStatus(d.status);
+    const next: Project = {
+      ...project,
+      clientFunder: d.clientFunder?.trim() || project.clientFunder,
+      contractorName: d.contractorName?.trim() || project.contractorName,
+      ward: d.ward?.trim() || project.ward,
+      municipality: d.municipality?.trim() || project.municipality,
+      status: status || project.status,
+      startDate: d.startDate?.trim() || project.startDate,
+      targetEndDate: d.targetEndDate?.trim() || project.targetEndDate,
+      budgetTotal:
+        typeof d.budgetTotal === "number" ? d.budgetTotal : project.budgetTotal,
+      budgetSpent:
+        typeof d.budgetSpent === "number" ? d.budgetSpent : project.budgetSpent,
+      publicSummary:
+        d.publicSummary?.trim() ||
+        d.siteDescription?.trim() ||
+        project.publicSummary,
+    };
+    const trial = readTrialModeFromDocument();
+    const customer = isCustomerWorkspaceClient();
+    if (trial) saveTrialProject(next);
+    else if (customer) saveOrgProject(next);
+    setProjects((rows) => rows.map((p) => (p.id === next.id ? next : p)));
+  }
+
+  function savePack() {
+    if (!packSource || packData.pack !== packSource) {
+      pushToast("Select a report pack first", "error");
+      return;
+    }
+    if (!projectId) {
+      pushToast("Link a project — report packs are project-scoped", "error");
+      return;
+    }
+    requireEmailThen("save", () => {
+      setPackSaving(true);
+      try {
+        const bodyText = structuredToBody(packData);
+        const meta = PACK_SOURCE_META[packSource];
+        const record = {
+          id: createCaptureId(),
+          source: packSource,
+          title:
+            title.trim() ||
+            `${meta.label}${project ? ` — ${project.name}` : ""}`,
+          body: bodyText,
+          projectId: project?.id,
+          projectName: project?.name,
+          createdAt: new Date().toISOString(),
+          structured: packData,
+        };
+        saveCaptureRecord(record);
+        syncProjectFromProfile(packData);
+        setRecent(listCaptureRecords());
+        pushToast(
+          `${meta.label} saved — available to Reports for this project`,
+          "success",
+        );
+        setPackData(emptyStructured(packSource));
+        setTitle("");
+      } finally {
+        setPackSaving(false);
+      }
+    });
+  }
+
   return (
     <FeatureGate
       capability="captureHub"
@@ -270,202 +403,286 @@ export default function AppCapturePage() {
             /resources
           </Link>
           . Project and Institutional plans include Capture hub so the desk
-          maps those labeled fields on first paste.
+          maps labeled fields and report packs for ESG, B-BBEE, employment,
+          CSI, GRM, and budget.
         </p>
       }
     >
-    <div className="mx-auto max-w-3xl space-y-6">
-      <PageHeader
-        eyebrow="Engagement capture"
-        title="Capture hub"
-        description="Paste minutes, attendance, or field notes into labeled templates so names, place, and actions map on first capture. Review every AI suggestion before Apply."
-        actions={
+      <div className="mx-auto max-w-3xl space-y-6">
+        <PageHeader
+          eyebrow="Engagement + report capture"
+          title="Capture hub"
+          description="Log meetings and structured project packs that feed Monthly, GRM, ESG, B-BBEE, Employment, CSI, MEL, and Board reports. Review AI suggestions before Apply."
+          actions={
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/app/reports"
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+              >
+                Reports
+              </Link>
+              <Link
+                href="/app/engagements"
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+              >
+                Engagements
+              </Link>
+              <Link
+                href="/app/stakeholders"
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+              >
+                Stakeholders
+              </Link>
+            </div>
+          }
+        />
+
+        <section className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-tl-ink-muted">
+            Field notes
+          </p>
           <div className="flex flex-wrap gap-2">
-            <Link
-              href="/app/engagements"
-              className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
-            >
-              Engagements
-            </Link>
-            <Link
-              href="/app/stakeholders"
-              className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
-            >
-              Open demo CRM
-            </Link>
-          </div>
-        }
-      />
-
-      <div className="flex flex-wrap gap-2">
-        {SOURCES.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => setSource(s.id)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium ${
-              source === s.id
-                ? "bg-tl-trust text-white"
-                : "border border-tl-line bg-tl-surface hover:bg-tl-paper"
-            }`}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
-      <p className="text-sm text-tl-ink-muted">
-        {SOURCES.find((s) => s.id === source)?.hint}
-      </p>
-
-      <CaptureTemplateBar
-        source={source}
-        planId={planId}
-        onInsert={(skeleton) => setBody(skeleton)}
-      />
-
-      <form
-        className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void runExtract();
-        }}
-      >
-        <div>
-          <label className="mb-1 block text-sm font-medium" htmlFor="cap-title">
-            Title
-          </label>
-          <input
-            id="cap-title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-            placeholder="e.g. Ward 12 consultation — 18 Jul"
-          />
-        </div>
-        <div>
-          <label
-            className="mb-1 block text-sm font-medium"
-            htmlFor="cap-project"
-          >
-            Linked project
-          </label>
-          <select
-            id="cap-project"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-          >
-            <option value="">No project</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
+            {NARRATIVE_SOURCES.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => selectSource(s.id)}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+                  source === s.id
+                    ? "bg-tl-trust text-white"
+                    : "border border-tl-line bg-tl-surface hover:bg-tl-paper"
+                }`}
+              >
+                {s.label}
+              </button>
             ))}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium" htmlFor="cap-body">
-            Source text
-          </label>
-          <textarea
-            id="cap-body"
-            required
-            rows={8}
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-            placeholder="Insert a blank template, or paste filled minutes / register text…"
-          />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <AiAssistButton
-            label="Suggest stakeholders"
-            onClick={() => void runExtract()}
-            loading={status === "loading"}
-            disabled={!body.trim()}
-          />
-          <AiAssistButton
-            label="Generate brief"
-            onClick={() => void runBrief()}
-            loading={briefStatus === "loading"}
-            disabled={!body.trim()}
-          />
-        </div>
+          </div>
+        </section>
 
-        <AiSuggestionPanel
-          title="Stakeholder suggestions"
-          status={status}
-          error={error}
-          model={extract?.model}
-          promptVersion={extract?.promptVersion}
-          confidence={extract?.confidence}
-          onApply={extract ? applyStakeholders : undefined}
-          applyLabel="Apply to CRM"
-        >
-          {extract ? (
-            <ul className="space-y-2 text-sm">
-              {extract.stakeholders.map((s) => (
-                <li key={`${s.name}-${s.kind}`}>
-                  <span className="font-medium">{s.name}</span>
-                  <span className="text-tl-ink-muted">
-                    {" "}
-                    · {s.kind.replaceAll("_", " ")} · {s.influence}
-                  </span>
-                  <p className="text-xs text-tl-ink-muted">{s.rationale}</p>
-                </li>
+        <section className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-tl-ink-muted">
+            Project report packs
+          </p>
+          <p className="text-sm text-tl-ink-muted">
+            Structured inputs mapped to report kinds — fill each pack for the
+            linked project and period.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {PACK_CAPTURE_SOURCES.map((id: PackCaptureSource) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => selectSource(id)}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+                  source === id
+                    ? "bg-tl-trust text-white"
+                    : "border border-tl-line bg-tl-surface hover:bg-tl-paper"
+                }`}
+              >
+                {PACK_SOURCE_META[id].label}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {narrative ? (
+          <p className="text-sm text-tl-ink-muted">
+            {NARRATIVE_SOURCES.find((s) => s.id === source)?.hint}
+          </p>
+        ) : null}
+
+        <CaptureTemplateBar
+          source={source}
+          planId={planId}
+          onInsert={(skeleton) => setBody(skeleton)}
+        />
+
+        <div className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium" htmlFor="cap-title">
+              Title
+            </label>
+            <input
+              id="cap-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              placeholder={
+                narrative
+                  ? "e.g. Ward 12 consultation — 18 Jul"
+                  : "e.g. August 2026 B-BBEE pack"
+              }
+            />
+          </div>
+          <div>
+            <label
+              className="mb-1 block text-sm font-medium"
+              htmlFor="cap-project"
+            >
+              Linked project
+            </label>
+            <select
+              id="cap-project"
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              required={!narrative}
+            >
+              <option value="">
+                {narrative ? "No project" : "Select project"}
+              </option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
               ))}
-            </ul>
-          ) : null}
-        </AiSuggestionPanel>
+            </select>
+            {!narrative ? (
+              <p className="mt-1 text-xs text-tl-ink-muted">
+                Report packs must link to a project so ESG / B-BBEE / GRM writers
+                can scope evidence.
+              </p>
+            ) : null}
+          </div>
 
-        <AiSuggestionPanel
-          title="AI brief from source"
-          status={briefStatus}
-          model={brief?.model}
-          promptVersion={brief?.promptVersion}
-        >
-          {brief ? (
-            <div className="space-y-2 text-sm">
-              <p className="font-medium">{brief.title}</p>
-              <p>{brief.executiveSummary}</p>
-              <p className="font-medium">Risks</p>
-              <ul className="list-disc pl-5">
-                {brief.keyRisks.map((r) => (
-                  <li key={r}>{r}</li>
-                ))}
-              </ul>
-              <p className="font-medium">Actions</p>
-              <ul className="list-disc pl-5">
-                {brief.recommendedActions.map((r) => (
-                  <li key={r}>{r}</li>
-                ))}
-              </ul>
+          {narrative ? (
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void runExtract();
+              }}
+            >
+              <div>
+                <label
+                  className="mb-1 block text-sm font-medium"
+                  htmlFor="cap-body"
+                >
+                  Source text
+                </label>
+                <textarea
+                  id="cap-body"
+                  required
+                  rows={8}
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                  placeholder="Insert a blank template, or paste filled minutes / register text…"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <AiAssistButton
+                  label="Suggest stakeholders"
+                  onClick={() => void runExtract()}
+                  loading={status === "loading"}
+                  disabled={!body.trim()}
+                />
+                <AiAssistButton
+                  label="Generate brief"
+                  onClick={() => void runBrief()}
+                  loading={briefStatus === "loading"}
+                  disabled={!body.trim()}
+                />
+              </div>
+
+              <AiSuggestionPanel
+                title="Stakeholder suggestions"
+                status={status}
+                error={error}
+                model={extract?.model}
+                promptVersion={extract?.promptVersion}
+                confidence={extract?.confidence}
+                onApply={extract ? applyStakeholders : undefined}
+                applyLabel="Apply to CRM"
+              >
+                {extract ? (
+                  <ul className="space-y-2 text-sm">
+                    {extract.stakeholders.map((s) => (
+                      <li key={`${s.name}-${s.kind}`}>
+                        <span className="font-medium">{s.name}</span>
+                        <span className="text-tl-ink-muted">
+                          {" "}
+                          · {s.kind.replaceAll("_", " ")} · {s.influence}
+                        </span>
+                        <p className="text-xs text-tl-ink-muted">{s.rationale}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </AiSuggestionPanel>
+
+              <AiSuggestionPanel
+                title="AI brief from source"
+                status={briefStatus}
+                model={brief?.model}
+                promptVersion={brief?.promptVersion}
+              >
+                {brief ? (
+                  <div className="space-y-2 text-sm">
+                    <p className="font-medium">{brief.title}</p>
+                    <p>{brief.executiveSummary}</p>
+                    <p className="font-medium">Risks</p>
+                    <ul className="list-disc pl-5">
+                      {brief.keyRisks.map((r) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
+                    <p className="font-medium">Actions</p>
+                    <ul className="list-disc pl-5">
+                      {brief.recommendedActions.map((r) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </AiSuggestionPanel>
+            </form>
+          ) : packSource ? (
+            <div className="space-y-4">
+              <CapturePackForm
+                pack={packSource}
+                value={packData}
+                onChange={setPackData}
+              />
+              <button
+                type="button"
+                onClick={savePack}
+                disabled={packSaving}
+                className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-50"
+              >
+                {packSaving ? "Saving…" : "Save report pack"}
+              </button>
             </div>
           ) : null}
-        </AiSuggestionPanel>
-      </form>
+        </div>
 
-      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-        <h2 className="text-base font-semibold">Recent captures</h2>
-        <ul className="mt-3 space-y-2 text-sm">
-          {recent.slice(0, 8).map((r) => (
-            <li key={r.id} className="border-b border-tl-line pb-2 last:border-0">
-              <p className="font-medium">{r.title}</p>
-              <p className="text-xs text-tl-ink-muted">
-                {r.source.replaceAll("_", " ")}
-                {r.projectName ? ` · ${r.projectName}` : ""}
-                {r.appliedStakeholderIds?.length
-                  ? ` · ${r.appliedStakeholderIds.length} CRM applied`
-                  : ""}
-              </p>
-            </li>
-          ))}
-          {recent.length === 0 ? (
-            <li className="text-tl-ink-muted">No captures in this browser yet.</li>
-          ) : null}
-        </ul>
-      </section>
-    </div>
+        <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
+          <h2 className="text-base font-semibold">Recent captures</h2>
+          <ul className="mt-3 space-y-2 text-sm">
+            {recent.slice(0, 10).map((r) => (
+              <li
+                key={r.id}
+                className="border-b border-tl-line pb-2 last:border-0"
+              >
+                <p className="font-medium">{r.title}</p>
+                <p className="text-xs text-tl-ink-muted">
+                  {r.source.replaceAll("_", " ")}
+                  {r.structured ? " · structured pack" : ""}
+                  {r.projectName ? ` · ${r.projectName}` : ""}
+                  {r.appliedStakeholderIds?.length
+                    ? ` · ${r.appliedStakeholderIds.length} CRM applied`
+                    : ""}
+                </p>
+              </li>
+            ))}
+            {recent.length === 0 ? (
+              <li className="text-tl-ink-muted">
+                No captures in this browser yet.
+              </li>
+            ) : null}
+          </ul>
+        </section>
+      </div>
     </FeatureGate>
   );
 }

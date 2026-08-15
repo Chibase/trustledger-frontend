@@ -3,7 +3,11 @@
  * Produces a finished draft from workspace/demo cases — never a how-to template.
  */
 
-import { listCaptureRecords } from "@/lib/captureStore";
+import {
+  aggregatePackFacts,
+  listCaptureRecords,
+  type AggregatedPackFacts,
+} from "@/lib/captureStore";
 import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
 import type {
   EvidenceStubRef,
@@ -23,6 +27,7 @@ export type PeriodActivityFacts = {
   trustLabel: string;
   avgSentiment: number | null;
   projectName?: string;
+  packs: AggregatedPackFacts;
 };
 
 export type ComposeNarrativeInput = {
@@ -144,14 +149,22 @@ export function buildPeriodActivityFacts(
       i.escalationLevel !== "None" ||
       i.escalationPolicy?.suggestedTier === "senior",
   );
-  const captures = listCaptureRecords().filter(
+  const allCaptures = listCaptureRecords().filter((c) => {
+    if (options?.projectId && c.projectId && c.projectId !== options.projectId) {
+      return false;
+    }
+    return true;
+  });
+  const meetingCaptures = allCaptures.filter(
     (c) =>
       c.source === "minutes" ||
       c.source === "attendance" ||
-      c.source === "pasted_report",
+      c.source === "pasted_report" ||
+      c.source === "social_intel",
   );
+  const packs = aggregatePackFacts(allCaptures, options?.projectId);
 
-  const evidence: EvidenceStubRef[] = captures.slice(0, 12).map((c) => ({
+  const evidence: EvidenceStubRef[] = meetingCaptures.slice(0, 12).map((c) => ({
     id: `ev-${c.id}`,
     kind:
       c.source === "attendance"
@@ -159,9 +172,18 @@ export function buildPeriodActivityFacts(
         : c.source === "minutes"
           ? "minutes"
           : "other",
-    label: c.title,
+    label: c.title || c.source,
     linkedCaptureId: c.id,
   }));
+
+  for (const row of allCaptures.filter((c) => Boolean(c.structured)).slice(0, 8)) {
+    evidence.push({
+      id: `ev-${row.id}`,
+      kind: "other",
+      label: row.title || row.source,
+      linkedCaptureId: row.id,
+    });
+  }
 
   if (evidence.length < 2) {
     evidence.push({
@@ -190,12 +212,13 @@ export function buildPeriodActivityFacts(
     unresolvedBlocked: open.filter(
       (i) => i.slaBreached || i.status === "Escalated",
     ),
-    meetingCaptures: captures,
+    meetingCaptures,
     evidence,
     trustIndex: trust.trustIndex,
     trustLabel: trust.label,
     avgSentiment: trust.avgSentiment,
     projectName: options?.projectName || scoped[0]?.projectName,
+    packs,
   };
 }
 
@@ -213,6 +236,7 @@ export function factsToPromptBlock(facts: PeriodActivityFacts): string {
     line("Unable/blocked", facts.unresolvedBlocked),
     `Meetings/captures (${facts.meetingCaptures.length}): ${facts.meetingCaptures.map((c) => c.title).join("; ") || "none"}`,
     `Evidence stubs: ${facts.evidence.map((e) => e.label).join("; ")}`,
+    `Pack captures — B-BBEE:${facts.packs.bbbee.length} Employment:${facts.packs.employment.length} CSI:${facts.packs.csi.length} ESG:${facts.packs.esg.length} GRM:${facts.packs.grm.length} Budget:${facts.packs.budget.length} Profile:${facts.packs.projectProfiles.length}`,
   ].join("\n");
 }
 
@@ -369,10 +393,21 @@ Trust index for ${scope} stands at **${facts.trustIndex}/100 (${facts.trustLabel
 **${breached.length}** open case${breached.length === 1 ? "" : "s"} breached SLA targets in ${period}. Pending queue: ${shortList(facts.pending)}. Breach set: ${shortList(breached)}. Stage turnaround on escalated work (${shortList(facts.escalated, 2)}) is the binding constraint for the next cycle.`;
     }
 
-    case "grievance_lifecycle":
-      return `## ${label}
+    case "grievance_lifecycle": {
+      const grm = facts.packs.grm[0];
+      const base = `## ${label}
 
 GRM lifecycle for ${scope} in ${period}: **${facts.attended.length}** attended · **${facts.escalated.length}** escalated · **${facts.resolved.length}** resolved · **${facts.pending.length}** pending · **${facts.unresolvedBlocked.length}** blocked. Priority pathway items: ${shortList(facts.escalated.length ? facts.escalated : facts.attended)}.`;
+      if (!grm) return base;
+      return `${base}
+
+Period pack capture:
+- Opened / closed / escalated: ${grm.casesOpened ?? "—"} / ${grm.casesClosed ?? "—"} / ${grm.casesEscalated ?? "—"}
+- Average days to close: ${grm.avgDaysToClose ?? "—"}
+${grm.topThemes ? `- Themes: ${grm.topThemes}` : ""}
+${grm.communityFeedback ? `- Community feedback: ${grm.communityFeedback}` : ""}
+${grm.processImprovements ? `- Process improvements: ${grm.processImprovements}` : ""}`;
+    }
 
     case "environmental_indicators": {
       const env = facts.attended.filter((i) =>
@@ -381,12 +416,20 @@ GRM lifecycle for ${scope} in ${period}: **${facts.attended.length}** attended �
         ),
       );
       const rows = env.length ? env : facts.attended.slice(0, 3);
+      const esg = facts.packs.esg[0];
       return `## ${label}
 
 Environmental interface cases in ${period}:
 
 ${findingLines(rows)}
-Dust suppression, night-work windows, and water disruption controls remain the primary environmental controls under watch.`;
+${
+  esg
+    ? `Captured ESG period notes:
+- Environmental incidents: ${esg.environmentalIncidents ?? "—"}
+- Dust / water / noise / waste: ${esg.dustWaterNoiseNotes || "—"}
+- Rehabilitation: ${esg.rehabilitationProgress || "—"}`
+    : "Dust suppression, night-work windows, and water disruption controls remain the primary environmental controls under watch."
+}`;
     }
 
     case "hs_incidents": {
@@ -396,37 +439,109 @@ Dust suppression, night-work windows, and water disruption controls remain the p
         ),
       );
       const rows = hs.length ? hs : facts.attended.slice(0, 3);
+      const esg = facts.packs.esg[0];
       return `## ${label}
 
 Health and safety related filings in ${period}:
 
 ${findingLines(rows)}
-Barrier integrity and open-excavation controls are the standing H&S priorities until the pending set is closed.`;
+${
+  esg
+    ? `Captured H&S pack figures: near misses **${esg.hsNearMisses ?? "—"}** · lost-time injuries **${esg.hsLostTimeInjuries ?? "—"}**.`
+    : "Barrier integrity and open-excavation controls are the standing H&S priorities until the pending set is closed."
+}`;
     }
 
-    case "esg_scorecard":
+    case "esg_scorecard": {
+      const esg = facts.packs.esg[0];
+      const emp = facts.packs.employment[0];
       return `## ${label}
 
 ESG position for ${period} on ${scope}:
 - **Social licence:** trust ${facts.trustIndex}/100 (${facts.trustLabel})
 - **Grievance load:** ${facts.attended.length} cases · ${facts.escalated.length} escalations · ${facts.resolved.length} closures
 - **Lead social risks:** ${shortList(facts.escalated.length ? facts.escalated : facts.attended)}
-Environmental and H&S narratives follow the matching case natures in this pack.`;
+${
+  esg
+    ? `- **Environmental incidents (captured):** ${esg.environmentalIncidents ?? "—"}
+- **H&S near misses / LTI:** ${esg.hsNearMisses ?? "—"} / ${esg.hsLostTimeInjuries ?? "—"}
+- **Environment controls:** ${esg.dustWaterNoiseNotes || "—"}
+- **Community trust notes:** ${esg.communityTrustNotes || "—"}
+- **Governance actions:** ${esg.governanceActions || "—"}`
+    : "- ESG period pack not yet captured in Capture hub — environmental and H&S narratives follow matching case natures."
+}
+${
+  emp
+    ? `- **Local hire:** ${emp.localHireActual ?? "—"} of ${emp.localHireTarget ?? "—"} target · workforce ${emp.totalWorkforce ?? "—"}`
+    : ""
+}`;
+    }
 
-    case "bbbee_empowerment":
+    case "bbbee_empowerment": {
+      const bb = facts.packs.bbbee[0];
+      const emp = facts.packs.employment[0];
+      if (!bb && !emp) {
+        return `## ${label}
+
+Local participation and empowerment interface for ${period} is evidenced through community-facing cases (${shortList(facts.attended)}) and Capture records (${facts.meetingCaptures.length} on file). Capture a **B-BBEE / Empowerment** and **Employment** pack under Capture hub to populate ownership, skills, procurement, and local hire figures.`;
+      }
       return `## ${label}
 
-Local participation and empowerment interface for ${period} is evidenced through community-facing cases (${shortList(facts.attended)}) and Capture records (${facts.meetingCaptures.length} on file). Formal B-BBEE certificates and supplier spend ledgers remain with finance for the audited annexure.`;
+Empowerment evidence for ${period} on ${scope}:
+${
+  bb
+    ? `- **B-BBEE level / status:** ${bb.bbbeeLevel || "—"}
+- **Ownership / black ownership:** ${bb.ownershipPct ?? "—"}% / ${bb.blackOwnershipPct ?? "—"}%
+- **Skills development spend:** R${bb.skillsDevSpendZar?.toLocaleString("en-ZA") ?? "—"}
+- **Preferential procurement:** R${bb.preferentialProcurementZar?.toLocaleString("en-ZA") ?? "—"}
+- **ESD spend:** R${bb.esdSpendZar?.toLocaleString("en-ZA") ?? "—"}
+- **Local suppliers engaged:** ${bb.localSupplierCount ?? "—"}
+- **Certificate ref:** ${bb.certificateRef || "—"}
+- **Management control:** ${bb.managementControlNotes || "—"}
+${bb.notes ? `- **Notes:** ${bb.notes}` : ""}`
+    : "- B-BBEE pack not yet filed."
+}
+${
+  emp
+    ? `
+Employment interface:
+- **Local hire:** ${emp.localHireActual ?? "—"} / ${emp.localHireTarget ?? "—"} target
+- **Workforce / contractor labour:** ${emp.totalWorkforce ?? "—"} / ${emp.contractorLabour ?? "—"}
+- **Women / youth / PWD:** ${emp.womenEmployed ?? "—"} / ${emp.youthEmployed ?? "—"} / ${emp.personsWithDisability ?? "—"}
+- **Training days:** ${emp.trainingDays ?? "—"}
+- **Open labour disputes:** ${emp.labourDisputesOpen ?? "—"}
+${emp.wardOfOriginNotes ? `- **Ward / origin:** ${emp.wardOfOriginNotes}` : ""}`
+    : ""
+}
+Community cases in period: ${shortList(facts.attended)}.`;
+    }
 
-    case "csi_spend":
+    case "csi_spend": {
+      const csiRows = facts.packs.csi;
+      if (!csiRows.length) {
+        return `## ${label}
+
+CSI and community investment activity in ${period} is reflected in ${facts.meetingCaptures.length} meeting/capture record${facts.meetingCaptures.length === 1 ? "" : "s"} and community cases (${shortList(facts.attended)}). Capture a **CSI programme** pack to record programme name, beneficiaries, and spend.`;
+      }
       return `## ${label}
 
-CSI and community investment activity in ${period} is reflected in ${facts.meetingCaptures.length} meeting/capture record${facts.meetingCaptures.length === 1 ? "" : "s"} and community cases (${shortList(facts.attended)}). Programme spend figures are held in the finance annex for this audience.`;
+CSI programmes captured for ${period}:
+
+${csiRows
+  .map(
+    (c) =>
+      `- **${c.programmeName || "Programme"}** — ${c.beneficiaryGroup || "beneficiaries"}; R${c.amountZar?.toLocaleString("en-ZA") ?? "—"} · reached ${c.beneficiariesReached ?? "—"}${c.outcomes ? `; outcomes: ${c.outcomes}` : ""}`,
+  )
+  .join("\n")}
+
+Related meetings on file: ${facts.meetingCaptures.length}. Community cases: ${shortList(facts.attended)}.`;
+    }
 
     case "mel_indicators": {
       const escRate = facts.attended.length
         ? Math.round((facts.escalated.length / facts.attended.length) * 100)
         : 0;
+      const grm = facts.packs.grm[0];
       return `## ${label}
 
 MEL snapshot for ${period}:
@@ -434,13 +549,39 @@ MEL snapshot for ${period}:
 - Resolved: **${facts.resolved.length}**
 - Escalation rate: **${escRate}%**
 - Trust index: **${facts.trustIndex}/100 (${facts.trustLabel})**
-- Blocked / SLA pressure: **${facts.unresolvedBlocked.length}**`;
+- Blocked / SLA pressure: **${facts.unresolvedBlocked.length}**
+${
+  grm
+    ? `- **GRM pack:** opened ${grm.casesOpened ?? "—"} · closed ${grm.casesClosed ?? "—"} · escalated ${grm.casesEscalated ?? "—"} · avg days ${grm.avgDaysToClose ?? "—"}
+${grm.topThemes ? `- **Top themes:** ${grm.topThemes}` : ""}`
+    : ""
+}`;
     }
 
-    case "budget_spend":
+    case "budget_spend": {
+      const bud = facts.packs.budget[0];
+      const profile = facts.packs.projectProfiles[0];
+      const total =
+        bud?.budgetTotalZar ?? profile?.budgetTotal;
+      const spent =
+        bud?.spendToDateZar ?? profile?.budgetSpent;
+      if (bud || profile) {
+        return `## ${label}
+
+Budget and spend for ${period} on ${scope}:
+- **Authorised budget:** R${total?.toLocaleString("en-ZA") ?? "—"}
+- **Spend to date:** R${spent?.toLocaleString("en-ZA") ?? "—"}
+${bud?.periodSpendZar != null ? `- **Period spend:** R${bud.periodSpendZar.toLocaleString("en-ZA")}` : ""}
+${bud?.contingencyZar != null ? `- **Contingency remaining:** R${bud.contingencyZar.toLocaleString("en-ZA")}` : ""}
+${bud?.claimsPendingZar != null ? `- **Claims pending:** R${bud.claimsPendingZar.toLocaleString("en-ZA")}` : ""}
+${bud?.varianceNotes ? `- **Variance:** ${bud.varianceNotes}` : ""}
+
+Operational blockers tied to claims/evidence: ${shortList(facts.pending.length ? facts.pending : facts.attended, 3)}.`;
+      }
       return `## ${label}
 
-Progress-claim and evidence documentation risk is concentrated on ${shortList(facts.pending.length ? facts.pending : facts.attended, 3)}. Authorised budget and spend figures for ${period} are to be pasted from the finance pack into this section before board circulation; operational blockers above are already desk-verified.`;
+Progress-claim and evidence documentation risk is concentrated on ${shortList(facts.pending.length ? facts.pending : facts.attended, 3)}. Capture a **Budget / spend** or **Project profile** pack to file authorised budget and spend figures for ${period}.`;
+    }
 
     case "portfolio_risk":
       return `## ${label}
@@ -452,7 +593,7 @@ Portfolio risk for ${scope} in ${period}: **${facts.unresolvedBlocked.length}** 
 
 1. Clear or formally decision-gate blocked cases: ${shortList(facts.unresolvedBlocked) || "none open"}.
 2. Hold a supervisor checkpoint on escalations: ${shortList(facts.escalated) || "none open"}.
-3. Confirm the evidence appendix (registers, minutes, photos) before investor or board circulation.
+3. Confirm Capture packs (B-BBEE, employment, CSI, ESG, budget) and the evidence appendix before investor or board circulation.
 4. Re-measure trust after the next resolution cycle (currently **${facts.trustIndex}/100**).`;
 
     case "appendix_evidence":

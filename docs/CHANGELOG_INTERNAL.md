@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-15 — Capture hub report packs (ESG / B-BBEE / employment / CSI / GRM / budget)
+
+- Capture hub adds **Project report packs** beside field notes: Project profile, B-BBEE / Empowerment, Employment, CSI, ESG period, GRM period, Budget / spend — structured fields mapped to report kinds.
+- Packs save as `CaptureRecord.structured` and feed `reportComposer` sections (ESG scorecard, B-BBEE, CSI, MEL, budget, GRM lifecycle, H&S/environment).
+- Project profile Save syncs budget/geo/contractor into the linked trial/org project.
+
 ## 2026-08-15 — Project detail opens Cloud / VIP projects (no 404)
 
 - `/app/projects/[id]` loads via Cloud resource API (`GET /api/app/projects/[id]`) when `srm_core` get is unavailable — fixes VIP/live projects created from Add project.
