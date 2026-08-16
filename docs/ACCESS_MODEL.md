@@ -120,8 +120,8 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 1. Owner opens **Settings → Team / Seats** (to build).  
 2. Enters name + work email + **suggested role** (`client` \| `contractor` \| `community`).  
 3. Owner **confirms** role (cannot pick `admin` for invitees on Practitioner/Project without sales exception).  
-4. System sends invite email with accept link.  
-5. Invitee sets password (or receives temp password once) → `/login/live`.  
+4. System emails the invitee **Accept** and **Decline** links (`/invite/accept?invite=…` / `/invite/reject?invite=…`). Links are signed (14-day TTL) so they work on any device. If Resend is unset, the Owner still gets a portable share link.  
+5. Invitee accepts (sets password) or declines; Plan Owner is emailed the decision. Until Cloud seats (SEC-5), acceptance is browser-local.  
 6. Seat counts against plan entitlement; over-limit → block invite + upgrade CTA.
 
 “Suggest” = Owner proposes person + role; **Confirm** = Owner submits invite (no auto-admin for colleagues).
@@ -162,14 +162,14 @@ HubSpot is cutover fallback only (`docs/HS_CUTOVER.md`). Never create product lo
 Until ADR-013 lockdown lifts and Frappe Customer/User is SoT:
 
 - **Plan Owner org** is created in browser `localStorage` when trial/subscribe starts (`startTrialCookies` → `bootstrapPlanOwnerOrg`).
-- **Settings → Team / Seats** lets the Owner invite juniors with role + desk exposure.
+- **Settings → Team / Seats** lets the Owner invite juniors with role + desk exposure; **Create invite & email** sends Accept/Decline via Resend when configured.
 - **Seat caps:** Practitioner = 0 juniors; Project / Institutional = unlimited in demo.
 - **Desk ranks (1 highest → 5 lowest):** Client/Board/funder → CEO/MD → Director/PM → Site foreman/supervisor → CLO. On **paid** plans, Plan Owner sits at the plan ceiling: Project may invite only **strictly lower** ranks; **Institutional** may invite **at or below** Owner (Client/Board peers + juniors). Higher desks stay greyed. **VIP** skips seat caps and remaining desk-level gates — see `docs/VIP_ACCESS.md`.
 - **T3 data space:** org-scoped projects/cases (`tl-org-data`); CSV import; no demo seed in trial.
 - **T4 media:** org media library + plan quotas (25 MB / 250 MB / 2 GB soft); Settings meter.
 - **T5 prep:** Customer + Owner User drafts via `/api/frappe/provision-owner` (operator + `FRAPPE_OWNER_ISSUANCE`); see `docs/FRAPPE_SOT.md`.
 - **OD / GO LIVE (Done 2026-07-23):** Operational delivery complete — Cloud SoT + billing + buyer live. Ladder: `docs/OPERATIONAL_DELIVERY.md` / `/ops/readiness` (ADR-032). Keep `/demo` separate. Launch runbook: `docs/LAUNCH_WATCHLIST.md`.
-- Invite accept at `/invite/accept` locks the invitee’s desk tier (cannot self-raise). Invitees use **trial** (customer) mode so demo `INC-*` never appears.
+- Invite accept at `/invite/accept` (portable `?invite=` or legacy `?token=&org=`) locks the invitee’s desk tier (cannot self-raise). Decline at `/invite/reject`. Invitees use **trial** (customer) mode so demo `INC-*` never appears.
 - Buyer live login is open (`PLATFORM_OPERATOR_ONLY=0`); `/ops` stays allowlist-only.
 
 ## Client branding (future)

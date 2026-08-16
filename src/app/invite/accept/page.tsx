@@ -2,19 +2,121 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { DESK_TIER_LABELS } from "@/types/deskTier";
-import { acceptOrgInvite, findInviteByTokenAnywhere } from "@/lib/orgStore";
+import {
+  acceptOrgInvite,
+  findInviteByTokenAnywhere,
+  hydratePortableInvite,
+} from "@/lib/orgStore";
 import { applyOrgInviteeSession } from "@/lib/orgSession";
+
+type PortablePreview = {
+  orgName: string;
+  deskTier: string;
+  role: string;
+  email: string;
+  name: string;
+  token: string;
+  orgId: string;
+};
 
 function AcceptInviteForm() {
   const router = useRouter();
   const search = useSearchParams();
   const token = (search.get("token") ?? "").trim();
   const orgId = (search.get("org") ?? "").trim() || null;
+  const portableRaw = (search.get("invite") ?? "").trim();
+
+  const [portable, setPortable] = useState<PortablePreview | null>(null);
+  const [portableError, setPortableError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    if (!portableRaw) return;
+    const frame = requestAnimationFrame(() => {
+      void (async () => {
+        try {
+          const res = await fetch("/api/invite/peek", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ invite: portableRaw }),
+          });
+          const json = (await res.json()) as {
+            ok?: boolean;
+            error?: string;
+            payload?: {
+              orgId: string;
+              orgName: string;
+              planId: string;
+              ownerEmail: string;
+              ownerName: string;
+              inviteId: string;
+              token: string;
+              email: string;
+              name: string;
+              role: string;
+              deskTier: string;
+              projectId?: string;
+              projectName?: string;
+              complimentaryVip?: boolean;
+            };
+          };
+          if (!res.ok || !json.payload) {
+            setPortableError(json.error || "Invite link is invalid or expired.");
+            return;
+          }
+          const p = json.payload;
+          hydratePortableInvite({
+            orgId: p.orgId,
+            orgName: p.orgName,
+            planId: p.planId as "solo" | "practitioner" | "project" | "institutional",
+            ownerEmail: p.ownerEmail,
+            ownerName: p.ownerName,
+            inviteId: p.inviteId,
+            token: p.token,
+            email: p.email,
+            name: p.name,
+            role: p.role as "client" | "contractor" | "community",
+            deskTier: p.deskTier as
+              | "funder"
+              | "executive"
+              | "delivery"
+              | "supervisor"
+              | "clo",
+            projectId: p.projectId,
+            projectName: p.projectName,
+            complimentaryVip: p.complimentaryVip,
+            portableToken: portableRaw,
+          });
+          setPortable({
+            orgName: p.orgName,
+            deskTier: p.deskTier,
+            role: p.role,
+            email: p.email,
+            name: p.name,
+            token: p.token,
+            orgId: p.orgId,
+          });
+          setHydrated(true);
+        } catch {
+          setPortableError("Could not open this invite link.");
+        }
+      })();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [portableRaw]);
+
+  const localToken = portable?.token || token;
+  const localOrgId = portable?.orgId || orgId;
   const found = useMemo(
-    () => (token ? findInviteByTokenAnywhere(token, orgId) : null),
-    [token, orgId],
+    () =>
+      localToken && hydrated
+        ? findInviteByTokenAnywhere(localToken, localOrgId)
+        : localToken && !portableRaw
+          ? findInviteByTokenAnywhere(localToken, localOrgId)
+          : null,
+    [localToken, localOrgId, hydrated, portableRaw],
   );
 
   const [fullName, setFullName] = useState("");
@@ -24,7 +126,7 @@ function AcceptInviteForm() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    if (!token || !found) {
+    if (!localToken || !found) {
       setError("Invite link is missing or invalid.");
       return;
     }
@@ -35,8 +137,20 @@ function AcceptInviteForm() {
     setBusy(true);
     setError(null);
     try {
+      if (portableRaw) {
+        const peek = await fetch("/api/invite/peek", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ invite: portableRaw }),
+        });
+        const peeked = (await peek.json()) as { error?: string };
+        if (!peek.ok) {
+          setError(peeked.error || "Invite link is invalid or revoked.");
+          return;
+        }
+      }
       const accepted = acceptOrgInvite({
-        token,
+        token: localToken,
         orgId: found.org.id,
         fullName: fullName.trim() || found.invite.name,
       });
@@ -51,10 +165,18 @@ function AcceptInviteForm() {
         role: accepted.member.role,
         deskTier: accepted.member.deskTier,
         planId: accepted.org.planId,
-        // Trial mode = customer workspace (no demo INC-* seed). Browser-local
-        // until Cloud User seats; password not persisted to Frappe yet.
         mode: "trial",
       });
+      if (portableRaw) {
+        void fetch("/api/invite/respond", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            invite: portableRaw,
+            decision: "accepted",
+          }),
+        });
+      }
       router.replace("/app/dashboard");
       router.refresh();
     } finally {
@@ -62,20 +184,43 @@ function AcceptInviteForm() {
     }
   }
 
-  if (!token) {
+  if (portableRaw && !hydrated && !portableError) {
     return (
-      <p className="rounded-md border border-tl-danger/40 bg-tl-surface px-3 py-2 text-sm text-tl-danger" role="alert">
-        Missing invite token. Open the link from your Plan Owner’s invitation.
+      <p className="mt-6 text-sm text-tl-ink-muted">Opening your invite…</p>
+    );
+  }
+
+  if (portableError) {
+    return (
+      <p
+        className="rounded-md border border-tl-danger/40 bg-tl-surface px-3 py-2 text-sm text-tl-danger"
+        role="alert"
+      >
+        {portableError}
+      </p>
+    );
+  }
+
+  if (!localToken) {
+    return (
+      <p
+        className="rounded-md border border-tl-danger/40 bg-tl-surface px-3 py-2 text-sm text-tl-danger"
+        role="alert"
+      >
+        Missing invite token. Open the link from your invitation email.
       </p>
     );
   }
 
   if (!found) {
     return (
-      <p className="rounded-md border border-tl-danger/40 bg-tl-surface px-3 py-2 text-sm text-tl-danger" role="alert">
-        This invite is invalid or was created on another browser. Ask your Plan
-        Owner to resend from Settings → Team / Seats on the same device
-        (browser-local seats until Cloud Users).
+      <p
+        className="rounded-md border border-tl-danger/40 bg-tl-surface px-3 py-2 text-sm text-tl-danger"
+        role="alert"
+      >
+        This invite is invalid or was created on another browser without an email
+        link. Ask your Plan Owner to resend from Settings → Team / Seats (email
+        invite works on any device).
       </p>
     );
   }
@@ -96,8 +241,19 @@ function AcceptInviteForm() {
 
   if (invite.status === "revoked") {
     return (
-      <p className="rounded-md border border-tl-danger/40 bg-tl-surface px-3 py-2 text-sm text-tl-danger" role="alert">
+      <p
+        className="rounded-md border border-tl-danger/40 bg-tl-surface px-3 py-2 text-sm text-tl-danger"
+        role="alert"
+      >
         This invite was revoked by the Plan Owner.
+      </p>
+    );
+  }
+
+  if (invite.status === "rejected") {
+    return (
+      <p className="text-sm text-tl-ink-muted">
+        You declined this invite. Ask your Plan Owner if you need a new one.
       </p>
     );
   }
@@ -109,7 +265,9 @@ function AcceptInviteForm() {
     >
       <p className="text-sm text-tl-ink-muted">
         Joining <strong className="text-tl-ink">{org.name}</strong> as{" "}
-        <strong className="text-tl-ink">{DESK_TIER_LABELS[invite.deskTier]}</strong>{" "}
+        <strong className="text-tl-ink">
+          {DESK_TIER_LABELS[invite.deskTier]}
+        </strong>{" "}
         ({invite.role}). Your Plan Owner sets seats and desk exposure.
       </p>
       <label className="block text-sm">
@@ -152,13 +310,23 @@ function AcceptInviteForm() {
           {error}
         </p>
       ) : null}
-      <button
-        type="submit"
-        disabled={busy}
-        className="w-full rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
-      >
-        {busy ? "Joining…" : "Accept invite"}
-      </button>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <button
+          type="submit"
+          disabled={busy}
+          className="flex-1 rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
+        >
+          {busy ? "Joining…" : "Accept invite"}
+        </button>
+        {portableRaw ? (
+          <Link
+            href={`/invite/reject?invite=${encodeURIComponent(portableRaw)}`}
+            className="flex-1 rounded-md border border-tl-line bg-tl-paper px-4 py-2 text-center text-sm font-medium hover:border-tl-trust/40"
+          >
+            Decline
+          </Link>
+        ) : null}
+      </div>
     </form>
   );
 }

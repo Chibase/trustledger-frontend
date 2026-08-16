@@ -23,12 +23,14 @@ import {
 import {
   createOrgInvite,
   getActiveOrg,
+  markInviteEmailSent,
   markOrgComplimentaryVip,
   revokeOrgInvite,
   syncOrgPlanFromSession,
 } from "@/lib/orgStore";
 import { bootstrapPlanOwnerOrg } from "@/lib/orgSession";
 import { isVipCustomerName } from "@/lib/planLabel";
+import type { OrgInvite } from "@/types/org";
 
 type TeamSeatsPanelProps = {
   isPlanOwner: boolean;
@@ -61,6 +63,7 @@ export function TeamSeatsPanel({
   const [deskTier, setDeskTier] = useState<DeskTier>("clo");
   const [lastAcceptPath, setLastAcceptPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
   const orgIsVip =
     isVip ||
@@ -92,6 +95,63 @@ export function TeamSeatsPanel({
     setOrg(active);
   }
 
+  async function sendInviteEmail(inv: OrgInvite, activeOrg = org) {
+    if (!activeOrg) return { sent: false, detail: "No organisation" };
+    try {
+      const res = await fetch("/api/invite/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orgId: activeOrg.id,
+          orgName: activeOrg.name,
+          planId: activeOrg.planId,
+          ownerEmail: activeOrg.ownerEmail || userEmail || "",
+          ownerName: activeOrg.ownerName || userName || "Plan Owner",
+          inviteId: inv.id,
+          token: inv.token,
+          email: inv.email,
+          name: inv.name,
+          role: inv.role,
+          deskTier: inv.deskTier,
+          projectId: inv.projectId,
+          projectName: inv.projectName,
+        }),
+      });
+      const json = (await res.json()) as {
+        sent?: boolean;
+        error?: string;
+        portableToken?: string;
+        acceptUrl?: string;
+      };
+      if (json.portableToken) {
+        markInviteEmailSent({
+          orgId: activeOrg.id,
+          inviteId: inv.id,
+          portableToken: json.portableToken,
+          emailSent: Boolean(json.sent),
+        });
+      }
+      if (json.acceptUrl) {
+        try {
+          const path =
+            new URL(json.acceptUrl).pathname + new URL(json.acceptUrl).search;
+          setLastAcceptPath(path);
+        } catch {
+          setLastAcceptPath(json.acceptUrl);
+        }
+      }
+      if (json.sent) {
+        return { sent: true as const };
+      }
+      return {
+        sent: false as const,
+        detail: json.error || "Email was not sent",
+      };
+    } catch {
+      return { sent: false as const, detail: "Network error sending invite email" };
+    }
+  }
+
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       refresh();
@@ -120,9 +180,7 @@ export function TeamSeatsPanel({
   function handleBootstrap() {
     const plan: PlanId =
       planId && isPlanId(planId) ? planId : "project";
-    const emailSafe =
-      userEmail ||
-      `owner+${Date.now().toString(36)}@demo.trustledger.local`;
+    const emailSafe = userEmail || "owner@demo.trustledger.local";
     bootstrapPlanOwnerOrg({
       email: emailSafe,
       name: userName || "Plan Owner",
@@ -135,7 +193,7 @@ export function TeamSeatsPanel({
     pushToast("Plan Owner workspace created on this device", "success");
   }
 
-  function handleInvite(event: React.FormEvent) {
+  async function handleInvite(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
     setLastAcceptPath(null);
@@ -167,11 +225,23 @@ export function TeamSeatsPanel({
       return;
     }
     setLastAcceptPath(result.acceptPath);
+    setSending(true);
+    const mail = await sendInviteEmail(result.invite, getActiveOrg() || org);
+    setSending(false);
     setName("");
     setEmail("");
     setDeskTier(defaultInviteDeskTier(effectivePlanId, inviteOpts));
     refresh();
-    pushToast("Invite created — share the accept link", "success");
+    if (mail.sent) {
+      pushToast("Invite email sent — they can Accept or Decline", "success");
+    } else {
+      pushToast(
+        mail.detail
+          ? `Invite created — email not sent (${mail.detail}). Share the accept link.`
+          : "Invite created — share the accept link",
+        "error",
+      );
+    }
   }
 
   if (!isPlanOwner && !org) {
@@ -219,7 +289,9 @@ export function TeamSeatsPanel({
 
   const seats = buildSeatSummary(org, inviteOpts);
   const planName = PLANS[effectivePlanId]?.name || effectivePlanId;
-  const pending = org.invites.filter((i) => i.status === "pending");
+  const pending = org.invites.filter(
+    (i) => i.status === "pending" || i.status === "rejected",
+  );
 
   return (
     <section
@@ -232,20 +304,19 @@ export function TeamSeatsPanel({
           {orgIsVip ? (
             <>
               {org.name} · VIP Institutional. Invite CEOs, Clients, and any desk
-              with matching access — complimentary seats are not capped by paid
-              plan rank rules.
+              with matching access — an email is sent so they can Accept or
+              Decline.
             </>
           ) : clientBoardOpen ? (
             <>
-              {org.name} · {planName}. Invite Client/Board, CEO, and junior desks
-              (at or below your Institutional ceiling). Plan Owner (admin) cannot
-              be invited.
+              {org.name} · {planName}. Invite Client/Board, CEO, and junior desks.
+              Creating an invite emails Accept / Decline links automatically.
             </>
           ) : (
             <>
               {org.name} · {planName}. Invite lower-rank seats only (never Plan
-              Owner). Rank 1 Client/Board stays greyed — upgrade to Institutional
-              to unlock.
+              Owner). Creating an invite emails Accept / Decline links
+              automatically.
             </>
           )}
         </p>
@@ -288,7 +359,7 @@ export function TeamSeatsPanel({
       {pending.length ? (
         <div>
           <h3 className="text-xs font-semibold uppercase tracking-wide text-tl-ink-muted">
-            Pending invites
+            Pending &amp; declined invites
           </h3>
           <ul className="mt-2 space-y-2">
             {pending.map((inv) => (
@@ -303,24 +374,74 @@ export function TeamSeatsPanel({
                       {inv.email}
                     </span>
                   </span>
-                  <button
-                    type="button"
-                    className="text-xs font-medium text-tl-danger underline"
-                    onClick={() => {
-                      revokeOrgInvite(org.id, inv.id);
-                      refresh();
-                      pushToast("Invite revoked", "success");
-                    }}
-                  >
-                    Revoke
-                  </button>
+                  <span className="flex flex-wrap gap-2">
+                    {inv.status === "pending" ? (
+                      <>
+                        <button
+                          type="button"
+                          className="text-xs font-medium text-tl-trust-ink underline"
+                          onClick={() => {
+                            void (async () => {
+                              const mail = await sendInviteEmail(inv);
+                              refresh();
+                              pushToast(
+                                mail.sent
+                                  ? "Invite email resent"
+                                  : mail.detail || "Could not resend email",
+                                mail.sent ? "success" : "error",
+                              );
+                            })();
+                          }}
+                        >
+                          Resend email
+                        </button>
+                        <button
+                          type="button"
+                          className="text-xs font-medium text-tl-danger underline"
+                          onClick={() => {
+                            void (async () => {
+                              revokeOrgInvite(org.id, inv.id);
+                              try {
+                                await fetch("/api/invite/revoke", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    inviteId: inv.id,
+                                    orgId: org.id,
+                                  }),
+                                });
+                              } catch {
+                                /* local revoke still applied */
+                              }
+                              refresh();
+                              pushToast("Invite revoked", "success");
+                            })();
+                          }}
+                        >
+                          Revoke
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-xs text-tl-amber">Declined</span>
+                    )}
+                  </span>
                 </div>
                 <p className="mt-1 text-xs text-tl-ink-muted">
                   {inv.role} · {DESK_TIER_LABELS[inv.deskTier]}
+                  {inv.emailSentAt
+                    ? ` · email sent ${new Date(inv.emailSentAt).toLocaleString("en-ZA")}`
+                    : " · email not sent yet"}
+                  {inv.rejectedAt
+                    ? ` · declined ${new Date(inv.rejectedAt).toLocaleString("en-ZA")}`
+                    : ""}
                 </p>
-                <p className="mt-1 break-all font-mono text-[0.65rem] text-tl-ink-muted">
-                  /invite/accept?token={inv.token}&org={org.id}
-                </p>
+                {inv.status === "pending" ? (
+                  <p className="mt-1 break-all font-mono text-[0.65rem] text-tl-ink-muted">
+                    {inv.portableToken
+                      ? `/invite/accept?invite=…`
+                      : `/invite/accept?token=${inv.token}&org=${org.id}`}
+                  </p>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -450,9 +571,10 @@ export function TeamSeatsPanel({
               ) : null}
               <button
                 type="submit"
-                className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+                disabled={sending}
+                className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
               >
-                Create invite
+                {sending ? "Sending invite…" : "Create invite & email"}
               </button>
             </>
           )}

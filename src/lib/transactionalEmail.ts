@@ -394,6 +394,101 @@ export async function sendAssessmentOtpEmail(
   return sendResendEmail({ to: input.to, subject, text, html });
 }
 
+export type OrgInviteEmailInput = {
+  to: string;
+  inviteeName: string;
+  orgName: string;
+  ownerName: string;
+  roleLabel: string;
+  deskLabel: string;
+  planLabel: string;
+  acceptUrl: string;
+  rejectUrl: string;
+};
+
+/** Notify invitee — Accept or Decline. */
+export async function sendOrgInviteEmail(
+  input: OrgInviteEmailInput,
+): Promise<{ sent: boolean; detail?: string }> {
+  const subject = `${input.ownerName} invited you to ${input.orgName} on TrustLedger`;
+  const text = [
+    `Hi ${input.inviteeName},`,
+    "",
+    `${input.ownerName} invited you to join ${input.orgName} on TrustLedger.`,
+    "",
+    `Role: ${input.roleLabel}`,
+    `Desk: ${input.deskLabel}`,
+    `Plan: ${input.planLabel}`,
+    "",
+    `Accept invite: ${input.acceptUrl}`,
+    `Decline invite: ${input.rejectUrl}`,
+    "",
+    "This link expires in 14 days. If you were not expecting this email, you can decline or ignore it.",
+    "",
+    "— TrustLedger",
+  ].join("\n");
+  const html = `
+    <p>Hi ${escapeHtml(input.inviteeName)},</p>
+    <p><strong>${escapeHtml(input.ownerName)}</strong> invited you to join
+      <strong>${escapeHtml(input.orgName)}</strong> on TrustLedger.</p>
+    <p>
+      <strong>Role:</strong> ${escapeHtml(input.roleLabel)}<br/>
+      <strong>Desk:</strong> ${escapeHtml(input.deskLabel)}<br/>
+      <strong>Plan:</strong> ${escapeHtml(input.planLabel)}
+    </p>
+    <p style="margin:24px 0">
+      <a href="${escapeAttr(input.acceptUrl)}"
+         style="display:inline-block;background:#0e7c66;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600">
+        Accept invite
+      </a>
+      &nbsp;&nbsp;
+      <a href="${escapeAttr(input.rejectUrl)}"
+         style="display:inline-block;border:1px solid #d7dee4;color:#12202a;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600">
+        Decline
+      </a>
+    </p>
+    <p style="color:#666;font-size:13px">Link expires in 14 days. If you were not expecting this, decline or ignore.</p>
+    <p>— TrustLedger</p>
+  `;
+  return sendResendEmail({ to: input.to, subject, text, html });
+}
+
+export type OrgInviteDecisionEmailInput = {
+  to: string;
+  ownerName: string;
+  inviteeName: string;
+  inviteeEmail: string;
+  orgName: string;
+  decision: "accepted" | "rejected";
+  settingsUrl: string;
+};
+
+/** Notify Plan Owner when invitee accepts or declines. */
+export async function sendOrgInviteDecisionEmail(
+  input: OrgInviteDecisionEmailInput,
+): Promise<{ sent: boolean; detail?: string }> {
+  const verb = input.decision === "accepted" ? "accepted" : "declined";
+  const subject = `${input.inviteeName} ${verb} your TrustLedger invite`;
+  const text = [
+    `Hi ${input.ownerName},`,
+    "",
+    `${input.inviteeName} (${input.inviteeEmail}) ${verb} the invite to ${input.orgName}.`,
+    "",
+    `Update seats on this device: ${input.settingsUrl}`,
+    "",
+    "— TrustLedger",
+  ].join("\n");
+  const html = `
+    <p>Hi ${escapeHtml(input.ownerName)},</p>
+    <p><strong>${escapeHtml(input.inviteeName)}</strong>
+      (${escapeHtml(input.inviteeEmail)}) <strong>${verb}</strong> the invite to
+      <strong>${escapeHtml(input.orgName)}</strong>.</p>
+    <p><a href="${escapeAttr(input.settingsUrl)}">Update Team / Seats on this device</a></p>
+    <p>— TrustLedger</p>
+  `;
+  return sendResendEmail({ to: input.to, subject, text, html });
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")

@@ -284,6 +284,9 @@ export function acceptOrgInvite(input: {
   if (found.invite.status === "revoked") {
     return { ok: false, error: "This invite was revoked by the Plan Owner." };
   }
+  if (found.invite.status === "rejected") {
+    return { ok: false, error: "This invite was declined." };
+  }
   if (found.invite.status !== "pending") {
     return { ok: false, error: "Invite not found or already used." };
   }
@@ -338,6 +341,130 @@ export function revokeOrgInvite(orgId: string, inviteId: string): boolean {
   invite.status = "revoked";
   saveOrg(org);
   return true;
+}
+
+export function rejectOrgInvite(input: {
+  token: string;
+  orgId?: string;
+}): { ok: true; org: OrgRecord; invite: OrgInvite } | { ok: false; error: string } {
+  const found = findInviteByTokenAnywhere(input.token, input.orgId);
+  if (!found) {
+    return { ok: false, error: "Invite not found or already used." };
+  }
+  if (found.invite.status === "accepted") {
+    return { ok: false, error: "This invite was already accepted." };
+  }
+  if (found.invite.status === "revoked") {
+    return { ok: false, error: "This invite was revoked by the Plan Owner." };
+  }
+  if (found.invite.status === "rejected") {
+    return { ok: true, org: found.org, invite: found.invite };
+  }
+  if (found.invite.status !== "pending") {
+    return { ok: false, error: "Invite not found or already used." };
+  }
+  found.invite.status = "rejected";
+  found.invite.rejectedAt = new Date().toISOString();
+  saveOrg(found.org);
+  return { ok: true, org: found.org, invite: found.invite };
+}
+
+/** Store portable Accept/Decline token; stamp emailSentAt only when mail left. */
+export function markInviteEmailSent(input: {
+  orgId: string;
+  inviteId: string;
+  portableToken: string;
+  /** When false, keep portable link for manual share without claiming email sent. */
+  emailSent?: boolean;
+}): boolean {
+  const org = getOrg(input.orgId);
+  if (!org) return false;
+  const invite = org.invites.find((i) => i.id === input.inviteId);
+  if (!invite) return false;
+  invite.portableToken = input.portableToken;
+  if (input.emailSent !== false) {
+    invite.emailSentAt = new Date().toISOString();
+  }
+  saveOrg(org);
+  return true;
+}
+
+/**
+ * Seed / merge a portable invite into this browser so accept/reject works
+ * when the invitee opens the email on another device.
+ */
+export function hydratePortableInvite(payload: {
+  orgId: string;
+  orgName: string;
+  planId: PlanId;
+  ownerEmail: string;
+  ownerName: string;
+  inviteId: string;
+  token: string;
+  email: string;
+  name: string;
+  role: InviteableRole;
+  deskTier: DeskTier;
+  projectId?: string;
+  projectName?: string;
+  complimentaryVip?: boolean;
+  portableToken?: string;
+}): { org: OrgRecord; invite: OrgInvite } {
+  const now = new Date().toISOString();
+  let org = getOrg(payload.orgId);
+  if (!org) {
+    const owner: OrgMember = {
+      id: newId("mem"),
+      email: payload.ownerEmail.trim().toLowerCase(),
+      name: payload.ownerName.trim() || "Plan Owner",
+      role: "admin",
+      deskTier: PLAN_OWNER_DESK_TIER[payload.planId],
+      isPlanOwner: true,
+      deskTierLocked: false,
+      joinedAt: now,
+    };
+    org = {
+      id: payload.orgId,
+      name: payload.orgName,
+      planId: payload.planId,
+      createdAt: now,
+      ownerEmail: owner.email,
+      ownerName: owner.name,
+      members: [owner],
+      invites: [],
+      complimentaryVip: isVipCustomerName(payload.orgName) || undefined,
+    };
+  }
+
+  // VIP stamp only from VIP Pilot naming — never trust portable payload flag.
+  if (isVipCustomerName(payload.orgName)) {
+    org.complimentaryVip = true;
+  }
+
+  let invite = org.invites.find(
+    (i) => i.id === payload.inviteId || i.token === payload.token,
+  );
+  if (!invite) {
+    invite = {
+      id: payload.inviteId,
+      token: payload.token,
+      email: payload.email.trim().toLowerCase(),
+      name: payload.name,
+      role: payload.role,
+      deskTier: payload.deskTier,
+      projectId: payload.projectId,
+      projectName: payload.projectName,
+      status: "pending",
+      createdAt: now,
+      portableToken: payload.portableToken,
+    };
+    org.invites.unshift(invite);
+  } else if (payload.portableToken && !invite.portableToken) {
+    invite.portableToken = payload.portableToken;
+  }
+
+  saveOrg(org);
+  return { org, invite };
 }
 
 export function listPendingInvites(orgId: string): OrgInvite[] {
