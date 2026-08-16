@@ -198,8 +198,8 @@ export function ReportPresentationView({
                 </article>
               ) : (
                 <p className="text-sm text-tl-ink-muted">
-                  No narrative body yet. Generate details for this kind, or
-                  switch format to Charts only.
+                  Details could not be composed — capture category data on this
+                  project, or switch format to Charts only.
                 </p>
               )}
             </section>
