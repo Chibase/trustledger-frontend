@@ -49,6 +49,11 @@ export type OrgRecord = {
   ownerName: string;
   members: OrgMember[];
   invites: OrgInvite[];
+  /**
+   * Complimentary VIP Institutional — skip paid seat/desk-level invite gates.
+   * Also inferred from `VIP Pilot` org names.
+   */
+  complimentaryVip?: boolean;
 };
 
 export type SeatSummary = {

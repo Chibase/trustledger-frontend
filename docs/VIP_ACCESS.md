@@ -12,6 +12,7 @@ Invite a small number of people to the **full Institutional** package for a fixe
 | Paystack | No `authorization_code` / `bill_at` (amount 0) |
 | User | Owner role, same as normal live owners |
 | Login | `/login/live` only — **not** `/pay`, **not** public `/trial` |
+| Seats / desks | **Not** limited by paid plan rank rules — Owner may invite **any** desk (Client/Board, CEO/MD, …) and roles `client` / `contractor` / `community` with **unlimited** seats. Paid plans alone apply desk-below-Owner + seat caps. |
 
 Charge-due automation only bills **`trial`** rows that still have an authorization. VIP `active` + empty Paystack ⇒ **no auto-charge**.
 
@@ -76,4 +77,5 @@ Response includes `temporaryPassword`. Share `/login/live` + email + password wi
 - `src/lib/provisionOwnerCloud.ts` — `complimentaryVip` / `vipPilotOrganizationName`
 - `src/app/api/frappe/provision-owner/route.ts`
 - `src/components/ops/VipAccessPanel.tsx`
+- `src/lib/orgSeats.ts` — `vip` seat/desk invite bypass (paid plans keep gates)
 - Charge-due: `src/lib/entitlementCloud.ts` (trial + authorization only)

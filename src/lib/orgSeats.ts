@@ -1,6 +1,7 @@
 /**
  * Seat limits + inviteable desk exposure by plan (ACCESS_MODEL / ADR-035).
  * Desk rank 1 (Client/Board/funder) → 5 (CLO); Owner invites only lower ranks.
+ * VIP (complimentary Institutional) skips seat caps and desk-rank gates — paid plans only.
  */
 
 import type { PlanId } from "@/config/plans";
@@ -14,12 +15,21 @@ import {
 } from "@/types/deskTier";
 import type { OrgRecord, SeatSummary } from "@/types/org";
 
+export type SeatInviteOpts = {
+  /** Complimentary VIP Institutional — no seat/desk-level invite limits. */
+  vip?: boolean;
+};
+
 /** Solo + Practitioner are owner-only (0 junior seats). */
 export function isOwnerOnlyPlan(planId: PlanId): boolean {
   return planId === "solo" || planId === "practitioner";
 }
 
-export function additionalSeatCapForPlan(planId: PlanId): number | null {
+export function additionalSeatCapForPlan(
+  planId: PlanId,
+  opts?: SeatInviteOpts,
+): number | null {
+  if (opts?.vip) return null;
   switch (planId) {
     case "solo":
     case "practitioner":
@@ -37,20 +47,32 @@ export function ownerDeskForPlan(planId: PlanId): DeskTier {
 }
 
 /**
- * Desks an Owner may assign to juniors: strictly below Owner rank.
- * Solo / Practitioner have no junior seats (empty). Higher desks stay in the UI greyed.
+ * Desks an Owner may assign to invitees.
+ * Paid plans: strictly below Owner rank (Solo/Practitioner empty).
+ * VIP: every desk, including Client/Board and CEO — no level gate.
  */
-export function inviteableDeskTiersForPlan(planId: PlanId): DeskTier[] {
+export function inviteableDeskTiersForPlan(
+  planId: PlanId,
+  opts?: SeatInviteOpts,
+): DeskTier[] {
+  if (opts?.vip) return [...DESK_TIERS];
   if (isOwnerOnlyPlan(planId)) return [];
   return desksBelow(ownerDeskForPlan(planId));
 }
 
-export function canInviteDeskTier(planId: PlanId, tier: DeskTier): boolean {
-  return inviteableDeskTiersForPlan(planId).includes(tier);
+export function canInviteDeskTier(
+  planId: PlanId,
+  tier: DeskTier,
+  opts?: SeatInviteOpts,
+): boolean {
+  return inviteableDeskTiersForPlan(planId, opts).includes(tier);
 }
 
-export function defaultInviteDeskTier(planId: PlanId): DeskTier {
-  const allowed = inviteableDeskTiersForPlan(planId);
+export function defaultInviteDeskTier(
+  planId: PlanId,
+  opts?: SeatInviteOpts,
+): DeskTier {
+  const allowed = inviteableDeskTiersForPlan(planId, opts);
   // Prefer the most junior allowed seat as default.
   return allowed[allowed.length - 1] ?? "clo";
 }
@@ -82,8 +104,11 @@ export function deskRank(tier: DeskTier): number {
   return DESK_TIER_RANK[tier];
 }
 
-export function buildSeatSummary(org: OrgRecord): SeatSummary {
-  const cap = additionalSeatCapForPlan(org.planId);
+export function buildSeatSummary(
+  org: OrgRecord,
+  opts?: SeatInviteOpts,
+): SeatSummary {
+  const cap = additionalSeatCapForPlan(org.planId, opts);
   const juniors = org.members.filter((m) => !m.isPlanOwner).length;
   const pending = org.invites.filter((i) => i.status === "pending").length;
   const used = juniors + pending;
@@ -95,6 +120,6 @@ export function buildSeatSummary(org: OrgRecord): SeatSummary {
     membersUsed: juniors,
     invitesPending: pending,
     seatsRemaining: remaining,
-    canInvite: remaining === null ? true : remaining > 0,
+    canInvite: opts?.vip ? true : remaining === null ? true : remaining > 0,
   };
 }

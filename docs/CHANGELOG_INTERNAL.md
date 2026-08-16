@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-16 — VIP invites: no paid seat/desk gates
+
+- Complimentary VIP (Institutional) may invite **any** desk — including Client/Board and CEO/MD — with unlimited seats.
+- Paid plans alone apply desk-below-Owner and seat-cap rules (`orgSeats` `vip` option; Settings Team + Desk privileges panels).
+
 ## 2026-08-16 — Guide deep-links to task screens (ADR-036)
 
 - Setup wizard + `/app/guide` checklist: each actionable step **title and CTA** navigate to where the work is done (create project, add stakeholder, capture engagement, log issue, reports path, etc.).
