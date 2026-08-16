@@ -1,7 +1,7 @@
 /**
  * Seat limits + inviteable desk exposure by plan (ACCESS_MODEL / ADR-035).
- * Desk rank 1 (Client/Board/funder) → 5 (CLO); Owner invites only lower ranks.
- * VIP (complimentary Institutional) skips seat caps and desk-rank gates — paid plans only.
+ * Desk rank 1 (Client/Board/funder) → 5 (CLO).
+ * VIP + Institutional: Rank 1 open. Lower paid plans grey Rank 1 (and other above-ceiling desks).
  */
 
 import type { PlanId } from "@/config/plans";
@@ -26,6 +26,15 @@ export function isOwnerOnlyPlan(planId: PlanId): boolean {
   return planId === "solo" || planId === "practitioner";
 }
 
+/** Plans that may configure / invite Client/Board (Rank 1) desks. */
+export function planUnlocksClientBoardDesk(
+  planId?: PlanId | null,
+  opts?: SeatInviteOpts,
+): boolean {
+  if (opts?.vip) return true;
+  return planId === "institutional";
+}
+
 export function additionalSeatCapForPlan(
   planId: PlanId,
   opts?: SeatInviteOpts,
@@ -48,11 +57,11 @@ export function ownerDeskForPlan(planId: PlanId): DeskTier {
 }
 
 /**
- * Desks an Owner may assign to invitees.
+ * Desks an Owner may assign to invitees / configure in Desk privileges.
  * - VIP: every desk (no level gate).
  * - Solo / Practitioner: none.
- * - Project: strictly below Owner (paid level gate).
- * - Institutional: at or below Owner — includes Client/Board peers (Owner sits there).
+ * - Project: strictly below Owner (Rank 1 Client stays greyed).
+ * - Institutional: at or below Owner — Rank 1 Client/Board open.
  */
 export function inviteableDeskTiersForPlan(
   planId: PlanId,
@@ -71,6 +80,20 @@ export function canInviteDeskTier(
   opts?: SeatInviteOpts,
 ): boolean {
   return inviteableDeskTiersForPlan(planId, opts).includes(tier);
+}
+
+/**
+ * Desk privileges matrix column — same gate as invites.
+ * VIP / Institutional: Rank 1 Client editable. Lower plans: greyed.
+ */
+export function canConfigureDeskPrivilege(
+  planId: PlanId | null | undefined,
+  tier: DeskTier,
+  opts?: SeatInviteOpts,
+): boolean {
+  if (opts?.vip) return true;
+  if (!planId) return false;
+  return canInviteDeskTier(planId, tier, opts);
 }
 
 export function defaultInviteDeskTier(
