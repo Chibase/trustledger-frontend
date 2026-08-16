@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { PlanId } from "@/config/plans";
 import { onboardingStepsForPlan } from "@/config/onboardingSteps";
 import {
+  markOnboardingStepComplete,
   readOnboardingState,
   requestOnboardingWizard,
   type OnboardingState,
@@ -16,6 +17,7 @@ type SetupChecklistBannerProps = {
 
 /**
  * Compact progress strip on Dashboard / Guide until setup is done.
+ * Next incomplete step links straight to that task screen.
  */
 export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
   const [state, setState] = useState<OnboardingState | null>(null);
@@ -42,6 +44,7 @@ export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
   ).length;
   const total = steps.length || 1;
   const pct = Math.round((doneCount / total) * 100);
+  const nextStep = steps.find((s) => !state.completedSteps.includes(s.id));
 
   return (
     <section
@@ -56,6 +59,18 @@ export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
           <p className="mt-1 text-sm text-tl-ink">
             Seed your SRM desk in order — {doneCount} of {total} steps marked.
           </p>
+          {nextStep?.href ? (
+            <p className="mt-1 text-sm">
+              Next:{" "}
+              <Link
+                href={nextStep.href}
+                onClick={() => markOnboardingStepComplete(nextStep.id)}
+                className="font-medium text-tl-trust-ink underline underline-offset-2"
+              >
+                {nextStep.title}
+              </Link>
+            </p>
+          ) : null}
           <div
             className="mt-2 h-1.5 w-48 max-w-full overflow-hidden rounded-full bg-tl-line"
             aria-hidden
@@ -67,13 +82,23 @@ export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => requestOnboardingWizard()}
-            className="rounded-md bg-tl-trust px-3 py-2 text-xs font-medium text-white hover:bg-tl-trust-ink"
-          >
-            Continue setup
-          </button>
+          {nextStep?.href ? (
+            <Link
+              href={nextStep.href}
+              onClick={() => markOnboardingStepComplete(nextStep.id)}
+              className="rounded-md bg-tl-trust px-3 py-2 text-xs font-medium text-white hover:bg-tl-trust-ink"
+            >
+              {nextStep.ctaLabel || "Go do next step"}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => requestOnboardingWizard()}
+              className="rounded-md bg-tl-trust px-3 py-2 text-xs font-medium text-white hover:bg-tl-trust-ink"
+            >
+              Continue setup
+            </button>
+          )}
           <Link
             href="/app/guide"
             className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-xs font-medium text-tl-ink hover:bg-tl-paper"

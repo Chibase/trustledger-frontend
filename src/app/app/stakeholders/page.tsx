@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { GeoCascadePicker } from "@/components/geo/GeoCascadePicker";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
+import { guideRequestsNewTask } from "@/config/onboardingSteps";
 import {
   createStakeholderId,
   stakeholderService,
@@ -27,7 +28,10 @@ export default function AppStakeholdersPage() {
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<StakeholderKind | "all">("all");
   const [status, setStatus] = useState<StakeholderStatus | "all">("all");
-  const [showCreate, setShowCreate] = useState(false);
+  const [showCreate, setShowCreate] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return guideRequestsNewTask(window.location.search);
+  });
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const [createKind, setCreateKind] = useState<StakeholderKind>("individual");
@@ -37,6 +41,14 @@ export default function AppStakeholdersPage() {
     useState<StakeholderInfluence>("medium");
   const [summary, setSummary] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
+
+  useEffect(() => {
+    if (!showCreate) return;
+    const t = window.setTimeout(() => {
+      document.getElementById("stakeholder-name")?.focus();
+    }, 50);
+    return () => window.clearTimeout(t);
+  }, [showCreate]);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,10 +149,12 @@ export default function AppStakeholdersPage() {
             <label className="block text-sm sm:col-span-2">
               <span className="mb-1 block font-medium">Name</span>
               <input
+                id="stakeholder-name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                placeholder="Person or organisation name"
               />
             </label>
             <label className="block text-sm">

@@ -316,10 +316,11 @@ export default function AppCapturePage() {
           ? fromQuery
           : rows[0]?.id || "";
         setProjectId((prev) => prev || preferredProject);
-        // Only apply pack source deep-link when projectId is valid (or absent).
+        // Deep-link Capture source (narrative templates or report packs).
         if (
           sourceQuery &&
-          isPackCaptureSource(sourceQuery) &&
+          (isPackCaptureSource(sourceQuery) ||
+            isNarrativeCaptureSource(sourceQuery)) &&
           (!fromQuery || queryProjectOk)
         ) {
           setSource(sourceQuery);

@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-16 — Guide deep-links to task screens (ADR-036)
+
+- Setup wizard + `/app/guide` checklist: each actionable step **title and CTA** navigate to where the work is done (create project, add stakeholder, capture engagement, log issue, reports path, etc.).
+- Deep links open the create form where applicable (`/app/projects?new=1`, `/app/stakeholders?new=1`; Capture `?source=minutes|attendance`).
+- Wizard closes when following a task link so the destination is usable; dashboard setup banner links the next incomplete step.
+
 ## 2026-08-16 — Project report presentation view / download / print
 
 - Project dashboard reports: **View** opens a full-screen presentation in the chosen format (charts / details / charts+details); format can be switched while presenting.

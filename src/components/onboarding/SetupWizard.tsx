@@ -25,7 +25,7 @@ type SetupWizardProps = {
 
 /**
  * First-login setup wizard — plan-aware spine (UG-1).
- * Waits until temporary-password prompt is cleared.
+ * Each step title/CTA navigates to the screen where that task is done.
  */
 export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
   const [open, setOpen] = useState(false);
@@ -72,6 +72,14 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
     setOpen(false);
   }
 
+  /** Leave the wizard open path and go do the task in-app. */
+  function goDoTask() {
+    markOnboardingStepComplete(step.id);
+    dismissOnboardingWizard(false);
+    setOpen(false);
+    setState(readOnboardingState());
+  }
+
   function markAndNext() {
     markOnboardingStepComplete(step.id);
     if (isLast) {
@@ -104,7 +112,17 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
             id="setup-wizard-title"
             className="mt-1 font-display text-xl font-semibold text-tl-ink"
           >
-            {step.title}
+            {step.href ? (
+              <Link
+                href={step.href}
+                onClick={goDoTask}
+                className="text-tl-trust-ink underline decoration-tl-trust/40 underline-offset-4 hover:decoration-tl-trust"
+              >
+                {step.title}
+              </Link>
+            ) : (
+              step.title
+            )}
           </h2>
           <div
             className="mt-3 h-1.5 overflow-hidden rounded-full bg-tl-line"
@@ -119,6 +137,19 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           <p className="text-sm leading-relaxed text-tl-ink">{step.body}</p>
+          {step.href ? (
+            <p className="mt-2 text-sm text-tl-ink-muted">
+              Click the step title or{" "}
+              <Link
+                href={step.href}
+                onClick={goDoTask}
+                className="font-medium text-tl-trust-ink underline underline-offset-2"
+              >
+                {step.ctaLabel || "open the task"}
+              </Link>{" "}
+              to go to the screen where you do this.
+            </p>
+          ) : null}
           {step.tip ? (
             <p className="mt-3 text-sm text-tl-ink-muted">
               <span className="font-medium text-tl-trust-ink">Tip · </span>
@@ -132,29 +163,46 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
               const current = i === stepIndex;
               return (
                 <li key={s.id}>
-                  <button
-                    type="button"
-                    onClick={() => goTo(s.id)}
+                  <div
                     className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs ${
                       current
                         ? "bg-tl-trust/10 font-medium text-tl-trust-ink"
-                        : "text-tl-ink-muted hover:bg-tl-paper hover:text-tl-ink"
+                        : "text-tl-ink-muted"
                     }`}
                   >
-                    <span
-                      className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[0.65rem] ${
-                        done
-                          ? "bg-tl-trust text-white"
-                          : current
-                            ? "border border-tl-trust text-tl-trust"
-                            : "border border-tl-line"
-                      }`}
-                      aria-hidden
+                    <button
+                      type="button"
+                      onClick={() => goTo(s.id)}
+                      className="flex min-w-0 flex-1 items-center gap-2 text-left hover:text-tl-ink"
                     >
-                      {done ? "✓" : i + 1}
-                    </span>
-                    {s.title}
-                  </button>
+                      <span
+                        className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[0.65rem] ${
+                          done
+                            ? "bg-tl-trust text-white"
+                            : current
+                              ? "border border-tl-trust text-tl-trust"
+                              : "border border-tl-line"
+                        }`}
+                        aria-hidden
+                      >
+                        {done ? "✓" : i + 1}
+                      </span>
+                      <span className="truncate">{s.title}</span>
+                    </button>
+                    {s.href ? (
+                      <Link
+                        href={s.href}
+                        onClick={() => {
+                          markOnboardingStepComplete(s.id);
+                          dismissOnboardingWizard(false);
+                          setOpen(false);
+                        }}
+                        className="shrink-0 font-medium text-tl-trust-ink underline underline-offset-2"
+                      >
+                        Go
+                      </Link>
+                    ) : null}
+                  </div>
                 </li>
               );
             })}
@@ -174,10 +222,10 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
           {step.href ? (
             <Link
               href={step.href}
-              onClick={() => markOnboardingStepComplete(step.id)}
+              onClick={goDoTask}
               className="rounded-md bg-tl-trust px-3 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
             >
-              {step.ctaLabel || "Open"}
+              {step.ctaLabel || "Go do this"}
             </Link>
           ) : null}
           <button
