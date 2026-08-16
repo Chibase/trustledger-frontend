@@ -20,6 +20,9 @@ type OnboardingGuidePanelProps = {
   planId?: PlanId | null;
 };
 
+/**
+ * /app/guide — checklist that takes you to each task screen.
+ */
 export function OnboardingGuidePanel({ planId }: OnboardingGuidePanelProps) {
   const [state, setState] = useState<OnboardingState | null>(null);
   const steps = onboardingStepsForPlan(planId);
@@ -54,9 +57,8 @@ export function OnboardingGuidePanel({ planId }: OnboardingGuidePanelProps) {
             User guide
           </h1>
           <p className="mt-1 text-sm text-tl-ink-muted">
-            Setup checklist for {planName}. Steps match modules on your
-            commercial plan — Solo skips Stakeholder Intelligence until you
-            upgrade.
+            Setup checklist for {planName}. Each step title is a link to the
+            screen where you do that work — not only an explanation.
           </p>
         </div>
         <button
@@ -74,7 +76,8 @@ export function OnboardingGuidePanel({ planId }: OnboardingGuidePanelProps) {
         </h2>
         <p className="text-sm text-tl-ink-muted">
           Project → Stakeholders → Engagements → Commitments → Incidents →
-          Capture → Reports. Do not start with reports.
+          Capture → Reports. Click a step to go do it. Do not start with
+          reports.
         </p>
         <ul className="mt-3 space-y-2">
           {steps.map((step, i) => {
@@ -98,7 +101,17 @@ export function OnboardingGuidePanel({ planId }: OnboardingGuidePanelProps) {
                   {done ? "✓" : i + 1}
                 </button>
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-tl-ink">{step.title}</p>
+                  {step.href ? (
+                    <Link
+                      href={step.href}
+                      onClick={() => markOnboardingStepComplete(step.id)}
+                      className="font-medium text-tl-trust-ink underline decoration-tl-trust/40 underline-offset-4 hover:decoration-tl-trust"
+                    >
+                      {step.title}
+                    </Link>
+                  ) : (
+                    <p className="font-medium text-tl-ink">{step.title}</p>
+                  )}
                   <p className="mt-1 text-sm text-tl-ink-muted">{step.body}</p>
                   {step.tip ? (
                     <p className="mt-1 text-xs text-tl-ink-muted">{step.tip}</p>
@@ -106,9 +119,10 @@ export function OnboardingGuidePanel({ planId }: OnboardingGuidePanelProps) {
                   {step.href ? (
                     <Link
                       href={step.href}
-                      className="mt-2 inline-block text-sm font-medium text-tl-trust-ink underline underline-offset-2"
+                      onClick={() => markOnboardingStepComplete(step.id)}
+                      className="mt-2 inline-flex rounded-md border border-tl-trust/30 bg-tl-paper px-2.5 py-1 text-sm font-medium text-tl-trust-ink hover:border-tl-trust/60"
                     >
-                      {step.ctaLabel || "Open"}
+                      {step.ctaLabel || "Go do this"}
                     </Link>
                   ) : null}
                 </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { guideRequestsNewTask } from "@/config/onboardingSteps";
 import { listDemoProjects } from "@/lib/demoStore";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import {
@@ -34,7 +35,18 @@ export function ProjectsListClient({ canCreate = true }: ProjectsListClientProps
   const [clientFunder, setClientFunder] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [openForm, setOpenForm] = useState(false);
+  const [openForm, setOpenForm] = useState(() => {
+    if (typeof window === "undefined" || !canCreate) return false;
+    return guideRequestsNewTask(window.location.search);
+  });
+
+  useEffect(() => {
+    if (!openForm) return;
+    const t = window.setTimeout(() => {
+      document.getElementById("project-name")?.focus();
+    }, 50);
+    return () => window.clearTimeout(t);
+  }, [openForm]);
 
   async function refresh() {
     const rows = await projectService.list();

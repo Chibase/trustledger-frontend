@@ -120,16 +120,17 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 
 ### ADR-036: In-app setup wizard + user manual (UG-1)
 
-- **Date:** 2026-07-26
+- **Date:** 2026-07-26 (deepened 2026-08-16)
 - **Status:** Accepted
-- **Context:** New clients (especially Solo / first Project Owners) land on an empty desk and need a guided seeding order. External video scripts alone do not change in-product behaviour.
+- **Context:** New clients (especially Solo / first Project Owners) land on an empty desk and need a guided seeding order. External video scripts alone do not change in-product behaviour. Explanations without navigation leave users stranded.
 - **Decision:**
   1. Ship written **`docs/USER_MANUAL.md`** as the operator SoT (companion to `docs/ONBOARDING_VIDEO_SCRIPT.md`).
   2. On first trial/live entry, show a **plan-aware Setup wizard** (spine: Project → SI modules if entitled → Incidents → Capture → Reports). Persist progress in `tl-onboarding-v1`; “Later” snoozes for the session; “Don’t show again” dismisses until Settings/Guide reopen.
   3. Add **`/app/guide`** + nav **Guide** + Settings controls to relaunch the wizard and tick the checklist.
   4. Wizard waits behind the temporary-password prompt when that is open.
-- **Consequences:** Solo skips SI steps; monthly reports remain available on Solo via `governanceReports` + pack rank. No sample INC-* seeding.
-- **Alternatives considered:** Marketing-only PDF (rejected — unused); forced blocking tour every login (rejected — snooze/dismiss); third-party product tour SaaS (rejected — brand + cost).
+  5. **Guide behaviour:** every actionable step **title and CTA is a deep link** to the screen where the task is done (e.g. Create project → `/app/projects?new=1` opens the name form). The wizard closes when the user follows a task link so the destination is usable full-screen.
+- **Consequences:** Solo skips SI steps; monthly reports remain available on Solo via `governanceReports` + pack rank. No sample INC-* seeding. Guide acts as a navigator, not only a checklist.
+- **Alternatives considered:** Marketing-only PDF (rejected — unused); forced blocking tour every login (rejected — snooze/dismiss); third-party product tour SaaS (rejected — brand + cost); text-only checklist without destinations (rejected — users asked to be taken to the task).
 
 ### ADR-035: Solo entry plan (1 seat, essentials)
 
