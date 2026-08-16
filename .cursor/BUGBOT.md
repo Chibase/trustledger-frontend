@@ -6,7 +6,7 @@ Run on every client-facing PR before merge. Prefer **Deep** when touching paymen
 
 1. **Plan gates** — Features, desk ranks, and invites must respect `PLAN_CAPABILITIES` / `canInviteDeskTier`. No force-on for modules above the plan. **Exception:** complimentary VIP (`isVip` / `VIP Pilot` Customer) may invite any desk with unlimited seats; paid plans keep rank gates.
 2. **Plan Owner only** — Settings → Plan capabilities, Team invites, and desk privilege matrix must not appear for juniors.
-3. **Desk ranks** — 1 Client/Board/funder → 5 CLO. Paid invites only **strictly lower** than Plan Owner desk. VIP skips the level gate. Accept path must re-check plan desk cap (VIP org name / flag exempt).
+3. **Desk ranks** — 1 Client/Board/funder → 5 CLO. Paid Project invites only **strictly lower** than Plan Owner desk. Paid Institutional invites **at or below** Owner (Client/Board peers allowed). VIP skips the level gate. Accept path must re-check plan desk cap (VIP org name / flag exempt).
 4. **Paystack** — No secret keys in client bundles. Webhook signature verified. Opt-out must not accept raw `authorizationCode` from the browser without Paystack reference + email match.
 5. **Trial tokens** — `TRIAL_TOKEN_SECRET` (or Paystack secret) required in production; no hardcoded prod fallbacks.
 6. **ADR-013** — `/ops` and live Frappe BFF stay operator-allowlisted even when trial/pay are public.

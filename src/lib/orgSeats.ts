@@ -10,6 +10,7 @@ import {
   DESK_TIERS,
   DESK_TIER_RANK,
   PLAN_OWNER_DESK_TIER,
+  desksAtOrBelow,
   desksBelow,
   type DeskTier,
 } from "@/types/deskTier";
@@ -48,8 +49,10 @@ export function ownerDeskForPlan(planId: PlanId): DeskTier {
 
 /**
  * Desks an Owner may assign to invitees.
- * Paid plans: strictly below Owner rank (Solo/Practitioner empty).
- * VIP: every desk, including Client/Board and CEO — no level gate.
+ * - VIP: every desk (no level gate).
+ * - Solo / Practitioner: none.
+ * - Project: strictly below Owner (paid level gate).
+ * - Institutional: at or below Owner — includes Client/Board peers (Owner sits there).
  */
 export function inviteableDeskTiersForPlan(
   planId: PlanId,
@@ -57,7 +60,9 @@ export function inviteableDeskTiersForPlan(
 ): DeskTier[] {
   if (opts?.vip) return [...DESK_TIERS];
   if (isOwnerOnlyPlan(planId)) return [];
-  return desksBelow(ownerDeskForPlan(planId));
+  const owner = ownerDeskForPlan(planId);
+  if (planId === "institutional") return desksAtOrBelow(owner);
+  return desksBelow(owner);
 }
 
 export function canInviteDeskTier(

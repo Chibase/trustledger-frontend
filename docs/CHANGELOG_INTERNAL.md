@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-16 — Institutional invites include Client/Board desk
+
+- Institutional (incl. VIP Institutional) Owners sit at Client/Board — invite desk list is now **at or below** Owner so Client/Board is selectable, not greyed. Project stays strictly-below; VIP still unlocks every desk.
+
 ## 2026-08-16 — VIP invites: no paid seat/desk gates
 
 - Complimentary VIP (Institutional) may invite **any** desk — including Client/Board and CEO/MD — with unlimited seats.

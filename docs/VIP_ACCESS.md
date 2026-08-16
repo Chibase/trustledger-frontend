@@ -12,7 +12,7 @@ Invite a small number of people to the **full Institutional** package for a fixe
 | Paystack | No `authorization_code` / `bill_at` (amount 0) |
 | User | Owner role, same as normal live owners |
 | Login | `/login/live` only — **not** `/pay`, **not** public `/trial` |
-| Seats / desks | **Not** limited by paid plan rank rules — Owner may invite **any** desk (Client/Board, CEO/MD, …) and roles `client` / `contractor` / `community` with **unlimited** seats. Paid plans alone apply desk-below-Owner + seat caps. |
+| Seats / desks | **Institutional** ceiling includes Client/Board peers and all junior desks. **VIP** also skips remaining paid seat/desk gates (unlimited seats; every desk). Paid Project still greys desks above its Owner. |
 
 Charge-due automation only bills **`trial`** rows that still have an authorization. VIP `active` + empty Paystack ⇒ **no auto-charge**.
 
