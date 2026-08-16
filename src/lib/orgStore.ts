@@ -35,6 +35,34 @@ export function markOrgComplimentaryVip(orgId: string): OrgRecord | null {
   return org;
 }
 
+/**
+ * Align local org plan with the live/trial session plan so desk gates match
+ * Settings (e.g. Institutional / VIP cookie) instead of a stale Project org.
+ */
+export function syncOrgPlanFromSession(
+  orgId: string,
+  sessionPlanId: PlanId,
+): OrgRecord | null {
+  const org = getOrg(orgId);
+  if (!org) return null;
+  if (!isPlanId(sessionPlanId) || org.planId === sessionPlanId) return org;
+  const rank: Record<PlanId, number> = {
+    solo: 0,
+    practitioner: 1,
+    project: 2,
+    institutional: 3,
+  };
+  // Only raise (or set) plan to match session — never demote from a higher local plan.
+  if (rank[sessionPlanId] < rank[org.planId]) return org;
+  org.planId = sessionPlanId;
+  const owner = org.members.find((m) => m.isPlanOwner);
+  if (owner) {
+    owner.deskTier = PLAN_OWNER_DESK_TIER[sessionPlanId];
+  }
+  saveOrg(org);
+  return org;
+}
+
 const ORGS_KEY = "tl-orgs";
 const ACTIVE_ORG_KEY = "tl-active-org-id";
 

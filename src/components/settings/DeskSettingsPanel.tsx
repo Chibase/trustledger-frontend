@@ -28,7 +28,7 @@ import {
   upgradeHrefForCapability,
   upgradeLabelForCapability,
 } from "@/lib/entitlements";
-import { canInviteDeskTier } from "@/lib/orgSeats";
+import { canConfigureDeskPrivilege } from "@/lib/orgSeats";
 import { useToast } from "@/components/ui/Toast";
 
 const FLAGS = Object.keys(VISIBILITY_FLAG_LABELS) as VisibilityFlag[];
@@ -47,7 +47,8 @@ type DeskSettingsPanelProps = {
 
 /**
  * Desk assignment is read-only for everyone.
- * Plan Owner alone edits which lower desks see which modules (plan-gated).
+ * Plan Owner alone edits which desks see which modules (plan-gated).
+ * Rank 1 Client/Board columns open on VIP + Institutional; greyed on lower plans.
  */
 export function DeskSettingsPanel({
   role,
@@ -85,6 +86,12 @@ export function DeskSettingsPanel({
   }
 
   const planLabel = packageLensLabel(planId, { mode, vip: isVip });
+  const fullDeskControl = Boolean(isVip) || planId === "institutional";
+  const inviteOpts = isVip ? { vip: true as const } : undefined;
+
+  function deskColumnOpen(id: DeskTier): boolean {
+    return canConfigureDeskPrivilege(planId, id, inviteOpts);
+  }
 
   return (
     <div className="space-y-6">
@@ -108,14 +115,14 @@ export function DeskSettingsPanel({
       {isPlanOwner ? (
         <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
           <h2 className="font-semibold">
-            {isVip
+            {fullDeskControl
               ? "Desk privileges by rank"
               : "Desk privileges for lower ranks"}
           </h2>
           <p className="mt-1 text-xs text-tl-ink-muted">
-            {isVip
-              ? "VIP Institutional: configure privileges for every desk you may invite — including Client/Board and CEO/MD. Module rows still follow the Institutional package."
-              : `Set what each inviteable desk may see. Rows outside your plan modules and columns above ${planLabel} desk exposure stay greyed — upgrade to unlock.`}
+            {fullDeskControl
+              ? `${isVip ? "VIP · " : ""}Institutional: Rank 1 Client/Board through Rank 5 CLO are configurable — including Client seats you invite. Module rows still follow the Institutional package.`
+              : `Set what each inviteable desk may see. Rank 1 Client/Board stays greyed on ${planLabel} — upgrade to Institutional (or VIP) to unlock. Columns above your plan desk stay greyed.`}
           </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[36rem] border-collapse text-left text-xs">
@@ -123,11 +130,7 @@ export function DeskSettingsPanel({
                 <tr className="border-b border-tl-line text-tl-ink-muted">
                   <th className="py-2 pr-2 font-medium">Privilege</th>
                   {DESK_TIERS.map((id) => {
-                    const deskOnPlan = planId
-                      ? canInviteDeskTier(planId, id, {
-                          vip: isVip,
-                        })
-                      : true;
+                    const deskOnPlan = deskColumnOpen(id);
                     return (
                       <th
                         key={id}
@@ -181,11 +184,7 @@ export function DeskSettingsPanel({
                         ) : null}
                       </td>
                       {DESK_TIERS.map((id) => {
-                        const deskOnPlan = planId
-                          ? canInviteDeskTier(planId, id, {
-                              vip: isVip,
-                            })
-                          : true;
+                        const deskOnPlan = deskColumnOpen(id);
                         const editable = rowEditable && deskOnPlan;
                         return (
                           <td

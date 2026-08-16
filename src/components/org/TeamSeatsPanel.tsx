@@ -25,6 +25,7 @@ import {
   getActiveOrg,
   markOrgComplimentaryVip,
   revokeOrgInvite,
+  syncOrgPlanFromSession,
 } from "@/lib/orgStore";
 import { bootstrapPlanOwnerOrg } from "@/lib/orgSession";
 import { isVipCustomerName } from "@/lib/planLabel";
@@ -36,6 +37,13 @@ type TeamSeatsPanelProps = {
   planId?: PlanId;
   /** Complimentary VIP Institutional — no seat/desk-level invite limits. */
   isVip?: boolean;
+};
+
+const PLAN_RANK: Record<PlanId, number> = {
+  solo: 0,
+  practitioner: 1,
+  project: 2,
+  institutional: 3,
 };
 
 export function TeamSeatsPanel({
@@ -59,6 +67,17 @@ export function TeamSeatsPanel({
     Boolean(org?.complimentaryVip) ||
     isVipCustomerName(org?.name);
   const inviteOpts = orgIsVip ? { vip: true as const } : undefined;
+  /** Prefer session plan (Settings cookie) so Institutional Rank 1 is not stuck on a stale Project org. */
+  const effectivePlanId: PlanId = (() => {
+    const session = planId && isPlanId(planId) ? planId : null;
+    const local = org?.planId;
+    if (session && local) {
+      return PLAN_RANK[session] >= PLAN_RANK[local] ? session : local;
+    }
+    return session || local || "project";
+  })();
+  const clientBoardOpen =
+    orgIsVip || effectivePlanId === "institutional";
 
   function refresh() {
     let active = getActiveOrg();
@@ -67,6 +86,9 @@ export function TeamSeatsPanel({
     if (active && isVip && !active.complimentaryVip) {
       active = markOrgComplimentaryVip(active.id) || active;
     }
+    if (active && planId && isPlanId(planId)) {
+      active = syncOrgPlanFromSession(active.id, planId) || active;
+    }
     setOrg(active);
   }
 
@@ -74,17 +96,20 @@ export function TeamSeatsPanel({
     const frame = requestAnimationFrame(() => {
       refresh();
       const active = getActiveOrg();
-      if (active) {
+      const session = planId && isPlanId(planId) ? planId : null;
+      const gatePlan =
+        session && active
+          ? PLAN_RANK[session] >= PLAN_RANK[active.planId]
+            ? session
+            : active.planId
+          : session || active?.planId;
+      if (gatePlan) {
         const vip =
           isVip ||
-          Boolean(active.complimentaryVip) ||
-          isVipCustomerName(active.name);
+          Boolean(active?.complimentaryVip) ||
+          isVipCustomerName(active?.name);
         setDeskTier(
-          defaultInviteDeskTier(active.planId, vip ? { vip: true } : undefined),
-        );
-      } else if (planId && isPlanId(planId)) {
-        setDeskTier(
-          defaultInviteDeskTier(planId, isVip ? { vip: true } : undefined),
+          defaultInviteDeskTier(gatePlan, vip ? { vip: true } : undefined),
         );
       }
     });
@@ -118,7 +143,10 @@ export function TeamSeatsPanel({
       setError("Create a Plan Owner workspace first.");
       return;
     }
-    if (!canInviteDeskTier(org.planId, deskTier, inviteOpts)) {
+    if (planId && isPlanId(planId)) {
+      syncOrgPlanFromSession(org.id, planId);
+    }
+    if (!canInviteDeskTier(effectivePlanId, deskTier, inviteOpts)) {
       setError(
         "That desk exposure is above your plan. Choose a lower ranking or upgrade.",
       );
@@ -141,7 +169,7 @@ export function TeamSeatsPanel({
     setLastAcceptPath(result.acceptPath);
     setName("");
     setEmail("");
-    setDeskTier(defaultInviteDeskTier(org.planId, inviteOpts));
+    setDeskTier(defaultInviteDeskTier(effectivePlanId, inviteOpts));
     refresh();
     pushToast("Invite created — share the accept link", "success");
   }
@@ -190,7 +218,7 @@ export function TeamSeatsPanel({
   }
 
   const seats = buildSeatSummary(org, inviteOpts);
-  const planName = PLANS[org.planId]?.name || org.planId;
+  const planName = PLANS[effectivePlanId]?.name || effectivePlanId;
   const pending = org.invites.filter((i) => i.status === "pending");
 
   return (
@@ -207,11 +235,17 @@ export function TeamSeatsPanel({
               with matching access — complimentary seats are not capped by paid
               plan rank rules.
             </>
+          ) : clientBoardOpen ? (
+            <>
+              {org.name} · {planName}. Invite Client/Board, CEO, and junior desks
+              (at or below your Institutional ceiling). Plan Owner (admin) cannot
+              be invited.
+            </>
           ) : (
             <>
               {org.name} · {planName}. Invite lower-rank seats only (never Plan
-              Owner). Desk exposure is limited by your plan — higher desks stay
-              listed but greyed until you upgrade.
+              Owner). Rank 1 Client/Board stays greyed — upgrade to Institutional
+              to unlock.
             </>
           )}
         </p>
@@ -378,7 +412,7 @@ export function TeamSeatsPanel({
                     value={deskTier}
                     onChange={(e) => {
                       const next = e.target.value as DeskTier;
-                      if (!canInviteDeskTier(org.planId, next, inviteOpts))
+                      if (!canInviteDeskTier(effectivePlanId, next, inviteOpts))
                         return;
                       setDeskTier(next);
                     }}
@@ -386,7 +420,7 @@ export function TeamSeatsPanel({
                   >
                     {DESK_TIERS.map((t) => {
                       const allowed = canInviteDeskTier(
-                        org.planId,
+                        effectivePlanId,
                         t,
                         inviteOpts,
                       );
@@ -403,7 +437,9 @@ export function TeamSeatsPanel({
                   <span className="mt-1 block text-[0.65rem] text-tl-ink-muted">
                     {orgIsVip
                       ? "All desks available on VIP — including Client/Board and CEO/MD."
-                      : `Greyed desks are above ${planName}. Upgrade to unlock.`}
+                      : clientBoardOpen
+                        ? "Rank 1 Client/Board through Rank 5 CLO are available on Institutional."
+                        : `Greyed desks (including Rank 1 Client) are above ${planName}. Upgrade to Institutional to unlock.`}
                   </span>
                 </label>
               </div>
