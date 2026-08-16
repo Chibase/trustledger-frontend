@@ -164,7 +164,7 @@ Until ADR-013 lockdown lifts and Frappe Customer/User is SoT:
 - **Plan Owner org** is created in browser `localStorage` when trial/subscribe starts (`startTrialCookies` → `bootstrapPlanOwnerOrg`).
 - **Settings → Team / Seats** lets the Owner invite juniors with role + desk exposure.
 - **Seat caps:** Practitioner = 0 juniors; Project / Institutional = unlimited in demo.
-- **Desk ranks (1 highest → 5 lowest):** Client/Board/funder → CEO/MD → Director/PM → Site foreman/supervisor → CLO. Plan Owner sits at the plan ceiling and may invite only **lower** ranks; higher desks stay greyed.
+- **Desk ranks (1 highest → 5 lowest):** Client/Board/funder → CEO/MD → Director/PM → Site foreman/supervisor → CLO. On **paid** plans, Plan Owner sits at the plan ceiling: Project may invite only **strictly lower** ranks; **Institutional** may invite **at or below** Owner (Client/Board peers + juniors). Higher desks stay greyed. **VIP** skips seat caps and remaining desk-level gates — see `docs/VIP_ACCESS.md`.
 - **T3 data space:** org-scoped projects/cases (`tl-org-data`); CSV import; no demo seed in trial.
 - **T4 media:** org media library + plan quotas (25 MB / 250 MB / 2 GB soft); Settings meter.
 - **T5 prep:** Customer + Owner User drafts via `/api/frappe/provision-owner` (operator + `FRAPPE_OWNER_ISSUANCE`); see `docs/FRAPPE_SOT.md`.

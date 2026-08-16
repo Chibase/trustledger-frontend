@@ -63,9 +63,9 @@ export default async function AppSettingsPage() {
               Team & privileges
             </h2>
             <p className="mt-1 text-sm text-tl-ink-muted">
-              Invite lower-rank seats and control what each desk may see. Your
-              commercial plan is fixed above — it does not change from this
-              page.
+              {isVip
+                ? "Invite CEOs, Clients, and any desk with matching access. Complimentary VIP seats are not limited by paid plan rank rules."
+                : "Invite lower-rank seats and control what each desk may see. Your commercial plan is fixed above — it does not change from this page."}
             </p>
           </div>
           <TeamSeatsPanel
@@ -73,6 +73,7 @@ export default async function AppSettingsPage() {
             userEmail={user.email}
             userName={user.name}
             planId={user.trialPlan}
+            isVip={isVip}
           />
           <DeskSettingsPanel
             role={user.role}
@@ -104,6 +105,7 @@ export default async function AppSettingsPage() {
             userEmail={user.email}
             userName={user.name}
             planId={user.trialPlan}
+            isVip={isVip}
           />
           <DeskSettingsPanel
             role={user.role}

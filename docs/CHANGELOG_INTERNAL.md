@@ -1,5 +1,15 @@
 # Internal changelog
 
+## 2026-08-16 — Institutional invites include Client/Board desk
+
+- Institutional (incl. VIP Institutional) Owners sit at Client/Board — invite desk list is now **at or below** Owner so Client/Board is selectable, not greyed. Project stays strictly-below; VIP still unlocks every desk.
+
+## 2026-08-16 — VIP invites: no paid seat/desk gates
+
+- Complimentary VIP (Institutional) may invite **any** desk — including Client/Board and CEO/MD — with unlimited seats.
+- Paid plans alone apply desk-below-Owner and seat-cap rules (`orgSeats` `vip` option; Settings Team + Desk privileges panels).
+- Invite create does **not** accept a client `vip` flag; bypass uses org `complimentaryVip` / `VIP Pilot` name (stamped after Cloud VIP login).
+
 ## 2026-08-16 — Viewer discussion & feedback space
 
 - Report presentation, report library, and issue case desk gain a **Discussion & feedback** space: feedback, information requests, and meeting/engagement proposals.

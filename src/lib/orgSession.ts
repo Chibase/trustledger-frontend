@@ -79,12 +79,14 @@ export function bootstrapPlanOwnerOrg(input: {
   mode?: "demo" | "trial";
   startedAt?: string;
   maxAge?: number;
+  complimentaryVip?: boolean;
 }) {
   const org = ensureOwnerOrg({
     email: input.email,
     name: input.name,
     planId: input.planId,
     organization: input.organization,
+    complimentaryVip: input.complimentaryVip,
   });
   applyOrgOwnerSession({
     orgId: org.id,

@@ -78,6 +78,15 @@ export function desksBelow(ownerTier: DeskTier): DeskTier[] {
   return DESK_TIERS.filter((t) => DESK_TIER_RANK[t] > ownerRank);
 }
 
+/**
+ * Invitee desks at or below the Owner desk (same rank or junior).
+ * Used for Institutional so Client/Board peers can be seated.
+ */
+export function desksAtOrBelow(ownerTier: DeskTier): DeskTier[] {
+  const ownerRank = DESK_TIER_RANK[ownerTier];
+  return DESK_TIERS.filter((t) => DESK_TIER_RANK[t] >= ownerRank);
+}
+
 export type VisibilityFlag =
   | "graphs"
   | "crmDetail"

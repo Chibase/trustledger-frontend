@@ -23,15 +23,19 @@ import {
 import {
   createOrgInvite,
   getActiveOrg,
+  markOrgComplimentaryVip,
   revokeOrgInvite,
 } from "@/lib/orgStore";
 import { bootstrapPlanOwnerOrg } from "@/lib/orgSession";
+import { isVipCustomerName } from "@/lib/planLabel";
 
 type TeamSeatsPanelProps = {
   isPlanOwner: boolean;
   userEmail: string | null;
   userName: string;
   planId?: PlanId;
+  /** Complimentary VIP Institutional — no seat/desk-level invite limits. */
+  isVip?: boolean;
 };
 
 export function TeamSeatsPanel({
@@ -39,6 +43,7 @@ export function TeamSeatsPanel({
   userEmail,
   userName,
   planId,
+  isVip = false,
 }: TeamSeatsPanelProps) {
   const { pushToast } = useToast();
   const [org, setOrg] = useState<OrgRecord | null>(null);
@@ -49,22 +54,43 @@ export function TeamSeatsPanel({
   const [lastAcceptPath, setLastAcceptPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const orgIsVip =
+    isVip ||
+    Boolean(org?.complimentaryVip) ||
+    isVipCustomerName(org?.name);
+  const inviteOpts = orgIsVip ? { vip: true as const } : undefined;
+
   function refresh() {
-    setOrg(getActiveOrg());
+    let active = getActiveOrg();
+    // Cloud login sets isVip from Customer name; stamp local org once so
+    // invite/accept gates match without trusting a per-invite client flag.
+    if (active && isVip && !active.complimentaryVip) {
+      active = markOrgComplimentaryVip(active.id) || active;
+    }
+    setOrg(active);
   }
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
+      refresh();
       const active = getActiveOrg();
-      setOrg(active);
       if (active) {
-        setDeskTier(defaultInviteDeskTier(active.planId));
+        const vip =
+          isVip ||
+          Boolean(active.complimentaryVip) ||
+          isVipCustomerName(active.name);
+        setDeskTier(
+          defaultInviteDeskTier(active.planId, vip ? { vip: true } : undefined),
+        );
       } else if (planId && isPlanId(planId)) {
-        setDeskTier(defaultInviteDeskTier(planId));
+        setDeskTier(
+          defaultInviteDeskTier(planId, isVip ? { vip: true } : undefined),
+        );
       }
     });
     return () => cancelAnimationFrame(frame);
-  }, [planId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isVip drives VIP stamp
+  }, [planId, isVip]);
 
   function handleBootstrap() {
     const plan: PlanId =
@@ -77,9 +103,10 @@ export function TeamSeatsPanel({
       name: userName || "Plan Owner",
       planId: plan,
       mode: "demo",
+      complimentaryVip: isVip,
     });
     refresh();
-    setDeskTier(defaultInviteDeskTier(plan));
+    setDeskTier(defaultInviteDeskTier(plan, inviteOpts));
     pushToast("Plan Owner workspace created on this device", "success");
   }
 
@@ -91,11 +118,14 @@ export function TeamSeatsPanel({
       setError("Create a Plan Owner workspace first.");
       return;
     }
-    if (!canInviteDeskTier(org.planId, deskTier)) {
+    if (!canInviteDeskTier(org.planId, deskTier, inviteOpts)) {
       setError(
         "That desk exposure is above your plan. Choose a lower ranking or upgrade.",
       );
       return;
+    }
+    if (isVip) {
+      markOrgComplimentaryVip(org.id);
     }
     const result = createOrgInvite({
       orgId: org.id,
@@ -111,7 +141,7 @@ export function TeamSeatsPanel({
     setLastAcceptPath(result.acceptPath);
     setName("");
     setEmail("");
-    setDeskTier(defaultInviteDeskTier(org.planId));
+    setDeskTier(defaultInviteDeskTier(org.planId, inviteOpts));
     refresh();
     pushToast("Invite created — share the accept link", "success");
   }
@@ -159,7 +189,7 @@ export function TeamSeatsPanel({
     );
   }
 
-  const seats = buildSeatSummary(org);
+  const seats = buildSeatSummary(org, inviteOpts);
   const planName = PLANS[org.planId]?.name || org.planId;
   const pending = org.invites.filter((i) => i.status === "pending");
 
@@ -171,14 +201,24 @@ export function TeamSeatsPanel({
       <div>
         <h2 className="font-semibold">Invite team</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          {org.name} · {planName}. Invite lower-rank seats only (never Plan
-          Owner). Desk exposure is limited by your plan — higher desks stay
-          listed but greyed until you upgrade.
+          {orgIsVip ? (
+            <>
+              {org.name} · VIP Institutional. Invite CEOs, Clients, and any desk
+              with matching access — complimentary seats are not capped by paid
+              plan rank rules.
+            </>
+          ) : (
+            <>
+              {org.name} · {planName}. Invite lower-rank seats only (never Plan
+              Owner). Desk exposure is limited by your plan — higher desks stay
+              listed but greyed until you upgrade.
+            </>
+          )}
         </p>
         <p className="mt-2 text-xs text-tl-ink-muted">
           Seats:{" "}
-          {seats.additionalSeatCap === null
-            ? `${seats.membersUsed} juniors (unlimited)`
+          {orgIsVip || seats.additionalSeatCap === null
+            ? `${seats.membersUsed} seated (unlimited)`
             : seats.additionalSeatCap === 0
               ? "Owner only"
               : `${seats.membersUsed + seats.invitesPending} / ${seats.additionalSeatCap} used (incl. pending)`}
@@ -258,7 +298,9 @@ export function TeamSeatsPanel({
           onSubmit={handleInvite}
           className="space-y-3 border-t border-tl-line pt-4"
         >
-          <h3 className="font-medium">Invite junior</h3>
+          <h3 className="font-medium">
+            {orgIsVip ? "Invite colleague" : "Invite junior"}
+          </h3>
           {!seats.canInvite ? (
             <p className="text-xs text-tl-ink-muted">
               {org.planId === "solo" ? (
@@ -311,7 +353,7 @@ export function TeamSeatsPanel({
                 </label>
                 <label className="block text-xs">
                   <span className="mb-1 block font-medium">
-                    Role (lower ranks only)
+                    {orgIsVip ? "Role" : "Role (lower ranks only)"}
                   </span>
                   <select
                     value={role}
@@ -325,7 +367,9 @@ export function TeamSeatsPanel({
                     ))}
                   </select>
                   <span className="mt-1 block text-[0.65rem] text-tl-ink-muted">
-                    Plan Owner (admin) cannot be invited.
+                    {orgIsVip
+                      ? "Use client for Client stakeholders; contractor/community for field seats. Plan Owner (admin) cannot be invited."
+                      : "Plan Owner (admin) cannot be invited."}
                   </span>
                 </label>
                 <label className="block text-xs">
@@ -334,13 +378,18 @@ export function TeamSeatsPanel({
                     value={deskTier}
                     onChange={(e) => {
                       const next = e.target.value as DeskTier;
-                      if (!canInviteDeskTier(org.planId, next)) return;
+                      if (!canInviteDeskTier(org.planId, next, inviteOpts))
+                        return;
                       setDeskTier(next);
                     }}
                     className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
                   >
                     {DESK_TIERS.map((t) => {
-                      const allowed = canInviteDeskTier(org.planId, t);
+                      const allowed = canInviteDeskTier(
+                        org.planId,
+                        t,
+                        inviteOpts,
+                      );
                       const rank = DESK_TIER_RANK[t];
                       return (
                         <option key={t} value={t} disabled={!allowed}>
@@ -352,7 +401,9 @@ export function TeamSeatsPanel({
                     })}
                   </select>
                   <span className="mt-1 block text-[0.65rem] text-tl-ink-muted">
-                    Greyed desks are above {planName}. Upgrade to unlock.
+                    {orgIsVip
+                      ? "All desks available on VIP — including Client/Board and CEO/MD."
+                      : `Greyed desks are above ${planName}. Upgrade to unlock.`}
                   </span>
                 </label>
               </div>

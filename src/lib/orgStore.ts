@@ -13,6 +13,27 @@ import type {
 } from "@/types/org";
 import { INVITEABLE_ROLES } from "@/types/org";
 import { buildSeatSummary, canInviteDeskTier } from "@/lib/orgSeats";
+import { isVipCustomerName } from "@/lib/planLabel";
+
+/** VIP Pilot org names / complimentaryVip stamp skip paid seat/desk gates. */
+function seatInviteOpts(org: OrgRecord): { vip?: boolean } {
+  const isVip =
+    Boolean(org.complimentaryVip) || isVipCustomerName(org.name);
+  return isVip ? { vip: true } : {};
+}
+
+/**
+ * Stamp complimentary VIP on a local org after Cloud login set `isVip`.
+ * Does not invent VIP from a caller flag on each invite.
+ */
+export function markOrgComplimentaryVip(orgId: string): OrgRecord | null {
+  const org = getOrg(orgId);
+  if (!org) return null;
+  if (org.complimentaryVip) return org;
+  org.complimentaryVip = true;
+  saveOrg(org);
+  return org;
+}
 
 const ORGS_KEY = "tl-orgs";
 const ACTIVE_ORG_KEY = "tl-active-org-id";
@@ -70,6 +91,7 @@ export function ensureOwnerOrg(input: {
   name: string;
   planId: PlanId;
   organization?: string;
+  complimentaryVip?: boolean;
 }): OrgRecord {
   const email = input.email.trim().toLowerCase();
   const planId = isPlanId(input.planId) ? input.planId : "practitioner";
@@ -77,6 +99,10 @@ export function ensureOwnerOrg(input: {
     (o) => o.ownerEmail === email && o.planId === planId,
   );
   if (existing) {
+    if (input.complimentaryVip && !existing.complimentaryVip) {
+      existing.complimentaryVip = true;
+      saveOrg(existing);
+    }
     setActiveOrgId(existing.id);
     return existing;
   }
@@ -104,6 +130,7 @@ export function ensureOwnerOrg(input: {
     ownerName: owner.name,
     members: [owner],
     invites: [],
+    complimentaryVip: input.complimentaryVip || undefined,
   };
   saveOrg(org);
   return org;
@@ -121,7 +148,10 @@ export function createOrgInvite(input: {
   const org = getOrg(input.orgId);
   if (!org) return { ok: false, error: "Organisation not found." };
 
-  const seats = buildSeatSummary(org);
+  // Paid seat/desk gates only. VIP bypass is org-stamped (complimentaryVip /
+  // VIP Pilot name) — never a caller-supplied flag (cookie/devtools).
+  const inviteOpts = seatInviteOpts(org);
+  const seats = buildSeatSummary(org, inviteOpts);
   if (!seats.canInvite) {
     return {
       ok: false,
@@ -138,7 +168,7 @@ export function createOrgInvite(input: {
     return { ok: false, error: "Invitees cannot be Plan Owner (admin)." };
   }
 
-  if (!canInviteDeskTier(org.planId, input.deskTier)) {
+  if (!canInviteDeskTier(org.planId, input.deskTier, inviteOpts)) {
     return {
       ok: false,
       error:
@@ -230,17 +260,19 @@ export function acceptOrgInvite(input: {
     return { ok: false, error: "Invite not found or already used." };
   }
   const { org, invite } = found;
+  const inviteOpts = seatInviteOpts(org);
   const deskTier = normalizeDeskTier(invite.deskTier) || invite.deskTier;
-  if (!canInviteDeskTier(org.planId, deskTier)) {
+  if (!canInviteDeskTier(org.planId, deskTier, inviteOpts)) {
     return {
       ok: false,
       error:
         "This invite’s desk exposure is above the organisation’s plan. Ask your Plan Owner to send a new invite at a lower rank.",
     };
   }
-  const seats = buildSeatSummary(org);
+  const seats = buildSeatSummary(org, inviteOpts);
   // Pending invite already counted in seats; accepting converts pending → member.
   if (
+    !inviteOpts.vip &&
     seats.additionalSeatCap === 0 &&
     (org.planId === "solo" || org.planId === "practitioner")
   ) {

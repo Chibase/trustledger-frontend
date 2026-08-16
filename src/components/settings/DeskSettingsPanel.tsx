@@ -107,11 +107,15 @@ export function DeskSettingsPanel({
 
       {isPlanOwner ? (
         <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
-          <h2 className="font-semibold">Desk privileges for lower ranks</h2>
+          <h2 className="font-semibold">
+            {isVip
+              ? "Desk privileges by rank"
+              : "Desk privileges for lower ranks"}
+          </h2>
           <p className="mt-1 text-xs text-tl-ink-muted">
-            Set what each inviteable desk may see. Rows outside your plan modules
-            and columns above {planLabel} desk exposure stay greyed — upgrade to
-            unlock.
+            {isVip
+              ? "VIP Institutional: configure privileges for every desk you may invite — including Client/Board and CEO/MD. Module rows still follow the Institutional package."
+              : `Set what each inviteable desk may see. Rows outside your plan modules and columns above ${planLabel} desk exposure stay greyed — upgrade to unlock.`}
           </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[36rem] border-collapse text-left text-xs">
@@ -120,7 +124,9 @@ export function DeskSettingsPanel({
                   <th className="py-2 pr-2 font-medium">Privilege</th>
                   {DESK_TIERS.map((id) => {
                     const deskOnPlan = planId
-                      ? canInviteDeskTier(planId, id)
+                      ? canInviteDeskTier(planId, id, {
+                          vip: isVip,
+                        })
                       : true;
                     return (
                       <th
@@ -176,7 +182,9 @@ export function DeskSettingsPanel({
                       </td>
                       {DESK_TIERS.map((id) => {
                         const deskOnPlan = planId
-                          ? canInviteDeskTier(planId, id)
+                          ? canInviteDeskTier(planId, id, {
+                              vip: isVip,
+                            })
                           : true;
                         const editable = rowEditable && deskOnPlan;
                         return (
