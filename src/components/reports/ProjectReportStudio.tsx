@@ -17,6 +17,7 @@ import {
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPeriodActivityFacts,
+  composeActivityReportMarkdown,
   factsToPromptBlock,
   looksLikeReportTemplateGuide,
   periodFactsHaveWritableEvidence,
@@ -169,10 +170,6 @@ export function ProjectReportStudio({
   const showCharts = format === "charts" || format === "charts_details";
   const showDetails = format === "details" || format === "charts_details";
   const reportTitle = `${REPORT_KIND_LABELS[kind]} — ${project.name}`;
-  const hasViewableContent =
-    format === "charts"
-      ? true
-      : Boolean(body.trim()) || format === "charts_details";
 
   const kindChartBars = useMemo(() => {
     const bars: Array<{ label: string; value: number }> = [];
@@ -188,6 +185,101 @@ export function ProjectReportStudio({
     }
     return bars.slice(0, 10);
   }, [mappedCategories]);
+
+  /** Always-resolved details text for view / download / print (never empty placeholder). */
+  const effectiveBody = useMemo(() => {
+    if (body.trim()) return body;
+    if (!included.length) {
+      return `## ${REPORT_KIND_LABELS[kind]}\n\nNo topics are available for this desk on the selected kind.`;
+    }
+    if (!periodFactsHaveWritableEvidence(facts)) {
+      return `## ${REPORT_KIND_LABELS[kind]}\n\nNo mapped project evidence yet for **${project.name}** (${periodLabel}). Capture category packs or cases on this project, then view, download, or print again.`;
+    }
+    return composeActivityReportMarkdown({
+      kindLabel: REPORT_KIND_LABELS[kind],
+      audienceLabel: REPORT_AUDIENCE_LABELS[audience],
+      periodLabel,
+      authorTierLabel: DESK_TIER_LABELS[tier],
+      authorName,
+      projectName: project.name,
+      includedSectionIds: included.map((s) => s.id),
+      includedSectionLabels: included.map((s) => s.label),
+      lockedSectionLabels: [],
+      facts,
+      tonePreference:
+        audience === "board" || audience === "funders_investors"
+          ? "board"
+          : audience === "regulator"
+            ? "formal"
+            : "plain",
+    }).bodyMarkdown;
+  }, [
+    body,
+    included,
+    kind,
+    facts,
+    project.name,
+    periodLabel,
+    audience,
+    tier,
+    authorName,
+  ]);
+
+  /**
+   * Details body for view / download / print — never leave an empty placeholder.
+   * Uses saved/generated body when present; otherwise composes from mapped evidence.
+   */
+  function resolveNarrativeBody(opts?: {
+    bodyMarkdown?: string;
+    kind?: ReportKind;
+    audience?: ReportAudience;
+    period?: string;
+  }): string {
+    const existing = (opts?.bodyMarkdown ?? body).trim();
+    if (existing) return existing;
+
+    const k = opts?.kind ?? kind;
+    const aud = opts?.audience ?? audience;
+    const period = opts?.period ?? periodLabel;
+    // Same inputs as effectiveBody when opts match current state.
+    if (
+      k === kind &&
+      aud === audience &&
+      period === periodLabel &&
+      !(opts?.bodyMarkdown ?? "").trim()
+    ) {
+      return effectiveBody;
+    }
+    const sections = sectionsForKind(k).filter((s) =>
+      tierMeetsMinimum(tier, s.minTier),
+    );
+    if (!sections.length) {
+      return `## ${REPORT_KIND_LABELS[k]}\n\nNo topics are available for this desk on the selected kind.`;
+    }
+    if (!periodFactsHaveWritableEvidence(facts)) {
+      return `## ${REPORT_KIND_LABELS[k]}\n\nNo mapped project evidence yet for **${project.name}** (${period}). Capture category packs or cases on this project, then view, download, or print again.`;
+    }
+
+    const composed = composeActivityReportMarkdown({
+      kindLabel: REPORT_KIND_LABELS[k],
+      audienceLabel: REPORT_AUDIENCE_LABELS[aud],
+      periodLabel: period,
+      authorTierLabel: DESK_TIER_LABELS[tier],
+      authorName,
+      projectName: project.name,
+      includedSectionIds: sections.map((s) => s.id),
+      includedSectionLabels: sections.map((s) => s.label),
+      lockedSectionLabels: [],
+      facts,
+      tonePreference:
+        aud === "board" || aud === "funders_investors"
+          ? "board"
+          : aud === "regulator"
+            ? "formal"
+            : "plain",
+    });
+    return composed.bodyMarkdown;
+  }
 
   async function handleCompose() {
     setError(null);
@@ -251,7 +343,6 @@ export function ProjectReportStudio({
       setBody(result.bodyMarkdown);
       setSavedId(null);
       setStatus("ready");
-      // Open presentation immediately in the chosen format.
       setPresentationOpen(true);
     } catch (err) {
       setStatus("error");
@@ -260,7 +351,9 @@ export function ProjectReportStudio({
   }
 
   function handleSave() {
-    if (!body.trim() && format !== "charts") return;
+    const narrative = resolveNarrativeBody();
+    if (!narrative.trim() && format !== "charts") return;
+    if (!body.trim() && narrative.trim()) setBody(narrative);
     const id =
       savedId ||
       `RPT-${Date.now().toString(36).slice(-7).toUpperCase()}`;
@@ -276,7 +369,7 @@ export function ProjectReportStudio({
       projectName: project.name,
       includedSections: included.map((s) => s.id) as ReportSectionId[],
       lockedSections: [],
-      bodyMarkdown: body,
+      bodyMarkdown: body.trim() || narrative,
       evidence: facts.evidence,
       status: "draft",
       createdAt: new Date().toISOString(),
@@ -291,6 +384,8 @@ export function ProjectReportStudio({
 
   function openPresentation(nextFormat?: ReportFormatId) {
     if (nextFormat) setFormat(nextFormat);
+    // Persist composed narrative so saved drafts / re-open keep details.
+    if (!body.trim() && effectiveBody.trim()) setBody(effectiveBody);
     setPresentationOpen(true);
   }
 
@@ -298,9 +393,17 @@ export function ProjectReportStudio({
     setKind(report.kind);
     setAudience(report.audience);
     setPeriodLabel(report.periodLabel);
-    setBody(report.bodyMarkdown);
-    setSavedId(report.id);
     const fmt = report.preferredFormat || "charts_details";
+    const narrative =
+      report.bodyMarkdown.trim() ||
+      resolveNarrativeBody({
+        bodyMarkdown: report.bodyMarkdown,
+        kind: report.kind,
+        audience: report.audience,
+        period: report.periodLabel,
+      });
+    setBody(narrative);
+    setSavedId(report.id);
     setFormat(fmt);
     setPresentationOpen(true);
   }
@@ -314,13 +417,20 @@ export function ProjectReportStudio({
     period?: string;
   }): string {
     const fmt = opts?.format ?? format;
-    const mdBody = opts?.bodyMarkdown ?? body;
     const title = opts?.title ?? reportTitle;
     const k = opts?.kind ?? kind;
     const aud = opts?.audience ?? audience;
     const period = opts?.period ?? periodLabel;
     const wantCharts = fmt === "charts" || fmt === "charts_details";
     const wantDetails = fmt === "details" || fmt === "charts_details";
+    const mdBody = wantDetails
+      ? resolveNarrativeBody({
+          bodyMarkdown: opts?.bodyMarkdown,
+          kind: k,
+          audience: aud,
+          period,
+        })
+      : "";
     const lines: string[] = [
       `# ${title}`,
       "",
@@ -338,17 +448,12 @@ export function ProjectReportStudio({
           lines.push(`- ${bar.label}: ${bar.value}`);
         }
       } else {
-        lines.push("_No chart values on file._");
+        lines.push("_No chart values on file for this kind yet._");
       }
       lines.push("");
     }
     if (wantDetails) {
-      lines.push(
-        "## Details",
-        "",
-        mdBody.trim() || "_No narrative body yet._",
-        "",
-      );
+      lines.push("## Details", "", mdBody, "");
     }
     return lines.join("\n");
   }
@@ -363,6 +468,18 @@ export function ProjectReportStudio({
   }) {
     const fmt = opts?.format ?? format;
     const k = opts?.kind ?? kind;
+    // Persist composed body so View/Print stay in sync after Download.
+    if (fmt === "details" || fmt === "charts_details") {
+      const narrative = resolveNarrativeBody({
+        bodyMarkdown: opts?.bodyMarkdown,
+        kind: k,
+        audience: opts?.audience,
+        period: opts?.period,
+      });
+      if (!body.trim() && narrative.trim() && !opts?.bodyMarkdown) {
+        setBody(narrative);
+      }
+    }
     const text = buildDownloadMarkdown(opts);
     const blob = new Blob([text], {
       type: "text/markdown;charset=utf-8",
@@ -376,7 +493,11 @@ export function ProjectReportStudio({
   }
 
   function handlePrint() {
-    window.print();
+    if (format === "details" || format === "charts_details") {
+      const narrative = resolveNarrativeBody();
+      if (!body.trim() && narrative.trim()) setBody(narrative);
+    }
+    window.setTimeout(() => window.print(), 40);
   }
 
   return (
@@ -475,37 +596,32 @@ export function ProjectReportStudio({
         />
         <button
           type="button"
-          disabled={!hasViewableContent && format !== "charts"}
           onClick={() => openPresentation()}
-          className="rounded-md border border-tl-trust/40 bg-tl-paper px-3 py-2 text-sm font-medium text-tl-trust-ink disabled:opacity-40"
+          className="rounded-md border border-tl-trust/40 bg-tl-paper px-3 py-2 text-sm font-medium text-tl-trust-ink"
         >
           View report
         </button>
         <button
           type="button"
-          disabled={!body.trim() && format !== "charts"}
           onClick={handleSave}
-          className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium disabled:opacity-40"
+          className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium"
         >
           Save draft
         </button>
         <button
           type="button"
-          disabled={format === "charts" ? false : !body.trim()}
           onClick={() => handleDownload()}
-          className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium disabled:opacity-40"
+          className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium"
         >
           Download
         </button>
         <button
           type="button"
-          disabled={format === "charts" ? false : !body.trim()}
           onClick={() => {
             openPresentation();
-            // Allow overlay to mount before print.
-            window.setTimeout(() => window.print(), 50);
+            handlePrint();
           }}
-          className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium disabled:opacity-40"
+          className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium"
         >
           Print
         </button>
@@ -556,7 +672,7 @@ export function ProjectReportStudio({
             <h3 className="text-sm font-semibold text-tl-ink">
               Details preview
             </h3>
-            {body.trim() ? (
+            {body.trim() || effectiveBody ? (
               <button
                 type="button"
                 className="text-xs font-medium text-tl-trust-ink underline"
@@ -566,9 +682,9 @@ export function ProjectReportStudio({
               </button>
             ) : null}
           </div>
-          {body ? (
+          {body.trim() || effectiveBody ? (
             <article className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-tl-ink line-clamp-[12]">
-              {body}
+              {body.trim() || effectiveBody}
             </article>
           ) : (
             <p className="text-sm text-tl-ink-muted">
@@ -663,7 +779,7 @@ export function ProjectReportStudio({
         audience={audience}
         format={format}
         onFormatChange={setFormat}
-        bodyMarkdown={body}
+        bodyMarkdown={effectiveBody}
         chartBars={kindChartBars}
         onPrint={handlePrint}
         onDownload={() => handleDownload()}

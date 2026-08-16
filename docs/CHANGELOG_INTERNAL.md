@@ -5,6 +5,7 @@
 - Project dashboard reports: **View** opens a full-screen presentation in the chosen format (charts / details / charts+details); format can be switched while presenting.
 - **Download** (markdown) and **Print** available for any chosen format from the studio, presentation chrome, and saved-report rows.
 - Generate opens presentation automatically; saved drafts remember `preferredFormat`.
+- View / download / print **auto-compose details** from mapped project evidence when no draft body exists — no empty “narrative body yet” placeholder in presentation or exports.
 
 ## 2026-08-15 — Minutes & attendance field templates restructured
 
