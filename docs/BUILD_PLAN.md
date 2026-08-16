@@ -179,7 +179,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **T1** | Plan Owner master | Org store, session cookies, master desk strip, Team shell | **Done** |
-| **T2** | Invites + seats | Owner invites, `/invite/accept`, locked junior desk tier, plan seat caps | **Done** |
+| **T2** | Invites + seats | Owner invites, `/invite/accept` + `/invite/reject`, email Accept/Decline (Resend), locked junior desk, plan seat caps | **Done** |
 | **T3** | Org data space | Org-scoped store, no demo seed in trial, CSV deposit | **Done** |
 | **T4** | Media + quotas | Registers/minutes/photos/video; plan storage quotas | **Done** |
 | **T5** | Frappe SoT | Customer/User contract + operator provision prep (lockdown stays) | **Done** |

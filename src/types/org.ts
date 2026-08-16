@@ -11,7 +11,7 @@ import type { UserRole } from "@/types/rbac";
 export const INVITEABLE_ROLES = ["client", "contractor", "community"] as const;
 export type InviteableRole = (typeof INVITEABLE_ROLES)[number];
 
-export type OrgInviteStatus = "pending" | "accepted" | "revoked";
+export type OrgInviteStatus = "pending" | "accepted" | "revoked" | "rejected";
 
 export type OrgInvite = {
   id: string;
@@ -25,6 +25,11 @@ export type OrgInvite = {
   status: OrgInviteStatus;
   createdAt: string;
   acceptedAt?: string;
+  rejectedAt?: string;
+  /** When Resend successfully delivered the invite email. */
+  emailSentAt?: string;
+  /** Signed portable token embedded in email links (any device). */
+  portableToken?: string;
 };
 
 export type OrgMember = {

@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-16 — Invite email Accept / Decline
+
+- Creating an invite from **Settings → Team / Seats** emails the invitee (Resend) with **Accept** and **Decline** CTAs.
+- Portable signed invite token (`?invite=…`, 14-day TTL) works on any device; Owner notified when the invitee accepts or declines.
+- New routes: `POST /api/invite/send`, `/peek`, `/respond`; pages `/invite/accept` (email link) and `/invite/reject`.
+- If Resend is unset, invite still creates and a portable share link is returned for manual copy.
+
 ## 2026-08-16 — Institutional invites include Client/Board desk
 
 - Institutional (incl. VIP Institutional) Owners sit at Client/Board — invite desk list is now **at or below** Owner so Client/Board is selectable, not greyed. Project stays strictly-below; VIP still unlocks every desk.
