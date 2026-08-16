@@ -6,6 +6,13 @@
 - Paid plans alone apply desk-below-Owner and seat-cap rules (`orgSeats` `vip` option; Settings Team + Desk privileges panels).
 - Invite create does **not** accept a client `vip` flag; bypass uses org `complimentaryVip` / `VIP Pilot` name (stamped after Cloud VIP login).
 
+## 2026-08-16 — Viewer discussion & feedback space
+
+- Report presentation, report library, and issue case desk gain a **Discussion & feedback** space: feedback, information requests, and meeting/engagement proposals.
+- Each thread stamps **given** and **responded** date/time and the workspace **plan**.
+- Meeting proposals capture calendar items; on Project+ they can create a draft Engagement (`source: discussion`).
+- Threads are scoped to the current workspace (customer vs demo / org id) so sample discussion never bleeds into customer desks.
+
 ## 2026-08-16 — Guide deep-links to task screens (ADR-036)
 
 - Setup wizard + `/app/guide` checklist: each actionable step **title and CTA** navigate to where the work is done (create project, add stakeholder, capture engagement, log issue, reports path, etc.).

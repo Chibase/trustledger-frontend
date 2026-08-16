@@ -177,7 +177,7 @@ function fieldsFor(name: SiDocTypeName): FieldDef[] {
         fieldname: "source",
         label: "Source",
         fieldtype: "Select",
-        options: "seed\nminutes\nattendance\nsocial_intel\npasted_report",
+        options: "seed\nminutes\nattendance\nsocial_intel\npasted_report\ndiscussion",
         default: "minutes",
       },
       { fieldname: "tl_org_id", label: "TrustLedger org id", fieldtype: "Data" },

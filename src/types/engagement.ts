@@ -12,7 +12,8 @@ export type EngagementSource =
   | "minutes"
   | "attendance"
   | "social_intel"
-  | "pasted_report";
+  | "pasted_report"
+  | "discussion";
 
 /** First-class consultation / meeting record (V002 packet 24c). */
 export type Engagement = {
