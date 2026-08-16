@@ -137,6 +137,18 @@ function AcceptInviteForm() {
     setBusy(true);
     setError(null);
     try {
+      if (portableRaw) {
+        const peek = await fetch("/api/invite/peek", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ invite: portableRaw }),
+        });
+        const peeked = (await peek.json()) as { error?: string };
+        if (!peek.ok) {
+          setError(peeked.error || "Invite link is invalid or revoked.");
+          return;
+        }
+      }
       const accepted = acceptOrgInvite({
         token: localToken,
         orgId: found.org.id,

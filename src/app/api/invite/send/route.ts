@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { isPlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
+import {
+  TL_ORG_ID_COOKIE,
+  TL_ORG_OWNER_COOKIE,
+  TL_USER_EMAIL_COOKIE,
+  TL_VIP_COOKIE,
+} from "@/lib/auth.constants";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
 import { siteBaseUrl } from "@/lib/hubspot";
+import { canInviteDeskTier } from "@/lib/orgSeats";
 import { signPortableOrgInvite } from "@/lib/orgInviteToken";
+import { isVipCustomerName } from "@/lib/planLabel";
 import {
   sendOrgInviteEmail,
   transactionalEmailConfigured,
@@ -26,7 +35,6 @@ type SendBody = {
   deskTier: string;
   projectId?: string;
   projectName?: string;
-  complimentaryVip?: boolean;
 };
 
 function isValid(body: unknown): body is SendBody {
@@ -56,6 +64,18 @@ export async function POST(request: Request) {
     );
   }
 
+  const jar = await cookies();
+  const isOwner = jar.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+  const sessionOrgId = jar.get(TL_ORG_ID_COOKIE)?.value?.trim() || "";
+  const sessionEmail =
+    jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim().toLowerCase() || "";
+  if (!isOwner || !sessionOrgId) {
+    return NextResponse.json(
+      { error: "Only the Plan Owner session can send invite emails." },
+      { status: 401 },
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -64,6 +84,13 @@ export async function POST(request: Request) {
   }
   if (!isValid(body)) {
     return NextResponse.json({ error: "Missing invite fields" }, { status: 400 });
+  }
+
+  if (body.orgId !== sessionOrgId) {
+    return NextResponse.json(
+      { error: "Invite org does not match your Plan Owner session." },
+      { status: 403 },
+    );
   }
 
   if (!isPlanId(body.planId) || !isDeskTier(body.deskTier)) {
@@ -78,13 +105,34 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Valid email required" }, { status: 400 });
   }
 
+  // VIP never from client body — cookie or VIP Pilot org name only.
+  const vip =
+    jar.get(TL_VIP_COOKIE)?.value === "1" ||
+    isVipCustomerName(body.orgName);
+  if (!canInviteDeskTier(body.planId, body.deskTier, vip ? { vip: true } : undefined)) {
+    return NextResponse.json(
+      { error: "That desk exposure is above your plan." },
+      { status: 400 },
+    );
+  }
+
+  const ownerEmail =
+    (sessionEmail.includes("@") ? sessionEmail : body.ownerEmail.trim().toLowerCase()) ||
+    "";
+  if (!ownerEmail.includes("@")) {
+    return NextResponse.json(
+      { error: "Plan Owner email required to send invites." },
+      { status: 400 },
+    );
+  }
+
   let portableToken: string;
   try {
     portableToken = signPortableOrgInvite({
       orgId: body.orgId,
       orgName: body.orgName.trim(),
       planId: body.planId,
-      ownerEmail: body.ownerEmail.trim().toLowerCase(),
+      ownerEmail,
       ownerName: body.ownerName.trim() || "Plan Owner",
       inviteId: body.inviteId,
       token: body.token,
@@ -94,7 +142,8 @@ export async function POST(request: Request) {
       deskTier: body.deskTier,
       projectId: body.projectId,
       projectName: body.projectName,
-      complimentaryVip: Boolean(body.complimentaryVip),
+      // Never stamp VIP from a client boolean — name / cookie only.
+      complimentaryVip: vip || undefined,
     });
   } catch (err) {
     return NextResponse.json(
@@ -113,8 +162,6 @@ export async function POST(request: Request) {
   const acceptUrl = `${base}/invite/accept?invite=${encodeURIComponent(portableToken)}`;
   const rejectUrl = `${base}/invite/reject?invite=${encodeURIComponent(portableToken)}`;
 
-  // Always return a portable Accept/Decline link so Owners can share manually
-  // when Resend is missing or delivery fails.
   if (!transactionalEmailConfigured()) {
     return NextResponse.json(
       {

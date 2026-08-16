@@ -96,13 +96,21 @@ function RejectInviteForm() {
         body: JSON.stringify({ invite: portableRaw }),
       });
       const peeked = (await peek.json()) as {
+        error?: string;
         payload?: { token: string; orgId: string };
       };
-      if (peeked.payload) {
-        rejectOrgInvite({
-          token: peeked.payload.token,
-          orgId: peeked.payload.orgId,
-        });
+      if (!peek.ok || !peeked.payload) {
+        setStatus("error");
+        setMessage(peeked.error || "Invite link is invalid or revoked.");
+        return;
+      }
+      const rejected = rejectOrgInvite({
+        token: peeked.payload.token,
+        orgId: peeked.payload.orgId,
+      });
+      if (!rejected.ok) {
+        setMessage(rejected.error);
+        return;
       }
       await fetch("/api/invite/respond", {
         method: "POST",

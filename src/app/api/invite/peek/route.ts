@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
+import { inviteBlockedReason } from "@/lib/orgInviteServerState";
 import { verifyPortableOrgInvite } from "@/lib/orgInviteToken";
 
 type PeekBody = { invite: string };
@@ -37,5 +38,29 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ ok: true, payload });
+  const blocked = inviteBlockedReason(payload.inviteId);
+  if (blocked === "revoked") {
+    return NextResponse.json(
+      { ok: false, error: "This invite was revoked by the Plan Owner." },
+      { status: 410 },
+    );
+  }
+  if (blocked === "closed") {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "This invite was already accepted or declined.",
+      },
+      { status: 410 },
+    );
+  }
+
+  return NextResponse.json({
+    ok: true,
+    payload: {
+      ...payload,
+      // Never echo a client-forged VIP claim as authoritative for the UI.
+      complimentaryVip: payload.complimentaryVip || undefined,
+    },
+  });
 }

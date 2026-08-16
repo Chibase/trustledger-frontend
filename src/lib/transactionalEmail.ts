@@ -474,7 +474,7 @@ export async function sendOrgInviteDecisionEmail(
     "",
     `${input.inviteeName} (${input.inviteeEmail}) ${verb} the invite to ${input.orgName}.`,
     "",
-    `Manage seats: ${input.settingsUrl}`,
+    `Update seats on this device: ${input.settingsUrl}`,
     "",
     "— TrustLedger",
   ].join("\n");
@@ -483,7 +483,7 @@ export async function sendOrgInviteDecisionEmail(
     <p><strong>${escapeHtml(input.inviteeName)}</strong>
       (${escapeHtml(input.inviteeEmail)}) <strong>${verb}</strong> the invite to
       <strong>${escapeHtml(input.orgName)}</strong>.</p>
-    <p><a href="${escapeAttr(input.settingsUrl)}">Open Team / Seats</a></p>
+    <p><a href="${escapeAttr(input.settingsUrl)}">Update Team / Seats on this device</a></p>
     <p>— TrustLedger</p>
   `;
   return sendResendEmail({ to: input.to, subject, text, html });

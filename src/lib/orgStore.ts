@@ -432,8 +432,13 @@ export function hydratePortableInvite(payload: {
       ownerName: owner.name,
       members: [owner],
       invites: [],
-      complimentaryVip: payload.complimentaryVip || undefined,
+      complimentaryVip: isVipCustomerName(payload.orgName) || undefined,
     };
+  }
+
+  // VIP stamp only from VIP Pilot naming — never trust portable payload flag.
+  if (isVipCustomerName(payload.orgName)) {
+    org.complimentaryVip = true;
   }
 
   let invite = org.invites.find(

@@ -115,7 +115,6 @@ export function TeamSeatsPanel({
           deskTier: inv.deskTier,
           projectId: inv.projectId,
           projectName: inv.projectName,
-          complimentaryVip: Boolean(activeOrg.complimentaryVip) || isVip,
         }),
       });
       const json = (await res.json()) as {
@@ -400,9 +399,23 @@ export function TeamSeatsPanel({
                           type="button"
                           className="text-xs font-medium text-tl-danger underline"
                           onClick={() => {
-                            revokeOrgInvite(org.id, inv.id);
-                            refresh();
-                            pushToast("Invite revoked", "success");
+                            void (async () => {
+                              revokeOrgInvite(org.id, inv.id);
+                              try {
+                                await fetch("/api/invite/revoke", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    inviteId: inv.id,
+                                    orgId: org.id,
+                                  }),
+                                });
+                              } catch {
+                                /* local revoke still applied */
+                              }
+                              refresh();
+                              pushToast("Invite revoked", "success");
+                            })();
                           }}
                         >
                           Revoke

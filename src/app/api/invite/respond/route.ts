@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
 import { siteBaseUrl } from "@/lib/hubspot";
-import { verifyPortableOrgInvite } from "@/lib/orgInviteToken";
+import {
+  claimInviteDecisionNotify,
+  inviteBlockedReason,
+  markInviteClosedServer,
+} from "@/lib/orgInviteServerState";
+import {
+  signInviteOwnerSync,
+  verifyPortableOrgInvite,
+} from "@/lib/orgInviteToken";
 import {
   sendOrgInviteDecisionEmail,
   transactionalEmailConfigured,
@@ -49,9 +57,58 @@ export async function POST(request: Request) {
     );
   }
 
+  const blocked = inviteBlockedReason(payload.inviteId);
+  if (blocked === "revoked") {
+    return NextResponse.json(
+      { error: "This invite was revoked by the Plan Owner." },
+      { status: 410 },
+    );
+  }
+  if (blocked === "closed") {
+    return NextResponse.json(
+      {
+        ok: true,
+        decision: body.decision,
+        ownerNotified: false,
+        alreadyNotified: true,
+        payload: {
+          orgId: payload.orgId,
+          orgName: payload.orgName,
+          email: payload.email,
+          name: payload.name,
+          token: payload.token,
+          inviteId: payload.inviteId,
+        },
+      },
+    );
+  }
+
+  markInviteClosedServer(payload.inviteId);
+
+  const base = siteBaseUrl().replace(/\/$/, "");
+  const ownerSyncToken = signInviteOwnerSync({
+    orgId: payload.orgId,
+    orgName: payload.orgName,
+    planId: payload.planId,
+    ownerEmail: payload.ownerEmail,
+    ownerName: payload.ownerName,
+    inviteId: payload.inviteId,
+    token: payload.token,
+    email: payload.email,
+    name: payload.name,
+    role: payload.role,
+    deskTier: payload.deskTier,
+    decision: body.decision,
+  });
+  const ownerSyncUrl = `${base}/invite/owner-sync?receipt=${encodeURIComponent(ownerSyncToken)}`;
+
   let ownerNotified = false;
-  if (transactionalEmailConfigured() && payload.ownerEmail.includes("@")) {
-    const base = siteBaseUrl().replace(/\/$/, "");
+  const firstNotify = claimInviteDecisionNotify(payload.inviteId, body.decision);
+  if (
+    firstNotify &&
+    transactionalEmailConfigured() &&
+    payload.ownerEmail.includes("@")
+  ) {
     const mail = await sendOrgInviteDecisionEmail({
       to: payload.ownerEmail,
       ownerName: payload.ownerName || "Plan Owner",
@@ -59,7 +116,7 @@ export async function POST(request: Request) {
       inviteeEmail: payload.email,
       orgName: payload.orgName,
       decision: body.decision,
-      settingsUrl: `${base}/app/settings#team-seats`,
+      settingsUrl: ownerSyncUrl,
     });
     ownerNotified = mail.sent;
   }
@@ -68,6 +125,8 @@ export async function POST(request: Request) {
     ok: true,
     decision: body.decision,
     ownerNotified,
+    alreadyNotified: !firstNotify,
+    ownerSyncUrl,
     payload: {
       orgId: payload.orgId,
       orgName: payload.orgName,

@@ -3,8 +3,11 @@
 ## 2026-08-16 — Invite email Accept / Decline
 
 - Creating an invite from **Settings → Team / Seats** emails the invitee (Resend) with **Accept** and **Decline** CTAs.
-- Portable signed invite token (`?invite=…`, 14-day TTL) works on any device; Owner notified when the invitee accepts or declines.
-- New routes: `POST /api/invite/send`, `/peek`, `/respond`; pages `/invite/accept` (email link) and `/invite/reject`.
+- Portable signed invite token (`?invite=…`, 14-day TTL) works on any device; Owner notified when the invitee accepts or declines (deduped).
+- Owner decision mail includes a **sync link** (`/invite/owner-sync`) so their browser seat list updates to accepted/declined.
+- Send requires Plan Owner session cookies; desk VIP bypass uses VIP cookie / VIP Pilot name only (not a client flag).
+- Revoke calls `/api/invite/revoke` so email links stop accepting after Owner revoke (process-local until Cloud seats).
+- New routes: `POST /api/invite/send`, `/peek`, `/respond`, `/revoke`, `/owner-sync`; pages `/invite/accept`, `/invite/reject`, `/invite/owner-sync`.
 - If Resend is unset, invite still creates and a portable share link is returned for manual copy.
 
 ## 2026-08-16 — Institutional invites include Client/Board desk
