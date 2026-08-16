@@ -23,9 +23,11 @@ import {
 import {
   createOrgInvite,
   getActiveOrg,
+  markOrgComplimentaryVip,
   revokeOrgInvite,
 } from "@/lib/orgStore";
 import { bootstrapPlanOwnerOrg } from "@/lib/orgSession";
+import { isVipCustomerName } from "@/lib/planLabel";
 
 type TeamSeatsPanelProps = {
   isPlanOwner: boolean;
@@ -51,25 +53,43 @@ export function TeamSeatsPanel({
   const [deskTier, setDeskTier] = useState<DeskTier>("clo");
   const [lastAcceptPath, setLastAcceptPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const inviteOpts = isVip ? { vip: true as const } : undefined;
+
+  const orgIsVip =
+    isVip ||
+    Boolean(org?.complimentaryVip) ||
+    isVipCustomerName(org?.name);
+  const inviteOpts = orgIsVip ? { vip: true as const } : undefined;
 
   function refresh() {
-    setOrg(getActiveOrg());
+    let active = getActiveOrg();
+    // Cloud login sets isVip from Customer name; stamp local org once so
+    // invite/accept gates match without trusting a per-invite client flag.
+    if (active && isVip && !active.complimentaryVip) {
+      active = markOrgComplimentaryVip(active.id) || active;
+    }
+    setOrg(active);
   }
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
+      refresh();
       const active = getActiveOrg();
-      setOrg(active);
       if (active) {
-        setDeskTier(defaultInviteDeskTier(active.planId, inviteOpts));
+        const vip =
+          isVip ||
+          Boolean(active.complimentaryVip) ||
+          isVipCustomerName(active.name);
+        setDeskTier(
+          defaultInviteDeskTier(active.planId, vip ? { vip: true } : undefined),
+        );
       } else if (planId && isPlanId(planId)) {
-        setDeskTier(defaultInviteDeskTier(planId, inviteOpts));
+        setDeskTier(
+          defaultInviteDeskTier(planId, isVip ? { vip: true } : undefined),
+        );
       }
     });
     return () => cancelAnimationFrame(frame);
-    // inviteOpts is derived from isVip only
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- isVip drives inviteOpts
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isVip drives VIP stamp
   }, [planId, isVip]);
 
   function handleBootstrap() {
@@ -104,13 +124,15 @@ export function TeamSeatsPanel({
       );
       return;
     }
+    if (isVip) {
+      markOrgComplimentaryVip(org.id);
+    }
     const result = createOrgInvite({
       orgId: org.id,
       email,
       name,
       role,
       deskTier,
-      vip: isVip,
     });
     if (!result.ok) {
       setError(result.error);
@@ -179,7 +201,7 @@ export function TeamSeatsPanel({
       <div>
         <h2 className="font-semibold">Invite team</h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
-          {isVip ? (
+          {orgIsVip ? (
             <>
               {org.name} · VIP Institutional. Invite CEOs, Clients, and any desk
               with matching access — complimentary seats are not capped by paid
@@ -195,7 +217,7 @@ export function TeamSeatsPanel({
         </p>
         <p className="mt-2 text-xs text-tl-ink-muted">
           Seats:{" "}
-          {isVip || seats.additionalSeatCap === null
+          {orgIsVip || seats.additionalSeatCap === null
             ? `${seats.membersUsed} seated (unlimited)`
             : seats.additionalSeatCap === 0
               ? "Owner only"
@@ -277,7 +299,7 @@ export function TeamSeatsPanel({
           className="space-y-3 border-t border-tl-line pt-4"
         >
           <h3 className="font-medium">
-            {isVip ? "Invite colleague" : "Invite junior"}
+            {orgIsVip ? "Invite colleague" : "Invite junior"}
           </h3>
           {!seats.canInvite ? (
             <p className="text-xs text-tl-ink-muted">
@@ -331,7 +353,7 @@ export function TeamSeatsPanel({
                 </label>
                 <label className="block text-xs">
                   <span className="mb-1 block font-medium">
-                    {isVip ? "Role" : "Role (lower ranks only)"}
+                    {orgIsVip ? "Role" : "Role (lower ranks only)"}
                   </span>
                   <select
                     value={role}
@@ -345,7 +367,7 @@ export function TeamSeatsPanel({
                     ))}
                   </select>
                   <span className="mt-1 block text-[0.65rem] text-tl-ink-muted">
-                    {isVip
+                    {orgIsVip
                       ? "Use client for Client stakeholders; contractor/community for field seats. Plan Owner (admin) cannot be invited."
                       : "Plan Owner (admin) cannot be invited."}
                   </span>
@@ -379,7 +401,7 @@ export function TeamSeatsPanel({
                     })}
                   </select>
                   <span className="mt-1 block text-[0.65rem] text-tl-ink-muted">
-                    {isVip
+                    {orgIsVip
                       ? "All desks available on VIP — including Client/Board and CEO/MD."
                       : `Greyed desks are above ${planName}. Upgrade to unlock.`}
                   </span>

@@ -15,16 +15,24 @@ import { INVITEABLE_ROLES } from "@/types/org";
 import { buildSeatSummary, canInviteDeskTier } from "@/lib/orgSeats";
 import { isVipCustomerName } from "@/lib/planLabel";
 
-/** VIP Pilot org names (and session vip flag) skip paid seat/desk gates. */
-function seatInviteOpts(
-  org: OrgRecord,
-  vip?: boolean,
-): { vip?: boolean } {
+/** VIP Pilot org names / complimentaryVip stamp skip paid seat/desk gates. */
+function seatInviteOpts(org: OrgRecord): { vip?: boolean } {
   const isVip =
-    Boolean(vip) ||
-    Boolean(org.complimentaryVip) ||
-    isVipCustomerName(org.name);
+    Boolean(org.complimentaryVip) || isVipCustomerName(org.name);
   return isVip ? { vip: true } : {};
+}
+
+/**
+ * Stamp complimentary VIP on a local org after Cloud login set `isVip`.
+ * Does not invent VIP from a caller flag on each invite.
+ */
+export function markOrgComplimentaryVip(orgId: string): OrgRecord | null {
+  const org = getOrg(orgId);
+  if (!org) return null;
+  if (org.complimentaryVip) return org;
+  org.complimentaryVip = true;
+  saveOrg(org);
+  return org;
 }
 
 const ORGS_KEY = "tl-orgs";
@@ -136,13 +144,13 @@ export function createOrgInvite(input: {
   deskTier: DeskTier;
   projectId?: string;
   projectName?: string;
-  /** Complimentary VIP — ignore paid seat/desk-level limits. */
-  vip?: boolean;
 }): { ok: true; invite: OrgInvite; acceptPath: string } | { ok: false; error: string } {
   const org = getOrg(input.orgId);
   if (!org) return { ok: false, error: "Organisation not found." };
 
-  const inviteOpts = seatInviteOpts(org, input.vip);
+  // Paid seat/desk gates only. VIP bypass is org-stamped (complimentaryVip /
+  // VIP Pilot name) — never a caller-supplied flag (cookie/devtools).
+  const inviteOpts = seatInviteOpts(org);
   const seats = buildSeatSummary(org, inviteOpts);
   if (!seats.canInvite) {
     return {
@@ -166,10 +174,6 @@ export function createOrgInvite(input: {
       error:
         "That desk exposure is above your plan. Upgrade to assign higher desks, or pick a lower ranking.",
     };
-  }
-
-  if (inviteOpts.vip && !org.complimentaryVip) {
-    org.complimentaryVip = true;
   }
 
   const email = input.email.trim().toLowerCase();

@@ -4,6 +4,7 @@
 
 - Complimentary VIP (Institutional) may invite **any** desk — including Client/Board and CEO/MD — with unlimited seats.
 - Paid plans alone apply desk-below-Owner and seat-cap rules (`orgSeats` `vip` option; Settings Team + Desk privileges panels).
+- Invite create does **not** accept a client `vip` flag; bypass uses org `complimentaryVip` / `VIP Pilot` name (stamped after Cloud VIP login).
 
 ## 2026-08-16 — Guide deep-links to task screens (ADR-036)
 
