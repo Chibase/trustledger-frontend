@@ -5,6 +5,7 @@
 - Report presentation, report library, and issue case desk gain a **Discussion & feedback** space: feedback, information requests, and meeting/engagement proposals.
 - Each thread stamps **given** and **responded** date/time and the workspace **plan**.
 - Meeting proposals capture calendar items; on Project+ they can create a draft Engagement (`source: discussion`).
+- Threads are scoped to the current workspace (customer vs demo / org id) so sample discussion never bleeds into customer desks.
 
 ## 2026-08-16 — Guide deep-links to task screens (ADR-036)
 

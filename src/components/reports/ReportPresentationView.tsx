@@ -7,6 +7,7 @@ import {
 } from "@/components/ops/charts/BarChart";
 import { DiscussionSpace } from "@/components/discussion/DiscussionSpace";
 import {
+  draftReportDiscussionSubjectId,
   readSessionAuthor,
   readSessionPlanId,
 } from "@/lib/discussionStore";
@@ -98,7 +99,13 @@ export function ReportPresentationView({
 
   if (!open) return null;
 
-  const discussionSubjectId = reportId || `draft:${kind}:${periodLabel}`;
+  const discussionSubjectId =
+    reportId ||
+    draftReportDiscussionSubjectId({
+      projectId,
+      kind,
+      periodLabel,
+    });
 
   return (
     <div

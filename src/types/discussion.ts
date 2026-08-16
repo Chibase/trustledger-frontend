@@ -81,6 +81,13 @@ export type DiscussionThread = {
   status: DiscussionStatus;
   /** Workspace plan when the thread was opened (audit per plan). */
   planId?: PlanId;
+  /**
+   * Workspace isolation — customer (trial/live) vs exploratory demo.
+   * Prevents sample discussion bleed into customer desks (ADR-033).
+   */
+  workspaceSpace: "customer" | "demo";
+  /** Org id cookie, or local sentinel when unset. */
+  workspaceOrgId: string;
   createdAt: string;
   updatedAt: string;
   /** When the viewer first gave feedback / asked. */

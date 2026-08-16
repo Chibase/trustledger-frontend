@@ -27,6 +27,10 @@ import {
   listSavedReports,
   saveAuthoredReport,
 } from "@/lib/reportStore";
+import {
+  draftReportDiscussionSubjectId,
+  rekeyDiscussionSubjects,
+} from "@/lib/discussionStore";
 import { listWorkspaceIncidents } from "@/lib/workspaceData";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
@@ -378,6 +382,16 @@ export function ProjectReportStudio({
       preferredFormat: format,
     };
     saveAuthoredReport(report);
+    const priorDraftKey = draftReportDiscussionSubjectId({
+      projectId: project.id,
+      kind,
+      periodLabel,
+    });
+    rekeyDiscussionSubjects({
+      subjectType: "report",
+      fromSubjectId: priorDraftKey,
+      toSubjectId: id,
+    });
     setSavedId(id);
     setLibrary(listSavedReports().filter((r) => r.projectId === project.id));
   }

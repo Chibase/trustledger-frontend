@@ -17,8 +17,14 @@ import type {
   DiscussionThread,
 } from "@/types/discussion";
 import type { Engagement } from "@/types/engagement";
-import { TL_TRIAL_PLAN_COOKIE, SESSION_ROLE_COOKIE, TL_USER_NAME_COOKIE } from "@/lib/auth.constants";
-import { hasCapabilityForPlan } from "@/lib/entitlements";
+import {
+  TL_ORG_ID_COOKIE,
+  TL_TRIAL_PLAN_COOKIE,
+  SESSION_ROLE_COOKIE,
+  TL_USER_NAME_COOKIE,
+} from "@/lib/auth.constants";
+import { hasCapability } from "@/lib/entitlements";
+import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 
 const STORAGE_KEY = "tl-discussions";
 
@@ -67,17 +73,91 @@ export function readSessionAuthor(): { name: string; role?: string } {
   };
 }
 
+export type DiscussionWorkspaceScope = {
+  space: "customer" | "demo";
+  orgId: string;
+};
+
+/** Current browser workspace stamp for discussion isolation. */
+export function currentDiscussionScope(): DiscussionWorkspaceScope {
+  const customer = isCustomerWorkspaceClient();
+  const orgId =
+    readCookie(TL_ORG_ID_COOKIE)?.trim() ||
+    (customer ? "customer-local" : "demo-local");
+  return { space: customer ? "customer" : "demo", orgId };
+}
+
+function inCurrentWorkspace(thread: DiscussionThread): boolean {
+  const scope = currentDiscussionScope();
+  // Legacy rows without scope: only visible in exploratory demo, never customer.
+  if (!thread.workspaceSpace || !thread.workspaceOrgId) {
+    return scope.space === "demo";
+  }
+  return (
+    thread.workspaceSpace === scope.space &&
+    thread.workspaceOrgId === scope.orgId
+  );
+}
+
+/** Engagement create from discussion — honour Owner toggles; no plan ⇒ no create in customer. */
+export function canCreateDiscussionEngagement(
+  planId?: PlanId | null,
+): boolean {
+  if (isCustomerWorkspaceClient() && !planId) return false;
+  return hasCapability("engagements", planId);
+}
+
 export function listDiscussionsForSubject(
   subjectType: DiscussionThread["subjectType"],
   subjectId: string,
 ): DiscussionThread[] {
   return readAll()
-    .filter((t) => t.subjectType === subjectType && t.subjectId === subjectId)
+    .filter(
+      (t) =>
+        t.subjectType === subjectType &&
+        t.subjectId === subjectId &&
+        inCurrentWorkspace(t),
+    )
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
 export function getDiscussionThread(id: string): DiscussionThread | null {
-  return readAll().find((t) => t.id === id) ?? null;
+  const row = readAll().find((t) => t.id === id);
+  if (!row || !inCurrentWorkspace(row)) return null;
+  return row;
+}
+
+/** Move draft-keyed threads onto a saved report id (same workspace only). */
+export function rekeyDiscussionSubjects(input: {
+  subjectType: DiscussionThread["subjectType"];
+  fromSubjectId: string;
+  toSubjectId: string;
+}): number {
+  if (input.fromSubjectId === input.toSubjectId) return 0;
+  const all = readAll();
+  let moved = 0;
+  for (const thread of all) {
+    if (
+      thread.subjectType === input.subjectType &&
+      thread.subjectId === input.fromSubjectId &&
+      inCurrentWorkspace(thread)
+    ) {
+      thread.subjectId = input.toSubjectId;
+      thread.updatedAt = new Date().toISOString();
+      moved += 1;
+    }
+  }
+  if (moved) writeAll(all);
+  return moved;
+}
+
+/** Stable draft subject key before a report is saved. */
+export function draftReportDiscussionSubjectId(input: {
+  projectId?: string | null;
+  kind: string;
+  periodLabel: string;
+}): string {
+  return `draft:${input.projectId || "noproj"}:${input.kind}:${input.periodLabel}`;
 }
 
 export function createDiscussionThread(input: {
@@ -125,7 +205,7 @@ export function createDiscussionThread(input: {
 
     if (
       cal.createEngagement &&
-      hasCapabilityForPlan("engagements", planId) &&
+      canCreateDiscussionEngagement(planId) &&
       typeof window !== "undefined"
     ) {
       const heldOn = cal.startsAt.slice(0, 10);
@@ -155,6 +235,7 @@ export function createDiscussionThread(input: {
     status = "scheduled";
   }
 
+  const scope = currentDiscussionScope();
   const thread: DiscussionThread = {
     id: newId("dth"),
     subjectType: input.subject.subjectType,
@@ -164,6 +245,8 @@ export function createDiscussionThread(input: {
     kind: input.kind,
     status,
     planId,
+    workspaceSpace: scope.space,
+    workspaceOrgId: scope.orgId,
     createdAt: now,
     updatedAt: now,
     givenAt: now,
@@ -190,6 +273,7 @@ export function addDiscussionResponse(input: {
   const idx = all.findIndex((t) => t.id === input.threadId);
   if (idx < 0) return null;
   const thread = all[idx];
+  if (!inCurrentWorkspace(thread)) return null;
   const now = input.respondedAt || new Date().toISOString();
   const message: DiscussionMessage = {
     id: newId("dmsg"),
@@ -227,6 +311,7 @@ export function addDiscussionCalendarItem(input: {
   const idx = all.findIndex((t) => t.id === input.threadId);
   if (idx < 0) return null;
   const thread = all[idx];
+  if (!inCurrentWorkspace(thread)) return null;
   const now = new Date().toISOString();
   const item: DiscussionCalendarItem = {
     id: newId("dcal"),
@@ -241,7 +326,7 @@ export function addDiscussionCalendarItem(input: {
 
   if (
     input.createEngagement &&
-    hasCapabilityForPlan("engagements", thread.planId) &&
+    canCreateDiscussionEngagement(thread.planId) &&
     typeof window !== "undefined"
   ) {
     const engagement: Engagement = {
@@ -278,6 +363,7 @@ export function closeDiscussionThread(threadId: string): DiscussionThread | null
   const all = readAll();
   const idx = all.findIndex((t) => t.id === threadId);
   if (idx < 0) return null;
+  if (!inCurrentWorkspace(all[idx])) return null;
   const now = new Date().toISOString();
   all[idx] = {
     ...all[idx],

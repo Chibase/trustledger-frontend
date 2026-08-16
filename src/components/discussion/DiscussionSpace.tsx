@@ -6,13 +6,13 @@ import { PLANS, type PlanId } from "@/config/plans";
 import {
   addDiscussionCalendarItem,
   addDiscussionResponse,
+  canCreateDiscussionEngagement,
   closeDiscussionThread,
   createDiscussionThread,
   formatDiscussionStamp,
   listDiscussionsForSubject,
   readSessionPlanId,
 } from "@/lib/discussionStore";
-import { hasCapabilityForPlan } from "@/lib/entitlements";
 import { useToast } from "@/components/ui/Toast";
 import {
   DISCUSSION_KIND_LABELS,
@@ -73,10 +73,7 @@ export function DiscussionSpace({
   const [error, setError] = useState<string | null>(null);
 
   const resolvedPlan = planId || readSessionPlanId();
-  const canCreateEngagement = hasCapabilityForPlan(
-    "engagements",
-    resolvedPlan,
-  );
+  const canCreateEngagement = canCreateDiscussionEngagement(resolvedPlan);
 
   function refresh() {
     setThreads(
