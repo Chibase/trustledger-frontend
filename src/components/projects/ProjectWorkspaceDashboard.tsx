@@ -94,7 +94,8 @@ export function ProjectWorkspaceDashboard({
         <p className="max-w-2xl text-sm text-tl-ink-muted">
           Capture, monitor, and edit this project here. Categories below map
           straight into report templates — generate with kind, format, and
-          level only. Feeds the{" "}
+          level, then view full-screen, download, or print in that format.
+          Feeds the{" "}
           <Link href="/app/dashboard" className="text-tl-trust-ink underline">
             Executive dashboard
           </Link>
