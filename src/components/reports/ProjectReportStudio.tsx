@@ -7,6 +7,7 @@ import {
   HorizontalBarChart,
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
+import { ReportPresentationView } from "@/components/reports/ReportPresentationView";
 import { defaultAudienceForTier, sectionsForKind } from "@/config/reportCatalogue";
 import {
   categoriesForReportKind,
@@ -36,9 +37,11 @@ import {
 import {
   REPORT_AUDIENCE_LABELS,
   REPORT_AUDIENCES,
+  REPORT_FORMAT_LABELS,
   REPORT_KIND_LABELS,
   REPORT_KINDS,
   type ReportAudience,
+  type ReportFormatId,
   type ReportKind,
   type ReportSectionId,
   type SavedReport,
@@ -48,7 +51,7 @@ import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
 import type { UserRole } from "@/types/rbac";
 
-export type ReportFormatId = "charts" | "details" | "charts_details";
+export type { ReportFormatId };
 
 const FORMAT_OPTIONS: Array<{
   id: ReportFormatId;
@@ -57,17 +60,17 @@ const FORMAT_OPTIONS: Array<{
 }> = [
   {
     id: "charts",
-    label: "Charts",
+    label: REPORT_FORMAT_LABELS.charts,
     hint: "Category charts from mapped project data",
   },
   {
     id: "details",
-    label: "Details",
+    label: REPORT_FORMAT_LABELS.details,
     hint: "Narrative filled from the chosen kind’s map",
   },
   {
     id: "charts_details",
-    label: "Charts + details",
+    label: REPORT_FORMAT_LABELS.charts_details,
     hint: "Combined print-ready pack",
   },
 ];
@@ -87,9 +90,19 @@ function currentMonthLabel() {
   });
 }
 
+function slugFilePart(raw: string): string {
+  return raw
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 48);
+}
+
 /**
  * Report generation on the project dashboard:
  * choose kind + format + level only — mapped category data fills the template.
+ * View opens a full-screen presentation in the chosen format; download/print
+ * stay available for any format.
  */
 export function ProjectReportStudio({
   project,
@@ -109,7 +122,7 @@ export function ProjectReportStudio({
   const [savedId, setSavedId] = useState<string | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents || []);
   const [library, setLibrary] = useState<SavedReport[]>([]);
-  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [presentationOpen, setPresentationOpen] = useState(false);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -153,9 +166,13 @@ export function ProjectReportStudio({
     [incidents, project],
   );
 
-  const viewing = viewingId ? getSavedReport(viewingId) : null;
   const showCharts = format === "charts" || format === "charts_details";
   const showDetails = format === "details" || format === "charts_details";
+  const reportTitle = `${REPORT_KIND_LABELS[kind]} — ${project.name}`;
+  const hasViewableContent =
+    format === "charts"
+      ? true
+      : Boolean(body.trim()) || format === "charts_details";
 
   const kindChartBars = useMemo(() => {
     const bars: Array<{ label: string; value: number }> = [];
@@ -233,8 +250,9 @@ export function ProjectReportStudio({
       }
       setBody(result.bodyMarkdown);
       setSavedId(null);
-      setViewingId(null);
       setStatus("ready");
+      // Open presentation immediately in the chosen format.
+      setPresentationOpen(true);
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Could not write report");
@@ -242,7 +260,7 @@ export function ProjectReportStudio({
   }
 
   function handleSave() {
-    if (!body.trim()) return;
+    if (!body.trim() && format !== "charts") return;
     const id =
       savedId ||
       `RPT-${Date.now().toString(36).slice(-7).toUpperCase()}`;
@@ -250,7 +268,7 @@ export function ProjectReportStudio({
       id,
       kind,
       audience,
-      title: `${REPORT_KIND_LABELS[kind]} — ${project.name}`,
+      title: reportTitle,
       periodLabel,
       authorTier: tier,
       authorName,
@@ -264,10 +282,97 @@ export function ProjectReportStudio({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       purposeTags: ["reporting", "performance"],
+      preferredFormat: format,
     };
     saveAuthoredReport(report);
     setSavedId(id);
     setLibrary(listSavedReports().filter((r) => r.projectId === project.id));
+  }
+
+  function openPresentation(nextFormat?: ReportFormatId) {
+    if (nextFormat) setFormat(nextFormat);
+    setPresentationOpen(true);
+  }
+
+  function openSaved(report: SavedReport) {
+    setKind(report.kind);
+    setAudience(report.audience);
+    setPeriodLabel(report.periodLabel);
+    setBody(report.bodyMarkdown);
+    setSavedId(report.id);
+    const fmt = report.preferredFormat || "charts_details";
+    setFormat(fmt);
+    setPresentationOpen(true);
+  }
+
+  function buildDownloadMarkdown(opts?: {
+    format?: ReportFormatId;
+    bodyMarkdown?: string;
+    title?: string;
+    kind?: ReportKind;
+    audience?: ReportAudience;
+    period?: string;
+  }): string {
+    const fmt = opts?.format ?? format;
+    const mdBody = opts?.bodyMarkdown ?? body;
+    const title = opts?.title ?? reportTitle;
+    const k = opts?.kind ?? kind;
+    const aud = opts?.audience ?? audience;
+    const period = opts?.period ?? periodLabel;
+    const wantCharts = fmt === "charts" || fmt === "charts_details";
+    const wantDetails = fmt === "details" || fmt === "charts_details";
+    const lines: string[] = [
+      `# ${title}`,
+      "",
+      `Project: ${project.name}`,
+      `Period: ${period}`,
+      `Kind: ${REPORT_KIND_LABELS[k]}`,
+      `Audience: ${REPORT_AUDIENCE_LABELS[aud]}`,
+      `Format: ${REPORT_FORMAT_LABELS[fmt]}`,
+      "",
+    ];
+    if (wantCharts) {
+      lines.push("## Charts", "");
+      if (kindChartBars.length) {
+        for (const bar of kindChartBars) {
+          lines.push(`- ${bar.label}: ${bar.value}`);
+        }
+      } else {
+        lines.push("_No chart values on file._");
+      }
+      lines.push("");
+    }
+    if (wantDetails) {
+      lines.push(
+        "## Details",
+        "",
+        mdBody.trim() || "_No narrative body yet._",
+        "",
+      );
+    }
+    return lines.join("\n");
+  }
+
+  function handleDownload(opts?: {
+    format?: ReportFormatId;
+    bodyMarkdown?: string;
+    title?: string;
+    kind?: ReportKind;
+    audience?: ReportAudience;
+    period?: string;
+  }) {
+    const fmt = opts?.format ?? format;
+    const k = opts?.kind ?? kind;
+    const text = buildDownloadMarkdown(opts);
+    const blob = new Blob([text], {
+      type: "text/markdown;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${slugFilePart(project.name)}-${slugFilePart(k)}-${slugFilePart(fmt)}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function handlePrint() {
@@ -275,18 +380,18 @@ export function ProjectReportStudio({
   }
 
   return (
-    <div className="space-y-5 print:space-y-3">
-      <div className="print:hidden">
+    <div className="space-y-5 print:hidden">
+      <div>
         <h2 className="text-base font-semibold text-tl-ink">
           Generate report
         </h2>
         <p className="mt-1 text-sm text-tl-ink-muted">
-          Choose the kind, format, and level only. Category data already
-          mapped on this project fills the template — you do not pick topics.
+          Choose the kind, format, and level. View opens a full-screen
+          presentation in that format; download and print work for any format.
         </p>
       </div>
 
-      <div className="grid gap-3 print:hidden sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <label className="block text-sm">
           <span className="mb-1 block font-medium">1. Report kind</span>
           <select
@@ -331,7 +436,7 @@ export function ProjectReportStudio({
         </label>
       </div>
 
-      <label className="block text-sm print:hidden sm:max-w-xs">
+      <label className="block text-sm sm:max-w-xs">
         <span className="mb-1 block font-medium">Period label</span>
         <input
           className="w-full rounded-md border border-tl-line bg-tl-surface px-3 py-2"
@@ -340,7 +445,7 @@ export function ProjectReportStudio({
         />
       </label>
 
-      <div className="rounded-md border border-tl-line bg-tl-paper p-3 text-xs text-tl-ink-muted print:hidden">
+      <div className="rounded-md border border-tl-line bg-tl-paper p-3 text-xs text-tl-ink-muted">
         <p className="font-medium text-tl-ink">
           Auto-mapped for {REPORT_KIND_LABELS[kind]}
         </p>
@@ -362,7 +467,7 @@ export function ProjectReportStudio({
         </ul>
       </div>
 
-      <div className="flex flex-wrap gap-2 print:hidden">
+      <div className="flex flex-wrap gap-2">
         <AiAssistButton
           label="Generate from mapped data"
           loading={status === "loading"}
@@ -370,7 +475,15 @@ export function ProjectReportStudio({
         />
         <button
           type="button"
-          disabled={!body.trim()}
+          disabled={!hasViewableContent && format !== "charts"}
+          onClick={() => openPresentation()}
+          className="rounded-md border border-tl-trust/40 bg-tl-paper px-3 py-2 text-sm font-medium text-tl-trust-ink disabled:opacity-40"
+        >
+          View report
+        </button>
+        <button
+          type="button"
+          disabled={!body.trim() && format !== "charts"}
           onClick={handleSave}
           className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium disabled:opacity-40"
         >
@@ -378,25 +491,46 @@ export function ProjectReportStudio({
         </button>
         <button
           type="button"
-          disabled={format === "charts" ? false : !body.trim() && !viewing}
-          onClick={handlePrint}
+          disabled={format === "charts" ? false : !body.trim()}
+          onClick={() => handleDownload()}
           className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium disabled:opacity-40"
         >
-          Print / PDF
+          Download
+        </button>
+        <button
+          type="button"
+          disabled={format === "charts" ? false : !body.trim()}
+          onClick={() => {
+            openPresentation();
+            // Allow overlay to mount before print.
+            window.setTimeout(() => window.print(), 50);
+          }}
+          className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium disabled:opacity-40"
+        >
+          Print
         </button>
       </div>
 
       {error ? (
-        <p className="text-sm text-tl-danger print:hidden" role="alert">
+        <p className="text-sm text-tl-danger" role="alert">
           {error}
         </p>
       ) : null}
 
       {showCharts ? (
         <section className="space-y-3 rounded-lg border border-tl-line bg-tl-paper p-4">
-          <h3 className="text-sm font-semibold text-tl-ink">
-            Charts — {REPORT_KIND_LABELS[kind]}
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-tl-ink">
+              Charts preview — {REPORT_KIND_LABELS[kind]}
+            </h3>
+            <button
+              type="button"
+              className="text-xs font-medium text-tl-trust-ink underline"
+              onClick={() => openPresentation("charts")}
+            >
+              View full screen
+            </button>
+          </div>
           {kindChartBars.length ? (
             <div className="grid gap-4 lg:grid-cols-2">
               <HorizontalBarChart bars={kindChartBars} />
@@ -418,15 +552,26 @@ export function ProjectReportStudio({
 
       {showDetails ? (
         <section className="rounded-lg border border-tl-line bg-tl-paper p-4">
-          <h3 className="mb-2 text-sm font-semibold text-tl-ink print:hidden">
-            Details
-          </h3>
-          {viewing || body ? (
-            <article className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-tl-ink">
-              {viewing?.bodyMarkdown || body}
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-tl-ink">
+              Details preview
+            </h3>
+            {body.trim() ? (
+              <button
+                type="button"
+                className="text-xs font-medium text-tl-trust-ink underline"
+                onClick={() => openPresentation()}
+              >
+                View full screen
+              </button>
+            ) : null}
+          </div>
+          {body ? (
+            <article className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-tl-ink line-clamp-[12]">
+              {body}
             </article>
           ) : (
-            <p className="text-sm text-tl-ink-muted print:hidden">
+            <p className="text-sm text-tl-ink-muted">
               Generate to fill narrative sections from the mapped categories
               for {REPORT_KIND_LABELS[kind]}.
             </p>
@@ -434,7 +579,7 @@ export function ProjectReportStudio({
         </section>
       ) : null}
 
-      <section className="print:hidden">
+      <section>
         <h3 className="mb-2 text-sm font-semibold text-tl-ink">
           Saved on this project
         </h3>
@@ -452,25 +597,46 @@ export function ProjectReportStudio({
                   <span className="text-tl-ink-muted">
                     {" "}
                     · {r.periodLabel} · {r.status}
+                    {r.preferredFormat
+                      ? ` · ${REPORT_FORMAT_LABELS[r.preferredFormat]}`
+                      : ""}
                   </span>
                 </span>
-                <button
-                  type="button"
-                  className="text-xs font-medium text-tl-trust-ink underline"
-                  onClick={() => {
-                    setViewingId(r.id);
-                    setBody(r.bodyMarkdown);
-                    setKind(r.kind);
-                    setAudience(r.audience);
-                    setPeriodLabel(r.periodLabel);
-                    setSavedId(r.id);
-                    setFormat((prev) =>
-                      prev === "charts" ? "charts_details" : prev,
-                    );
-                  }}
-                >
-                  View
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-tl-trust-ink underline"
+                    onClick={() => openSaved(r)}
+                  >
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-tl-ink underline"
+                    onClick={() =>
+                      handleDownload({
+                        format: r.preferredFormat || "charts_details",
+                        bodyMarkdown: r.bodyMarkdown,
+                        title: r.title,
+                        kind: r.kind,
+                        audience: r.audience,
+                        period: r.periodLabel,
+                      })
+                    }
+                  >
+                    Download
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-tl-ink underline"
+                    onClick={() => {
+                      openSaved(r);
+                      window.setTimeout(() => window.print(), 80);
+                    }}
+                  >
+                    Print
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -482,6 +648,26 @@ export function ProjectReportStudio({
           </Link>
         </p>
       </section>
+
+      <ReportPresentationView
+        open={presentationOpen}
+        onClose={() => setPresentationOpen(false)}
+        title={
+          savedId
+            ? getSavedReport(savedId)?.title || reportTitle
+            : reportTitle
+        }
+        projectName={project.name}
+        periodLabel={periodLabel}
+        kind={kind}
+        audience={audience}
+        format={format}
+        onFormatChange={setFormat}
+        bodyMarkdown={body}
+        chartBars={kindChartBars}
+        onPrint={handlePrint}
+        onDownload={() => handleDownload()}
+      />
     </div>
   );
 }

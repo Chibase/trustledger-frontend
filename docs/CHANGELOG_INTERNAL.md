@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-16 — Project report presentation view / download / print
+
+- Project dashboard reports: **View** opens a full-screen presentation in the chosen format (charts / details / charts+details); format can be switched while presenting.
+- **Download** (markdown) and **Print** available for any chosen format from the studio, presentation chrome, and saved-report rows.
+- Generate opens presentation automatically; saved drafts remember `preferredFormat`.
+
 ## 2026-08-15 — Minutes & attendance field templates restructured
 
 - **Meeting minutes:** project details, date of meeting, time, venue; mandatory agenda rows Item · Description · Action · Date. No distribution list (attendance register covers people).

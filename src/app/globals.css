@@ -46,6 +46,23 @@ body {
   a[href]::after {
     content: none !important;
   }
+
+  /* When a project report presentation is open, print that pack only. */
+  body:has(#tl-report-presentation) * {
+    visibility: hidden;
+  }
+
+  body:has(#tl-report-presentation) #tl-report-presentation,
+  body:has(#tl-report-presentation) #tl-report-presentation * {
+    visibility: visible;
+  }
+
+  body:has(#tl-report-presentation) #tl-report-presentation {
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
 }
 
 .font-display {

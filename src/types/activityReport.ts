@@ -123,4 +123,15 @@ export type SavedReport = {
   updatedAt: string;
   /** Evidence / performance / dispute use. */
   purposeTags: Array<"reporting" | "performance" | "dispute">;
+  /** Preferred view/print format when reopening (charts / details / both). */
+  preferredFormat?: ReportFormatId;
+};
+
+/** Project report view / print / download format. */
+export type ReportFormatId = "charts" | "details" | "charts_details";
+
+export const REPORT_FORMAT_LABELS: Record<ReportFormatId, string> = {
+  charts: "Charts",
+  details: "Details",
+  charts_details: "Charts + details",
 };
