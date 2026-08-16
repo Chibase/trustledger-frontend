@@ -3,6 +3,7 @@
 ## 2026-08-16 — Institutional invites include Client/Board desk
 
 - Institutional (incl. VIP Institutional) Owners sit at Client/Board — invite desk list is now **at or below** Owner so Client/Board is selectable, not greyed. Project stays strictly-below; VIP still unlocks every desk.
+- **Desk privileges** Rank 1 Client column opens on VIP + Institutional (same gate as invites); Solo / Practitioner / Project keep Rank 1 greyed. Session plan syncs into the local org so a stale Project workspace cannot re-grey Institutional desks.
 
 ## 2026-08-16 — VIP invites: no paid seat/desk gates
 
