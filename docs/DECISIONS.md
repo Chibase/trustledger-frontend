@@ -579,3 +579,16 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Nav label “Executive”; project dashboards roll up into the executive view. ADR-028 pack gates still apply on `/app/reports`.
 - **Alternatives considered:** Keep Activity home only (rejected — user blocked on reports); single mega Reports page without project drill-in (rejected — mixed jobs); manual topic checkboxes (rejected — user asked for mapped auto-fill).
 
+### ADR-051: Viewer discussion & feedback on reports and issues
+
+- **Date:** 2026-08-16
+- **Status:** Accepted
+- **Context:** Report and issue viewers need a place to give feedback, request information, or propose a meeting without using the product-level Feedback drawer (CRM). Meeting suggestions must leave a calendar stamp; given/responded times must be auditable per commercial plan.
+- **Decision:**
+  1. Ship a browser **Discussion & feedback** space on report presentation, report library, and incident case desk (`tl-discussions`).
+  2. Thread kinds: `feedback` | `info_request` | `meeting_request`. Each thread stores `givenAt`, `respondedAt`, and `planId`.
+  3. Meeting proposals capture calendar items (date/time, venue). On plans with `engagements`, optionally create a draft Engagement (`source: discussion`).
+  4. Available on **every** plan that can view reports/issues — not a separate paid capability. Product Feedback drawer stays for CRM ratings.
+- **Consequences:** Viewers can collaborate on a specific report/case; Cloud DocType sync is a later packet.
+- **Alternatives considered:** Extend product FeedbackDrawer (rejected — wrong audience/SoT); require Project plan for all discussion (rejected — Solo/Practitioner also view reports/cases).
+

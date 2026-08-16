@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { DiscussionSpace } from "@/components/discussion/DiscussionSpace";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import {
   REPORT_AUDIENCE_LABELS,
@@ -10,6 +11,10 @@ import {
 } from "@/types/activityReport";
 import { DESK_TIER_RANK } from "@/config/reportCatalogue";
 import { readDeskTier } from "@/lib/deskVisibility";
+import {
+  readSessionAuthor,
+  readSessionPlanId,
+} from "@/lib/discussionStore";
 import {
   clearAllSavedReports,
   listSavedReports,
@@ -30,11 +35,22 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
   const [rows, setRows] = useState<SavedReport[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [purged, setPurged] = useState(0);
+  const [author, setAuthor] = useState<{ name: string; role?: string }>({
+    name: "Viewer",
+  });
+  const [planId, setPlanId] = useState<ReturnType<typeof readSessionPlanId>>(
+    undefined,
+  );
 
   useEffect(() => {
-    setTier(readDeskTier(role));
-    setPurged(purgeTemplateGuideReports());
-    setRows(listSavedReports());
+    const frame = requestAnimationFrame(() => {
+      setTier(readDeskTier(role));
+      setPurged(purgeTemplateGuideReports());
+      setRows(listSavedReports());
+      setAuthor(readSessionAuthor());
+      setPlanId(readSessionPlanId());
+    });
+    return () => cancelAnimationFrame(frame);
   }, [role]);
 
   const visible = useMemo(() => {
@@ -124,37 +140,50 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
             ))}
           </ul>
           {active ? (
-            <article className="rounded-lg border border-tl-line bg-tl-surface p-4">
-              <header className="border-b border-tl-line pb-3">
-                <h3 className="font-display text-xl font-semibold text-tl-ink">
-                  {active.title}
-                </h3>
-                <p className="mt-1 text-xs text-tl-ink-muted">
-                  {REPORT_KIND_LABELS[active.kind]} →{" "}
-                  {REPORT_AUDIENCE_LABELS[active.audience]} ·{" "}
-                  {active.periodLabel}
-                  {active.projectName ? ` · ${active.projectName}` : ""} ·{" "}
-                  {active.purposeTags.join(", ")}
-                </p>
-              </header>
-              <pre className="mt-4 max-h-[28rem] overflow-auto whitespace-pre-wrap font-sans text-sm text-tl-ink">
-                {active.bodyMarkdown}
-              </pre>
-              {active.evidence.length ? (
-                <div className="mt-4 border-t border-tl-line pt-3">
-                  <p className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
-                    Evidence index
+            <div className="space-y-4">
+              <article className="rounded-lg border border-tl-line bg-tl-surface p-4">
+                <header className="border-b border-tl-line pb-3">
+                  <h3 className="font-display text-xl font-semibold text-tl-ink">
+                    {active.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-tl-ink-muted">
+                    {REPORT_KIND_LABELS[active.kind]} →{" "}
+                    {REPORT_AUDIENCE_LABELS[active.audience]} ·{" "}
+                    {active.periodLabel}
+                    {active.projectName ? ` · ${active.projectName}` : ""} ·{" "}
+                    {active.purposeTags.join(", ")}
                   </p>
-                  <ul className="mt-2 list-disc pl-5 text-sm text-tl-ink-muted">
-                    {active.evidence.map((e) => (
-                      <li key={e.id}>
-                        {e.kind}: {e.label}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-            </article>
+                </header>
+                <pre className="mt-4 max-h-[28rem] overflow-auto whitespace-pre-wrap font-sans text-sm text-tl-ink">
+                  {active.bodyMarkdown}
+                </pre>
+                {active.evidence.length ? (
+                  <div className="mt-4 border-t border-tl-line pt-3">
+                    <p className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
+                      Evidence index
+                    </p>
+                    <ul className="mt-2 list-disc pl-5 text-sm text-tl-ink-muted">
+                      {active.evidence.map((e) => (
+                        <li key={e.id}>
+                          {e.kind}: {e.label}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </article>
+              <DiscussionSpace
+                subject={{
+                  subjectType: "report",
+                  subjectId: active.id,
+                  subjectTitle: active.title,
+                  projectId: active.projectId,
+                }}
+                authorName={author.name}
+                authorRole={author.role}
+                planId={planId}
+              />
+            </div>
           ) : null}
         </div>
       )}

@@ -94,6 +94,7 @@ If a module is missing, it is usually a **plan gate**, not a broken screen. Upgr
 2. Start with the **Monthly operational** pack.  
 3. Higher plans unlock Executive and Board packs.  
 4. Review before sharing externally. Empty reports mean empty desk work — seed more, do not invent fiction.
+5. On a report presentation, report library item, or case desk, use **Discussion & feedback** to leave feedback, request information, or propose a meeting. Given and responded times are stamped (with your plan). Meeting proposals capture a calendar item; Project+ can also create a draft Engagement.
 
 ---
 

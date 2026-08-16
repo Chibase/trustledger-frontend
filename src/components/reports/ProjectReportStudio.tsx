@@ -783,6 +783,8 @@ export function ProjectReportStudio({
         chartBars={kindChartBars}
         onPrint={handlePrint}
         onDownload={() => handleDownload()}
+        reportId={savedId}
+        projectId={project.id}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
+import { DiscussionSpace } from "@/components/discussion/DiscussionSpace";
 import { ProcessStageTimeline } from "@/components/incidents/ProcessStageTimeline";
 import { ProcessStageActions } from "@/components/incidents/ProcessStageActions";
 import { evidenceService } from "@/services/noteService";
@@ -25,6 +26,10 @@ import {
   listTrialEvidence,
   listTrialIncidents,
 } from "@/lib/trialStore";
+import {
+  readSessionAuthor,
+  readSessionPlanId,
+} from "@/lib/discussionStore";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { listWorkspaceIncidents } from "@/lib/workspaceData";
 import { aiService } from "@/services/aiService";
@@ -59,6 +64,12 @@ export default function AppIncidentDetailPage({
   const [draft, setDraft] = useState<DraftResponseSuggestion | null>(null);
   const [sentiment, setSentiment] = useState<SentimentSuggestion | null>(null);
   const [responseText, setResponseText] = useState("");
+  const [author, setAuthor] = useState<{ name: string; role?: string }>({
+    name: "Viewer",
+  });
+  const [planId, setPlanId] = useState<ReturnType<typeof readSessionPlanId>>(
+    undefined,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -82,6 +93,8 @@ export default function AppIncidentDetailPage({
           byId.set(file.id, file);
         }
         setEvidence([...byId.values()]);
+        setAuthor(readSessionAuthor());
+        setPlanId(readSessionPlanId());
       });
     }, 0);
     return () => {
@@ -341,6 +354,18 @@ export default function AppIncidentDetailPage({
           ))}
         </ol>
       </section>
+
+      <DiscussionSpace
+        subject={{
+          subjectType: "incident",
+          subjectId: caseRecord.id,
+          subjectTitle: caseRecord.title,
+          projectId: caseRecord.projectId || undefined,
+        }}
+        authorName={author.name}
+        authorRole={author.role}
+        planId={planId}
+      />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
         <h2 className="mb-3 font-semibold">Evidence</h2>
