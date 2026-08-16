@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useId } from "react";
+import { useEffect, useId, useState } from "react";
 import {
   HorizontalBarChart,
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
+import { DiscussionSpace } from "@/components/discussion/DiscussionSpace";
+import {
+  draftReportDiscussionSubjectId,
+  readSessionAuthor,
+  readSessionPlanId,
+} from "@/lib/discussionStore";
 import {
   REPORT_AUDIENCE_LABELS,
   REPORT_KIND_LABELS,
@@ -29,6 +35,9 @@ type Props = {
   chartBars: PresentationChartBar[];
   onPrint: () => void;
   onDownload: () => void;
+  /** Saved report id — enables stable discussion threads when set. */
+  reportId?: string | null;
+  projectId?: string | null;
 };
 
 const FORMAT_OPTIONS: Array<{ id: ReportFormatId; label: string }> = [
@@ -55,10 +64,19 @@ export function ReportPresentationView({
   chartBars,
   onPrint,
   onDownload,
+  reportId = null,
+  projectId = null,
 }: Props) {
   const titleId = useId();
   const showCharts = format === "charts" || format === "charts_details";
   const showDetails = format === "details" || format === "charts_details";
+  const [discussionOpen, setDiscussionOpen] = useState(false);
+  const [author, setAuthor] = useState<{ name: string; role?: string }>({
+    name: "Viewer",
+  });
+  const [planId, setPlanId] = useState<ReturnType<typeof readSessionPlanId>>(
+    undefined,
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -68,13 +86,26 @@ export function ReportPresentationView({
       if (e.key === "Escape") onClose();
     }
     window.addEventListener("keydown", onKey);
+    const frame = requestAnimationFrame(() => {
+      setAuthor(readSessionAuthor());
+      setPlanId(readSessionPlanId());
+    });
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
+      cancelAnimationFrame(frame);
     };
   }, [open, onClose]);
 
   if (!open) return null;
+
+  const discussionSubjectId =
+    reportId ||
+    draftReportDiscussionSubjectId({
+      projectId,
+      kind,
+      periodLabel,
+    });
 
   return (
     <div
@@ -117,6 +148,14 @@ export function ReportPresentationView({
               ))}
             </select>
           </label>
+          <button
+            type="button"
+            onClick={() => setDiscussionOpen((v) => !v)}
+            className="rounded-md border border-tl-line bg-tl-paper px-3 py-1.5 text-sm font-medium hover:border-tl-trust/40"
+            aria-expanded={discussionOpen}
+          >
+            {discussionOpen ? "Hide discussion" : "Discussion"}
+          </button>
           <button
             type="button"
             onClick={onDownload}
@@ -203,6 +242,21 @@ export function ReportPresentationView({
                 </p>
               )}
             </section>
+          ) : null}
+
+          {discussionOpen ? (
+            <DiscussionSpace
+              compact
+              subject={{
+                subjectType: "report",
+                subjectId: discussionSubjectId,
+                subjectTitle: title,
+                projectId: projectId || undefined,
+              }}
+              authorName={author.name}
+              authorRole={author.role}
+              planId={planId}
+            />
           ) : null}
         </div>
       </div>
