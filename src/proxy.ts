@@ -30,8 +30,10 @@ import { matchMaliciousProbe } from "@/lib/security/probes";
 import {
   applySecurityHeaders,
   blockedProbeResponse,
+  goneWpSpamResponse,
 } from "@/lib/security/response";
 import { recordSecurityEvent } from "@/lib/security/log";
+import { matchRetiredWpSpam } from "@/lib/security/wpSpamPaths";
 
 const WP_SLUG_REDIRECTS: Record<string, string> = {
   "/about-us-critical-involvement": "/about",
@@ -192,9 +194,24 @@ function handleChibaseHost(request: NextRequest): NextResponse | null {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/assets/") ||
-    pathname.startsWith("/marketing/")
+    pathname.startsWith("/marketing/") ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt"
   ) {
     return null;
+  }
+
+  const spam = matchRetiredWpSpam(pathname);
+  if (spam) {
+    recordSecurityEvent({
+      kind: "probe_blocked",
+      reason: spam.reason,
+      path: spam.path,
+      ip: clientIp(request),
+      host: request.headers.get("host") || "",
+      ua: request.headers.get("user-agent") || "",
+    });
+    return goneWpSpamResponse();
   }
 
   const slug = pathname.replace(/\/$/, "") || "/";
@@ -235,7 +252,10 @@ function handleChibaseHost(request: NextRequest): NextResponse | null {
   return withSecurity(
     new NextResponse("Not found", {
       status: 404,
-      headers: { "content-type": "text/plain; charset=utf-8" },
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "X-Robots-Tag": "noindex, nofollow",
+      },
     }),
   );
 }

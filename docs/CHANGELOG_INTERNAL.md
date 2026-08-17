@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-17 — Chibase SEO: 410 retired WP spam + firm sitemap
+
+- Firm host returns **410 Gone** (+ `noindex`) for known WordPress casino/adult/togel spam slugs and path heuristics (`wpSpamPaths`) — Search Console still showed those URLs after DNS cutover to Vercel.
+- Firm host now serves `/sitemap.xml` (was 404 via proxy catch-all) with only clean brochure paths; `/robots.txt` lists the firm sitemap and disallows spam-shaped patterns.
+- Runbook: Search Console removals + re-index steps in `docs/CHIBASE_SITE.md` / `docs/SITE_SECURITY.md`.
+
 ## 2026-08-16 — Invite email Accept / Decline
 
 - Creating an invite from **Settings → Team / Seats** emails the invitee (Resend) with **Accept** and **Decline** CTAs.

@@ -238,7 +238,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | Planned |
 | **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
 | **SEC-5** | Cloud invitee seats | Replace browser-only junior seats | Planned |
-| **SEC-SITE** | Dual-origin public hardening + Chibase site | ADR-046 — `/firm` brochure; retire Chibase WP (no content/plugin import); website DNS to this app; MX stays Webway (`docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`) | **Done** |
+| **SEC-SITE** | Dual-origin public hardening + Chibase site | ADR-046 — `/firm` brochure; retire Chibase WP; website DNS to this app; MX stays Webway; **SEO: 410 for retired WP spam + firm sitemap** (`docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`) | **Done** (SEO deepen 2026-08-17) |
 | **CHIBASE-PREVIEW** | Hero preview desk | ADR-047 — local mock cases/people/promises on Chibase home; not a workspace; CTA to own-data trial | **Done** |
 | **CHIBASE-PACK** | Consulting packages | ADR-048 — independent Chibase catalogue + optional Paystack; add-on request from any TrustLedger plan; no software entitlements | **Done** |
 
