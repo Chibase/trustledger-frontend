@@ -83,7 +83,45 @@ Consulting checkout (when `CHIBASE_AMOUNT_*_CENTS` > 0) posts to `/api/chibase/p
 
 Home hero includes a **preview desk** (ADR-047): visitors add mock cases/people/promises in this browser only. It is not a TrustLedger workspace.
 
-Known old WP slugs 308: `/about-us-critical-involvement` → `/about`, `/social-licence-to-build-framework` → `/practice`, `/home-social-licence-to-build` → `/`, `/contact-us` → `/contact`. Injected spam URLs are not migrated; they 404.
+Known old WP slugs 308: `/about-us-critical-involvement` → `/about`, `/social-licence-to-build-framework` → `/practice`, `/home-social-licence-to-build` → `/`, `/contact-us` → `/contact`. Injected spam URLs are not migrated; they return **410 Gone** (see `src/lib/security/wpSpamPaths.ts`) so crawlers drop them faster than soft 404s.
+
+## SEO recovery after WordPress malware (ops)
+
+The live Vercel firm site is clean. Search engines may still show **cached titles** for retired casino/affiliate URLs. Mitigate as follows:
+
+### Already in this app
+
+1. Firm host returns **410 Gone** + `noindex` for known spam slugs and casino/adult/togel path heuristics.
+2. Firm host serves `/sitemap.xml` with only clean brochure paths (`/`, `/practice`, `/packages`, …).
+3. Firm `/robots.txt` allows those paths, points at the firm sitemap, and disallows spam-shaped URL patterns.
+4. Probe block still covers `/wp-admin`, `*.php`, xmlrpc (403/404 via Vercel + app).
+
+### Operator (outside this repo)
+
+1. Confirm `NEXT_PUBLIC_CHIBASE_SITE_URL=https://chibaseconsulting.co.za` (or your primary firm URL) is set in Production and redeployed.
+2. **Google Search Console** (property for `chibaseconsulting.co.za` + www):
+   - Removals → Temporary removals / Clear cached URL for spam URLs still in results.
+   - URL inspection → Request indexing for `/`, `/practice`, `/packages`, `/contact`, `/about`, `/insights`, `/trustledger`.
+   - Sitemaps → submit `https://www.chibaseconsulting.co.za/sitemap.xml` (or apex, matching your primary domain).
+3. Ask Webway once more that the **WordPress document root + DB are deleted** (DNS-only cutover is not enough if an old host remains).
+4. Tell marketing partners: do not cite indexed spam URLs; use the clean brochure paths only.
+
+### Reply to marketing / ClickUp
+
+```
+The live Chibase Consulting website is already on our application host (not WordPress).
+Homepage and brochure paths are clean. The casino / gambling / adult URLs you found
+are retired WordPress SEO-spam that search engines still list from the old compromise.
+
+Those URLs now return HTTP 410 Gone. Please use only:
+https://www.chibaseconsulting.co.za/
+https://www.chibaseconsulting.co.za/practice
+https://www.chibaseconsulting.co.za/packages
+https://www.chibaseconsulting.co.za/contact
+
+We are clearing Search Console cache/index for the spam URLs. Do not delay outreach
+on the assumption the live site still serves casino content — it does not.
+```
 
 ## What we will not do
 

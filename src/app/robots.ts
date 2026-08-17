@@ -11,6 +11,16 @@ const siteUrl = (
   "https://trustledger-frontend-pi.vercel.app"
 ).replace(/\/$/, "");
 
+const FIRM_PUBLIC_PATHS = [
+  "/",
+  "/practice",
+  "/packages",
+  "/about",
+  "/contact",
+  "/insights",
+  "/trustledger",
+] as const;
+
 /**
  * Keep public marketing + FAQ crawlable for search and AI bots.
  * Explicit allow-list includes paths LLMs cite; private app surfaces stay disallowed.
@@ -25,14 +35,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       rules: [
         {
           userAgent: "*",
-          allow: [
-            "/",
-            "/practice",
-            "/about",
-            "/contact",
-            "/insights",
-            "/trustledger",
-          ],
+          allow: [...FIRM_PUBLIC_PATHS],
           disallow: [
             "/app/",
             "/ops/",
@@ -43,9 +46,16 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
             "/trial",
             "/product",
             "/firm",
+            "/subscription",
+            "/*casino*",
+            "/*1xbet*",
+            "/*onlyfan*",
+            "/*togel*",
+            "/*jackpot*",
           ],
         },
       ],
+      sitemap: `${firm}/sitemap.xml`,
       host: firm.replace(/^https?:\/\//, ""),
     };
   }

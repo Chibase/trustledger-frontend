@@ -10,6 +10,8 @@
 | Security headers (CSP, HSTS, nosniff, frame-ancestors, Permissions-Policy) | `next.config.ts` + `src/proxy.ts` | Injected third-party scripts (casino widgets, fake “Human Verification”) cannot run as they did on the hacked WP theme; HTTPS enforced |
 | CSP reports | `POST /api/security/csp-report` | Browser sends blocked-script reports (rate-limited; no outbound alert — noisy) |
 | Probe block | `src/proxy.ts` | `/wp-admin`, `*.php`, `/xmlrpc.php`, `.env`, phpunit, SQLi/XSS query shapes → **404** (no WP/PHP surface exists here) |
+| Retired WP SEO spam | `src/lib/security/wpSpamPaths.ts` + firm host in `proxy.ts` | Casino / adult / togel injected URLs → **410 Gone** + `noindex` (faster SERP drop than soft 404) |
+| Firm sitemap / robots | `src/app/sitemap.ts`, `src/app/robots.ts` | Chibase host serves clean brochure sitemap only; spam-shaped paths disallowed in robots |
 | Probe + form log | In-process ring + hosting logs | Proxy runs on Node (Next 16); `recordSecurityEvent` + `console.warn("[security] …")`. Optional `SECURITY_ALERT_WEBHOOK_URL` (external only) |
 | Form events | Same ring | Honeypot / rate-limit / reCAPTCHA failures |
 | Ingest API | `POST /api/security/ingest` | Optional extra ingest when `CRON_SECRET` or `SECURITY_INGEST_SECRET` is set |
@@ -33,6 +35,10 @@ Add `chibaseconsulting.co.za` (and www) to the reCAPTCHA domain list **before** 
 ## If you see another “Human Verification / open Terminal / Ctrl+V”
 
 That is **not** this app. Close the tab. It was the compromised WordPress origin. This origin never asks visitors to paste into Terminal.
+
+## If marketing tools still report “casino spam on Chibase”
+
+They are almost always reading **search-index leftovers** from the retired WordPress site. Live firm pages on this app do not serve that content. Follow **SEO recovery** in `docs/CHIBASE_SITE.md` (Search Console removals + firm sitemap). Do not re-open WordPress.
 
 ## Related
 

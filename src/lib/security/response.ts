@@ -19,3 +19,19 @@ export function blockedProbeResponse(): NextResponse {
   response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;
 }
+
+/** Retired WP SEO-spam URL — Gone helps crawlers drop indexed malware faster than 404. */
+export function goneWpSpamResponse(): NextResponse {
+  const response = new NextResponse("Gone", {
+    status: 410,
+    headers: { "content-type": "text/plain; charset=utf-8" },
+  });
+  applySecurityHeaders(response);
+  response.headers.set(
+    "Cache-Control",
+    "public, max-age=86400, stale-while-revalidate=604800",
+  );
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  return response;
+}
