@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-17 — SRM live showcase demo plan
+
+- Added `docs/DEMO_PLAN_SRM_SHOWCASE.md`: 30-minute consortium / DFI (NILF-style) live demo run sheet with platform click-paths (`/app/projects` → stakeholders → engagements → commitments → incidents → reports), fixtures, talk tracks, and objections.
+
 ## 2026-08-17 — Chibase SEO: 410 retired WP spam + firm sitemap
 
 - Firm host returns **410 Gone** (+ `noindex`) for known WordPress casino/adult/togel spam slugs and path heuristics (`wpSpamPaths`) — Search Console still showed those URLs after DNS cutover to Vercel.

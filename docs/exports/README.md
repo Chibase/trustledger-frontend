@@ -22,4 +22,6 @@ Folder: [`platform-brief/`](./platform-brief/)
 
 **Source of truth** remains the Markdown under `docs/` (especially `PLATFORM_STRATEGIC_BRIEF.md`). Re-generate exports after major packets if needed.
 
+**Live SRM showcase (consortium / DFI):** `docs/DEMO_PLAN_SRM_SHOWCASE.md` — 30-minute platform-in-action run sheet (not a slide deck).
+
 Generated: 2026-07-23
