@@ -41,8 +41,10 @@ Ops ladder: `/ops/readiness` · Health: `GET /api/health` (`deploySha`)
 ```bash
 # Vercel Production — enables live login OTP + trial “verify email” copy
 RESEND_API_KEY=re_…
-RESEND_FROM_EMAIL=TrustLedger <onboarding@resend.dev>
-# After Domains verified: TrustLedger <onboarding@trustledger.co.za>
+RESEND_FROM_EMAIL=TrustLedger <noreply@trustledger.co.za>
+# Must be a verified domain in Resend — not onboarding@resend.dev (test-only).
+# If unset, the app auto-picks TrustLedger <noreply@first-verified-domain>.
+# Confirm: /api/health → launch.inviteEmailReady: true
 # Optional force:
 ACCESS_EMAIL_VERIFICATION=1
 ```

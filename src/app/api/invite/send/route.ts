@@ -14,6 +14,7 @@ import { canInviteDeskTier } from "@/lib/orgSeats";
 import { signPortableOrgInvite } from "@/lib/orgInviteToken";
 import { isVipCustomerName } from "@/lib/planLabel";
 import {
+  inviteEmailDeliveryReady,
   sendOrgInviteEmail,
   transactionalEmailConfigured,
 } from "@/lib/transactionalEmail";
@@ -195,6 +196,26 @@ export async function POST(request: Request) {
     );
   }
 
+  // Resend's onboarding@resend.dev often returns HTTP 200 but only delivers to
+  // the Resend account owner — never claim success for third-party invitees.
+  const delivery = await inviteEmailDeliveryReady();
+  if (!delivery.ready) {
+    return NextResponse.json(
+      {
+        sent: false,
+        error:
+          delivery.reason ||
+          "Invite email cannot reach third-party inboxes yet. Share the accept link manually.",
+        from: delivery.from,
+        fromSource: delivery.source,
+        portableToken,
+        acceptUrl,
+        rejectUrl,
+      },
+      { status: 503 },
+    );
+  }
+
   const mail = await sendOrgInviteEmail({
     to: email,
     inviteeName: body.name.trim() || "there",
@@ -213,6 +234,7 @@ export async function POST(request: Request) {
       {
         sent: false,
         error: mail.detail || "Email failed",
+        from: mail.from || delivery.from,
         portableToken,
         acceptUrl,
         rejectUrl,
@@ -223,6 +245,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     sent: true,
+    from: mail.from || delivery.from,
     portableToken,
     acceptUrl,
     rejectUrl,

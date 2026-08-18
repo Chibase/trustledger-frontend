@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { recaptchaConfigured, recaptchaRequired } from "@/lib/formGuard";
 import { isFrappeAutoProvisionEnabled } from "@/lib/provisionOwnerCloud";
 import {
+  inviteEmailDeliveryReady,
   probeResendAuth,
   resendPublicDiagnostics,
   transactionalEmailConfigured,
@@ -44,7 +45,7 @@ async function probe(
 }
 
 export async function GET() {
-  const [app, cloud, resendAuth] = await Promise.all([
+  const [app, cloud, resendAuth, inviteEmail] = await Promise.all([
     probe(
       "TrustLedger app",
       `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app"}/`,
@@ -54,6 +55,7 @@ export async function GET() {
       `${FRAPPE_SITE.replace(/\/$/, "")}/api/method/frappe.ping`,
     ),
     probeResendAuth(),
+    inviteEmailDeliveryReady(),
   ]);
 
   const checks = [app, cloud];
@@ -65,7 +67,14 @@ export async function GET() {
     null;
 
   const leads = leadBackendStatus();
-  const resendDiag = resendPublicDiagnostics();
+  const resendDiag = {
+    ...resendPublicDiagnostics(),
+    // Prefer resolved From (may auto-pick a verified domain).
+    from: inviteEmail.from,
+    fromIsTestSender: /@resend\.dev\b/i.test(inviteEmail.from),
+    fromSource: inviteEmail.source,
+    verifiedDomains: inviteEmail.verifiedDomains,
+  };
 
   const launch = {
     lockdownLifted: !isPlatformOperatorOnly(),
@@ -77,6 +86,8 @@ export async function GET() {
     resendAuthOk: resendAuth.ok,
     resendAuthStatus: resendAuth.status ?? null,
     resendDiag,
+    inviteEmailReady: inviteEmail.ready,
+    inviteEmailReason: inviteEmail.reason ?? null,
     recaptcha: recaptchaConfigured(),
     recaptchaFailClosed: recaptchaRequired(),
     securityIngest: Boolean(

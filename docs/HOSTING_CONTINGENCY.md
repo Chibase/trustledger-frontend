@@ -65,12 +65,15 @@ Ops UI: `/ops/readiness` when signed in as Platform Operator.
 Live `/login/live` OTP and several transactional mails need Resend on **Vercel Production**.
 
 1. Resend dashboard → create/copy a full API key (`re_…`, long — never a 3-character stub).
-2. Vercel → Project → Settings → Environment Variables → Production:
+2. Resend → Domains → verify `trustledger.co.za` (or your mail domain) with the DNS records Resend shows.
+3. Vercel → Project → Settings → Environment Variables → Production:
    - `RESEND_API_KEY` = full secret (no ellipsis / truncated paste)
-   - Prefer `RESEND_FROM_EMAIL` = verified TrustLedger sender (e.g. `TrustLedger <info@trustledger.co.za>` or Resend test from while verifying domain)
-3. **Redeploy** Production.
-4. Confirm `/api/health` → `launch.resend: true`, `resendAuthOk: true`, `keyLooksTruncated: false`.
-5. Smoke: `/login/live` → credentials → OTP arrives.
+   - `RESEND_FROM_EMAIL` = `TrustLedger <noreply@trustledger.co.za>` (must match a verified domain — **not** `onboarding@resend.dev`)
+4. **Redeploy** Production.
+5. Confirm `/api/health` → `launch.resend: true`, `resendAuthOk: true`, `inviteEmailReady: true`, `keyLooksTruncated: false`.
+6. Smoke: Team / Seats invite to a third-party inbox, and `/login/live` OTP.
+
+Full cutover checklist (DNS + Vercel + health): **`docs/RESEND_PRODUCTION.md`**.
 
 Do not paste keys into chat or git.
 

@@ -13,10 +13,10 @@ Production health (2026-07-24) showed:
 
 1. Resend → API Keys → **Create** (or copy full secret once).
 2. Vercel → Production → `RESEND_API_KEY` = full value starting with `re_` (dozens of characters — **not** just `re_`).
-3. `RESEND_FROM_EMAIL` = `TrustLedger <onboarding@resend.dev>` (until domain verified).
+3. `RESEND_FROM_EMAIL` = `TrustLedger <noreply@trustledger.co.za>` after the domain is **verified** in Resend (never leave Production on `onboarding@resend.dev` if invitees must receive mail). See `docs/RESEND_PRODUCTION.md`.
 4. Remove `ACCESS_EMAIL_VERIFICATION=0` **or** set `ACCESS_EMAIL_VERIFICATION=1`.
 5. **Redeploy** Production.
-6. Check `GET /api/health` → `resendAuthOk: true`, `accessEmailVerification: true`.
+6. Check `GET /api/health` → `resendAuthOk: true`, `inviteEmailReady: true`, `accessEmailVerification: true` (when verification is enabled).
 
 Never paste the key in chat.
 
