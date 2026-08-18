@@ -49,6 +49,34 @@ export function applyOrgOwnerSession(input: {
   }
 }
 
+/**
+ * Stamp org id + Plan Owner flags for invite email APIs without clobbering
+ * a live Cloud session (`tl-mode=live`). Live login never set `tl-org-id`,
+ * which blocked `/api/invite/send` with 401.
+ */
+export function stampPlanOwnerOrgCookies(input: {
+  orgId: string;
+  email?: string;
+  name?: string;
+  planId?: PlanId;
+  maxAge?: number;
+}) {
+  const maxAge = input.maxAge ?? SESSION_MAX_AGE_SECONDS;
+  setCookie(TL_ORG_ID_COOKIE, input.orgId, maxAge);
+  setCookie(TL_ORG_OWNER_COOKIE, "1", maxAge);
+  if (input.email?.includes("@")) {
+    setCookie(TL_USER_EMAIL_COOKIE, input.email.toLowerCase(), maxAge);
+  }
+  if (input.name?.trim()) {
+    setCookie(TL_USER_NAME_COOKIE, input.name.trim(), maxAge);
+  }
+  if (input.planId) {
+    setCookie(TL_TRIAL_PLAN_COOKIE, input.planId, maxAge);
+    setCookie(TL_DESK_TIER_COOKIE, PLAN_OWNER_DESK_TIER[input.planId], maxAge);
+    setCookie(TL_DESK_TIER_LOCKED_COOKIE, "0", maxAge);
+  }
+}
+
 export function applyOrgInviteeSession(input: {
   orgId: string;
   email: string;

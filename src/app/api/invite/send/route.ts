@@ -69,9 +69,12 @@ export async function POST(request: Request) {
   const sessionOrgId = jar.get(TL_ORG_ID_COOKIE)?.value?.trim() || "";
   const sessionEmail =
     jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim().toLowerCase() || "";
-  if (!isOwner || !sessionOrgId) {
+  if (!isOwner) {
     return NextResponse.json(
-      { error: "Only the Plan Owner session can send invite emails." },
+      {
+        error:
+          "Only the Plan Owner can send invite emails. Sign in as Plan Owner, then open Settings → Team / Seats.",
+      },
       { status: 401 },
     );
   }
@@ -86,10 +89,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing invite fields" }, { status: 400 });
   }
 
-  if (body.orgId !== sessionOrgId) {
+  const bodyOwnerEmail = body.ownerEmail.trim().toLowerCase();
+  // Live Cloud Owners often lack tl-org-id until Team/Seats stamps it. Allow
+  // send when owner cookie is set and session email matches the invite Owner.
+  if (sessionOrgId) {
+    if (body.orgId !== sessionOrgId) {
+      return NextResponse.json(
+        { error: "Invite org does not match your Plan Owner session." },
+        { status: 403 },
+      );
+    }
+  } else if (
+    !sessionEmail ||
+    !bodyOwnerEmail.includes("@") ||
+    sessionEmail !== bodyOwnerEmail
+  ) {
     return NextResponse.json(
-      { error: "Invite org does not match your Plan Owner session." },
-      { status: 403 },
+      {
+        error:
+          "Plan Owner workspace cookies are missing. Open Settings → Team / Seats once, then try again.",
+      },
+      { status: 401 },
     );
   }
 
@@ -117,8 +137,7 @@ export async function POST(request: Request) {
   }
 
   const ownerEmail =
-    (sessionEmail.includes("@") ? sessionEmail : body.ownerEmail.trim().toLowerCase()) ||
-    "";
+    (sessionEmail.includes("@") ? sessionEmail : bodyOwnerEmail) || "";
   if (!ownerEmail.includes("@")) {
     return NextResponse.json(
       { error: "Plan Owner email required to send invites." },
@@ -181,6 +200,7 @@ export async function POST(request: Request) {
     inviteeName: body.name.trim() || "there",
     orgName: body.orgName.trim(),
     ownerName: body.ownerName.trim() || "Your Plan Owner",
+    ownerEmail,
     roleLabel: body.role,
     deskLabel: DESK_TIER_LABELS[body.deskTier],
     planLabel: PLANS[body.planId].name,
