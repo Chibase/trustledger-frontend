@@ -1,4 +1,5 @@
 ﻿import { API_BASE_URL, getDataMode } from "@/config/api";
+import { PasswordAccessPanel } from "@/components/settings/PasswordAccessPanel";
 import { TeamSeatsPanel } from "@/components/org/TeamSeatsPanel";
 import { DeskSettingsPanel } from "@/components/settings/DeskSettingsPanel";
 import { EntitlementsSettingsPanel } from "@/components/settings/EntitlementsSettingsPanel";
@@ -64,8 +65,8 @@ export default async function AppSettingsPage() {
             </h2>
             <p className="mt-1 text-sm text-tl-ink-muted">
               {isVip
-                ? "Invite CEOs, Clients, and any desk with matching access. Complimentary VIP seats are not limited by paid plan rank rules."
-                : "Invite lower-rank seats and control what each desk may see. Your commercial plan is fixed above — it does not change from this page."}
+                ? "Invite CEOs, Clients, and any desk with matching access. Complimentary VIP seats are not limited by paid plan rank rules. Manage Cloud passwords below when someone loses access."
+                : "Invite lower-rank seats and control what each desk may see. Your commercial plan is fixed above — it does not change from this page. Manage Cloud passwords below when someone loses access."}
             </p>
           </div>
           <TeamSeatsPanel
@@ -74,6 +75,11 @@ export default async function AppSettingsPage() {
             userName={user.name}
             planId={user.trialPlan}
             isVip={isVip}
+          />
+          <PasswordAccessPanel
+            isPlanOwner={isPlanOwner}
+            userEmail={user.email}
+            liveMode={user.mode === "live"}
           />
           <DeskSettingsPanel
             role={user.role}

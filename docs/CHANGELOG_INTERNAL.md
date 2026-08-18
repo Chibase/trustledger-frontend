@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-18 — Plan Owner password rights
+
+- Settings → **Passwords**: package Plan Owner can **change their own** TrustLedger Cloud password, and **issue a temporary password** for themselves or Cloud Users on their Customer (lost-password recovery).
+- `POST /api/org/password` (`change-own` via live sid; `reset-member` via API keys + Customer ownership check). Temp passwords emailed when Resend is configured.
+- Browser-only invite seats without a Cloud User still need provisioning / invite re-send (SEC-5).
+
 ## 2026-08-18 — Invite email delivery (live Owners + Resend domain)
 
 - Live Plan Owners never received `tl-org-id` from Cloud login, so `/api/invite/send` returned 401 and no Resend mail left. Team / Seats now stamps org cookies; send API allows Owner email match when org cookie is still missing.
