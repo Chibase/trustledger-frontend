@@ -24,6 +24,18 @@
 
 Create (or reuse) a Space / Folder: **TrustLedger Marketing**.
 
+**Applied 2026-08-18 (Team Space):**
+
+| Object | Link |
+|--------|------|
+| Folder | TrustLedger Marketing |
+| List | [Newsletter Cadence](https://app.clickup.com/90121198081/v/l/li/901220454750) |
+| List | [Newsletter Themes](https://app.clickup.com/90121198081/v/l/li/901220454751) |
+| Ops list | [Platform Ops](https://app.clickup.com/90121198081/v/l/li/901220454767) (Resend / EM-1 Desk) |
+
+Theme backlog (6 cards) + first fortnightly cadence task + AI prompt reference are seeded.  
+**Still configure in ClickUp UI:** list statuses (below) and recommended custom fields (API cannot create them).
+
 ### List: `Newsletter Cadence`
 
 **Statuses (in order):**
