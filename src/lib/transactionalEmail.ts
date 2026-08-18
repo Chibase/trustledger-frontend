@@ -468,6 +468,52 @@ export async function sendOrgInviteEmail(
   });
 }
 
+export type TempPasswordEmailInput = {
+  to: string;
+  name: string;
+  temporaryPassword: string;
+  loginUrl: string;
+  issuedByName: string;
+  issuedByEmail: string;
+};
+
+/** Plan Owner issued a temporary Cloud password. */
+export async function sendTempPasswordEmail(
+  input: TempPasswordEmailInput,
+): Promise<{ sent: boolean; detail?: string }> {
+  const subject = "Your TrustLedger temporary password";
+  const text = [
+    `Hi ${input.name},`,
+    "",
+    `${input.issuedByName} (${input.issuedByEmail}) set a temporary password for your TrustLedger Cloud login.`,
+    "",
+    `Temporary password: ${input.temporaryPassword}`,
+    `Sign in: ${input.loginUrl}`,
+    "",
+    "Change this password after you sign in.",
+    "",
+    "— TrustLedger",
+  ].join("\n");
+  const html = `
+    <p>Hi ${escapeHtml(input.name)},</p>
+    <p><strong>${escapeHtml(input.issuedByName)}</strong>
+      (${escapeHtml(input.issuedByEmail)}) set a temporary password for your
+      TrustLedger Cloud login.</p>
+    <p><strong>Temporary password:</strong>
+      <code>${escapeHtml(input.temporaryPassword)}</code></p>
+    <p><a href="${escapeAttr(input.loginUrl)}">Sign in to TrustLedger</a></p>
+    <p style="color:#666;font-size:13px">Change this password after you sign in.</p>
+    <p>— TrustLedger</p>
+  `;
+  return sendResendEmail({
+    to: input.to,
+    subject,
+    text,
+    html,
+    replyTo: input.issuedByEmail,
+  });
+}
+
 export type OrgInviteDecisionEmailInput = {
   to: string;
   ownerName: string;
