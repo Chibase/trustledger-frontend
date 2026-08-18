@@ -149,7 +149,8 @@ PAYSTACK_AMOUNT_PROJECT_CENTS=1499900
 # PAYSTACK_TRIAL_VERIFY_CENTS=100
 # Optional welcome email (temp password). If unset, credentials show on success page only.
 # RESEND_API_KEY=re_…
-# RESEND_FROM_EMAIL=TrustLedger <onboarding@trustledger.co.za>
+# RESEND_FROM_EMAIL=TrustLedger <noreply@trustledger.co.za>
+# See docs/RESEND_PRODUCTION.md — domain must be verified in Resend first.
 # Optional stronger signing for activation tokens (falls back to Paystack secret)
 # TRIAL_TOKEN_SECRET=…
 # Institutional stays contact-sales unless you set an amount

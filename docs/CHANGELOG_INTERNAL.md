@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-18 — Production Resend cutover runbook
+
+- Added `docs/RESEND_PRODUCTION.md`: verify `trustledger.co.za` in Resend (DKIM + SPF merge; keep Webway MX), set Vercel `RESEND_FROM_EMAIL`, Redeploy, confirm `inviteEmailReady`.
+- Domain auto-pick accepts Resend `partially_verified` (send-capable); failed domains probes are no longer cached empty for 5 minutes.
+- Stale docs no longer recommend leaving Production on `onboarding@resend.dev`.
+
 ## 2026-08-18 — Invite email: verified Resend From (third-party inboxes)
 
 - Root cause: Production From was still `onboarding@resend.dev`. Resend accepts those sends but typically only delivers to the Resend account owner — invitees never see the mail.

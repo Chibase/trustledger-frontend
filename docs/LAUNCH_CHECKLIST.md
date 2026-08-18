@@ -24,7 +24,7 @@ Follow **`docs/PUBLIC_LAUNCH.md`** end-to-end. Short form:
 1. **Paystack Live** — KYC complete; copy `pk_live_` / `sk_live_` into Vercel; set webhook to `/api/paystack/webhook`.
 2. **`NEXT_PUBLIC_SITE_URL`** — production host (custom domain or Vercel URL); must match Paystack callbacks.
 3. **`TRIAL_TOKEN_SECRET`** — long random string on Vercel (separate from Paystack secret).
-4. **`RESEND_API_KEY`** — welcome email with temp password (strongly recommended for live).
+4. **`RESEND_API_KEY`** + verified **`RESEND_FROM_EMAIL`** — see `docs/RESEND_PRODUCTION.md` (required for invitees / OTP).
 5. **Keep `PLATFORM_OPERATOR_ONLY=1`** + your email in `PLATFORM_OPERATOR_EMAILS` — buyers use `/pay` + `/trial`, not `/login/live`, until T5.
 6. **`PLATFORM_OPERATOR_LOCK_PUBLIC=0`** — demo/assessment stay public.
 7. **Smoke** — live R1 verify on Practitioner → thank-you + login → banner opt-out → CRM lead.

@@ -143,6 +143,12 @@ export async function listResendDomains(): Promise<{
   }
 }
 
+function isSendCapableResendDomainStatus(status: string | undefined): boolean {
+  const s = String(status || "").toLowerCase();
+  // Resend: verified = full; partially_verified = often send-capable while receive lags.
+  return s === "verified" || s === "partially_verified";
+}
+
 /**
  * Resolve the From address for outbound mail.
  * 1) Explicit RESEND_FROM_EMAIL / RESEND_FROM
@@ -190,8 +196,24 @@ export async function resolveResendFromAddress(): Promise<{
   }
 
   const listed = await listResendDomains();
+  // Do not cache empty results from a failed domains probe — retry next send.
+  if (!listed.ok) {
+    if (explicit) {
+      return {
+        from: explicit,
+        source: "test-fallback",
+        verifiedDomains: [],
+      };
+    }
+    return {
+      from: "TrustLedger <onboarding@resend.dev>",
+      source: "test-fallback",
+      verifiedDomains: [],
+    };
+  }
+
   const verified = listed.domains
-    .filter((d) => String(d.status || "").toLowerCase() === "verified" && d.name)
+    .filter((d) => isSendCapableResendDomainStatus(d.status) && d.name)
     .map((d) => d.name!.toLowerCase());
   // Prefer trustledger.co.za when present among verified domains.
   const preferred =

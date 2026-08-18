@@ -73,6 +73,8 @@ Live `/login/live` OTP and several transactional mails need Resend on **Vercel P
 5. Confirm `/api/health` → `launch.resend: true`, `resendAuthOk: true`, `inviteEmailReady: true`, `keyLooksTruncated: false`.
 6. Smoke: Team / Seats invite to a third-party inbox, and `/login/live` OTP.
 
+Full cutover checklist (DNS + Vercel + health): **`docs/RESEND_PRODUCTION.md`**.
+
 Do not paste keys into chat or git.
 
 ---
