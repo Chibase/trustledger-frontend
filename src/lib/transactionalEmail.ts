@@ -91,6 +91,182 @@ export function resendFromAddress(): string {
     .replace(/\u2026/g, "");
 }
 
+export function isResendTestFrom(from = resendFromAddress()): boolean {
+  return /@resend\.dev\b/i.test(from);
+}
+
+type ResendDomainRow = {
+  name?: string;
+  status?: string;
+};
+
+let cachedVerifiedFrom:
+  | { at: number; from: string | null; domains: string[] }
+  | null = null;
+const DOMAIN_CACHE_MS = 5 * 60 * 1000;
+
+/** List domains on the Resend account (for From resolution + health). */
+export async function listResendDomains(): Promise<{
+  ok: boolean;
+  domains: ResendDomainRow[];
+  detail?: string;
+}> {
+  const apiKey = resendApiKey();
+  if (!apiKey) return { ok: false, domains: [], detail: "RESEND_API_KEY missing" };
+  try {
+    const res = await fetch("https://api.resend.com/domains", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: "application/json",
+        "User-Agent": "TrustLedger/1.0",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(6000),
+    });
+    const text = await res.text();
+    if (!res.ok) {
+      return {
+        ok: false,
+        domains: [],
+        detail: text.slice(0, 160) || `HTTP ${res.status}`,
+      };
+    }
+    const json = JSON.parse(text) as { data?: ResendDomainRow[] };
+    return { ok: true, domains: json.data || [] };
+  } catch (err) {
+    return {
+      ok: false,
+      domains: [],
+      detail: err instanceof Error ? err.message : "domains probe failed",
+    };
+  }
+}
+
+/**
+ * Resolve the From address for outbound mail.
+ * 1) Explicit RESEND_FROM_EMAIL / RESEND_FROM
+ * 2) Else first verified Resend domain → TrustLedger <noreply@domain>
+ * 3) Else onboarding@resend.dev (test-only)
+ */
+export async function resolveResendFromAddress(): Promise<{
+  from: string;
+  source: "env" | "verified-domain" | "test-fallback";
+  verifiedDomains: string[];
+}> {
+  const explicit = (
+    process.env.RESEND_FROM_EMAIL ||
+    process.env.RESEND_FROM ||
+    ""
+  )
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .replace(/\u2026/g, "");
+  if (explicit && !isResendTestFrom(explicit)) {
+    return { from: explicit, source: "env", verifiedDomains: [] };
+  }
+
+  const now = Date.now();
+  if (cachedVerifiedFrom && now - cachedVerifiedFrom.at < DOMAIN_CACHE_MS) {
+    if (cachedVerifiedFrom.from) {
+      return {
+        from: cachedVerifiedFrom.from,
+        source: "verified-domain",
+        verifiedDomains: cachedVerifiedFrom.domains,
+      };
+    }
+    if (explicit) {
+      return {
+        from: explicit,
+        source: "test-fallback",
+        verifiedDomains: cachedVerifiedFrom.domains,
+      };
+    }
+    return {
+      from: "TrustLedger <onboarding@resend.dev>",
+      source: "test-fallback",
+      verifiedDomains: cachedVerifiedFrom.domains,
+    };
+  }
+
+  const listed = await listResendDomains();
+  const verified = listed.domains
+    .filter((d) => String(d.status || "").toLowerCase() === "verified" && d.name)
+    .map((d) => d.name!.toLowerCase());
+  // Prefer trustledger.co.za when present among verified domains.
+  const preferred =
+    verified.find((n) => n === "trustledger.co.za") ||
+    verified.find((n) => n.endsWith(".trustledger.co.za")) ||
+    verified[0] ||
+    null;
+  const autoFrom = preferred
+    ? `TrustLedger <noreply@${preferred}>`
+    : null;
+  cachedVerifiedFrom = {
+    at: now,
+    from: autoFrom,
+    domains: verified,
+  };
+
+  if (explicit && !autoFrom) {
+    return {
+      from: explicit,
+      source: "test-fallback",
+      verifiedDomains: verified,
+    };
+  }
+  if (autoFrom) {
+    // Prefer verified domain over an env that still points at resend.dev.
+    return {
+      from: autoFrom,
+      source: "verified-domain",
+      verifiedDomains: verified,
+    };
+  }
+  // Prefer explicit env even if test, else default test sender.
+  return {
+    from: explicit || "TrustLedger <onboarding@resend.dev>",
+    source: "test-fallback",
+    verifiedDomains: verified,
+  };
+}
+
+/** True when invite/OTP mail can reach arbitrary inboxes (not Resend test-only). */
+export async function inviteEmailDeliveryReady(): Promise<{
+  ready: boolean;
+  from: string;
+  source: "env" | "verified-domain" | "test-fallback";
+  verifiedDomains: string[];
+  reason?: string;
+}> {
+  if (!transactionalEmailConfigured()) {
+    return {
+      ready: false,
+      from: resendFromAddress(),
+      source: "test-fallback",
+      verifiedDomains: [],
+      reason: "RESEND_API_KEY missing or invalid",
+    };
+  }
+  const resolved = await resolveResendFromAddress();
+  if (isResendTestFrom(resolved.from)) {
+    return {
+      ready: false,
+      from: resolved.from,
+      source: resolved.source,
+      verifiedDomains: resolved.verifiedDomains,
+      reason:
+        "From address is still onboarding@resend.dev (Resend test sender). Verify trustledger.co.za in Resend and set RESEND_FROM_EMAIL to TrustLedger <noreply@trustledger.co.za>, then Redeploy — or add a verified domain so the app can auto-use noreply@that-domain.",
+    };
+  }
+  return {
+    ready: true,
+    from: resolved.from,
+    source: resolved.source,
+    verifiedDomains: resolved.verifiedDomains,
+  };
+}
+
 export function transactionalEmailConfigured(): boolean {
   return isPlausibleResendKey(resendApiKey());
 }
@@ -105,12 +281,14 @@ export function resendPublicDiagnostics(): {
   from: string;
   /** True when an env var is set but too short / not a real re_ secret. */
   keyLooksTruncated: boolean;
+  fromIsTestSender: boolean;
 } {
   const rawCandidates = RESEND_KEY_ENV_CANDIDATES.map((name) =>
     normalizeResendSecret(process.env[name]),
   ).filter(Boolean);
   const key = resendApiKey();
   const longestRaw = rawCandidates.reduce((a, b) => (a.length >= b.length ? a : b), "");
+  const from = resendFromAddress();
   return {
     configured: Boolean(key),
     envSource: resendApiKeySource(),
@@ -121,8 +299,9 @@ export function resendPublicDiagnostics(): {
       : longestRaw
         ? `${longestRaw.slice(0, 3)}…`
         : null,
-    from: resendFromAddress(),
+    from,
     keyLooksTruncated: Boolean(longestRaw) && !isPlausibleResendKey(longestRaw),
+    fromIsTestSender: isResendTestFrom(from),
   };
 }
 
@@ -165,10 +344,15 @@ export async function probeResendAuth(): Promise<{
   }
 }
 
-function explainResendFailure(status: number, body: string): string {
+function explainResendFailure(
+  status: number,
+  body: string,
+  fromUsed?: string,
+): string {
   const snippet = body.slice(0, 240);
   const diag = resendPublicDiagnostics();
-  const hint = `env=${diag.envSource || "none"} len=${diag.keyLength} prefix=${diag.keyPrefix || "none"} from=${diag.from}`;
+  const from = fromUsed || diag.from;
+  const hint = `env=${diag.envSource || "none"} len=${diag.keyLength} prefix=${diag.keyPrefix || "none"} from=${from}`;
   const lower = body.toLowerCase();
   if (
     status === 401 ||
@@ -184,7 +368,8 @@ function explainResendFailure(status: number, body: string): string {
     /only send testing emails|verify a domain|invalid.*from|domain is not verified/i.test(
       lower,
     ) ||
-    status === 403
+    status === 403 ||
+    isResendTestFrom(from)
   ) {
     return (
       "Resend cannot deliver to that inbox yet: the From address is still on the test sender " +
@@ -204,7 +389,7 @@ async function sendResendEmail(input: {
   text: string;
   html: string;
   replyTo?: string;
-}): Promise<{ sent: boolean; detail?: string }> {
+}): Promise<{ sent: boolean; detail?: string; from?: string }> {
   const apiKey = resendApiKey();
   if (!apiKey) {
     return {
@@ -221,7 +406,8 @@ async function sendResendEmail(input: {
     };
   }
 
-  const from = resendFromAddress();
+  const resolved = await resolveResendFromAddress();
+  const from = resolved.from;
   const replyTo = input.replyTo?.trim();
 
   try {
@@ -247,15 +433,17 @@ async function sendResendEmail(input: {
       const detail = await res.text().catch(() => "");
       return {
         sent: false,
-        detail: explainResendFailure(res.status, detail),
+        detail: explainResendFailure(res.status, detail, from),
+        from,
       };
     }
-    return { sent: true };
+    return { sent: true, from };
   } catch (err) {
     const byteMsg = byteStringHeaderErrorMessage(err);
     return {
       sent: false,
       detail: byteMsg || (err instanceof Error ? err.message : "email failed"),
+      from,
     };
   }
 }
@@ -418,7 +606,7 @@ export type OrgInviteEmailInput = {
 /** Notify invitee — Accept or Decline. */
 export async function sendOrgInviteEmail(
   input: OrgInviteEmailInput,
-): Promise<{ sent: boolean; detail?: string }> {
+): Promise<{ sent: boolean; detail?: string; from?: string }> {
   const subject = `${input.ownerName} invited you to ${input.orgName} on TrustLedger`;
   const text = [
     `Hi ${input.inviteeName},`,

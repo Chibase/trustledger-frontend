@@ -64,6 +64,11 @@ export function TeamSeatsPanel({
   const [lastAcceptPath, setLastAcceptPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<{
+    ready: boolean;
+    from: string;
+    reason: string | null;
+  } | null>(null);
 
   const orgIsVip =
     isVip ||
@@ -186,6 +191,35 @@ export function TeamSeatsPanel({
     return () => cancelAnimationFrame(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- isVip drives VIP stamp
   }, [planId, isVip]);
+
+  useEffect(() => {
+    if (!isPlanOwner) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/invite/email-status", {
+          cache: "no-store",
+        });
+        if (!res.ok || cancelled) return;
+        const json = (await res.json()) as {
+          ready?: boolean;
+          from?: string;
+          reason?: string | null;
+        };
+        if (cancelled) return;
+        setEmailStatus({
+          ready: Boolean(json.ready),
+          from: json.from || "",
+          reason: json.reason ?? null,
+        });
+      } catch {
+        /* banner optional */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isPlanOwner]);
 
   function handleBootstrap() {
     const plan: PlanId =
@@ -351,6 +385,23 @@ export function TeamSeatsPanel({
               ? "Owner only"
               : `${seats.membersUsed + seats.invitesPending} / ${seats.additionalSeatCap} used (incl. pending)`}
         </p>
+        {emailStatus && !emailStatus.ready ? (
+          <p
+            className="mt-3 rounded-md border border-tl-amber/40 bg-tl-amber/10 px-3 py-2 text-xs text-tl-ink"
+            role="status"
+          >
+            Invite emails cannot reach colleagues yet
+            {emailStatus.from
+              ? ` (current From: ${emailStatus.from})`
+              : ""}
+            . Ops must verify the mail domain in Resend and set{" "}
+            <code className="font-mono text-[0.7rem]">RESEND_FROM_EMAIL</code>{" "}
+            to a verified address (not{" "}
+            <code className="font-mono text-[0.7rem]">onboarding@resend.dev</code>
+            ), then Redeploy. Until then, share the accept link after creating
+            an invite.
+          </p>
+        ) : null}
       </div>
 
       <div>

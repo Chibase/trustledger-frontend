@@ -36,7 +36,9 @@ TRIAL_TOKEN_SECRET=<long random string>   # do not reuse Paystack secret
 
 # Recommended
 RESEND_API_KEY=…                          # welcome email with temp password
-RESEND_FROM_EMAIL=TrustLedger <onboarding@resend.dev>   # or verified @trustledger.co.za
+RESEND_FROM_EMAIL=TrustLedger <noreply@trustledger.co.za>   # verified domain required for invitees
+# Until the domain is verified, leave unset — app may auto-use a verified Resend domain.
+# Do not leave production on onboarding@resend.dev (only reaches the Resend account owner).
 # Alias also accepted: RESEND_FROM=…
 
 # GO LIVE posture
