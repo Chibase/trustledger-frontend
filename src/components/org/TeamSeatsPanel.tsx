@@ -28,7 +28,7 @@ import {
   revokeOrgInvite,
   syncOrgPlanFromSession,
 } from "@/lib/orgStore";
-import { bootstrapPlanOwnerOrg } from "@/lib/orgSession";
+import { bootstrapPlanOwnerOrg, stampPlanOwnerOrgCookies } from "@/lib/orgSession";
 import { isVipCustomerName } from "@/lib/planLabel";
 import type { OrgInvite } from "@/types/org";
 
@@ -91,6 +91,16 @@ export function TeamSeatsPanel({
     }
     if (active && planId && isPlanId(planId)) {
       active = syncOrgPlanFromSession(active.id, planId) || active;
+    }
+    // Live Owners never received tl-org-id from /auth/live/login — stamp it
+    // so /api/invite/send can authorize Resend delivery.
+    if (active && isPlanOwner) {
+      stampPlanOwnerOrgCookies({
+        orgId: active.id,
+        email: active.ownerEmail || userEmail || undefined,
+        name: active.ownerName || userName || undefined,
+        planId: active.planId,
+      });
     }
     setOrg(active);
   }
@@ -213,6 +223,12 @@ export function TeamSeatsPanel({
     if (isVip) {
       markOrgComplimentaryVip(org.id);
     }
+    stampPlanOwnerOrgCookies({
+      orgId: org.id,
+      email: org.ownerEmail || userEmail || undefined,
+      name: org.ownerName || userName || undefined,
+      planId: org.planId,
+    });
     const result = createOrgInvite({
       orgId: org.id,
       email,
@@ -235,10 +251,17 @@ export function TeamSeatsPanel({
     if (mail.sent) {
       pushToast("Invite email sent — they can Accept or Decline", "success");
     } else {
+      const detail = mail.detail || "";
+      const domainHint =
+        /onboarding@resend\.dev|verify a domain|testing emails|RESEND_FROM/i.test(
+          detail,
+        );
       pushToast(
-        mail.detail
-          ? `Invite created — email not sent (${mail.detail}). Share the accept link.`
-          : "Invite created — share the accept link",
+        domainHint
+          ? `Invite created — email not delivered. Ops must verify the mail domain and set RESEND_FROM_EMAIL (not only onboarding@resend.dev). Meanwhile share the accept link below.`
+          : detail
+            ? `Invite created — email not sent (${detail}). Share the accept link.`
+            : "Invite created — share the accept link",
         "error",
       );
     }

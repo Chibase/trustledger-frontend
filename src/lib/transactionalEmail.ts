@@ -181,12 +181,17 @@ function explainResendFailure(status: number, body: string): string {
     );
   }
   if (
-    /only send testing emails|verify a domain|invalid.*from/i.test(lower) ||
+    /only send testing emails|verify a domain|invalid.*from|domain is not verified/i.test(
+      lower,
+    ) ||
     status === 403
   ) {
     return (
-      "Resend blocked the From address. Set RESEND_FROM_EMAIL to TrustLedger <onboarding@resend.dev> " +
-      "(or a verified @trustledger.co.za sender), Redeploy. " +
+      "Resend cannot deliver to that inbox yet: the From address is still on the test sender " +
+      "(onboarding@resend.dev) or the domain is not verified. " +
+      "In Resend, verify trustledger.co.za (or your mail domain), then set " +
+      "RESEND_FROM_EMAIL to TrustLedger <noreply@trustledger.co.za> (or another verified address) and Redeploy. " +
+      "Until then, Resend only delivers test mail to the Resend account owner. " +
       `(${hint}) Detail: ${snippet}`
     );
   }
@@ -198,6 +203,7 @@ async function sendResendEmail(input: {
   subject: string;
   text: string;
   html: string;
+  replyTo?: string;
 }): Promise<{ sent: boolean; detail?: string }> {
   const apiKey = resendApiKey();
   if (!apiKey) {
@@ -216,6 +222,7 @@ async function sendResendEmail(input: {
   }
 
   const from = resendFromAddress();
+  const replyTo = input.replyTo?.trim();
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -232,6 +239,7 @@ async function sendResendEmail(input: {
         subject: input.subject,
         text: input.text,
         html: input.html,
+        ...(replyTo && replyTo.includes("@") ? { reply_to: replyTo } : {}),
       }),
       cache: "no-store",
     });
@@ -399,6 +407,7 @@ export type OrgInviteEmailInput = {
   inviteeName: string;
   orgName: string;
   ownerName: string;
+  ownerEmail?: string;
   roleLabel: string;
   deskLabel: string;
   planLabel: string;
@@ -450,7 +459,13 @@ export async function sendOrgInviteEmail(
     <p style="color:#666;font-size:13px">Link expires in 14 days. If you were not expecting this, decline or ignore.</p>
     <p>— TrustLedger</p>
   `;
-  return sendResendEmail({ to: input.to, subject, text, html });
+  return sendResendEmail({
+    to: input.to,
+    subject,
+    text,
+    html,
+    replyTo: input.ownerEmail,
+  });
 }
 
 export type OrgInviteDecisionEmailInput = {

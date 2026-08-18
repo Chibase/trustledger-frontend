@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-18 — Invite email delivery (live Owners + Resend domain)
+
+- Live Plan Owners never received `tl-org-id` from Cloud login, so `/api/invite/send` returned 401 and no Resend mail left. Team / Seats now stamps org cookies; send API allows Owner email match when org cookie is still missing.
+- Clearer Resend errors when still on `onboarding@resend.dev` (test sender only delivers to the Resend account owner). Invite mail sets Reply-To to the Plan Owner.
+- Ops: verify `trustledger.co.za` (or your mail domain) in Resend and set `RESEND_FROM_EMAIL` to a verified address, then Redeploy.
+
 ## 2026-08-17 — SRM live showcase demo plan
 
 - Added `docs/DEMO_PLAN_SRM_SHOWCASE.md`: 30-minute consortium / DFI (NILF-style) live demo run sheet with platform click-paths (`/app/projects` → stakeholders → engagements → commitments → incidents → reports), fixtures, talk tracks, and objections.

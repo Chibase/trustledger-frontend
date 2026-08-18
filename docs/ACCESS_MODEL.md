@@ -120,7 +120,7 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 1. Owner opens **Settings → Team / Seats** (to build).  
 2. Enters name + work email + **suggested role** (`client` \| `contractor` \| `community`).  
 3. Owner **confirms** role (cannot pick `admin` for invitees on Practitioner/Project without sales exception).  
-4. System emails the invitee **Accept** and **Decline** links (`/invite/accept?invite=…` / `/invite/reject?invite=…`). Links are signed (14-day TTL) so they work on any device. If Resend is unset, the Owner still gets a portable share link.  
+4. System emails the invitee **Accept** and **Decline** links (`/invite/accept?invite=…` / `/invite/reject?invite=…`). Links are signed (14-day TTL) so they work on any device. Requires Resend (`RESEND_API_KEY`) and a **verified** From address (`RESEND_FROM_EMAIL` — not only `onboarding@resend.dev`, which can only reach the Resend account owner). If mail is unset or blocked, the Owner still gets a portable share link.  
 5. Invitee accepts (sets password) or declines; Plan Owner is emailed the decision. Until Cloud seats (SEC-5), acceptance is browser-local.  
 6. Seat counts against plan entitlement; over-limit → block invite + upgrade CTA.
 
