@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-18 — ClickUp Marketing lists seeded (EM-2)
+
+- Team Space: folder **TrustLedger Marketing** with **Newsletter Cadence** + **Newsletter Themes** (6 theme cards, first fortnightly task, AI prompt reference).
+- **Platform Ops** list: Resend smoke-after-#153 + EM-1 Desk readiness tasks.
+- List URLs recorded in `docs/CLICKUP_NEWSLETTER_OPS.md` (statuses/custom fields still UI).
+
 ## 2026-08-18 — Production Resend cutover runbook
 
 - Added `docs/RESEND_PRODUCTION.md`: verify `trustledger.co.za` in Resend (DKIM + SPF merge; keep Webway MX), set Vercel `RESEND_FROM_EMAIL`, Redeploy, confirm `inviteEmailReady`.
