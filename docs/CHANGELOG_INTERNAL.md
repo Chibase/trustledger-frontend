@@ -12,6 +12,10 @@
 - Mapped beside platform Stats SA / Census baseline (same keys → Δ for verify / support / local impact). Never writes into `mockIndicators` / geo packs (ADR-040).
 - Project dossier dual panel + Intelligence page project roll-up; report composer cites local rows in ESG community notes.
 
+## 2026-08-19 — Feedback form text colour readable
+
+- Experience feedback inputs, labels, and drawer title use `text-tl-ink` so typed text stays visible on white fields (was inheriting light colour in some contexts).
+
 ## 2026-08-19 — Capture: upload / arrange rough minutes & late handover
 
 - Capture hub had no real file upload — “blank” was Insert blank form / PDF only.
