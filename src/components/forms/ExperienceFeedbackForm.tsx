@@ -160,7 +160,10 @@ export function ExperienceFeedbackForm({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label htmlFor="fb-name" className="mb-1 block text-sm font-medium">
+          <label
+            htmlFor="fb-name"
+            className="mb-1 block text-sm font-medium text-tl-ink"
+          >
             Name
           </label>
           <input
@@ -169,11 +172,14 @@ export function ExperienceFeedbackForm({
             autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border border-tl-line bg-white px-3 py-2 text-sm"
+            className="w-full rounded-md border border-tl-line bg-white px-3 py-2 text-sm text-tl-ink placeholder:text-tl-ink-muted"
           />
         </div>
         <div>
-          <label htmlFor="fb-email" className="mb-1 block text-sm font-medium">
+          <label
+            htmlFor="fb-email"
+            className="mb-1 block text-sm font-medium text-tl-ink"
+          >
             Work email
           </label>
           <input
@@ -184,13 +190,16 @@ export function ExperienceFeedbackForm({
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-tl-line bg-white px-3 py-2 text-sm"
+            className="w-full rounded-md border border-tl-line bg-white px-3 py-2 text-sm text-tl-ink placeholder:text-tl-ink-muted"
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="fb-message" className="mb-1 block text-sm font-medium">
+        <label
+          htmlFor="fb-message"
+          className="mb-1 block text-sm font-medium text-tl-ink"
+        >
           What should we know?
         </label>
         <textarea
@@ -201,7 +210,7 @@ export function ExperienceFeedbackForm({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Clarity, missing features, confusion, what you’d tell a colleague…"
-          className="w-full rounded-md border border-tl-line bg-white px-3 py-2 text-sm"
+          className="w-full rounded-md border border-tl-line bg-white px-3 py-2 text-sm text-tl-ink placeholder:text-tl-ink-muted"
         />
       </div>
 
