@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import { SECURITY_HEADERS } from "./src/lib/security/headers";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pdfkit"],
+  serverExternalPackages: ["pdfkit", "unpdf"],
   async redirects() {
     return [
       { source: "/demo", destination: "/product", permanent: true },

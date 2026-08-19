@@ -3,7 +3,8 @@
 ## 2026-08-19 — Capture: upload / arrange rough minutes & late handover
 
 - Capture hub had no real file upload — “blank” was Insert blank form / PDF only.
-- Minutes & attendance: **Upload notes** (.txt / .md / .csv), **Arrange rough notes into form**, paste still works.
+- Minutes & attendance: **Upload notes** (.txt / .md / .csv / **.pdf**), **Arrange rough notes into form**, paste still works.
+- PDF text extracted server-side (`POST /api/app/capture/extract-text` via `unpdf`); scanned image-only PDFs prompt for typed paste.
 - Field meta: **Date of meeting** + **Captured after the meeting** (SF/CLO not on site; notes handed over later) → engagement `heldOn` and summary stamp.
 - Apply uses agenda Action rows when present; product/resources copy aligned.
 

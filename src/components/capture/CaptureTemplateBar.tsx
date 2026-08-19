@@ -21,7 +21,10 @@ type Props = {
 };
 
 const ACCEPT =
-  ".txt,.md,.csv,.text,text/plain,text/markdown,text/csv,application/csv";
+  ".txt,.md,.csv,.text,.pdf,text/plain,text/markdown,text/csv,application/csv,application/pdf";
+
+const MAX_TEXT_BYTES = 1_500_000;
+const MAX_PDF_BYTES = 4 * 1024 * 1024;
 
 function narrativeForArrange(source: CaptureSource): NarrativeCaptureSource {
   if (source === "minutes" || source === "attendance") return source;
@@ -61,33 +64,72 @@ export function CaptureTemplateBar({
   async function handleFile(file: File | undefined) {
     if (!file) return;
     const lower = file.name.toLowerCase();
+    const isPdf =
+      file.type === "application/pdf" ||
+      file.type === "application/x-pdf" ||
+      lower.endsWith(".pdf");
     const okText =
       file.type.startsWith("text/") ||
       lower.endsWith(".txt") ||
       lower.endsWith(".md") ||
       lower.endsWith(".csv") ||
       lower.endsWith(".text");
-    if (!okText) {
+    if (!isPdf && !okText) {
       onToast?.(
-        "Upload a text file (.txt / .md / .csv). For PDF photos, paste typed notes or use Insert blank form.",
+        "Upload .txt / .md / .csv / .pdf. Scanned photo PDFs need typed notes if no text layer.",
         "error",
       );
       return;
     }
-    if (file.size > 1_500_000) {
+    if (isPdf && file.size > MAX_PDF_BYTES) {
+      onToast?.("PDF is too large (max 4 MB).", "error");
+      return;
+    }
+    if (!isPdf && file.size > MAX_TEXT_BYTES) {
       onToast?.("File is too large (max ~1.5 MB text).", "error");
       return;
     }
     setBusy(true);
     try {
-      const raw = await file.text();
+      let raw = "";
+      if (isPdf) {
+        const form = new FormData();
+        form.append("file", file);
+        const res = await fetch("/api/app/capture/extract-text", {
+          method: "POST",
+          body: form,
+        });
+        const json = (await res.json()) as {
+          text?: string;
+          error?: string;
+          truncated?: boolean;
+        };
+        if (!res.ok || !json.text) {
+          onToast?.(json.error || "Could not read PDF text.", "error");
+          return;
+        }
+        raw = json.text;
+        if (json.truncated) {
+          onToast?.(
+            "PDF text was truncated to the first section — review before Apply.",
+            "success",
+          );
+        }
+      } else {
+        raw = await file.text();
+      }
       const arranged = arrangeRoughNotesIntoTemplate(
         narrativeForArrange(source),
         raw,
         skeleton,
       );
       onBodyChange(arranged.text);
-      onToast?.(arranged.note, "success");
+      onToast?.(
+        isPdf
+          ? `PDF text extracted. ${arranged.note}`
+          : arranged.note,
+        "success",
+      );
     } catch {
       onToast?.("Could not read that file.", "error");
     } finally {
@@ -113,11 +155,12 @@ export function CaptureTemplateBar({
       </p>
       <p className="mt-1 text-sm text-tl-ink-muted">
         Meetings often happen on site without SF/CLO present. Capture notes
-        later: paste rough minutes or a register, upload a{" "}
-        <span className="font-medium text-tl-ink">.txt / .md / .csv</span>, or
-        arrange free text into labeled fields — then Suggest stakeholders →
-        Apply. PDF download is the blank paper form for the meeting; it is not
-        the upload path.
+        later: paste rough minutes or a register, upload{" "}
+        <span className="font-medium text-tl-ink">.txt / .md / .csv / .pdf</span>
+        , or arrange free text into labeled fields — then Suggest stakeholders →
+        Apply. Text-based PDFs work; scanned photo PDFs with no text layer need
+        typed paste. “Download blank PDF” is the empty paper form for the
+        meeting — separate from uploading filled notes.
       </p>
       <ul className="mt-2 list-disc pl-5 text-xs text-tl-ink-muted">
         {mapsTo.map((line) => (
@@ -138,7 +181,7 @@ export function CaptureTemplateBar({
           onClick={() => fileRef.current?.click()}
           className="inline-flex justify-center rounded-md bg-tl-trust px-3 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
         >
-          {busy ? "Reading…" : "Upload notes (.txt / .md / .csv)"}
+          {busy ? "Reading…" : "Upload notes (.txt / .md / .csv / .pdf)"}
         </button>
         {showArrange ? (
           <button
@@ -161,7 +204,7 @@ export function CaptureTemplateBar({
         type="file"
         accept={ACCEPT}
         className="sr-only"
-        aria-label="Upload minutes or attendance notes as text"
+        aria-label="Upload minutes or attendance notes as text or PDF"
         onChange={(e) => void handleFile(e.target.files?.[0])}
       />
     </div>

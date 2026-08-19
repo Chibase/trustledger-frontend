@@ -36,7 +36,7 @@ const FEATURES = [
   },
   {
     title: "Field templates",
-    body: "Minutes, attendance registers, and field notes with labeled fields. Paste or upload rough notes (.txt / .md / .csv), arrange into the form, then Suggest → Apply. Late handover after an on-site meeting is supported. Bundled on Project and Institutional; also free on /resources.",
+    body: "Minutes, attendance registers, and field notes with labeled fields. Paste or upload rough notes (.txt / .md / .csv / .pdf), arrange into the form, then Suggest → Apply. Late handover after an on-site meeting is supported. Bundled on Project and Institutional; also free on /resources.",
   },
   {
     title: "Commitments",
