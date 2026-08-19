@@ -231,38 +231,64 @@ ${attendancePersonSlots(10)}`,
     captureSource: "social_intel",
     title: "Local community intelligence",
     shortTitle: "Community intel",
-    tagline: "Ward surveys beside Stats SA baseline",
+    tagline: "Baseline verify + LED / ESG / M&E project impact",
     description:
-      "Upload or paste local community intelligence (ward surveys, CLO tallies, household samples). Map rates that match Stats SA keys to verify or support provincial baseline and track local impact. Tenant-owned — never overwrites platform packs.",
-    audience: "CLO, social facilitators, MEL, community structures",
-    pagesHint: "PDF form · local survey",
+      "Ward surveys beside Stats SA, plus project impact: labour intake, training, local procurement (people + ZAR). Serves LED, ESG, M&E and funders from local upward. Tenant-owned — never overwrites platform packs.",
+    audience: "LED, CLO, ESG, MEL, funders, community structures",
+    pagesHint: "PDF form · survey + impact",
     version: "2026.08",
     filename: "Local-Community-Intelligence.pdf",
     mapsTo: [
       "Local indicators beside Stats SA / Census baseline",
+      "Labour intake & wages (ZAR)",
+      "Training beneficiaries & skills spend (ZAR)",
+      "Local / preferential procurement (ZAR)",
+      "Funder roll-up local → provincial → national / IFI",
       "Stakeholders (people mentioned)",
-      "Engagement / social intelligence capture",
-      "ESG / community impact reporting",
+      "ESG / LED / M&E reporting",
     ],
     pasteSkeleton: `LOCAL COMMUNITY INTELLIGENCE
-(Tenant-owned — verify or support Stats SA / provincial baseline; track local impact)
+(Tenant-owned — verify Stats SA baseline + measure project impact for LED / ESG / M&E / funders)
 Place / ward: 
-Survey date (YYYY-MM-DD): 
-Source: (ward survey / CLO tally / community meeting / household sample)
+Survey date / reporting period (YYYY-MM-DD): 
+Source: (ward survey / CLO tally / contractor LED / M&E pack)
 
-INDICATORS (match Stats SA keys where possible for side-by-side compare)
+INDICATORS — baseline compare (Stats SA keys)
 Households surveyed: 
 Unemployment rate: 
 Youth NEET (15–24): 
 Households with piped water: 
 Households with electricity: 
-Local hire: 
 Community trust score: 
+
+PROJECT IMPACT — labour / training / procurement (count + ZAR)
+Labour intake: 
+Labour wages / payroll: 
+Local hire: 
+Youth employed: 
+Women employed: 
+Jobs created (FTE): 
+People trained: 
+Training spend: 
+Skills development spend: 
+Local procurement: 
+Preferential procurement: 
+Local suppliers engaged: 
+SME / ESD spend: 
+Households benefiting: 
+Local income injected: 
 
 Or CSV:
 key,value,unit,year,source,notes
+# labour_intake_count,85,people,2025,LED register,
+# labour_wages_zar,2100000,ZAR,2025,Payroll,
+# local_procurement_zar,1500000,ZAR,2025,Procurement log,
+# training_spend_zar,320000,ZAR,2025,Skills pack,
 # unemployment_rate,41,%,2025,Ward household survey,
-# youth_neet,48,%,2025,Youth focus group,
+
+FUNDER ROLL-UP
+(Local project figures sit beside municipal / provincial Stats SA baseline — report upward without overwriting platform packs.)
+Audience notes (LED / ESG / M&E / funder): 
 
 NOTES / LOCAL IMPACT
 
@@ -289,30 +315,73 @@ Location:
         itemStyle: "field",
         items: [
           `Place / ward: ${LINE}`,
-          `Survey date (YYYY-MM-DD): ${SHORT}`,
-          "Source (ward survey / CLO tally / community meeting / household sample): ______________",
-          `Households surveyed: ${SHORT}`,
+          `Survey date / reporting period (YYYY-MM-DD): ${SHORT}`,
+          "Source (ward survey / CLO / LED / M&E): ______________",
         ],
       },
       {
-        title: "Local indicators (compare to Stats SA)",
+        title: "Baseline compare (Stats SA)",
         intro:
-          "Use the same metric names as provincial baseline where possible (unemployment, NEET, piped water, electricity).",
+          "Same metric names as provincial baseline where possible — verify or support Census / QLFS figures.",
         itemStyle: "field",
         items: [
+          `Households surveyed: ${SHORT}`,
           `Unemployment rate: ${SHORT}`,
           `Youth NEET (15–24): ${SHORT}`,
           `Households with piped water: ${SHORT}`,
           `Households with electricity: ${SHORT}`,
-          `Local hire: ${SHORT}`,
           `Community trust score: ${SHORT}`,
         ],
       },
       {
-        title: "Notes / local impact",
+        title: "Project impact — labour",
+        intro: "LED / ESG employment evidence (people + payroll ZAR).",
         itemStyle: "field",
         items: [
-          "________________________________________________________________",
+          `Labour intake (people): ${SHORT}`,
+          `Labour wages / payroll (ZAR): ${SHORT}`,
+          `Local hire (%): ${SHORT}`,
+          `Youth employed: ${SHORT}`,
+          `Women employed: ${SHORT}`,
+          `Jobs created (FTE): ${SHORT}`,
+        ],
+      },
+      {
+        title: "Project impact — training",
+        intro: "Skills / M&E beneficiaries and spend.",
+        itemStyle: "field",
+        items: [
+          `People trained: ${SHORT}`,
+          `Training spend (ZAR): ${SHORT}`,
+          `Skills development spend (ZAR): ${SHORT}`,
+        ],
+      },
+      {
+        title: "Project impact — procurement",
+        intro: "Local and preferential procurement for LED and B-BBEE packs.",
+        itemStyle: "field",
+        items: [
+          `Local procurement (ZAR): ${SHORT}`,
+          `Preferential procurement (ZAR): ${SHORT}`,
+          `Local suppliers engaged: ${SHORT}`,
+          `SME / ESD spend (ZAR): ${SHORT}`,
+        ],
+      },
+      {
+        title: "Socio-economic impact",
+        itemStyle: "field",
+        items: [
+          `Households benefiting: ${SHORT}`,
+          `Local income injected (ZAR): ${SHORT}`,
+        ],
+      },
+      {
+        title: "Funder roll-up notes",
+        intro:
+          "Local → municipal → provincial (vs Stats SA) → national / international funder narrative.",
+        itemStyle: "field",
+        items: [
+          "Audience notes (LED / ESG / M&E / funder): ______________",
           "________________________________________________________________",
         ],
       },

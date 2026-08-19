@@ -74,9 +74,10 @@ export type ProjectDossier = {
     /** Human-readable dump of attached baseline rows. */
     baselineSummary?: string;
     /**
-     * Tenant-owned local community intelligence (ward surveys, CLO tallies).
-     * Used beside Stats SA to verify / support provincial intel and track local impact.
-     * Never merged into platform packs (ADR-040).
+     * Tenant-owned local community intelligence + project impact.
+     * - baseline_compare: ward surveys beside Stats SA
+     * - project_impact: labour / training / procurement (count + ZAR) for LED, ESG, M&E
+     * Never merged into platform packs (ADR-040); feeds funder roll-up from local upward.
      */
     localIndicators?: Array<{
       key: string;
@@ -87,6 +88,9 @@ export type ProjectDossier = {
       source?: string;
       notes?: string;
       captureId?: string;
+      domain?: "baseline_compare" | "project_impact";
+      category?: "baseline" | "labour" | "training" | "procurement" | "socio";
+      audiences?: Array<"LED" | "ESG" | "ME" | "funder" | "CLO">;
     }>;
     localIntelAttachedAt?: string;
     localIntelCaptureId?: string;

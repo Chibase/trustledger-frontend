@@ -21,7 +21,10 @@ import {
   actionItemsFromMinutes,
   parseMeetingHeldOn,
 } from "@/lib/arrangeFieldNotes";
-import { applyLocalIntelToCommunityIntel } from "@/lib/dossierIntel";
+import {
+  applyLocalImpactToEmpowerment,
+  applyLocalIntelToCommunityIntel,
+} from "@/lib/dossierIntel";
 import { parseLocalCommunityIntel } from "@/lib/parseLocalCommunityIntel";
 import { isPlanId, type PlanId } from "@/config/plans";
 import {
@@ -97,7 +100,7 @@ const NARRATIVE_SOURCES: {
   {
     id: "social_intel",
     label: "Local community intel",
-    hint: "Upload or paste ward surveys / CLO tallies (.txt / .csv / .pdf). Arrange into indicators that sit beside Stats SA baseline, then Suggest stakeholders → Apply.",
+    hint: "Upload ward surveys + project impact (labour, training, local procurement — count & ZAR) for LED / ESG / M&E. Maps beside Stats SA and rolls up for funders.",
   },
   {
     id: "pasted_report",
@@ -652,15 +655,28 @@ export default function AppCapturePage() {
               localRows,
               { captureId },
             );
+            const empowermentTargets = applyLocalImpactToEmpowerment(
+              dossier.empowermentTargets,
+              localRows,
+            );
             const next = persistProjectWithDossier({
               ...project,
-              dossier: { ...dossier, communityIntel },
+              dossier: {
+                ...dossier,
+                communityIntel,
+                ...(empowermentTargets
+                  ? { empowermentTargets }
+                  : {}),
+              },
             });
             setProjects((prev) =>
               prev.map((p) => (p.id === next.id ? next : p)),
             );
+            const impact = localRows.filter(
+              (r) => r.domain === "project_impact",
+            ).length;
             pushToast(
-              `${ids.length} stakeholder(s) · ${localRows.length} local indicator(s) beside Stats SA`,
+              `${ids.length} stakeholder(s) · ${localRows.length} local intel row(s)${impact ? ` (${impact} project impact)` : ""} · LED/ESG/M&E`,
               "success",
             );
             setRecent(listCaptureRecords());

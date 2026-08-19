@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-19 — Local intel: project impact for LED / ESG / M&E / funders
+
+- Local community intel now captures **project impact**: labour intake & wages, training beneficiaries & spend, local / preferential procurement, SME/ESD, households benefiting, income injected — **people + ZAR**.
+- Domains: `baseline_compare` (vs Stats SA) and `project_impact` (LED/ESG/M&E). Dossier shows category panels + **funder ladder** (local → municipal → provincial → national → international).
+- Apply feeds empowerment spent ZAR and report packs (employment / B-BBEE / ESG) without overwriting platform baseline packs.
+
 ## 2026-08-19 — Local community intel beside Stats SA
 
 - Capture → **Local community intel**: upload / paste ward surveys, CLO tallies, household samples (.txt / .csv / .pdf); Arrange into indicator form; Apply attaches **tenant-owned** `localIndicators` on the project dossier.

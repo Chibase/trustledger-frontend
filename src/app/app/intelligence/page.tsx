@@ -18,7 +18,12 @@ import {
   saveIndicatorBrief,
   type SavedIndicatorBrief,
 } from "@/lib/indicatorBriefStore";
-import { compareLocalToBaseline } from "@/lib/parseLocalCommunityIntel";
+import {
+  compareLocalToBaseline,
+  formatIntelValue,
+  partitionLocalIntel,
+  sumImpactZar,
+} from "@/lib/parseLocalCommunityIntel";
 import { mergeProjectsWithDossiers } from "@/lib/projectDossier";
 import { projectService } from "@/services/projectService";
 import { aiService } from "@/services/aiService";
@@ -248,11 +253,12 @@ export default function AppIntelligencePage() {
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <h2 className="font-display text-base font-semibold text-tl-ink">
-                Local community intel (projects)
+                Local intel + project impact
               </h2>
               <p className="mt-1 text-sm text-tl-ink-muted">
-                Tenant-owned ward surveys mapped beside Stats SA — never written
-                into the platform pack. Δ uses matching keys vs the place above.
+                Ward surveys beside Stats SA, plus labour / training /
+                procurement (people + ZAR) for LED, ESG, M&amp;E — rolls upward
+                for funders without writing into the platform pack.
               </p>
             </div>
             <Link
@@ -264,15 +270,18 @@ export default function AppIntelligencePage() {
           </div>
           {projectsWithLocal.length === 0 ? (
             <p className="text-sm text-tl-ink-muted">
-              No project has local indicators yet. Upload a ward survey in
-              Capture → Local community intel, Apply, then reopen this page.
+              No project has local impact yet. Capture labour intake, training,
+              and local procurement (ZAR), Apply, then reopen this page.
             </p>
           ) : (
             <ul className="space-y-3">
               {projectsWithLocal.map((project) => {
                 const local =
                   project.dossier?.communityIntel?.localIndicators || [];
+                const { baselineCompare, projectImpact } =
+                  partitionLocalIntel(local);
                 const compare = compareLocalToBaseline(local, indicators);
+                const zar = sumImpactZar(local);
                 return (
                   <li
                     key={project.id}
@@ -287,19 +296,39 @@ export default function AppIntelligencePage() {
                         Project dossier
                       </Link>
                     </div>
-                    <ul className="mt-2 grid gap-1 sm:grid-cols-2">
-                      {local.map((row) => (
-                        <li key={row.key} className="text-sm text-tl-ink">
-                          <span className="font-medium">{row.label}</span>
-                          {": "}
-                          {row.value}
-                          {row.unit === "%" ? "%" : ` ${row.unit}`}
-                          <span className="text-xs text-tl-ink-muted">
-                            {row.source ? ` · ${row.source}` : " · Local"}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                    {zar > 0 ? (
+                      <p className="mt-1 text-xs text-tl-ink-muted">
+                        ZAR impact logged: R{zar.toLocaleString("en-ZA")}
+                      </p>
+                    ) : null}
+                    {projectImpact.length ? (
+                      <ul className="mt-2 grid gap-1 sm:grid-cols-2">
+                        {projectImpact.map((row) => (
+                          <li key={row.key} className="text-sm text-tl-ink">
+                            <span className="font-medium">{row.label}</span>
+                            {": "}
+                            {formatIntelValue(row)}
+                            <span className="text-xs text-tl-ink-muted">
+                              {row.category ? ` · ${row.category}` : ""}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {baselineCompare.length ? (
+                      <ul className="mt-2 grid gap-1 border-t border-tl-line pt-2 sm:grid-cols-2">
+                        {baselineCompare.map((row) => (
+                          <li key={row.key} className="text-sm text-tl-ink">
+                            <span className="font-medium">{row.label}</span>
+                            {": "}
+                            {formatIntelValue(row)}
+                            <span className="text-xs text-tl-ink-muted">
+                              {" · vs baseline"}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                     {compare.length ? (
                       <ul className="mt-2 space-y-1 border-t border-tl-line pt-2 text-xs text-tl-ink">
                         {compare.map((c) => (

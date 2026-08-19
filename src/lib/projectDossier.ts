@@ -214,7 +214,12 @@ export function dossierSummaryLines(project: Project): string[] {
   }
   const local = d?.communityIntel?.localIndicators?.length || 0;
   if (local) {
-    lines.push(`Local community intel indicators: ${local}`);
+    const zar = (d?.communityIntel?.localIndicators || [])
+      .filter((r) => r.unit === "ZAR")
+      .reduce((a, r) => a + r.value, 0);
+    lines.push(
+      `Local intel / project impact rows: ${local}${zar > 0 ? ` · R${zar.toLocaleString("en-ZA")} ZAR logged` : ""}`,
+    );
   }
   const promiseCount = d?.promises?.length || 0;
   if (promiseCount) lines.push(`Promises on file: ${promiseCount}`);

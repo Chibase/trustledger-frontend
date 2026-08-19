@@ -248,7 +248,7 @@ export function applyBaselineToCommunityIntel(
   };
 }
 
-/** Attach tenant local community intel beside Stats SA (does not replace baseline). */
+/** Attach tenant local community intel + project impact beside Stats SA. */
 export function applyLocalIntelToCommunityIntel(
   current: ProjectDossier["communityIntel"] | undefined,
   rows: Array<{
@@ -259,6 +259,9 @@ export function applyLocalIntelToCommunityIntel(
     year?: number;
     source?: string;
     notes?: string;
+    domain?: "baseline_compare" | "project_impact";
+    category?: "baseline" | "labour" | "training" | "procurement" | "socio";
+    audiences?: Array<"LED" | "ESG" | "ME" | "funder" | "CLO">;
   }>,
   opts?: { captureId?: string },
 ): NonNullable<ProjectDossier["communityIntel"]> {
@@ -266,18 +269,56 @@ export function applyLocalIntelToCommunityIntel(
     ...r,
     captureId: opts?.captureId,
   }));
-  const lines = localIndicators.map(
-    (r) =>
-      `${r.label}: ${r.value}${r.unit === "%" ? "%" : ` ${r.unit}`}${r.year ? ` (${r.year})` : ""}${r.source ? ` — ${r.source}` : ""}`,
-  );
+  const lines = localIndicators.map((r) => {
+    const val =
+      r.unit === "ZAR"
+        ? `R${r.value.toLocaleString("en-ZA")}`
+        : r.unit === "%"
+          ? `${r.value}%`
+          : `${r.value}${r.unit ? ` ${r.unit}` : ""}`;
+    const lane =
+      r.domain === "project_impact"
+        ? r.category
+          ? ` [${r.category}]`
+          : " [impact]"
+        : " [baseline]";
+    return `${r.label}${lane}: ${val}${r.year ? ` (${r.year})` : ""}${r.source ? ` — ${r.source}` : ""}`;
+  });
   return {
     ...current,
     localIndicators,
     localIntelAttachedAt: new Date().toISOString(),
     localIntelCaptureId: opts?.captureId,
     localIntelSummary: lines.length
-      ? `Local community intel:\n${lines.join("\n")}`
+      ? `Local intel + project impact (LED/ESG/M&E):\n${lines.join("\n")}`
       : current?.localIntelSummary,
+  };
+}
+
+/**
+ * Merge impact ZAR into empowerment spent without wiping human-set targets.
+ * Actual hire / procurement / skills feed report packs via localIndicators.
+ */
+export function applyLocalImpactToEmpowerment(
+  current: ProjectDossier["empowermentTargets"] | undefined,
+  rows: Array<{ key: string; value: number; unit: string }>,
+): ProjectDossier["empowermentTargets"] | undefined {
+  const zarKeys = [
+    "labour_wages_zar",
+    "training_spend_zar",
+    "skills_dev_zar",
+    "local_procurement_zar",
+    "preferential_procurement_zar",
+    "sme_spend_zar",
+    "income_injected_zar",
+  ];
+  const spent = rows
+    .filter((r) => r.unit === "ZAR" && zarKeys.includes(r.key))
+    .reduce((a, r) => a + r.value, 0);
+  if (!spent) return current;
+  return {
+    ...current,
+    empowermentSpentZar: spent,
   };
 }
 

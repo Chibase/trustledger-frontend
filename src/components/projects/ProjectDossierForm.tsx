@@ -16,7 +16,13 @@ import {
   indicatorPlaceCandidates,
   isCountryOnlyGeo,
 } from "@/lib/dossierIntel";
-import { compareLocalToBaseline } from "@/lib/parseLocalCommunityIntel";
+import {
+  buildFunderImpactLadder,
+  compareLocalToBaseline,
+  formatIntelValue,
+  partitionLocalIntel,
+  sumImpactZar,
+} from "@/lib/parseLocalCommunityIntel";
 import Link from "next/link";
 import {
   hydrateDossierFromProject,
@@ -741,24 +747,39 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
           if (!local.length) {
             return (
               <p className="text-xs text-tl-ink-muted">
-                No local community indicators yet.{" "}
+                No local intel or project impact yet.{" "}
                 <Link
                   href={`/app/capture?projectId=${encodeURIComponent(project.id)}&source=social_intel`}
                   className="text-tl-trust-ink underline"
                 >
                   Capture → Local community intel
                 </Link>{" "}
-                to upload a ward survey (.txt / .csv / .pdf) and Apply beside
-                Stats SA.
+                for ward surveys + labour / training / procurement (count &amp;
+                ZAR) — LED, ESG, M&amp;E, funders.
               </p>
             );
           }
+          const { baselineCompare, projectImpact, byCategory } =
+            partitionLocalIntel(local);
           const compare = compareLocalToBaseline(local, attached);
+          const zarTotal = sumImpactZar(local);
+          const ladder = buildFunderImpactLadder({
+            rows: local,
+            geo: dossier.geo,
+            baselinePlaceId: dossier.communityIntel?.baselinePlaceId,
+            funderName: dossier.funder?.name || project.clientFunder,
+          });
+          const categoryOrder = [
+            "labour",
+            "training",
+            "procurement",
+            "socio",
+          ] as const;
           return (
-            <div className="space-y-2 rounded-md border border-tl-trust/30 bg-tl-trust/5 p-3">
+            <div className="space-y-3 rounded-md border border-tl-trust/30 bg-tl-trust/5 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-medium text-tl-ink">
-                  Local community intel
+                  Local intel + project impact
                   {dossier.communityIntel?.localIntelAttachedAt
                     ? ` · ${new Date(dossier.communityIntel.localIntelAttachedAt).toLocaleDateString("en-ZA")}`
                     : ""}
@@ -771,23 +792,69 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
                   Clear local
                 </button>
               </div>
-              <ul className="grid gap-2 sm:grid-cols-2">
-                {local.map((row) => (
-                  <li key={row.key} className="text-sm text-tl-ink">
-                    <span className="font-medium">{row.label}</span>
-                    {": "}
-                    {row.value}
-                    {row.unit === "%" ? "%" : ` ${row.unit}`}
-                    <span className="text-xs text-tl-ink-muted">
-                      {row.source ? ` · ${row.source}` : " · Local survey"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <p className="text-xs text-tl-ink-muted">
+                Baseline compare verifies Stats SA. Project impact measures LED
+                / ESG / M&amp;E results (people + ZAR) and rolls upward for
+                funders — never overwrites the platform pack.
+                {zarTotal > 0
+                  ? ` · ZAR impact logged: R${zarTotal.toLocaleString("en-ZA")}`
+                  : ""}
+              </p>
+
+              {baselineCompare.length ? (
+                <div>
+                  <p className="text-xs font-medium text-tl-ink-muted">
+                    Baseline compare (vs Stats SA)
+                  </p>
+                  <ul className="mt-1 grid gap-2 sm:grid-cols-2">
+                    {baselineCompare.map((row) => (
+                      <li key={row.key} className="text-sm text-tl-ink">
+                        <span className="font-medium">{row.label}</span>
+                        {": "}
+                        {formatIntelValue(row)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {projectImpact.length ? (
+                <div className="space-y-2 border-t border-tl-line pt-2">
+                  <p className="text-xs font-medium text-tl-ink-muted">
+                    Project impact — labour · training · procurement · socio
+                  </p>
+                  {categoryOrder.map((cat) => {
+                    const rows = byCategory[cat];
+                    if (!rows.length) return null;
+                    return (
+                      <div key={cat}>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-tl-ink-muted">
+                          {cat}
+                        </p>
+                        <ul className="mt-1 grid gap-1 sm:grid-cols-2">
+                          {rows.map((row) => (
+                            <li key={row.key} className="text-sm text-tl-ink">
+                              <span className="font-medium">{row.label}</span>
+                              {": "}
+                              {formatIntelValue(row)}
+                              <span className="text-xs text-tl-ink-muted">
+                                {row.audiences?.length
+                                  ? ` · ${row.audiences.join("/")}`
+                                  : ""}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+
               {compare.length ? (
                 <div className="border-t border-tl-line pt-2">
                   <p className="text-xs font-medium text-tl-ink-muted">
-                    Local vs Stats SA (same keys) — impact / verify
+                    Local survey vs Stats SA (same keys)
                   </p>
                   <ul className="mt-1 space-y-1 text-xs text-tl-ink">
                     {compare.map((c) => (
@@ -807,12 +874,24 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
                     ))}
                   </ul>
                 </div>
-              ) : (
-                <p className="text-xs text-tl-ink-muted">
-                  Attach a Stats SA baseline with matching keys (e.g.
-                  unemployment) to see side-by-side deltas.
+              ) : null}
+
+              <div className="border-t border-tl-line pt-2">
+                <p className="text-xs font-medium text-tl-ink-muted">
+                  Funder track — local upward
                 </p>
-              )}
+                <ul className="mt-1 space-y-2 text-xs text-tl-ink">
+                  {ladder.map((step) => (
+                    <li key={step.scale}>
+                      <span className="font-medium">{step.title}</span>
+                      <span className="text-tl-ink-muted">
+                        {" — "}
+                        {step.summary}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           );
         })()}
