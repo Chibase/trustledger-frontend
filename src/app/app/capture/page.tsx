@@ -1094,8 +1094,7 @@ export default function AppCapturePage() {
                       value={body}
                       onChange={(e) => setBody(e.target.value)}
                       className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-                      placeholder="Paste rough notes, upload .txt/.md/.csv, or insert a blank form — then Arrange if needed…"
-                    />
+                      placeholder="Paste rough notes, upload .txt/.md/.csv/.pdf, or insert a blank form — then Arrange if needed…"                    />
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <AiAssistButton
