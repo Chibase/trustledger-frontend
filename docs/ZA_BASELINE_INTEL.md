@@ -42,9 +42,11 @@ Platform packs are **shared reference data** (MDB places + Stats SA / Census bas
 | Ward | 4 468 | MDB 2020 |
 | Traditional council | 15 | Early CSV (Eastern Cape–weighted) |
 | Socio-economic indicators | Featured places | Stats SA QLFS / Census CS baseline (`src/data/mockIndicators.ts` → Intelligence / ESG) |
+| **Local community intel** | Per project (tenant) | Ward surveys **and** project impact (labour intake, training, local procurement — people + ZAR) via Capture → **Local community intel**. Sits **beside** Stats SA to verify baseline and measure LED / ESG / M&E impact; funder ladder local → municipal → provincial → national / IFI (`communityIntel.localIndicators`). Never writes into the platform pack. |
 
 Runtime: `data/geo/za-mdb-2020.places.json` → `geoSeed` → `geoService` / `/app/geo` / `GeoCascadePicker`.  
 Indicators: `mockIndicators` merged via `geoService` / `/app/intelligence`.  
+Local intel: Capture upload → `parseLocalCommunityIntel` → project dossier.  
 Entitlement: `geoIntake` on **all** commercial plans; `esgIndicators` on entitled plans (`src/config/entitlements.ts`).
 
 ## Plan packaging

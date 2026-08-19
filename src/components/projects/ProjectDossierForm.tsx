@@ -6,6 +6,7 @@ import { FEATURED_INDICATOR_PLACES } from "@/data/mockIndicators";
 import {
   applyBaselineToCommunityIntel,
   clearBaselineFromCommunityIntel,
+  clearLocalIntelFromCommunityIntel,
   dossierGeoFromCascade,
   dossierHasCascadeGeo,
   fetchIndicatorsForGeo,
@@ -15,6 +16,14 @@ import {
   indicatorPlaceCandidates,
   isCountryOnlyGeo,
 } from "@/lib/dossierIntel";
+import {
+  buildFunderImpactLadder,
+  compareLocalToBaseline,
+  formatIntelValue,
+  partitionLocalIntel,
+  sumImpactZar,
+} from "@/lib/parseLocalCommunityIntel";
+import Link from "next/link";
 import {
   hydrateDossierFromProject,
   newPromiseId,
@@ -196,6 +205,12 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
   function clearAttachedBaseline() {
     patch({
       communityIntel: clearBaselineFromCommunityIntel(dossier.communityIntel),
+    });
+  }
+
+  function clearLocalIntel() {
+    patch({
+      communityIntel: clearLocalIntelFromCommunityIntel(dossier.communityIntel),
     });
   }
 
@@ -602,7 +617,9 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
         </h3>
         <p className="text-xs text-tl-ink-muted">
           Attach Stats SA / Census platform baseline for the selected place
-          (ADR-040). Tenant notes for businesses and structures stay separate.
+          (ADR-040). Upload local community surveys from Capture → Local
+          community intel to verify or support provincial figures and track
+          local impact — tenant-owned, never overwrites the platform pack.
         </p>
 
         <div className="flex flex-wrap gap-2">
@@ -724,6 +741,160 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
             </ul>
           </div>
         ) : null}
+
+        {(() => {
+          const local = dossier.communityIntel?.localIndicators || [];
+          if (!local.length) {
+            return (
+              <p className="text-xs text-tl-ink-muted">
+                No local intel or project impact yet.{" "}
+                <Link
+                  href={`/app/capture?projectId=${encodeURIComponent(project.id)}&source=social_intel`}
+                  className="text-tl-trust-ink underline"
+                >
+                  Capture → Local community intel
+                </Link>{" "}
+                for ward surveys + labour / training / procurement (count &amp;
+                ZAR) — LED, ESG, M&amp;E, funders.
+              </p>
+            );
+          }
+          const { baselineCompare, projectImpact, byCategory } =
+            partitionLocalIntel(local);
+          const compare = compareLocalToBaseline(local, attached);
+          const zarTotal = sumImpactZar(local);
+          const ladder = buildFunderImpactLadder({
+            rows: local,
+            geo: dossier.geo,
+            baselinePlaceId: dossier.communityIntel?.baselinePlaceId,
+            funderName: dossier.funder?.name || project.clientFunder,
+          });
+          const categoryOrder = [
+            "labour",
+            "training",
+            "procurement",
+            "socio",
+          ] as const;
+          return (
+            <div className="space-y-3 rounded-md border border-tl-trust/30 bg-tl-trust/5 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-medium text-tl-ink">
+                  Local intel + project impact
+                  {dossier.communityIntel?.localIntelAttachedAt
+                    ? ` · ${new Date(dossier.communityIntel.localIntelAttachedAt).toLocaleDateString("en-ZA")}`
+                    : ""}
+                </p>
+                <button
+                  type="button"
+                  onClick={clearLocalIntel}
+                  className="text-xs text-tl-danger underline"
+                >
+                  Clear local
+                </button>
+              </div>
+              <p className="text-xs text-tl-ink-muted">
+                Baseline compare verifies Stats SA. Project impact measures LED
+                / ESG / M&amp;E results (people + ZAR) and rolls upward for
+                funders — never overwrites the platform pack.
+                {zarTotal > 0
+                  ? ` · ZAR impact logged: R${zarTotal.toLocaleString("en-ZA")}`
+                  : ""}
+              </p>
+
+              {baselineCompare.length ? (
+                <div>
+                  <p className="text-xs font-medium text-tl-ink-muted">
+                    Baseline compare (vs Stats SA)
+                  </p>
+                  <ul className="mt-1 grid gap-2 sm:grid-cols-2">
+                    {baselineCompare.map((row) => (
+                      <li key={row.key} className="text-sm text-tl-ink">
+                        <span className="font-medium">{row.label}</span>
+                        {": "}
+                        {formatIntelValue(row)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {projectImpact.length ? (
+                <div className="space-y-2 border-t border-tl-line pt-2">
+                  <p className="text-xs font-medium text-tl-ink-muted">
+                    Project impact — labour · training · procurement · socio
+                  </p>
+                  {categoryOrder.map((cat) => {
+                    const rows = byCategory[cat];
+                    if (!rows.length) return null;
+                    return (
+                      <div key={cat}>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-tl-ink-muted">
+                          {cat}
+                        </p>
+                        <ul className="mt-1 grid gap-1 sm:grid-cols-2">
+                          {rows.map((row) => (
+                            <li key={row.key} className="text-sm text-tl-ink">
+                              <span className="font-medium">{row.label}</span>
+                              {": "}
+                              {formatIntelValue(row)}
+                              <span className="text-xs text-tl-ink-muted">
+                                {row.audiences?.length
+                                  ? ` · ${row.audiences.join("/")}`
+                                  : ""}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+
+              {compare.length ? (
+                <div className="border-t border-tl-line pt-2">
+                  <p className="text-xs font-medium text-tl-ink-muted">
+                    Local survey vs Stats SA (same keys)
+                  </p>
+                  <ul className="mt-1 space-y-1 text-xs text-tl-ink">
+                    {compare.map((c) => (
+                      <li key={c.key}>
+                        <span className="font-medium">{c.label}</span>
+                        {": local "}
+                        {c.localValue}
+                        {c.unit === "%" ? "%" : ` ${c.unit}`}
+                        {" · baseline "}
+                        {c.baselineValue}
+                        {c.unit === "%" ? "%" : ` ${c.unit}`}
+                        {" · Δ "}
+                        {c.delta > 0 ? "+" : ""}
+                        {c.delta}
+                        {c.unit === "%" ? " pp" : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              <div className="border-t border-tl-line pt-2">
+                <p className="text-xs font-medium text-tl-ink-muted">
+                  Funder track — local upward
+                </p>
+                <ul className="mt-1 space-y-2 text-xs text-tl-ink">
+                  {ladder.map((step) => (
+                    <li key={step.scale}>
+                      <span className="font-medium">{step.title}</span>
+                      <span className="text-tl-ink-muted">
+                        {" — "}
+                        {step.summary}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="grid gap-3 sm:grid-cols-2">
           <Field id="pd-unemp" label="Area unemployment (%)">

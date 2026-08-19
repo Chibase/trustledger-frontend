@@ -10,6 +10,11 @@ import {
   listCaptureRecords,
   type AggregatedPackFacts,
 } from "@/lib/captureStore";
+import {
+  formatIntelValue,
+  partitionLocalIntel,
+  sumImpactZar,
+} from "@/lib/parseLocalCommunityIntel";
 import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type {
@@ -243,26 +248,74 @@ export function buildPeriodActivityFacts(
       });
     }
     if (!packs.bbbee.length && dossier.empowermentTargets) {
+      const local = dossier.communityIntel?.localIndicators || [];
+      const pref =
+        local.find((r) => r.key === "preferential_procurement_zar")?.value ??
+        local.find((r) => r.key === "local_procurement_zar")?.value ??
+        dossier.empowermentTargets.preferentialProcurementTargetZar;
+      const skills =
+        local.find((r) => r.key === "skills_dev_zar")?.value ??
+        local.find((r) => r.key === "training_spend_zar")?.value ??
+        dossier.empowermentTargets.skillsDevTargetZar;
       packs.bbbee.push({
         bbbeeLevel: dossier.empowermentTargets.bbbeeLevelTarget,
         blackOwnershipPct: dossier.empowermentTargets.blackOwnershipTargetPct,
-        preferentialProcurementZar:
-          dossier.empowermentTargets.preferentialProcurementTargetZar,
-        skillsDevSpendZar: dossier.empowermentTargets.skillsDevTargetZar,
-        notes: dossier.empowermentTargets.womenYouthPwdTargets,
+        preferentialProcurementZar: pref,
+        skillsDevSpendZar: skills,
+        notes: [
+          dossier.empowermentTargets.womenYouthPwdTargets,
+          local.length
+            ? "Preferential / skills figures include local project impact intel where captured."
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" "),
       });
     }
-    if (!packs.employment.length && dossier.empowermentTargets?.localHireTarget != null) {
-      packs.employment.push({
-        localHireTarget: dossier.empowermentTargets.localHireTarget,
-        wardOfOriginNotes: dossier.geo?.wardName,
-        notes: dossier.communityIntel?.neetYouthNotes,
-      });
+    {
+      const local = dossier.communityIntel?.localIndicators || [];
+      const hire =
+        local.find((r) => r.key === "local_hire_pct")?.value ??
+        dossier.empowermentTargets?.localHireTarget;
+      const intake = local.find((r) => r.key === "labour_intake_count")?.value;
+      const jobs = local.find((r) => r.key === "jobs_created_fte")?.value;
+      const trained = local.find(
+        (r) => r.key === "training_beneficiaries",
+      )?.value;
+      if (!packs.employment.length && (hire != null || intake != null || jobs != null)) {
+        packs.employment.push({
+          localHireTarget:
+            dossier.empowermentTargets?.localHireTarget ?? hire,
+          localHireActual: hire,
+          totalWorkforce: intake ?? jobs,
+          womenEmployed: local.find((r) => r.key === "women_employed_count")
+            ?.value,
+          youthEmployed: local.find((r) => r.key === "youth_employed_count")
+            ?.value,
+          trainingSpendZar:
+            local.find((r) => r.key === "training_spend_zar")?.value ??
+            local.find((r) => r.key === "skills_dev_zar")?.value,
+          wardOfOriginNotes: dossier.geo?.wardName,
+          notes: [
+            intake != null ? `Labour intake ${intake}` : null,
+            jobs != null ? `Jobs created (FTE) ${jobs}` : null,
+            trained != null ? `People trained ${trained}` : null,
+            "From local project impact intel (LED/ESG/M&E).",
+          ]
+            .filter(Boolean)
+            .join(" · "),
+        });
+      }
     }
     if (!packs.budget.length) {
       const empBudget = dossier.empowermentTargets?.empowermentBudgetZar;
       const authorised = dossier.budget?.authorisedZar;
-      const spent = dossier.empowermentTargets?.empowermentSpentZar;
+      const impactZar = sumImpactZar(
+        dossier.communityIntel?.localIndicators || [],
+      );
+      const spent =
+        dossier.empowermentTargets?.empowermentSpentZar ??
+        (impactZar > 0 ? impactZar : undefined);
       if (empBudget != null || authorised != null || spent != null) {
         packs.budget.push({
           budgetTotalZar: empBudget ?? authorised,
@@ -275,7 +328,8 @@ export function buildPeriodActivityFacts(
       !packs.esg.length &&
       (dossier.communityIntel?.unemploymentRatePct != null ||
         dossier.communityIntel?.structuresNotes ||
-        (dossier.communityIntel?.attachedIndicators?.length ?? 0) > 0)
+        (dossier.communityIntel?.attachedIndicators?.length ?? 0) > 0 ||
+        (dossier.communityIntel?.localIndicators?.length ?? 0) > 0)
     ) {
       const attached =
         dossier.communityIntel?.attachedIndicators
@@ -284,6 +338,17 @@ export function buildPeriodActivityFacts(
               `${r.label} ${r.value}${r.unit === "%" ? "%" : ` ${r.unit}`}`,
           )
           .join("; ") || null;
+      const localRows = dossier.communityIntel?.localIndicators || [];
+      const { baselineCompare, projectImpact } = partitionLocalIntel(localRows);
+      const baselineLocal =
+        baselineCompare
+          .map((r) => `${r.label} ${formatIntelValue(r)}`)
+          .join("; ") || null;
+      const impactLocal =
+        projectImpact
+          .map((r) => `${r.label} ${formatIntelValue(r)}`)
+          .join("; ") || null;
+      const zar = sumImpactZar(localRows);
       packs.esg.push({
         communityTrustNotes: [
           dossier.communityIntel?.unemploymentRatePct != null
@@ -292,12 +357,19 @@ export function buildPeriodActivityFacts(
           attached
             ? `Platform baseline${dossier.communityIntel?.baselinePlaceId ? ` (${dossier.communityIntel.baselinePlaceId})` : ""}: ${attached}`
             : null,
+          baselineLocal
+            ? `Local survey (vs baseline): ${baselineLocal}`
+            : null,
+          impactLocal
+            ? `Project impact LED/ESG/M&E${zar > 0 ? ` (R${zar.toLocaleString("en-ZA")} ZAR logged)` : ""}: ${impactLocal}`
+            : null,
           dossier.communityIntel?.structuresNotes
             ? `Structures: ${dossier.communityIntel.structuresNotes}`
             : null,
           dossier.communityIntel?.localBusinessesNotes
             ? `Businesses: ${dossier.communityIntel.localBusinessesNotes}`
             : null,
+          "Funder track: local project evidence sits beside municipal/provincial Stats SA for upward reporting.",
         ]
           .filter(Boolean)
           .join(" · "),

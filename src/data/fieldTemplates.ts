@@ -229,27 +229,68 @@ ${attendancePersonSlots(10)}`,
     id: "field-note",
     family: "field-template",
     captureSource: "social_intel",
-    title: "Field Note",
-    shortTitle: "Field note",
-    tagline: "Walkabout, rumour, and observation",
+    title: "Local community intelligence",
+    shortTitle: "Community intel",
+    tagline: "Baseline verify + LED / ESG / M&E project impact",
     description:
-      "A short field-note form for walkabouts, social listening, and observations — people mentioned, themes, and severity — so informal intelligence still maps to named counterparts.",
-    audience: "Liaison officers, facilitators, site teams",
-    pagesHint: "PDF form · short note",
+      "Ward surveys beside Stats SA, plus project impact: labour intake, training, local procurement (people + ZAR). Serves LED, ESG, M&E and funders from local upward. Tenant-owned — never overwrites platform packs.",
+    audience: "LED, CLO, ESG, MEL, funders, community structures",
+    pagesHint: "PDF form · survey + impact",
     version: "2026.08",
-    filename: "Field-Note.pdf",
+    filename: "Local-Community-Intelligence.pdf",
     mapsTo: [
+      "Local indicators beside Stats SA / Census baseline",
+      "Labour intake & wages (ZAR)",
+      "Training beneficiaries & skills spend (ZAR)",
+      "Local / preferential procurement (ZAR)",
+      "Funder roll-up local → provincial → national / IFI",
       "Stakeholders (people mentioned)",
-      "Engagement / social intelligence capture",
-      "Grievance themes",
+      "ESG / LED / M&E reporting",
     ],
-    pasteSkeleton: `FIELD NOTE
-Date (YYYY-MM-DD): 
+    pasteSkeleton: `LOCAL COMMUNITY INTELLIGENCE
+(Tenant-owned — verify Stats SA baseline + measure project impact for LED / ESG / M&E / funders)
 Place / ward: 
-Project / site: 
-Channel: (walkabout / social / rumour / observation)
+Survey date / reporting period (YYYY-MM-DD): 
+Source: (ward survey / CLO tally / contractor LED / M&E pack)
 
-SUMMARY
+INDICATORS — baseline compare (Stats SA keys)
+Households surveyed: 
+Unemployment rate: 
+Youth NEET (15–24): 
+Households with piped water: 
+Households with electricity: 
+Community trust score: 
+
+PROJECT IMPACT — labour / training / procurement (count + ZAR)
+Labour intake: 
+Labour wages / payroll: 
+Local hire: 
+Youth employed: 
+Women employed: 
+Jobs created (FTE): 
+People trained: 
+Training spend: 
+Skills development spend: 
+Local procurement: 
+Preferential procurement: 
+Local suppliers engaged: 
+SME / ESD spend: 
+Households benefiting: 
+Local income injected: 
+
+Or CSV:
+key,value,unit,year,source,notes
+# labour_intake_count,85,people,2025,LED register,
+# labour_wages_zar,2100000,ZAR,2025,Payroll,
+# local_procurement_zar,1500000,ZAR,2025,Procurement log,
+# training_spend_zar,320000,ZAR,2025,Skills pack,
+# unemployment_rate,41,%,2025,Ward household survey,
+
+FUNDER ROLL-UP
+(Local project figures sit beside municipal / provincial Stats SA baseline — report upward without overwriting platform packs.)
+Audience notes (LED / ESG / M&E / funder): 
+
+NOTES / LOCAL IMPACT
 
 
 PEOPLE MENTIONED
@@ -263,11 +304,6 @@ Initials and Surname:
 Organisation / structure: 
 Contact details: 
 
-PERSON 3
-Initials and Surname: 
-Organisation / structure: 
-Contact details: 
-
 THEMES
 Theme: 
 Severity: (critical / high / medium / low)
@@ -275,20 +311,77 @@ Location:
 `,
     sections: [
       {
-        title: "Note header",
+        title: "Survey header",
         itemStyle: "field",
         items: [
-          `Date (YYYY-MM-DD): ${SHORT}`,
           `Place / ward: ${LINE}`,
-          `Project / site: ${LINE}`,
-          "Channel (walkabout / social / rumour / observation): ______________",
+          `Survey date / reporting period (YYYY-MM-DD): ${SHORT}`,
+          "Source (ward survey / CLO / LED / M&E): ______________",
         ],
       },
       {
-        title: "Summary",
+        title: "Baseline compare (Stats SA)",
+        intro:
+          "Same metric names as provincial baseline where possible — verify or support Census / QLFS figures.",
         itemStyle: "field",
         items: [
-          "________________________________________________________________",
+          `Households surveyed: ${SHORT}`,
+          `Unemployment rate: ${SHORT}`,
+          `Youth NEET (15–24): ${SHORT}`,
+          `Households with piped water: ${SHORT}`,
+          `Households with electricity: ${SHORT}`,
+          `Community trust score: ${SHORT}`,
+        ],
+      },
+      {
+        title: "Project impact — labour",
+        intro: "LED / ESG employment evidence (people + payroll ZAR).",
+        itemStyle: "field",
+        items: [
+          `Labour intake (people): ${SHORT}`,
+          `Labour wages / payroll (ZAR): ${SHORT}`,
+          `Local hire (%): ${SHORT}`,
+          `Youth employed: ${SHORT}`,
+          `Women employed: ${SHORT}`,
+          `Jobs created (FTE): ${SHORT}`,
+        ],
+      },
+      {
+        title: "Project impact — training",
+        intro: "Skills / M&E beneficiaries and spend.",
+        itemStyle: "field",
+        items: [
+          `People trained: ${SHORT}`,
+          `Training spend (ZAR): ${SHORT}`,
+          `Skills development spend (ZAR): ${SHORT}`,
+        ],
+      },
+      {
+        title: "Project impact — procurement",
+        intro: "Local and preferential procurement for LED and B-BBEE packs.",
+        itemStyle: "field",
+        items: [
+          `Local procurement (ZAR): ${SHORT}`,
+          `Preferential procurement (ZAR): ${SHORT}`,
+          `Local suppliers engaged: ${SHORT}`,
+          `SME / ESD spend (ZAR): ${SHORT}`,
+        ],
+      },
+      {
+        title: "Socio-economic impact",
+        itemStyle: "field",
+        items: [
+          `Households benefiting: ${SHORT}`,
+          `Local income injected (ZAR): ${SHORT}`,
+        ],
+      },
+      {
+        title: "Funder roll-up notes",
+        intro:
+          "Local → municipal → provincial (vs Stats SA) → national / international funder narrative.",
+        itemStyle: "field",
+        items: [
+          "Audience notes (LED / ESG / M&E / funder): ______________",
           "________________________________________________________________",
         ],
       },
@@ -303,15 +396,6 @@ Location:
       },
       {
         title: "People mentioned 2",
-        itemStyle: "field",
-        items: [
-          `Initials and Surname: ${LINE}`,
-          `Organisation / structure: ${LINE}`,
-          `Contact details: ${LINE}`,
-        ],
-      },
-      {
-        title: "People mentioned 3",
         itemStyle: "field",
         items: [
           `Initials and Surname: ${LINE}`,

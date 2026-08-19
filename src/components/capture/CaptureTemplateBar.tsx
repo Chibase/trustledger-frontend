@@ -59,7 +59,9 @@ export function CaptureTemplateBar({
     : `/resources/${templateId}`;
 
   const showArrange =
-    source === "minutes" || source === "attendance";
+    source === "minutes" ||
+    source === "attendance" ||
+    source === "social_intel";
 
   async function handleFile(file: File | undefined) {
     if (!file) return;

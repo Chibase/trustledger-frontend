@@ -73,6 +73,28 @@ export type ProjectDossier = {
     }>;
     /** Human-readable dump of attached baseline rows. */
     baselineSummary?: string;
+    /**
+     * Tenant-owned local community intelligence + project impact.
+     * - baseline_compare: ward surveys beside Stats SA
+     * - project_impact: labour / training / procurement (count + ZAR) for LED, ESG, M&E
+     * Never merged into platform packs (ADR-040); feeds funder roll-up from local upward.
+     */
+    localIndicators?: Array<{
+      key: string;
+      label: string;
+      value: number;
+      unit: string;
+      year?: number;
+      source?: string;
+      notes?: string;
+      captureId?: string;
+      domain?: "baseline_compare" | "project_impact";
+      category?: "baseline" | "labour" | "training" | "procurement" | "socio";
+      audiences?: Array<"LED" | "ESG" | "ME" | "funder" | "CLO">;
+    }>;
+    localIntelAttachedAt?: string;
+    localIntelCaptureId?: string;
+    localIntelSummary?: string;
   };
   funder?: {
     name?: string;
@@ -174,6 +196,7 @@ export function projectHasDossierBasics(project: Project): boolean {
       d.communityIntel?.unemploymentRatePct != null ||
       d.communityIntel?.structuresNotes ||
       (d.communityIntel?.attachedIndicators?.length ?? 0) > 0 ||
+      (d.communityIntel?.localIndicators?.length ?? 0) > 0 ||
       d.geo?.placeId ||
       d.geo?.municipalityId,
   );

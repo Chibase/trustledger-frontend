@@ -21,6 +21,11 @@ import {
   actionItemsFromMinutes,
   parseMeetingHeldOn,
 } from "@/lib/arrangeFieldNotes";
+import {
+  applyLocalImpactToEmpowerment,
+  applyLocalIntelToCommunityIntel,
+} from "@/lib/dossierIntel";
+import { parseLocalCommunityIntel } from "@/lib/parseLocalCommunityIntel";
 import { isPlanId, type PlanId } from "@/config/plans";
 import {
   createCaptureId,
@@ -94,8 +99,8 @@ const NARRATIVE_SOURCES: {
   },
   {
     id: "social_intel",
-    label: "Social intelligence",
-    hint: "Insert the field-note template — people mentioned and themes.",
+    label: "Local community intel",
+    hint: "Upload ward surveys + project impact (labour, training, local procurement — count & ZAR) for LED / ESG / M&E. Maps beside Stats SA and rolls up for funders.",
   },
   {
     id: "pasted_report",
@@ -640,6 +645,44 @@ export default function AppCapturePage() {
           source: engagementSource,
           createdAt: new Date().toISOString(),
         });
+
+        if (source === "social_intel") {
+          const localRows = parseLocalCommunityIntel(savedBody);
+          if (localRows.length) {
+            const dossier = hydrateDossierFromProject(project);
+            const communityIntel = applyLocalIntelToCommunityIntel(
+              dossier.communityIntel,
+              localRows,
+              { captureId },
+            );
+            const empowermentTargets = applyLocalImpactToEmpowerment(
+              dossier.empowermentTargets,
+              localRows,
+            );
+            const next = persistProjectWithDossier({
+              ...project,
+              dossier: {
+                ...dossier,
+                communityIntel,
+                ...(empowermentTargets
+                  ? { empowermentTargets }
+                  : {}),
+              },
+            });
+            setProjects((prev) =>
+              prev.map((p) => (p.id === next.id ? next : p)),
+            );
+            const impact = localRows.filter(
+              (r) => r.domain === "project_impact",
+            ).length;
+            pushToast(
+              `${ids.length} stakeholder(s) · ${localRows.length} local intel row(s)${impact ? ` (${impact} project impact)` : ""} · LED/ESG/M&E`,
+              "success",
+            );
+            setRecent(listCaptureRecords());
+            return;
+          }
+        }
 
         setRecent(listCaptureRecords());
         pushToast(

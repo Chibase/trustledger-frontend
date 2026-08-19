@@ -1,5 +1,17 @@
 # Internal changelog
 
+## 2026-08-19 — Local intel: project impact for LED / ESG / M&E / funders
+
+- Local community intel now captures **project impact**: labour intake & wages, training beneficiaries & spend, local / preferential procurement, SME/ESD, households benefiting, income injected — **people + ZAR**.
+- Domains: `baseline_compare` (vs Stats SA) and `project_impact` (LED/ESG/M&E). Dossier shows category panels + **funder ladder** (local → municipal → provincial → national → international).
+- Apply feeds empowerment spent ZAR and report packs (employment / B-BBEE / ESG) without overwriting platform baseline packs.
+
+## 2026-08-19 — Local community intel beside Stats SA
+
+- Capture → **Local community intel**: upload / paste ward surveys, CLO tallies, household samples (.txt / .csv / .pdf); Arrange into indicator form; Apply attaches **tenant-owned** `localIndicators` on the project dossier.
+- Mapped beside platform Stats SA / Census baseline (same keys → Δ for verify / support / local impact). Never writes into `mockIndicators` / geo packs (ADR-040).
+- Project dossier dual panel + Intelligence page project roll-up; report composer cites local rows in ESG community notes.
+
 ## 2026-08-19 — Feedback form text colour readable
 
 - Experience feedback inputs, labels, and drawer title use `text-tl-ink` so typed text stays visible on white fields (was inheriting light colour in some contexts).
