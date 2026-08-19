@@ -76,8 +76,7 @@ export function ResourcesLibrary() {
           in the meeting, or paste / upload text or PDF notes (.txt / .md /
           .csv / .pdf) in Capture so names, place, and actions map on apply —
           including registers handed over after the meeting. Project and
-          Institutional plans also insert these from Capture hub.
-        </p>
+          Institutional plans also insert these from Capture hub.        </p>
         <div className="mt-4 space-y-4">
           {fieldTemplates.map((pack) => (
             <PackRow key={pack.id} pack={pack} onDownload={setActive} />
