@@ -73,9 +73,10 @@ export function ResourcesLibrary() {
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
           Separate PDFs — download only the form you need. Fill labeled fields
-          in the meeting, then paste or upload so names, place, and actions
-          map the first time. Project and Institutional plans also insert
-          these from Capture hub.
+          in the meeting, or paste / upload text notes (.txt / .md / .csv) in
+          Capture so names, place, and actions map on apply — including
+          registers handed over after the meeting. Project and Institutional
+          plans also insert these from Capture hub.
         </p>
         <div className="mt-4 space-y-4">
           {fieldTemplates.map((pack) => (

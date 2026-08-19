@@ -16,6 +16,10 @@ export type FieldNoteMeta = {
   linkedPromiseId: string;
   concernTheme: string;
   severity: string;
+  /** ISO date the meeting/register actually happened (may be before capture). */
+  meetingHeldOn: string;
+  /** Notes were handed over after the meeting (SF/CLO not on site). */
+  capturedAfterMeeting: boolean;
 };
 
 type Props = {
@@ -150,12 +154,50 @@ export function CaptureFieldNoteMeta({ project, meta, onChange }: Props) {
           ))}
         </select>
       </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium" htmlFor="fn-held">
+          Date of meeting
+        </label>
+        <input
+          id="fn-held"
+          type="date"
+          className={inputClass}
+          value={meta.meetingHeldOn}
+          onChange={(e) => patch({ meetingHeldOn: e.target.value })}
+        />
+        <p className="mt-1 text-[0.7rem] text-tl-ink-muted">
+          Use the day the meeting happened — not today — when notes arrive
+          later.
+        </p>
+      </div>
+      <div className="flex items-end">
+        <label className="flex items-start gap-2 text-sm text-tl-ink">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={meta.capturedAfterMeeting}
+            onChange={(e) =>
+              patch({ capturedAfterMeeting: e.target.checked })
+            }
+          />
+          <span>
+            Captured after the meeting
+            <span className="mt-0.5 block text-xs text-tl-ink-muted">
+              Notes / register handed over later (SF or CLO not on site).
+            </span>
+          </span>
+        </label>
+      </div>
     </div>
   );
 }
 
 export function fieldNoteMetaPreamble(meta: FieldNoteMeta): string {
   const lines = [
+    meta.meetingHeldOn ? `Date of meeting: ${meta.meetingHeldOn}` : null,
+    meta.capturedAfterMeeting
+      ? "Capture timing: after the meeting (handover notes)"
+      : null,
     meta.place ? `Place / ward: ${meta.place}` : null,
     meta.purpose ? `Purpose: ${meta.purpose}` : null,
     meta.kind ? `Kind: ${meta.kind}` : null,

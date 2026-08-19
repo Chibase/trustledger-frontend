@@ -17,6 +17,10 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { TL_TRIAL_PLAN_COOKIE } from "@/lib/auth.constants";
+import {
+  actionItemsFromMinutes,
+  parseMeetingHeldOn,
+} from "@/lib/arrangeFieldNotes";
 import { isPlanId, type PlanId } from "@/config/plans";
 import {
   createCaptureId,
@@ -81,12 +85,12 @@ const NARRATIVE_SOURCES: {
   {
     id: "minutes",
     label: "Meeting minutes",
-    hint: "Insert minutes — project, date, time, venue, then Item / Description / Action / Date.",
+    hint: "Paste or upload rough notes, arrange into Item / Description / Action / Date, or insert a blank form. Set Date of meeting when notes arrive later.",
   },
   {
     id: "attendance",
     label: "Attendance register",
-    hint: "Nature, venue, time — then Initials & Surname, organisation, contact, address, signature.",
+    hint: "Paste or upload a rough name list, arrange into the register, or insert a blank form. Works for registers handed over after the meeting.",
   },
   {
     id: "social_intel",
@@ -107,6 +111,8 @@ const EMPTY_FIELD_META: FieldNoteMeta = {
   linkedPromiseId: "",
   concernTheme: "",
   severity: "",
+  meetingHeldOn: "",
+  capturedAfterMeeting: false,
 };
 
 function asKind(value: string): StakeholderKind {
@@ -581,10 +587,15 @@ export default function AppCapturePage() {
         };
         saveCaptureRecord(record);
 
-        const actionItems = (brief?.recommendedActions ?? [])
+        const actionFromMinutes = actionItemsFromMinutes(savedBody);
+        const actionItems = (
+          actionFromMinutes.length
+            ? actionFromMinutes
+            : (brief?.recommendedActions ?? [])
+        )
           .map((b) => b.trim())
           .filter(Boolean)
-          .slice(0, 6);
+          .slice(0, 8);
         // Narrative-only: EngagementSource excludes pack sources.
         const engagementSource = source as EngagementSource;
         const metaPlace = placeFromMeta(fieldMeta);
@@ -598,19 +609,28 @@ export default function AppCapturePage() {
               : source === "pasted_report"
                 ? "briefing"
                 : "consultation");
+        const heldOn =
+          fieldMeta.meetingHeldOn.trim() ||
+          parseMeetingHeldOn(savedBody) ||
+          new Date().toISOString().slice(0, 10);
+        const summaryBits = [
+          brief?.executiveSummary?.trim() ||
+            savedBody.slice(0, 480) ||
+            extract.briefTitle,
+          fieldMeta.capturedAfterMeeting
+            ? "Captured after the meeting (handover notes)."
+            : null,
+        ].filter(Boolean);
         await engagementService.save({
           id: createEngagementId(),
           title: record.title,
           kind,
           status: "held",
-          heldOn: new Date().toISOString().slice(0, 10),
+          heldOn,
           ward: metaPlace || project.ward || "",
           placeLabel: metaPlace || project.name,
           projectId: project.id,
-          summary:
-            brief?.executiveSummary?.trim() ||
-            savedBody.slice(0, 480) ||
-            extract.briefTitle,
+          summary: summaryBits.join(" "),
           attendeesLabel:
             extract.stakeholders.map((s) => s.name).join(", ") ||
             "From capture apply",
@@ -1018,7 +1038,12 @@ export default function AppCapturePage() {
             <CaptureTemplateBar
               source={source}
               planId={planId}
+              body={body}
               onInsert={(skeleton) => setBody(skeleton)}
+              onBodyChange={setBody}
+              onToast={(message, tone) =>
+                pushToast(message, tone === "error" ? "error" : "success")
+              }
             />
 
             <div className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4">
@@ -1069,7 +1094,7 @@ export default function AppCapturePage() {
                       value={body}
                       onChange={(e) => setBody(e.target.value)}
                       className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-                      placeholder="Insert a blank template, or paste filled minutes / register text…"
+                      placeholder="Paste rough notes, upload .txt/.md/.csv, or insert a blank form — then Arrange if needed…"
                     />
                   </div>
                   <div className="flex flex-wrap gap-2">
