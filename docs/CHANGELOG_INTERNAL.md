@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-19 — Local community intel beside Stats SA
+
+- Capture → **Local community intel**: upload / paste ward surveys, CLO tallies, household samples (.txt / .csv / .pdf); Arrange into indicator form; Apply attaches **tenant-owned** `localIndicators` on the project dossier.
+- Mapped beside platform Stats SA / Census baseline (same keys → Δ for verify / support / local impact). Never writes into `mockIndicators` / geo packs (ADR-040).
+- Project dossier dual panel + Intelligence page project roll-up; report composer cites local rows in ESG community notes.
+
 ## 2026-08-19 — Capture: upload / arrange rough minutes & late handover
 
 - Capture hub had no real file upload — “blank” was Insert blank form / PDF only.

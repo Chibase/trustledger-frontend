@@ -1,5 +1,9 @@
 import type { NarrativeCaptureSource } from "@/lib/captureStore";
 import {
+  arrangeLocalCommunityIntel,
+  LOCAL_COMMUNITY_INTEL_SKELETON,
+} from "@/lib/parseLocalCommunityIntel";
+import {
   parseLabeledMinutesItems,
   parseLabeledTitle,
   type ParsedMinutesItem,
@@ -225,7 +229,22 @@ export function arrangeRoughNotesIntoTemplate(
     };
   }
 
-  // social_intel / pasted_report — keep free text.
+  // social_intel — arrange into local community intel form (Stats SA compare keys).
+  if (source === "social_intel") {
+    const arranged = arrangeLocalCommunityIntel(
+      rough,
+      skeleton.includes("LOCAL COMMUNITY INTELLIGENCE")
+        ? skeleton
+        : LOCAL_COMMUNITY_INTEL_SKELETON,
+    );
+    return {
+      text: arranged.text,
+      arranged: Boolean(arranged.rows.length) || arranged.text !== skeleton,
+      note: arranged.note,
+    };
+  }
+
+  // pasted_report — keep free text.
   return {
     text: rough,
     arranged: false,

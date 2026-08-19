@@ -212,6 +212,10 @@ export function dossierSummaryLines(project: Project): string[] {
       `Platform baseline indicators: ${attached}${d?.communityIntel?.baselinePlaceId ? ` (${d.communityIntel.baselinePlaceId})` : ""}`,
     );
   }
+  const local = d?.communityIntel?.localIndicators?.length || 0;
+  if (local) {
+    lines.push(`Local community intel indicators: ${local}`);
+  }
   const promiseCount = d?.promises?.length || 0;
   if (promiseCount) lines.push(`Promises on file: ${promiseCount}`);
   return lines;

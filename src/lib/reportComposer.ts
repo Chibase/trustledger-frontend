@@ -275,13 +275,21 @@ export function buildPeriodActivityFacts(
       !packs.esg.length &&
       (dossier.communityIntel?.unemploymentRatePct != null ||
         dossier.communityIntel?.structuresNotes ||
-        (dossier.communityIntel?.attachedIndicators?.length ?? 0) > 0)
+        (dossier.communityIntel?.attachedIndicators?.length ?? 0) > 0 ||
+        (dossier.communityIntel?.localIndicators?.length ?? 0) > 0)
     ) {
       const attached =
         dossier.communityIntel?.attachedIndicators
           ?.map(
             (r) =>
               `${r.label} ${r.value}${r.unit === "%" ? "%" : ` ${r.unit}`}`,
+          )
+          .join("; ") || null;
+      const local =
+        dossier.communityIntel?.localIndicators
+          ?.map(
+            (r) =>
+              `${r.label} ${r.value}${r.unit === "%" ? "%" : ` ${r.unit}`}${r.source ? ` [${r.source}]` : ""}`,
           )
           .join("; ") || null;
       packs.esg.push({
@@ -291,6 +299,9 @@ export function buildPeriodActivityFacts(
             : null,
           attached
             ? `Platform baseline${dossier.communityIntel?.baselinePlaceId ? ` (${dossier.communityIntel.baselinePlaceId})` : ""}: ${attached}`
+            : null,
+          local
+            ? `Local community intel${dossier.communityIntel?.localIntelAttachedAt ? ` (${dossier.communityIntel.localIntelAttachedAt.slice(0, 10)})` : ""}: ${local}`
             : null,
           dossier.communityIntel?.structuresNotes
             ? `Structures: ${dossier.communityIntel.structuresNotes}`

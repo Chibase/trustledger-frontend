@@ -170,7 +170,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (UI); Cloud stamps next** |
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** (superseded nav by UX-1) |
 | **UX-1** | Portfolio → project reports | Executive dashboard (active projects) → project dashboard with category-mapped data → kind/format/level reports | **Active** |
-| **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs | **Done (demo indicators)** |
+| **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs; tenant local community intel beside Stats SA | **Done (baseline + local upload)** |
 | **D1** | Product onboarding | `/product` replaces public `/demo` sample entry | **Done** |
 | **D2** | Kill demo mode | No guest `tl-mode=demo`; retarget CTAs; clear lingering demo sessions | **Done** |
 

@@ -6,6 +6,7 @@ import { FEATURED_INDICATOR_PLACES } from "@/data/mockIndicators";
 import {
   applyBaselineToCommunityIntel,
   clearBaselineFromCommunityIntel,
+  clearLocalIntelFromCommunityIntel,
   dossierGeoFromCascade,
   dossierHasCascadeGeo,
   fetchIndicatorsForGeo,
@@ -15,6 +16,8 @@ import {
   indicatorPlaceCandidates,
   isCountryOnlyGeo,
 } from "@/lib/dossierIntel";
+import { compareLocalToBaseline } from "@/lib/parseLocalCommunityIntel";
+import Link from "next/link";
 import {
   hydrateDossierFromProject,
   newPromiseId,
@@ -196,6 +199,12 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
   function clearAttachedBaseline() {
     patch({
       communityIntel: clearBaselineFromCommunityIntel(dossier.communityIntel),
+    });
+  }
+
+  function clearLocalIntel() {
+    patch({
+      communityIntel: clearLocalIntelFromCommunityIntel(dossier.communityIntel),
     });
   }
 
@@ -602,7 +611,9 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
         </h3>
         <p className="text-xs text-tl-ink-muted">
           Attach Stats SA / Census platform baseline for the selected place
-          (ADR-040). Tenant notes for businesses and structures stay separate.
+          (ADR-040). Upload local community surveys from Capture → Local
+          community intel to verify or support provincial figures and track
+          local impact — tenant-owned, never overwrites the platform pack.
         </p>
 
         <div className="flex flex-wrap gap-2">
@@ -724,6 +735,87 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
             </ul>
           </div>
         ) : null}
+
+        {(() => {
+          const local = dossier.communityIntel?.localIndicators || [];
+          if (!local.length) {
+            return (
+              <p className="text-xs text-tl-ink-muted">
+                No local community indicators yet.{" "}
+                <Link
+                  href={`/app/capture?projectId=${encodeURIComponent(project.id)}&source=social_intel`}
+                  className="text-tl-trust-ink underline"
+                >
+                  Capture → Local community intel
+                </Link>{" "}
+                to upload a ward survey (.txt / .csv / .pdf) and Apply beside
+                Stats SA.
+              </p>
+            );
+          }
+          const compare = compareLocalToBaseline(local, attached);
+          return (
+            <div className="space-y-2 rounded-md border border-tl-trust/30 bg-tl-trust/5 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-medium text-tl-ink">
+                  Local community intel
+                  {dossier.communityIntel?.localIntelAttachedAt
+                    ? ` · ${new Date(dossier.communityIntel.localIntelAttachedAt).toLocaleDateString("en-ZA")}`
+                    : ""}
+                </p>
+                <button
+                  type="button"
+                  onClick={clearLocalIntel}
+                  className="text-xs text-tl-danger underline"
+                >
+                  Clear local
+                </button>
+              </div>
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {local.map((row) => (
+                  <li key={row.key} className="text-sm text-tl-ink">
+                    <span className="font-medium">{row.label}</span>
+                    {": "}
+                    {row.value}
+                    {row.unit === "%" ? "%" : ` ${row.unit}`}
+                    <span className="text-xs text-tl-ink-muted">
+                      {row.source ? ` · ${row.source}` : " · Local survey"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {compare.length ? (
+                <div className="border-t border-tl-line pt-2">
+                  <p className="text-xs font-medium text-tl-ink-muted">
+                    Local vs Stats SA (same keys) — impact / verify
+                  </p>
+                  <ul className="mt-1 space-y-1 text-xs text-tl-ink">
+                    {compare.map((c) => (
+                      <li key={c.key}>
+                        <span className="font-medium">{c.label}</span>
+                        {": local "}
+                        {c.localValue}
+                        {c.unit === "%" ? "%" : ` ${c.unit}`}
+                        {" · baseline "}
+                        {c.baselineValue}
+                        {c.unit === "%" ? "%" : ` ${c.unit}`}
+                        {" · Δ "}
+                        {c.delta > 0 ? "+" : ""}
+                        {c.delta}
+                        {c.unit === "%" ? " pp" : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="text-xs text-tl-ink-muted">
+                  Attach a Stats SA baseline with matching keys (e.g.
+                  unemployment) to see side-by-side deltas.
+                </p>
+              )}
+            </div>
+          );
+        })()}
 
         <div className="grid gap-3 sm:grid-cols-2">
           <Field id="pd-unemp" label="Area unemployment (%)">

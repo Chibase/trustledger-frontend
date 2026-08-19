@@ -432,8 +432,9 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   4. Sales / onboarding language: *baseline place intel included; you add the project.* Do not over-claim national TC completeness while the pack is partial.
   5. Detail + gaps: `docs/ZA_BASELINE_INTEL.md`. Enrich TC/wards/indicators in the pack; do not invent tenant geo seed files.
   6. **(2026-08-11)** Stats SA / Census socio-economic indicators on featured places are **platform baseline**, not “demo” figures. Product UI must not label ZA geo or Stats SA intelligence as demo/illustrative.
-- **Consequences:** Packaging and `/product` copy treat ZA geo + Stats SA baseline indicators as included; national TC expansion and broader indicator coverage remain enrichment packets. Never brand platform packs as demo seed.
-- **Alternatives considered:** Charge for geo as an add-on (rejected — table stakes for SA SRM); seed sample stakeholders with each plan (rejected — ADR-033); wait for Cloud Geo DocTypes before shipping pickers (rejected — browser pack is launch SoT); keep “demo/illustrative” labels until a second ingest (rejected 2026-08-11 — undermines trust in Stats SA baseline).
+  7. **(2026-08-19)** Tenant **local community intel** (ward surveys, CLO tallies) may be uploaded via Capture and stored on the project dossier (`communityIntel.localIndicators`) **beside** platform Stats SA rows — to verify / support provincial figures and track local impact. Never merge local rows into platform packs or `mockIndicators`.
+- **Consequences:** Packaging and `/product` copy treat ZA geo + Stats SA baseline indicators as included; national TC expansion and broader indicator coverage remain enrichment packets. Never brand platform packs as demo seed. Local surveys remain tenant situation data.
+- **Alternatives considered:** Charge for geo as an add-on (rejected — table stakes for SA SRM); seed sample stakeholders with each plan (rejected — ADR-033); wait for Cloud Geo DocTypes before shipping pickers (rejected — browser pack is launch SoT); keep “demo/illustrative” labels until a second ingest (rejected 2026-08-11 — undermines trust in Stats SA baseline); overwrite Stats SA with local survey values (rejected 2026-08-19 — baseline remains platform SoT).
 
 ### ADR-041: Site location cascade sequence (Country → … → Ward)
 

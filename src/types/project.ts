@@ -73,6 +73,24 @@ export type ProjectDossier = {
     }>;
     /** Human-readable dump of attached baseline rows. */
     baselineSummary?: string;
+    /**
+     * Tenant-owned local community intelligence (ward surveys, CLO tallies).
+     * Used beside Stats SA to verify / support provincial intel and track local impact.
+     * Never merged into platform packs (ADR-040).
+     */
+    localIndicators?: Array<{
+      key: string;
+      label: string;
+      value: number;
+      unit: string;
+      year?: number;
+      source?: string;
+      notes?: string;
+      captureId?: string;
+    }>;
+    localIntelAttachedAt?: string;
+    localIntelCaptureId?: string;
+    localIntelSummary?: string;
   };
   funder?: {
     name?: string;
@@ -174,6 +192,7 @@ export function projectHasDossierBasics(project: Project): boolean {
       d.communityIntel?.unemploymentRatePct != null ||
       d.communityIntel?.structuresNotes ||
       (d.communityIntel?.attachedIndicators?.length ?? 0) > 0 ||
+      (d.communityIntel?.localIndicators?.length ?? 0) > 0 ||
       d.geo?.placeId ||
       d.geo?.municipalityId,
   );

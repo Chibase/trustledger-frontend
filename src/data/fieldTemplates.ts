@@ -229,27 +229,42 @@ ${attendancePersonSlots(10)}`,
     id: "field-note",
     family: "field-template",
     captureSource: "social_intel",
-    title: "Field Note",
-    shortTitle: "Field note",
-    tagline: "Walkabout, rumour, and observation",
+    title: "Local community intelligence",
+    shortTitle: "Community intel",
+    tagline: "Ward surveys beside Stats SA baseline",
     description:
-      "A short field-note form for walkabouts, social listening, and observations — people mentioned, themes, and severity — so informal intelligence still maps to named counterparts.",
-    audience: "Liaison officers, facilitators, site teams",
-    pagesHint: "PDF form · short note",
+      "Upload or paste local community intelligence (ward surveys, CLO tallies, household samples). Map rates that match Stats SA keys to verify or support provincial baseline and track local impact. Tenant-owned — never overwrites platform packs.",
+    audience: "CLO, social facilitators, MEL, community structures",
+    pagesHint: "PDF form · local survey",
     version: "2026.08",
-    filename: "Field-Note.pdf",
+    filename: "Local-Community-Intelligence.pdf",
     mapsTo: [
+      "Local indicators beside Stats SA / Census baseline",
       "Stakeholders (people mentioned)",
       "Engagement / social intelligence capture",
-      "Grievance themes",
+      "ESG / community impact reporting",
     ],
-    pasteSkeleton: `FIELD NOTE
-Date (YYYY-MM-DD): 
+    pasteSkeleton: `LOCAL COMMUNITY INTELLIGENCE
+(Tenant-owned — verify or support Stats SA / provincial baseline; track local impact)
 Place / ward: 
-Project / site: 
-Channel: (walkabout / social / rumour / observation)
+Survey date (YYYY-MM-DD): 
+Source: (ward survey / CLO tally / community meeting / household sample)
+Households surveyed: 
 
-SUMMARY
+INDICATORS (match Stats SA keys where possible for side-by-side compare)
+Unemployment rate: 
+Youth NEET (15–24): 
+Households with piped water: 
+Households with electricity: 
+Local hire: 
+Community trust score: 
+
+Or CSV:
+key,value,unit,year,source,notes
+unemployment_rate,41,%,2025,Ward 12 household survey,
+youth_neet,48,%,2025,Youth focus group,
+
+NOTES / LOCAL IMPACT
 
 
 PEOPLE MENTIONED
@@ -263,11 +278,6 @@ Initials and Surname:
 Organisation / structure: 
 Contact details: 
 
-PERSON 3
-Initials and Surname: 
-Organisation / structure: 
-Contact details: 
-
 THEMES
 Theme: 
 Severity: (critical / high / medium / low)
@@ -275,17 +285,31 @@ Location:
 `,
     sections: [
       {
-        title: "Note header",
+        title: "Survey header",
         itemStyle: "field",
         items: [
-          `Date (YYYY-MM-DD): ${SHORT}`,
           `Place / ward: ${LINE}`,
-          `Project / site: ${LINE}`,
-          "Channel (walkabout / social / rumour / observation): ______________",
+          `Survey date (YYYY-MM-DD): ${SHORT}`,
+          "Source (ward survey / CLO tally / community meeting / household sample): ______________",
+          `Households surveyed: ${SHORT}`,
         ],
       },
       {
-        title: "Summary",
+        title: "Local indicators (compare to Stats SA)",
+        intro:
+          "Use the same metric names as provincial baseline where possible (unemployment, NEET, piped water, electricity).",
+        itemStyle: "field",
+        items: [
+          `Unemployment rate: ${SHORT}`,
+          `Youth NEET (15–24): ${SHORT}`,
+          `Households with piped water: ${SHORT}`,
+          `Households with electricity: ${SHORT}`,
+          `Local hire: ${SHORT}`,
+          `Community trust score: ${SHORT}`,
+        ],
+      },
+      {
+        title: "Notes / local impact",
         itemStyle: "field",
         items: [
           "________________________________________________________________",
@@ -303,15 +327,6 @@ Location:
       },
       {
         title: "People mentioned 2",
-        itemStyle: "field",
-        items: [
-          `Initials and Surname: ${LINE}`,
-          `Organisation / structure: ${LINE}`,
-          `Contact details: ${LINE}`,
-        ],
-      },
-      {
-        title: "People mentioned 3",
         itemStyle: "field",
         items: [
           `Initials and Surname: ${LINE}`,

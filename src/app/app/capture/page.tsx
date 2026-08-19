@@ -21,6 +21,8 @@ import {
   actionItemsFromMinutes,
   parseMeetingHeldOn,
 } from "@/lib/arrangeFieldNotes";
+import { applyLocalIntelToCommunityIntel } from "@/lib/dossierIntel";
+import { parseLocalCommunityIntel } from "@/lib/parseLocalCommunityIntel";
 import { isPlanId, type PlanId } from "@/config/plans";
 import {
   createCaptureId,
@@ -94,8 +96,8 @@ const NARRATIVE_SOURCES: {
   },
   {
     id: "social_intel",
-    label: "Social intelligence",
-    hint: "Insert the field-note template — people mentioned and themes.",
+    label: "Local community intel",
+    hint: "Upload or paste ward surveys / CLO tallies (.txt / .csv / .pdf). Arrange into indicators that sit beside Stats SA baseline, then Suggest stakeholders → Apply.",
   },
   {
     id: "pasted_report",
@@ -640,6 +642,31 @@ export default function AppCapturePage() {
           source: engagementSource,
           createdAt: new Date().toISOString(),
         });
+
+        if (source === "social_intel") {
+          const localRows = parseLocalCommunityIntel(savedBody);
+          if (localRows.length) {
+            const dossier = hydrateDossierFromProject(project);
+            const communityIntel = applyLocalIntelToCommunityIntel(
+              dossier.communityIntel,
+              localRows,
+              { captureId },
+            );
+            const next = persistProjectWithDossier({
+              ...project,
+              dossier: { ...dossier, communityIntel },
+            });
+            setProjects((prev) =>
+              prev.map((p) => (p.id === next.id ? next : p)),
+            );
+            pushToast(
+              `${ids.length} stakeholder(s) · ${localRows.length} local indicator(s) beside Stats SA`,
+              "success",
+            );
+            setRecent(listCaptureRecords());
+            return;
+          }
+        }
 
         setRecent(listCaptureRecords());
         pushToast(

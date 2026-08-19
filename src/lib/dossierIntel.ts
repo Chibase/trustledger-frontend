@@ -195,7 +195,8 @@ export function clearBaselineFromCommunityIntel(
     !next.localBusinessesNotes &&
     !next.structuresNotes &&
     !next.neetYouthNotes &&
-    next.unemploymentRatePct == null
+    next.unemploymentRatePct == null &&
+    !(next.localIndicators?.length)
   ) {
     return undefined;
   }
@@ -240,7 +241,67 @@ export function applyBaselineToCommunityIntel(
     structuresNotes: current?.structuresNotes,
     localBusinessesNotes: current?.localBusinessesNotes,
     baselineSummary: baselineBlock || current?.baselineSummary,
+    localIndicators: current?.localIndicators,
+    localIntelAttachedAt: current?.localIntelAttachedAt,
+    localIntelCaptureId: current?.localIntelCaptureId,
+    localIntelSummary: current?.localIntelSummary,
   };
+}
+
+/** Attach tenant local community intel beside Stats SA (does not replace baseline). */
+export function applyLocalIntelToCommunityIntel(
+  current: ProjectDossier["communityIntel"] | undefined,
+  rows: Array<{
+    key: string;
+    label: string;
+    value: number;
+    unit: string;
+    year?: number;
+    source?: string;
+    notes?: string;
+  }>,
+  opts?: { captureId?: string },
+): NonNullable<ProjectDossier["communityIntel"]> {
+  const localIndicators = rows.map((r) => ({
+    ...r,
+    captureId: opts?.captureId,
+  }));
+  const lines = localIndicators.map(
+    (r) =>
+      `${r.label}: ${r.value}${r.unit === "%" ? "%" : ` ${r.unit}`}${r.year ? ` (${r.year})` : ""}${r.source ? ` — ${r.source}` : ""}`,
+  );
+  return {
+    ...current,
+    localIndicators,
+    localIntelAttachedAt: new Date().toISOString(),
+    localIntelCaptureId: opts?.captureId,
+    localIntelSummary: lines.length
+      ? `Local community intel:\n${lines.join("\n")}`
+      : current?.localIntelSummary,
+  };
+}
+
+export function clearLocalIntelFromCommunityIntel(
+  current: ProjectDossier["communityIntel"] | undefined,
+): ProjectDossier["communityIntel"] | undefined {
+  if (!current) return undefined;
+  const next = {
+    ...current,
+    localIndicators: undefined,
+    localIntelAttachedAt: undefined,
+    localIntelCaptureId: undefined,
+    localIntelSummary: undefined,
+  };
+  if (
+    !next.localBusinessesNotes &&
+    !next.structuresNotes &&
+    !next.neetYouthNotes &&
+    next.unemploymentRatePct == null &&
+    !(next.attachedIndicators?.length)
+  ) {
+    return undefined;
+  }
+  return next;
 }
 
 export async function fetchIndicatorsForPlace(
