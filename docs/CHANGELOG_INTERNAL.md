@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-19 — Capture: upload / arrange rough minutes & late handover
+
+- Capture hub had no real file upload — “blank” was Insert blank form / PDF only.
+- Minutes & attendance: **Upload notes** (.txt / .md / .csv), **Arrange rough notes into form**, paste still works.
+- Field meta: **Date of meeting** + **Captured after the meeting** (SF/CLO not on site; notes handed over later) → engagement `heldOn` and summary stamp.
+- Apply uses agenda Action rows when present; product/resources copy aligned.
+
 ## 2026-08-18 — ClickUp Marketing lists seeded (EM-2)
 
 - Team Space: folder **TrustLedger Marketing** with **Newsletter Cadence** + **Newsletter Themes** (6 theme cards, first fortnightly task, AI prompt reference).
