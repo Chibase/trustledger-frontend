@@ -293,7 +293,7 @@ export function DiscussionSpace({
                   ? "Why should we meet, and what should we cover?"
                   : "Share feedback on this report or case…"
             }
-            className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm"
+            className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm text-tl-ink placeholder:text-tl-ink-muted"
           />
         </label>
         {error ? (
