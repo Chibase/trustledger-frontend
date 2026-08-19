@@ -249,9 +249,9 @@ ${attendancePersonSlots(10)}`,
 Place / ward: 
 Survey date (YYYY-MM-DD): 
 Source: (ward survey / CLO tally / community meeting / household sample)
-Households surveyed: 
 
 INDICATORS (match Stats SA keys where possible for side-by-side compare)
+Households surveyed: 
 Unemployment rate: 
 Youth NEET (15–24): 
 Households with piped water: 
@@ -261,8 +261,8 @@ Community trust score:
 
 Or CSV:
 key,value,unit,year,source,notes
-unemployment_rate,41,%,2025,Ward 12 household survey,
-youth_neet,48,%,2025,Youth focus group,
+# unemployment_rate,41,%,2025,Ward household survey,
+# youth_neet,48,%,2025,Youth focus group,
 
 NOTES / LOCAL IMPACT
 

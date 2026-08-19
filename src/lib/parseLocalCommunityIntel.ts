@@ -141,6 +141,64 @@ function pushRow(
   if (rows.length > 24) rows.length = 24;
 }
 
+const SKIP_LABEL_SLUGS = new Set([
+  "place",
+  "place_ward",
+  "ward",
+  "survey_date",
+  "survey_date_yyyy_mm_dd",
+  "source",
+  "date",
+  "date_of_meeting",
+  "venue",
+  "time",
+  "contact",
+  "contact_details",
+  "initials_and_surname",
+  "organisation_structure",
+  "organisation",
+  "structure",
+  "theme",
+  "severity",
+  "location",
+  "notes",
+  "local_impact",
+  "person",
+]);
+
+function isKnownIndicatorKey(key: string): boolean {
+  return Object.values(KNOWN_KEYS).some((m) => m.key === key);
+}
+
+function shouldSkipLabel(rawLabel: string): boolean {
+  const slug = slugKey(rawLabel)
+    .replace(/_?\d{1,2}_?\d{1,2}$/, "")
+    .replace(/_+$/, "");
+  if (SKIP_LABEL_SLUGS.has(slug)) return true;
+  if (slug.startsWith("survey_date")) return true;
+  if (slug.includes("contact")) return true;
+  if (slug.includes("initials")) return true;
+  return false;
+}
+
+/** Prefer INDICATORS block; drop PEOPLE / THEMES / NOTES noise. */
+function extractIntelBody(text: string): string {
+  let body = text.replace(/^\uFEFF/, "");
+  // Ignore commented sample CSV lines in blank templates.
+  body = body.replace(/^[ \t]*#.*$/gm, "");
+  const indicators = body.match(
+    /INDICATORS[\s\S]*?(?=\n(?:Or CSV:|NOTES|PEOPLE MENTIONED|THEMES)\b|$)/i,
+  );
+  const csvBlock = body.match(
+    /Or CSV:\s*\n([\s\S]*?)(?=\n(?:NOTES|PEOPLE MENTIONED|THEMES)\b|$)/i,
+  );
+  const parts: string[] = [];
+  if (indicators) parts.push(indicators[0]);
+  if (csvBlock) parts.push(csvBlock[1]);
+  if (parts.length) return parts.join("\n").trim();
+  return body.trim();
+}
+
 /** Parse CSV: key|label,value,unit?,year?,source?,notes? */
 function parseCsv(text: string): LocalCommunityIndicator[] {
   const lines = text
@@ -162,10 +220,14 @@ function parseCsv(text: string): LocalCommunityIndicator[] {
   for (let i = start; i < lines.length; i++) {
     const cols = lines[i].split(/[,;\t]/).map((c) => c.trim().replace(/^"|"$/g, ""));
     if (cols.length < 2) continue;
+    if (shouldSkipLabel(cols[0])) continue;
     const meta = resolveKey(cols[0]);
     const value = parseNumber(cols[1]);
     if (value == null) continue;
-    const unit = cols[2]?.trim() || meta.unit;
+    // Form/CSV path: only persist Stats SA–mappable or explicitly unit-typed metrics
+    const unitCol = cols[2]?.trim();
+    if (!isKnownIndicatorKey(meta.key) && !unitCol) continue;
+    const unit = unitCol || meta.unit;
     const year = cols[3] ? Number(cols[3]) : undefined;
     const source = cols[4]?.trim() || "Local community survey";
     const notes = cols[5]?.trim();
@@ -189,9 +251,14 @@ function parseLabeled(text: string): LocalCommunityIndicator[] {
     /(?:^|\n)[ \t]*([A-Za-z][A-Za-z0-9 /()_%.\u2013\u2014-]{1,70})[ \t]*:[ \t]*([0-9]+(?:[.,][0-9]+)?)[ \t]*(%|per 10k|\/10|count)?[ \t]*(?:\(([12]0\d{2})\))?[ \t]*(?:[—\-–]\s*([^\n]+))?/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(text)) !== null) {
+    if (shouldSkipLabel(m[1])) continue;
     const meta = resolveKey(m[1]);
+    // Labeled form only keeps known compare keys (avoids Survey date / phone bleed).
+    if (!isKnownIndicatorKey(meta.key)) continue;
     const value = parseNumber(m[2]);
     if (value == null) continue;
+    // Dates like 2025-08-19: reject bare year-looking values without a unit when label is date-like
+    if (!m[3] && value >= 1900 && value <= 2100 && /date/i.test(m[1])) continue;
     pushRow(rows, {
       key: meta.key,
       label: meta.label,
@@ -207,16 +274,30 @@ function parseLabeled(text: string): LocalCommunityIndicator[] {
 export function parseLocalCommunityIntel(
   text: string,
 ): LocalCommunityIndicator[] {
-  const raw = text.replace(/^\uFEFF/, "").trim();
-  if (!raw) return [];
-  if (/[,;\t]/.test(raw.split(/\n/)[0] || "") && raw.split(/\n/).length >= 2) {
-    const csv = parseCsv(raw);
-    if (csv.length) return csv;
+  const whole = text.replace(/^\uFEFF/, "").trim();
+  if (!whole) return [];
+
+  // Pure CSV upload (first line looks like CSV) — do not run labeled form rules.
+  const first = whole.split(/\n/)[0] || "";
+  if (/[,;\t]/.test(first) && !/:\s*[0-9]/.test(first)) {
+    const csvOnly = parseCsv(whole);
+    if (csvOnly.length) return csvOnly;
   }
+
+  const raw = extractIntelBody(whole);
+  if (!raw) return [];
   const labeled = parseLabeled(raw);
+  const csv = parseCsv(raw);
+  if (labeled.length && csv.length) {
+    const merged: LocalCommunityIndicator[] = [...labeled];
+    for (const row of csv) {
+      if (!merged.some((r) => r.key === row.key)) merged.push(row);
+    }
+    return merged.slice(0, 24);
+  }
   if (labeled.length) return labeled;
-  // Fallback: try CSV anyway on whole body
-  return parseCsv(raw);
+  if (csv.length) return csv;
+  return [];
 }
 
 export const LOCAL_COMMUNITY_INTEL_SKELETON = `LOCAL COMMUNITY INTELLIGENCE
@@ -224,9 +305,9 @@ export const LOCAL_COMMUNITY_INTEL_SKELETON = `LOCAL COMMUNITY INTELLIGENCE
 Place / ward: 
 Survey date (YYYY-MM-DD): 
 Source: (ward survey / CLO tally / community meeting / household sample)
-Households surveyed: 
 
 INDICATORS (match Stats SA keys where possible for side-by-side compare)
+Households surveyed: 
 Unemployment rate: 
 Youth NEET (15–24): 
 Households with piped water: 
@@ -236,8 +317,8 @@ Community trust score:
 
 Or CSV:
 key,value,unit,year,source,notes
-unemployment_rate,41,%,2025,Ward 12 household survey,
-youth_neet,48,%,2025,Youth focus group,
+# unemployment_rate,41,%,2025,Ward household survey,
+# youth_neet,48,%,2025,Youth focus group,
 
 NOTES / LOCAL IMPACT
 
