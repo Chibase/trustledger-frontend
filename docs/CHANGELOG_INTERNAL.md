@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-19 — Edge live login: sanitize autofill credentials
+
+- Live login strips leading/trailing whitespace from passwords (common Edge/password-manager autofill) and lowercases email.
+- Clearer 401 copy when Cloud rejects credentials; Secure flag on client `tl-mode` cookie over HTTPS; Edge tip on `/login/live`.
+
 ## 2026-08-19 — Local intel: project impact for LED / ESG / M&E / funders
 
 - Local community intel now captures **project impact**: labour intake & wages, training beneficiaries & spend, local / preferential procurement, SME/ESD, households benefiting, income injected — **people + ZAR**.

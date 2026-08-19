@@ -47,15 +47,19 @@ function sanitizeLoginCredentials(usr: string, pwd: string): {
   usr: string;
   pwd: string;
 } {
+  // Emails are case-insensitive on Cloud; Edge autofill often leaves trailing spaces.
   const cleanUsr = usr
     .replace(/^\uFEFF/, "")
     .trim()
-    .replace(/[\u200B-\u200D\uFEFF\u2026]/g, "");
+    .replace(/[\u200B-\u200D\uFEFF\u2026]/g, "")
+    .toLowerCase();
+  // Do not trim the middle of passwords, but Edge/password-manager autofill
+  // frequently appends leading/trailing spaces or a trailing newline — strip those.
   const cleanPwd = pwd
     .replace(/^\uFEFF/, "")
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
-    // Trailing ellipsis usually means a truncated paste — drop it.
-    .replace(/\u2026/g, "");
+    .replace(/\u2026/g, "")
+    .replace(/^\s+|\s+$/g, "");
   return { usr: cleanUsr, pwd: cleanPwd };
 }
 
@@ -251,9 +255,17 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     const byteMsg = byteStringHeaderErrorMessage(error);
-    const message =
+    let message =
       byteMsg ||
       (error instanceof Error ? error.message : "Login failed");
+    // Friendlier copy when Cloud rejects the password (common with Edge autofill).
+    if (
+      /sign-in failed \(401\)/i.test(message) ||
+      /AuthenticationError|Invalid login credentials/i.test(message)
+    ) {
+      message =
+        "Email or password not recognised. Re-type the password (do not rely on Edge autofill), or use Forgot password. If you just reset on app.trustledger.co.za, wait a minute and try again.";
+    }
     return NextResponse.json({ error: message }, { status: 401 });
   }
 }

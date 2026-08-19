@@ -47,7 +47,11 @@ function LiveLoginForm() {
     home?: string;
     platformOperator?: boolean;
   }) {
-    document.cookie = "tl-mode=live; path=/; max-age=604800; samesite=lax";
+    const secure =
+      typeof window !== "undefined" && window.location.protocol === "https:"
+        ? "; secure"
+        : "";
+    document.cookie = `tl-mode=live; path=/; max-age=604800; samesite=lax${secure}`;
 
     try {
       const { migrateActiveOrgToCloud } = await import("@/lib/migrateOrgClient");
@@ -74,18 +78,26 @@ function LiveLoginForm() {
     setInfo(null);
     try {
       // Drop paste junk (… from truncated copies, zero-width chars).
+      // Edge autofill often adds leading/trailing spaces — strip those.
       const cleanUsr = usr
         .replace(/^\uFEFF/, "")
         .trim()
-        .replace(/[\u200B-\u200D\uFEFF\u2026]/g, "");
+        .replace(/[\u200B-\u200D\uFEFF\u2026]/g, "")
+        .toLowerCase();
       const cleanPwd = pwd
         .replace(/^\uFEFF/, "")
         .replace(/[\u200B-\u200D\uFEFF]/g, "")
-        .replace(/\u2026/g, "");
+        .replace(/\u2026/g, "")
+        .replace(/^\s+|\s+$/g, "");
       if (pwd.includes("\u2026")) {
         setError(
           "Password looked truncated (contained …). Re-type the full password from TrustLedger Cloud — do not paste a shortened copy.",
         );
+        setPending(false);
+        return;
+      }
+      if (!cleanUsr || !cleanPwd) {
+        setError("Enter your email and password.");
         setPending(false);
         return;
       }
@@ -230,11 +242,14 @@ function LiveLoginForm() {
             </label>
             <input
               id="usr"
-              type="text"
+              type="email"
               autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               value={usr}
               onChange={(e) => setUsr(e.target.value)}
-              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm text-tl-ink"
               required
             />
           </div>
@@ -248,7 +263,7 @@ function LiveLoginForm() {
               autoComplete="current-password"
               value={pwd}
               onChange={(e) => setPwd(e.target.value)}
-              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm text-tl-ink"
               required
             />
           </div>
@@ -262,6 +277,11 @@ function LiveLoginForm() {
               {resetMessage}
             </p>
           ) : null}
+          <p className="text-xs text-tl-ink-muted">
+            On Microsoft Edge: if sign-in keeps failing, clear the saved password
+            for this site, type email and password manually (do not autofill),
+            and set Tracking prevention to Balanced for this site.
+          </p>
           <button
             type="submit"
             disabled={pending}
