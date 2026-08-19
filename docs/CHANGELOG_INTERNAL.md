@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-19 — Feedback form text colour readable
+
+- Experience feedback inputs, labels, and drawer title use `text-tl-ink` so typed text stays visible on white fields (was inheriting light colour in some contexts).
+
 ## 2026-08-19 — Capture: upload / arrange rough minutes & late handover
 
 - Capture hub had no real file upload — “blank” was Insert blank form / PDF only.

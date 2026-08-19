@@ -41,7 +41,7 @@ export function FeedbackDrawer({ variant = "light" }: FeedbackDrawerProps) {
               <div>
                 <h2
                   id="feedback-title"
-                  className="font-display text-lg font-semibold"
+                  className="font-display text-lg font-semibold text-tl-ink"
                 >
                   Product feedback
                 </h2>
@@ -51,7 +51,7 @@ export function FeedbackDrawer({ variant = "light" }: FeedbackDrawerProps) {
               </div>
               <button
                 type="button"
-                className="rounded-md border border-tl-line px-2 py-1 text-sm"
+                className="rounded-md border border-tl-line px-2 py-1 text-sm text-tl-ink"
                 onClick={() => setOpen(false)}
               >
                 Close

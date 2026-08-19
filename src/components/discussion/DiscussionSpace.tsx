@@ -201,14 +201,14 @@ export function DiscussionSpace({
         </p>
       </div>
 
-      <form onSubmit={handleCreate} className="space-y-3">
+      <form onSubmit={handleCreate} className="space-y-3 text-tl-ink">
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block text-xs">
             <span className="mb-1 block font-medium">Type</span>
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as DiscussionKind)}
-              className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm"
+              className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm text-tl-ink"
             >
               {DISCUSSION_KINDS.map((k) => (
                 <option key={k} value={k}>
@@ -225,7 +225,7 @@ export function DiscussionSpace({
                 required
                 value={meetingAt}
                 onChange={(e) => setMeetingAt(e.target.value)}
-                className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm"
+                className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm text-tl-ink"
               />
             </label>
           ) : (
@@ -241,7 +241,7 @@ export function DiscussionSpace({
                 value={meetingTitle}
                 onChange={(e) => setMeetingTitle(e.target.value)}
                 placeholder="e.g. Site clarification meeting"
-                className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm"
+                className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm text-tl-ink placeholder:text-tl-ink-muted"
               />
             </label>
             <label className="block text-xs">
@@ -250,7 +250,7 @@ export function DiscussionSpace({
                 value={meetingLocation}
                 onChange={(e) => setMeetingLocation(e.target.value)}
                 placeholder="Optional"
-                className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm"
+                className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm text-tl-ink placeholder:text-tl-ink-muted"
               />
             </label>
             {canCreateEngagement ? (
@@ -293,7 +293,7 @@ export function DiscussionSpace({
                   ? "Why should we meet, and what should we cover?"
                   : "Share feedback on this report or case…"
             }
-            className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm"
+            className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm text-tl-ink placeholder:text-tl-ink-muted"
           />
         </label>
         {error ? (
