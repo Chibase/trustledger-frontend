@@ -15,6 +15,7 @@ import {
   accessVerificationReady,
 } from "@/lib/accessVerification";
 import { leadBackendStatus } from "@/lib/leadCapture";
+import { marketingEngineStatus } from "@/lib/marketing/config";
 
 const FRAPPE_SITE =
   process.env.FRAPPE_BASE_URL ||
@@ -98,6 +99,7 @@ export async function GET() {
     leadBackend: leads.preference,
     leadBackendCutover: leads.cutoverComplete,
     hubspotFallbackActive: leads.hubspotFallbackActive,
+    marketingEngine: marketingEngineStatus(),
   };
 
   return NextResponse.json(

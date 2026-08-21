@@ -3,6 +3,10 @@ import { SECURITY_HEADERS } from "./src/lib/security/headers";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["pdfkit", "unpdf"],
+  outputFileTracingIncludes: {
+    "/api/cron/run-chibase-campaign": ["./content/**/*"],
+    "/api/cron/run-trustledger-outreach": ["./content/**/*"],
+  },
   async redirects() {
     return [
       { source: "/demo", destination: "/product", permanent: true },
