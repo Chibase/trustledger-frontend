@@ -318,10 +318,18 @@ export async function ensureClickUpWebhook(endpoint: string): Promise<{
   }
 
   const listed = await clickupFetch(`/team/${teamId}/webhook`);
+  if (!listed.ok) {
+    const err = listed.json as { err?: string };
+    return {
+      ok: false,
+      error: err.err || `ClickUp list webhooks failed (${listed.status})`,
+    };
+  }
   const webhooks = (listed.json as { webhooks?: ClickUpWebhookRow[] }).webhooks;
-  const existing = Array.isArray(webhooks)
-    ? webhooks.find((w) => (w.endpoint || "").replace(/\/$/, "") === target)
-    : undefined;
+  const matches = Array.isArray(webhooks)
+    ? webhooks.filter((w) => (w.endpoint || "").replace(/\/$/, "") === target)
+    : [];
+  const existing = matches[0];
 
   const body = {
     endpoint: target,
@@ -329,6 +337,12 @@ export async function ensureClickUpWebhook(endpoint: string): Promise<{
     secret,
     status: "active",
   };
+
+  for (const extra of matches.slice(1)) {
+    if (extra.id) {
+      await clickupFetch(`/webhook/${extra.id}`, { method: "DELETE" });
+    }
+  }
 
   if (existing?.id) {
     const upd = await clickupFetch(`/webhook/${existing.id}`, {
@@ -357,6 +371,10 @@ export async function ensureClickUpWebhook(endpoint: string): Promise<{
   };
   const webhookId = parsed.id || parsed.webhook?.id;
   if (!created.ok || !webhookId) {
+    const msg = (parsed.err || "").toLowerCase();
+    if (created.status === 409 || msg.includes("already") || msg.includes("duplicate")) {
+      return { ok: true, action: "unchanged", error: parsed.err };
+    }
     return {
       ok: false,
       error: parsed.err || `ClickUp create webhook failed (${created.status})`,
