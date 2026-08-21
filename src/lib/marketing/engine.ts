@@ -11,6 +11,7 @@ import {
   clickupConfigured,
   commentRequestsPublish,
   createReviewTask,
+  ensureClickUpWebhook,
   findTaskForWeek,
   getClickUpTask,
   isApprovedStatus,
@@ -24,12 +25,16 @@ import {
 import { publishViaZernio } from "@/lib/marketing/zernio";
 import { overlayHumanEdits } from "@/lib/marketing/payload";
 import { isoWeekKey, scrubCampaignAsset } from "@/lib/marketing/voice";
+import { siteBaseUrl } from "@/lib/hubspot";
 
 export async function runDraftCycle(
   brand: MarketingBrand,
   options: { dryRun?: boolean } = {},
 ): Promise<DraftCycleResult> {
   const weekKey = isoWeekKey();
+  if (clickupConfigured() && !options.dryRun) {
+    await ensureClickUpWebhook(`${siteBaseUrl()}/api/webhooks/clickup`);
+  }
   const docs = loadContentForBrand(brand);
   if (docs.length === 0) {
     return {

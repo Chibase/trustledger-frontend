@@ -39,7 +39,11 @@ export function clickupListId(): string {
 }
 
 export function clickupWebhookSecret(): string {
-  return envTrim("CLICKUP_WEBHOOK_SECRET");
+  return envTrim("CLICKUP_WEBHOOK_SECRET") || cronSecret();
+}
+
+export function clickupWebhookSecretDedicated(): boolean {
+  return Boolean(envTrim("CLICKUP_WEBHOOK_SECRET"));
 }
 
 export function cronSecret(): string {
@@ -49,15 +53,21 @@ export function cronSecret(): string {
 export function marketingEngineStatus(): {
   gemini: boolean;
   zernio: boolean;
+  zernioAccounts: boolean;
   clickup: boolean;
   webhookSecret: boolean;
+  webhookSecretDedicated: boolean;
   listId: string;
 } {
   return {
     gemini: Boolean(geminiApiKey()),
     zernio: Boolean(zernioApiKey()),
+    zernioAccounts:
+      zernioAccountIds("trustledger").length > 0 ||
+      zernioAccountIds("chibase").length > 0,
     clickup: Boolean(clickupApiKey()),
     webhookSecret: Boolean(clickupWebhookSecret()),
+    webhookSecretDedicated: clickupWebhookSecretDedicated(),
     listId: clickupListId(),
   };
 }

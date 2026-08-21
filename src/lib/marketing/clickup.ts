@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import {
   clickupApiKey,
   clickupListId,
+  clickupTeamId,
   clickupWebhookSecret,
 } from "@/lib/marketing/config";
 import type { MarketingPayload } from "@/lib/marketing/types";
@@ -289,4 +290,77 @@ export async function latestPublishableComment(taskId: string): Promise<string> 
   if (!newest) return "";
   if (newest.dateMs && Date.now() - newest.dateMs > 5 * 60 * 1000) return "";
   return newest.text;
+}
+
+type ClickUpWebhookRow = {
+  id?: string;
+  endpoint?: string;
+  health?: { status?: string };
+};
+
+export async function ensureClickUpWebhook(endpoint: string): Promise<{
+  ok: boolean;
+  webhookId?: string;
+  action?: "created" | "updated" | "unchanged";
+  error?: string;
+}> {
+  const secret = clickupWebhookSecret();
+  const teamId = clickupTeamId();
+  const target = endpoint.replace(/\/$/, "");
+  if (!clickupApiKey()) {
+    return { ok: false, error: "CLICKUP_API_KEY missing" };
+  }
+  if (!secret) {
+    return {
+      ok: false,
+      error: "Set CLICKUP_WEBHOOK_SECRET (or CRON_SECRET as fallback)",
+    };
+  }
+
+  const listed = await clickupFetch(`/team/${teamId}/webhook`);
+  const webhooks = (listed.json as { webhooks?: ClickUpWebhookRow[] }).webhooks;
+  const existing = Array.isArray(webhooks)
+    ? webhooks.find((w) => (w.endpoint || "").replace(/\/$/, "") === target)
+    : undefined;
+
+  const body = {
+    endpoint: target,
+    events: ["taskStatusUpdated", "taskCommentPosted"],
+    secret,
+    status: "active",
+  };
+
+  if (existing?.id) {
+    const upd = await clickupFetch(`/webhook/${existing.id}`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    });
+    if (!upd.ok) {
+      const err = upd.json as { err?: string; ECODE?: string };
+      return {
+        ok: false,
+        webhookId: existing.id,
+        error: err.err || `ClickUp update webhook failed (${upd.status})`,
+      };
+    }
+    return { ok: true, webhookId: existing.id, action: "updated" };
+  }
+
+  const created = await clickupFetch(`/team/${teamId}/webhook`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  const parsed = created.json as {
+    id?: string;
+    webhook?: { id?: string };
+    err?: string;
+  };
+  const webhookId = parsed.id || parsed.webhook?.id;
+  if (!created.ok || !webhookId) {
+    return {
+      ok: false,
+      error: parsed.err || `ClickUp create webhook failed (${created.status})`,
+    };
+  }
+  return { ok: true, webhookId, action: "created" };
 }
