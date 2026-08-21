@@ -138,13 +138,13 @@ export function InsightScenePlayer({
     <div className="flex flex-col gap-3">
       <div
         ref={stageRef}
-        className={`w-full overflow-hidden bg-tl-paper ${
+        className={`w-full bg-tl-paper ${
           fullscreen
-            ? "h-full rounded-none border-0"
-            : "aspect-video rounded-lg border border-tl-line"
+            ? "h-full overflow-hidden rounded-none border-0"
+            : "min-h-[22rem] overflow-hidden rounded-lg border border-tl-line md:aspect-video"
         }`}
       >
-        <div className="h-full">
+        <div className="h-full min-h-[22rem] md:min-h-0">
           <SceneFrame elapsedMs={elapsedMs} scenes={scenes} />
         </div>
       </div>
