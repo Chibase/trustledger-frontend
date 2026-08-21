@@ -65,6 +65,7 @@ export type MarketingPayload = {
   length?: MarketingLength;
   publishedAt?: string;
   zernioPostId?: string;
+  archivedAt?: string;
 };
 
 export type MarketingBrief = {

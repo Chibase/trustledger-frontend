@@ -91,8 +91,9 @@ Allowlisted Platform Operators work the engine from TrustLedger Platform — sam
 
 | Action | Where |
 |--------|--------|
-| See keys + this week’s queue | `/ops/marketing` |
-| Compose topic / length / destination | **Compose a brief** on that page (LinkedIn post/article/comment, Reddit, ESG, website blog) |
+| See drafts still needing review | `/ops/marketing` **To review** inbox |
+| Archive published or skipped drafts | **Archive** on a card, or they leave the inbox after live publish |
+| Compose topic / length / destination | **Compose a brief** (LinkedIn post/article/comment, Reddit, ESG, website blog) |
 | Stage Chibase / TrustLedger cron drafts | Buttons on that page (`POST /api/ops/marketing`) |
 | Edit full markdown | Click **Open** → Marketing Review task |
 | Publish LinkedIn feed | **Publish** on the desk (human apply) or ClickUp **Approved** / `/tl-publish` |

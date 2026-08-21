@@ -7,7 +7,7 @@ const NAV_CONTROL = [
   { href: "/ops/finance", label: "Finance" },
   { href: "/ops/staff", label: "Staff" },
   { href: "/ops/ai", label: "AI tools" },
-  { href: "/ops/marketing", label: "Marketing engine" },
+  { href: "/ops/marketing", label: "Marketing review" },
   { href: "/ops/issues", label: "Issues control" },
 ];
 

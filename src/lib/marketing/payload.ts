@@ -87,6 +87,9 @@ export function encodeTaskMarkdown(input: {
         payload.zernioPostId ? ` · Zernio \`${payload.zernioPostId}\`` : ""
       }`
     : "";
+  const archived = payload.archivedAt
+    ? `\n\n**Archived:** ${payload.archivedAt} — left the review inbox.`
+    : "";
   return `## ${payload.brand === "chibase" ? "Chibase" : "TrustLedger"} draft for review
 
 **Source:** ${input.sourceTitle} (\`${payload.sourceSlug}\`)
@@ -124,7 +127,7 @@ ${
     ? `### Outreach draft (not auto-sent)\n${payload.asset.outreachDraft}\n`
     : ""
 }
-${published}
+${published}${archived}
 
 ---
 \`\`\`

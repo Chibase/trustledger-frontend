@@ -15,13 +15,13 @@ export default async function OpsMarketingPage() {
       <header>
         <p className="text-sm font-medium text-tl-trust">Command control</p>
         <h1 className="mt-1 font-display text-3xl font-semibold">
-          Marketing engine
+          Marketing review
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Operator desk for Chibase thought-leadership and TrustLedger social.
-          Compose a topic, length, and destination (LinkedIn, Reddit, ESG, or
-          website blog), then review. This is not the customer product dashboard
-          and it never sends bulk email.
+          All marketing drafts that still need your review and publishing live
+          here. Published or skipped pieces move to Archive. Compose a topic
+          below; this is not the customer product dashboard and never sends
+          bulk email.
         </p>
       </header>
 

@@ -56,6 +56,7 @@ export function MarketingEnginePanel({ initial }: Props) {
   const [length, setLength] = useState<MarketingLengthId>("standard");
   const [sourceSlug, setSourceSlug] = useState("");
   const [preview, setPreview] = useState<ComposePreview | null>(null);
+  const [lane, setLane] = useState<"inbox" | "archive">("inbox");
 
   const refresh = useCallback(async () => {
     const res = await fetch("/api/ops/marketing", {
@@ -190,12 +191,68 @@ export function MarketingEnginePanel({ initial }: Props) {
     }
   }
 
+  function onArchive(task: MarketingDeskTask) {
+    const label = task.headline || task.name;
+    const ok = window.confirm(
+      `Archive “${label}”?\n\nIt leaves the review inbox. This does not publish and does not send email.`,
+    );
+    if (!ok) return;
+    void runAction("archive", { taskId: task.id, label: `archive-${task.id}` });
+  }
+
   const flags = data.status;
-  const thisWeek = data.tasks.filter((t) => t.thisWeek);
+  const inbox = data.inbox || [];
+  const archive = data.archive || [];
   const disabled = Boolean(busy);
 
   return (
     <div className="space-y-6">
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div>
+            <h2 className="font-display text-lg font-semibold">
+              Marketing content
+            </h2>
+            <p className="mt-1 text-sm text-tl-ink-muted">
+              Only drafts that still need your review and publish sit in{" "}
+              <strong>To review</strong>. After you publish, paste, or skip,
+              archive them. This space is not the customer dashboard and never
+              sends bulk email.
+            </p>
+          </div>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => void onRefresh()}
+            className="text-xs font-medium text-tl-trust-ink underline disabled:opacity-50"
+          >
+            Refresh
+          </button>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <LaneButton
+            active={lane === "inbox"}
+            onClick={() => setLane("inbox")}
+            label={`To review (${inbox.length})`}
+          />
+          <LaneButton
+            active={lane === "archive"}
+            onClick={() => setLane("archive")}
+            label={`Archive (${archive.length})`}
+          />
+        </div>
+        <ContentTable
+          lane={lane}
+          rows={lane === "inbox" ? inbox : archive}
+          openId={openId}
+          setOpenId={setOpenId}
+          disabled={disabled}
+          onPublish={onPublish}
+          onArchive={onArchive}
+          onCopy={(text) => void copyText(text)}
+        />
+      </section>
+
       <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-display text-lg font-semibold">Engine status</h2>
@@ -464,150 +521,6 @@ export function MarketingEnginePanel({ initial }: Props) {
         </ul>
       </section>
 
-      <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div>
-            <h2 className="font-display text-lg font-semibold">
-              Marketing Review queue
-            </h2>
-            <p className="mt-1 text-sm text-tl-ink-muted">
-              {thisWeek.length} this week · {data.tasks.length} shown. Publish
-              from here is the same human gate as{" "}
-              <code className="font-mono text-[11px]">/tl-publish</code> — never
-              treat ClickUp Complete as publish.
-            </p>
-          </div>
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={() => void onRefresh()}
-            className="text-xs font-medium text-tl-trust-ink underline disabled:opacity-50"
-          >
-            Refresh queue
-          </button>
-        </div>
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[48rem] text-left text-sm">
-            <thead className="border-b border-tl-line text-xs uppercase tracking-wide text-tl-ink-muted">
-              <tr>
-                <th className="py-2 pr-3 font-medium">Week</th>
-                <th className="py-2 pr-3 font-medium">Speaker</th>
-                <th className="py-2 pr-3 font-medium">Where</th>
-                <th className="py-2 pr-3 font-medium">Draft</th>
-                <th className="py-2 pr-3 font-medium">Status</th>
-                <th className="py-2 font-medium">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-tl-line">
-              {data.tasks.map((task) => (
-                <tr key={task.id}>
-                  <td className="py-2.5 pr-3 text-xs text-tl-ink-muted">
-                    {task.weekKey || "—"}
-                    {task.thisWeek ? (
-                      <span className="ml-1 text-tl-trust-ink">now</span>
-                    ) : null}
-                  </td>
-                  <td className="py-2.5 pr-3">
-                    {task.brand === "chibase"
-                      ? "Chibase"
-                      : task.brand === "trustledger"
-                        ? "TrustLedger"
-                        : "—"}
-                  </td>
-                  <td className="py-2.5 pr-3 text-xs text-tl-ink-muted">
-                    {MARKETING_PLACEMENTS.find((p) => p.id === task.placement)
-                      ?.label || (task.publishMode === "zernio" ? "LinkedIn post" : "—")}
-                  </td>
-                  <td className="py-2.5 pr-3">
-                    <p className="font-medium">{task.headline || task.name}</p>
-                    {task.headline ? (
-                      <p className="text-xs text-tl-ink-muted">{task.name}</p>
-                    ) : null}
-                    {task.bodyPreview ? (
-                      <button
-                        type="button"
-                        className="mt-1 text-left text-xs text-tl-trust-ink underline"
-                        onClick={() =>
-                          setOpenId((id) => (id === task.id ? null : task.id))
-                        }
-                      >
-                        {openId === task.id ? "Hide preview" : "Preview copy"}
-                      </button>
-                    ) : null}
-                    {openId === task.id && task.bodyPreview ? (
-                      <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-tl-ink-muted">
-                        {task.bodyPreview}
-                        {task.bodyPreview.length >= 280 ? "…" : ""}
-                      </p>
-                    ) : null}
-                  </td>
-                  <td className="py-2.5 pr-3">
-                    <span className="rounded-sm bg-tl-paper px-1.5 py-0.5 text-xs font-medium">
-                      {task.published
-                        ? "Published"
-                        : task.pasteReady
-                          ? "Paste-ready"
-                          : task.status}
-                    </span>
-                  </td>
-                  <td className="py-2.5">
-                    <div className="flex flex-wrap gap-2">
-                      <a
-                        href={task.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs font-medium text-tl-trust-ink underline"
-                      >
-                        Open
-                      </a>
-                      {task.engineTask && !task.published && !task.pasteReady ? (
-                        <button
-                          type="button"
-                          disabled={disabled}
-                          onClick={() => onPublish(task)}
-                          className="text-xs font-medium text-tl-amber underline disabled:opacity-50"
-                        >
-                          {task.publishMode === "paste"
-                            ? "Mark paste-ready"
-                            : "Publish"}
-                        </button>
-                      ) : null}
-                      {task.body ? (
-                        <button
-                          type="button"
-                          className="text-xs font-medium text-tl-trust-ink underline"
-                          onClick={() =>
-                            void copyText(
-                              [
-                                task.headline,
-                                task.body,
-                                task.firstComment,
-                              ]
-                                .filter(Boolean)
-                                .join("\n\n"),
-                            )
-                          }
-                        >
-                          Copy
-                        </button>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {!data.tasks.length ? (
-                <tr>
-                  <td colSpan={6} className="py-6 text-tl-ink-muted">
-                    No Marketing Review tasks yet. Stage this week to create
-                    drafts.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
       {busy ? (
         <p className="text-xs text-tl-ink-muted">Working: {busy}…</p>
       ) : null}
@@ -639,5 +552,183 @@ function ActionButton({
     <button type="button" disabled={disabled} onClick={onClick} className={cls}>
       {children}
     </button>
+  );
+}
+
+function LaneButton({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+        active
+          ? "bg-tl-trust text-white"
+          : "border border-tl-line bg-tl-paper text-tl-ink hover:border-tl-trust/40"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function ContentTable({
+  lane,
+  rows,
+  openId,
+  setOpenId,
+  disabled,
+  onPublish,
+  onArchive,
+  onCopy,
+}: {
+  lane: "inbox" | "archive";
+  rows: MarketingDeskTask[];
+  openId: string | null;
+  setOpenId: (updater: string | null | ((id: string | null) => string | null)) => void;
+  disabled: boolean;
+  onPublish: (task: MarketingDeskTask) => void;
+  onArchive: (task: MarketingDeskTask) => void;
+  onCopy: (text: string) => void;
+}) {
+  return (
+    <div className="mt-4 overflow-x-auto">
+      <table className="w-full min-w-[48rem] text-left text-sm">
+        <thead className="border-b border-tl-line text-xs uppercase tracking-wide text-tl-ink-muted">
+          <tr>
+            <th className="py-2 pr-3 font-medium">Week</th>
+            <th className="py-2 pr-3 font-medium">Speaker</th>
+            <th className="py-2 pr-3 font-medium">Where</th>
+            <th className="py-2 pr-3 font-medium">Draft</th>
+            <th className="py-2 pr-3 font-medium">Status</th>
+            <th className="py-2 font-medium">Action</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-tl-line">
+          {rows.map((task) => (
+            <tr key={task.id}>
+              <td className="py-2.5 pr-3 text-xs text-tl-ink-muted">
+                {task.weekKey || "—"}
+                {task.thisWeek ? (
+                  <span className="ml-1 text-tl-trust-ink">now</span>
+                ) : null}
+              </td>
+              <td className="py-2.5 pr-3">
+                {task.brand === "chibase"
+                  ? "Chibase"
+                  : task.brand === "trustledger"
+                    ? "TrustLedger"
+                    : "—"}
+              </td>
+              <td className="py-2.5 pr-3 text-xs text-tl-ink-muted">
+                {MARKETING_PLACEMENTS.find((p) => p.id === task.placement)
+                  ?.label || (task.publishMode === "zernio" ? "LinkedIn post" : "—")}
+              </td>
+              <td className="py-2.5 pr-3">
+                <p className="font-medium">{task.headline || task.name}</p>
+                {task.headline ? (
+                  <p className="text-xs text-tl-ink-muted">{task.name}</p>
+                ) : null}
+                {task.bodyPreview ? (
+                  <button
+                    type="button"
+                    className="mt-1 text-left text-xs text-tl-trust-ink underline"
+                    onClick={() =>
+                      setOpenId((id) => (id === task.id ? null : task.id))
+                    }
+                  >
+                    {openId === task.id ? "Hide preview" : "Preview copy"}
+                  </button>
+                ) : null}
+                {openId === task.id && (task.body || task.bodyPreview) ? (
+                  <p className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-relaxed text-tl-ink-muted">
+                    {task.body || task.bodyPreview}
+                  </p>
+                ) : null}
+              </td>
+              <td className="py-2.5 pr-3">
+                <span className="rounded-sm bg-tl-paper px-1.5 py-0.5 text-xs font-medium">
+                  {task.archived
+                    ? "Archived"
+                    : task.published
+                      ? "Published"
+                      : task.pasteReady
+                        ? "Paste-ready"
+                        : task.status}
+                </span>
+              </td>
+              <td className="py-2.5">
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={task.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs font-medium text-tl-trust-ink underline"
+                  >
+                    Open
+                  </a>
+                  {lane === "inbox" &&
+                  task.engineTask &&
+                  !task.published &&
+                  !task.pasteReady ? (
+                    <button
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => onPublish(task)}
+                      className="text-xs font-medium text-tl-amber underline disabled:opacity-50"
+                    >
+                      {task.publishMode === "paste"
+                        ? "Mark paste-ready"
+                        : "Publish"}
+                    </button>
+                  ) : null}
+                  {task.body ? (
+                    <button
+                      type="button"
+                      className="text-xs font-medium text-tl-trust-ink underline"
+                      onClick={() =>
+                        onCopy(
+                          [task.headline, task.body, task.firstComment]
+                            .filter(Boolean)
+                            .join("\n\n"),
+                        )
+                      }
+                    >
+                      Copy
+                    </button>
+                  ) : null}
+                  {lane === "inbox" ? (
+                    <button
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => onArchive(task)}
+                      className="text-xs font-medium text-tl-ink-muted underline disabled:opacity-50"
+                    >
+                      Archive
+                    </button>
+                  ) : null}
+                </div>
+              </td>
+            </tr>
+          ))}
+          {!rows.length ? (
+            <tr>
+              <td colSpan={6} className="py-6 text-tl-ink-muted">
+                {lane === "inbox"
+                  ? "Nothing waiting. Compose a brief or stage this week’s drafts — they appear here until you publish or archive."
+                  : "Archive is empty. Published and skipped drafts land here."}
+              </td>
+            </tr>
+          ) : null}
+        </tbody>
+      </table>
+    </div>
   );
 }
