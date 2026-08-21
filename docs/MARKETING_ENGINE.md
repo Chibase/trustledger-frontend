@@ -72,15 +72,16 @@ Do **not** treat default `complete` as publish — that would fire on ordinary c
 
 ### Webhook (once)
 
-In ClickUp: Space / App Center → Webhooks (or `POST /api/v2/team/90121198081/webhook`):
+`GET https://<this-app-host>/api/webhooks/clickup` **registers or updates** the ClickUp webhook using `CLICKUP_API_KEY` and HMAC secret `CLICKUP_WEBHOOK_SECRET` (falls back to `CRON_SECRET` if the dedicated secret is unset).
 
 - Endpoint: `https://<this-app-host>/api/webhooks/clickup`  
   Use the **Next.js production host** (today `https://trustledger-frontend-pi.vercel.app`), not WordPress `trustledger.co.za`.
 - Events: `taskStatusUpdated`, `taskCommentPosted`
-- Secret → Vercel env `CLICKUP_WEBHOOK_SECRET` (HMAC-SHA256, header `X-Signature`)
 - Production refuses unsigned POSTs.
 
-`GET /api/webhooks/clickup` returns whether the secret is configured (no secret values).
+Operator one-shot (Bearer `CRON_SECRET` or Ops session): `POST /api/cron/setup-marketing` registers the webhook and stages this week’s Chibase + TrustLedger drafts. `{ "dryRun": true }` synthesizes without writing ClickUp.
+
+Health: `GET /api/health` → `launch.marketingEngine` `{ gemini, zernio, zernioAccounts, clickup, webhookSecret, webhookSecretDedicated, listId }`. Missing keys do **not** fail platform health.
 
 ---
 
@@ -94,7 +95,7 @@ In ClickUp: Space / App Center → Webhooks (or `POST /api/v2/team/90121198081/w
 | `CLICKUP_API_KEY` | Stage tasks | Personal token (ClickUp header is the token, not `Bearer`) |
 | `CLICKUP_TEAM_ID` | Optional | Defaults to `90121198081` |
 | `CLICKUP_LIST_ID` | Stage / approve | Defaults to Marketing Review `901220539195` |
-| `CLICKUP_WEBHOOK_SECRET` | Production publish | Required when `VERCEL_ENV=production` |
+| `CLICKUP_WEBHOOK_SECRET` | Production publish HMAC | Optional if `CRON_SECRET` is set (fallback). Dedicated secret preferred. |
 | `ZERNIO_API_KEY` | Publish | `sk_…` |
 | `ZERNIO_LINKEDIN_ACCOUNT_ID` | Publish | Or brand-specific IDs below |
 
@@ -106,8 +107,6 @@ Brand-specific accounts (optional):
 
 Connect accounts once in Zernio (OAuth), then store the account `_id` values here. If accounts are missing, approval comments “paste manually” and does not fail the webhook.
 
-Health: `GET /api/health` → `launch.marketingEngine` `{ gemini, zernio, clickup, webhookSecret, listId }`. Missing keys do **not** fail platform health.
-
 ---
 
 ## Cron
@@ -116,6 +115,7 @@ Health: `GET /api/health` → `launch.marketingEngine` `{ gemini, zernio, clicku
 |-----|----------------|------|------|
 | Chibase thought-leadership | `0 5 * * 1` | Mon 07:00 | `/api/cron/run-chibase-campaign` |
 | TrustLedger trial / product | `0 5 * * 3` | Wed 07:00 | `/api/cron/run-trustledger-outreach` |
+| Operator one-shot | — | — | `/api/cron/setup-marketing` |
 
 Manual (Platform Operator session or `Authorization: Bearer CRON_SECRET`):
 

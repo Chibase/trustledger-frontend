@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-21 — Marketing engine webhook auto-register
+
+- `GET /api/webhooks/clickup` creates/updates the ClickUp webhook (HMAC secret = `CLICKUP_WEBHOOK_SECRET` or fallback `CRON_SECRET`).
+- Operator one-shot `GET|POST /api/cron/setup-marketing` stages this week’s Chibase + TrustLedger drafts.
+- Health adds `zernioAccounts` and `webhookSecretDedicated` (no secret values).
+
 ## 2026-08-21 — Autonomous marketing engine (MKT-1 / ADR-052)
 
 - Developer-owned loop in this repo: Gemini synthesizes drafts from `content/chibase-papers/` and `content/trustledger-campaigns/`; ClickUp **Marketing Review** (`901220539195`) is the human gate; Zernio publishes after **Approved** or `/tl-publish`.

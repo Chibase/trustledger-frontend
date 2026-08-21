@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { isProductionRuntime } from "@/lib/hubspot";
+import { isProductionRuntime, siteBaseUrl } from "@/lib/hubspot";
 import {
   clickupSignatureRequired,
+  ensureClickUpWebhook,
   verifyClickUpSignature,
 } from "@/lib/marketing/clickup";
 import { handleClickUpWebhook } from "@/lib/marketing/engine";
@@ -18,11 +19,18 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   const status = marketingEngineStatus();
+  const endpoint = `${siteBaseUrl()}/api/webhooks/clickup`;
+  const webhook = status.clickup
+    ? await ensureClickUpWebhook(endpoint)
+    : { ok: false, error: "CLICKUP_API_KEY missing" };
   return NextResponse.json({
-    ok: true,
+    ok: webhook.ok,
     engine: "clickup-handler",
+    endpoint,
     webhookSecret: status.webhookSecret,
+    webhookSecretDedicated: status.webhookSecretDedicated,
     clickup: status.clickup,
+    webhook,
   });
 }
 
