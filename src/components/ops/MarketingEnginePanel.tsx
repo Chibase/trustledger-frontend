@@ -3,10 +3,18 @@
 import { useCallback, useState, startTransition } from "react";
 import { useToast } from "@/components/ui/Toast";
 import type {
+  MarketingBriefInput,
   MarketingDeskAction,
   MarketingDeskActionResult,
+  MarketingDeskBrand,
   MarketingDeskSnapshot,
   MarketingDeskTask,
+  MarketingLengthId,
+  MarketingPlacementId,
+} from "@/lib/marketing/desk.types";
+import {
+  MARKETING_LENGTHS,
+  MARKETING_PLACEMENTS,
 } from "@/lib/marketing/desk.types";
 
 const FLAG_LABELS: Array<{
@@ -20,9 +28,19 @@ const FLAG_LABELS: Array<{
   { key: "webhookSecret", label: "Webhook HMAC" },
 ];
 
+type ComposePreview = {
+  headline: string;
+  body: string;
+  firstComment?: string;
+  synthesizer?: string;
+};
+
 type Props = {
   initial: MarketingDeskSnapshot;
 };
+
+const FIELD =
+  "mt-1 w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm text-tl-ink";
 
 export function MarketingEnginePanel({ initial }: Props) {
   const { pushToast } = useToast();
@@ -30,6 +48,14 @@ export function MarketingEnginePanel({ initial }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const [result, setResult] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [speaker, setSpeaker] = useState<MarketingDeskBrand>("trustledger");
+  const [topic, setTopic] = useState("");
+  const [notes, setNotes] = useState("");
+  const [placement, setPlacement] =
+    useState<MarketingPlacementId>("linkedin-post");
+  const [length, setLength] = useState<MarketingLengthId>("standard");
+  const [sourceSlug, setSourceSlug] = useState("");
+  const [preview, setPreview] = useState<ComposePreview | null>(null);
 
   const refresh = useCallback(async () => {
     const res = await fetch("/api/ops/marketing", {
@@ -48,7 +74,12 @@ export function MarketingEnginePanel({ initial }: Props) {
 
   async function runAction(
     action: MarketingDeskAction,
-    options: { dryRun?: boolean; taskId?: string; label: string },
+    options: {
+      dryRun?: boolean;
+      taskId?: string;
+      label: string;
+      brief?: MarketingBriefInput;
+    },
   ) {
     setBusy(options.label);
     setResult("");
@@ -64,6 +95,7 @@ export function MarketingEnginePanel({ initial }: Props) {
           action,
           dryRun: options.dryRun === true,
           taskId: options.taskId,
+          brief: options.brief,
         }),
       });
       const json = (await res.json()) as MarketingDeskActionResult & {
@@ -75,6 +107,17 @@ export function MarketingEnginePanel({ initial }: Props) {
         return;
       }
       pushToast(json.message || "Done", "success");
+      const asset = (
+        json.result as { asset?: ComposePreview; synthesizer?: string } | undefined
+      )?.asset;
+      if (action === "compose" && asset?.body) {
+        setPreview({
+          headline: asset.headline,
+          body: asset.body,
+          firstComment: asset.firstComment,
+          synthesizer: (json.result as { synthesizer?: string }).synthesizer,
+        });
+      }
       if (!options.dryRun) {
         await refresh();
       }
@@ -102,11 +145,49 @@ export function MarketingEnginePanel({ initial }: Props) {
 
   function onPublish(task: MarketingDeskTask) {
     const label = task.headline || task.name;
+    const paste = task.publishMode === "paste";
     const ok = window.confirm(
-      `Publish “${label}” to connected social accounts?\n\nThis is the human apply step. It does not send email. Default Complete in ClickUp is not a publish signal.`,
+      paste
+        ? `Mark “${label}” paste-ready?\n\nThis format is not auto-posted. Copy the body into LinkedIn / Reddit / ESG / the website after you edit.`
+        : `Publish “${label}” to connected social accounts?\n\nThis is the human apply step. It does not send email. Default Complete in ClickUp is not a publish signal.`,
     );
     if (!ok) return;
     void runAction("publish", { taskId: task.id, label: `publish-${task.id}` });
+  }
+
+  function briefPayload(): MarketingBriefInput | null {
+    const t = topic.trim();
+    if (t.length < 8) {
+      pushToast("Add a topic (at least 8 characters).", "error");
+      return null;
+    }
+    return {
+      brand: speaker,
+      topic: t,
+      notes: notes.trim() || undefined,
+      placement,
+      length,
+      sourceSlug: sourceSlug || undefined,
+    };
+  }
+
+  function onCompose(dryRun: boolean) {
+    const brief = briefPayload();
+    if (!brief) return;
+    void runAction("compose", {
+      dryRun,
+      brief,
+      label: dryRun ? "compose-preview" : "compose-stage",
+    });
+  }
+
+  async function copyText(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      pushToast("Copied", "success");
+    } catch {
+      pushToast("Could not copy", "error");
+    }
   }
 
   const flags = data.status;
@@ -176,6 +257,151 @@ export function MarketingEnginePanel({ initial }: Props) {
             Setup card
           </a>
         </div>
+      </section>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
+        <h2 className="font-display text-lg font-semibold">Compose a brief</h2>
+        <p className="mt-1 text-sm text-tl-ink-muted">
+          Suggest a topic, length, and destination. Preview first, then stage
+          for review. LinkedIn feed posts can publish after you apply; articles,
+          comments, ESG, Reddit (unless connected), and website blogs stay
+          paste-ready. Nothing auto-posts from this form.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <label className="text-sm">
+            Speaker
+            <select
+              className={FIELD}
+              value={speaker}
+              onChange={(e) => {
+                const next = e.target.value as MarketingDeskBrand;
+                setSpeaker(next);
+                setSourceSlug("");
+              }}
+            >
+              <option value="trustledger">TrustLedger</option>
+              <option value="chibase">Chibase Consulting</option>
+            </select>
+          </label>
+          <label className="text-sm">
+            Destination
+            <select
+              className={FIELD}
+              value={placement}
+              onChange={(e) => {
+                const next = e.target.value as MarketingPlacementId;
+                setPlacement(next);
+                const meta = MARKETING_PLACEMENTS.find((p) => p.id === next);
+                if (meta) setLength(meta.defaultLength);
+              }}
+            >
+              {MARKETING_PLACEMENTS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm">
+            Length
+            <select
+              className={FIELD}
+              value={length}
+              onChange={(e) => setLength(e.target.value as MarketingLengthId)}
+            >
+              {MARKETING_LENGTHS.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm">
+            Ground in source pack (optional)
+            <select
+              className={FIELD}
+              value={sourceSlug}
+              onChange={(e) => setSourceSlug(e.target.value)}
+            >
+              <option value="">None — topic only</option>
+              {(data.sources || [])
+                .filter((s) => s.brand === speaker)
+                .map((s) => (
+                  <option key={s.slug} value={s.slug}>
+                    {s.title}
+                  </option>
+                ))}
+            </select>
+          </label>
+        </div>
+        <p className="mt-2 text-xs text-tl-ink-muted">
+          {MARKETING_PLACEMENTS.find((p) => p.id === placement)?.hint}
+        </p>
+        <label className="mt-3 block text-sm">
+          Topic
+          <input
+            className={FIELD}
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="e.g. Why grievance trails beat attendance registers"
+            maxLength={240}
+          />
+        </label>
+        <label className="mt-3 block text-sm">
+          Notes / angle (optional)
+          <textarea
+            className={`${FIELD} min-h-[5.5rem]`}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Facts you have the right to use. Do not invent paper findings."
+            maxLength={6000}
+          />
+        </label>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <ActionButton
+            disabled={disabled}
+            onClick={() => onCompose(true)}
+          >
+            Preview draft
+          </ActionButton>
+          <ActionButton
+            disabled={disabled}
+            tone="attention"
+            onClick={() => onCompose(false)}
+          >
+            Stage to review
+          </ActionButton>
+        </div>
+        {preview ? (
+          <div className="mt-4 rounded-md border border-tl-line bg-tl-paper/60 p-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h3 className="font-semibold">{preview.headline}</h3>
+              <button
+                type="button"
+                className="text-xs font-medium text-tl-trust-ink underline"
+                onClick={() =>
+                  void copyText(
+                    `${preview.headline}\n\n${preview.body}${
+                      preview.firstComment
+                        ? `\n\n${preview.firstComment}`
+                        : ""
+                    }`,
+                  )
+                }
+              >
+                Copy markdown
+              </button>
+            </div>
+            {preview.synthesizer ? (
+              <p className="mt-1 text-[11px] uppercase tracking-wide text-tl-ink-muted">
+                {preview.synthesizer}
+              </p>
+            ) : null}
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-tl-ink">
+              {preview.body}
+            </p>
+          </div>
+        ) : null}
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-5">
@@ -266,6 +492,7 @@ export function MarketingEnginePanel({ initial }: Props) {
               <tr>
                 <th className="py-2 pr-3 font-medium">Week</th>
                 <th className="py-2 pr-3 font-medium">Speaker</th>
+                <th className="py-2 pr-3 font-medium">Where</th>
                 <th className="py-2 pr-3 font-medium">Draft</th>
                 <th className="py-2 pr-3 font-medium">Status</th>
                 <th className="py-2 font-medium">Action</th>
@@ -286,6 +513,10 @@ export function MarketingEnginePanel({ initial }: Props) {
                       : task.brand === "trustledger"
                         ? "TrustLedger"
                         : "—"}
+                  </td>
+                  <td className="py-2.5 pr-3 text-xs text-tl-ink-muted">
+                    {MARKETING_PLACEMENTS.find((p) => p.id === task.placement)
+                      ?.label || (task.publishMode === "zernio" ? "LinkedIn post" : "—")}
                   </td>
                   <td className="py-2.5 pr-3">
                     <p className="font-medium">{task.headline || task.name}</p>
@@ -332,7 +563,24 @@ export function MarketingEnginePanel({ initial }: Props) {
                           onClick={() => onPublish(task)}
                           className="text-xs font-medium text-tl-amber underline disabled:opacity-50"
                         >
-                          Publish
+                          {task.publishMode === "paste"
+                            ? "Mark paste-ready"
+                            : "Publish"}
+                        </button>
+                      ) : null}
+                      {task.bodyPreview ? (
+                        <button
+                          type="button"
+                          className="text-xs font-medium text-tl-trust-ink underline"
+                          onClick={() =>
+                            void copyText(
+                              task.headline
+                                ? `${task.headline}\n\n${task.bodyPreview}`
+                                : task.bodyPreview || "",
+                            )
+                          }
+                        >
+                          Copy
                         </button>
                       ) : null}
                     </div>
@@ -341,7 +589,7 @@ export function MarketingEnginePanel({ initial }: Props) {
               ))}
               {!data.tasks.length ? (
                 <tr>
-                  <td colSpan={5} className="py-6 text-tl-ink-muted">
+                  <td colSpan={6} className="py-6 text-tl-ink-muted">
                     No Marketing Review tasks yet. Stage this week to create
                     drafts.
                   </td>

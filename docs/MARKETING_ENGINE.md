@@ -92,9 +92,11 @@ Allowlisted Platform Operators work the engine from TrustLedger Platform — sam
 | Action | Where |
 |--------|--------|
 | See keys + this week’s queue | `/ops/marketing` |
-| Stage Chibase / TrustLedger drafts | Buttons on that page (`POST /api/ops/marketing`) |
+| Compose topic / length / destination | **Compose a brief** on that page (LinkedIn post/article/comment, Reddit, ESG, website blog) |
+| Stage Chibase / TrustLedger cron drafts | Buttons on that page (`POST /api/ops/marketing`) |
 | Edit full markdown | Click **Open** → Marketing Review task |
-| Publish | **Publish** on the desk (human apply) or ClickUp **Approved** / comment `/tl-publish` |
+| Publish LinkedIn feed | **Publish** on the desk (human apply) or ClickUp **Approved** / `/tl-publish` |
+| LinkedIn article/comment, ESG, Reddit, blog | Preview + **Copy markdown** / **Mark paste-ready**. Not auto-posted to the website. |
 
 The desk never sends bulk email. Default ClickUp `complete` is still not a publish signal.
 

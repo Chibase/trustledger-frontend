@@ -15,9 +15,15 @@ import {
   clickupTaskUrl,
   marketingEngineStatus,
 } from "@/lib/marketing/config";
-import { loadContentForBrand } from "@/lib/marketing/content";
-import { publishApprovedTask, runDraftCycle } from "@/lib/marketing/engine";
+import {
+  loadChibasePapers,
+  loadContentForBrand,
+  loadTrustLedgerCampaigns,
+} from "@/lib/marketing/content";
+import { publishApprovedTask, runBriefCycle, runDraftCycle } from "@/lib/marketing/engine";
+import { isLengthId, isPlacementId, publishModeFor } from "@/lib/marketing/format";
 import type {
+  MarketingBriefInput,
   MarketingDeskAction,
   MarketingDeskActionResult,
   MarketingDeskSnapshot,
@@ -82,6 +88,13 @@ function toDeskTask(
     bodyPreview: body ? body.slice(0, 280) : null,
     published,
     engineTask: Boolean(payload),
+    placement:
+      payload?.placement && isPlacementId(payload.placement)
+        ? payload.placement
+        : null,
+    publishMode: payload
+      ? publishModeFor(payload.brand, payload.placement)
+      : "paste",
   };
 }
 
@@ -106,6 +119,18 @@ export async function buildMarketingDesk(): Promise<MarketingDeskSnapshot> {
       chibase: loadContentForBrand("chibase").length,
       trustledger: loadContentForBrand("trustledger").length,
     },
+    sources: [
+      ...loadChibasePapers().map((d) => ({
+        slug: d.slug,
+        title: d.title,
+        brand: "chibase" as const,
+      })),
+      ...loadTrustLedgerCampaigns().map((d) => ({
+        slug: d.slug,
+        title: d.title,
+        brand: "trustledger" as const,
+      })),
+    ],
     tasks: [],
   };
 
@@ -140,8 +165,9 @@ export async function runMarketingDeskAction(input: {
   action: MarketingDeskAction;
   dryRun?: boolean;
   taskId?: string;
+  brief?: MarketingBriefInput;
 }): Promise<MarketingDeskActionResult> {
-  const { action, dryRun = false, taskId } = input;
+  const { action, dryRun = false, taskId, brief } = input;
 
   if (action === "register-webhook") {
     const endpoint = `${siteBaseUrl()}/api/webhooks/clickup`;
@@ -229,14 +255,70 @@ export async function runMarketingDeskAction(input: {
       ok: published.ok,
       action,
       message: published.ok
-        ? published.skipped
-          ? `Publish skipped: ${published.skipped}`
-          : `Published${published.platforms?.length ? ` to ${published.platforms.join(", ")}` : ""}.`
+        ? published.skipped === "paste_ready"
+          ? "Marked paste-ready. Copy from the task — this format is not auto-posted."
+          : published.skipped
+            ? `Publish skipped: ${published.skipped}`
+            : `Published${published.platforms?.length ? ` to ${published.platforms.join(", ")}` : ""}.`
         : published.error,
       error: published.ok ? undefined : published.error,
       result: published,
     };
   }
 
+  if (action === "compose") {
+    const parsed = parseBriefInput(brief);
+    if ("error" in parsed) {
+      return { ok: false, action, error: parsed.error };
+    }
+    const result = await runBriefCycle(parsed.brief, { dryRun });
+    return {
+      ok: result.ok,
+      action,
+      message: dryRun
+        ? `Preview ready (${result.synthesizer || "template"}). Not staged.`
+        : result.ok
+          ? `Staged ${parsed.brief.placement} draft for review.`
+          : result.error,
+      error: result.ok ? undefined : result.error,
+      result,
+    };
+  }
+
   return { ok: false, action, error: "Unknown action" };
+}
+
+function parseBriefInput(
+  raw: MarketingBriefInput | undefined,
+): { brief: Parameters<typeof runBriefCycle>[0] } | { error: string } {
+  if (!raw || typeof raw !== "object") {
+    return { error: "Brief is required (topic, placement, length, speaker)." };
+  }
+  const brand = raw.brand === "chibase" ? "chibase" : raw.brand === "trustledger" ? "trustledger" : null;
+  if (!brand) return { error: "Speaker must be Chibase or TrustLedger." };
+  const topic = (raw.topic || "").trim();
+  if (topic.length < 8 || topic.length > 240) {
+    return { error: "Topic must be between 8 and 240 characters." };
+  }
+  if (!isPlacementId(raw.placement)) {
+    return { error: "Choose a destination (LinkedIn, Reddit, ESG, or website blog)." };
+  }
+  if (!isLengthId(raw.length)) {
+    return { error: "Choose a length." };
+  }
+  const notes = (raw.notes || "").trim().slice(0, 6000);
+  const sourceSlug = (raw.sourceSlug || "").trim();
+  if (sourceSlug && !/^[a-z0-9-]{2,80}$/.test(sourceSlug)) {
+    return { error: "Source slug is invalid." };
+  }
+  return {
+    brief: {
+      brand,
+      topic,
+      notes: notes || undefined,
+      placement: raw.placement,
+      length: raw.length,
+      sourceSlug: sourceSlug || undefined,
+    },
+  };
 }

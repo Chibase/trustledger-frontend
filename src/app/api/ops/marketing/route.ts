@@ -5,7 +5,7 @@ import {
   buildMarketingDesk,
   runMarketingDeskAction,
 } from "@/lib/marketing/desk";
-import type { MarketingDeskAction } from "@/lib/marketing/desk.types";
+import type { MarketingBriefInput, MarketingDeskAction } from "@/lib/marketing/desk.types";
 import {
   assertOpsAccess,
   operatorGateMessage,
@@ -21,6 +21,7 @@ const ACTIONS = new Set<MarketingDeskAction>([
   "stage-trustledger",
   "register-webhook",
   "publish",
+  "compose",
 ]);
 
 async function gate() {
@@ -57,6 +58,7 @@ export async function POST(request: Request) {
     action?: string;
     dryRun?: boolean;
     taskId?: string;
+    brief?: MarketingBriefInput;
   } = {};
   try {
     body = (await request.json()) as typeof body;
@@ -67,7 +69,7 @@ export async function POST(request: Request) {
   const action = body.action as MarketingDeskAction | undefined;
   if (!action || !ACTIONS.has(action)) {
     return NextResponse.json(
-      { error: "Unknown action. Use setup, stage-chibase, stage-trustledger, register-webhook, or publish." },
+      { error: "Unknown action. Use setup, stage-chibase, stage-trustledger, register-webhook, publish, or compose." },
       { status: 400 },
     );
   }
@@ -76,6 +78,7 @@ export async function POST(request: Request) {
     action,
     dryRun: body.dryRun === true,
     taskId: typeof body.taskId === "string" ? body.taskId : undefined,
+    brief: body.brief,
   });
   return NextResponse.json(result, {
     status: result.ok ? 200 : 422,

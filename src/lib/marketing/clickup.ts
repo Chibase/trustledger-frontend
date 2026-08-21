@@ -5,6 +5,7 @@ import {
   clickupTeamId,
   clickupWebhookSecret,
 } from "@/lib/marketing/config";
+import { loadContentForBrand } from "@/lib/marketing/content";
 import type { MarketingPayload } from "@/lib/marketing/types";
 import { decodePayload, encodeTaskMarkdown } from "@/lib/marketing/payload";
 
@@ -112,11 +113,15 @@ export async function findTaskForWeek(
 ): Promise<ClickUpTask | null> {
   const needle = `— ${weekKey}`;
   const brandTag = brand === "chibase" ? "[Chibase]" : "[TrustLedger]";
+  const packSlugs = new Set(loadContentForBrand(brand).map((d) => d.slug));
   const tasks = await listClickUpTasks(listId);
   return (
-    tasks.find(
-      (t) => t.name.includes(brandTag) && t.name.includes(needle),
-    ) || null
+    tasks.find((t) => {
+      if (!t.name.includes(brandTag) || !t.name.includes(needle)) return false;
+      if (t.name.includes(" brief-")) return false;
+      const m = t.name.match(/\]\s+([^\s—]+)(?:\s+—)/);
+      return Boolean(m?.[1] && packSlugs.has(m[1]));
+    }) || null
   );
 }
 
@@ -152,7 +157,11 @@ export async function createReviewTask(input: {
     name: taskNameFor(input.payload),
     markdown_description,
     description: markdown_description,
-    tags: ["mkt-engine", input.payload.brand],
+    tags: [
+      "mkt-engine",
+      input.payload.brand,
+      ...(input.payload.placement ? [input.payload.placement] : []),
+    ],
   };
   if (status) body.status = status;
 

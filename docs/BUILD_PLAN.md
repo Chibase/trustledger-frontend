@@ -213,6 +213,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 |--------|------|-------|--------|
 | **MKT-1** | Developer-owned marketing engine | Gemini synthesis + ClickUp HITL + Zernio publish; crons for Chibase papers and TrustLedger outreach; webhook `/api/webhooks/clickup` (`docs/MARKETING_ENGINE.md`, ADR-052) | **Done** |
 | **MKT-2** | Ops marketing desk | Allowlisted `/ops/marketing` cockpit: engine flags, stage drafts, review queue, human-apply publish (`GET|POST /api/ops/marketing`) | **Done** |
+| **MKT-3** | Operator briefs | Compose topic, length, and destination (LinkedIn post/article/comment, Reddit, ESG, website blog) from `/ops/marketing`; paste-ready for long-form/site | **Done** |
 
 ### Public guide agent (ACTIVE)
 
@@ -317,3 +318,4 @@ src/app/api/webhooks/clickup/
 | 2026-08-15 | EM-2 — ClickUp newsletter ops playbook (approve → Frappe send) |
 | 2026-08-21 | MKT-1 — autonomous marketing engine (Gemini + ClickUp HITL + Zernio; ADR-052) |
 | 2026-08-21 | MKT-2 — `/ops/marketing` operator desk for the engine |
+| 2026-08-21 | MKT-3 — operator briefs (topic / length / LinkedIn·Reddit·ESG·blog) |

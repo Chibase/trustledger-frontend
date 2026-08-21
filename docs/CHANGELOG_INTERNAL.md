@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-21 — Operator marketing briefs (MKT-3)
+
+- `/ops/marketing` compose: topic, length, speaker, and destination (LinkedIn post / article / comment, Reddit, ESG platform, website blog).
+- Preview then stage to Marketing Review. Feed posts can still human-apply publish; long-form, comments, ESG, Reddit (unless connected), and blogs are paste-ready — the desk does not write WordPress or `/firm/insights`.
+- Weekly cron idempotency ignores operator `brief-*` tasks so a Reddit draft cannot block Wednesday’s TrustLedger campaign.
+
 ## 2026-08-21 — Ops marketing desk (MKT-2)
 
 - Platform Operator cockpit at `/ops/marketing` (Command control) — not the customer `/app/dashboard`.

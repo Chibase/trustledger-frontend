@@ -18,9 +18,10 @@ export default async function OpsMarketingPage() {
           Marketing engine
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Operator desk for the Chibase thought-leadership and TrustLedger
-          social loop. Review staged copy, then publish. This is not the
-          customer product dashboard and it never sends bulk email.
+          Operator desk for Chibase thought-leadership and TrustLedger social.
+          Compose a topic, length, and destination (LinkedIn, Reddit, ESG, or
+          website blog), then review. This is not the customer product dashboard
+          and it never sends bulk email.
         </p>
       </header>
 

@@ -31,7 +31,7 @@ export const CONTROL_PILLARS: ControlPillarLink[] = [
   {
     href: "/ops/marketing",
     title: "Marketing engine",
-    blurb: "Stage, review, and publish Chibase / TrustLedger social drafts.",
+    blurb: "Compose topic/length/platform, review, and publish social drafts.",
     status: "live",
   },
   {

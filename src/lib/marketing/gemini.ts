@@ -1,5 +1,12 @@
-import type { CampaignAsset, ContentDoc } from "@/lib/marketing/types";
+import type { CampaignAsset, ContentDoc, MarketingBrief } from "@/lib/marketing/types";
 import { geminiApiKey, geminiModel } from "@/lib/marketing/config";
+import {
+  lengthBudget,
+  placementChannel,
+  placementPlatforms,
+  slugifyBrief,
+  utmMediumFor,
+} from "@/lib/marketing/format";
 import {
   CHIBASE_SYSTEM_RULES,
   TRUSTLEDGER_SYSTEM_RULES,
@@ -203,5 +210,184 @@ Return JSON:
       synthesizer: "template",
       violations: [],
     };
+  }
+}
+
+function placementPrompt(
+  placement: MarketingBrief["placement"],
+  lengthLabel: string,
+): string {
+  const common = `Length target: ${lengthLabel}. Hit that band; do not pad with slogans.`;
+  switch (placement) {
+    case "linkedin-comment":
+      return `${common}
+Format: a single LinkedIn comment (no hashtags unless one is essential). Headline = “Comment on: <topic>”. Body = the comment only.`;
+    case "linkedin-article":
+      return `${common}
+Format: LinkedIn Article. Headline = article title. Body = markdown with a lede and 3–5 short sections. firstComment = 1–2 sentence standfirst.`;
+    case "reddit-post":
+      return `${common}
+Format: Reddit self-post. Headline = post title (plain, not clickbait). Body = discussion post. No hashtags. Not an advert — ask a real question at the end. Empty hashtags array.`;
+    case "esg-post":
+      return `${common}
+Format: post/article for an ESG / sustainability practitioner audience (just transition, social licence, grievance evidence, community trust). Headline = title. Body = markdown. Not a product dump.`;
+    case "website-blog":
+      return `${common}
+Format: website blog in markdown. Headline = H1 title. Body starts after the title (do not repeat H1). Include a lede, 3–5 H2 sections, and one CTA. firstComment = 1–2 sentence meta description.`;
+    default:
+      return `${common}
+Format: LinkedIn feed post. Headline = hook title. Body = post copy. firstComment = CTA link line.`;
+  }
+}
+
+function fallbackFromBrief(
+  brief: MarketingBrief,
+  source: ContentDoc | undefined,
+  ctaUrl: string,
+  ctaLabel: string,
+): CampaignAsset {
+  const budget = lengthBudget(brief.length);
+  const maxChars = budget.chars || (budget.words || 400) * 6;
+  const seed = [brief.topic, brief.notes, source?.body]
+    .filter(Boolean)
+    .join("\n\n")
+    .replace(/\s+/g, " ")
+    .trim();
+  const body = (seed || brief.topic).slice(0, maxChars);
+  return {
+    headline: brief.topic,
+    body,
+    hooks: [brief.topic],
+    hashtags:
+      brief.placement === "reddit-post"
+        ? []
+        : brief.brand === "chibase"
+          ? ["SocialLicence", "CommunityParticipation", "SouthAfrica"]
+          : ["TrustLedger", "SRM", "CommunityTrust", "SouthAfrica"],
+    cta: { label: ctaLabel, url: ctaUrl },
+    platforms: placementPlatforms(brief.placement),
+    firstComment: `${ctaLabel}: ${ctaUrl}`,
+  };
+}
+
+export async function synthesizeBrief(
+  brief: MarketingBrief,
+  source?: ContentDoc,
+): Promise<{
+  asset: CampaignAsset;
+  synthesizer: "gemini" | "template";
+  violations: string[];
+}> {
+  const ctaLabel =
+    source?.ctaLabel ||
+    (brief.brand === "chibase" ? "How we work" : "Start a trial");
+  const rawCta =
+    source?.ctaUrl ||
+    (brief.brand === "chibase"
+      ? "https://chibaseconsulting.co.za/practice"
+      : "https://trustledger.co.za/");
+  const ctaUrl = withUtm(
+    rawCta,
+    slugifyBrief(brief.topic),
+    brief.brand,
+    utmMediumFor(brief.placement),
+  );
+  const fallback = fallbackFromBrief(brief, source, ctaUrl, ctaLabel);
+  const syntheticDoc: ContentDoc = {
+    slug: `brief-${brief.placement}-${slugifyBrief(brief.topic)}`,
+    title: brief.topic,
+    brand: brief.brand,
+    kind: source?.kind || "thought-leadership",
+    channel: placementChannel(brief.placement),
+    ctaLabel,
+    ctaUrl,
+    platforms: placementPlatforms(brief.placement),
+    body: [brief.notes, source?.body].filter(Boolean).join("\n\n") || brief.topic,
+    filePath: "",
+  };
+
+  const key = geminiApiKey();
+  const budget = lengthBudget(brief.length);
+  if (!key) {
+    return { asset: fallback, synthesizer: "template", violations: [] };
+  }
+
+  const system =
+    brief.brand === "chibase" ? CHIBASE_SYSTEM_RULES : TRUSTLEDGER_SYSTEM_RULES;
+  const user = `Operator brief (human will edit before anything is published).
+Topic: ${brief.topic}
+Placement: ${brief.placement}
+${source ? `Ground in this source (do not invent findings): ${source.title}\n${source.body}\n` : ""}
+${brief.notes ? `Operator notes:\n${brief.notes}\n` : ""}
+${placementPrompt(brief.placement, budget.label)}
+
+CTA label: ${ctaLabel}
+CTA URL: ${ctaUrl}
+
+Return JSON:
+{
+  "headline": "string",
+  "body": "string",
+  "hooks": ["string"],
+  "hashtags": ["string"],
+  "cta": { "label": "string", "url": "string" },
+  "platforms": ${JSON.stringify(placementPlatforms(brief.placement))},
+  "firstComment": "string"
+}`;
+
+  const maxOutputTokens = brief.length === "blog" || brief.length === "article" ? 8192 : 2048;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+        geminiModel(),
+      )}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": key,
+        },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: "user", parts: [{ text: user }] }],
+          generationConfig: {
+            temperature: 0.45,
+            responseMimeType: "application/json",
+            maxOutputTokens,
+          },
+        }),
+      },
+    );
+    const json = (await res.json()) as GeminiGenerateResponse;
+    if (!res.ok) {
+      console.warn("[marketing/gemini] brief HTTP", res.status, json.error?.message);
+      return { asset: fallback, synthesizer: "template", violations: [] };
+    }
+    const text =
+      json.candidates?.[0]?.content?.parts
+        ?.map((p) => p.text || "")
+        .join("\n")
+        .trim() || "";
+    const parsed = extractJsonObject(text);
+    const asset = normalizeAsset(syntheticDoc, parsed);
+    asset.platforms = placementPlatforms(brief.placement);
+    const violations = findPublicCopyViolations(
+      `${asset.headline}\n${asset.body}\n${asset.firstComment || ""}`,
+    );
+    if (violations.length) {
+      asset.body = scrubPublicCopy(asset.body);
+      asset.headline = scrubPublicCopy(asset.headline);
+    }
+    return {
+      asset,
+      synthesizer: "gemini",
+      violations: findPublicCopyViolations(
+        `${asset.headline}\n${asset.body}\n${asset.firstComment || ""}`,
+      ),
+    };
+  } catch (err) {
+    console.warn("[marketing/gemini] brief failed", err);
+    return { asset: fallback, synthesizer: "template", violations: [] };
   }
 }

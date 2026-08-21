@@ -92,7 +92,9 @@ export function encodeTaskMarkdown(input: {
 **Source:** ${input.sourceTitle} (\`${payload.sourceSlug}\`)
 **Week:** ${payload.weekKey}
 **Kind:** ${payload.kind}
-**Synthesizer:** ${input.synthesizer}
+**Placement:** ${payload.placement || "linkedin-post"}
+**Length:** ${payload.length || "standard"}
+${payload.topic ? `**Topic:** ${payload.topic}\n` : ""}**Synthesizer:** ${input.synthesizer}
 
 ### How to publish
 1. Edit the **Headline / Post body / CTA / First comment** sections (those are what publish). Keep Trust voice. No stack vendor names.
