@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/charge-due",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/run-chibase-campaign",
+      "schedule": "0 5 * * 1"
+    },
+    {
+      "path": "/api/cron/run-trustledger-outreach",
+      "schedule": "0 5 * * 3"
     }
   ]
 }

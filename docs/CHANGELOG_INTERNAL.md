@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-21 — Autonomous marketing engine (MKT-1 / ADR-052)
+
+- Developer-owned loop in this repo: Gemini synthesizes drafts from `content/chibase-papers/` and `content/trustledger-campaigns/`; ClickUp **Marketing Review** (`901220539195`) is the human gate; Zernio publishes after **Approved** or `/tl-publish`.
+- Crons: Monday Chibase thought-leadership, Wednesday TrustLedger trial/product (`vercel.json`). Webhook `POST /api/webhooks/clickup` (HMAC). Never sends bulk email (Frappe Newsletter remains EM-2).
+- Secrets stay server-side (`GEMINI_API_KEY`, `ZERNIO_API_KEY`, `CLICKUP_*`). Health exposes `launch.marketingEngine` flags only.
+- Runbook: `docs/MARKETING_ENGINE.md`.
+
 ## 2026-08-19 — Local intel: project impact for LED / ESG / M&E / funders
 
 - Local community intel now captures **project impact**: labour intake & wages, training beneficiaries & spend, local / preferential procurement, SME/ESD, households benefiting, income injected — **people + ZAR**.

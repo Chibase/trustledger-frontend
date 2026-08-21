@@ -31,6 +31,7 @@ Create (or reuse) a Space / Folder: **TrustLedger Marketing**.
 | Folder | TrustLedger Marketing |
 | List | [Newsletter Cadence](https://app.clickup.com/90121198081/v/l/li/901220454750) |
 | List | [Newsletter Themes](https://app.clickup.com/90121198081/v/l/li/901220454751) |
+| List | [Marketing Review](https://app.clickup.com/90121198081/v/l/li/901220539195) (MKT-1 social engine — not email) |
 | Ops list | [Platform Ops](https://app.clickup.com/90121198081/v/l/li/901220454767) (Resend / EM-1 Desk) |
 
 Theme backlog (6 cards) + first fortnightly cadence task + AI prompt reference are seeded.  
@@ -208,3 +209,4 @@ After six cycles, reuse angles with fresh proof (a feature sharpening, a checkli
 | `docs/PLATFORM_STRATEGIC_BRIEF.md` §6 | Approved public lines |
 | `docs/DESIGN_SYSTEM.md` | Brand tokens |
 | `docs/THEMBA.md` | Public visitor agent (separate from bulk email) |
+| `docs/MARKETING_ENGINE.md` | MKT-1 social engine (Gemini + ClickUp HITL + Zernio). Separate list; never email. |

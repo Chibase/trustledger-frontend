@@ -580,6 +580,21 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Nav label “Executive”; project dashboards roll up into the executive view. ADR-028 pack gates still apply on `/app/reports`.
 - **Alternatives considered:** Keep Activity home only (rejected — user blocked on reports); single mega Reports page without project drill-in (rejected — mixed jobs); manual topic checkboxes (rejected — user asked for mapped auto-fill).
 
+### ADR-052: Developer-owned marketing engine (Gemini + ClickUp HITL + Zernio)
+
+- **Date:** 2026-08-21
+- **Status:** Accepted
+- **Context:** Acquisition needs a repeatable Chibase thought-leadership and TrustLedger trial/product cadence without locking the brand into a third-party social dashboard, without HubSpot mail, and without auto-publishing unreviewed copy (ADR-006). Email already has a locked path (Frappe Newsletter + EM-2 ClickUp cadence).
+- **Decision:**
+  1. **Own the loop in this repo.** Serverless cron + webhook on the Next.js app (`src/app/api/cron/run-chibase-campaign`, `run-trustledger-outreach`, `src/app/api/webhooks/clickup`). Source markdown lives in `content/`. Wrappers in `src/lib/marketing/`. No marketing-vendor UI embeds or watermarks in the product.
+  2. **Gemini** synthesizes drafts server-side only (`GEMINI_API_KEY` never `NEXT_PUBLIC_`). Missing key → deterministic template from the markdown. Voice bans in `voice.ts` (ADR-039 / ADR-044).
+  3. **ClickUp Marketing Review** (`901220539195`) is the command centre and human gate. Cron stages; humans edit. Publish only on status **Approved** or comment `/tl-publish`. Default `complete` is not a publish signal.
+  4. **Zernio** is the distribution API (`ZERNIO_API_KEY` + connected account IDs). If accounts are unset, approval leaves copy in ClickUp for manual paste.
+  5. **Never email from this engine.** Fortnightly newsletters stay EM-2 → Frappe Newsletter. No Resend blasts, no HubSpot, no ClickUp SMTP.
+  6. **Two speakers.** Chibase posts are Chibase Consulting thought-leadership (TrustLedger mentioned at most once as a complementary product). TrustLedger posts are Trust voice and do not hero-co-brand Chibase.
+- **Consequences:** Operators set Vercel secrets, connect Zernio accounts, and add ClickUp statuses + webhook. Packet **MKT-1**. Runbook: `docs/MARKETING_ENGINE.md`.
+- **Alternatives considered:** Buffer/Hootsuite dashboards (rejected — UI lock-in / watermarks); auto-publish from cron (rejected — ADR-006); ClickUp as blast engine (rejected — EM-2); HubSpot social (rejected — ADR-034).
+
 ### ADR-051: Viewer discussion & feedback on reports and issues
 
 - **Date:** 2026-08-16

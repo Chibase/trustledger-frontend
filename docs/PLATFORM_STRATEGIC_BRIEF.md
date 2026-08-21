@@ -152,6 +152,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Public `/product` onboarding | Replaces sample demo | All public agents |
 | Brand / design system | TrustLedger field ledger | All surfaces |
 | ZA baseline place intel | MDB pack + geoIntake on all plans (ADR-040) | All SA plans — client adds project data only |
+| Social marketing engine (MKT-1) | Gemini draft → ClickUp HITL → Zernio; never auto-email | Operator only — not a product SKU |
 
 ### 4.2 Needs improvement (invest next)
 
@@ -193,6 +194,8 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Marketing Version 002 as “fully available” before domain is end-to-end | **Forbidden** | VERSIONING honesty rules |
 | LLM keys in client bundles | **Forbidden** | Security + ADR-006 |
 | Autonomous AI write without Apply | **Forbidden** | Trust & audit posture |
+| Auto-publish social without ClickUp Approved / `/tl-publish` | **Forbidden** | ADR-052 human gate |
+| Third-party social dashboard as brand SoT | **Forbidden** | Own the loop in this repo (Zernio is API-only) |
 
 ---
 

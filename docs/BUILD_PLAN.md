@@ -207,6 +207,12 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **EM-1** | Branded bulk email | TrustLedger HTML templates + Desk runbook (`docs/FRAPPE_EMAIL_MARKETING.md`); Frappe Email Domain/Newsletter — not HubSpot / not Resend blasts | **Active** |
 | **EM-2** | ClickUp newsletter ops | Cadence + AI draft + human approve in ClickUp; send remains Frappe Newsletter (`docs/CLICKUP_NEWSLETTER_OPS.md`) | **Done** (playbook) |
 
+### Autonomous marketing engine (ACTIVE)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **MKT-1** | Developer-owned marketing engine | Gemini synthesis + ClickUp HITL + Zernio publish; crons for Chibase papers and TrustLedger outreach; webhook `/api/webhooks/clickup` (`docs/MARKETING_ENGINE.md`, ADR-052) | **Active** |
+
 ### Public guide agent (ACTIVE)
 
 | Packet | Name | Scope | Status |
@@ -273,6 +279,12 @@ src/
   services/
   types/
   config/
+content/
+  chibase-papers/    ← MKT-1 thought-leadership sources
+  trustledger-campaigns/
+src/lib/marketing/   ← Gemini / Zernio / ClickUp wrappers (server-only)
+src/app/api/cron/    ← charge-due + marketing crons
+src/app/api/webhooks/clickup/
 ```
 
 ## 10. Revision history
@@ -302,3 +314,4 @@ src/
 | 2026-08-14 | THEMBA-B / ADR-043 — Themba marketing guru on all public landing pages |
 | 2026-08-13 | THEMBA-A / ADR-042 — Themba (The Trust) visitor guide on marketing routes |
 | 2026-08-15 | EM-2 — ClickUp newsletter ops playbook (approve → Frappe send) |
+| 2026-08-21 | MKT-1 — autonomous marketing engine (Gemini + ClickUp HITL + Zernio; ADR-052) |
