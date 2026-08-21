@@ -296,6 +296,11 @@ export function MarketingEnginePanel({ initial }: Props) {
             {data.error}
           </p>
         ) : null}
+        {data.zernioHint ? (
+          <p className="mt-3 rounded-md border border-tl-amber/40 bg-tl-amber/10 px-3 py-2 text-sm">
+            {data.zernioHint}
+          </p>
+        ) : null}
         <div className="mt-4 flex flex-wrap gap-3 text-sm">
           <a
             href={data.links.list}

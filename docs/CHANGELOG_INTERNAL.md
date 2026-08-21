@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-21 — Marketing publish “not authorised”
+
+- Publish now checks Zernio account health before posting, maps 401/“not authorised” to a reconnect-or-key message, and does not mark a ClickUp task published when LinkedIn/X rejects the token.
+- `/ops/marketing` shows a Zernio hint when the API key or a connected account is unhealthy. ClickUp 401 is no longer reported as “task not found”.
+
 ## 2026-08-21 — Cockroach theory 45-second scene
 
 - `/firm/insights/cockroach-theory/play` plays a timed two-column explainer (rigid corporate maps vs informal / customary / ward structures) with play, pause, replay, and a 0:00 / 0:45 clock.

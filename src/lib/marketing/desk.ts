@@ -4,6 +4,7 @@ import {
   archiveReviewTask,
   clickupConfigured,
   ensureClickUpWebhook,
+  fetchClickUpTask,
   getClickUpTask,
   isArchivedStatus,
   listClickUpTasks,
@@ -33,6 +34,7 @@ import type {
   MarketingDeskTask,
 } from "@/lib/marketing/desk.types";
 import { isoWeekKey } from "@/lib/marketing/voice";
+import { describeZernioReadiness } from "@/lib/marketing/zernio";
 
 const ARCHIVE_LIMIT = 30;
 
@@ -167,6 +169,12 @@ export async function buildMarketingDesk(): Promise<MarketingDeskSnapshot> {
   }
 
   try {
+    snapshot.zernioHint = await describeZernioReadiness();
+  } catch {
+    snapshot.zernioHint = undefined;
+  }
+
+  try {
     const listed = await listClickUpTasks();
     listed.sort((a, b) => taskRecencyMs(b) - taskRecencyMs(a));
     const hydrated = await Promise.all(
@@ -258,9 +266,14 @@ export async function runMarketingDeskAction(input: {
     if (!id) {
       return { ok: false, action, error: "taskId is required to publish." };
     }
-    const task = await getClickUpTask(id);
+    const fetched = await fetchClickUpTask(id);
+    const task = fetched.task;
     if (!task) {
-      return { ok: false, action, error: "ClickUp task not found." };
+      return {
+        ok: false,
+        action,
+        error: fetched.error || "ClickUp task not found.",
+      };
     }
     const payload = payloadFromTask(task);
     if (!payload) {
@@ -300,9 +313,14 @@ export async function runMarketingDeskAction(input: {
     if (!id) {
       return { ok: false, action, error: "taskId is required to archive." };
     }
-    const task = await getClickUpTask(id);
+    const fetched = await fetchClickUpTask(id);
+    const task = fetched.task;
     if (!task) {
-      return { ok: false, action, error: "ClickUp task not found." };
+      return {
+        ok: false,
+        action,
+        error: fetched.error || "ClickUp task not found.",
+      };
     }
     const archived = await archiveReviewTask(task);
     return {
