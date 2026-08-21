@@ -4,6 +4,7 @@
 
 - Publish now checks Zernio account health before posting, maps 401/“not authorised” to a reconnect-or-key message, and does not mark a ClickUp task published when LinkedIn/X rejects the token.
 - `/ops/marketing` shows a Zernio hint when the API key or a connected account is unhealthy. ClickUp 401 is no longer reported as “task not found”.
+- `ZERNIO_API_KEY` is sanitised (quotes / `Bearer ` / env-name paste). Desk and Publish call `/auth/verify` first and report key prefix + length only — never the secret.
 
 ## 2026-08-21 — Cockroach theory 45-second scene
 

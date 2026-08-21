@@ -129,8 +129,12 @@ Connect accounts once in Zernio (OAuth), then store the account `_id` values her
 
 That string is almost always Zernio or LinkedIn, not the TrustLedger ops gate.
 
-1. **API key** — Vercel `ZERNIO_API_KEY` must be a live `sk_…` key (no quotes, no spaces). Keys are shown once at creation. `/ops/marketing` Engine status shows a hint if the key is rejected.
-2. **LinkedIn OAuth** — reconnect the TrustLedger / Chibase LinkedIn account in the Zernio dashboard. Expired tokens surface as not authorised / cannot post.
+1. **API key (this is the usual 401)** — Zernio keys are shown **once**.  
+   - zernio.com → **Settings → API Keys → Create**  
+   - Copy the full `sk_…` or `zrk_…` value (67–68 characters).  
+   - Vercel → Production → `ZERNIO_API_KEY` = paste **only the key** (not `Bearer …`, not quotes, not an MCP OAuth token).  
+   - Redeploy. `/ops/marketing` Engine status reports prefix + length if the key is still rejected.  
+2. **LinkedIn OAuth** — reconnect the TrustLedger / Chibase LinkedIn account in the Zernio dashboard. Expired tokens surface after the key is valid.
 3. **Account ID** — `ZERNIO_LINKEDIN_ACCOUNT_ID` (or brand-specific) must be the Zernio account `_id` from the dashboard / `GET /accounts`, not a LinkedIn profile URL or `urn:li:organization:…`.
 4. **Frappe Newsletter** — a Desk “Publish” on a Newsletter is a different path (`docs/FRAPPE_EMAIL_MARKETING.md`). That needs Email Manager + outgoing `sales@`. It is not this Publish button.
 
