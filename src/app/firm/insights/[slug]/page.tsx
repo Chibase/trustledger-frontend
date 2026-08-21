@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import { CockroachTheoryViz } from "@/components/chibase/CockroachTheoryViz";
 import { FIRM_INSIGHTS, insightBySlug } from "@/lib/chibase/insights";
 import { firmPath, isChibaseHost } from "@/lib/security/hosts";
 
@@ -37,6 +38,7 @@ export default async function InsightArticlePage({
       <h1 className="mt-2 font-display text-3xl font-semibold text-tl-ink">
         {post.title}
       </h1>
+      {post.slug === "cockroach-theory" ? <CockroachTheoryViz /> : null}
       {post.body.map((para) => (
         <p
           key={para.slice(0, 40)}

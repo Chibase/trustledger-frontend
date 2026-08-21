@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-21 — Cockroach theory insight visualisation
+
+- `/firm/insights/cockroach-theory` shows a field-ledger comparison: formal organogram vs customary / ward / grievance structures already moving on the ground.
+- Tokens only (no cream/gold brochure chrome). Caption stays dual-governance, not a product dump.
+
 ## 2026-08-21 — Marketing review inbox (MKT-4)
 
 - `/ops/marketing` is the marketing content space: **To review** holds only drafts that still need human review and publish.
