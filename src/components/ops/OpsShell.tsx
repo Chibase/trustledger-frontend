@@ -7,6 +7,7 @@ const NAV_CONTROL = [
   { href: "/ops/finance", label: "Finance" },
   { href: "/ops/staff", label: "Staff" },
   { href: "/ops/ai", label: "AI tools" },
+  { href: "/ops/marketing", label: "Marketing engine" },
   { href: "/ops/issues", label: "Issues control" },
 ];
 
@@ -57,8 +58,8 @@ export function OpsShell({
             <ShellSignOut variant="light" />
           </div>
           <p className="mt-4 text-xs text-tl-ink-muted">
-            Command control covers finance, staff, AI governance, and client
-            issue TAT. Customer product work stays in{" "}
+            Command control covers finance, staff, AI governance, marketing
+            engine, and client issue TAT. Customer product work stays in{" "}
             <code className="text-tl-ink">/app</code>.
           </p>
         </aside>

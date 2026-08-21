@@ -91,7 +91,7 @@ async function resolveStatus(
 
 export async function listClickUpTasks(listId = clickupListId()): Promise<ClickUpTask[]> {
   const { ok, json } = await clickupFetch(
-    `/list/${listId}/task?include_closed=true&subtasks=false`,
+    `/list/${listId}/task?include_closed=true&subtasks=false&include_markdown_description=true`,
   );
   if (!ok) return [];
   const tasks = (json as { tasks?: ClickUpTask[] }).tasks;

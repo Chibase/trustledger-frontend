@@ -152,7 +152,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Public `/product` onboarding | Replaces sample demo | All public agents |
 | Brand / design system | TrustLedger field ledger | All surfaces |
 | ZA baseline place intel | MDB pack + geoIntake on all plans (ADR-040) | All SA plans — client adds project data only |
-| Social marketing engine (MKT-1) | Gemini draft → ClickUp HITL → Zernio; never auto-email | Operator only — not a product SKU |
+| Social marketing engine (MKT-1/2) | Gemini draft → ClickUp HITL → Zernio; never auto-email | Operator desk `/ops/marketing` — not a product SKU |
 
 ### 4.2 Needs improvement (invest next)
 

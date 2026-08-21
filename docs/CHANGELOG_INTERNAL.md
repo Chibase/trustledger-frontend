@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-21 — Ops marketing desk (MKT-2)
+
+- Platform Operator cockpit at `/ops/marketing` (Command control) — not the customer `/app/dashboard`.
+- Queue, engine flags, dry-run / stage, webhook register, and human-apply publish via `GET|POST /api/ops/marketing`.
+- Executive Board + activity overview link into the desk. ClickUp remains the full editor.
+
 ## 2026-08-21 — Marketing engine webhook auto-register
 
 - `GET /api/webhooks/clickup` creates/updates the ClickUp webhook (HMAC secret = `CLICKUP_WEBHOOK_SECRET` or fallback `CRON_SECRET`).

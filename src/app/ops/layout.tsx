@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { OpsShell } from "@/components/ops/OpsShell";
+import { ToastProvider } from "@/components/ui/Toast";
 import { getCurrentUser } from "@/lib/auth";
 import {
   assertOpsAccess,
@@ -21,11 +22,13 @@ export default async function OpsLayout({
   }
 
   return (
-    <OpsShell
-      operatorName={user.name}
-      operatorEmail={user.email || "operator"}
-    >
-      {children}
-    </OpsShell>
+    <ToastProvider>
+      <OpsShell
+        operatorName={user.name}
+        operatorEmail={user.email || "operator"}
+      >
+        {children}
+      </OpsShell>
+    </ToastProvider>
   );
 }

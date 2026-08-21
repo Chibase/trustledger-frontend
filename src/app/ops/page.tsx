@@ -122,7 +122,7 @@ export default async function OpsOverviewPage() {
         <ActivityTable rows={data.intake.recent.slice(0, 15)} />
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ActionCard
           title="Client activity"
           body="Browse every visitor/client signal by type and readiness."
@@ -137,6 +137,11 @@ export default async function OpsOverviewPage() {
           title="Accounts"
           body="Plan, seats, and access controls for paying clients."
           href="/ops/accounts"
+        />
+        <ActionCard
+          title="Marketing engine"
+          body="Stage, review, and publish this week’s social drafts."
+          href="/ops/marketing"
         />
       </section>
     </div>

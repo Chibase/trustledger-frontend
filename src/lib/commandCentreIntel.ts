@@ -29,6 +29,12 @@ export const CONTROL_PILLARS: ControlPillarLink[] = [
     status: "partial",
   },
   {
+    href: "/ops/marketing",
+    title: "Marketing engine",
+    blurb: "Stage, review, and publish Chibase / TrustLedger social drafts.",
+    status: "live",
+  },
+  {
     href: "/ops/issues",
     title: "Issues control",
     blurb: "Client-reported issues, TAT, and feeling after resolve.",

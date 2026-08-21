@@ -145,7 +145,7 @@ export async function runDraftCycle(
 
 export async function publishApprovedTask(
   taskId: string,
-  trigger: "approved" | "slash-command",
+  trigger: "approved" | "slash-command" | "ops-desk",
 ): Promise<PublishResult> {
   const task = await getClickUpTask(taskId);
   if (!task) {
