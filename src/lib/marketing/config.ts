@@ -58,6 +58,7 @@ export function marketingEngineStatus(): {
   webhookSecret: boolean;
   webhookSecretDedicated: boolean;
   listId: string;
+  teamId: string;
 } {
   return {
     gemini: Boolean(geminiApiKey()),
@@ -69,7 +70,21 @@ export function marketingEngineStatus(): {
     webhookSecret: Boolean(clickupWebhookSecret()),
     webhookSecretDedicated: clickupWebhookSecretDedicated(),
     listId: clickupListId(),
+    teamId: clickupTeamId(),
   };
+}
+
+export function clickupListUrl(): string {
+  return `https://app.clickup.com/${clickupTeamId()}/v/l/li/${clickupListId()}`;
+}
+
+export function clickupSetupTaskUrl(): string {
+  const id = envTrim("CLICKUP_SETUP_TASK_ID") || "869en19vw";
+  return `https://app.clickup.com/t/${id}`;
+}
+
+export function clickupTaskUrl(taskId: string): string {
+  return `https://app.clickup.com/t/${taskId}`;
 }
 
 /**

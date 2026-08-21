@@ -1,11 +1,12 @@
 import type {
   DraftCycleResult,
   MarketingBrand,
+  MarketingBrief,
   MarketingPayload,
   PublishResult,
 } from "@/lib/marketing/types";
 import { loadContentForBrand, pickContentDoc } from "@/lib/marketing/content";
-import { synthesizeCampaign } from "@/lib/marketing/gemini";
+import { synthesizeBrief, synthesizeCampaign } from "@/lib/marketing/gemini";
 import {
   addClickUpComment,
   clickupConfigured,
@@ -23,6 +24,12 @@ import {
   usedSlugsThisWeek,
 } from "@/lib/marketing/clickup";
 import { publishViaZernio } from "@/lib/marketing/zernio";
+import {
+  pasteTargetHint,
+  placementChannel,
+  publishModeFor,
+  slugifyBrief,
+} from "@/lib/marketing/format";
 import { overlayHumanEdits } from "@/lib/marketing/payload";
 import { isoWeekKey, scrubCampaignAsset } from "@/lib/marketing/voice";
 import { siteBaseUrl } from "@/lib/hubspot";
@@ -143,9 +150,106 @@ export async function runDraftCycle(
   };
 }
 
+export async function runBriefCycle(
+  brief: MarketingBrief,
+  options: { dryRun?: boolean } = {},
+): Promise<DraftCycleResult> {
+  const weekKey = isoWeekKey();
+  const source = brief.sourceSlug
+    ? loadContentForBrand(brief.brand).find((d) => d.slug === brief.sourceSlug)
+    : undefined;
+  if (brief.sourceSlug && !source) {
+    return {
+      ok: false,
+      dryRun: Boolean(options.dryRun),
+      weekKey,
+      error: `Unknown source slug: ${brief.sourceSlug}`,
+    };
+  }
+
+  const { asset, synthesizer, violations } = await synthesizeBrief(brief, source);
+  const sourceSlug = `brief-${brief.placement}-${slugifyBrief(brief.topic)}`;
+  const payload: MarketingPayload = {
+    v: 1,
+    brand: brief.brand,
+    kind: source?.kind || "thought-leadership",
+    channel: placementChannel(brief.placement),
+    sourceSlug,
+    weekKey,
+    asset,
+    topic: brief.topic,
+    placement: brief.placement,
+    length: brief.length,
+  };
+
+  if (options.dryRun) {
+    return {
+      ok: true,
+      dryRun: true,
+      weekKey,
+      sourceSlug,
+      synthesizer,
+      asset,
+    };
+  }
+
+  if (!clickupConfigured()) {
+    return {
+      ok: false,
+      dryRun: false,
+      weekKey,
+      sourceSlug,
+      synthesizer,
+      asset,
+      error:
+        "CLICKUP_API_KEY / CLICKUP_LIST_ID missing — draft synthesized but not staged.",
+    };
+  }
+
+  const created = await createReviewTask({
+    payload,
+    sourceTitle: brief.topic,
+    synthesizer,
+  });
+  if ("error" in created) {
+    return {
+      ok: false,
+      dryRun: false,
+      weekKey,
+      sourceSlug,
+      synthesizer,
+      asset,
+      error: created.error,
+    };
+  }
+
+  const paste = pasteTargetHint(brief.brand, brief.placement);
+  await addClickUpComment(
+    created.id,
+    `Operator brief · ${brief.placement} · ${brief.length}. ${paste}`,
+  );
+  if (violations.length) {
+    await addClickUpComment(
+      created.id,
+      `Voice check: scrubbed vendor terms (${violations.join(", ")}). Re-read before approve.`,
+    );
+  }
+
+  return {
+    ok: true,
+    dryRun: false,
+    weekKey,
+    sourceSlug,
+    clickupTaskId: created.id,
+    clickupTaskUrl: created.url,
+    synthesizer,
+    asset,
+  };
+}
+
 export async function publishApprovedTask(
   taskId: string,
-  trigger: "approved" | "slash-command",
+  trigger: "approved" | "slash-command" | "ops-desk",
 ): Promise<PublishResult> {
   const task = await getClickUpTask(taskId);
   if (!task) {
@@ -175,6 +279,26 @@ export async function publishApprovedTask(
     .join("\n");
   const payload = overlayHumanEdits(markdown, stored);
   payload.asset = scrubCampaignAsset(payload.asset);
+
+  if (publishModeFor(payload.brand, payload.placement) === "paste") {
+    const hint = payload.placement
+      ? pasteTargetHint(payload.brand, payload.placement)
+      : "Paste manually. This format is not auto-posted.";
+    await addClickUpComment(
+      taskId,
+      `${PUBLISHED_MARKER} paste\nMarked paste-ready (${trigger}). ${hint} Email was not sent.`,
+    );
+    await markTaskPublished(task, {
+      ...payload,
+      publishedAt: new Date().toISOString(),
+    });
+    return {
+      ok: true,
+      taskId,
+      skipped: "paste_ready",
+      platforms: payload.asset.platforms,
+    };
+  }
 
   const posted = await publishViaZernio({
     brand: payload.brand,

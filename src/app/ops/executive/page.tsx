@@ -132,10 +132,11 @@ export default async function ExecutiveBoardPage() {
             Command control
           </h2>
           <p className="mt-1 text-sm text-tl-ink-muted">
-            Finance, staff, AI governance, and client issue turnaround.
+            Finance, staff, AI governance, marketing engine, and client issue
+            turnaround.
           </p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {CONTROL_PILLARS.map((pillar) => (
             <Link
               key={pillar.href}

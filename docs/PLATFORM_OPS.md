@@ -8,7 +8,7 @@ This is **not** a CRM and **not** the customer Plan Owner (`admin`) desk.
 | Surface | Audience | URL |
 |---------|----------|-----|
 | **Executive Board** | C-suite / owner — board & investor briefs | `/ops/executive` |
-| **Control pillars** | Owner control — finance, staff, AI, issues | `/ops/finance`, `/ops/staff`, `/ops/ai`, `/ops/issues` |
+| **Control pillars** | Owner control — finance, staff, AI, marketing engine, issues | `/ops/finance`, `/ops/staff`, `/ops/ai`, `/ops/marketing`, `/ops/issues` |
 | **Ops activity** | Day-to-day / junior ops | `/ops`, `/ops/activity` |
 
 Frappe CRM / Customer / Paystack remain systems of record; Ops **reads and acts**, it does not replace CRM.
@@ -36,7 +36,7 @@ Presentation-first overview for boards and investors:
 - Conversion funnel
 - Demographics: origin (UTM/source), industry/sector, influence level
 - Sentiment / tool-usage perception + verbatim visitor quotes
-- Control-centre strip linking finance / staff / AI / issues
+- Control-centre strip linking finance / staff / AI / marketing / issues
 - Auto talking points (copy / print)
 
 ## Control pillars (ADR-017)
@@ -46,6 +46,7 @@ Presentation-first overview for boards and investors:
 | **Finance** | `/ops/finance` | Confirm EFT paid + Paystack/EFT payment notifications + budget scaffold | Books / burn actuals; Desk Paystack later |
 | **Staff** | `/ops/staff` | Capacity & performance scaffold | HR signals; **wellbeing deferred** (placeholder only) |
 | **AI tools** | `/ops/ai` | Registry of platform AI tools + governance actions | Invocation metrics, fail rates, upgrade/discharge workflow |
+| **Marketing engine** | `/ops/marketing` | MKT-1 queue: stage drafts, review copy, human-apply publish | ClickUp remains the full editor; this desk is the TrustLedger cockpit |
 | **Issues** | `/ops/issues` | Support Ticket CRM overview | SLA/TAT clocks, post-resolution client feeling |
 
 ## Ops activity desk (`/ops`)
@@ -63,7 +64,7 @@ Operational feed: who did what (demo, assessment, feedback, contact, support). N
 
 - Customer product desk (`/app` dashboards, projects, incidents, issues)  
 - Duplicate day-to-day CRM pipeline (use Cloud CRM for record editing)  
-- Marketing CMS  
+- Marketing CMS (the marketing **engine** lives at `/ops/marketing`; ClickUp is still the full editor)  
 - Live HR/payroll system (staff pillar is control overview only)
 
 ## Data sources
@@ -84,7 +85,7 @@ Operational feed: who did what (demo, assessment, feedback, contact, support). N
 |--------|--------|--------|
 | **23a** | `/ops` shell + allowlist gate + activity overview | Done |
 | **23e** | Executive Board brief | Done |
-| **23f** | Control pillars: finance, staff, AI tools, issues | **Active** |
+| **23f** | Control pillars: finance, staff, AI tools, issues, marketing engine | **Done** |
 | **23b** | Reports hub (filter → table → CSV) | Next |
 | **23c** | Account control panel | Later |
 | **23d** | Support case pack + activity timeline | Later |

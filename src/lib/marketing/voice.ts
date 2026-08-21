@@ -72,14 +72,19 @@ export function scrubCampaignAsset(asset: CampaignAsset): CampaignAsset {
   };
 }
 
-export function withUtm(url: string, campaign: string, brand: string): string {
+export function withUtm(
+  url: string,
+  campaign: string,
+  brand: string,
+  medium = "linkedin",
+): string {
   try {
     const u = new URL(url);
     if (!u.searchParams.has("utm_source")) {
       u.searchParams.set("utm_source", "engine");
     }
     if (!u.searchParams.has("utm_medium")) {
-      u.searchParams.set("utm_medium", "linkedin");
+      u.searchParams.set("utm_medium", medium);
     }
     if (!u.searchParams.has("utm_campaign")) {
       u.searchParams.set("utm_campaign", `mkt_${brand}_${campaign}`);

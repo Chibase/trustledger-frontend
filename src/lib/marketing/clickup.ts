@@ -5,6 +5,7 @@ import {
   clickupTeamId,
   clickupWebhookSecret,
 } from "@/lib/marketing/config";
+import { loadContentForBrand } from "@/lib/marketing/content";
 import type { MarketingPayload } from "@/lib/marketing/types";
 import { decodePayload, encodeTaskMarkdown } from "@/lib/marketing/payload";
 
@@ -18,6 +19,8 @@ export type ClickUpTask = {
   markdown_description?: string;
   description?: string;
   text_content?: string;
+  date_updated?: string | number;
+  date_created?: string | number;
 };
 
 type ClickUpList = {
@@ -91,7 +94,7 @@ async function resolveStatus(
 
 export async function listClickUpTasks(listId = clickupListId()): Promise<ClickUpTask[]> {
   const { ok, json } = await clickupFetch(
-    `/list/${listId}/task?include_closed=true&subtasks=false`,
+    `/list/${listId}/task?include_closed=true&subtasks=false&include_markdown_description=true&order_by=updated&reverse=true`,
   );
   if (!ok) return [];
   const tasks = (json as { tasks?: ClickUpTask[] }).tasks;
@@ -110,11 +113,15 @@ export async function findTaskForWeek(
 ): Promise<ClickUpTask | null> {
   const needle = `— ${weekKey}`;
   const brandTag = brand === "chibase" ? "[Chibase]" : "[TrustLedger]";
+  const packSlugs = new Set(loadContentForBrand(brand).map((d) => d.slug));
   const tasks = await listClickUpTasks(listId);
   return (
-    tasks.find(
-      (t) => t.name.includes(brandTag) && t.name.includes(needle),
-    ) || null
+    tasks.find((t) => {
+      if (!t.name.includes(brandTag) || !t.name.includes(needle)) return false;
+      if (t.name.includes(" brief-")) return false;
+      const m = t.name.match(/\]\s+([^\s—]+)(?:\s+—)/);
+      return Boolean(m?.[1] && packSlugs.has(m[1]));
+    }) || null
   );
 }
 
@@ -150,7 +157,11 @@ export async function createReviewTask(input: {
     name: taskNameFor(input.payload),
     markdown_description,
     description: markdown_description,
-    tags: ["mkt-engine", input.payload.brand],
+    tags: [
+      "mkt-engine",
+      input.payload.brand,
+      ...(input.payload.placement ? [input.payload.placement] : []),
+    ],
   };
   if (status) body.status = status;
 

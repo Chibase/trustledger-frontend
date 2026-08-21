@@ -81,7 +81,24 @@ Do **not** treat default `complete` as publish — that would fire on ordinary c
 
 Operator one-shot (Bearer `CRON_SECRET` or Ops session): `POST /api/cron/setup-marketing` registers the webhook and stages this week’s Chibase + TrustLedger drafts. `{ "dryRun": true }` synthesizes without writing ClickUp.
 
-Health: `GET /api/health` → `launch.marketingEngine` `{ gemini, zernio, zernioAccounts, clickup, webhookSecret, webhookSecretDedicated, listId }`. Missing keys do **not** fail platform health.
+Health: `GET /api/health` → `launch.marketingEngine` `{ gemini, zernio, zernioAccounts, clickup, webhookSecret, webhookSecretDedicated, listId, teamId }`. Missing keys do **not** fail platform health.
+
+---
+
+## Ops desk (`/ops/marketing`)
+
+Allowlisted Platform Operators work the engine from TrustLedger Platform — same login that lands on `/ops/executive`. Customer `/app/dashboard` does not show this stack.
+
+| Action | Where |
+|--------|--------|
+| See keys + this week’s queue | `/ops/marketing` |
+| Compose topic / length / destination | **Compose a brief** on that page (LinkedIn post/article/comment, Reddit, ESG, website blog) |
+| Stage Chibase / TrustLedger cron drafts | Buttons on that page (`POST /api/ops/marketing`) |
+| Edit full markdown | Click **Open** → Marketing Review task |
+| Publish LinkedIn feed | **Publish** on the desk (human apply) or ClickUp **Approved** / `/tl-publish` |
+| LinkedIn article/comment, ESG, Reddit, blog | Preview + **Copy markdown** / **Mark paste-ready**. Not auto-posted to the website. |
+
+The desk never sends bulk email. Default ClickUp `complete` is still not a publish signal.
 
 ---
 

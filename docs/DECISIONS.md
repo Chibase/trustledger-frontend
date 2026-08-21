@@ -209,8 +209,8 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Date:** 2026-07-15
 - **Status:** Accepted
 - **Context:** Platform Owner needs operational control beyond visitor intel — budget/resource utilisation, staff capacity, AI tool governance, and client issue turnaround — without mixing these into the customer `/app` desk.
-- **Decision:** Add allowlisted control surfaces under `/ops`: **`/ops/finance`**, **`/ops/staff`**, **`/ops/ai`**, **`/ops/issues`**. Issues may read Support Ticket CRM signals now; finance books, staff HR/wellbeing telemetry, AI invocation metrics, and post-resolution client feeling land in later packets. **Staff wellbeing** is explicitly deferred (UI placeholder only). See `docs/PLATFORM_OPS.md`.
-- **Consequences:** Command centre gains four control pillars with honest empty-states; no fabricated finance/HR numbers in production views.
+- **Decision:** Add allowlisted control surfaces under `/ops`: **`/ops/finance`**, **`/ops/staff`**, **`/ops/ai`**, **`/ops/issues`**, and (2026-08-21 addendum) **`/ops/marketing`** for the MKT-1 engine (ADR-052). Issues may read Support Ticket CRM signals now; finance books, staff HR/wellbeing telemetry, AI invocation metrics, and post-resolution client feeling land in later packets. **Staff wellbeing** is explicitly deferred (UI placeholder only). The marketing desk is operator HITL only — not a customer `/app` feature. See `docs/PLATFORM_OPS.md`.
+- **Consequences:** Command centre gains control pillars with honest empty-states; no fabricated finance/HR numbers in production views. Marketing publish from Ops is the same human-apply gate as ClickUp `/tl-publish`.
 - **Alternatives considered:** Fold into Executive Board only (rejected — too dense for board print); put inside customer `/app` (rejected — wrong audience).
 
 ### ADR-018: Interserv retired — Frappe Cloud is the only backend host
@@ -592,7 +592,8 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   4. **Zernio** is the distribution API (`ZERNIO_API_KEY` + connected account IDs). If accounts are unset, approval leaves copy in ClickUp for manual paste.
   5. **Never email from this engine.** Fortnightly newsletters stay EM-2 → Frappe Newsletter. No Resend blasts, no HubSpot, no ClickUp SMTP.
   6. **Two speakers.** Chibase posts are Chibase Consulting thought-leadership (TrustLedger mentioned at most once as a complementary product). TrustLedger posts are Trust voice and do not hero-co-brand Chibase.
-- **Consequences:** Operators set Vercel secrets, connect Zernio accounts, and add ClickUp statuses + webhook. Packet **MKT-1**. Runbook: `docs/MARKETING_ENGINE.md`.
+  7. **(2026-08-21 addendum)** Operators may brief **topic, length, and destination** from `/ops/marketing` (LinkedIn post / article / comment, Reddit, ESG community, website blog). Cron cadence is unchanged. Long-form and site copy are paste-ready; the engine does not auto-publish WordPress or Insights.
+- **Consequences:** Operators set Vercel secrets, connect Zernio accounts, and add ClickUp statuses + webhook. Day-to-day interaction is the Platform Ops desk **`/ops/marketing`** (packets **MKT-2** / **MKT-3**), not the customer dashboard. Packet **MKT-1**. Runbook: `docs/MARKETING_ENGINE.md`.
 - **Alternatives considered:** Buffer/Hootsuite dashboards (rejected — UI lock-in / watermarks); auto-publish from cron (rejected — ADR-006); ClickUp as blast engine (rejected — EM-2); HubSpot social (rejected — ADR-034).
 
 ### ADR-051: Viewer discussion & feedback on reports and issues
