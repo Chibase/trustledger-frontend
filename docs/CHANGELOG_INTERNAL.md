@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-08-21 — Cockroach theory 45-second scene
+
+- `/firm/insights/cockroach-theory/play` plays a timed two-column explainer (rigid corporate maps vs informal / customary / ward structures) with play, pause, replay, and a 0:00 / 0:45 clock.
+- Article keeps the static figure and links to the scene. Field-ledger tokens only; caption stays dual-governance.
+
 ## 2026-08-21 — Cockroach theory insight visualisation
 
 - `/firm/insights/cockroach-theory` shows a field-ledger comparison: formal organogram vs customary / ward / grievance structures already moving on the ground.
