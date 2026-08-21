@@ -115,6 +115,7 @@ export type MarketingDeskTask = {
   firstComment: string | null;
   published: boolean;
   pasteReady: boolean;
+  archived: boolean;
   engineTask: boolean;
   placement: MarketingPlacementId | null;
   publishMode: "zernio" | "paste";
@@ -143,7 +144,8 @@ export type MarketingDeskSnapshot = {
     trustledger: number;
   };
   sources: MarketingDeskSource[];
-  tasks: MarketingDeskTask[];
+  inbox: MarketingDeskTask[];
+  archive: MarketingDeskTask[];
   error?: string;
 };
 
@@ -153,7 +155,8 @@ export type MarketingDeskAction =
   | "stage-trustledger"
   | "register-webhook"
   | "publish"
-  | "compose";
+  | "compose"
+  | "archive";
 
 export type MarketingDeskActionResult = {
   ok: boolean;

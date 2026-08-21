@@ -1,8 +1,11 @@
 import { siteBaseUrl } from "@/lib/hubspot";
 import {
+  ARCHIVED_MARKER,
+  archiveReviewTask,
   clickupConfigured,
   ensureClickUpWebhook,
   getClickUpTask,
+  isArchivedStatus,
   listClickUpTasks,
   payloadFromTask,
   PUBLISHED_MARKER,
@@ -31,7 +34,9 @@ import type {
 } from "@/lib/marketing/desk.types";
 import { isoWeekKey } from "@/lib/marketing/voice";
 
-const DESK_TASK_LIMIT = 20;
+const INBOX_LIMIT = 40;
+const ARCHIVE_LIMIT = 30;
+const HYDRATE_LIMIT = 80;
 
 export const MARKETING_DESK_CRONS: MarketingDeskSnapshot["crons"] = [
   {
@@ -77,6 +82,12 @@ function toDeskTask(
         PUBLISHED_MARKER,
       ),
   );
+  const markdown = [task.markdown_description, task.description, ""].join("\n");
+  const archived = Boolean(
+    payload?.archivedAt ||
+      isArchivedStatus(status) ||
+      markdown.includes(ARCHIVED_MARKER),
+  );
   const mode = payload
     ? publishModeFor(payload.brand, payload.placement)
     : "paste";
@@ -96,6 +107,7 @@ function toDeskTask(
     firstComment: payload?.asset.firstComment || null,
     published: postedToSocial,
     pasteReady,
+    archived,
     engineTask: Boolean(payload),
     placement:
       payload?.placement && isPlacementId(payload.placement)
@@ -103,6 +115,13 @@ function toDeskTask(
         : null,
     publishMode: mode,
   };
+}
+
+function isInboxTask(task: MarketingDeskTask): boolean {
+  if (!task.engineTask) return false;
+  if (task.archived) return false;
+  if (task.published) return false;
+  return true;
 }
 
 function taskRecencyMs(task: ClickUpTask): number {
@@ -138,7 +157,8 @@ export async function buildMarketingDesk(): Promise<MarketingDeskSnapshot> {
         brand: "trustledger" as const,
       })),
     ],
-    tasks: [],
+    inbox: [],
+    archive: [],
   };
 
   if (!clickupConfigured()) {
@@ -151,14 +171,18 @@ export async function buildMarketingDesk(): Promise<MarketingDeskSnapshot> {
   try {
     const listed = await listClickUpTasks();
     listed.sort((a, b) => taskRecencyMs(b) - taskRecencyMs(a));
-    const sliced = listed.slice(0, DESK_TASK_LIMIT);
+    const sliced = listed.slice(0, HYDRATE_LIMIT);
     const hydrated = await Promise.all(
       sliced.map(async (task) => {
         if (payloadFromTask(task) || !brandFromTaskName(task.name)) return task;
         return (await getClickUpTask(task.id)) || task;
       }),
     );
-    snapshot.tasks = hydrated.map((t) => toDeskTask(t, weekKey));
+    const desk = hydrated
+      .map((t) => toDeskTask(t, weekKey))
+      .filter((t) => t.engineTask);
+    snapshot.inbox = desk.filter(isInboxTask).slice(0, INBOX_LIMIT);
+    snapshot.archive = desk.filter((t) => !isInboxTask(t)).slice(0, ARCHIVE_LIMIT);
   } catch (err) {
     snapshot.ok = false;
     snapshot.error =
@@ -270,6 +294,27 @@ export async function runMarketingDeskAction(input: {
         : published.error,
       error: published.ok ? undefined : published.error,
       result: published,
+    };
+  }
+
+  if (action === "archive") {
+    const id = (taskId || "").trim();
+    if (!id) {
+      return { ok: false, action, error: "taskId is required to archive." };
+    }
+    const task = await getClickUpTask(id);
+    if (!task) {
+      return { ok: false, action, error: "ClickUp task not found." };
+    }
+    const archived = await archiveReviewTask(task);
+    return {
+      ok: archived.ok,
+      action,
+      message: archived.ok
+        ? "Moved to archive. It left the review inbox."
+        : archived.error,
+      error: archived.ok ? undefined : archived.error,
+      result: archived,
     };
   }
 

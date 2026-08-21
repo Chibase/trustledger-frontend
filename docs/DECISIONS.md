@@ -593,6 +593,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   5. **Never email from this engine.** Fortnightly newsletters stay EM-2 → Frappe Newsletter. No Resend blasts, no HubSpot, no ClickUp SMTP.
   6. **Two speakers.** Chibase posts are Chibase Consulting thought-leadership (TrustLedger mentioned at most once as a complementary product). TrustLedger posts are Trust voice and do not hero-co-brand Chibase.
   7. **(2026-08-21 addendum)** Operators may brief **topic, length, and destination** from `/ops/marketing` (LinkedIn post / article / comment, Reddit, ESG community, website blog). Cron cadence is unchanged. Long-form and site copy are paste-ready; the engine does not auto-publish WordPress or Insights.
+  8. **(2026-08-21 addendum)** `/ops/marketing` is the review **inbox**: only unpublished engine drafts. Archive is explicit (or automatic after live publish). Default ClickUp `complete` is still not a publish signal.
 - **Consequences:** Operators set Vercel secrets, connect Zernio accounts, and add ClickUp statuses + webhook. Day-to-day interaction is the Platform Ops desk **`/ops/marketing`** (packets **MKT-2** / **MKT-3**), not the customer dashboard. Packet **MKT-1**. Runbook: `docs/MARKETING_ENGINE.md`.
 - **Alternatives considered:** Buffer/Hootsuite dashboards (rejected — UI lock-in / watermarks); auto-publish from cron (rejected — ADR-006); ClickUp as blast engine (rejected — EM-2); HubSpot social (rejected — ADR-034).
 

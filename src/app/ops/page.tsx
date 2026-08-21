@@ -139,8 +139,8 @@ export default async function OpsOverviewPage() {
           href="/ops/accounts"
         />
         <ActionCard
-          title="Marketing engine"
-          body="Stage, review, and publish this week’s social drafts."
+          title="Marketing review"
+          body="Inbox of drafts that still need review and publish."
           href="/ops/marketing"
         />
       </section>

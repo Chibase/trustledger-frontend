@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-21 — Marketing review inbox (MKT-4)
+
+- `/ops/marketing` is the marketing content space: **To review** holds only drafts that still need human review and publish.
+- After live publish, items leave the inbox. Skip or finish paste with **Archive** (ClickUp `parked` / marker — not a publish signal).
+- Archive lane lists finished and skipped drafts.
+
 ## 2026-08-21 — Operator marketing briefs (MKT-3)
 
 - `/ops/marketing` compose: topic, length, speaker, and destination (LinkedIn post / article / comment, Reddit, ESG platform, website blog).

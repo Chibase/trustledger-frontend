@@ -22,6 +22,7 @@ const ACTIONS = new Set<MarketingDeskAction>([
   "register-webhook",
   "publish",
   "compose",
+  "archive",
 ]);
 
 async function gate() {
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
   const action = body.action as MarketingDeskAction | undefined;
   if (!action || !ACTIONS.has(action)) {
     return NextResponse.json(
-      { error: "Unknown action. Use setup, stage-chibase, stage-trustledger, register-webhook, publish, or compose." },
+      { error: "Unknown action. Use setup, stage-chibase, stage-trustledger, register-webhook, publish, compose, or archive." },
       { status: 400 },
     );
   }

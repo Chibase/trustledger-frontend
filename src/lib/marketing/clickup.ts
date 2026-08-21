@@ -205,7 +205,46 @@ export function payloadFromTask(task: ClickUpTask): MarketingPayload | null {
   );
 }
 
+export function isArchivedStatus(status: string | undefined): boolean {
+  if (!status) return false;
+  const s = status.trim().toLowerCase();
+  return s === "parked" || s === "archived";
+}
+
+export async function archiveReviewTask(task: ClickUpTask): Promise<{
+  ok: boolean;
+  error?: string;
+}> {
+  const stored = payloadFromTask(task);
+  if (!stored) {
+    return { ok: false, error: "Not an engine task (no TL_MKT_PAYLOAD block)." };
+  }
+  if (stored.archivedAt) return { ok: true };
+  const next = { ...stored, archivedAt: new Date().toISOString() };
+  const markdown = encodeTaskMarkdown({
+    payload: next,
+    sourceTitle: next.asset.headline,
+    synthesizer: "archived",
+  });
+  const parked = await updateClickUpTask(task.id, {
+    status: "parked",
+    markdown_description: markdown,
+  });
+  if (!parked) {
+    await updateClickUpTask(task.id, {
+      status: "complete",
+      markdown_description: markdown,
+    });
+  }
+  await addClickUpComment(
+    task.id,
+    `${ARCHIVED_MARKER} ${next.archivedAt}\nLeft the review inbox. Not a publish signal. Email was not sent.`,
+  );
+  return { ok: true };
+}
+
 export const PUBLISHED_MARKER = "TL_MKT_PUBLISHED:";
+export const ARCHIVED_MARKER = "TL_MKT_ARCHIVED:";
 
 export async function listTaskComments(taskId: string): Promise<
   Array<{ text: string; dateMs: number }>

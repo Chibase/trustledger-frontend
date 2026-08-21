@@ -30,8 +30,8 @@ export const CONTROL_PILLARS: ControlPillarLink[] = [
   },
   {
     href: "/ops/marketing",
-    title: "Marketing engine",
-    blurb: "Compose topic/length/platform, review, and publish social drafts.",
+    title: "Marketing review",
+    blurb: "Inbox of drafts that still need review and publish; archive the rest.",
     status: "live",
   },
   {
