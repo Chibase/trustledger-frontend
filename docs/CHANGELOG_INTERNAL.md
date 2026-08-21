@@ -4,6 +4,7 @@
 
 - `/firm/insights/cockroach-theory/play` plays a timed two-column explainer (rigid corporate maps vs informal / customary / ward structures) with play, pause, replay, and a 0:00 / 0:45 clock.
 - Article keeps the static figure and links to the scene. Field-ledger tokens only; caption stays dual-governance.
+- 1920×1080 editor pack in `docs/exports/video/cockroach-theory/`: stills, 45s H.264, HTML source.
 
 ## 2026-08-21 — Cockroach theory insight visualisation
 
