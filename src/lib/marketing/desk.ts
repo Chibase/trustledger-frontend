@@ -34,9 +34,7 @@ import type {
 } from "@/lib/marketing/desk.types";
 import { isoWeekKey } from "@/lib/marketing/voice";
 
-const INBOX_LIMIT = 40;
 const ARCHIVE_LIMIT = 30;
-const HYDRATE_LIMIT = 80;
 
 export const MARKETING_DESK_CRONS: MarketingDeskSnapshot["crons"] = [
   {
@@ -171,9 +169,8 @@ export async function buildMarketingDesk(): Promise<MarketingDeskSnapshot> {
   try {
     const listed = await listClickUpTasks();
     listed.sort((a, b) => taskRecencyMs(b) - taskRecencyMs(a));
-    const sliced = listed.slice(0, HYDRATE_LIMIT);
     const hydrated = await Promise.all(
-      sliced.map(async (task) => {
+      listed.map(async (task) => {
         if (payloadFromTask(task) || !brandFromTaskName(task.name)) return task;
         return (await getClickUpTask(task.id)) || task;
       }),
@@ -181,7 +178,8 @@ export async function buildMarketingDesk(): Promise<MarketingDeskSnapshot> {
     const desk = hydrated
       .map((t) => toDeskTask(t, weekKey))
       .filter((t) => t.engineTask);
-    snapshot.inbox = desk.filter(isInboxTask).slice(0, INBOX_LIMIT);
+    const waiting = desk.filter(isInboxTask);
+    snapshot.inbox = waiting;
     snapshot.archive = desk.filter((t) => !isInboxTask(t)).slice(0, ARCHIVE_LIMIT);
   } catch (err) {
     snapshot.ok = false;

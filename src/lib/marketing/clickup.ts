@@ -230,16 +230,30 @@ export async function archiveReviewTask(task: ClickUpTask): Promise<{
     status: "parked",
     markdown_description: markdown,
   });
-  if (!parked) {
-    await updateClickUpTask(task.id, {
+  let persisted = parked;
+  if (!persisted) {
+    persisted = await updateClickUpTask(task.id, {
       status: "complete",
       markdown_description: markdown,
     });
   }
-  await addClickUpComment(
+  const commented = await addClickUpComment(
     task.id,
     `${ARCHIVED_MARKER} ${next.archivedAt}\nLeft the review inbox. Not a publish signal. Email was not sent.`,
   );
+  if (!persisted) {
+    return {
+      ok: false,
+      error:
+        "Could not write archive onto the ClickUp task. It was not removed from To review.",
+    };
+  }
+  if (!commented) {
+    return {
+      ok: true,
+      error: "Archived on the task, but the inbox comment did not post.",
+    };
+  }
   return { ok: true };
 }
 
