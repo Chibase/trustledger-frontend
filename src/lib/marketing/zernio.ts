@@ -1,4 +1,10 @@
-import { zernioAccountIds, zernioApiKey, zernioBaseUrl } from "@/lib/marketing/config";
+import {
+  zernioAccountIds,
+  zernioApiKey,
+  zernioBaseUrl,
+  zernioKeyFingerprint,
+  zernioKeyShapeHint,
+} from "@/lib/marketing/config";
 import type { CampaignAsset, MarketingBrand } from "@/lib/marketing/types";
 
 type ZernioPostPlatform = {
@@ -15,13 +21,22 @@ type ZernioPost = {
   platforms?: ZernioPostPlatform[];
 };
 
+type ZernioVerify = {
+  valid?: boolean;
+  authType?: string;
+  userId?: string;
+};
+
 type ZernioEnvelope = {
   post?: ZernioPost;
-  data?: { post?: ZernioPost };
+  data?: { post?: ZernioPost } & ZernioVerify;
   error?: string;
   message?: string;
   type?: string;
   code?: string;
+  valid?: boolean;
+  authType?: string;
+  userId?: string;
   platform?: string;
   platformError?: { message?: string; error?: string; status?: number };
   accounts?: Array<{
@@ -79,6 +94,16 @@ function envelope(json: unknown): ZernioEnvelope {
   return (json || {}) as ZernioEnvelope;
 }
 
+function readVerify(json: unknown): ZernioVerify {
+  const e = envelope(json);
+  const inner = e.data || e;
+  return {
+    valid: inner.valid,
+    authType: inner.authType,
+    userId: inner.userId,
+  };
+}
+
 function rawErrorText(status: number, json: unknown): string {
   const e = envelope(json);
   const platformMsg =
@@ -107,8 +132,10 @@ function explainZernioFailure(status: number, json: unknown): string {
   const e = envelope(json);
   const raw = rawErrorText(status, json);
   if (status === 401 || e.type === "authentication_error") {
+    const fp = zernioKeyFingerprint();
     return (
-      "Zernio rejected the API key (not authorised). On Vercel, set ZERNIO_API_KEY to a live sk_ key with no spaces, then redeploy. Create a new key at zernio.com if the old one was shown only once."
+      `Zernio rejected the API key (not authorised)${fp ? ` — stored as ${fp}` : ""}. ` +
+      "Create a new key at zernio.com → Settings → API Keys, copy it once, paste only the key into Vercel Production ZERNIO_API_KEY (no Bearer, no quotes), redeploy, then retry Publish."
     );
   }
   if (
@@ -132,8 +159,41 @@ export async function listZernioAccounts(): Promise<unknown> {
   return json;
 }
 
+async function assertZernioApiKey(): Promise<string | undefined> {
+  if (!zernioApiKey()) {
+    return "ZERNIO_API_KEY missing — copy stays in ClickUp for manual paste.";
+  }
+  const verify = await zernioFetch("/auth/verify");
+  const parsed = readVerify(verify.json);
+  if (verify.status === 404) {
+    return undefined;
+  }
+  if (
+    verify.status === 401 ||
+    parsed.valid === false ||
+    envelope(verify.json).type === "authentication_error"
+  ) {
+    const shape = zernioKeyShapeHint();
+    return [explainZernioFailure(verify.status, verify.json), shape]
+      .filter(Boolean)
+      .join(" ");
+  }
+  if (!verify.ok) {
+    return `Could not verify Zernio API key: ${rawErrorText(verify.status, verify.json)}`;
+  }
+  if ((parsed.authType || "").toLowerCase() === "oauth") {
+    return (
+      `ZERNIO_API_KEY was accepted as an OAuth/MCP token (authType oauth), not a Settings → API Keys sk_/zrk_ key. ` +
+      "Mint an API key in Zernio, paste only that key into Vercel Production ZERNIO_API_KEY, redeploy, then retry Publish."
+    );
+  }
+  return undefined;
+}
+
 export async function describeZernioReadiness(): Promise<string | undefined> {
   if (!zernioApiKey()) return undefined;
+  const keyProblem = await assertZernioApiKey();
+  if (keyProblem) return keyProblem;
   const listed = await zernioFetch("/accounts");
   if (looksUnauthorised(listed.status, listed.json)) {
     return explainZernioFailure(listed.status, listed.json);
@@ -351,6 +411,11 @@ export async function publishViaZernio(input: {
       error:
         "No Zernio account IDs set (ZERNIO_LINKEDIN_ACCOUNT_ID or brand-specific). Draft remains in ClickUp.",
     };
+  }
+
+  const keyProblem = await assertZernioApiKey();
+  if (keyProblem) {
+    return { ok: false, platforms: usable, error: keyProblem };
   }
 
   const blocked = await assertAccountsUsable(usable);

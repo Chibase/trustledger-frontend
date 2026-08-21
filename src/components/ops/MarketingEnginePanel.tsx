@@ -22,7 +22,7 @@ const FLAG_LABELS: Array<{
   label: string;
 }> = [
   { key: "gemini", label: "Gemini" },
-  { key: "zernio", label: "Zernio" },
+  { key: "zernio", label: "Zernio key" },
   { key: "zernioAccounts", label: "Social accounts" },
   { key: "clickup", label: "ClickUp" },
   { key: "webhookSecret", label: "Webhook HMAC" },
@@ -266,7 +266,8 @@ export function MarketingEnginePanel({ initial }: Props) {
         <p className="mt-1 text-sm text-tl-ink-muted">
           Drafts stage here for review. Humans edit, then publish. Cron never
           auto-posts. Bulk email stays on the Frappe Newsletter path — not this
-          list.
+          list. “Zernio key: ready” means the env var is set — the amber hint
+          still appears if Zernio rejects it.
         </p>
         <ul className="mt-3 flex flex-wrap gap-2">
           {FLAG_LABELS.map((flag) => {

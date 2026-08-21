@@ -4,11 +4,26 @@ const DEFAULT_LIST_ID = "901220539195";
 const DEFAULT_TEAM_ID = "90121198081";
 
 export function envTrim(name: string): string {
-  return (process.env[name] || "").trim();
+  const s = (process.env[name] || "").replace(/^\uFEFF/, "").trim();
+  return s.replace(/^["']+|["']+$/g, "").trim();
+}
+
+/** Strip quotes, Bearer prefix, env-name paste, and whitespace from API keys. */
+export function sanitizeSecret(raw: string): string {
+  let s = raw.replace(/^\uFEFF/, "").trim();
+  s = s.replace(/^["']+|["']+$/g, "").trim();
+  s = s.replace(/^Bearer\s+/i, "").trim();
+  s = s.replace(/^[A-Z][A-Z0-9_]{2,}\s*=\s*/i, "").trim();
+  s = s.replace(/\s+/g, "");
+  return s;
+}
+
+function secretEnv(name: string): string {
+  return sanitizeSecret(process.env[name] || "");
 }
 
 export function geminiApiKey(): string {
-  return envTrim("GEMINI_API_KEY");
+  return secretEnv("GEMINI_API_KEY");
 }
 
 export function geminiModel(): string {
@@ -16,18 +31,39 @@ export function geminiModel(): string {
 }
 
 export function zernioApiKey(): string {
-  return envTrim("ZERNIO_API_KEY");
+  return secretEnv("ZERNIO_API_KEY");
+}
+
+/** Prefix + length only — never the secret. */
+export function zernioKeyFingerprint(): string | null {
+  const key = zernioApiKey();
+  if (!key) return null;
+  const prefix = key.slice(0, key.indexOf("_") + 1) || key.slice(0, 3);
+  return `${prefix}… (${key.length} chars)`;
+}
+
+export function zernioKeyShapeHint(): string | undefined {
+  const key = zernioApiKey();
+  if (!key) return undefined;
+  if (/^sk_[a-f0-9]{64}$/i.test(key) || /^zrk_[a-f0-9]{64}$/i.test(key)) {
+    return undefined;
+  }
+  return `ZERNIO_API_KEY shape looks off (${zernioKeyFingerprint()}). Zernio keys are sk_ or zrk_ plus 64 hex characters (67–68 chars). Paste the key only — no Bearer, no quotes — then redeploy.`;
 }
 
 export function zernioBaseUrl(): string {
-  return (envTrim("ZERNIO_BASE_URL") || "https://zernio.com/api/v1").replace(
+  let base = (envTrim("ZERNIO_BASE_URL") || "https://zernio.com/api/v1").replace(
     /\/$/,
     "",
   );
+  if (/^https:\/\/(www\.)?zernio\.com$/i.test(base)) {
+    base = `${base.replace(/www\./i, "")}/api/v1`;
+  }
+  return base;
 }
 
 export function clickupApiKey(): string {
-  return envTrim("CLICKUP_API_KEY");
+  return secretEnv("CLICKUP_API_KEY");
 }
 
 export function clickupTeamId(): string {
@@ -39,15 +75,15 @@ export function clickupListId(): string {
 }
 
 export function clickupWebhookSecret(): string {
-  return envTrim("CLICKUP_WEBHOOK_SECRET") || cronSecret();
+  return secretEnv("CLICKUP_WEBHOOK_SECRET") || cronSecret();
 }
 
 export function clickupWebhookSecretDedicated(): boolean {
-  return Boolean(envTrim("CLICKUP_WEBHOOK_SECRET"));
+  return Boolean(secretEnv("CLICKUP_WEBHOOK_SECRET"));
 }
 
 export function cronSecret(): string {
-  return envTrim("CRON_SECRET");
+  return secretEnv("CRON_SECRET");
 }
 
 export function marketingEngineStatus(): {
