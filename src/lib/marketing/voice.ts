@@ -1,3 +1,5 @@
+import type { CampaignAsset } from "@/lib/marketing/types";
+
 /**
  * Public-copy bans for the marketing engine (ADR-039, ADR-006).
  * Stack vendor names may appear in internal docs and ClickUp operator notes,
@@ -49,6 +51,25 @@ export function isoWeekKey(date: Date = new Date()): string {
   const week = Math.ceil(((utc.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   const weekStr = String(week).padStart(2, "0");
   return `${utc.getUTCFullYear()}-W${weekStr}`;
+}
+
+export function scrubCampaignAsset(asset: CampaignAsset): CampaignAsset {
+  return {
+    ...asset,
+    headline: scrubPublicCopy(asset.headline),
+    body: scrubPublicCopy(asset.body),
+    hooks: asset.hooks.map(scrubPublicCopy),
+    firstComment: asset.firstComment
+      ? scrubPublicCopy(asset.firstComment)
+      : undefined,
+    outreachDraft: asset.outreachDraft
+      ? scrubPublicCopy(asset.outreachDraft)
+      : undefined,
+    cta: {
+      label: scrubPublicCopy(asset.cta.label),
+      url: asset.cta.url,
+    },
+  };
 }
 
 export function withUtm(url: string, campaign: string, brand: string): string {

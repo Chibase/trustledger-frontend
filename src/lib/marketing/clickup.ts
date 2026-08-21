@@ -193,56 +193,79 @@ export function payloadFromTask(task: ClickUpTask): MarketingPayload | null {
   );
 }
 
-export async function listTaskComments(taskId: string): Promise<string[]> {
+export const PUBLISHED_MARKER = "TL_MKT_PUBLISHED:";
+
+export async function listTaskComments(taskId: string): Promise<
+  Array<{ text: string; dateMs: number }>
+> {
   const { ok, json } = await clickupFetch(`/task/${taskId}/comment`);
   if (!ok) return [];
-  const comments = (json as { comments?: Array<{ comment_text?: string; text_content?: string }> })
-    .comments;
+  const comments = (json as {
+    comments?: Array<{ comment_text?: string; text_content?: string; date?: string | number }>;
+  }).comments;
   if (!Array.isArray(comments)) return [];
-  return comments.map((c) => c.comment_text || c.text_content || "").filter(Boolean);
+  return comments.map((c) => ({
+    text: c.comment_text || c.text_content || "",
+    dateMs: Number(c.date) || 0,
+  }));
 }
 
-export async function addClickUpComment(taskId: string, text: string): Promise<void> {
-  await clickupFetch(`/task/${taskId}/comment`, {
+export async function taskAlreadyPublished(taskId: string): Promise<string | null> {
+  const comments = await listTaskComments(taskId);
+  for (const c of comments) {
+    const m = c.text.match(new RegExp(`${PUBLISHED_MARKER}\\s*(\\S+)`));
+    if (m?.[1]) return m[1];
+  }
+  return null;
+}
+
+export async function addClickUpComment(
+  taskId: string,
+  text: string,
+): Promise<boolean> {
+  const { ok } = await clickupFetch(`/task/${taskId}/comment`, {
     method: "POST",
     body: JSON.stringify({ comment_text: text }),
   });
+  return ok;
 }
 
 export async function updateClickUpTask(
   taskId: string,
-  patch: { status?: string; markdown_description?: string },
-): Promise<void> {
+  patch: { status?: string; markdown_description?: string; description?: string },
+): Promise<boolean> {
   const body: Record<string, unknown> = {};
   if (patch.markdown_description) {
     body.markdown_description = patch.markdown_description;
+    body.description = patch.description || patch.markdown_description;
   }
   if (patch.status) {
     const resolved = await resolveStatus([patch.status, patch.status.toLowerCase()]);
     if (resolved) body.status = resolved;
   }
-  if (Object.keys(body).length === 0) return;
-  await clickupFetch(`/task/${taskId}`, {
+  if (Object.keys(body).length === 0) return true;
+  const { ok } = await clickupFetch(`/task/${taskId}`, {
     method: "PUT",
     body: JSON.stringify(body),
   });
+  return ok;
 }
 
 export async function markTaskPublished(
   task: ClickUpTask,
   payload: MarketingPayload,
-): Promise<void> {
+): Promise<boolean> {
   const markdown = encodeTaskMarkdown({
     payload,
     sourceTitle: payload.asset.headline,
     synthesizer: "published",
   });
-  await updateClickUpTask(task.id, {
+  const updated = await updateClickUpTask(task.id, {
     status: "published",
     markdown_description: markdown,
   });
-  // Default lists only have "complete" as a closed type.
   await updateClickUpTask(task.id, { status: "complete" });
+  return updated;
 }
 
 export function isApprovedStatus(status: string | undefined): boolean {
@@ -255,4 +278,15 @@ export function isApprovedStatus(status: string | undefined): boolean {
 export function commentRequestsPublish(text: string | undefined): boolean {
   if (!text) return false;
   return /^\s*\/tl-publish\b/i.test(text);
+}
+
+/** Newest /tl-publish comment only if posted in the last 5 minutes. */
+export async function latestPublishableComment(taskId: string): Promise<string> {
+  const comments = await listTaskComments(taskId);
+  const newest = comments
+    .filter((c) => commentRequestsPublish(c.text))
+    .sort((a, b) => b.dateMs - a.dateMs)[0];
+  if (!newest) return "";
+  if (newest.dateMs && Date.now() - newest.dateMs > 5 * 60 * 1000) return "";
+  return newest.text;
 }

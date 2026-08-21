@@ -14,13 +14,16 @@ import {
   findTaskForWeek,
   getClickUpTask,
   isApprovedStatus,
-  listTaskComments,
+  latestPublishableComment,
   markTaskPublished,
   payloadFromTask,
+  PUBLISHED_MARKER,
+  taskAlreadyPublished,
   usedSlugsThisWeek,
 } from "@/lib/marketing/clickup";
 import { publishViaZernio } from "@/lib/marketing/zernio";
-import { isoWeekKey } from "@/lib/marketing/voice";
+import { overlayHumanEdits } from "@/lib/marketing/payload";
+import { isoWeekKey, scrubCampaignAsset } from "@/lib/marketing/voice";
 
 export async function runDraftCycle(
   brand: MarketingBrand,
@@ -143,8 +146,8 @@ export async function publishApprovedTask(
   if (!task) {
     return { ok: false, taskId, error: "ClickUp task not found" };
   }
-  const payload = payloadFromTask(task);
-  if (!payload) {
+  const stored = payloadFromTask(task);
+  if (!stored) {
     return {
       ok: false,
       taskId,
@@ -152,14 +155,21 @@ export async function publishApprovedTask(
       error: "No TL_MKT_PAYLOAD block — ignoring non-engine task.",
     };
   }
-  if (payload.publishedAt) {
+  const prior = stored.zernioPostId || (await taskAlreadyPublished(taskId));
+  if (stored.publishedAt || prior) {
     return {
       ok: true,
       taskId,
       skipped: "already_published",
-      zernioPostId: payload.zernioPostId,
+      zernioPostId: prior || stored.zernioPostId,
     };
   }
+
+  const markdown = [task.markdown_description, task.description, task.text_content]
+    .filter(Boolean)
+    .join("\n");
+  const payload = overlayHumanEdits(markdown, stored);
+  payload.asset = scrubCampaignAsset(payload.asset);
 
   const posted = await publishViaZernio({
     brand: payload.brand,
@@ -193,13 +203,22 @@ export async function publishApprovedTask(
     publishedAt: new Date().toISOString(),
     zernioPostId: posted.postId,
   };
-  await markTaskPublished(task, next);
-  await addClickUpComment(
+  const persisted = await markTaskPublished(task, next);
+  const markerOk = await addClickUpComment(
     taskId,
-    `Published via Zernio (\`${posted.postId}\`) on ${posted.platforms
+    `${PUBLISHED_MARKER} ${posted.postId}\nPublished via Zernio on ${posted.platforms
       .map((p) => p.platform)
       .join(", ")}. Trigger: ${trigger}. Email was not sent.`,
   );
+  if (!persisted && !markerOk) {
+    return {
+      ok: false,
+      taskId,
+      zernioPostId: posted.postId,
+      error:
+        "Zernio published but ClickUp could not record the marker — check the live post before retrying.",
+    };
+  }
 
   return {
     ok: true,
@@ -214,12 +233,28 @@ export type ClickUpWebhookEvent = {
   task_id?: string;
   taskId?: string;
   task?: { id?: string };
+  comment?: { text?: string; comment_text?: string; text_content?: string };
   history_items?: Array<{
     field?: string;
-    comment?: { text?: string; comment_text?: string };
+    comment?: { text?: string; comment_text?: string; text_content?: string };
     after?: { status?: string } | string;
   }>;
 };
+
+function webhookCommentText(event: ClickUpWebhookEvent): string {
+  const blobs = [
+    event.comment?.text_content,
+    event.comment?.comment_text,
+    event.comment?.text,
+    ...(event.history_items || []).flatMap((i) => [
+      i.comment?.text_content,
+      i.comment?.comment_text,
+      i.comment?.text,
+      typeof i.after === "string" ? i.after : "",
+    ]),
+  ];
+  return blobs.map((s) => (s || "").trim()).find(Boolean) || "";
+}
 
 export async function handleClickUpWebhook(
   event: ClickUpWebhookEvent,
@@ -230,27 +265,24 @@ export async function handleClickUpWebhook(
   }
 
   const ev = (event.event || "").toLowerCase();
-  const items = event.history_items || [];
 
   if (ev.includes("comment")) {
-    const text = items
-      .map(
-        (i) =>
-          i.comment?.text ||
-          i.comment?.comment_text ||
-          (typeof i.after === "string" ? i.after : ""),
-      )
-      .join("\n");
-    if (!commentRequestsPublish(text)) {
-      const comments = await listTaskComments(taskId);
-      if (!comments.some((c) => commentRequestsPublish(c))) {
+    const incoming = webhookCommentText(event);
+    if (incoming) {
+      if (!commentRequestsPublish(incoming)) {
         return { ok: true, ignored: "comment_not_publish_command" };
       }
+      return publishApprovedTask(taskId, "slash-command");
+    }
+    const recent = await latestPublishableComment(taskId);
+    if (!commentRequestsPublish(recent)) {
+      return { ok: true, ignored: "comment_not_publish_command" };
     }
     return publishApprovedTask(taskId, "slash-command");
   }
 
   if (ev.includes("status") || ev.includes("taskstatus")) {
+    const items = event.history_items || [];
     const after = items
       .map((i) =>
         typeof i.after === "string" ? i.after : i.after?.status || "",

@@ -49,13 +49,18 @@ export async function listZernioAccounts(): Promise<unknown> {
   return json;
 }
 
-function composePostBody(asset: CampaignAsset): string {
+function composePostBody(asset: CampaignAsset, options?: { stripUrls?: boolean }): string {
   const tags = asset.hashtags
     .map((h) => (h.startsWith("#") ? h : `#${h}`))
     .join(" ");
   const ctaLine = `\n\n${asset.cta.label}: ${asset.cta.url}`;
   let body = asset.body.trim();
-  if (!body.includes(asset.cta.url)) {
+  if (options?.stripUrls) {
+    body = body.replace(/https?:\/\/\S+/gi, "").replace(/\n{3,}/g, "\n\n").trim();
+    if (!/link in the first comment/i.test(body)) {
+      body = `${body}\n\nLink in the first comment.`;
+    }
+  } else if (!body.includes(asset.cta.url)) {
     body = `${body}${ctaLine}`;
   }
   if (tags && !body.includes("#")) {
@@ -100,16 +105,25 @@ export async function publishViaZernio(input: {
     };
   }
 
+  const asset = input.asset;
+  const firstComment =
+    asset.firstComment?.trim() || `${asset.cta.label}: ${asset.cta.url}`;
   const body = {
-    content: composePostBody(input.asset),
+    content: composePostBody(asset),
     publishNow: input.publishNow !== false,
-    platforms: usable.map((p) => ({
-      platform: p.platform,
-      accountId: p.accountId,
-      ...(p.platform === "linkedin" && input.asset.firstComment
-        ? { customContent: composePostBody(input.asset) }
-        : {}),
-    })),
+    platforms: usable.map((p) => {
+      const linkedin = p.platform === "linkedin";
+      return {
+        platform: p.platform,
+        accountId: p.accountId,
+        ...(linkedin
+          ? {
+              customContent: composePostBody(asset, { stripUrls: true }),
+              platformSpecificData: { firstComment },
+            }
+          : {}),
+      };
+    }),
   };
 
   const { ok, status, json } = await zernioFetch("/posts", {
