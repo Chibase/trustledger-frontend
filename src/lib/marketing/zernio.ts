@@ -194,11 +194,7 @@ async function assertAccountsUsable(
   const rows = envelope(health.json).accounts || [];
   const blocked = usable
     .map((p) => {
-      const row = rows.find(
-        (a) =>
-          accountRecordId(a) === p.accountId ||
-          a.platform === p.platform,
-      );
+      const row = rows.find((a) => accountRecordId(a) === p.accountId);
       return { p, row };
     })
     .filter(
