@@ -14,6 +14,7 @@ import {
   createReviewTask,
   ensureClickUpWebhook,
   findTaskForWeek,
+  fetchClickUpTask,
   getClickUpTask,
   isApprovedStatus,
   latestPublishableComment,
@@ -251,9 +252,14 @@ export async function publishApprovedTask(
   taskId: string,
   trigger: "approved" | "slash-command" | "ops-desk",
 ): Promise<PublishResult> {
-  const task = await getClickUpTask(taskId);
+  const fetched = await fetchClickUpTask(taskId);
+  const task = fetched.task;
   if (!task) {
-    return { ok: false, taskId, error: "ClickUp task not found" };
+    return {
+      ok: false,
+      taskId,
+      error: fetched.error || "ClickUp task not found",
+    };
   }
   const stored = payloadFromTask(task);
   if (!stored) {
@@ -306,7 +312,10 @@ export async function publishApprovedTask(
     publishNow: true,
   });
 
-  if (posted.skipped) {
+  const softSkip =
+    posted.skipped === "zernio_unconfigured" ||
+    posted.skipped === "zernio_no_accounts";
+  if (softSkip) {
     await addClickUpComment(
       taskId,
       `Approval noted (${trigger}) but Zernio did not publish: ${posted.error}\nPaste the post body manually. Outreach DMs are never auto-sent.`,

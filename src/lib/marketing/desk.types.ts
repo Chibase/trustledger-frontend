@@ -147,6 +147,7 @@ export type MarketingDeskSnapshot = {
   inbox: MarketingDeskTask[];
   archive: MarketingDeskTask[];
   error?: string;
+  zernioHint?: string;
 };
 
 export type MarketingDeskAction =

@@ -125,6 +125,17 @@ Brand-specific accounts (optional):
 
 Connect accounts once in Zernio (OAuth), then store the account `_id` values here. If accounts are missing, approval comments “paste manually” and does not fail the webhook.
 
+### Publish returns “not authorised”
+
+That string is almost always Zernio or LinkedIn, not the TrustLedger ops gate.
+
+1. **API key** — Vercel `ZERNIO_API_KEY` must be a live `sk_…` key (no quotes, no spaces). Keys are shown once at creation. `/ops/marketing` Engine status shows a hint if the key is rejected.
+2. **LinkedIn OAuth** — reconnect the TrustLedger / Chibase LinkedIn account in the Zernio dashboard. Expired tokens surface as not authorised / cannot post.
+3. **Account ID** — `ZERNIO_LINKEDIN_ACCOUNT_ID` (or brand-specific) must be the Zernio account `_id` from the dashboard / `GET /accounts`, not a LinkedIn profile URL or `urn:li:organization:…`.
+4. **Frappe Newsletter** — a Desk “Publish” on a Newsletter is a different path (`docs/FRAPPE_EMAIL_MARKETING.md`). That needs Email Manager + outgoing `sales@`. It is not this Publish button.
+
+After reconnecting, retry **Publish** on `/ops/marketing`. Copy stays in ClickUp until a live post succeeds.
+
 ---
 
 ## Cron

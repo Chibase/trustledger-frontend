@@ -191,10 +191,31 @@ export async function createReviewTask(input: {
   return { id: created.id, url: created.url };
 }
 
+export async function fetchClickUpTask(taskId: string): Promise<{
+  ok: boolean;
+  status: number;
+  task?: ClickUpTask;
+  error?: string;
+}> {
+  const { ok, status, json } = await clickupFetch(`/task/${taskId}`);
+  if (!ok) {
+    const parsed = json as { err?: string; error?: string };
+    const raw = parsed.err || parsed.error || "";
+    const unauth = status === 401 || /unauthor/i.test(raw);
+    return {
+      ok: false,
+      status,
+      error: unauth
+        ? "ClickUp API key is not authorised. Rotate CLICKUP_API_KEY on the server (personal token, not Bearer)."
+        : raw || `ClickUp task fetch failed (${status}).`,
+    };
+  }
+  return { ok: true, status, task: json as ClickUpTask };
+}
+
 export async function getClickUpTask(taskId: string): Promise<ClickUpTask | null> {
-  const { ok, json } = await clickupFetch(`/task/${taskId}`);
-  if (!ok) return null;
-  return json as ClickUpTask;
+  const fetched = await fetchClickUpTask(taskId);
+  return fetched.task || null;
 }
 
 export function payloadFromTask(task: ClickUpTask): MarketingPayload | null {
