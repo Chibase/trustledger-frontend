@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Scene 1 — The Cockroach Theory</title>
+    <style>
+      :root {
+        --tl-ink: #12202a;
+        --tl-ink-muted: #5b6b76;
+        --tl-paper: #f3f5f7;
+        --tl-surface: #ffffff;
+        --tl-line: #d7dee4;
+        --tl-trust: #0e7c66;
+        --tl-trust-ink: #085f4d;
+        --tl-amber: #c47a10;
+        --tl-demo: #1f4b7a;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--tl-paper);
+        color: var(--tl-ink);
+        font-family: "Noto Sans Display", "Noto Sans", "Source Sans 3",
+          sans-serif;
+      }
+      .stage {
+        width: 1920px;
+        height: 1080px;
+        padding: 88px 96px 80px;
+        display: flex;
+        flex-direction: column;
+      }
+      .kicker {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--tl-trust);
+        margin-bottom: 14px;
+      }
+      .kicker.hidden {
+        display: none;
+      }
+      .split {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+        background: var(--tl-surface);
+        border: 1px solid var(--tl-line);
+      }
+      .col {
+        flex: 1;
+        padding: 72px 64px;
+        display: flex;
+        flex-direction: column;
+      }
+      .col-left {
+        border-right: 2px solid var(--tl-line);
+      }
+      h1 {
+        font-family: "Noto Serif", "Noto Serif Display", serif;
+        font-size: 42px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+      }
+      .left h1 {
+        color: var(--tl-ink);
+      }
+      .right h1 {
+        color: var(--tl-trust-ink);
+      }
+      .body {
+        margin-top: 72px;
+        flex: 1;
+        display: flex;
+        align-items: center;
+      }
+      .chain {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .node {
+        flex: 1;
+        border: 2px solid var(--tl-ink);
+        color: var(--tl-ink);
+        background: var(--tl-paper);
+        text-align: center;
+        padding: 28px 12px;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .node.hq {
+        background: var(--tl-ink);
+        color: #fff;
+        border-color: var(--tl-ink);
+      }
+      .node.muni {
+        background: var(--tl-demo);
+        color: #fff;
+        border-color: var(--tl-demo);
+      }
+      .node.con {
+        background: var(--tl-ink-muted);
+        color: #fff;
+        border-color: var(--tl-ink-muted);
+      }
+      .arrow {
+        color: var(--tl-ink-muted);
+        font-size: 28px;
+        font-weight: 400;
+        flex: 0 0 auto;
+      }
+      .pills {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .pill {
+        display: inline-flex;
+        align-self: flex-start;
+        padding: 16px 28px;
+        font-size: 26px;
+        font-weight: 600;
+        color: #fff;
+        border-radius: 999px;
+      }
+      .pill:nth-child(1) {
+        background: var(--tl-trust);
+      }
+      .pill:nth-child(2) {
+        background: var(--tl-amber);
+        border-radius: 10px;
+      }
+      .pill:nth-child(3) {
+        background: var(--tl-trust-ink);
+      }
+      .caption {
+        margin-top: 28px;
+        font-size: 20px;
+        line-height: 1.45;
+        color: var(--tl-ink-muted);
+      }
+      .right-block {
+        opacity: 1;
+      }
+      body[data-state="left"] .right-block {
+        opacity: 0;
+      }
+      body[data-state="mid"] .pills .pill:nth-child(2),
+      body[data-state="mid"] .pills .pill:nth-child(3) {
+        opacity: 0;
+      }
+      body[data-state="mid"] .caption {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stage">
+      <p class="kicker" id="kicker">Scene 1 · 0:00–0:45 · The Cockroach Theory</p>
+      <div class="split">
+        <div class="col col-left left">
+          <h1>Rigid corporate maps</h1>
+          <div class="body">
+            <div class="chain" aria-label="HQ to municipality to contractor">
+              <div class="node hq">HQ</div>
+              <span class="arrow">→</span>
+              <div class="node muni">Muni</div>
+              <span class="arrow">→</span>
+              <div class="node con">Contractor</div>
+            </div>
+          </div>
+        </div>
+        <div class="col right">
+          <div class="right-block">
+            <h1>The cockroach reality</h1>
+            <div class="body">
+              <div class="pills">
+                <span class="pill">Informal authority</span>
+                <span class="pill">Customary leaders</span>
+                <span class="pill">Ward structures</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="caption right-block">
+        Informal authority, customary leaders, and ward structures already
+        moving — whether the organogram names them or not.
+      </p>
+    </div>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const state = params.get("state") || "full";
+      document.body.dataset.state = state;
+      if (params.get("slate") === "0") {
+        document.getElementById("kicker").classList.add("hidden");
+      }
+    </script>
+  </body>
+</html>

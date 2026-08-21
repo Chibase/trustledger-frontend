@@ -38,7 +38,19 @@ export default async function InsightArticlePage({
       <h1 className="mt-2 font-display text-3xl font-semibold text-tl-ink">
         {post.title}
       </h1>
-      {post.slug === "cockroach-theory" ? <CockroachTheoryViz /> : null}
+      {post.slug === "cockroach-theory" ? (
+        <>
+          <CockroachTheoryViz />
+          <p className="mt-4">
+            <Link
+              href={firmPath(chibaseHost, `/insights/${post.slug}/play`)}
+              className="text-sm font-semibold text-tl-trust-ink underline-offset-2 hover:underline"
+            >
+              Play the 45-second scene
+            </Link>
+          </p>
+        </>
+      ) : null}
       {post.body.map((para) => (
         <p
           key={para.slice(0, 40)}
