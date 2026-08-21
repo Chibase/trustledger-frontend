@@ -111,7 +111,10 @@ export type MarketingDeskTask = {
   thisWeek: boolean;
   headline: string | null;
   bodyPreview: string | null;
+  body: string | null;
+  firstComment: string | null;
   published: boolean;
+  pasteReady: boolean;
   engineTask: boolean;
   placement: MarketingPlacementId | null;
   publishMode: "zernio" | "paste";

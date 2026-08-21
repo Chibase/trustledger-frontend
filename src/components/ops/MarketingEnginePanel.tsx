@@ -543,7 +543,11 @@ export function MarketingEnginePanel({ initial }: Props) {
                   </td>
                   <td className="py-2.5 pr-3">
                     <span className="rounded-sm bg-tl-paper px-1.5 py-0.5 text-xs font-medium">
-                      {task.published ? "Published" : task.status}
+                      {task.published
+                        ? "Published"
+                        : task.pasteReady
+                          ? "Paste-ready"
+                          : task.status}
                     </span>
                   </td>
                   <td className="py-2.5">
@@ -556,7 +560,7 @@ export function MarketingEnginePanel({ initial }: Props) {
                       >
                         Open
                       </a>
-                      {task.engineTask && !task.published ? (
+                      {task.engineTask && !task.published && !task.pasteReady ? (
                         <button
                           type="button"
                           disabled={disabled}
@@ -568,15 +572,19 @@ export function MarketingEnginePanel({ initial }: Props) {
                             : "Publish"}
                         </button>
                       ) : null}
-                      {task.bodyPreview ? (
+                      {task.body ? (
                         <button
                           type="button"
                           className="text-xs font-medium text-tl-trust-ink underline"
                           onClick={() =>
                             void copyText(
-                              task.headline
-                                ? `${task.headline}\n\n${task.bodyPreview}`
-                                : task.bodyPreview || "",
+                              [
+                                task.headline,
+                                task.body,
+                                task.firstComment,
+                              ]
+                                .filter(Boolean)
+                                .join("\n\n"),
                             )
                           }
                         >

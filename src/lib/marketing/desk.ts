@@ -67,14 +67,20 @@ function toDeskTask(
 ): MarketingDeskTask {
   const payload = payloadFromTask(task);
   const status = (task.status?.status || "").trim();
-  const published = Boolean(
+  const body = payload?.asset.body?.trim() || "";
+  const zernioId = payload?.zernioPostId;
+  const postedToSocial = Boolean(zernioId && zernioId !== "paste");
+  const marked = Boolean(
     payload?.publishedAt ||
-      payload?.zernioPostId ||
+      zernioId ||
       (task.markdown_description || task.description || "").includes(
         PUBLISHED_MARKER,
       ),
   );
-  const body = payload?.asset.body?.trim() || "";
+  const mode = payload
+    ? publishModeFor(payload.brand, payload.placement)
+    : "paste";
+  const pasteReady = mode === "paste" && marked && !postedToSocial;
   return {
     id: task.id,
     name: task.name,
@@ -86,15 +92,16 @@ function toDeskTask(
       (payload?.weekKey || weekKeyFromTaskName(task.name) || "") === weekKey,
     headline: payload?.asset.headline || null,
     bodyPreview: body ? body.slice(0, 280) : null,
-    published,
+    body: body || null,
+    firstComment: payload?.asset.firstComment || null,
+    published: postedToSocial,
+    pasteReady,
     engineTask: Boolean(payload),
     placement:
       payload?.placement && isPlacementId(payload.placement)
         ? payload.placement
         : null,
-    publishMode: payload
-      ? publishModeFor(payload.brand, payload.placement)
-      : "paste",
+    publishMode: mode,
   };
 }
 
