@@ -85,6 +85,10 @@ function toDeskTask(
   };
 }
 
+function taskRecencyMs(task: ClickUpTask): number {
+  return Number(task.date_updated || task.date_created || 0) || 0;
+}
+
 export async function buildMarketingDesk(): Promise<MarketingDeskSnapshot> {
   const weekKey = isoWeekKey();
   const status = marketingEngineStatus();
@@ -114,6 +118,7 @@ export async function buildMarketingDesk(): Promise<MarketingDeskSnapshot> {
 
   try {
     const listed = await listClickUpTasks();
+    listed.sort((a, b) => taskRecencyMs(b) - taskRecencyMs(a));
     const sliced = listed.slice(0, DESK_TASK_LIMIT);
     const hydrated = await Promise.all(
       sliced.map(async (task) => {
@@ -154,7 +159,9 @@ export async function runMarketingDeskAction(input: {
 
   if (action === "setup") {
     const endpoint = `${siteBaseUrl()}/api/webhooks/clickup`;
-    const webhook = await ensureClickUpWebhook(endpoint);
+    const webhook = dryRun
+      ? { ok: true as const, action: "unchanged" as const }
+      : await ensureClickUpWebhook(endpoint);
     const chibase = await runDraftCycle("chibase", { dryRun });
     const trustledger = await runDraftCycle("trustledger", { dryRun });
     const ok = webhook.ok && chibase.ok && trustledger.ok;

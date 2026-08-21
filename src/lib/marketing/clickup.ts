@@ -18,6 +18,8 @@ export type ClickUpTask = {
   markdown_description?: string;
   description?: string;
   text_content?: string;
+  date_updated?: string | number;
+  date_created?: string | number;
 };
 
 type ClickUpList = {
@@ -91,7 +93,7 @@ async function resolveStatus(
 
 export async function listClickUpTasks(listId = clickupListId()): Promise<ClickUpTask[]> {
   const { ok, json } = await clickupFetch(
-    `/list/${listId}/task?include_closed=true&subtasks=false&include_markdown_description=true`,
+    `/list/${listId}/task?include_closed=true&subtasks=false&include_markdown_description=true&order_by=updated&reverse=true`,
   );
   if (!ok) return [];
   const tasks = (json as { tasks?: ClickUpTask[] }).tasks;
