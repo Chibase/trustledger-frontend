@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-22 — Marketing team workstream desks
+
+- ClickUp TrustLedger Marketing now has Sales, Content, Outreach, Ads, Analytics, and Customer research lists with owner-hat charters (two-person team: Thozi / Thozamile). Newsletter Cadence and Marketing Review stay the send / publish gates.
+
 ## 2026-08-21 — Marketing publish “not authorised”
 
 - Publish now checks Zernio account health before posting, maps 401/“not authorised” to a reconnect-or-key message, and does not mark a ClickUp task published when LinkedIn/X rejects the token.

@@ -32,7 +32,15 @@ Create (or reuse) a Space / Folder: **TrustLedger Marketing**.
 | List | [Newsletter Cadence](https://app.clickup.com/90121198081/v/l/li/901220454750) |
 | List | [Newsletter Themes](https://app.clickup.com/90121198081/v/l/li/901220454751) |
 | List | [Marketing Review](https://app.clickup.com/90121198081/v/l/li/901220539195) (MKT-1 social engine — not email) |
+| List | [Sales](https://app.clickup.com/90121198081/v/l/li/901220571037) |
+| List | [Content](https://app.clickup.com/90121198081/v/l/li/901220571038) |
+| List | [Outreach](https://app.clickup.com/90121198081/v/l/li/901220571039) |
+| List | [Ads](https://app.clickup.com/90121198081/v/l/li/901220571040) (parked until budget) |
+| List | [Analytics](https://app.clickup.com/90121198081/v/l/li/901220571041) |
+| List | [Customer research](https://app.clickup.com/90121198081/v/l/li/901220571042) |
 | Ops list | [Platform Ops](https://app.clickup.com/90121198081/v/l/li/901220454767) (Resend / EM-1 Desk) |
+
+Workstream owner cards (hats, not six hires) live on those lists. Newsletter send and social publish stay on Cadence + Marketing Review.
 
 Theme backlog (6 cards) + first fortnightly cadence task + AI prompt reference are seeded.  
 **Still configure in ClickUp UI:** list statuses (below) and recommended custom fields (API cannot create them).
