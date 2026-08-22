@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-22 — Marketing team workstream desks
+
+- ClickUp TrustLedger Marketing now has Sales, Content, Outreach, Ads, Analytics, and Customer research lists with owner-hat charters (two-person team: Thozi / Thozamile). Newsletter Cadence and Marketing Review stay the send / publish gates.
+
 ## 2026-08-22 — Chibase LinkedIn duplicate in Zernio
 
 - Engine status only warns on configured `ZERNIO_*_LINKEDIN_ACCOUNT_ID` rows. An inaccessible duplicate (Chibase Consulting vs Chibase Consulting1) no longer looks like a publish block.

@@ -31,6 +31,21 @@ This is the Next.js App Router equivalent of the requested `/api` + `/lib` layou
 
 **Locked:** bulk email stays **Frappe Newsletter** (`docs/FRAPPE_EMAIL_MARKETING.md`, `docs/CLICKUP_NEWSLETTER_OPS.md`). This engine never sends Resend blasts, HubSpot mail, or ClickUp automations to a list.
 
+### Human workstreams (ClickUp)
+
+Two ClickUp members today (Thozi, Thozamile). Assign **hats**, not six jobs. Folder **TrustLedger Marketing**.
+
+| Workstream | List | Primary hat | Stays out of this list |
+|------------|------|-------------|------------------------|
+| **Sales** | [Sales](https://app.clickup.com/90121198081/v/l/li/901220571037) | Thozi | Bulk send; HubSpot CRM |
+| **Content** | [Content](https://app.clickup.com/90121198081/v/l/li/901220571038) + Themes | Thozamile (Thozi approves) | Engine inbox (Marketing Review); Desk Send |
+| **Outreach** | [Outreach](https://app.clickup.com/90121198081/v/l/li/901220571039) | Thozi apply / publish | Auto-DM; second newsletter blast |
+| **Ads** | [Ads](https://app.clickup.com/90121198081/v/l/li/901220571040) | Thozi spend-approve | HubSpot ads; spend without a budget card |
+| **Analytics** | [Analytics](https://app.clickup.com/90121198081/v/l/li/901220571041) | Thozamile | Demo INC-* as proof; secrets in comments |
+| **Customer research** | [Customer research](https://app.clickup.com/90121198081/v/l/li/901220571042) | Thozamile | Fictional case studies |
+
+Email blast path is still Newsletter Cadence → Frappe. Social HITL is still Marketing Review → `/ops/marketing`.
+
 ---
 
 ## Flow
