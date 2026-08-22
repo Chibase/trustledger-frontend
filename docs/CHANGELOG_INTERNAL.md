@@ -4,6 +4,11 @@
 
 - ClickUp TrustLedger Marketing now has Sales, Content, Outreach, Ads, Analytics, and Customer research lists with owner-hat charters (two-person team: Thozi / Thozamile). Newsletter Cadence and Marketing Review stay the send / publish gates.
 
+## 2026-08-22 — Chibase LinkedIn duplicate in Zernio
+
+- Engine status only warns on configured `ZERNIO_*_LINKEDIN_ACCOUNT_ID` rows. An inaccessible duplicate (Chibase Consulting vs Chibase Consulting1) no longer looks like a publish block.
+- Pin Chibase publish to the accessible account `_id` via `ZERNIO_CHIBASE_LINKEDIN_ACCOUNT_ID`. See `docs/MARKETING_ENGINE.md`.
+
 ## 2026-08-21 — Marketing publish “not authorised”
 
 - Publish now checks Zernio account health before posting, maps 401/“not authorised” to a reconnect-or-key message, and does not mark a ClickUp task published when LinkedIn/X rejects the token.

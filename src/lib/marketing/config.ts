@@ -163,3 +163,14 @@ export function zernioAccountIds(brand: MarketingBrand): Array<{
 
   return out;
 }
+
+/** Union of brand-specific + shared Zernio account IDs used for publish. */
+export function configuredZernioAccountIds(): string[] {
+  const seen = new Set<string>();
+  for (const brand of ["chibase", "trustledger"] as MarketingBrand[]) {
+    for (const row of zernioAccountIds(brand)) {
+      if (row.accountId) seen.add(row.accountId);
+    }
+  }
+  return [...seen];
+}
