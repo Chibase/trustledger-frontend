@@ -1,4 +1,5 @@
 import {
+  configuredZernioAccountIds,
   zernioAccountIds,
   zernioApiKey,
   zernioBaseUrl,
@@ -201,25 +202,29 @@ export async function describeZernioReadiness(): Promise<string | undefined> {
   if (!listed.ok) {
     return `Could not list Zernio accounts: ${rawErrorText(listed.status, listed.json)}`;
   }
+  const wanted = new Set(configuredZernioAccountIds());
+  if (!wanted.size) return undefined;
   const health = await zernioFetch("/accounts/health");
   if (!health.ok) return undefined;
-  const e = envelope(health.json);
-  const rows = e.accounts || [];
-  const bad = rows.filter(
-    (a) =>
+  const rows = envelope(health.json).accounts || [];
+  const bad = rows.filter((a) => {
+    const id = accountRecordId(a);
+    if (!id || !wanted.has(id)) return false;
+    return (
       a.needsReconnect ||
       a.tokenValid === false ||
       a.canPost === false ||
-      a.status === "error",
-  );
-  if (!bad.length && !e.summary?.needsReconnect) return undefined;
+      a.status === "error"
+    );
+  });
+  if (!bad.length) return undefined;
   const names = bad
     .map((a) => a.displayName || a.username || a.platform || a.accountId)
     .filter(Boolean)
     .slice(0, 4);
-  return `Social account needs reconnect in Zernio${
+  return `Configured social account needs reconnect in Zernio${
     names.length ? ` (${names.join(", ")})` : ""
-  }. Publish will stay blocked until OAuth is healthy.`;
+  }. Duplicate LinkedIn rows that are not in ZERNIO_*_LINKEDIN_ACCOUNT_ID are ignored.`;
 }
 
 function accountRecordId(row: NonNullable<ZernioEnvelope["accounts"]>[number]): string {

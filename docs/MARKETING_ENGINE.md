@@ -136,7 +136,8 @@ That string is almost always Zernio or LinkedIn, not the TrustLedger ops gate.
    - Redeploy. `/ops/marketing` Engine status reports prefix + length if the key is still rejected.  
 2. **LinkedIn OAuth** — reconnect the TrustLedger / Chibase LinkedIn account in the Zernio dashboard. Expired tokens surface after the key is valid.
 3. **Account ID** — `ZERNIO_LINKEDIN_ACCOUNT_ID` (or brand-specific) must be the Zernio account `_id` from the dashboard / `GET /accounts`, not a LinkedIn profile URL or `urn:li:organization:…`.
-4. **Frappe Newsletter** — a Desk “Publish” on a Newsletter is a different path (`docs/FRAPPE_EMAIL_MARKETING.md`). That needs Email Manager + outgoing `sales@`. It is not this Publish button.
+4. **Two Chibase LinkedIn connections** — Zernio may list **Chibase Consulting** and **Chibase Consulting1**. Keep publishing on the one you can open (Consulting1). Copy that row’s Zernio `_id` into Production `ZERNIO_CHIBASE_LINKEDIN_ACCOUNT_ID` (not the display name). Then disconnect the inaccessible **Chibase Consulting** row in Zernio so it cannot steal health or plan slots. TrustLedger stays on `ZERNIO_TRUSTLEDGER_LINKEDIN_ACCOUNT_ID`. Do not use the shared `ZERNIO_LINKEDIN_ACCOUNT_ID` fallback for Chibase while both rows exist.
+5. **Frappe Newsletter** — a Desk “Publish” on a Newsletter is a different path (`docs/FRAPPE_EMAIL_MARKETING.md`). That needs Email Manager + outgoing `sales@`. It is not this Publish button.
 
 After reconnecting, retry **Publish** on `/ops/marketing`. Copy stays in ClickUp until a live post succeeds.
 
