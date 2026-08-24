@@ -46,6 +46,8 @@ Two ClickUp members today (Thozi, Thozamile). Assign **hats**, not six jobs. Fol
 
 Email blast path is still Newsletter Cadence → Frappe. Social HITL is still Marketing Review → `/ops/marketing`.
 
+**1:1 inbox + diary:** Google Workspace Gmail/Calendar OAuth into ClickUp ([Inbox & diary](https://app.clickup.com/90121198081/v/l/li/901220601939)). Webway cannot do that OAuth. Do not blast from Gmail or ClickUp Email.
+
 ---
 
 ## Flow

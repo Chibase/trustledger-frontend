@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-24 — ClickUp diary via Google Workspace
+
+- Inbox & diary list: trust ClickUp in Google Admin, then connect Workspace Gmail + Google Calendar. Webway IMAP is not used. Frappe Newsletter stays the bulk path.
+
 ## 2026-08-22 — Marketing team workstream desks
 
 - ClickUp TrustLedger Marketing now has Sales, Content, Outreach, Ads, Analytics, and Customer research lists with owner-hat charters (two-person team: Thozi / Thozamile). Newsletter Cadence and Marketing Review stay the send / publish gates.
