@@ -215,6 +215,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **MKT-2** | Ops marketing desk | Allowlisted `/ops/marketing` cockpit: engine flags, stage drafts, review queue, human-apply publish (`GET|POST /api/ops/marketing`) | **Done** |
 | **MKT-3** | Operator briefs | Compose topic, length, and destination (LinkedIn post/article/comment, Reddit, ESG, website blog) from `/ops/marketing`; paste-ready for long-form/site | **Done** |
 | **MKT-4** | Marketing review inbox | `/ops/marketing` content space shows only drafts still needing review/publish; Archive lane for finished or skipped pieces | **Done** |
+| **MKT-5** | Workspace client voice | Google Docs review/comments; consented quotes on `/`, `/product`, `/firm` after human apply (`docs/WORKSPACE_REVIEW.md`, ADR-053) | **Done** |
 
 ### Public guide agent (ACTIVE)
 
@@ -321,3 +322,4 @@ src/app/api/webhooks/clickup/
 | 2026-08-21 | MKT-2 — `/ops/marketing` operator desk for the engine |
 | 2026-08-21 | MKT-3 — operator briefs (topic / length / LinkedIn·Reddit·ESG·blog) |
 | 2026-08-21 | MKT-4 — marketing review inbox + archive |
+| 2026-08-25 | MKT-5 — Workspace review comments; consented quotes on marketing sites (ADR-053) |

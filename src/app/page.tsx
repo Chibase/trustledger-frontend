@@ -8,6 +8,7 @@ import { HomeHowItWorks } from "@/components/marketing/HomeHowItWorks";
 import { HomePricing } from "@/components/marketing/HomePricing";
 import { HomeAudiences } from "@/components/marketing/HomeAudiences";
 import { HomeSectors } from "@/components/marketing/HomeSectors";
+import { ClientVoiceStrip } from "@/components/marketing/ClientVoiceStrip";
 import { HomeTrustProof } from "@/components/marketing/HomeTrustProof";
 import { HomeVersionStrip } from "@/components/marketing/HomeVersionStrip";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -52,6 +53,11 @@ export default function HomePage() {
         <HomeVersionStrip />
         <HomeBenefitStrip />
         <HomeHowItWorks />
+        <ClientVoiceStrip
+          brand="trustledger"
+          surface="home"
+          heading="What operators say"
+        />
         <HomeTrustProof />
         <HomeAudiences />
         <HomeSectors />

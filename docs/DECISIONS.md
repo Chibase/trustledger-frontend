@@ -594,8 +594,23 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   6. **Two speakers.** Chibase posts are Chibase Consulting thought-leadership (TrustLedger mentioned at most once as a complementary product). TrustLedger posts are Trust voice and do not hero-co-brand Chibase.
   7. **(2026-08-21 addendum)** Operators may brief **topic, length, and destination** from `/ops/marketing` (LinkedIn post / article / comment, Reddit, ESG community, website blog). Cron cadence is unchanged. Long-form and site copy are paste-ready; the engine does not auto-publish WordPress or Insights.
   8. **(2026-08-21 addendum)** `/ops/marketing` is the review **inbox**: only unpublished engine drafts. Archive is explicit (or automatic after live publish). Default ClickUp `complete` is still not a publish signal.
+  9. **(2026-08-25 addendum)** Google Workspace Docs are the **client and extra-seat review** surface (comments). ClickUp remains the publish gate. Consented quotes reach marketing sites only via human apply (`src/data/clientVoice.ts`, ADR-053).
 - **Consequences:** Operators set Vercel secrets, connect Zernio accounts, and add ClickUp statuses + webhook. Day-to-day interaction is the Platform Ops desk **`/ops/marketing`** (packets **MKT-2** / **MKT-3**), not the customer dashboard. Packet **MKT-1**. Runbook: `docs/MARKETING_ENGINE.md`.
 - **Alternatives considered:** Buffer/Hootsuite dashboards (rejected — UI lock-in / watermarks); auto-publish from cron (rejected — ADR-006); ClickUp as blast engine (rejected — EM-2); HubSpot social (rejected — ADR-034).
+
+### ADR-053: Workspace review comments; consented quotes on marketing sites
+
+- **Date:** 2026-08-25
+- **Status:** Accepted
+- **Context:** The marketing team now includes Google Workspace seats. Clients should comment on drafts without a ClickUp licence. Those comments are the honest source for public voice on TrustLedger and Chibase sites — not fictional partner logos.
+- **Decision:**
+  1. **Review in Google Docs** (folder **Marketing review**, Workspace users). Clients get **Commenter** on a single Doc, not the folder.
+  2. **Approve-for-publish in the Doc** is a human signal only. Social still needs ClickUp **Approved** / `/tl-publish` or `/ops/marketing` Publish. Newsletters still need Cadence → Frappe Newsletter.
+  3. **Public quotes** live in `src/data/clientVoice.ts`. Render on `/`, `/product`, and `/firm` only when `consent` is `named` or `role-only`. Empty catalog shows no testimonials and no fake operator names.
+  4. **Never** scrape Gmail, Docs, `/assessment`, or product Discussion threads onto the websites. Never blast from Gmail or ClickUp Email.
+  5. POPIA: a Doc comment is not consent. Capture the exact sentence, named vs role-only, and surfaces in writing before apply.
+- **Consequences:** Packet **MKT-5**. Playbook `docs/WORKSPACE_REVIEW.md`. Harvest on ClickUp Customer research; Content applies the catalog.
+- **Alternatives considered:** Put clients in ClickUp (rejected — seats + internal lists); auto-publish Docs comments (rejected — ADR-006, POPIA); keep placeholder “Operator A” logos (rejected — dishonest).
 
 ### ADR-051: Viewer discussion & feedback on reports and issues
 

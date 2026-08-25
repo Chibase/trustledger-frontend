@@ -48,6 +48,8 @@ Email blast path is still Newsletter Cadence → Frappe. Social HITL is still Ma
 
 **1:1 inbox + diary:** Live on `admin@chibaseconsulting.co.za` (Google Calendar + Email ClickApp). [Inbox & diary](https://app.clickup.com/90121198081/v/l/li/901220601939). `trustledger.co.za` verification stays parked until Google shows it Active. Do not blast from Gmail or ClickUp Email.
 
+**Workspace review (MKT-5):** Team and clients comment on Google Docs. Playbook `docs/WORKSPACE_REVIEW.md`. Public quotes: human apply in `src/data/clientVoice.ts` — not scraped from Gmail. ClickUp remains the social publish gate.
+
 ---
 
 ## Flow
@@ -203,6 +205,8 @@ Chibase posts may name **Chibase Consulting** and mention TrustLedger once as a 
 | Doc | Role |
 |-----|------|
 | ADR-052 in `docs/DECISIONS.md` | Locked split |
+| ADR-053 in `docs/DECISIONS.md` | Workspace Docs review; consented site quotes |
+| `docs/WORKSPACE_REVIEW.md` | Client/team comments → `clientVoice.ts` |
 | `docs/CLICKUP_NEWSLETTER_OPS.md` | Fortnightly email (separate list; Frappe send) |
 | `docs/FRAPPE_EMAIL_MARKETING.md` | Bulk email SoT |
 | `docs/exports/linkedin/WEEKLY_CONTENT.md` | Human LinkedIn pack (still valid; engine rotates repo markdown) |

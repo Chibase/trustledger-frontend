@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ClientVoiceStrip } from "@/components/marketing/ClientVoiceStrip";
 import { JsonLd } from "@/components/seo/JsonLd";
 import {
   breadcrumbJsonLd,
@@ -214,6 +215,12 @@ export default async function ProductPage({ searchParams }: PageProps) {
             </ul>
           </div>
         </section>
+
+        <ClientVoiceStrip
+          brand="trustledger"
+          surface="product"
+          heading="What operators say"
+        />
 
         <section className="border-t border-tl-line/80">
           <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
