@@ -38,12 +38,34 @@ Create (or reuse) a Space / Folder: **TrustLedger Marketing**.
 | List | [Ads](https://app.clickup.com/90121198081/v/l/li/901220571040) (parked until budget) |
 | List | [Analytics](https://app.clickup.com/90121198081/v/l/li/901220571041) |
 | List | [Customer research](https://app.clickup.com/90121198081/v/l/li/901220571042) |
+| List | [Inbox & diary](https://app.clickup.com/90121198081/v/l/li/901220601939) (Workspace Gmail + Calendar → ClickUp) |
 | Ops list | [Platform Ops](https://app.clickup.com/90121198081/v/l/li/901220454767) (Resend / EM-1 Desk) |
 
 Workstream owner cards (hats, not six hires) live on those lists. Newsletter send and social publish stay on Cadence + Marketing Review.
 
 Theme backlog (6 cards) + first fortnightly cadence task + AI prompt reference are seeded.  
 **Still configure in ClickUp UI:** list statuses (below) and recommended custom fields (API cannot create them).
+
+### Workspace Gmail + Calendar (diary)
+
+Webway IMAP cannot OAuth into ClickUp. That is why **Google Workspace Starter** holds the 1:1 mailbox and calendar. Bulk send stays **Frappe Newsletter** from `sales@` on Webway.
+
+Setup cards (human OAuth — an agent cannot click Sign in with Google):
+
+| Step | Task |
+|------|------|
+| 1 | [Trust ClickUp in Google Admin](https://app.clickup.com/t/869enz4ur) (**complete**) |
+| 2 | [Connect Google Calendar to Planner](https://app.clickup.com/t/869enz4v7) |
+| 3 | [Link Workspace Gmail (Email ClickApp)](https://app.clickup.com/t/869enz4vz) |
+| Parked | [TrustLedger domain — come back when Active](https://app.clickup.com/t/869epf8md) |
+
+**Do not wait on `trustledger.co.za` verification** to finish steps 2–3. Connect as **`admin@chibaseconsulting.co.za`**. Until Google Admin → Domains shows `trustledger.co.za` **Active**, there is no Gmail Send as `sales@trustledger.co.za` and no MX cutover. Come back on the parked card: add `sales@` as a **user email alias**, then optional Webway forward. Leave MX on Webway until send/receive is proven.
+
+**Admin (once):** [admin.google.com](https://admin.google.com) → Security → Access and data control → API controls → Manage third-party app access → Configure **ClickUp** as **Trusted**. Client id: `629831864745-8bkkv3u1q9bccmf6epo375h3eo2ifo1m.apps.googleusercontent.com`.
+
+**Each user with a Workspace seat:** App Center → Google Calendar (two-way Planner sync) → Email ClickApp → Sign in with Google on the **Chibase Workspace** user, not Webway IMAP and not a personal Gmail.
+
+Diary loop: 1:1 email → ClickUp task on Sales/Outreach → start + due → Google Calendar. Do **not** send Email Groups or newsletters from ClickUp.
 
 ### List: `Newsletter Cadence`
 
