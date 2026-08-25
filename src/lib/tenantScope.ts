@@ -21,7 +21,7 @@ export async function resolveSessionCustomer(
   if (!ent?.customerName) return null;
   return {
     customerName: ent.customerName,
-    customerLabel: ent.customerLabel,
+    customerLabel: ent.customerLabel || undefined,
   };
 }
 
