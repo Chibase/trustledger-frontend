@@ -67,6 +67,14 @@ Setup cards (human OAuth — an agent cannot click Sign in with Google):
 
 Diary loop: 1:1 email → ClickUp task on Sales/Outreach → start + due → Google Calendar. Do **not** send Email Groups or newsletters from ClickUp.
 
+### Workspace review (client comments)
+
+The marketing team includes Workspace seats. **Review and comment in Google Docs**; ClickUp still publishes social; Desk still sends newsletters.
+
+Playbook: `docs/WORKSPACE_REVIEW.md`. Template: `docs/exports/workspace/REVIEW_DOC_TEMPLATE.md`.
+
+Harvest consented lines on [Customer research](https://app.clickup.com/t/869ephe0r). Apply on [Content](https://app.clickup.com/t/869ephe10). Create the Drive folder: [Inbox & diary](https://app.clickup.com/t/869ephe16).
+
 ### List: `Newsletter Cadence`
 
 **Statuses (in order):**

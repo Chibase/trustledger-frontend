@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-25 — Workspace review comments on marketing sites
+
+- Google Docs is the team/client review surface. ClickUp stays the social publish gate; Frappe Newsletter stays bulk send.
+- Consented quotes render on `/`, `/product`, and `/firm` from `src/data/clientVoice.ts` (empty until harvest). Fake partner logos removed from home.
+- Playbook: `docs/WORKSPACE_REVIEW.md`. ADR-053.
+
 ## 2026-08-25 — ClickUp diary live on Chibase Workspace
 
 - Google Calendar and Email ClickApp are connected as `admin@chibaseconsulting.co.za`. `trustledger.co.za` verification stays parked until Admin shows Active. No MX change.

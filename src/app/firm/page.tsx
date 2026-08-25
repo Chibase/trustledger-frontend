@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { FirmDeskPreview } from "@/components/chibase/FirmDeskPreview";
+import { ClientVoiceStrip } from "@/components/marketing/ClientVoiceStrip";
 import {
   CHIBASE_DEFINITION,
   CHIBASE_TAGLINE,
@@ -109,6 +110,12 @@ export default async function FirmHomePage() {
           </Link>
         </p>
       </section>
+
+      <ClientVoiceStrip
+        brand="chibase"
+        surface="firm"
+        heading="From programmes we have sat in"
+      />
 
       <section className="border-y border-tl-line bg-tl-surface">
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
