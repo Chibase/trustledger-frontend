@@ -1,8 +1,8 @@
 # Internal changelog
 
-## 2026-08-25 — Skip pending TrustLedger Workspace domain
+## 2026-08-25 — ClickUp diary live on Chibase Workspace
 
-- Diary continues on the Chibase Workspace user (`admin@chibaseconsulting.co.za`). `trustledger.co.za` Google verification stays parked until Admin shows Active. No MX change.
+- Google Calendar and Email ClickApp are connected as `admin@chibaseconsulting.co.za`. `trustledger.co.za` verification stays parked until Admin shows Active. No MX change.
 
 ## 2026-08-24 — ClickUp diary via Google Workspace
 
