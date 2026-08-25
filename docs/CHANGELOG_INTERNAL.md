@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-08-25 — Skip pending TrustLedger Workspace domain
+
+- Diary continues on the Chibase Workspace user (`admin@chibaseconsulting.co.za`). `trustledger.co.za` Google verification stays parked until Admin shows Active. No MX change.
+
 ## 2026-08-24 — ClickUp diary via Google Workspace
 
 - Inbox & diary list: trust ClickUp in Google Admin, then connect Workspace Gmail + Google Calendar. Webway IMAP is not used. Frappe Newsletter stays the bulk path.
