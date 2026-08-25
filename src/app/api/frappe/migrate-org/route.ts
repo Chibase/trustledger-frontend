@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const bound = await bindSessionCustomer(email, body.customer);
+  const bound = await bindSessionCustomer(email, body.customer, { sid });
   if (!bound.ok) {
     return NextResponse.json(
       { error: bound.error, code: bound.code },

@@ -1,7 +1,12 @@
 import { getCustomerEntitlementByOwnerEmail } from "@/lib/entitlementCloud";
-import { isPlatformOperatorIdentity } from "@/lib/platformOperator";
+import { getLoggedUserFromSid } from "@/lib/frappeServer";
+import {
+  isPlatformOperatorIdentity,
+  normalizeIdentity,
+} from "@/lib/platformOperator";
 
 export const TENANT_MISMATCH_CODE = "TENANT_MISMATCH" as const;
+export const SESSION_IDENTITY_MISMATCH_CODE = "SESSION_IDENTITY_MISMATCH" as const;
 
 export type SessionTenant = {
   customerName: string;
@@ -29,15 +34,53 @@ export type BindTenantResult =
   | { ok: true; customerName: string; breakGlass: boolean }
   | {
       ok: false;
-      status: 400 | 403 | 404;
-      code?: typeof TENANT_MISMATCH_CODE;
+      status: 400 | 401 | 403 | 404;
+      code?: typeof TENANT_MISMATCH_CODE | typeof SESSION_IDENTITY_MISMATCH_CODE;
       error: string;
     };
 
 /**
+ * Prefer the Cloud sid user over a client-writable email cookie.
+ * When both are present they must match.
+ */
+export async function canonicalLiveEmail(args: {
+  sid?: string | null;
+  cookieEmail?: string | null;
+}): Promise<
+  | { ok: true; email: string }
+  | {
+      ok: false;
+      status: 401 | 403;
+      code?: typeof SESSION_IDENTITY_MISMATCH_CODE;
+      error: string;
+    }
+> {
+  const cookie = (args.cookieEmail || "").trim();
+  if (args.sid) {
+    const sidUser = await getLoggedUserFromSid(args.sid);
+    if (!sidUser) {
+      return { ok: false, status: 401, error: "Live session is not active." };
+    }
+    if (cookie && normalizeIdentity(cookie) !== normalizeIdentity(sidUser)) {
+      return {
+        ok: false,
+        status: 403,
+        code: SESSION_IDENTITY_MISMATCH_CODE,
+        error: "Sign-in identity does not match this workspace session.",
+      };
+    }
+    return { ok: true, email: sidUser };
+  }
+  if (!cookie) {
+    return { ok: false, status: 401, error: "Not logged in to live session" };
+  }
+  return { ok: true, email: cookie };
+}
+
+/**
  * Pure bind: session Customer vs optional claimed name.
  * Platform Operators may pass `claimed` for break-glass support.
- * Everyone else: claimed must be empty or match the session Customer.
+ * Everyone else: claimed is ignored — organisation comes from sign-in only.
  */
 export function decideTenantBind(args: {
   sessionCustomer: string | null;
@@ -64,33 +107,41 @@ export function decideTenantBind(args: {
     };
   }
 
-  if (requested && requested !== args.sessionCustomer) {
-    return {
-      ok: false,
-      status: 403,
-      code: TENANT_MISMATCH_CODE,
-      error: "That organisation is not this workspace.",
-    };
-  }
-
   return { ok: true, customerName: args.sessionCustomer, breakGlass: false };
 }
 
 /**
  * Bind Cloud CRUD to the session Customer.
+ * Identity comes from the live sid when present (not a forgeable email cookie).
  * Platform Operators may pass `claimed` for break-glass support.
- * Everyone else: claimed must be empty or match the session Customer.
  */
 export async function bindSessionCustomer(
   email: string | null | undefined,
   claimed?: string | null,
-  opts?: { operatorUnscoped?: boolean },
+  opts?: { operatorUnscoped?: boolean; sid?: string | null },
 ): Promise<BindTenantResult> {
-  const session = await resolveSessionCustomer(email);
+  let bindEmail = (email || "").trim();
+  if (opts?.sid || email) {
+    const canonical = await canonicalLiveEmail({
+      sid: opts?.sid,
+      cookieEmail: email,
+    });
+    if (!canonical.ok) {
+      return {
+        ok: false,
+        status: canonical.status,
+        code: canonical.code,
+        error: canonical.error,
+      };
+    }
+    bindEmail = canonical.email;
+  }
+
+  const session = await resolveSessionCustomer(bindEmail);
   return decideTenantBind({
     sessionCustomer: session?.customerName || null,
     claimed,
-    operator: isPlatformOperatorIdentity(email),
+    operator: isPlatformOperatorIdentity(bindEmail, email),
     operatorUnscoped: opts?.operatorUnscoped,
   });
 }

@@ -228,7 +228,7 @@ export async function POST(request: Request) {
     response.cookies.set(
       TL_USER_EMAIL_COOKIE,
       cookieSafeValue(email, 120),
-      cookieBase,
+      { ...cookieBase, httpOnly: true },
     );
     if (treatAsPlanOwner) {
       response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);

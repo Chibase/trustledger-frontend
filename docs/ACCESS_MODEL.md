@@ -98,7 +98,7 @@ Session / get_session returns { role, customer, plan, entitlements }
 
 ## Live organisation boundary (SEC-1)
 
-Live desks resolve the organisation from the Plan Owner sign-in (`Customer.custom_owner_email`). A client-supplied Customer name is **ignored** unless the caller is a Platform Operator (break-glass).
+Live desks resolve the organisation from the **Cloud sid** (Plan Owner `Customer.custom_owner_email`). A client-supplied Customer name is **ignored** unless the caller is a Platform Operator (break-glass). A live email cookie that does not match the sid is rejected.
 
 - **Plan Owner Cloud User** is stamped with a Customer User Permission (`apply_to_all_doctypes`). Desk + sid calls only see that organisation.
 - **BFF lists/writes** (SI, migrate, uploads, project list) bind that Customer and drop rows not stamped to it.

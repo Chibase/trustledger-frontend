@@ -68,6 +68,7 @@ export async function POST(request: Request) {
       : undefined;
   const bound = await bindSessionCustomer(email, claimedCustomer, {
     operatorUnscoped: operator,
+    sid,
   });
   if (!bound.ok) {
     return NextResponse.json(

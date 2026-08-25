@@ -11,7 +11,7 @@ Plan Owners get a Cloud **User Permission** bound to their **Customer**. That is
 | Control | Where | Honest limit |
 |---------|--------|--------------|
 | Stamp User Permission on Owner provision | `ensureCustomerUserPermission` from `provisionOwnerOnCloud` | Owner only. Junior Cloud seats = **SEC-5**. |
-| BFF session bind | `bindSessionCustomer` on SI, migrate-org, upload-file | Organisation comes from sign-in (`custom_owner_email`). Client-supplied Customer is ignored unless the caller is a Platform Operator (break-glass). |
+| BFF session bind | `bindSessionCustomer` on SI, migrate-org, upload-file, `/api/app/projects` | Organisation comes from the **live sid user**, not a client-supplied Customer name and not a forgeable email cookie. Buyer `customer=` is **ignored** (first-login migrate still works when browser org name ≠ Cloud Customer name). Platform Operators may break-glass with an explicit Customer. |
 | List post-filter | `rowsForCustomer` on TL Project / SI lists | Drops rows not stamped to that Customer. Empty `customer` is **not** treated as shared. |
 | A≠B smoke | `GET\|POST /api/ops/tenancy-smoke` + `/ops/readiness` | Checks Owner bindings + peer-org binds. Does **not** impersonate a sid to read another tenant’s DocTypes. |
 | Health flag | `launch.tenancyL2` | Reachability of User Permission API + BFF bind shipped. |

@@ -68,6 +68,7 @@ export async function GET(request: Request) {
   const bound = await bindSessionCustomer(
     email,
     url.searchParams.get("customer"),
+    { sid },
   );
   if (!bound.ok) {
     return NextResponse.json(
@@ -124,7 +125,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const bound = await bindSessionCustomer(email, body.customer);
+  const bound = await bindSessionCustomer(email, body.customer, { sid });
   if (!bound.ok) {
     return NextResponse.json(
       { error: bound.error, code: bound.code },
