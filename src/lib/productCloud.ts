@@ -7,6 +7,7 @@ import {
   frappeBase,
   frappeKeyPair,
 } from "@/lib/leadCapture";
+import { rowsForCustomer } from "@/lib/tenantScope";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
@@ -177,6 +178,7 @@ export async function listCloudProjectsForCustomer(
       "start_date",
       "target_end_date",
       "public_summary",
+      "customer",
     ]),
   );
   const res = await fetch(
@@ -192,7 +194,7 @@ export async function listCloudProjectsForCustomer(
     const rows = Array.isArray(json.data) ? json.data : [];
     return {
       ok: true,
-      projects: rows
+      projects: rowsForCustomer(rows, customer)
         .map(mapFrappeProjectRow)
         .filter((p) => Boolean(p.id)),
     };
@@ -215,6 +217,7 @@ const PROJECT_FIELDS = [
   "start_date",
   "target_end_date",
   "public_summary",
+  "customer",
 ] as const;
 
 async function fetchCloudProjects(
@@ -259,8 +262,9 @@ export async function getCloudProjectForCustomer(
     ["project_code", "=", code],
   ]);
   if (!byCode.ok) return byCode;
-  if (byCode.rows[0]) {
-    return { ok: true, project: mapFrappeProjectRow(byCode.rows[0]) };
+  const codeRow = rowsForCustomer(byCode.rows, customer)[0];
+  if (codeRow) {
+    return { ok: true, project: mapFrappeProjectRow(codeRow) };
   }
 
   const byName = await fetchCloudProjects([
@@ -268,8 +272,9 @@ export async function getCloudProjectForCustomer(
     ["name", "=", code],
   ]);
   if (!byName.ok) return byName;
-  if (byName.rows[0]) {
-    return { ok: true, project: mapFrappeProjectRow(byName.rows[0]) };
+  const nameRow = rowsForCustomer(byName.rows, customer)[0];
+  if (nameRow) {
+    return { ok: true, project: mapFrappeProjectRow(nameRow) };
   }
 
   return { ok: true, project: null };

@@ -298,7 +298,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 | How to start | Start a **14-day trial** (`/trial`) with your own data, or **Subscribe** (`/pay`). Learn features on `/product`. |
 | Live access | After provision, sign in at `/login/live` (email OTP when access email is on). |
 | AI | Suggestions only — a human **applies** before anything is saved. |
-| Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. |
+| Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. Live desks load the organisation from sign-in — the app will not switch onto another client’s workspace. Plan Owners are bound to that organisation on the server. Do not claim every junior seat is Cloud-permissioned. |
 | Audiences | Funders, engineers, PMs, **MEL / M&E**, **social facilitators**, **community members / traditional authorities**, and **local government** — Global South, not one job title. |
 | Geography | South Africa **and** the Global South. ZA place packs are included baseline for SA plans. Do not invent unshipped national maps. |
 | Grounding | Cite operating procedures (seeding spine / daily loop), the SRM blueprint (six dimensions), and engagement practice. Be descriptive — not two vague sentences. |

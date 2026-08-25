@@ -5,11 +5,11 @@ import {
   TL_ORG_ID_COOKIE,
   TL_USER_EMAIL_COOKIE,
 } from "@/lib/auth.constants";
-import { getCustomerEntitlementByOwnerEmail } from "@/lib/entitlementCloud";
 import {
   assertLiveOperatorAccess,
   operatorGateMessage,
 } from "@/lib/platformOperator";
+import { bindSessionCustomer } from "@/lib/tenantScope";
 import {
   listCloudSiRows,
   upsertCloudCommitment,
@@ -40,17 +40,6 @@ function parseKind(raw: string | null | undefined): SiKind | null {
   return null;
 }
 
-async function resolveCustomer(
-  email: string | undefined,
-  override?: string,
-): Promise<string | null> {
-  const fromBody = (override || "").trim();
-  if (fromBody) return fromBody;
-  if (!email) return null;
-  const ent = await getCustomerEntitlementByOwnerEmail(email);
-  return ent?.customerName || null;
-}
-
 /** Live SI list — empty Cloud stays empty (no mock seed). */
 export async function GET(request: Request) {
   const jar = await cookies();
@@ -76,16 +65,17 @@ export async function GET(request: Request) {
     );
   }
 
-  const customer = await resolveCustomer(
+  const bound = await bindSessionCustomer(
     email,
-    url.searchParams.get("customer") || undefined,
+    url.searchParams.get("customer"),
   );
-  if (!customer) {
+  if (!bound.ok) {
     return NextResponse.json(
-      { error: "No Frappe Customer linked to this account", rows: [] },
-      { status: 404 },
+      { error: bound.error, code: bound.code, rows: [] },
+      { status: bound.status },
     );
   }
+  const customer = bound.customerName;
 
   const result = await listCloudSiRows(kind, customer);
   if (!result.ok) {
@@ -134,13 +124,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const customer = await resolveCustomer(email, body.customer);
-  if (!customer) {
+  const bound = await bindSessionCustomer(email, body.customer);
+  if (!bound.ok) {
     return NextResponse.json(
-      { error: "No Frappe Customer linked — pass customer or provision Owner" },
-      { status: 400 },
+      { error: bound.error, code: bound.code },
+      { status: bound.status },
     );
   }
+  const customer = bound.customerName;
 
   const orgId = body.orgId || orgIdCookie || undefined;
 

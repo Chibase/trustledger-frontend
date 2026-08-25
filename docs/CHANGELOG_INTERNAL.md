@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-25 — SEC-1 organisation permissions (L2)
+
+- Plan Owner Cloud Users are stamped with a Customer User Permission on provision. Live SI / migrate / upload bind the organisation from sign-in — a spoofed `customer=` does not switch workspaces (operators may break-glass).
+- Product and SI lists drop rows not stamped to that organisation. Ops `/ops/readiness` can check and stamp missing binds (`GET|POST /api/ops/tenancy-smoke`).
+- Cloud write tools (provision, product-smoke, ensure fields/DocTypes, ops set-password) stay allowlisted even when buyer lockdown is off.
+- Sales comparison: “Access enforced per organisation on the server.” Honest limit: junior Cloud seats remain SEC-5. Playbook: `docs/FRAPPE_USER_PERMISSIONS.md`.
+
 ## 2026-08-25 — ClickUp diary live on Chibase Workspace
 
 - Google Calendar and Email ClickApp are connected as `admin@chibaseconsulting.co.za`. `trustledger.co.za` verification stays parked until Admin shows Active. No MX change.

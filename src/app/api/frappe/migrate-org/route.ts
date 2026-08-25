@@ -10,6 +10,7 @@ import {
   assertLiveOperatorAccess,
   operatorGateMessage,
 } from "@/lib/platformOperator";
+import { bindSessionCustomer } from "@/lib/tenantScope";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
@@ -18,7 +19,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Body = {
-  customer: string;
+  customer?: string;
   orgId?: string;
   projects?: Project[];
   incidents?: Incident[];
@@ -52,10 +53,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const customer = (body.customer || "").trim();
-  if (!customer) {
-    return NextResponse.json({ error: "customer required" }, { status: 400 });
+  const bound = await bindSessionCustomer(email, body.customer);
+  if (!bound.ok) {
+    return NextResponse.json(
+      { error: bound.error, code: bound.code },
+      { status: bound.status },
+    );
   }
+  const customer = bound.customerName;
 
   const projects = body.projects || [];
   const incidents = body.incidents || [];

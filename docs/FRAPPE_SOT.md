@@ -42,7 +42,8 @@ FRAPPE_BASE_URL=https://app.trustledger.co.za
 | `POST /api/frappe/ensure-custom-fields` | Platform Operator + `FRAPPE_OWNER_ISSUANCE=1` | Idempotent create of Customer/User `custom_*` fields (`dryRun` default true). |
 | `POST /api/frappe/provision-owner` | Platform Operator + `FRAPPE_OWNER_ISSUANCE=1` | Returns Customer + User **drafts** + checklist; optional `dryRun: true` (default). Live create (`dryRun: false`) auto-ensures fields then creates docs. |
 | Paystack verify/webhook | Server | When `FRAPPE_AUTO_PROVISION=1` + issuance + keys: idempotent Customer+User create (OD-3). |
-| `POST /api/frappe/migrate-org` | Live session | Push browser projects/incidents/evidence to TL DocTypes (OD-3). |
+| `POST /api/frappe/migrate-org` | Live session | Push browser projects/incidents/evidence to TL DocTypes (OD-3). Customer is bound from sign-in (SEC-1). |
+| `GET\|POST /api/ops/tenancy-smoke` | Platform Operator | SEC-1 Owner User Permission check; POST `{ applyMissing: true }` stamps missing binds. |
 | `POST /api/frappe/crm-setup` | Token | Lead sources/views (existing) |
 
 ## Customer custom fields (Desk)
@@ -66,6 +67,7 @@ Legacy short names (`plan_code`, …) in older notes map to the same intent — 
 - Custom: `tl_desk_tier`, `tl_plan_owner`  
 - Link to Customer  
 - Welcome email via Frappe / Resend
+- **SEC-1:** User Permission `allow=Customer`, `for_value=<Customer name>`, `apply_to_all_doctypes=1` — see `docs/FRAPPE_USER_PERMISSIONS.md`
 
 ## Lift ADR-013 (only when ready)
 

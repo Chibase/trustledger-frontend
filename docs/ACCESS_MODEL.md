@@ -96,6 +96,16 @@ Session / get_session returns { role, customer, plan, entitlements }
 5. **Billing state**  
    Paystack webhook sets `status`. `past_due` / `cancelled` → read-only or login blocked after grace period (Owner still sees billing CTA).
 
+## Live organisation boundary (SEC-1)
+
+Live desks resolve the organisation from the Plan Owner sign-in (`Customer.custom_owner_email`). A client-supplied Customer name is **ignored** unless the caller is a Platform Operator (break-glass).
+
+- **Plan Owner Cloud User** is stamped with a Customer User Permission (`apply_to_all_doctypes`). Desk + sid calls only see that organisation.
+- **BFF lists/writes** (SI, migrate, uploads, project list) bind that Customer and drop rows not stamped to it.
+- **Junior seats** remain browser-local until **SEC-5**. Do not tell buyers every teammate login is Cloud-permissioned.
+
+Playbook: `docs/FRAPPE_USER_PERMISSIONS.md`. Ladder: `docs/SECURITY_TENANCY.md`.
+
 ## Practical checks (examples)
 
 | Action | Practitioner | Project |

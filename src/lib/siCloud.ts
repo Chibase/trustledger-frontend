@@ -7,6 +7,7 @@ import {
   frappeBase,
   frappeKeyPair,
 } from "@/lib/leadCapture";
+import { rowsForCustomer } from "@/lib/tenantScope";
 import type { Commitment } from "@/types/commitment";
 import type { Engagement } from "@/types/engagement";
 import type { Stakeholder } from "@/types/stakeholder";
@@ -363,12 +364,21 @@ export async function listCloudSiRows(
   }
 
   if (kind === "stakeholder") {
-    return { ok: true, stakeholders: data.map(frappeToStakeholder) };
+    return {
+      ok: true,
+      stakeholders: rowsForCustomer(data, customer).map(frappeToStakeholder),
+    };
   }
   if (kind === "engagement") {
-    return { ok: true, engagements: data.map(frappeToEngagement) };
+    return {
+      ok: true,
+      engagements: rowsForCustomer(data, customer).map(frappeToEngagement),
+    };
   }
-  return { ok: true, commitments: data.map(frappeToCommitment) };
+  return {
+    ok: true,
+    commitments: rowsForCustomer(data, customer).map(frappeToCommitment),
+  };
 }
 
 async function resourceExists(
