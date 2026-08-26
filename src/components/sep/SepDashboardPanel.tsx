@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
-import { hasCapability } from "@/lib/entitlements";
+import { hasCapability, hasCapabilityForPlan } from "@/lib/entitlements";
 import {
   listEngagementPlans,
   listEngagementPlansForProject,
@@ -22,19 +22,21 @@ type Props = {
 };
 
 export function SepDashboardPanel({ planId = null, projectId }: Props) {
-  const [allowed, setAllowed] = useState(false);
+  const [allowed, setAllowed] = useState(() =>
+    hasCapabilityForPlan("engagements", planId),
+  );
   const [rows, setRows] = useState<EngagementPlan[]>([]);
 
   useEffect(() => {
-    const handle = window.setTimeout(() => {
+    const frame = requestAnimationFrame(() => {
       setAllowed(hasCapability("engagements", planId));
       setRows(
         projectId
           ? listEngagementPlansForProject(projectId)
           : listEngagementPlans(),
       );
-    }, 0);
-    return () => window.clearTimeout(handle);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [planId, projectId]);
 
   const applied = useMemo(
