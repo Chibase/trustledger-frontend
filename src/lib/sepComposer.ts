@@ -4,6 +4,13 @@
  */
 
 import { SEP_SECTOR_PLAYBOOKS } from "@/data/sepSectors";
+import { SEP_SLB_LANES, SLB_PHILOSOPHY } from "@/lib/sepExecution";
+import {
+  interestForClass,
+  quadrantForClass,
+  SEP_QUADRANT_LABELS,
+  vulnerabilityForClass,
+} from "@/lib/sepMatrix";
 import type {
   EngagementPlan,
   SepSectorId,
@@ -140,12 +147,31 @@ function extractPlace(text: string): string {
   const muni = text.match(
     /\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,3}\s+(?:local|metropolitan)\s+municipality)\b/,
   );
+  const district = text.match(
+    /\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,2}\s+district(?:\s+municipality)?)\b/,
+  );
   const parts = [
     muni?.[1],
+    district?.[1],
     ward ? `Ward ${ward[1]}` : null,
     text.match(/\b(eastern cape|western cape|gauteng|kwazulu-natal|limpopo|mpumalanga|north west|northern cape|free state)\b/i)?.[1],
   ].filter(Boolean) as string[];
   return unique(parts).join(" · ").slice(0, 180);
+}
+
+function extractTimeline(text: string): string {
+  const labeled = text.match(
+    /\b(?:contract period|duration|timeline|programme period|construction period)\s*[:—-]\s*([^\n.]{6,80})/i,
+  );
+  if (labeled?.[1]) return labeled[1].trim();
+  const span = text.match(
+    /\b((?:january|february|march|april|may|june|july|august|september|october|november|december)\s+20\d{2}\s+(?:to|–|-|through)\s+(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+20\d{2})\b/i,
+  );
+  if (span?.[1]) return span[1];
+  const months = text.match(/\b(\d{1,2}\s*(?:month|year)s?)\b/i);
+  if (months?.[1]) return months[1];
+  const years = text.match(/\b(20\d{2}\s*[–-]\s*20\d{2})\b/);
+  return years?.[1] || "";
 }
 
 function extractClient(text: string): string {
@@ -210,81 +236,110 @@ function mergeNamedIntoClasses(
   });
 }
 
+function lane(id: (typeof SEP_SLB_LANES)[number]["id"]) {
+  return SEP_SLB_LANES.find((row) => row.id === id)!;
+}
+
 function buildDocument(plan: Omit<EngagementPlan, "documentSections">): EngagementPlan["documentSections"] {
   const sector = SEP_SECTOR_LABELS[plan.sectorId];
   const named = plan.stakeholderClasses
     .flatMap((row) => row.namedFromBrief || [])
     .slice(0, 8);
+  const map = lane("map");
+  const grievance = lane("grievance");
+  const procure = lane("procure");
+  const engage = lane("engage");
+  const themba = lane("themba");
+
+  const matrix = plan.stakeholderClasses
+    .map((row) => {
+      const q = SEP_QUADRANT_LABELS[quadrantForClass(row)];
+      return `**${row.label}** — power ${row.influence}, interest ${interestForClass(row)} → **${q}**. ${row.why} Vulnerability: ${vulnerabilityForClass(row)}${
+        row.namedFromBrief?.length ? ` Named in brief: ${row.namedFromBrief.join(", ")}.` : ""
+      }`;
+    })
+    .join("\n\n");
+
   return [
     {
-      id: "purpose",
-      heading: "1. Purpose of this plan",
-      body: `${plan.purposeStatement}\n\nThis Stakeholder Engagement Plan (SEP) is prepared from the supplied ${plan.sourceKind} briefing for a ${sector.toLowerCase()} assignment. It is a working plan for the TrustLedger SRM desk — not a substitute for statutory processes named in the briefing, and not legal advice.`,
-    },
-    {
-      id: "context",
-      heading: "2. Assignment context",
+      id: "summary",
+      heading: "1. Executive summary & Social Licence to Build™ philosophy",
       body: [
-        plan.projectNameHint ? `Working title: ${plan.projectNameHint}.` : null,
-        plan.clientFunderHint ? `Client / procuring entity (from brief): ${plan.clientFunderHint}.` : null,
-        plan.placeHint ? `Place sketched from the brief: ${plan.placeHint}.` : "Place is not yet clear in the brief — lock municipality, ward, and customary structure in inception.",
-        named.length
-          ? `Named counterpart organisations detected in the brief: ${named.join("; ")}.`
-          : "No organisation names were confidently extracted — inception should add them by hand.",
-        plan.instruments.length
-          ? `Instruments cited or detected: ${plan.instruments.map((i) => i.label).join("; ")}.`
-          : "No statutes were detected in the extract. Add only instruments the client confirms.",
+        plan.purposeStatement,
+        "",
+        `This Stakeholder Engagement Plan is prepared for a **${sector.toLowerCase()}** assignment from a ${plan.sourceKind === "manual" ? "structured facts pack (no tender file)" : `${plan.sourceKind} extract`}. Working title: ${plan.projectNameHint || "to be confirmed in inception"}.`,
+        plan.clientFunderHint ? `Procuring entity / client (from facts): ${plan.clientFunderHint}.` : null,
+        plan.placeHint ? `Place sketched: ${plan.placeHint}.` : "Place is not yet locked — inception must name municipality, ward, and customary structure.",
+        plan.timelineHint ? `Timeline sketched: ${plan.timelineHint}.` : "Contract period was not extracted — add it before the client presentation.",
+        "",
+        SLB_PHILOSOPHY,
       ]
-        .filter(Boolean)
-        .join(" "),
+        .filter((row) => row !== null)
+        .join("\n"),
+      protocol: `${map.protocol}\n\n${engage.protocol}\n\n${themba.protocol}`,
     },
     {
-      id: "analysis",
-      heading: "3. Stakeholder analysis",
-      body: plan.stakeholderClasses
-        .map(
-          (row) =>
-            `**${row.label}** (${row.kind.replaceAll("_", " ")}, ${row.influence} influence, purpose: ${row.purpose}). ${row.why}${
-              row.namedFromBrief?.length
-                ? ` Named in brief: ${row.namedFromBrief.join(", ")}.`
-                : ""
-            }`,
-        )
-        .join("\n\n"),
+      id: "compliance",
+      heading: "2. Regulatory & compliance mapping",
+      body: plan.instruments.length
+        ? plan.instruments
+            .map((row) => `**${row.label}.** ${row.note}`)
+            .join("\n\n")
+        : "No statute or funder safeguard was confidently extracted. Add only instruments the client or briefing confirms (for example NEMA public participation, IFC Performance Standards, SLP, WULA). This section is not legal advice.",
+      protocol:
+        "Cited instruments become Engagement cadence (statutory meetings) and Commitments (conditions with owners). They are not parked in an appendix. Geo / Place attaches the ward and customary structure the instrument is exercised in.",
     },
     {
-      id: "process",
-      heading: "4. Process from inception to close-out",
-      body: plan.phases
-        .map(
-          (phase) =>
-            `**Phase ${phase.order} — ${phase.title}** (${phase.typicalDuration}). ${phase.intent} Exit: ${phase.exitCriteria}`,
-        )
-        .join("\n\n"),
+      id: "stakeholders",
+      heading: "3. Stakeholder identification & vulnerability analysis",
+      body: `${matrix}\n\nPower–interest is a working segmentation for the desk, not a political judgement. PAP / I&AP names are listed only when they appear in the extract. Land-rights and historical grievances belong on Incidents once a case exists — the composer does not invent them.`,
+      protocol: map.protocol,
     },
     {
       id: "methods",
-      heading: "5. Methods, cadence and evidence",
-      body: plan.activities
-        .map(
+      heading: "4. Operational engagement methodology",
+      body: [
+        ...plan.phases.map(
+          (phase) =>
+            `**Phase ${phase.order} — ${phase.title}** (${phase.typicalDuration}). ${phase.intent} Exit: ${phase.exitCriteria}`,
+        ),
+        "",
+        ...plan.activities.map(
           (act) =>
-            `**${act.title}** — ${act.method} (${act.engagementKind}). Owner: ${act.ownerHint}. Timing: ${act.timingHint}. Evidence: ${act.evidenceHint}. Lands in ${act.module}.`,
-        )
-        .join("\n\n"),
+            `**${act.title}** — ${act.method} (${act.engagementKind}). Owner: ${act.ownerHint}. Timing: ${act.timingHint}. Evidence: ${act.evidenceHint}. Desk: ${act.module}.`,
+        ),
+      ].join("\n\n"),
+      protocol: engage.protocol,
     },
     {
-      id: "promises",
-      heading: "6. Standing commitments and grievance",
-      body: `${plan.commitments.map((row) => `**${row.title}** — ${row.ownerHint}; ${row.dueHint}. ${row.why}`).join("\n\n")}\n\n**Grievance path:** ${plan.grievancePath}`,
+      id: "grievance",
+      heading: "5. Risk mitigation & grievance mechanism architecture",
+      body: [
+        `**Grievance path.** ${plan.grievancePath}`,
+        "",
+        "**TrustLedger case lifecycle (shipped):** lodgment via Report issue → acknowledgment on the case (SLA due date) → investigation → resolution → community/supervisor verify → close. Escalation levels and owners are on the record.",
+        "",
+        plan.commitments.length
+          ? plan.commitments
+              .map((row) => `**${row.title}** — ${row.ownerHint}; ${row.dueHint}. ${row.why}`)
+              .join("\n\n")
+          : "Standing commitments will be named at first contact — do not invent dates.",
+        named.length
+          ? `\n\nNamed counterpart organisations detected: ${named.join("; ")}.`
+          : "",
+      ].join("\n"),
+      protocol: `${grievance.protocol}\n\n${procure.protocol}`,
     },
     {
-      id: "srm",
-      heading: "7. How this seeds the SRM after approval",
-      body: "When the client approves the assignment, apply this plan on the TrustLedger desk: stakeholder classes become registry rows, planned activities become draft engagements (minutes/attendance via Capture), standing promises become the commitments board, and the grievance path is the Incidents desk with one case ID. Reports later cite that trail — they are not rewritten from memory. Geo / Intelligence attach when place and labour/procurement facts exist. Humans apply each row; the composer never writes the live desk alone.",
+      id: "monitoring",
+      heading: "6. Monitoring, evaluation & real-time reporting",
+      body: "Reports on TrustLedger compose from saved work: engagements (who was in the room), commitments (what was promised), incidents (what was raised and closed), and Intelligence (labour / local content / empowerment facts on the project). Activity reports and compliance briefs use the local evidence composer — they are not fill-in-the-blank month-end templates from a cloud model. Empty reports mean empty desk work.",
+      protocol:
+        "After award, Apply this plan so prospect stakeholders, draft engagements, and open commitments land on the existing desks. Capture templates stay on the engagement rows. Humans apply; the composer never writes the live desk alone. Board and funder packs then cite that trail.",
     },
     {
       id: "assumptions",
-      heading: "8. Assumptions and limits",
+      heading: "7. Assumptions and limits",
       body: plan.assumptions.map((row) => `• ${row}`).join("\n"),
     },
   ];
@@ -295,6 +350,10 @@ export type ComposeSepInput = {
   sectorId?: SepSectorId | "auto";
   projectId?: string | null;
   projectName?: string;
+  placeHint?: string;
+  clientHint?: string;
+  timelineHint?: string;
+  purposeOverride?: string;
 };
 
 export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
@@ -318,21 +377,26 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
       note: row.note,
     }),
   );
+  const sourceKind: SepSourceKind = usedPlaybookOnly
+    ? "manual"
+    : detectSepSourceKind(text);
 
   const base: Omit<EngagementPlan, "documentSections"> = {
     id: `SEP-${Date.now().toString(36).toUpperCase()}`,
     title: `SEP — ${titleBase}`.slice(0, 160),
     status: "suggested",
-    sourceKind: detectSepSourceKind(text),
+    sourceKind,
     sectorId,
     projectId: input.projectId || null,
     projectNameHint: titleBase,
-    placeHint: extractPlace(text),
-    clientFunderHint: extractClient(text),
+    placeHint: input.placeHint?.trim() || extractPlace(text),
+    clientFunderHint: input.clientHint?.trim() || extractClient(text),
+    timelineHint: input.timelineHint?.trim() || extractTimeline(text),
     createdAt: now,
     updatedAt: now,
     sourceExcerpt: snippet(text),
-    purposeStatement: extractPurpose(text),
+    purposeStatement:
+      input.purposeOverride?.trim() || extractPurpose(text),
     phases: playbook.phases,
     stakeholderClasses: mergeNamedIntoClasses(
       playbook.stakeholderClasses,
@@ -344,8 +408,9 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
     grievancePath: playbook.grievancePath,
     assumptions: [
       ...playbook.assumptions,
-      "Composer output is a suggestion from the extract + sector playbook. Edit before presenting to a client.",
+      "Composer output is a suggestion from the extract (or facts pack) plus the sector playbook. Edit before presenting to a client.",
       "Named people are only listed when they appear in the briefing. Do not invent counterparts.",
+      "Social Licence to Build™ is mapped to shipped TrustLedger modules. This document does not claim unshipped portals, GIS editing, or a staffed 24/7 division.",
     ],
   };
 
@@ -367,6 +432,10 @@ function uniqueInstruments(
 }
 
 export function rebuildSepDocument(plan: EngagementPlan): EngagementPlan {
-  const next = { ...plan, updatedAt: new Date().toISOString() };
+  const next = {
+    ...plan,
+    timelineHint: plan.timelineHint || "",
+    updatedAt: new Date().toISOString(),
+  };
   return { ...next, documentSections: buildDocument(next) };
 }

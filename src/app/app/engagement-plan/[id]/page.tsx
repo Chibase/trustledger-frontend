@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { applyEngagementPlanToSrm, previewSepApply } from "@/lib/sepApply";
 import { rebuildSepDocument } from "@/lib/sepComposer";
+import { downloadSepMarkdown, downloadSepWord } from "@/lib/sepExport";
 import { getEngagementPlan, saveEngagementPlan } from "@/lib/sepStore";
 import { projectService } from "@/services/projectService";
 import type { EngagementPlan } from "@/types/engagementPlan";
@@ -40,9 +41,13 @@ export default function EngagementPlanDetailPage() {
     const handle = window.setTimeout(() => {
       if (cancelled) return;
       const row = id ? getEngagementPlan(id) : null;
-      setPlan(row);
-      setProjectId(row?.projectId || "");
-      setPurpose(row?.purposeStatement || "");
+      const hydrated =
+        row && row.documentSections[0]?.id === "purpose"
+          ? rebuildSepDocument({ ...row, timelineHint: row.timelineHint || "" })
+          : row;
+      setPlan(hydrated);
+      setProjectId(hydrated?.projectId || "");
+      setPurpose(hydrated?.purposeStatement || "");
       setLoading(false);
       void projectService.list().then((rows) => {
         if (!cancelled) setProjects(rows);
@@ -118,13 +123,29 @@ export default function EngagementPlanDetailPage() {
                   All plans
                 </Link>
                 {tab === "document" ? (
-                  <button
-                    type="button"
-                    onClick={() => window.print()}
-                    className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-                  >
-                    Print / PDF
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+                    >
+                      Print / PDF
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => plan && downloadSepMarkdown(plan)}
+                      className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+                    >
+                      Markdown
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => plan && downloadSepWord(plan)}
+                      className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+                    >
+                      Word
+                    </button>
+                  </>
                 ) : null}
               </div>
             }

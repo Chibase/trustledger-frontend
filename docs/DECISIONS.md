@@ -617,10 +617,10 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Context:** Proposal and inception work often starts as a tender, RFP, or briefing — not as already-named registry rows. Teams need a client-presentable SEP and a process map that can seed the SRM desk once the assignment is approved, across sectors, without inventing counterparts or auto-writing live data.
 - **Decision:**
   1. Ship **Engagement plan** under `/app/engagement-plan`, gated on the existing `engagements` capability (Project+ / CRM add-on). No new entitlement SKU.
-  2. **Local composer** (`sepComposer`) maps the extract onto a sector playbook (seven phases: inception → close-out). No Cloud LLM. Pattern remains suggest → human apply → save (ADR-006).
-  3. Outputs: process **dashboard** for the desk and an eight-section **presentable document** (Print / PDF).
+  2. **Local composer** (`sepComposer`) maps the extract **or a facts pack (no file)** onto a sector playbook (seven phases: inception → close-out). No Cloud LLM. Pattern remains suggest → human apply → save (ADR-006).
+  3. Outputs: process **dashboard** (including power–interest segmentation and Social Licence to Build™ → shipped-desk map) and a tender-grade **presentable document** (executive summary + SLB philosophy, compliance mapping, stakeholder/vulnerability, methods, grievance architecture, M&E). Each substantive section has a **TrustLedger SRM execution protocol**. Print / PDF (cover page), Markdown, and Word-compatible `.doc`.
   4. After approval, **Apply to SRM** creates prospect stakeholders, draft engagements, and open commitments via existing services. Duplicate names/titles are skipped. Plans stay org-scoped in the browser until a Cloud DocType exists; applied rows follow the live SI path.
-  5. Do not over-claim statutes: instruments appear only when cited in the brief or named in the playbook as “if cited”. Not legal advice.
+  5. Do not over-claim statutes or unshipped channels: instruments appear only when cited in the brief or named in the playbook as “if cited”. Map SLB labels to **shipped** modules (Stakeholders, Incidents, Engagements, Capture, Intelligence, Themba-public). Do not claim a public SMS/WhatsApp portal, GIS editing, or a staffed 24/7 division. Not legal advice.
 - **Consequences:** Capture after award is shorter because the plan already named classes, methods, and standing promises. Packet **SI-SEP**.
 - **Alternatives considered:** New paid capability (rejected — same SI seat); Cloud Grok compose (rejected — reportComposer / ADR-006); auto-write on compose (rejected — governance).
 

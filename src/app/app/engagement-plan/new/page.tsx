@@ -60,6 +60,11 @@ function NewEngagementPlanForm() {
   const [draft, setDraft] = useState<EngagementPlan | null>(null);
   const [title, setTitle] = useState("");
   const [purpose, setPurpose] = useState("");
+  const [mode, setMode] = useState<"document" | "facts">("document");
+  const [factName, setFactName] = useState("");
+  const [factPlace, setFactPlace] = useState("");
+  const [factClient, setFactClient] = useState("");
+  const [factTimeline, setFactTimeline] = useState("");
 
   useEffect(() => {
     if (!seeded) return;
@@ -139,9 +144,14 @@ function NewEngagementPlanForm() {
   }
 
   function compose() {
-    if (!text.trim() && sectorId === "auto") {
+    if (mode === "facts") {
+      if (sectorId === "auto") {
+        pushToast("Pick a sector playbook to compose without a file.", "error");
+        return;
+      }
+    } else if (!text.trim() && sectorId === "auto") {
       pushToast(
-        "Paste a briefing, upload a file, or pick a sector playbook.",
+        "Paste a briefing, upload a file, pick a sector playbook, or use Facts without a file.",
         "error",
       );
       return;
@@ -150,10 +160,14 @@ function NewEngagementPlanForm() {
     try {
       const project = projects.find((row) => row.id === projectId);
       const plan = composeEngagementPlan({
-        text,
+        text: mode === "facts" ? "" : text,
         sectorId,
         projectId: projectId || null,
-        projectName: project?.name,
+        projectName: factName.trim() || project?.name,
+        placeHint: factPlace.trim() || undefined,
+        clientHint: factClient.trim() || undefined,
+        timelineHint: factTimeline.trim() || undefined,
+        purposeOverride: purpose.trim() || undefined,
       });
       setDraft(plan);
       setTitle(plan.title);
@@ -185,7 +199,7 @@ function NewEngagementPlanForm() {
         <PageHeader
           eyebrow="Stakeholder Intelligence"
           title="Compose engagement plan"
-          description="Suggest → apply → save. The composer reads your briefing locally and maps a seven-phase process for the chosen sector. It does not write stakeholders, engagements, or commitments until you apply on the plan desk after approval."
+          description="Suggest → apply → save. Map a tender, RFP, EIA extract, or facts pack onto a sector playbook. The local composer does not call a cloud language model and does not write the live desk until you apply after approval."
           actions={
             <Link
               href="/app/engagement-plan"
@@ -197,8 +211,35 @@ function NewEngagementPlanForm() {
         />
 
         <section className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setMode("document")}
+              className={
+                mode === "document"
+                  ? "rounded-md bg-tl-trust px-3 py-1.5 text-sm font-medium text-white"
+                  : "rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium hover:bg-tl-paper"
+              }
+            >
+              From tender / briefing
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("facts")}
+              className={
+                mode === "facts"
+                  ? "rounded-md bg-tl-trust px-3 py-1.5 text-sm font-medium text-white"
+                  : "rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium hover:bg-tl-paper"
+              }
+            >
+              Without a document
+            </button>
+          </div>
+
+          {mode === "document" ? (
+            <>
           <h2 className="font-display text-base font-semibold text-tl-ink">
-            1. Briefing, tender, or RFP
+            1. Briefing, tender, RFP, or EIA extract
           </h2>
           <label className="block text-sm">
             <span className="mb-1 block font-medium">Upload extract</span>
@@ -249,6 +290,67 @@ function NewEngagementPlanForm() {
           >
             Insert example extract
           </button>
+            </>
+          ) : (
+            <div className="space-y-3">
+              <h2 className="font-display text-base font-semibold text-tl-ink">
+                1. Assignment facts (no file)
+              </h2>
+              <p className="text-sm text-tl-ink-muted">
+                Pick a sector playbook and name what you already know. The
+                composer still uses the seven-phase spine — it does not invent
+                counterparts or statutes you did not type.
+              </p>
+              <label className="block text-sm">
+                <span className="mb-1 block font-medium">Working title</span>
+                <input
+                  value={factName}
+                  onChange={(e) => setFactName(e.target.value)}
+                  placeholder="e.g. Ntabeni bulk water — Phase 2"
+                  className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block font-medium">Place</span>
+                <input
+                  value={factPlace}
+                  onChange={(e) => setFactPlace(e.target.value)}
+                  placeholder="Municipality · ward · customary structure"
+                  className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block font-medium">
+                  Client / procuring entity
+                </span>
+                <input
+                  value={factClient}
+                  onChange={(e) => setFactClient(e.target.value)}
+                  className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block font-medium">Timeline</span>
+                <input
+                  value={factTimeline}
+                  onChange={(e) => setFactTimeline(e.target.value)}
+                  placeholder="e.g. 18 months · 2026–2028"
+                  className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block font-medium">
+                  Purpose (inform / consult / decide / remediate)
+                </span>
+                <textarea
+                  value={purpose}
+                  onChange={(e) => setPurpose(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                />
+              </label>
+            </div>
+          )}
         </section>
 
         <section className="grid gap-4 rounded-lg border border-tl-line bg-tl-surface p-4 sm:grid-cols-2">
