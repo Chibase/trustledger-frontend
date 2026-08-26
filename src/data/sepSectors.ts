@@ -915,3 +915,31 @@ export const SEP_SECTOR_PLAYBOOKS: Record<SepSectorId, SepSectorPlaybook> = {
 export const SEP_SECTOR_IDS = Object.keys(
   SEP_SECTOR_PLAYBOOKS,
 ) as SepSectorId[];
+
+/** Practice extracts — labeled examples, not a customer workspace seed. */
+export const SEP_EXAMPLE_BRIEFS: Record<SepSectorId, string> = {
+  infrastructure:
+    "Request for Proposal\nProject: Regional road upgrade and stormwater\nClient: Example Public Works Department\nWard 7, Eastern Cape\nScope of work: consult affected households, taxi associations, and the Traditional Council before bulk earthworks. NEMA BAR public participation is cited. Local content under PPPFA. Terms of reference.",
+  housing:
+    "Request for Proposal\nProject: Ntabeni Housing and Bulk Services\nClient: Example Local Municipality\nWard 12, Eastern Cape\nThe assignment is to consult affected households and the Traditional Council on township establishment, beneficiary lists, and bulk water connections. Public participation under NEMA / BAR is required. Terms of reference.",
+  mining:
+    "Invitation to bid\nProject: Opencast pit expansion — social performance support\nClient: Example Mining Pty Ltd\nWard 4, Limpopo\nConsult host communities and the Traditional Council. Social and Labour Plan (MPRDA / SLP) commitments must be evidenced, not appendix claims. Grievance path required. Request for Proposal.",
+  energy:
+    "Request for Proposal\nProject: Solar PV plant grid connection\nClient: Example IPP Pty Ltd\nWard 9, Northern Cape\nI&AP rounds for environmental authorisation. Consult landowners, municipality, and traditional authority. REIPPPP local-content reporting. Terms of reference.",
+  water:
+    "Tender document\nProject: Bulk water and sanitation upgrade\nClient: Example District Municipality\nWard 3, KwaZulu-Natal\nWULA consultation conditions apply. Engage households on interruptions and the Traditional Council on access. Terms of reference.",
+  education:
+    "Briefing\nProject: Classroom block and sanitation\nClient: Example Provincial Education Department\nWard 2, Mpumalanga\nConsult the SGB, learners’ caregivers, and traditional authority before site establishment. Terms of reference.",
+  health:
+    "Request for Proposal\nProject: Clinic upgrade and access road\nClient: Example Department of Health\nWard 8, Free State\nConsult clinic committee, traditional authority, and municipality. Construction hours next to a maternity ward. Terms of reference.",
+  agriculture:
+    "Terms of reference\nProject: Irrigation scheme rehabilitation\nClient: Example Department of Agriculture\nWard 5, North West\nEngage the farmers’ association, grazing committees, and traditional authority. Water-use licence consultation as cited.",
+  municipal:
+    "Briefing\nAssignment: IDP / LED public participation support\nClient: Example Local Municipality\nWard committees 1–4, Gauteng\nConsult ward committees, informal traders, and traditional authority where it applies. MFMA-aligned minutes. Terms of reference.",
+  conservation:
+    "Request for Proposal\nProject: Protected-area stewardship expansion\nClient: Example conservation agency\nAdjacent to a heritage site, Western Cape\nWalkabouts with knowledge holders. SAHRA process if cited. Do not publish sacred-site coordinates. Terms of reference.",
+  logistics:
+    "Tender\nProject: Port truck staging and night works\nClient: Example port operator SOC\nAdjacent neighbourhood, KwaZulu-Natal\nAgree construction vs operations hours with neighbours and labour. 24-hour amenity contact must create a case. Terms of reference.",
+  generic:
+    "Scope of work\nProject: Community-trust programme (sector to confirm at inception)\nClient: Example implementing agent\nPlace: municipality and ward to be locked in week 0\nConsult affected people, traditional authority where it exists, and local government. One grievance path. Terms of reference.",
+};

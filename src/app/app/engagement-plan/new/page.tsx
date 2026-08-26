@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
-import { SEP_SECTOR_PLAYBOOKS, SEP_SECTOR_IDS } from "@/data/sepSectors";
+import { SEP_SECTOR_PLAYBOOKS, SEP_SECTOR_IDS, SEP_EXAMPLE_BRIEFS } from "@/data/sepSectors";
 import { composeEngagementPlan, rebuildSepDocument } from "@/lib/sepComposer";
 import { saveEngagementPlan } from "@/lib/sepStore";
 import { projectService } from "@/services/projectService";
@@ -35,6 +35,13 @@ export default function NewEngagementPlanPage() {
   useEffect(() => {
     let cancelled = false;
     const handle = window.setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      const example = params.get("example");
+      if (example && example in SEP_EXAMPLE_BRIEFS) {
+        const id = example as SepSectorId;
+        setSectorId(id);
+        setText(SEP_EXAMPLE_BRIEFS[id]);
+      }
       void projectService.list().then((rows) => {
         if (!cancelled) setProjects(rows);
       });
@@ -176,13 +183,34 @@ export default function NewEngagementPlanPage() {
           <label className="block text-sm">
             <span className="mb-1 block font-medium">Paste briefing text</span>
             <textarea
+              id="sep-briefing-text"
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={12}
               placeholder="Paste the terms of reference, invitation to bid, or scope of work. Named municipalities, traditional councils, and statutes help the composer."
               className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
             />
+            <span className="mt-1 block text-xs text-tl-ink-muted">
+              {text.trim()
+                ? `${text.trim().length} characters loaded`
+                : "Empty — paste, upload, insert an example, or pick a sector and compose."}
+            </span>
           </label>
+          <button
+            type="button"
+            onClick={() => {
+              const id = sectorId === "auto" ? "generic" : sectorId;
+              setText(SEP_EXAMPLE_BRIEFS[id]);
+              if (sectorId === "auto") setSectorId("generic");
+              pushToast(
+                "Example extract inserted. It is practice text — not a live assignment. Edit or replace before presenting.",
+                "info",
+              );
+            }}
+            className="rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium hover:bg-tl-paper"
+          >
+            Insert example extract
+          </button>
         </section>
 
         <section className="grid gap-4 rounded-lg border border-tl-line bg-tl-surface p-4 sm:grid-cols-2">
@@ -243,6 +271,7 @@ export default function NewEngagementPlanPage() {
           </p>
           <button
             type="button"
+            id="sep-compose-btn"
             disabled={busy || composing}
             onClick={compose}
             className="mt-3 rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
