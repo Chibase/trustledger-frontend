@@ -1,11 +1,16 @@
 /**
  * Local SEP composer — maps a briefing/RFP/tender onto a sector playbook.
- * Suggestions only; humans apply. Does not call Cloud LLM (reportComposer rule).
+ * Facts, classes, and apply-rows stay local. Gemini drafts the presentable
+ * document via `/api/app/engagement-plan/draft` (suggest → human save).
+ * Activity reports still use reportComposer — not this path.
  */
 
 import { overlayRelocationPlaybook, detectSepProgramme } from "@/data/sepRelocation";
 import { SEP_SECTOR_PLAYBOOKS } from "@/data/sepSectors";
-import { buildSepDocument } from "@/lib/sepDocument";
+import {
+  buildSepDocument,
+  clientSepDocumentUsable,
+} from "@/lib/sepDocument";
 import {
   catalogInstrumentsByIds,
   detectCatalogInstruments,
@@ -515,6 +520,7 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
       "Named people are only listed when they appear in the briefing or the facts pack. Do not invent counterparts.",
       "Social Licence to Build™ is mapped to shipped TrustLedger modules. This document does not claim unshipped portals, GIS editing, or a staffed 24/7 division.",
     ],
+    documentDrafter: "template",
   };
 
   return { ...base, documentSections: buildSepDocument(base) };
@@ -536,11 +542,14 @@ function uniqueInstruments(
 
 export function rebuildSepDocument(
   plan: EngagementPlan,
-  opts?: { touch?: boolean },
+  opts?: { touch?: boolean; document?: "rebuild" | "keep" },
 ): EngagementPlan {
   const programmeKind =
     plan.programmeKind ||
     detectSepProgramme(plan.title, plan.projectNameHint, plan.sourceExcerpt);
+  const overlayCensus =
+    programmeKind === "relocation" &&
+    !plan.activities.some((row) => row.id === "census");
   let next: Omit<EngagementPlan, "documentSections"> = {
     ...plan,
     timelineHint: plan.timelineHint || "",
@@ -548,10 +557,7 @@ export function rebuildSepDocument(
     updatedAt:
       opts?.touch === false ? plan.updatedAt : new Date().toISOString(),
   };
-  if (
-    programmeKind === "relocation" &&
-    !next.activities.some((row) => row.id === "census")
-  ) {
+  if (overlayCensus) {
     const overlaid = overlayRelocationPlaybook(
       SEP_SECTOR_PLAYBOOKS[next.sectorId] || SEP_SECTOR_PLAYBOOKS.generic,
     );
@@ -575,5 +581,36 @@ export function rebuildSepDocument(
       assumptions: unique([...overlaid.assumptions, ...next.assumptions]),
     };
   }
-  return { ...next, documentSections: buildSepDocument(next) };
+
+  const existing = (plan.documentSections || []).map((section) => ({
+    id: section.id,
+    heading: section.heading,
+    body: section.body,
+    ...(section.tables?.length ? { tables: section.tables } : {}),
+  }));
+  const keepRequested = opts?.document === "keep";
+  const keepGemini =
+    opts?.document !== "rebuild" &&
+    plan.documentDrafter === "gemini" &&
+    clientSepDocumentUsable({
+      programmeKind,
+      documentSections: existing,
+    });
+  if (
+    !overlayCensus &&
+    (keepRequested || keepGemini) &&
+    existing.length
+  ) {
+    return {
+      ...next,
+      documentDrafter: plan.documentDrafter,
+      documentSections: existing,
+    };
+  }
+
+  return {
+    ...next,
+    documentDrafter: "template",
+    documentSections: buildSepDocument(next),
+  };
 }

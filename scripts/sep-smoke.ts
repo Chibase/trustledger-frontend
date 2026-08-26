@@ -1,4 +1,6 @@
 import { composeEngagementPlan, previewSepExtract, rebuildSepDocument } from "../src/lib/sepComposer";
+import { mergeDraftedSections } from "../src/lib/sepGemini";
+import { SEP_ARCHITECTURE_VOICE } from "../src/lib/sepDocument";
 import { SEP_EXAMPLE_BRIEFS } from "../src/data/sepSectors";
 import { SEP_RELOCATION_EXAMPLE_BRIEF } from "../src/data/sepRelocation";
 import { joinSepPlace } from "../src/lib/sepInstruments";
@@ -16,8 +18,7 @@ const mining = composeEngagementPlan({
 });
 
 const checks: string[] = [];
-const architectureEssay =
-  /three shipped anchors|strategic advisory|rapid-response workflows|srm integration|TrustLedger SRM execution protocol|Themba|shipped modules|Capture templates|Apply seeds|Social Licence to Build/i;
+const architectureEssay = SEP_ARCHITECTURE_VOICE;
 if (housing.sectorId !== "housing") checks.push(`housing detect=${housing.sectorId}`);
 if (housing.programmeKind === "relocation") checks.push("housing should stay standard programme");
 if (housing.sourceKind !== "rfp") checks.push(`housing source=${housing.sourceKind}`);
@@ -36,6 +37,9 @@ if (!housing.documentSections.find((row) => row.id === "stakeholders")?.tables?.
 }
 if (!housing.documentSections.find((row) => row.id === "methods")?.tables?.length) {
   checks.push("housing missing engagement schedule table");
+}
+if (housing.documentDrafter !== "template") {
+  checks.push(`housing drafter=${housing.documentDrafter}`);
 }
 if (housing.documentSections.some((row) => row.protocol)) {
   checks.push("client document must not carry execution protocols");
@@ -311,6 +315,66 @@ if (rebuilt.documentSections.some((row) => row.protocol)) {
 const rapMd = planToMarkdown(relocation);
 if (!/Relocation and Migration Plan/i.test(rapMd)) {
   checks.push("markdown missing project name");
+}
+
+const geminiKept = rebuildSepDocument(
+  {
+    ...housing,
+    documentDrafter: "gemini",
+    documentSections: housing.documentSections.map((row) =>
+      row.id === "summary"
+        ? {
+            ...row,
+            body: `${row.body}\n\nGemini-only sentence for this assignment.`,
+          }
+        : row,
+    ),
+  },
+  { touch: false },
+);
+if (!geminiKept.documentSections[0]?.body.includes("Gemini-only sentence")) {
+  checks.push("rebuild wiped Gemini document");
+}
+
+const extraStakeholderTable = {
+  headers: housing.documentSections.find((row) => row.id === "stakeholders")?.tables?.[0]?.headers || [
+    "Stakeholder category",
+    "Who they are",
+    "Engagement objective",
+    "Influence / interest",
+  ],
+  rows: [
+    ...(housing.documentSections.find((row) => row.id === "stakeholders")?.tables?.[0]?.rows || []),
+    ["Invented neighbours", "400 households next to the site", "Consult", "high / high"],
+  ],
+};
+const geminiMerge = mergeDraftedSections(
+  housing,
+  {
+    sections: housing.documentSections.map((row) => ({
+      id: row.id,
+      heading: row.heading,
+      body:
+        row.id === "summary"
+          ? "**1.1 The project.** This assignment is a housing upgrade for the named municipality over the contract period. Themba will answer WhatsApp 24/7. 400 households will move before census. **1.2 This document.** This is the Stakeholder Engagement Plan Chibase Consulting will follow if appointed. **1.3 This plan.** Identify, consult, record promises, and redress harm."
+          : `${row.body}\n\nAdditional Gemini paragraph for ${row.id} covering what will be done, how, when, and by whom on this assignment so the procuring entity can read the plan.`,
+      tables: row.id === "stakeholders" ? [extraStakeholderTable] : row.tables,
+    })),
+  },
+  housing.sourceExcerpt,
+);
+const geminiSummary =
+  geminiMerge.sections.find((row) => row.id === "summary")?.body || "";
+if (/Themba|WhatsApp|400 households/i.test(geminiSummary)) {
+  checks.push("gemini merge leaked banned copy or invented households");
+}
+if (geminiMerge.draftedCount < 6) {
+  checks.push(`gemini draftedCount=${geminiMerge.draftedCount}`);
+}
+const mergedStakeholderRows =
+  geminiMerge.sections.find((row) => row.id === "stakeholders")?.tables?.[0]?.rows.length || 0;
+if (mergedStakeholderRows !== housing.stakeholderClasses.length) {
+  checks.push(`gemini extra stakeholder rows kept=${mergedStakeholderRows}`);
 }
 
 async function main() {

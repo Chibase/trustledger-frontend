@@ -100,7 +100,22 @@ export function sepCoverFields(
   ].filter(([, v]) => Boolean(v)) as Array<[string, string]>;
 }
 
-function fieldVoice(value: string): string {
+export const SEP_DOCUMENT_SPECS = [
+  { id: "summary", heading: "1. Project overview" },
+  { id: "compliance", heading: "2. Regulatory and compliance framework" },
+  { id: "stakeholders", heading: "3. Stakeholder identification and mapping" },
+  { id: "methods", heading: "4. Engagement methodology and operational channels" },
+  { id: "grievance", heading: "5. Grievance mechanism and risk mitigation" },
+  { id: "led", heading: "6. Local economic participation" },
+  { id: "monitoring", heading: "7. Monitoring, evaluation and reporting" },
+  { id: "assumptions", heading: "8. Assumptions and limits" },
+  { id: "conclusion", heading: "9. Summary for the client" },
+] as const;
+
+export const SEP_ARCHITECTURE_VOICE =
+  /three shipped anchors|strategic advisory|rapid-response workflows|srm integration|TrustLedger SRM execution protocol|Themba|shipped modules|Capture templates|Apply seeds|Social Licence to Build/i;
+
+export function scrubSepClientCopy(value: string): string {
   return value
     .replace(/\([^)]*Capture[^)]*\)/gi, "")
     .replace(/\bCapture(?:\s+minutes)?(?:\s+template)?s?\b/gi, "meeting records")
@@ -108,11 +123,49 @@ function fieldVoice(value: string): string {
     .replace(/\bsit on Incidents\b/gi, "are entered in the grievance register")
     .replace(/\bIncidents\b/g, "the grievance register")
     .replace(/\bTrustLedger(?:\s+SRM)?\b/gi, "")
-    .replace(/\bThemba\b/g, "")
+    .replace(/\bThemba\b/gi, "")
     .replace(/\bApply\b/g, "")
+    .replace(/\bSocial Licence to Build(?:™)?\b/gi, "")
+    .replace(/\bexecution protocols?\b/gi, "")
+    .replace(/\bWhatsApp\b/gi, "")
+    .replace(/\bFrappe\b/gi, "")
+    .replace(/\bVercel\b/gi, "")
+    .replace(/\bHubSpot\b/gi, "")
+    .replace(/\b24\/7\b/gi, "")
+    .replace(/\b24-hour call centres?\b/gi, "")
+    .replace(/\bSMS portals?\b/gi, "")
     .replace(/\s{2,}/g, " ")
     .replace(/\s+([.,;:])/g, "$1")
     .trim();
+}
+
+function fieldVoice(value: string): string {
+  return scrubSepClientCopy(value);
+}
+
+export function clientSepDocumentUsable(
+  plan: Pick<EngagementPlan, "documentSections" | "programmeKind">,
+): boolean {
+  const sections = plan.documentSections || [];
+  if (sections.length !== SEP_DOCUMENT_SPECS.length) return false;
+  const ids = new Set(sections.map((row) => row.id));
+  if (SEP_DOCUMENT_SPECS.some((spec) => !ids.has(spec.id))) return false;
+  if (sections.some((row) => row.protocol)) return false;
+  const blob = sections.map((row) => `${row.heading}\n${row.body}`).join("\n");
+  if (SEP_ARCHITECTURE_VOICE.test(blob)) return false;
+  if (!sections.find((row) => row.id === "stakeholders")?.tables?.length) {
+    return false;
+  }
+  if (!sections.find((row) => row.id === "methods")?.tables?.length) {
+    return false;
+  }
+  if (
+    plan.programmeKind === "relocation" &&
+    !/census|reloc|resettle|migration|cut-off/i.test(blob)
+  ) {
+    return false;
+  }
+  return true;
 }
 
 function instrumentLine(row: SepInstrument, rap: boolean): string {
