@@ -5,6 +5,7 @@
  */
 
 import { geminiApiKey, geminiModel } from "@/lib/marketing/config";
+import { rebuildSepDocument } from "@/lib/sepComposer";
 import {
   buildSepDocument,
   clientSepDocumentUsable,
@@ -104,43 +105,36 @@ function inventedCount(sentence: string, allowed: string): boolean {
   });
 }
 
-function stripInventedFacts(
-  text: string,
-  allowed: string,
-  hasBudget: boolean,
-): string {
+function inventedRand(text: string, allowed: string): string[] {
+  const amounts = text.match(/\bR\s?[\d\s,]+(?:\.\d+)?(?:\s*(?:million|m|bn))?\b/gi) || [];
+  return amounts.filter((row) => {
+    const key = row.replace(/\s+/g, " ").trim().toLowerCase();
+    return key.length >= 2 && !allowed.includes(key);
+  });
+}
+
+function stripInventedFacts(text: string, allowed: string): string {
   const sentences = text.split(/(?<=[.!?])\s+|\n/);
   const kept = sentences
     .map((sentence) => {
       if (!sentence.trim()) return sentence;
       if (inventedCount(sentence, allowed)) return "";
-      if (!hasBudget && /\bR\s?\d/.test(sentence)) {
-        const amount = (sentence.match(/\bR\s?[\d\s,]+/i)?.[0] || "")
-          .replace(/\s+/g, " ")
-          .trim()
-          .toLowerCase();
-        if (amount && !allowed.includes(amount)) {
-          return sentence.replace(
-            /\bR\s?\d[\d\s,]*(?:\.\d+)?\b/g,
-            "an amount to be confirmed",
-          );
-        }
+      const extra = inventedRand(sentence, allowed);
+      if (!extra.length) return sentence;
+      let next = sentence;
+      for (const amount of extra) {
+        next = next.replace(amount, "an amount to be confirmed");
       }
-      return sentence;
+      return next;
     })
     .filter((row) => row.trim().length > 0);
   return kept.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
-function scrubBody(
-  value: string,
-  allowed: string,
-  hasBudget: boolean,
-): string {
+function scrubBody(value: string, allowed: string): string {
   return stripInventedFacts(
     scrubSepClientCopy(clip(value, 6_000)),
     allowed,
-    hasBudget,
   );
 }
 
@@ -167,19 +161,13 @@ function asTable(value: unknown): SepDocumentTable | null {
 function tableSafe(
   table: SepDocumentTable,
   allowed: string,
-  hasBudget: boolean,
 ): boolean {
   const blob = `${table.headers.join(" ")} ${table.rows.flat().join(" ")}`;
   if (/TrustLedger|Themba|Capture|WhatsApp|Social Licence/i.test(blob)) {
     return false;
   }
   if (inventedCount(blob, allowed)) return false;
-  if (!hasBudget && /\bR\s?\d/.test(blob)) {
-    const amounts = blob.match(/\bR\s?[\d\s,]+/gi) || [];
-    if (amounts.some((row) => !allowed.includes(row.replace(/\s+/g, " ").trim().toLowerCase()))) {
-      return false;
-    }
-  }
+  if (inventedRand(blob, allowed).length) return false;
   return true;
 }
 
@@ -188,10 +176,9 @@ function pickTables(
   drafted: SepDocumentTable[],
   fallback: SepDocumentTable[] | undefined,
   allowed: string,
-  hasBudget: boolean,
 ): SepDocumentTable[] | undefined {
   const local = fallback || [];
-  const usable = drafted.filter((table) => tableSafe(table, allowed, hasBudget));
+  const usable = drafted.filter((table) => tableSafe(table, allowed));
   if (id === "stakeholders" || id === "methods") {
     const candidate = usable[0];
     const base = local[0];
@@ -253,13 +240,12 @@ export function mergeDraftedSections(
   const fallback = buildSepDocument(plan);
   const drafted = draftedSections(parsed);
   const allowed = factsBlob(plan, briefing);
-  const hasBudget = Boolean(plan.budgetHint?.trim());
   let draftedCount = 0;
   const sections = fallback.map((section) => {
     const spec = SEP_DOCUMENT_SPECS.find((row) => row.id === section.id);
     const incoming = drafted.get(section.id);
     const body = incoming
-      ? scrubBody(incoming.body, allowed, hasBudget)
+      ? scrubBody(incoming.body, allowed)
       : section.body;
     const usedDraft = Boolean(incoming && body.length >= 80);
     if (usedDraft) draftedCount += 1;
@@ -268,7 +254,6 @@ export function mergeDraftedSections(
       incoming?.tables || [],
       section.tables,
       allowed,
-      hasBudget,
     );
     const next: SepDocumentSection = {
       id: section.id,
@@ -383,27 +368,35 @@ export async function draftSepDocument(
   plan: EngagementPlan,
   briefing = "",
 ): Promise<{ plan: EngagementPlan; synthesizer: "gemini" | "template" }> {
-  const fallbackSections = buildSepDocument(plan);
+  const prepared = rebuildSepDocument(
+    {
+      ...plan,
+      documentSections: Array.isArray(plan.documentSections)
+        ? plan.documentSections
+        : [],
+    },
+    { touch: false, document: "rebuild" },
+  );
   const fallback: EngagementPlan = {
-    ...plan,
+    ...prepared,
     documentDrafter: "template",
-    documentSections: fallbackSections,
+    documentSections: prepared.documentSections,
   };
   const key = geminiApiKey();
   if (!key) return { plan: fallback, synthesizer: "template" };
 
   try {
-    const text = await callGemini(key, plan, briefing);
+    const text = await callGemini(key, prepared, briefing);
     const parsed = extractJsonObject(text);
     const { sections, draftedCount } = mergeDraftedSections(
-      plan,
+      prepared,
       parsed,
       briefing,
     );
     if (
       draftedCount < 6 ||
       !clientSepDocumentUsable({
-        programmeKind: plan.programmeKind,
+        programmeKind: prepared.programmeKind,
         documentSections: sections,
       })
     ) {
@@ -411,7 +404,7 @@ export async function draftSepDocument(
     }
     return {
       plan: {
-        ...plan,
+        ...prepared,
         documentDrafter: "gemini",
         documentSections: sections,
       },

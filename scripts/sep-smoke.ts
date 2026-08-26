@@ -377,6 +377,52 @@ if (mergedStakeholderRows !== housing.stakeholderClasses.length) {
   checks.push(`gemini extra stakeholder rows kept=${mergedStakeholderRows}`);
 }
 
+const budgetMerge = mergeDraftedSections(
+  { ...housing, budgetHint: "R 1.2 million" },
+  {
+    sections: housing.documentSections.map((row) => ({
+      id: row.id,
+      heading: row.heading,
+      body:
+        row.id === "summary"
+          ? `${row.body}\n\nProfessional fees as briefed are R 1.2 million. Gemini also claims R 999 000 for a portal that is not in the briefing.`
+          : `${row.body}\n\nAdditional Gemini paragraph for ${row.id} covering what will be done, how, when, and by whom on this assignment so the procuring entity can read the plan.`,
+      tables: row.tables,
+    })),
+  },
+  `${housing.sourceExcerpt}\nBudget: R 1.2 million`,
+);
+const budgetBody =
+  budgetMerge.sections.find((row) => row.id === "summary")?.body || "";
+if (/R\s?999/.test(budgetBody)) {
+  checks.push("gemini kept an extra rand amount beside the briefed budget");
+}
+
+const rapKeep = rebuildSepDocument(
+  {
+    ...housing,
+    title: "SEP — RELOCATION AND MIGRATION PLAN",
+    programmeKind: undefined,
+    documentDrafter: "gemini",
+    activities: housing.activities.filter((row) => row.id !== "census"),
+    documentSections: housing.documentSections.map((row) =>
+      row.id === "summary"
+        ? {
+            ...row,
+            body: `${row.body}\n\nCensus, relocation, and cut-off will be locked at inception. Gemini-RAP sentence.`,
+          }
+        : row,
+    ),
+  },
+  { touch: false, document: "keep" },
+);
+if (rapKeep.programmeKind !== "relocation") {
+  checks.push(`rap keep programme=${rapKeep.programmeKind}`);
+}
+if (!rapKeep.documentSections[0]?.body.includes("Gemini-RAP sentence")) {
+  checks.push("RAP overlay discarded a usable Gemini relocation draft");
+}
+
 async function main() {
   const pdf = await buildSepPdf(housing);
   if (pdf.subarray(0, 4).toString() !== "%PDF") {

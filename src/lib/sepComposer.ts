@@ -588,19 +588,14 @@ export function rebuildSepDocument(
     body: section.body,
     ...(section.tables?.length ? { tables: section.tables } : {}),
   }));
+  const usable = clientSepDocumentUsable({
+    programmeKind,
+    documentSections: existing,
+  });
   const keepRequested = opts?.document === "keep";
   const keepGemini =
-    opts?.document !== "rebuild" &&
-    plan.documentDrafter === "gemini" &&
-    clientSepDocumentUsable({
-      programmeKind,
-      documentSections: existing,
-    });
-  if (
-    !overlayCensus &&
-    (keepRequested || keepGemini) &&
-    existing.length
-  ) {
+    opts?.document !== "rebuild" && plan.documentDrafter === "gemini";
+  if (existing.length && usable && (keepRequested || keepGemini)) {
     return {
       ...next,
       documentDrafter: plan.documentDrafter,
