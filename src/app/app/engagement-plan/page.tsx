@@ -20,8 +20,11 @@ export default function EngagementPlanListPage() {
     let cancelled = false;
     const handle = window.setTimeout(() => {
       if (cancelled) return;
-      setRows(listEngagementPlans());
-      setLoading(false);
+      try {
+        setRows(listEngagementPlans());
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }, 0);
     return () => {
       cancelled = true;

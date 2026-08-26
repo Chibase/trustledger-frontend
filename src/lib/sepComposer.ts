@@ -90,6 +90,12 @@ export function detectSepSector(text: string): SepSectorId {
     const hits = text.match(new RegExp(hint.re, "gi"));
     if (hits?.length) scores.set(hint.id, hits.length);
   }
+  const heading = text.split(/\r?\n/).slice(0, 8).join(" ");
+  for (const hint of SECTOR_HINTS) {
+    if (hint.re.test(heading)) {
+      scores.set(hint.id, (scores.get(hint.id) || 0) + 3);
+    }
+  }
   let best: SepSectorId = "generic";
   let n = 0;
   for (const [id, count] of scores) {
@@ -299,9 +305,12 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
   const playbook = SEP_SECTOR_PLAYBOOKS[sectorHint];
   const text = (input.text || "").trim() || playbook.summary;
   const sectorId = sectorHint;
+  const usedPlaybookOnly = !(input.text || "").trim();
   const named = extractNamedParties(text);
   const now = new Date().toISOString();
-  const titleBase = input.projectName?.trim() || extractTitle(text);
+  const titleBase =
+    input.projectName?.trim() ||
+    (usedPlaybookOnly ? SEP_SECTOR_LABELS[sectorId] : extractTitle(text));
   const detected = INSTRUMENT_HINTS.filter((row) => row.re.test(text)).map(
     (row) => ({
       id: row.id,

@@ -30,8 +30,14 @@ function writeRoot(root: Root) {
 }
 
 export function listEngagementPlans(): EngagementPlan[] {
-  const rows = readRoot()[scopeKey()] || [];
-  return [...rows].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  try {
+    const rows = readRoot()[scopeKey()] || [];
+    return [...rows].sort((a, b) =>
+      (b.updatedAt || "").localeCompare(a.updatedAt || ""),
+    );
+  } catch {
+    return [];
+  }
 }
 
 export function getEngagementPlan(id: string): EngagementPlan | null {

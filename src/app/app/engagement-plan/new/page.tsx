@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
@@ -19,11 +19,39 @@ const ACCEPT =
 const MAX_TEXT_BYTES = 1_500_000;
 const MAX_PDF_BYTES = 4 * 1024 * 1024;
 
+function exampleSector(
+  search: { get(name: string): string | null },
+): SepSectorId | null {
+  const example = search.get("example");
+  if (example && example in SEP_EXAMPLE_BRIEFS) return example as SepSectorId;
+  return null;
+}
+
 export default function NewEngagementPlanPage() {
+  return (
+    <FeatureGate capability="engagements">
+      <Suspense
+        fallback={
+          <p className="text-sm text-tl-ink-muted">Loading compose desk…</p>
+        }
+      >
+        <NewEngagementPlanForm />
+      </Suspense>
+    </FeatureGate>
+  );
+}
+
+function NewEngagementPlanForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { pushToast } = useToast();
-  const [text, setText] = useState("");
-  const [sectorId, setSectorId] = useState<SepSectorId | "auto">("auto");
+  const seeded = exampleSector(searchParams);
+  const [text, setText] = useState(
+    seeded ? SEP_EXAMPLE_BRIEFS[seeded] : "",
+  );
+  const [sectorId, setSectorId] = useState<SepSectorId | "auto">(
+    seeded || "auto",
+  );
   const [projectId, setProjectId] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [busy, setBusy] = useState(false);
@@ -33,15 +61,17 @@ export default function NewEngagementPlanPage() {
   const [purpose, setPurpose] = useState("");
 
   useEffect(() => {
+    if (!seeded) return;
+    const handle = window.setTimeout(() => {
+      setSectorId(seeded);
+      setText(SEP_EXAMPLE_BRIEFS[seeded]);
+    }, 0);
+    return () => window.clearTimeout(handle);
+  }, [seeded]);
+
+  useEffect(() => {
     let cancelled = false;
     const handle = window.setTimeout(() => {
-      const params = new URLSearchParams(window.location.search);
-      const example = params.get("example");
-      if (example && example in SEP_EXAMPLE_BRIEFS) {
-        const id = example as SepSectorId;
-        setSectorId(id);
-        setText(SEP_EXAMPLE_BRIEFS[id]);
-      }
       void projectService.list().then((rows) => {
         if (!cancelled) setProjects(rows);
       });
@@ -142,7 +172,6 @@ export default function NewEngagementPlanPage() {
     sectorId !== "auto" ? SEP_SECTOR_PLAYBOOKS[sectorId].summary : null;
 
   return (
-    <FeatureGate capability="engagements">
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
           eyebrow="Stakeholder Intelligence"
@@ -340,6 +369,5 @@ export default function NewEngagementPlanPage() {
           </section>
         ) : null}
       </div>
-    </FeatureGate>
   );
 }

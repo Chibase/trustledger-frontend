@@ -921,7 +921,7 @@ export const SEP_EXAMPLE_BRIEFS: Record<SepSectorId, string> = {
   infrastructure:
     "Request for Proposal\nProject: Regional road upgrade and stormwater\nClient: Example Public Works Department\nWard 7, Eastern Cape\nScope of work: consult affected households, taxi associations, and the Traditional Council before bulk earthworks. NEMA BAR public participation is cited. Local content under PPPFA. Terms of reference.",
   housing:
-    "Request for Proposal\nProject: Ntabeni Housing and Bulk Services\nClient: Example Local Municipality\nWard 12, Eastern Cape\nThe assignment is to consult affected households and the Traditional Council on township establishment, beneficiary lists, and bulk water connections. Public participation under NEMA / BAR is required. Terms of reference.",
+    "Request for Proposal\nProject: Ntabeni Housing and human settlement services\nClient: Example Local Municipality\nWard 12, Eastern Cape\nThe assignment is to consult affected households and the Traditional Council on township establishment, beneficiary lists, and bulk connections. Public participation under NEMA / BAR is required. Terms of reference.",
   mining:
     "Invitation to bid\nProject: Opencast pit expansion — social performance support\nClient: Example Mining Pty Ltd\nWard 4, Limpopo\nConsult host communities and the Traditional Council. Social and Labour Plan (MPRDA / SLP) commitments must be evidenced, not appendix claims. Grievance path required. Request for Proposal.",
   energy:
