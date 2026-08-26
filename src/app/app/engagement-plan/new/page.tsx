@@ -8,6 +8,7 @@ import { SepInstrumentPicker } from "@/components/sep/SepInstrumentPicker";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { SEP_SECTOR_PLAYBOOKS, SEP_SECTOR_IDS, SEP_EXAMPLE_BRIEFS } from "@/data/sepSectors";
+import { SEP_RELOCATION_EXAMPLE_BRIEF } from "@/data/sepRelocation";
 import {
   composeEngagementPlan,
   previewSepExtract,
@@ -21,7 +22,11 @@ import {
 import { saveEngagementPlan } from "@/lib/sepStore";
 import { projectService } from "@/services/projectService";
 import type { EngagementPlan, SepSectorId } from "@/types/engagementPlan";
-import { SEP_SECTOR_LABELS, SEP_SOURCE_LABELS } from "@/types/engagementPlan";
+import {
+  SEP_PROGRAMME_LABELS,
+  SEP_SECTOR_LABELS,
+  SEP_SOURCE_LABELS,
+} from "@/types/engagementPlan";
 import type { Project } from "@/types/project";
 
 const ACCEPT =
@@ -56,9 +61,14 @@ function NewEngagementPlanForm() {
   const searchParams = useSearchParams();
   const { pushToast } = useToast();
   const seeded = exampleSector(searchParams);
+  const relocationSeed = searchParams.get("example") === "relocation";
   const seededProject = searchParams.get("project")?.trim() || "";
   const [text, setText] = useState(
-    seeded ? SEP_EXAMPLE_BRIEFS[seeded] : "",
+    relocationSeed
+      ? SEP_RELOCATION_EXAMPLE_BRIEF
+      : seeded
+        ? SEP_EXAMPLE_BRIEFS[seeded]
+        : "",
   );
   const [sectorId, setSectorId] = useState<SepSectorId | "auto">(
     seeded || "auto",
@@ -86,13 +96,20 @@ function NewEngagementPlanForm() {
   const [overrideTimeline, setOverrideTimeline] = useState("");
 
   useEffect(() => {
+    if (relocationSeed) {
+      const handle = window.setTimeout(() => {
+        setSectorId("auto");
+        setText(SEP_RELOCATION_EXAMPLE_BRIEF);
+      }, 0);
+      return () => window.clearTimeout(handle);
+    }
     if (!seeded) return;
     const handle = window.setTimeout(() => {
       setSectorId(seeded);
       setText(SEP_EXAMPLE_BRIEFS[seeded]);
     }, 0);
     return () => window.clearTimeout(handle);
-  }, [seeded]);
+  }, [seeded, relocationSeed]);
 
   useEffect(() => {
     if (!seededProject) return;
@@ -259,7 +276,7 @@ function NewEngagementPlanForm() {
         <PageHeader
           eyebrow="Stakeholder Intelligence"
           title="Compose engagement plan"
-          description="Suggest → apply → save. Map a tender, RFP, EIA extract, or facts pack onto a sector playbook. The local composer does not call a cloud language model and does not write the live desk until you apply after approval."
+          description="Suggest → apply → save. Map a tender, RFP, EIA extract, or facts pack onto a sector playbook. Relocation and migration briefs produce a census-to-restoration operating plan — not a product architecture essay. The local composer does not call a cloud language model and does not write the live desk until you apply after approval."
           actions={
             <Link
               href="/app/engagement-plan"
@@ -335,28 +352,48 @@ function NewEngagementPlanForm() {
                 : "Empty — paste, upload, insert an example, or pick a sector and compose."}
             </span>
           </label>
-          <button
-            type="button"
-            onClick={() => {
-              const id = sectorId === "auto" ? "generic" : sectorId;
-              setText(SEP_EXAMPLE_BRIEFS[id]);
-              if (sectorId === "auto") setSectorId("generic");
-              pushToast(
-                "Example extract inserted. It is practice text — not a live assignment. Edit or replace before presenting.",
-                "info",
-              );
-            }}
-            className="rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium hover:bg-tl-paper"
-          >
-            Insert example extract
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const id = sectorId === "auto" ? "generic" : sectorId;
+                setText(SEP_EXAMPLE_BRIEFS[id]);
+                if (sectorId === "auto") setSectorId("generic");
+                pushToast(
+                  "Example extract inserted. It is practice text — not a live assignment. Edit or replace before presenting.",
+                  "info",
+                );
+              }}
+              className="rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium hover:bg-tl-paper"
+            >
+              Insert example extract
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSectorId("auto");
+                setText(SEP_RELOCATION_EXAMPLE_BRIEF);
+                pushToast(
+                  "Relocation / RAP practice brief inserted (census, cut-off, host community, move). Not a live assignment.",
+                  "info",
+                );
+              }}
+              className="rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium hover:bg-tl-paper"
+            >
+              Insert relocation / RAP example
+            </button>
+          </div>
           {text.trim().length > 40 ? (
             <div className="rounded-md border border-dashed border-tl-line bg-tl-paper/60 px-3 py-3 text-sm">
               <p className="font-medium text-tl-ink">Extracted metadata</p>
               <p className="mt-1 text-xs text-tl-ink-muted">
                 Review before compose. Overrides below win over the extract.
                 Detected as {SEP_SOURCE_LABELS[extract.sourceKind]} ·{" "}
-                {SEP_SECTOR_LABELS[extract.sectorId]}.
+                {SEP_SECTOR_LABELS[extract.sectorId]}
+                {extract.programmeKind === "relocation"
+                  ? ` · ${SEP_PROGRAMME_LABELS.relocation}`
+                  : ""}
+                .
               </p>
               <dl className="mt-2 grid gap-1 text-xs sm:grid-cols-2">
                 <div>

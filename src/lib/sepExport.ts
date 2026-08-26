@@ -5,6 +5,7 @@
 
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
+  SEP_PROGRAMME_LABELS,
   SEP_PURPOSE_LABELS,
   SEP_SECTOR_LABELS,
   SEP_SOURCE_LABELS,
@@ -49,6 +50,9 @@ export function planToMarkdown(plan: EngagementPlan): string {
     "",
     `TrustLedger · Stakeholder Engagement Plan`,
     "",
+    plan.programmeKind === "relocation"
+      ? `- Programme: ${SEP_PROGRAMME_LABELS.relocation}`
+      : null,
     `- Sector: ${SEP_SECTOR_LABELS[plan.sectorId]}`,
     `- Source: ${SEP_SOURCE_LABELS[plan.sourceKind]}`,
     `- Issued: ${issuedLabel(plan.updatedAt)}`,
@@ -99,6 +103,9 @@ function rich(value: string): string {
 
 export function planToWordHtml(plan: EngagementPlan): string {
   const meta = [
+    plan.programmeKind === "relocation"
+      ? ["Programme", SEP_PROGRAMME_LABELS.relocation]
+      : null,
     ["Sector", SEP_SECTOR_LABELS[plan.sectorId]],
     ["Source", SEP_SOURCE_LABELS[plan.sourceKind]],
     ["Assignment", plan.projectNameHint],
@@ -107,7 +114,7 @@ export function planToWordHtml(plan: EngagementPlan): string {
     ["Timeline", plan.timelineHint],
     ["Issued", issuedLabel(plan.updatedAt)],
     ["Plan ID", plan.id],
-  ].filter(([, v]) => Boolean(v));
+  ].filter((row): row is [string, string] => Boolean(row && row[1]));
 
   const classRows = plan.stakeholderClasses
     .map(
@@ -155,7 +162,11 @@ ${protocol}`;
 <p style="color:#0e7c66;letter-spacing:0.12em;text-transform:uppercase;font-size:11px;">TrustLedger SRM</p>
 <p><strong>Stakeholder Engagement Plan</strong></p>
 <h1>${esc(plan.title)}</h1>
-<p>Tender-grade working plan mapped to Social Licence to Build™. Suggestion until a human applies rows. Not legal advice.</p>
+<p>${
+    plan.programmeKind === "relocation"
+      ? "Operating plan for census, entitlements, host consultation, the physical move, livelihood restoration, and one grievance path. Suggestion until a human applies rows. Not legal advice."
+      : "Working stakeholder engagement plan executed on the TrustLedger desk after award. Suggestion until a human applies rows. Not legal advice."
+  }</p>
 <table border="1" cellpadding="6" cellspacing="0" width="100%">
 ${meta.map(([k, v]) => `<tr><td><strong>${esc(k)}</strong></td><td>${esc(String(v))}</td></tr>`).join("")}
 </table>

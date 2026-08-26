@@ -94,7 +94,11 @@ export function SepProcessDashboard({ plan }: Props) {
         <h2 className="font-display text-lg font-semibold text-tl-ink">
           Process from inception to finish
         </h2>
-        <p className="mt-1 text-sm text-tl-ink-muted">{playbook.summary}</p>
+        <p className="mt-1 text-sm text-tl-ink-muted">
+          {plan.programmeKind === "relocation"
+            ? "Relocation and migration: lock footprint and cut-off, census, entitlements, host community, physical move, livelihood restoration, one grievance path."
+            : playbook.summary}
+        </p>
         <ol className="mt-4 grid gap-2 sm:grid-cols-7">
           {plan.phases.map((phase) => (
             <li key={phase.id}>

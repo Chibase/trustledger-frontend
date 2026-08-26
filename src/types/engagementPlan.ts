@@ -7,6 +7,8 @@
 import type { EngagementKind } from "@/types/engagement";
 import type { StakeholderInfluence, StakeholderKind } from "@/types/stakeholder";
 
+export type SepProgrammeKind = "standard" | "relocation";
+
 export type SepStatus = "draft" | "suggested" | "saved" | "applied";
 
 export type SepSourceKind = "rfp" | "tender" | "briefing" | "paste" | "manual";
@@ -116,6 +118,8 @@ export type EngagementPlan = {
   status: SepStatus;
   sourceKind: SepSourceKind;
   sectorId: SepSectorId;
+  /** Relocation / RAP overlay when the brief is a move, not only consultation. */
+  programmeKind?: SepProgrammeKind;
   projectId: string | null;
   projectNameHint: string;
   placeHint: string;
@@ -139,6 +143,11 @@ export type EngagementPlan = {
     engagementIds: string[];
     commitmentIds: string[];
   };
+};
+
+export const SEP_PROGRAMME_LABELS: Record<SepProgrammeKind, string> = {
+  standard: "Stakeholder engagement",
+  relocation: "Relocation & migration",
 };
 
 export const SEP_STATUS_LABELS: Record<SepStatus, string> = {

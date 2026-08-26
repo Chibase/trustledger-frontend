@@ -16,6 +16,7 @@ import { getEngagementPlan, saveEngagementPlan } from "@/lib/sepStore";
 import { projectService } from "@/services/projectService";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
+  SEP_PROGRAMME_LABELS,
   SEP_SECTOR_LABELS,
   SEP_SOURCE_LABELS,
   SEP_STATUS_LABELS,
@@ -45,13 +46,12 @@ export default function EngagementPlanDetailPage() {
     const handle = window.setTimeout(() => {
       if (cancelled) return;
       const row = id ? getEngagementPlan(id) : null;
-      const hydrated =
-        row && row.documentSections[0]?.id === "purpose"
-          ? rebuildSepDocument(
-              { ...row, timelineHint: row.timelineHint || "" },
-              { touch: false },
-            )
-          : row;
+      const hydrated = row
+        ? rebuildSepDocument(
+            { ...row, timelineHint: row.timelineHint || "" },
+            { touch: false },
+          )
+        : row;
       setPlan(hydrated);
       setProjectId(hydrated?.projectId || "");
       setPurpose(hydrated?.purposeStatement || "");
@@ -130,7 +130,7 @@ export default function EngagementPlanDetailPage() {
             title={loading ? "Loading…" : plan?.title || "Plan not found"}
             description={
               plan
-                ? `${SEP_SECTOR_LABELS[plan.sectorId]} · ${SEP_SOURCE_LABELS[plan.sourceKind]} · ${SEP_STATUS_LABELS[plan.status]}`
+                ? `${plan.programmeKind === "relocation" ? `${SEP_PROGRAMME_LABELS.relocation} · ` : ""}${SEP_SECTOR_LABELS[plan.sectorId]} · ${SEP_SOURCE_LABELS[plan.sourceKind]} · ${SEP_STATUS_LABELS[plan.status]}`
                 : "Stakeholder engagement plan"
             }
             actions={

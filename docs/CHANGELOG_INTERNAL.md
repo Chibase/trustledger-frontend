@@ -13,6 +13,7 @@
 - **Ops Executive Board** (`/ops/executive`): same module as a C-suite card under the brief heading, sidebar **Engagement plan** / **Open SEP desk**, and a TEDS domain row with Open → `/app/engagement-plan`.
 - Plans org-scoped by org id cookie / email (not a shared `session` bucket). Re-apply toasts only newly created rows.
 - Gated on existing `engagements` capability. Client gates also read the trial cookie / active org when the page did not pass a plan id. ADR-053.
+- **Relocation / RAP overlay:** briefs that are a physical or economic move (relocation, migration plan, RAP, cut-off, host community) compose an operating plan — census, entitlements, host consultation, move-week helpdesk, livelihood restoration — not a Social Licence to Build™ architecture essay. Municipality names keep the full Local Municipality string; “The Municipality” fragments are dropped. Saved architecture SEPs upgrade on reopen. ADR-053.
 
 ## 2026-08-25 — ClickUp diary live on Chibase Workspace
 

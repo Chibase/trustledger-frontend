@@ -1,5 +1,6 @@
-import { composeEngagementPlan, previewSepExtract } from "../src/lib/sepComposer";
+import { composeEngagementPlan, previewSepExtract, rebuildSepDocument } from "../src/lib/sepComposer";
 import { SEP_EXAMPLE_BRIEFS } from "../src/data/sepSectors";
+import { SEP_RELOCATION_EXAMPLE_BRIEF } from "../src/data/sepRelocation";
 import { joinSepPlace } from "../src/lib/sepInstruments";
 import { planToMarkdown, planToWordHtml } from "../src/lib/sepExport";
 import { buildSepPdf } from "../src/lib/sepPdf";
@@ -16,6 +17,7 @@ const mining = composeEngagementPlan({
 
 const checks: string[] = [];
 if (housing.sectorId !== "housing") checks.push(`housing detect=${housing.sectorId}`);
+if (housing.programmeKind === "relocation") checks.push("housing should stay standard programme");
 if (housing.sourceKind !== "rfp") checks.push(`housing source=${housing.sourceKind}`);
 if (housing.phases.length !== 7) checks.push(`housing phases=${housing.phases.length}`);
 if (housing.documentSections.length !== 7) {
@@ -98,12 +100,143 @@ if (
   checks.push(`preview ${JSON.stringify(applyPreview)}`);
 }
 
+const architectureEssay =
+  /three shipped anchors|strategic advisory|rapid-response workflows|srm integration/i;
+
+const relocation = composeEngagementPlan({
+  text: SEP_RELOCATION_EXAMPLE_BRIEF,
+  sectorId: "auto",
+});
+if (relocation.programmeKind !== "relocation") {
+  checks.push(`relocation programme=${relocation.programmeKind}`);
+}
+if (relocation.sectorId !== "housing") {
+  checks.push(`relocation sector=${relocation.sectorId} (expected housing, not municipal)`);
+}
+if (!/winnie madikizela mandela local municipality/i.test(relocation.placeHint)) {
+  checks.push(`relocation place=${relocation.placeHint}`);
+}
+if (!/winnie madikizela mandela local municipality/i.test(relocation.clientFunderHint)) {
+  checks.push(`relocation client=${relocation.clientFunderHint}`);
+}
+if (!/3\s*months/i.test(relocation.timelineHint)) {
+  checks.push(`relocation timeline=${relocation.timelineHint}`);
+}
+if (!/relocation and migration/i.test(relocation.title)) {
+  checks.push(`relocation title=${relocation.title}`);
+}
+if (/sep — sep/i.test(relocation.title)) {
+  checks.push(`double SEP prefix ${relocation.title}`);
+}
+if (!relocation.activities.some((row) => row.id === "census")) {
+  checks.push("relocation missing census activity");
+}
+if (!relocation.stakeholderClasses.some((row) => row.id === "host-community")) {
+  checks.push("relocation missing host community class");
+}
+if (!relocation.stakeholderClasses.some((row) => row.id === "pap-physical")) {
+  checks.push("relocation missing physically displaced class");
+}
+const relocationNamed = relocation.stakeholderClasses.flatMap(
+  (row) => row.namedFromBrief || [],
+);
+if (relocationNamed.some((name) => /^(the municipality|mandela local municipality)$/i.test(name))) {
+  checks.push(`relocation junk named parties ${relocationNamed.join("; ")}`);
+}
+const relocationSummary =
+  relocation.documentSections.find((row) => row.id === "summary")?.body || "";
+if (architectureEssay.test(relocationSummary)) {
+  checks.push("relocation summary still architecture essay");
+}
+if (!/operating plan for relocation/i.test(relocationSummary)) {
+  checks.push("relocation summary missing operating-plan lead");
+}
+if (!/cut-off/i.test(relocationSummary) || !/census/i.test(relocationSummary)) {
+  checks.push("relocation summary missing census/cut-off");
+}
+
+const wmmlmCover = `TRUSTLEDGER SRM
+Stakeholder Engagement Plan
+SEP — RELOCATION AND MIGRATION PLAN
+SECTOR
+Municipal / LED
+SOURCE
+Tender
+ASSIGNMENT
+RELOCATION AND MIGRATION PLAN
+CLIENT / PROCURING ENTITY
+Winnie Madikizela Mandela Local Municipality
+TIMELINE
+3 months
+Consult affected people on land access and livelihood change, and keep a grievance path that can carry RAP issues without losing the thread.
+Named in brief: Winnie Madikizela Mandela Local Municipality, Mandela Local Municipality, The Municipality.`;
+const coverPreview = previewSepExtract(wmmlmCover);
+if (coverPreview.programmeKind !== "relocation") {
+  checks.push(`cover programme=${coverPreview.programmeKind}`);
+}
+if (coverPreview.sectorId !== "housing") {
+  checks.push(`cover sector=${coverPreview.sectorId}`);
+}
+if (!/relocation and migration/i.test(coverPreview.title)) {
+  checks.push(`cover title=${coverPreview.title}`);
+}
+if (!/winnie madikizela mandela local municipality/i.test(coverPreview.place)) {
+  checks.push(`cover place=${coverPreview.place}`);
+}
+if (!/winnie madikizela mandela local municipality/i.test(coverPreview.client)) {
+  checks.push(`cover client=${coverPreview.client}`);
+}
+if (!/3\s*months/i.test(coverPreview.timeline)) {
+  checks.push(`cover timeline=${coverPreview.timeline}`);
+}
+if (
+  coverPreview.namedParties.some((name) =>
+    /^(the municipality|mandela local municipality)$/i.test(name),
+  )
+) {
+  checks.push(`cover named ${coverPreview.namedParties.join("; ")}`);
+}
+
+const stale = composeEngagementPlan({
+  text: SEP_EXAMPLE_BRIEFS.housing,
+  sectorId: "housing",
+});
+const rebuilt = rebuildSepDocument(
+  {
+    ...stale,
+    title: "SEP — RELOCATION AND MIGRATION PLAN",
+    programmeKind: undefined,
+    activities: stale.activities.filter((row) => row.id !== "census"),
+  },
+  { touch: false },
+);
+if (rebuilt.programmeKind !== "relocation") {
+  checks.push(`rebuild programme=${rebuilt.programmeKind}`);
+}
+if (!rebuilt.activities.some((row) => row.id === "census")) {
+  checks.push("rebuild did not overlay RAP census");
+}
+if (architectureEssay.test(rebuilt.documentSections[0]?.body || "")) {
+  checks.push("rebuild still architecture essay");
+}
+
+const rapMd = planToMarkdown(relocation);
+if (!rapMd.includes("Relocation & migration")) {
+  checks.push("markdown missing programme line");
+}
+
 async function main() {
   const pdf = await buildSepPdf(housing);
   if (pdf.subarray(0, 4).toString() !== "%PDF") {
     checks.push("pdf magic missing");
   }
   if (pdf.length < 2000) checks.push(`pdf too small ${pdf.length}`);
+
+  const rapPdf = await buildSepPdf(relocation);
+  if (rapPdf.subarray(0, 4).toString() !== "%PDF") {
+    checks.push("relocation pdf magic missing");
+  }
+  if (rapPdf.length < 2000) checks.push(`relocation pdf too small ${rapPdf.length}`);
 
   if (checks.length) {
     console.error(checks.join("\n"));
@@ -125,6 +258,15 @@ async function main() {
           title: facts.title,
           place: facts.placeHint,
           instruments: facts.instruments.map((row) => row.id),
+        },
+        relocation: {
+          title: relocation.title,
+          sector: relocation.sectorId,
+          programme: relocation.programmeKind,
+          place: relocation.placeHint,
+          client: relocation.clientFunderHint,
+          timeline: relocation.timelineHint,
+          phases: relocation.phases.map((p) => p.title),
         },
       },
       null,
