@@ -268,7 +268,9 @@ function buildDocument(plan: Omit<EngagementPlan, "documentSections">): Engageme
         plan.purposeStatement,
         "",
         `This Stakeholder Engagement Plan is prepared for a **${sector.toLowerCase()}** assignment from a ${plan.sourceKind === "manual" ? "structured facts pack (no tender file)" : `${plan.sourceKind} extract`}. Working title: ${plan.projectNameHint || "to be confirmed in inception"}.`,
-        plan.clientFunderHint ? `Procuring entity / client (from facts): ${plan.clientFunderHint}.` : null,
+        plan.clientFunderHint
+          ? `Procuring entity / client (${plan.sourceKind === "manual" ? "from facts" : "from brief"}): ${plan.clientFunderHint}.`
+          : null,
         plan.placeHint ? `Place sketched: ${plan.placeHint}.` : "Place is not yet locked — inception must name municipality, ward, and customary structure.",
         plan.timelineHint ? `Timeline sketched: ${plan.timelineHint}.` : "Contract period was not extracted — add it before the client presentation.",
         "",
@@ -431,11 +433,15 @@ function uniqueInstruments(
   return out;
 }
 
-export function rebuildSepDocument(plan: EngagementPlan): EngagementPlan {
+export function rebuildSepDocument(
+  plan: EngagementPlan,
+  opts?: { touch?: boolean },
+): EngagementPlan {
   const next = {
     ...plan,
     timelineHint: plan.timelineHint || "",
-    updatedAt: new Date().toISOString(),
+    updatedAt:
+      opts?.touch === false ? plan.updatedAt : new Date().toISOString(),
   };
   return { ...next, documentSections: buildDocument(next) };
 }

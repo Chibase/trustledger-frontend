@@ -43,7 +43,10 @@ export default function EngagementPlanDetailPage() {
       const row = id ? getEngagementPlan(id) : null;
       const hydrated =
         row && row.documentSections[0]?.id === "purpose"
-          ? rebuildSepDocument({ ...row, timelineHint: row.timelineHint || "" })
+          ? rebuildSepDocument(
+              { ...row, timelineHint: row.timelineHint || "" },
+              { touch: false },
+            )
           : row;
       setPlan(hydrated);
       setProjectId(hydrated?.projectId || "");

@@ -163,11 +163,16 @@ function NewEngagementPlanForm() {
         text: mode === "facts" ? "" : text,
         sectorId,
         projectId: projectId || null,
-        projectName: factName.trim() || project?.name,
-        placeHint: factPlace.trim() || undefined,
-        clientHint: factClient.trim() || undefined,
-        timelineHint: factTimeline.trim() || undefined,
-        purposeOverride: purpose.trim() || undefined,
+        projectName:
+          mode === "facts"
+            ? factName.trim() || project?.name
+            : project?.name,
+        placeHint: mode === "facts" ? factPlace.trim() || undefined : undefined,
+        clientHint: mode === "facts" ? factClient.trim() || undefined : undefined,
+        timelineHint:
+          mode === "facts" ? factTimeline.trim() || undefined : undefined,
+        purposeOverride:
+          mode === "facts" ? purpose.trim() || undefined : undefined,
       });
       setDraft(plan);
       setTitle(plan.title);
