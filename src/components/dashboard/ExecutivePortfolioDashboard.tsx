@@ -110,7 +110,7 @@ export function ExecutivePortfolioDashboard({
           </p>
         </div>
         <Link
-          href="/app/engagement-plan"
+          href="#engagement-plans"
           className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
         >
           Engagement plan

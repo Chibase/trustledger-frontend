@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
 import {
   hasCapability,
-  hasCapabilityForPlan,
   resolveClientPlanId,
   upgradeHrefForCapability,
   upgradeLabelForCapability,
@@ -37,9 +36,8 @@ export function SepDashboardPanel({
   projectId,
   alwaysShow = false,
 }: Props) {
-  const [allowed, setAllowed] = useState(() =>
-    hasCapabilityForPlan("engagements", planId),
-  );
+  const [ready, setReady] = useState(false);
+  const [allowed, setAllowed] = useState(false);
   const [rows, setRows] = useState<EngagementPlan[]>([]);
 
   useEffect(() => {
@@ -51,6 +49,7 @@ export function SepDashboardPanel({
           ? listEngagementPlansForProject(projectId)
           : listEngagementPlans(),
       );
+      setReady(true);
     });
     return () => cancelAnimationFrame(frame);
   }, [planId, projectId]);
@@ -64,6 +63,25 @@ export function SepDashboardPanel({
   const composeHref = projectId
     ? `/app/engagement-plan/new?project=${encodeURIComponent(projectId)}`
     : "/app/engagement-plan/new";
+
+  if (!ready) {
+    if (!alwaysShow) return null;
+    return (
+      <section
+        id="engagement-plans"
+        aria-labelledby="sep-dash-heading"
+        className="rounded-lg border border-tl-trust/30 bg-tl-surface p-4"
+      >
+        <h2
+          id="sep-dash-heading"
+          className="text-base font-semibold text-tl-ink"
+        >
+          Stakeholder engagement plans
+        </h2>
+        <p className="mt-1 text-sm text-tl-ink-muted">Loading plans…</p>
+      </section>
+    );
+  }
 
   if (!allowed && !alwaysShow) return null;
 
