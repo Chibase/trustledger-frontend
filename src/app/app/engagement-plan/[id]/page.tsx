@@ -82,7 +82,9 @@ export default function EngagementPlanDetailPage() {
       });
       setPlan(result.plan);
       pushToast(
-        `Applied: ${result.stakeholders} stakeholders, ${result.engagements} engagements, ${result.commitments} commitments.`,
+        result.stakeholders + result.engagements + result.commitments === 0
+          ? "Already applied — existing names and titles were skipped."
+          : `Applied: ${result.stakeholders} stakeholders, ${result.engagements} engagements, ${result.commitments} commitments.`,
         "success",
       );
       setTab("dashboard");

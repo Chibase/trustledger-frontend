@@ -3,14 +3,29 @@
  */
 
 import type { EngagementPlan } from "@/types/engagementPlan";
+import { TL_ORG_ID_COOKIE, TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import { getActiveOrgId } from "@/lib/orgStore";
 
 const ROOT_KEY = "tl-engagement-plans";
 
 type Root = Record<string, EngagementPlan[]>;
 
+function readCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`));
+  if (!match) return undefined;
+  return decodeURIComponent(match.split("=").slice(1).join("="));
+}
+
 function scopeKey(): string {
-  return getActiveOrgId() || "session";
+  const org =
+    getActiveOrgId()?.trim() || readCookie(TL_ORG_ID_COOKIE)?.trim();
+  if (org) return `org:${org}`;
+  const email = readCookie(TL_USER_EMAIL_COOKIE)?.trim().toLowerCase();
+  if (email) return `email:${email}`;
+  return "local";
 }
 
 function readRoot(): Root {

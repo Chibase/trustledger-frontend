@@ -69,6 +69,11 @@ export async function applyEngagementPlanToSrm(
   plan: EngagementPlan,
 ): Promise<SepApplyResult> {
   const now = new Date().toISOString();
+  const created: SepApplyCounts = {
+    stakeholders: 0,
+    engagements: 0,
+    commitments: 0,
+  };
   const stakeholderIds: string[] = [...(plan.applied?.stakeholderIds || [])];
   const engagementIds: string[] = [...(plan.applied?.engagementIds || [])];
   const commitmentIds: string[] = [...(plan.applied?.commitmentIds || [])];
@@ -101,6 +106,7 @@ export async function applyEngagementPlanToSrm(
       };
       const saved = await stakeholderService.save(row);
       stakeholderIds.push(saved.id);
+      created.stakeholders += 1;
       existingNames.add(label.toLowerCase());
     }
   }
@@ -137,6 +143,7 @@ export async function applyEngagementPlanToSrm(
     };
     const saved = await engagementService.save(row);
     engagementIds.push(saved.id);
+    created.engagements += 1;
     existingTitles.add(activity.title.toLowerCase());
   }
 
@@ -163,6 +170,7 @@ export async function applyEngagementPlanToSrm(
     };
     const saved = await commitmentService.save(row);
     commitmentIds.push(saved.id);
+    created.commitments += 1;
     existingCommitmentTitles.add(item.title.toLowerCase());
   }
 
@@ -180,8 +188,8 @@ export async function applyEngagementPlanToSrm(
   saveEngagementPlan(next);
   return {
     plan: next,
-    stakeholders: stakeholderIds.length,
-    engagements: engagementIds.length,
-    commitments: commitmentIds.length,
+    stakeholders: created.stakeholders,
+    engagements: created.engagements,
+    commitments: created.commitments,
   };
 }
