@@ -119,11 +119,12 @@ Stop batch-loading after the first seed. Put TrustLedger on the agenda of the ne
 
 Use **Engagement plan** when the work starts as a briefing, tender, or RFP rather than as already-named people.
 
-1. Paste or upload the extract (PDF with a text layer, or .txt / .md / .csv).  
-2. Confirm or override the **sector playbook** (infrastructure, housing, mining, energy, water, education, health, agriculture, municipal, conservation, logistics, or generic).  
-3. **Compose suggestion** — a seven-phase process from inception to close-out, stakeholder classes, methods, standing commitments, and a presentable document. Edit the title and purpose.  
-4. **Save**, then present the document (Print / PDF) or walk the process dashboard.  
-5. After the client approves the assignment, **Apply to SRM**. Prospect stakeholders, draft engagements, and open commitments land on the existing desks. Duplicate names/titles are skipped. Humans apply; the composer never writes the live desk alone.
+1. **With a file:** paste or upload the extract (PDF with a text layer, or .txt / .md / .csv) — RFP, tender, EIA, or scope of work.  
+2. **Without a file:** choose **Without a document**, pick a sector playbook, and enter working title, place, client, timeline, and purpose.  
+3. Confirm or override the **sector playbook**.  
+4. **Compose suggestion** — seven-phase process, power–interest classes, methods, grievance architecture, and a tender-grade document with a TrustLedger execution protocol on each section. Edit title and purpose.  
+5. **Save**, then present (Print / PDF with cover, Markdown, or Word) or walk the process dashboard (Social Licence to Build™ → shipped desks).  
+6. After the client approves the assignment, **Apply to SRM**. Prospect stakeholders, draft engagements, and open commitments land on the existing desks. Duplicate names/titles are skipped. Humans apply; the composer never writes the live desk alone. The composer does not invent SMS/WhatsApp portals or write Themba into the live case desk.
 
 On the **Executive dashboard** (`/app/dashboard`), **Engagement plan** is a primary button next to the page heading. The **Stakeholder engagement plans** module sits immediately under that heading (not below the empowerment KPIs). If the workspace plan does not include it, the same card stays on screen with an upgrade note. Linked plans also appear on a **project dashboard**. Plans stay in this workspace until a Cloud document type exists. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
 

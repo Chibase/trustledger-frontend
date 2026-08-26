@@ -5,7 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { SepDocumentView } from "@/components/sep/SepDocumentView";
+import { SepExportActions } from "@/components/sep/SepExportActions";
 import { SepProcessDashboard } from "@/components/sep/SepProcessDashboard";
+import { SepSrmGraph } from "@/components/sep/SepSrmGraph";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { applyEngagementPlanToSrm, previewSepApply } from "@/lib/sepApply";
@@ -34,15 +36,28 @@ export default function EngagementPlanDetailPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState("");
   const [purpose, setPurpose] = useState("");
+  const [place, setPlace] = useState("");
+  const [client, setClient] = useState("");
+  const [timeline, setTimeline] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     const handle = window.setTimeout(() => {
       if (cancelled) return;
       const row = id ? getEngagementPlan(id) : null;
-      setPlan(row);
-      setProjectId(row?.projectId || "");
-      setPurpose(row?.purposeStatement || "");
+      const hydrated =
+        row && row.documentSections[0]?.id === "purpose"
+          ? rebuildSepDocument(
+              { ...row, timelineHint: row.timelineHint || "" },
+              { touch: false },
+            )
+          : row;
+      setPlan(hydrated);
+      setProjectId(hydrated?.projectId || "");
+      setPurpose(hydrated?.purposeStatement || "");
+      setPlace(hydrated?.placeHint || "");
+      setClient(hydrated?.clientFunderHint || "");
+      setTimeline(hydrated?.timelineHint || "");
       setLoading(false);
       void projectService.list().then((rows) => {
         if (!cancelled) setProjects(rows);
@@ -66,6 +81,9 @@ export default function EngagementPlanDetailPage() {
     persist({
       ...plan,
       purposeStatement: purpose.trim() || plan.purposeStatement,
+      placeHint: place.trim(),
+      clientFunderHint: client.trim(),
+      timelineHint: timeline.trim(),
       projectId: projectId || null,
       status: plan.status === "suggested" ? "saved" : plan.status,
     });
@@ -76,10 +94,16 @@ export default function EngagementPlanDetailPage() {
     if (!plan) return;
     setApplying(true);
     try {
-      const result = await applyEngagementPlanToSrm({
+      const ready = persist({
         ...plan,
+        purposeStatement: purpose.trim() || plan.purposeStatement,
+        placeHint: place.trim(),
+        clientFunderHint: client.trim(),
+        timelineHint: timeline.trim(),
         projectId: projectId || plan.projectId,
+        status: plan.status === "suggested" ? "saved" : plan.status,
       });
+      const result = await applyEngagementPlanToSrm(ready);
       setPlan(result.plan);
       pushToast(
         result.stakeholders + result.engagements + result.commitments === 0
@@ -117,14 +141,14 @@ export default function EngagementPlanDetailPage() {
                 >
                   All plans
                 </Link>
-                {tab === "document" ? (
-                  <button
-                    type="button"
-                    onClick={() => window.print()}
-                    className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-                  >
-                    Print / PDF
-                  </button>
+                {plan ? (
+                  <SepExportActions
+                    plan={plan}
+                    onPrint={() => {
+                      setTab("document");
+                      window.setTimeout(() => window.print(), 120);
+                    }}
+                  />
                 ) : null}
               </div>
             }
@@ -218,13 +242,40 @@ export default function EngagementPlanDetailPage() {
                     className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
                   />
                 </label>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium">Place</span>
+                    <input
+                      value={place}
+                      onChange={(e) => setPlace(e.target.value)}
+                      className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium">Client</span>
+                    <input
+                      value={client}
+                      onChange={(e) => setClient(e.target.value)}
+                      className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium">Timeline</span>
+                    <input
+                      value={timeline}
+                      onChange={(e) => setTimeline(e.target.value)}
+                      className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                    />
+                  </label>
+                </div>
                 <button
                   type="button"
                   onClick={saveMeta}
                   className="rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium hover:bg-tl-paper"
                 >
-                  Save project & purpose
+                  Save project, place & purpose
                 </button>
+                <SepSrmGraph />
                 {preview ? (
                   <ul className="grid gap-3 sm:grid-cols-3">
                     <li className="rounded-md border border-tl-line px-3 py-3">

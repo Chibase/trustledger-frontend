@@ -1,5 +1,14 @@
 import Link from "next/link";
+import { SepMatrixBoard } from "@/components/sep/SepMatrixBoard";
+import { SepSrmGraph } from "@/components/sep/SepSrmGraph";
 import { SEP_SECTOR_PLAYBOOKS } from "@/data/sepSectors";
+import { SEP_SLB_LANES } from "@/lib/sepExecution";
+import {
+  interestForClass,
+  quadrantForClass,
+  SEP_QUADRANT_LABELS,
+  vulnerabilityForClass,
+} from "@/lib/sepMatrix";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
   SEP_MODULE_HREF,
@@ -44,6 +53,42 @@ export function SepProcessDashboard({ plan }: Props) {
           hint="Promise board on apply"
         />
       </section>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <h2 className="font-display text-lg font-semibold text-tl-ink">
+          Social Licence to Build™ → TrustLedger desks
+        </h2>
+        <p className="mt-1 text-sm text-tl-ink-muted">
+          Positioning mapped to shipped modules — not a separate unreleased
+          suite. Themba does not write the live desk.
+        </p>
+        <ul className="mt-3 grid gap-3 lg:grid-cols-2">
+          {SEP_SLB_LANES.map((row) => (
+            <li
+              key={row.id}
+              className="rounded-md border border-tl-line px-3 py-3"
+            >
+              <p className="text-xs font-semibold uppercase tracking-wide text-tl-trust">
+                {row.slbLabel}
+              </p>
+              <p className="mt-1 text-sm font-medium text-tl-ink">
+                {row.deskLabel}
+              </p>
+              <p className="mt-1 text-xs text-tl-ink-muted">{row.protocol}</p>
+              <Link
+                href={row.href}
+                className="mt-2 inline-block text-xs font-medium text-tl-trust-ink underline"
+              >
+                Open desk
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <SepSrmGraph />
+
+      <SepMatrixBoard plan={plan} />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
         <h2 className="font-display text-lg font-semibold text-tl-ink">
@@ -157,8 +202,10 @@ export function SepProcessDashboard({ plan }: Props) {
                 <th className="py-2 pr-3 font-medium">Class</th>
                 <th className="py-2 pr-3 font-medium">Kind</th>
                 <th className="py-2 pr-3 font-medium">Influence</th>
+                <th className="py-2 pr-3 font-medium">Interest</th>
+                <th className="py-2 pr-3 font-medium">Quadrant</th>
                 <th className="py-2 pr-3 font-medium">Purpose</th>
-                <th className="py-2 font-medium">Why / named</th>
+                <th className="py-2 font-medium">Why / vulnerability</th>
               </tr>
             </thead>
             <tbody>
@@ -173,11 +220,20 @@ export function SepProcessDashboard({ plan }: Props) {
                   <td className="py-2 pr-3 capitalize text-tl-ink-muted">
                     {row.influence}
                   </td>
+                  <td className="py-2 pr-3 capitalize text-tl-ink-muted">
+                    {interestForClass(row)}
+                  </td>
+                  <td className="py-2 pr-3 text-tl-ink-muted">
+                    {SEP_QUADRANT_LABELS[quadrantForClass(row)]}
+                  </td>
                   <td className="py-2 pr-3 text-tl-ink-muted">
                     {SEP_PURPOSE_LABELS[row.purpose]}
                   </td>
                   <td className="py-2 text-tl-ink-muted">
                     {row.why}
+                    <span className="mt-1 block text-xs">
+                      {vulnerabilityForClass(row)}
+                    </span>
                     {row.namedFromBrief?.length ? (
                       <span className="mt-1 block text-tl-ink">
                         Named: {row.namedFromBrief.join("; ")}
@@ -210,6 +266,13 @@ export function SepProcessDashboard({ plan }: Props) {
             Grievance path
           </h2>
           <p className="mt-2 text-sm text-tl-ink">{plan.grievancePath}</p>
+          <ol className="mt-3 list-decimal space-y-1 pl-4 text-xs text-tl-ink-muted">
+            <li>Lodgment — Report issue / Capture</li>
+            <li>Acknowledgment — case SLA due date</li>
+            <li>Investigation — Incidents desk</li>
+            <li>Resolution — named owner</li>
+            <li>Verify &amp; close — community / supervisor stamp</li>
+          </ol>
           <Link
             href="/app/incidents"
             className="mt-3 inline-block text-sm font-medium text-tl-trust-ink underline"

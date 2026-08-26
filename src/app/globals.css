@@ -78,6 +78,11 @@ body {
     box-shadow: none !important;
     border: none !important;
   }
+
+  body:has(#tl-sep-document) .sep-cover {
+    break-after: page;
+    padding-bottom: 2rem;
+  }
 }
 
 .font-display {

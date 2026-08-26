@@ -4,9 +4,12 @@
 
 - New **Engagement plan** desk (`/app/engagement-plan`): paste or upload an RFP / tender / briefing (PDF text layer or .txt / .md / .csv), or pick a sector playbook with no file.
 - Local composer maps a seven-phase process (inception → close-out) for infrastructure, housing, mining, energy, water, education, health, agriculture, municipal, conservation, logistics, or generic. Suggestion only — no Cloud LLM.
-- Outputs: process dashboard (who / when / which SRM module) and an eight-section presentable SEP (Print / PDF).
+- Outputs: process dashboard (power–interest, SLB → shipped desks) and a seven-section tender-grade SEP with execution protocols (Print / PDF cover, Markdown, Word).
 - After client approval, **Apply to SRM** seeds prospect stakeholders, draft engagements, and open commitments; duplicates skipped. Humans apply.
-- Executive dashboard (`/app/dashboard`): **Engagement plan** button beside the heading; **Stakeholder engagement plans** card immediately under it.
+- Tender-grade presentable SEP: cover page; Social Licence to Build™ philosophy mapped to shipped desks; regulatory mapping; power–interest / vulnerability; methods; grievance lifecycle (reported → deploy → investigate → resolve → verify → close); M&E from saved work. Each substantive section has a **TrustLedger SRM execution protocol**.
+- Compose **without a document**: facts pack (title, municipality/ward, client, timeline, named PAP/I&AP, ticked instruments such as NEMA/IFC/SLP/WULA) + sector playbook.
+- Export: branded **PDF** (cover, tables, execution protocols), Markdown, Word-compatible `.doc`, and print layout. Local composer — no Cloud LLM, no invented portals.
+- Live extract preview after paste/PDF upload (project, place, client, timeline, instruments) with human overrides before compose.
 - **Ops Executive Board** (`/ops/executive`): same module as a C-suite card under the brief heading, sidebar **Engagement plan** / **Open SEP desk**, and a TEDS domain row with Open → `/app/engagement-plan`.
 - Plans org-scoped by org id cookie / email (not a shared `session` bucket). Re-apply toasts only newly created rows.
 - Gated on existing `engagements` capability. Client gates also read the trial cookie / active org when the page did not pass a plan id. ADR-053.

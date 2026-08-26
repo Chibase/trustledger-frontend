@@ -9,7 +9,7 @@ import type { StakeholderInfluence, StakeholderKind } from "@/types/stakeholder"
 
 export type SepStatus = "draft" | "suggested" | "saved" | "applied";
 
-export type SepSourceKind = "rfp" | "tender" | "briefing" | "paste";
+export type SepSourceKind = "rfp" | "tender" | "briefing" | "paste" | "manual";
 
 export type SepSectorId =
   | "infrastructure"
@@ -47,13 +47,19 @@ export type SepPhaseId =
 
 export type SepPurpose = "inform" | "consult" | "decide" | "remediate";
 
+export type SepInterest = "high" | "medium" | "low";
+
 export type SepStakeholderClass = {
   id: string;
   label: string;
   kind: StakeholderKind;
   influence: StakeholderInfluence;
+  /** Interest in the outcome (power–interest matrix). Derived from purpose if omitted. */
+  interest?: SepInterest;
   purpose: SepPurpose;
   why: string;
+  /** How this class can be harmed or excluded if skipped. */
+  vulnerability?: string;
   namedFromBrief?: string[];
   module: SepModuleId;
 };
@@ -100,6 +106,8 @@ export type SepDocumentSection = {
   id: string;
   heading: string;
   body: string;
+  /** How TrustLedger operationalises this section (tender evidence). */
+  protocol?: string;
 };
 
 export type EngagementPlan = {
@@ -112,6 +120,7 @@ export type EngagementPlan = {
   projectNameHint: string;
   placeHint: string;
   clientFunderHint: string;
+  timelineHint: string;
   createdAt: string;
   updatedAt: string;
   sourceExcerpt: string;
@@ -144,6 +153,7 @@ export const SEP_SOURCE_LABELS: Record<SepSourceKind, string> = {
   tender: "Tender",
   briefing: "Briefing",
   paste: "Pasted brief",
+  manual: "Facts without a file",
 };
 
 export const SEP_SECTOR_LABELS: Record<SepSectorId, string> = {
