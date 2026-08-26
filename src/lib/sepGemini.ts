@@ -11,6 +11,7 @@ import {
   clientSepDocumentUsable,
   scrubSepClientCopy,
   SEP_DOCUMENT_SPECS,
+  SEP_TOOLS_PARAGRAPH,
 } from "@/lib/sepDocument";
 import type {
   EngagementPlan,
@@ -36,7 +37,7 @@ Required structure (nine sections, use the given ids and headings):
 1. Project overview — subsections **1.1 The project**, **1.2 This document**, **1.3 This plan**
 2. Regulatory and compliance framework — only statutes supplied in the facts
 3. Stakeholder identification and mapping — include **3.1 Stakeholder categorization matrix**
-4. Engagement methodology — include **4.1 Community-Based Participatory Research (CBPR)** and **4.2 Engagement schedule**
+4. Engagement methodology — include **4.1 Community-Based Participatory Research (CBPR)**, **4.2 Engagement schedule**, and **4.3 Tools**
 5. Grievance mechanism — five stages (lodgement, acknowledgement within 48 hours, investigation, resolution, close/escalation) and **5.2 Priority risks**
 6. Local economic participation — only if the briefing named targets; otherwise say they follow what the briefing names
 7. Monitoring, evaluation and reporting — **7.1 Indicators** with no invented numbers
@@ -44,7 +45,11 @@ Required structure (nine sections, use the given ids and headings):
 9. Summary for the client
 
 Hard bans (never write these in body or tables):
-TrustLedger, software product, dashboards, desks, Themba, Capture, Apply, execution protocol, Social Licence to Build, Frappe, Vercel, HubSpot, WhatsApp, SMS portal, GIS editing, 24/7 or 24-hour call centre, invented household counts, invented budgets, invented named people, invented portals.
+software product, dashboards, desks, Themba, Capture, Apply, execution protocol, TrustLedger Protocol, SL2B protocol, Frappe, Vercel, HubSpot, WhatsApp, SMS portal, GIS editing, 24/7 or 24-hour call centre, invented household counts, invented budgets, invented named people, invented portals, product architecture, three shipped anchors.
+
+Do not write a heading or paragraph called TrustLedger Protocol, SL2B, or Social Licence to Build protocol. Do not annex SL2B anywhere in the document.
+
+In section 4 only, include one short **4.3 Tools** paragraph: TrustLedger is the record of engagements, promises, and grievances; Social Licence to Build (SL2B) is the sequencing frame (who is met, in what order, how promises are kept). They are tools, not a protocol annex. Do not mention TrustLedger or SL2B in any other section.
 
 If a fact is missing, say it will be locked at inception. Do not invent counterparts.
 Relocation / RAP assignments: census → entitlements → host-community consent → move-week helpdesk → livelihood restoration. One grievance path. This is not a full RAP if the client still requires a separate RAP.
@@ -163,7 +168,7 @@ function tableSafe(
   allowed: string,
 ): boolean {
   const blob = `${table.headers.join(" ")} ${table.rows.flat().join(" ")}`;
-  if (/TrustLedger|Themba|Capture|WhatsApp|Social Licence/i.test(blob)) {
+  if (/TrustLedger Protocol|Themba|Capture|WhatsApp|SL-?2?B protocol/i.test(blob)) {
     return false;
   }
   if (inventedCount(blob, allowed)) return false;
@@ -232,6 +237,25 @@ function draftedSections(
   return out;
 }
 
+function confineToolsToMethods(id: string, body: string): string {
+  if (id === "methods") {
+    if (
+      /TrustLedger/i.test(body) &&
+      /SL-?2?B|Social Licence to Build/i.test(body)
+    ) {
+      return body;
+    }
+    return `${body}\n\n${SEP_TOOLS_PARAGRAPH}`.trim();
+  }
+  return body
+    .replace(/\bTrustLedger(?:\s+SRM)?\b/gi, "")
+    .replace(/\bSocial Licence to Build(?:™)?\b/gi, "")
+    .replace(/\bSL-?2?B\b/g, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+([.,;:])/g, "$1")
+    .trim();
+}
+
 export function mergeDraftedSections(
   plan: Omit<EngagementPlan, "documentSections">,
   parsed: Record<string, unknown> | null,
@@ -258,7 +282,7 @@ export function mergeDraftedSections(
     const next: SepDocumentSection = {
       id: section.id,
       heading: spec?.heading || section.heading,
-      body: usedDraft ? body : section.body,
+      body: confineToolsToMethods(section.id, usedDraft ? body : section.body),
     };
     if (tables?.length) next.tables = tables;
     return next;

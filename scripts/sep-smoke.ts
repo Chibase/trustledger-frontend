@@ -48,6 +48,25 @@ const housingDoc = housing.documentSections.map((row) => row.body).join("\n");
 if (architectureEssay.test(housingDoc)) {
   checks.push("housing document still contains architecture copy");
 }
+if (/TrustLedger Protocol|SL-?2?B protocol/i.test(housingDoc)) {
+  checks.push("housing still has TrustLedger Protocol / SL2B annex");
+}
+const housingMethods =
+  housing.documentSections.find((row) => row.id === "methods")?.body || "";
+if (
+  !/\*\*4\.3 Tools\.\*\*/.test(housingMethods) ||
+  !/TrustLedger/.test(housingMethods) ||
+  !/SL2B/.test(housingMethods)
+) {
+  checks.push("housing methods missing TrustLedger / SL2B tools paragraph");
+}
+const housingNonMethods = housing.documentSections
+  .filter((row) => row.id !== "methods")
+  .map((row) => row.body)
+  .join("\n");
+if (/TrustLedger|SL-?2?B/.test(housingNonMethods)) {
+  checks.push("TrustLedger / SL2B leaked outside methodology");
+}
 if (!housing.placeHint.toLowerCase().includes("ward")) {
   checks.push(`housing place=${housing.placeHint}`);
 }
@@ -133,7 +152,7 @@ if (!preview.instruments.some((row) => row.id === "nema-eia")) {
 }
 
 const md = planToMarkdown(housing);
-if (md.includes("TrustLedger SRM execution protocol")) {
+if (md.includes("TrustLedger SRM execution protocol") || /TrustLedger Protocol/i.test(md)) {
   checks.push("markdown still has execution protocol");
 }
 if (!md.includes("| Stakeholder category |") && !md.includes("| Engagement mechanism |")) {
@@ -356,7 +375,7 @@ const geminiMerge = mergeDraftedSections(
       heading: row.heading,
       body:
         row.id === "summary"
-          ? "**1.1 The project.** This assignment is a housing upgrade for the named municipality over the contract period. Themba will answer WhatsApp 24/7. 400 households will move before census. **1.2 This document.** This is the Stakeholder Engagement Plan Chibase Consulting will follow if appointed. **1.3 This plan.** Identify, consult, record promises, and redress harm."
+          ? "**TrustLedger Protocol - SL2B**\n\n**1.1 The project.** This assignment is a housing upgrade for the named municipality over the contract period. Themba will answer WhatsApp 24/7. 400 households will move before census. **1.2 This document.** This is the Stakeholder Engagement Plan Chibase Consulting will follow if appointed. **1.3 This plan.** Identify, consult, record promises, and redress harm."
           : `${row.body}\n\nAdditional Gemini paragraph for ${row.id} covering what will be done, how, when, and by whom on this assignment so the procuring entity can read the plan.`,
       tables: row.id === "stakeholders" ? [extraStakeholderTable] : row.tables,
     })),
@@ -367,6 +386,14 @@ const geminiSummary =
   geminiMerge.sections.find((row) => row.id === "summary")?.body || "";
 if (/Themba|WhatsApp|400 households/i.test(geminiSummary)) {
   checks.push("gemini merge leaked banned copy or invented households");
+}
+if (/TrustLedger Protocol|SL-?2?B protocol/i.test(geminiSummary)) {
+  checks.push("gemini merge kept TrustLedger Protocol annex");
+}
+const geminiMethods =
+  geminiMerge.sections.find((row) => row.id === "methods")?.body || "";
+if (!/TrustLedger/i.test(geminiMethods) || !/SL2B/i.test(geminiMethods)) {
+  checks.push("gemini merge dropped methodology tools");
 }
 if (geminiMerge.draftedCount < 6) {
   checks.push(`gemini draftedCount=${geminiMerge.draftedCount}`);

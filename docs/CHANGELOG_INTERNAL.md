@@ -17,6 +17,7 @@
 - **Client report voice:** the exported SEP is a bid-grade report (what / how / when / who, CBPR, risks, GRM, M&E, conclusion). TrustLedger and Chibase Consulting appear as letterhead only. No execution-protocol boxes, Themba, Capture, Apply, or product architecture in client-facing copy. Operator dashboard still maps SLB → shipped desks. ADR-053.
 - **Tender layout:** cover block (project, procuring entity, implementing entity, duration, framework), numbered sections with 1.1-style subsections, and tables for stakeholders, engagement schedule, risks, and KPIs — matching a funder-readable SEP, not a wall of product copy. Junk titles such as “Inception report” are skipped. Municipality name fragments are collapsed.
 - **Gemini drafts the document:** extract + sector/RAP playbook stay local; Gemini writes the nine-section client SEP (server `GEMINI_API_KEY`, same model as marketing). Suggest → human save. Missing key or a rejected payload falls back to the playbook template. Product voice, invented counts, and portals are stripped. Activity reports still use `reportComposer` (no Grok/Frappe). ADR-053.
+- **No TrustLedger Protocol / SL2B annex:** that paragraph is stripped from the client document. TrustLedger and Social Licence to Build (SL2B) appear only as tools in methodology (record + sequencing frame). Operator dashboard still maps SLB → desks. ADR-053.
 
 ## 2026-08-25 — ClickUp diary live on Chibase Workspace
 

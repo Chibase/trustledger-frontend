@@ -113,34 +113,73 @@ export const SEP_DOCUMENT_SPECS = [
 ] as const;
 
 export const SEP_ARCHITECTURE_VOICE =
-  /three shipped anchors|strategic advisory|rapid-response workflows|srm integration|TrustLedger SRM execution protocol|Themba|shipped modules|Capture templates|Apply seeds|Social Licence to Build/i;
+  /three shipped anchors|strategic advisory|rapid-response workflows|srm integration|TrustLedger SRM execution protocol|TrustLedger Protocol|SL-?2?B protocol|Themba|shipped modules|Capture templates|Apply seeds/i;
 
-export function scrubSepClientCopy(value: string): string {
-  return value
-    .replace(/\([^)]*Capture[^)]*\)/gi, "")
-    .replace(/\bCapture(?:\s+minutes)?(?:\s+template)?s?\b/gi, "meeting records")
-    .replace(/\bon Capture\b/gi, "on the meeting record")
-    .replace(/\bsit on Incidents\b/gi, "are entered in the grievance register")
-    .replace(/\bIncidents\b/g, "the grievance register")
-    .replace(/\bTrustLedger(?:\s+SRM)?\b/gi, "")
-    .replace(/\bThemba\b/gi, "")
-    .replace(/\bApply\b/g, "")
-    .replace(/\bSocial Licence to Build(?:™)?\b/gi, "")
-    .replace(/\bexecution protocols?\b/gi, "")
-    .replace(/\bWhatsApp\b/gi, "")
-    .replace(/\bFrappe\b/gi, "")
-    .replace(/\bVercel\b/gi, "")
-    .replace(/\bHubSpot\b/gi, "")
-    .replace(/\b24\/7\b/gi, "")
-    .replace(/\b24-hour call centres?\b/gi, "")
-    .replace(/\bSMS portals?\b/gi, "")
-    .replace(/\s{2,}/g, " ")
-    .replace(/\s+([.,;:])/g, "$1")
+export const SEP_PROTOCOL_HEADING =
+  /TrustLedger Protocol|SL-?2?B protocol|TrustLedger SRM execution protocol/i;
+
+/** Methodology-only: tools, not a protocol annex. */
+export const SEP_TOOLS_PARAGRAPH =
+  "**4.3 Tools.** TrustLedger is the record of engagements, promises, and grievances on this assignment. Social Licence to Build (SL2B) is the sequencing frame — who is met, in what order, and how promises are kept. They are tools Chibase Consulting uses to run the plan, not a separate protocol annex.";
+
+export function stripSepProtocolCopy(value: string): string {
+  let text = value.replace(/\u0000/g, "");
+  text = text.replace(
+    /(?:^|\n)\s*\**\d+(?:\.\d+)?\.?\s*TrustLedger Protocol[^\n]*(?:\n(?!\s*\*\*\d)[^\n]*)*/gi,
+    "\n",
+  );
+  text = text.replace(
+    /(?:^|\n)\s*\**TrustLedger Protocol(?:\s*[—–\-]\s*SL-?2?B)?[^\n]*(?:\n(?!\s*\*\*\d)[^\n]*)*/gi,
+    "\n",
+  );
+  text = text.replace(/\bTrustLedger Protocol(?:\s*[—–\-]\s*SL-?2?B)?\b/gi, "");
+  text = text.replace(/\bSL-?2?B protocol\b/gi, "");
+  text = text.replace(/\bexecution protocols?\b/gi, "");
+  return text
+    .split(/\n{2,}/)
+    .filter(
+      (para) =>
+        para.trim() &&
+        !SEP_PROTOCOL_HEADING.test(para) &&
+        !/three shipped anchors|strategic advisory architecture|srm integration/i.test(
+          para,
+        ),
+    )
+    .join("\n\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
+export function scrubSepClientCopy(value: string): string {
+  return stripSepProtocolCopy(
+    value
+      .replace(/\([^)]*Capture[^)]*\)/gi, "")
+      .replace(/\bCapture(?:\s+minutes)?(?:\s+template)?s?\b/gi, "meeting records")
+      .replace(/\bon Capture\b/gi, "on the meeting record")
+      .replace(/\bsit on Incidents\b/gi, "are entered in the grievance register")
+      .replace(/\bIncidents\b/g, "the grievance register")
+      .replace(/\bThemba\b/gi, "")
+      .replace(/\bApply\b/g, "")
+      .replace(/\bWhatsApp\b/gi, "")
+      .replace(/\bFrappe\b/gi, "")
+      .replace(/\bVercel\b/gi, "")
+      .replace(/\bHubSpot\b/gi, "")
+      .replace(/\b24\/7\b/gi, "")
+      .replace(/\b24-hour call centres?\b/gi, "")
+      .replace(/\bSMS portals?\b/gi, "")
+      .replace(/\s{2,}/g, " ")
+      .replace(/\s+([.,;:])/g, "$1"),
+  );
+}
+
 function fieldVoice(value: string): string {
-  return scrubSepClientCopy(value);
+  return scrubSepClientCopy(value)
+    .replace(/\bTrustLedger(?:\s+SRM)?\b/gi, "the record")
+    .replace(/\bSocial Licence to Build(?:™)?\b/gi, "the engagement sequence")
+    .replace(/\bSL-?2?B\b/g, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+([.,;:])/g, "$1")
+    .trim();
 }
 
 export function clientSepDocumentUsable(
@@ -152,7 +191,9 @@ export function clientSepDocumentUsable(
   if (SEP_DOCUMENT_SPECS.some((spec) => !ids.has(spec.id))) return false;
   if (sections.some((row) => row.protocol)) return false;
   const blob = sections.map((row) => `${row.heading}\n${row.body}`).join("\n");
-  if (SEP_ARCHITECTURE_VOICE.test(blob)) return false;
+  if (SEP_ARCHITECTURE_VOICE.test(blob) || SEP_PROTOCOL_HEADING.test(blob)) {
+    return false;
+  }
   if (!sections.find((row) => row.id === "stakeholders")?.tables?.length) {
     return false;
   }
@@ -283,6 +324,8 @@ function methodsBody(plan: Omit<EngagementPlan, "documentSections">): string {
     rap
       ? "Cut-off and census precede entitlement workshops. Host consultation precedes first arrivals. The grievance path is briefed at first public contact, census launch, and move week."
       : "Courtesy precedes public notice. Every later meeting opens with the promise log.",
+    "",
+    SEP_TOOLS_PARAGRAPH,
   ].join("\n");
 }
 
