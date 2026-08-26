@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   hasCapability,
+  resolveClientPlanId,
   upgradeHrefForCapability,
 } from "@/lib/entitlements";
 import type { PlanId } from "@/config/plans";
@@ -36,7 +37,7 @@ export function FeatureGate({
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      setAllowed(hasCapability(capability, planId));
+      setAllowed(hasCapability(capability, resolveClientPlanId(planId)));
     });
     return () => cancelAnimationFrame(frame);
   }, [capability, planId]);

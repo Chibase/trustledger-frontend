@@ -4,7 +4,9 @@
  */
 
 import { DEMO_CAPABILITIES, PLAN_CAPABILITIES } from "@/config/entitlements";
-import { PLANS, type PlanId } from "@/config/plans";
+import { isPlanId, PLANS, type PlanId } from "@/config/plans";
+import { TL_TRIAL_PLAN_COOKIE } from "@/lib/auth.constants";
+import { getActiveOrg } from "@/lib/orgStore";
 import {
   CAPABILITIES,
   type CapabilityId,
@@ -151,6 +153,30 @@ export function hasCapabilityForPlan(
   planId?: PlanId | null,
 ): boolean {
   return baseCapabilitiesForPlan(planId).includes(capability);
+}
+
+function readBrowserCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`));
+  if (!match) return undefined;
+  return decodeURIComponent(match.split("=").slice(1).join("="));
+}
+
+/**
+ * Client plan for gates: explicit prop, then trial/live cookie, then the
+ * active org. Missing all three stays `null` so callers keep the Project lens.
+ */
+export function resolveClientPlanId(
+  explicit?: PlanId | null,
+): PlanId | null {
+  if (explicit) return explicit;
+  if (typeof window === "undefined") return null;
+  const cookie = readBrowserCookie(TL_TRIAL_PLAN_COOKIE);
+  if (cookie && isPlanId(cookie)) return cookie;
+  const orgPlan = getActiveOrg()?.planId;
+  return orgPlan && isPlanId(orgPlan) ? orgPlan : null;
 }
 
 /** @deprecated Add-ons no longer unlock above-plan features in Settings. */

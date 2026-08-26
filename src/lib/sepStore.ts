@@ -59,6 +59,14 @@ export function getEngagementPlan(id: string): EngagementPlan | null {
   return listEngagementPlans().find((row) => row.id === id) || null;
 }
 
+export function listEngagementPlansForProject(
+  projectId: string,
+): EngagementPlan[] {
+  const id = projectId.trim();
+  if (!id) return [];
+  return listEngagementPlans().filter((row) => row.projectId === id);
+}
+
 export function saveEngagementPlan(plan: EngagementPlan): EngagementPlan {
   const next: EngagementPlan = {
     ...plan,

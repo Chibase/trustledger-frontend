@@ -13,6 +13,7 @@ import { listWorkspaceProjects } from "@/lib/workspaceData";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
+import type { PlanId } from "@/config/plans";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
 import type { UserRole } from "@/types/rbac";
@@ -21,9 +22,10 @@ type Props = {
   params: Promise<{ id: string }>;
   role: UserRole;
   authorName: string;
+  planId?: PlanId | null;
 };
 
-export function ProjectDetailClient({ params, role, authorName }: Props) {
+export function ProjectDetailClient({ params, role, authorName, planId = null }: Props) {
   const { id } = use(params);
   const [project, setProject] = useState<Project | null | undefined>(undefined);
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -103,6 +105,7 @@ export function ProjectDetailClient({ params, role, authorName }: Props) {
       incidents={incidents}
       role={role}
       authorName={authorName}
+      planId={planId}
       onProjectSaved={setProject}
     />
   );

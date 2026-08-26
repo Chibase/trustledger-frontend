@@ -8,6 +8,7 @@ import {
 } from "@/components/ops/charts/BarChart";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
+import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPortfolioOverview,
@@ -39,6 +40,7 @@ type Props = {
  */
 export function ExecutivePortfolioDashboard({
   role,
+  planId = null,
   isPlanOwner = false,
   seedIncidents = [],
   seedProjects = [],
@@ -91,20 +93,31 @@ export function ExecutivePortfolioDashboard({
 
   return (
     <div className="space-y-7">
-      <header className="space-y-2">
-        <p className="text-sm font-medium text-tl-trust">Executive dashboard</p>
-        <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
-          {isPlanOwner
-            ? "Projects overview"
-            : "Projects you work on"}
-        </h1>
-        <p className="max-w-2xl text-sm text-tl-ink-muted">
-          Roll-up of empowerment budgets, targets, and progress across your
-          projects (including Draft). Open a project dashboard to capture,
-          monitor, edit, and generate reports — that data feeds this view.
-          Desk: {DESK_TIER_LABELS[tier]}.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-tl-trust">Executive dashboard</p>
+          <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
+            {isPlanOwner
+              ? "Projects overview"
+              : "Projects you work on"}
+          </h1>
+          <p className="max-w-2xl text-sm text-tl-ink-muted">
+            Roll-up of empowerment budgets, targets, and progress across your
+            projects (including Draft). Open a project dashboard to capture,
+            monitor, edit, and generate reports — that data feeds this view.
+            Stakeholder engagement plans sit on this roll-up until you apply
+            them to the SRM. Desk: {DESK_TIER_LABELS[tier]}.
+          </p>
+        </div>
+        <Link
+          href="/app/engagement-plan"
+          className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+        >
+          Engagement plan
+        </Link>
       </header>
+
+      <SepDashboardPanel planId={planId} alwaysShow />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(totals.projectCount)} />
