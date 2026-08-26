@@ -6,6 +6,7 @@ import {
 } from "@/lib/sepMatrix";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
+  SEP_PROGRAMME_LABELS,
   SEP_PURPOSE_LABELS,
   SEP_SECTOR_LABELS,
   SEP_SOURCE_LABELS,
@@ -39,11 +40,17 @@ export function SepDocumentView({ plan }: Props) {
           {plan.title}
         </h2>
         <p className="mt-3 max-w-xl text-sm text-tl-ink-muted">
-          Tender-grade working plan mapped to Social Licence to Build™ and
-          executed on the TrustLedger desk after award. Suggestion until a human
-          applies rows. Not legal advice.
+          {plan.programmeKind === "relocation"
+            ? "Operating plan for census, entitlements, host consultation, the physical move, livelihood restoration, and one grievance path. Suggestion until a human applies rows. Not legal advice."
+            : "Working stakeholder engagement plan executed on the TrustLedger desk after award. Suggestion until a human applies rows. Not legal advice."}
         </p>
         <dl className="mt-8 grid gap-3 text-sm sm:grid-cols-2">
+          {plan.programmeKind === "relocation" ? (
+            <Meta
+              label="Programme"
+              value={SEP_PROGRAMME_LABELS.relocation}
+            />
+          ) : null}
           <Meta label="Sector" value={SEP_SECTOR_LABELS[plan.sectorId]} />
           <Meta
             label="Source"

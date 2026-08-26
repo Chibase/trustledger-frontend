@@ -16,9 +16,15 @@ export const SEP_INSTRUMENT_CATALOG: SepInstrumentDef[] = [
   },
   {
     id: "ifc",
-    re: /\b(ifc performance|equator principle|ps1|esai|esmp)\b/i,
+    re: /\b(ifc performance|equator principle|ps1|esai|esmp|performance standard)\b/i,
     label: "Funder safeguard (IFC / Equator — as cited)",
     note: "Only the standard named in the RFP. Map it onto registry, engagements, and grievance.",
+  },
+  {
+    id: "ifc-ps5",
+    re: /\b(ifc\s*ps\s*5|performance standard 5|involuntary resettlement|resettlement action|\brap\b|livelihood restoration)\b/i,
+    label: "Involuntary resettlement (IFC PS5 / RAP — as cited)",
+    note: "Census, cut-off date, eligibility, entitlements, host community, and livelihood restoration become logged engagements and owned commitments — not an appendix RAP.",
   },
   {
     id: "mprda-slp",

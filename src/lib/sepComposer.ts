@@ -3,18 +3,13 @@
  * Suggestions only; humans apply. Does not call Cloud LLM (reportComposer rule).
  */
 
+import { overlayRelocationPlaybook, detectSepProgramme } from "@/data/sepRelocation";
 import { SEP_SECTOR_PLAYBOOKS } from "@/data/sepSectors";
-import { SEP_SLB_LANES, SLB_PHILOSOPHY } from "@/lib/sepExecution";
+import { buildSepDocument } from "@/lib/sepDocument";
 import {
   catalogInstrumentsByIds,
   detectCatalogInstruments,
 } from "@/lib/sepInstruments";
-import {
-  interestForClass,
-  quadrantForClass,
-  SEP_QUADRANT_LABELS,
-  vulnerabilityForClass,
-} from "@/lib/sepMatrix";
 import type {
   EngagementPlan,
   SepInstrument,
@@ -28,9 +23,9 @@ const SECTOR_HINTS: Array<{ id: SepSectorId; re: RegExp }> = [
   { id: "mining", re: /\b(mining|mine|mprda|slp|extractive|opencast|shaft)\b/i },
   { id: "energy", re: /\b(ipp|reipppp|solar|wind farm|pv plant|substation|grid connection|generation)\b/i },
   { id: "water", re: /\b(wula|water use|sanitation|wastewater|reservoir|bulk water|sewer)\b/i },
-  { id: "housing", re: /\b(housing|human settlement|bn g|rental stock|informal settlement|beneficiary list)\b/i },
+  { id: "housing", re: /\b(housing|human settlement|bn g|rental stock|informal settlement|beneficiary list|relocation|resettlement|\brap\b|migration plan|displaced household)\b/i },
   { id: "infrastructure", re: /\b(road|highway|bridge|stormwater|bulk earthworks|public works|civil works)\b/i },
-  { id: "municipal", re: /\b(idp|led strategy|municipality|ward committee|mfma|municipal)\b/i },
+  { id: "municipal", re: /\b(idp|led strategy|ward committee|mfma|municipal manager|public participation calendar)\b/i },
   { id: "conservation", re: /\b(protected area|heritage|sahra|stewardship|biodiversity|national park)\b/i },
   { id: "logistics", re: /\b(port|harbour|rail yard|freight|container terminal|truck staging)\b/i },
   { id: "agriculture", re: /\b(irrigation|smallholder|agri[- ]?park|farmers. association|grazing)\b/i },
@@ -55,6 +50,42 @@ function unique(values: string[]): string[] {
     out.push(value);
   }
   return out;
+}
+
+function extractLabeled(text: string, labels: string[]): string {
+  const label = labels
+    .map((row) => row.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+  const sameLine = new RegExp(
+    `(?:^|\\n)\\s*(?:${label})(?:\\s*/\\s*procuring entity)?\\s*[:—-]\\s*([^\\n]{3,140})`,
+    "i",
+  );
+  const same = text.match(sameLine);
+  if (same?.[1]) {
+    const value = same[1].replace(/\s+/g, " ").trim();
+    if (value && !/^(entity|procuring entity)$/i.test(value)) return value;
+  }
+  const nextLine = new RegExp(
+    `(?:^|\\n)\\s*(?:${label})(?:\\s*/\\s*procuring entity)?\\s*\\n\\s*([^\\n]{3,140})`,
+    "i",
+  );
+  const next = text.match(nextLine);
+  if (next?.[1]) {
+    const value = next[1].replace(/\s+/g, " ").trim();
+    if (
+      value &&
+      !/^(entity|procuring entity|sector|source|client|timeline|issued|plan id)$/i.test(
+        value,
+      )
+    ) {
+      return value;
+    }
+  }
+  return "";
+}
+
+function stripSepPrefix(value: string): string {
+  return value.replace(/^sep\s*[—–-]\s*/i, "").trim();
 }
 
 export function detectSepSector(text: string): SepSectorId {
@@ -92,32 +123,45 @@ export function detectSepSourceKind(text: string): SepSourceKind {
 }
 
 function extractTitle(text: string): string {
+  const labeled = extractLabeled(text, [
+    "assignment",
+    "project",
+    "programme",
+    "title",
+    "working title",
+  ]);
+  if (labeled) return stripSepPrefix(labeled).slice(0, 140);
   const lines = cleanLines(text).slice(0, 40);
-  const named = lines.find((line) =>
-    /^(project|programme|assignment|title)\s*[:—-]/i.test(line),
-  );
-  if (named) {
-    return named.replace(/^(project|programme|assignment|title)\s*[:—-]\s*/i, "").slice(0, 140);
-  }
-  const heading = lines.find(
+  const skip =
+    /^(request for proposal|invitation to bid|confidential|page \d|stakeholder engagement plan|trustledger|tender-grade|prepared on|suggestion until|not legal advice|social licence|sector|source|client|timeline|issued|plan id|working title)/i;
+  const rapLine = lines.find(
     (line) =>
-      line.length > 12 &&
+      /relocation and migration|resettlement action|\brap\b/i.test(line) &&
       line.length < 140 &&
-      !/^(request for proposal|confidential|page \d)/i.test(line),
+      !skip.test(line),
   );
-  return heading || "Stakeholder engagement plan";
+  if (rapLine) return stripSepPrefix(rapLine).slice(0, 140);
+  const heading = lines.find(
+    (line) => line.length > 12 && line.length < 140 && !skip.test(line),
+  );
+  return stripSepPrefix(heading || "Stakeholder engagement plan") || "Stakeholder engagement plan";
 }
 
 function extractPlace(text: string): string {
+  const labeled = extractLabeled(text, ["place", "location", "site"]);
+  const skipLabeled = /not yet locked|still to be|to be confirmed|inception must/i;
   const ward = text.match(/\bward\s+(\d{1,3})\b/i);
   const muni = text.match(
-    /\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,3}\s+(?:local|metropolitan)\s+municipality)\b/,
+    /\b([A-Z][A-Za-z]+(?:[\s-][A-Z][A-Za-z]+){0,6}\s+(?:Local|Metropolitan)\s+Municipality)\b/,
   );
   const district = text.match(
-    /\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,2}\s+district(?:\s+municipality)?)\b/,
+    /\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,2}\s+district(?:\s+municipality)?)\b/i,
   );
+  const client = extractClient(text);
+  const fromClient = /municipality/i.test(client) ? client : "";
   const parts = [
-    muni?.[1],
+    labeled && !skipLabeled.test(labeled) ? labeled : null,
+    muni?.[1] || fromClient || null,
     district?.[1],
     ward ? `Ward ${ward[1]}` : null,
     text.match(/\b(eastern cape|western cape|gauteng|kwazulu-natal|limpopo|mpumalanga|north west|northern cape|free state)\b/i)?.[1],
@@ -126,10 +170,14 @@ function extractPlace(text: string): string {
 }
 
 function extractTimeline(text: string): string {
-  const labeled = text.match(
-    /\b(?:contract period|duration|timeline|programme period|construction period)\s*[:—-]\s*([^\n.]{6,80})/i,
-  );
-  if (labeled?.[1]) return labeled[1].trim();
+  const labeled = extractLabeled(text, [
+    "timeline",
+    "contract period",
+    "duration",
+    "programme period",
+    "construction period",
+  ]);
+  if (labeled) return labeled;
   const span = text.match(
     /\b((?:january|february|march|april|may|june|july|august|september|october|november|december)\s+20\d{2}\s+(?:to|–|-|through)\s+(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+20\d{2})\b/i,
   );
@@ -141,10 +189,13 @@ function extractTimeline(text: string): string {
 }
 
 function extractClient(text: string): string {
-  const labeled = text.match(
-    /\b(?:client|employer|procuring entity|department)\s*[:—-]\s*([^\n.]{8,80})/i,
-  );
-  if (labeled?.[1]) return labeled[1].trim();
+  const labeled = extractLabeled(text, [
+    "client",
+    "employer",
+    "procuring entity",
+    "department",
+  ]);
+  if (labeled) return labeled;
   const org = text.match(
     /\b([A-Z][A-Za-z0-9&.’' -]{3,60}(?:Pty Ltd|Limited|Municipality|Department|Agency|SOC))\b/,
   );
@@ -153,14 +204,30 @@ function extractClient(text: string): string {
 
 function extractNamedParties(text: string): string[] {
   const matches = text.match(
-    /\b[A-Z][A-Za-z0-9&.’']+(?:\s+[A-Z][A-Za-z0-9&.’']+){0,4}\s+(?:Pty Ltd|Ltd|Limited|Municipality|Traditional Council|Royal Council|Trust|Forum|Association)\b/g,
+    /\b[A-Z][A-Za-z0-9&.’']+(?:\s+[A-Z][A-Za-z0-9&.’']+){0,6}\s+(?:Pty Ltd|Ltd|Limited|Municipality|Traditional Council|Royal Council|Trust|Forum|Association)\b/g,
   );
-  return unique(matches || []).slice(0, 8);
+  return preferLongestOrgs(matches || []);
+}
+
+function preferLongestOrgs(names: string[]): string[] {
+  const junk =
+    /^(the|a|an)\s+(municipality|department|client)$|^municipality$|^the municipality$/i;
+  const cleaned = unique(names.map((n) => n.trim()).filter((n) => n && !junk.test(n)));
+  const sorted = [...cleaned].sort((a, b) => b.length - a.length);
+  const kept: string[] = [];
+  for (const name of sorted) {
+    const lower = name.toLowerCase();
+    if (kept.some((row) => row.toLowerCase().includes(lower) && row.length > name.length)) {
+      continue;
+    }
+    kept.push(name);
+  }
+  return kept.slice(0, 6);
 }
 
 function extractPurpose(text: string): string {
-  if (/\b(resettle|rap\b|relocation)\b/i.test(text)) {
-    return "Consult affected people on land access and livelihood change, and keep a grievance path that can carry RAP issues without losing the thread.";
+  if (/\b(resettle|rap\b|relocation|migration plan|displacement)\b/i.test(text)) {
+    return "Consult project-affected households on displacement, entitlement options, host sites, and livelihood restoration, and keep a grievance path that can carry RAP issues through the physical move without losing the thread.";
   }
   if (/\b(grievance|complaint|remediat)/i.test(text)) {
     return "Remediate existing harm and restore a credible update cadence — not only announce the next phase of works.";
@@ -203,7 +270,11 @@ function mergeNamedIntoClasses(
     }
     return row;
   });
-  const leftover = named.filter((name) => !attached.has(name.toLowerCase()));
+  const leftover = named.filter(
+    (name) =>
+      !attached.has(name.toLowerCase()) &&
+      !/municipality|department|pty ltd|\bltd\b|limited$/i.test(name),
+  );
   if (!leftover.length) return next;
   let placed = false;
   return next.map((row) => {
@@ -220,119 +291,6 @@ function mergeNamedIntoClasses(
     }
     return row;
   });
-}
-
-function lane(id: (typeof SEP_SLB_LANES)[number]["id"]) {
-  return SEP_SLB_LANES.find((row) => row.id === id)!;
-}
-
-function buildDocument(plan: Omit<EngagementPlan, "documentSections">): EngagementPlan["documentSections"] {
-  const sector = SEP_SECTOR_LABELS[plan.sectorId];
-  const named = plan.stakeholderClasses
-    .flatMap((row) => row.namedFromBrief || [])
-    .slice(0, 8);
-  const map = lane("map");
-  const grievance = lane("grievance");
-  const procure = lane("procure");
-  const engage = lane("engage");
-  const themba = lane("themba");
-
-  const matrix = plan.stakeholderClasses
-    .map((row) => {
-      const q = SEP_QUADRANT_LABELS[quadrantForClass(row)];
-      return `**${row.label}** — power ${row.influence}, interest ${interestForClass(row)} → **${q}**. ${row.why} Vulnerability: ${vulnerabilityForClass(row)}${
-        row.namedFromBrief?.length ? ` Named in brief: ${row.namedFromBrief.join(", ")}.` : ""
-      }`;
-    })
-    .join("\n\n");
-
-  return [
-    {
-      id: "summary",
-      heading: "1. Executive summary & Social Licence to Build™ philosophy",
-      body: [
-        plan.purposeStatement,
-        "",
-        `This Stakeholder Engagement Plan is prepared for a **${sector.toLowerCase()}** assignment from a ${plan.sourceKind === "manual" ? "structured facts pack (no tender file)" : `${plan.sourceKind} extract`}. Working title: ${plan.projectNameHint || "to be confirmed in inception"}.`,
-        plan.clientFunderHint
-          ? `Procuring entity / client (${plan.sourceKind === "manual" ? "from facts" : "from brief"}): ${plan.clientFunderHint}.`
-          : null,
-        plan.placeHint ? `Place sketched: ${plan.placeHint}.` : "Place is not yet locked — inception must name municipality, ward, and customary structure.",
-        plan.timelineHint ? `Timeline sketched: ${plan.timelineHint}.` : "Contract period was not extracted — add it before the client presentation.",
-        "",
-        SLB_PHILOSOPHY,
-      ]
-        .filter((row) => row !== null)
-        .join("\n"),
-      protocol: `${map.protocol}\n\n${engage.protocol}\n\n${themba.protocol}`,
-    },
-    {
-      id: "compliance",
-      heading: "2. Regulatory & compliance mapping",
-      body: plan.instruments.length
-        ? plan.instruments
-            .map((row) => `**${row.label}.** ${row.note}`)
-            .join("\n\n")
-        : "No statute or funder safeguard was confidently extracted. Add only instruments the client or briefing confirms (for example NEMA public participation, IFC Performance Standards, SLP, WULA). This section is not legal advice.",
-      protocol:
-        "Cited instruments become Engagement cadence (statutory meetings) and Commitments (conditions with owners). They are not parked in an appendix. Geo / Place attaches the ward and customary structure the instrument is exercised in.",
-    },
-    {
-      id: "stakeholders",
-      heading: "3. Stakeholder identification & vulnerability analysis",
-      body: `${matrix}\n\nPower–interest is a working segmentation for the desk, not a political judgement. PAP / I&AP names are listed only when they appear in the extract. Land-rights and historical grievances belong on Incidents once a case exists — the composer does not invent them.`,
-      protocol: map.protocol,
-    },
-    {
-      id: "methods",
-      heading: "4. Operational engagement methodology",
-      body: [
-        ...plan.phases.map(
-          (phase) =>
-            `**Phase ${phase.order} — ${phase.title}** (${phase.typicalDuration}). ${phase.intent} Exit: ${phase.exitCriteria}`,
-        ),
-        "",
-        ...plan.activities.map(
-          (act) =>
-            `**${act.title}** — ${act.method} (${act.engagementKind}). Owner: ${act.ownerHint}. Timing: ${act.timingHint}. Evidence: ${act.evidenceHint}. Desk: ${act.module}.`,
-        ),
-      ].join("\n\n"),
-      protocol: engage.protocol,
-    },
-    {
-      id: "grievance",
-      heading: "5. Risk mitigation & grievance mechanism architecture",
-      body: [
-        `**Grievance path.** ${plan.grievancePath}`,
-        "",
-        "**TrustLedger case lifecycle (shipped):** lodgment via Report issue → acknowledgment on the case (SLA due date) → investigation → resolution → community/supervisor verify → close. Escalation levels and owners are on the record.",
-        "",
-        plan.commitments.length
-          ? plan.commitments
-              .map((row) => `**${row.title}** — ${row.ownerHint}; ${row.dueHint}. ${row.why}`)
-              .join("\n\n")
-          : "Standing commitments will be named at first contact — do not invent dates.",
-        named.length
-          ? `\n\nNamed counterpart organisations detected: ${named.join("; ")}.`
-          : "",
-      ].join("\n"),
-      protocol: `${grievance.protocol}\n\n${procure.protocol}`,
-    },
-    {
-      id: "monitoring",
-      heading: "6. Monitoring, evaluation & real-time reporting",
-      body: "Reports on TrustLedger compose from saved work: engagements (who was in the room), commitments (what was promised), incidents (what was raised and closed), and Intelligence (labour / local content / empowerment facts on the project). Activity reports and compliance briefs use the local evidence composer — they are not fill-in-the-blank month-end templates from a cloud model. Empty reports mean empty desk work.",
-      protocol:
-        "After award, Apply this plan so prospect stakeholders, draft engagements, and open commitments land on the existing desks. Capture templates stay on the engagement rows. Humans apply; the composer never writes the live desk alone. Board and funder packs then cite that trail.",
-    },
-    {
-      id: "assumptions",
-      heading: "7. Assumptions and limits",
-      body: plan.assumptions.map((row) => `• ${row}`).join("\n"),
-      protocol:
-        "Limits stay on the exported plan. Apply still only writes named classes, draft engagements, and open commitments — never invented people or grievance cases. Empty reports mean empty desk work.",
-    },
-  ];
 }
 
 export type ComposeSepInput = {
@@ -357,6 +315,7 @@ export type SepExtractPreview = {
   timeline: string;
   sectorId: SepSectorId;
   sourceKind: SepSourceKind;
+  programmeKind: import("@/types/engagementPlan").SepProgrammeKind;
   instruments: SepInstrument[];
   namedParties: string[];
 };
@@ -371,6 +330,7 @@ export function previewSepExtract(text: string): SepExtractPreview {
       timeline: "",
       sectorId: "generic",
       sourceKind: "paste",
+      programmeKind: "standard",
       instruments: [],
       namedParties: [],
     };
@@ -382,6 +342,7 @@ export function previewSepExtract(text: string): SepExtractPreview {
     timeline: extractTimeline(trimmed),
     sectorId: detectSepSector(trimmed),
     sourceKind: detectSepSourceKind(trimmed),
+    programmeKind: detectSepProgramme(trimmed),
     instruments: detectCatalogInstruments(trimmed),
     namedParties: extractNamedParties(trimmed),
   };
@@ -394,10 +355,19 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
     !input.sectorId || input.sectorId === "auto"
       ? detectSepSector(rawText)
       : input.sectorId;
-  const playbook = SEP_SECTOR_PLAYBOOKS[sectorHint];
+  const programmeKind = detectSepProgramme(
+    rawText,
+    input.projectName,
+    input.purposeOverride,
+  );
+  const basePlaybook = SEP_SECTOR_PLAYBOOKS[sectorHint];
+  const playbook =
+    programmeKind === "relocation"
+      ? overlayRelocationPlaybook(basePlaybook)
+      : basePlaybook;
   const text = rawText || playbook.summary;
   const sectorId = sectorHint;
-  const named = unique([
+  const named = preferLongestOrgs([
     ...(input.namedParties || []).map((row) => row.trim()).filter(Boolean),
     ...(usedPlaybookOnly ? [] : extractNamedParties(text)),
   ]);
@@ -416,6 +386,7 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
     status: "suggested",
     sourceKind,
     sectorId,
+    programmeKind,
     projectId: input.projectId || null,
     projectNameHint: titleBase,
     placeHint: input.placeHint?.trim() || (usedPlaybookOnly ? "" : extractPlace(text)),
@@ -453,7 +424,7 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
     ],
   };
 
-  return { ...base, documentSections: buildDocument(base) };
+  return { ...base, documentSections: buildSepDocument(base) };
 }
 
 function uniqueInstruments(
@@ -462,7 +433,7 @@ function uniqueInstruments(
   const seen = new Set<string>();
   const out: EngagementPlan["instruments"] = [];
   for (const row of rows) {
-    const key = row.label.toLowerCase();
+    const key = row.id || row.label.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(row);
@@ -474,11 +445,42 @@ export function rebuildSepDocument(
   plan: EngagementPlan,
   opts?: { touch?: boolean },
 ): EngagementPlan {
-  const next = {
+  const programmeKind =
+    plan.programmeKind ||
+    detectSepProgramme(plan.title, plan.projectNameHint, plan.sourceExcerpt);
+  let next: Omit<EngagementPlan, "documentSections"> = {
     ...plan,
     timelineHint: plan.timelineHint || "",
+    programmeKind,
     updatedAt:
       opts?.touch === false ? plan.updatedAt : new Date().toISOString(),
   };
-  return { ...next, documentSections: buildDocument(next) };
+  if (
+    programmeKind === "relocation" &&
+    !next.activities.some((row) => row.id === "census")
+  ) {
+    const overlaid = overlayRelocationPlaybook(
+      SEP_SECTOR_PLAYBOOKS[next.sectorId] || SEP_SECTOR_PLAYBOOKS.generic,
+    );
+    const named = next.stakeholderClasses.flatMap(
+      (row) => row.namedFromBrief || [],
+    );
+    next = {
+      ...next,
+      phases: overlaid.phases,
+      stakeholderClasses: mergeNamedIntoClasses(
+        overlaid.stakeholderClasses,
+        named,
+      ),
+      activities: overlaid.activities,
+      commitments: overlaid.commitments,
+      instruments: uniqueInstruments([
+        ...overlaid.instruments,
+        ...next.instruments,
+      ]),
+      grievancePath: overlaid.grievancePath,
+      assumptions: unique([...overlaid.assumptions, ...next.assumptions]),
+    };
+  }
+  return { ...next, documentSections: buildSepDocument(next) };
 }

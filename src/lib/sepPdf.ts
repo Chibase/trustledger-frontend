@@ -11,6 +11,7 @@ import {
 } from "@/lib/sepMatrix";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
+  SEP_PROGRAMME_LABELS,
   SEP_PURPOSE_LABELS,
   SEP_SECTOR_LABELS,
   SEP_SOURCE_LABELS,
@@ -143,13 +144,18 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
       .fontSize(9)
       .fillColor(MUTED)
       .text(
-        "Tender-grade working plan mapped to Social Licence to Build™ and executed on the TrustLedger desk after award. Suggestion until a human applies rows. Not legal advice.",
+        plan.programmeKind === "relocation"
+          ? "Operating plan for census, entitlements, host consultation, the physical move, livelihood restoration, and one grievance path. Suggestion until a human applies rows. Not legal advice."
+          : "Working stakeholder engagement plan executed on the TrustLedger desk after award. Suggestion until a human applies rows. Not legal advice.",
         { width: contentWidth },
       );
     doc.moveDown(0.8);
     rule();
     doc.moveDown(0.6);
 
+    if (plan.programmeKind === "relocation") {
+      kv("Programme", SEP_PROGRAMME_LABELS.relocation);
+    }
     kv("Sector", SEP_SECTOR_LABELS[plan.sectorId] || plan.sectorId);
     kv("Source", SEP_SOURCE_LABELS[plan.sourceKind] || plan.sourceKind);
     kv("Assignment", plan.projectNameHint || "");
