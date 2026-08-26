@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { applyEngagementPlanToSrm, previewSepApply } from "@/lib/sepApply";
 import { rebuildSepDocument } from "@/lib/sepComposer";
+import { requestSepDocumentDraft } from "@/lib/sepDraftClient";
 import { getEngagementPlan, saveEngagementPlan } from "@/lib/sepStore";
 import { projectService } from "@/services/projectService";
 import type { EngagementPlan } from "@/types/engagementPlan";
@@ -34,6 +35,7 @@ export default function EngagementPlanDetailPage() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("dashboard");
   const [applying, setApplying] = useState(false);
+  const [drafting, setDrafting] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState("");
   const [purpose, setPurpose] = useState("");
@@ -69,8 +71,15 @@ export default function EngagementPlanDetailPage() {
     };
   }, [id]);
 
-  function persist(next: EngagementPlan) {
-    const rebuilt = rebuildSepDocument(next);
+  function persist(
+    next: EngagementPlan,
+    opts?: { document?: "rebuild" | "keep" },
+  ) {
+    const rebuilt = rebuildSepDocument(next, {
+      document:
+        opts?.document ||
+        (next.documentDrafter === "gemini" ? "keep" : "rebuild"),
+    });
     const saved = saveEngagementPlan(rebuilt);
     setPlan(saved);
     return saved;
@@ -88,6 +97,48 @@ export default function EngagementPlanDetailPage() {
       status: plan.status === "suggested" ? "saved" : plan.status,
     });
     pushToast("Plan updated.", "success");
+  }
+
+  async function redraft() {
+    if (!plan) return;
+    setDrafting(true);
+    try {
+      const ready = {
+        ...plan,
+        purposeStatement: purpose.trim() || plan.purposeStatement,
+        placeHint: place.trim(),
+        clientFunderHint: client.trim(),
+        timelineHint: timeline.trim(),
+        projectId: projectId || plan.projectId,
+      };
+      const { plan: drafted, synthesizer, error } = await requestSepDocumentDraft(
+        ready,
+        ready.sourceExcerpt || "",
+      );
+      persist(
+        { ...drafted, status: drafted.status === "suggested" ? "saved" : drafted.status },
+        { document: "keep" },
+      );
+      if (synthesizer === "gemini") {
+        pushToast("Gemini redrafted the client document.", "success");
+      } else if (drafted.documentDrafter === "gemini") {
+        pushToast(
+          error
+            ? `${error} Existing Gemini document kept.`
+            : "Gemini was unavailable. Existing document kept.",
+          "info",
+        );
+      } else {
+        pushToast(
+          error
+            ? `${error} Playbook template kept.`
+            : "Playbook template used — Gemini was unavailable.",
+          "info",
+        );
+      }
+    } finally {
+      setDrafting(false);
+    }
   }
 
   async function apply() {
@@ -204,7 +255,26 @@ export default function EngagementPlanDetailPage() {
               </div>
             ) : null}
 
-            {tab === "document" ? <SepDocumentView plan={plan} /> : null}
+            {tab === "document" ? (
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
+                  <p className="text-sm text-tl-ink-muted">
+                    {plan.documentDrafter === "gemini"
+                      ? "Gemini drafted this document from the briefing. Edit facts, then re-draft if the assignment changed."
+                      : "Playbook template. Re-draft with Gemini when you want bid-grade prose from the same facts."}
+                  </p>
+                  <button
+                    type="button"
+                    disabled={drafting}
+                    onClick={() => void redraft()}
+                    className="rounded-md border border-tl-line bg-tl-surface px-3 py-1.5 text-sm font-medium hover:bg-tl-paper disabled:opacity-60"
+                  >
+                    {drafting ? "Drafting…" : "Re-draft with Gemini"}
+                  </button>
+                </div>
+                <SepDocumentView plan={plan} />
+              </div>
+            ) : null}
 
             {tab === "apply" ? (
               <section className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4 print:hidden">

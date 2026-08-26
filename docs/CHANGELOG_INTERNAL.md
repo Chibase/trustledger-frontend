@@ -3,17 +3,21 @@
 ## 2026-08-26 — Stakeholder engagement plan (SI-SEP)
 
 - New **Engagement plan** desk (`/app/engagement-plan`): paste or upload an RFP / tender / briefing (PDF text layer or .txt / .md / .csv), or pick a sector playbook with no file.
-- Local composer maps a seven-phase process (inception → close-out) for infrastructure, housing, mining, energy, water, education, health, agriculture, municipal, conservation, logistics, or generic. Suggestion only — no Cloud LLM.
+- Local composer maps a seven-phase process (inception → close-out) for infrastructure, housing, mining, energy, water, education, health, agriculture, municipal, conservation, logistics, or generic. Suggestion only. Gemini drafts the presentable document.
 - Outputs: process dashboard (power–interest, SLB → shipped desks) and a seven-section tender-grade SEP with execution protocols (Print / PDF cover, Markdown, Word).
 - After client approval, **Apply to SRM** seeds prospect stakeholders, draft engagements, and open commitments; duplicates skipped. Humans apply.
 - Tender-grade presentable SEP: cover page; Social Licence to Build™ philosophy mapped to shipped desks; regulatory mapping; power–interest / vulnerability; methods; grievance lifecycle (reported → deploy → investigate → resolve → verify → close); M&E from saved work. Each substantive section has a **TrustLedger SRM execution protocol**.
 - Compose **without a document**: facts pack (title, municipality/ward, client, timeline, named PAP/I&AP, ticked instruments such as NEMA/IFC/SLP/WULA) + sector playbook.
-- Export: branded **PDF** (cover, tables, execution protocols), Markdown, Word-compatible `.doc`, and print layout. Local composer — no Cloud LLM, no invented portals.
+- Export: branded **PDF** (cover, tables), Markdown, Word-compatible `.doc`, and print layout. Gemini drafts the document; playbook template if the key is missing. No invented portals.
 - Live extract preview after paste/PDF upload (project, place, client, timeline, instruments) with human overrides before compose.
 - **Ops Executive Board** (`/ops/executive`): same module as a C-suite card under the brief heading, sidebar **Engagement plan** / **Open SEP desk**, and a TEDS domain row with Open → `/app/engagement-plan`.
 - Plans org-scoped by org id cookie / email (not a shared `session` bucket). Re-apply toasts only newly created rows.
 - Gated on existing `engagements` capability. Client gates also read the trial cookie / active org when the page did not pass a plan id. ADR-053.
 - **Relocation / RAP overlay:** briefs that are a physical or economic move (relocation, migration plan, RAP, cut-off, host community) compose an operating plan — census, entitlements, host consultation, move-week helpdesk, livelihood restoration — not a Social Licence to Build™ architecture essay. Municipality names keep the full Local Municipality string; “The Municipality” fragments are dropped. Saved architecture SEPs upgrade on reopen. ADR-053.
+- **Client report voice:** the exported SEP is a bid-grade report (what / how / when / who, CBPR, risks, GRM, M&E, conclusion). TrustLedger and Chibase Consulting appear as letterhead only. No execution-protocol boxes, Themba, Capture, Apply, or product architecture in client-facing copy. Operator dashboard still maps SLB → shipped desks. ADR-053.
+- **Tender layout:** cover block (project, procuring entity, implementing entity, duration, framework), numbered sections with 1.1-style subsections, and tables for stakeholders, engagement schedule, risks, and KPIs — matching a funder-readable SEP, not a wall of product copy. Junk titles such as “Inception report” are skipped. Municipality name fragments are collapsed.
+- **Gemini drafts the document:** extract + sector/RAP playbook stay local; Gemini writes the nine-section client SEP (server `GEMINI_API_KEY`, same model as marketing). Suggest → human save. Missing key or a rejected payload falls back to the playbook template. Product voice, invented counts, and portals are stripped. Activity reports still use `reportComposer` (no Grok/Frappe). ADR-053.
+- **No TrustLedger Protocol / SL2B annex:** that paragraph is stripped from the client document. TrustLedger and Social Licence to Build (SL2B) appear only as tools in methodology (record + sequencing frame). Operator dashboard still maps SLB → desks. ADR-053.
 
 ## 2026-08-25 — ClickUp diary live on Chibase Workspace
 

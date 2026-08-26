@@ -1,4 +1,6 @@
 import { composeEngagementPlan, previewSepExtract, rebuildSepDocument } from "../src/lib/sepComposer";
+import { mergeDraftedSections } from "../src/lib/sepGemini";
+import { SEP_ARCHITECTURE_VOICE } from "../src/lib/sepDocument";
 import { SEP_EXAMPLE_BRIEFS } from "../src/data/sepSectors";
 import { SEP_RELOCATION_EXAMPLE_BRIEF } from "../src/data/sepRelocation";
 import { joinSepPlace } from "../src/lib/sepInstruments";
@@ -16,24 +18,73 @@ const mining = composeEngagementPlan({
 });
 
 const checks: string[] = [];
+const architectureEssay = SEP_ARCHITECTURE_VOICE;
 if (housing.sectorId !== "housing") checks.push(`housing detect=${housing.sectorId}`);
 if (housing.programmeKind === "relocation") checks.push("housing should stay standard programme");
 if (housing.sourceKind !== "rfp") checks.push(`housing source=${housing.sourceKind}`);
 if (housing.phases.length !== 7) checks.push(`housing phases=${housing.phases.length}`);
-if (housing.documentSections.length !== 7) {
+if (housing.documentSections.length !== 9) {
   checks.push(`housing sections=${housing.documentSections.length}`);
 }
 if (housing.documentSections[0]?.id !== "summary") {
   checks.push(`housing first=${housing.documentSections[0]?.id}`);
 }
-if (!housing.documentSections[0]?.protocol) {
-  checks.push("housing missing execution protocol");
+if (housing.documentSections[8]?.id !== "conclusion") {
+  checks.push(`housing last=${housing.documentSections[8]?.id}`);
 }
-if (!housing.documentSections.every((row) => row.protocol)) {
-  checks.push("section missing protocol");
+if (!housing.documentSections.find((row) => row.id === "stakeholders")?.tables?.length) {
+  checks.push("housing missing stakeholder table");
+}
+if (!housing.documentSections.find((row) => row.id === "methods")?.tables?.length) {
+  checks.push("housing missing engagement schedule table");
+}
+if (housing.documentDrafter !== "template") {
+  checks.push(`housing drafter=${housing.documentDrafter}`);
+}
+if (housing.documentSections.some((row) => row.protocol)) {
+  checks.push("client document must not carry execution protocols");
+}
+const housingDoc = housing.documentSections.map((row) => row.body).join("\n");
+if (architectureEssay.test(housingDoc)) {
+  checks.push("housing document still contains architecture copy");
+}
+if (/TrustLedger Protocol|SL-?2?B protocol/i.test(housingDoc)) {
+  checks.push("housing still has TrustLedger Protocol / SL2B annex");
+}
+const housingMethods =
+  housing.documentSections.find((row) => row.id === "methods")?.body || "";
+if (
+  !/\*\*4\.3 Tools\.\*\*/.test(housingMethods) ||
+  !/TrustLedger/.test(housingMethods) ||
+  !/SL2B/.test(housingMethods)
+) {
+  checks.push("housing methods missing TrustLedger / SL2B tools paragraph");
+}
+const housingNonMethods = housing.documentSections
+  .filter((row) => row.id !== "methods")
+  .map((row) => row.body)
+  .join("\n");
+if (/TrustLedger|SL-?2?B/.test(housingNonMethods)) {
+  checks.push("TrustLedger / SL2B leaked outside methodology");
 }
 if (!housing.placeHint.toLowerCase().includes("ward")) {
   checks.push(`housing place=${housing.placeHint}`);
+}
+const housingAssumptions =
+  housing.documentSections.find((row) => row.id === "assumptions")?.body || "";
+if (!/personal information/i.test(housingAssumptions)) {
+  checks.push("housing assumptions dropped sector limit");
+}
+if (housingAssumptions.includes("Capture")) {
+  checks.push("housing assumptions still name Capture");
+}
+
+const unlabeledRand = composeEngagementPlan({
+  text: "Tender\nProject: Clinic upgrade\nClient: Example Department of Health\nCompensation of R50 000 per household is discussed. Terms of reference.",
+  sectorId: "health",
+});
+if (unlabeledRand.budgetHint) {
+  checks.push(`invented budget ${unlabeledRand.budgetHint}`);
 }
 if (!housing.instruments.some((row) => row.id === "nema-eia")) {
   checks.push("housing missing NEMA instrument");
@@ -101,14 +152,22 @@ if (!preview.instruments.some((row) => row.id === "nema-eia")) {
 }
 
 const md = planToMarkdown(housing);
-if (!md.includes("TrustLedger SRM execution protocol")) {
-  checks.push("markdown missing protocol");
+if (md.includes("TrustLedger SRM execution protocol") || /TrustLedger Protocol/i.test(md)) {
+  checks.push("markdown still has execution protocol");
 }
-if (!md.includes("| Class |")) checks.push("markdown missing matrix table");
+if (!md.includes("| Stakeholder category |") && !md.includes("| Engagement mechanism |")) {
+  checks.push("markdown missing report tables");
+}
+if (!md.includes("Chibase Consulting")) checks.push("markdown missing issuer");
+if (!/Community-Based Participatory Research/i.test(md)) {
+  checks.push("markdown missing CBPR");
+}
+if (!md.includes("9. Summary for the client")) checks.push("markdown missing client summary");
 
 const word = planToWordHtml(housing);
-if (!word.includes("execution protocol")) checks.push("word missing protocol");
+if (/execution protocol/i.test(word)) checks.push("word still has execution protocol");
 if (!word.includes("<table")) checks.push("word missing table");
+if (!word.includes("Chibase Consulting")) checks.push("word missing issuer");
 
 const applyPreview = previewSepApply(housing);
 if (
@@ -118,9 +177,6 @@ if (
 ) {
   checks.push(`preview ${JSON.stringify(applyPreview)}`);
 }
-
-const architectureEssay =
-  /three shipped anchors|strategic advisory|rapid-response workflows|srm integration/i;
 
 const relocation = composeEngagementPlan({
   text: SEP_RELOCATION_EXAMPLE_BRIEF,
@@ -167,11 +223,27 @@ const relocationSummary =
 if (architectureEssay.test(relocationSummary)) {
   checks.push("relocation summary still architecture essay");
 }
-if (!/operating plan for relocation/i.test(relocationSummary)) {
-  checks.push("relocation summary missing operating-plan lead");
+if (!/relocation and migration of project-affected/i.test(relocationSummary)) {
+  checks.push("relocation summary missing assignment lead");
 }
 if (!/cut-off/i.test(relocationSummary) || !/census/i.test(relocationSummary)) {
   checks.push("relocation summary missing census/cut-off");
+}
+if (!/Chibase Consulting/i.test(relocationSummary)) {
+  checks.push("relocation summary missing Chibase Consulting");
+}
+if (/Themba|TrustLedger SRM|execution protocol/i.test(relocationSummary)) {
+  checks.push("relocation summary still names product architecture");
+}
+const relocationDoc = relocation.documentSections.map((row) => row.body).join("\n");
+if (architectureEssay.test(relocationDoc)) {
+  checks.push("relocation document still contains architecture copy");
+}
+if (!/Community-Based Participatory Research/i.test(relocationDoc)) {
+  checks.push("relocation document missing CBPR");
+}
+if (!relocation.documentSections.some((row) => row.id === "conclusion")) {
+  checks.push("relocation missing conclusion");
 }
 
 const wmmlmCover = `TRUSTLEDGER SRM
@@ -209,11 +281,28 @@ if (!/3\s*months/i.test(coverPreview.timeline)) {
   checks.push(`cover timeline=${coverPreview.timeline}`);
 }
 if (
-  coverPreview.namedParties.some((name) =>
-    /^(the municipality|mandela local municipality)$/i.test(name),
-  )
+  coverPreview.namedParties.filter((name) => /municipality/i.test(name)).length > 1
 ) {
   checks.push(`cover named ${coverPreview.namedParties.join("; ")}`);
+}
+
+const inceptionPaste = previewSepExtract(`TRUSTLEDGER
+Stakeholder Engagement Plan
+SEP — • Inception report
+ASSIGNMENT
+• Inception report
+CLIENT / PROCURING ENTITY
+Winnie Madikizela Mandela Local Municipality
+TIMELINE
+3 months
+This Stakeholder Engagement Plan is the operating plan for relocation and migration.
+Relocation and Migration Plan
+`);
+if (/inception report/i.test(inceptionPaste.title)) {
+  checks.push(`inception junk title=${inceptionPaste.title}`);
+}
+if (!/relocation and migration/i.test(inceptionPaste.title)) {
+  checks.push(`inception title=${inceptionPaste.title}`);
 }
 
 const stale = composeEngagementPlan({
@@ -238,10 +327,127 @@ if (!rebuilt.activities.some((row) => row.id === "census")) {
 if (architectureEssay.test(rebuilt.documentSections[0]?.body || "")) {
   checks.push("rebuild still architecture essay");
 }
+if (rebuilt.documentSections.some((row) => row.protocol)) {
+  checks.push("rebuild document still has protocols");
+}
 
 const rapMd = planToMarkdown(relocation);
-if (!rapMd.includes("Relocation & migration")) {
-  checks.push("markdown missing programme line");
+if (!/Relocation and Migration Plan/i.test(rapMd)) {
+  checks.push("markdown missing project name");
+}
+
+const geminiKept = rebuildSepDocument(
+  {
+    ...housing,
+    documentDrafter: "gemini",
+    documentSections: housing.documentSections.map((row) =>
+      row.id === "summary"
+        ? {
+            ...row,
+            body: `${row.body}\n\nGemini-only sentence for this assignment.`,
+          }
+        : row,
+    ),
+  },
+  { touch: false },
+);
+if (!geminiKept.documentSections[0]?.body.includes("Gemini-only sentence")) {
+  checks.push("rebuild wiped Gemini document");
+}
+
+const extraStakeholderTable = {
+  headers: housing.documentSections.find((row) => row.id === "stakeholders")?.tables?.[0]?.headers || [
+    "Stakeholder category",
+    "Who they are",
+    "Engagement objective",
+    "Influence / interest",
+  ],
+  rows: [
+    ...(housing.documentSections.find((row) => row.id === "stakeholders")?.tables?.[0]?.rows || []),
+    ["Invented neighbours", "400 households next to the site", "Consult", "high / high"],
+  ],
+};
+const geminiMerge = mergeDraftedSections(
+  housing,
+  {
+    sections: housing.documentSections.map((row) => ({
+      id: row.id,
+      heading: row.heading,
+      body:
+        row.id === "summary"
+          ? "**TrustLedger Protocol - SL2B**\n\n**1.1 The project.** This assignment is a housing upgrade for the named municipality over the contract period. Themba will answer WhatsApp 24/7. 400 households will move before census. **1.2 This document.** This is the Stakeholder Engagement Plan Chibase Consulting will follow if appointed. **1.3 This plan.** Identify, consult, record promises, and redress harm."
+          : `${row.body}\n\nAdditional Gemini paragraph for ${row.id} covering what will be done, how, when, and by whom on this assignment so the procuring entity can read the plan.`,
+      tables: row.id === "stakeholders" ? [extraStakeholderTable] : row.tables,
+    })),
+  },
+  housing.sourceExcerpt,
+);
+const geminiSummary =
+  geminiMerge.sections.find((row) => row.id === "summary")?.body || "";
+if (/Themba|WhatsApp|400 households/i.test(geminiSummary)) {
+  checks.push("gemini merge leaked banned copy or invented households");
+}
+if (/TrustLedger Protocol|SL-?2?B protocol/i.test(geminiSummary)) {
+  checks.push("gemini merge kept TrustLedger Protocol annex");
+}
+const geminiMethods =
+  geminiMerge.sections.find((row) => row.id === "methods")?.body || "";
+if (!/TrustLedger/i.test(geminiMethods) || !/SL2B/i.test(geminiMethods)) {
+  checks.push("gemini merge dropped methodology tools");
+}
+if (geminiMerge.draftedCount < 6) {
+  checks.push(`gemini draftedCount=${geminiMerge.draftedCount}`);
+}
+const mergedStakeholderRows =
+  geminiMerge.sections.find((row) => row.id === "stakeholders")?.tables?.[0]?.rows.length || 0;
+if (mergedStakeholderRows !== housing.stakeholderClasses.length) {
+  checks.push(`gemini extra stakeholder rows kept=${mergedStakeholderRows}`);
+}
+
+const budgetMerge = mergeDraftedSections(
+  { ...housing, budgetHint: "R 1.2 million" },
+  {
+    sections: housing.documentSections.map((row) => ({
+      id: row.id,
+      heading: row.heading,
+      body:
+        row.id === "summary"
+          ? `${row.body}\n\nProfessional fees as briefed are R 1.2 million. Gemini also claims R 999 000 for a portal that is not in the briefing.`
+          : `${row.body}\n\nAdditional Gemini paragraph for ${row.id} covering what will be done, how, when, and by whom on this assignment so the procuring entity can read the plan.`,
+      tables: row.tables,
+    })),
+  },
+  `${housing.sourceExcerpt}\nBudget: R 1.2 million`,
+);
+const budgetBody =
+  budgetMerge.sections.find((row) => row.id === "summary")?.body || "";
+if (/R\s?999/.test(budgetBody)) {
+  checks.push("gemini kept an extra rand amount beside the briefed budget");
+}
+
+const rapKeep = rebuildSepDocument(
+  {
+    ...housing,
+    title: "SEP — RELOCATION AND MIGRATION PLAN",
+    programmeKind: undefined,
+    documentDrafter: "gemini",
+    activities: housing.activities.filter((row) => row.id !== "census"),
+    documentSections: housing.documentSections.map((row) =>
+      row.id === "summary"
+        ? {
+            ...row,
+            body: `${row.body}\n\nCensus, relocation, and cut-off will be locked at inception. Gemini-RAP sentence.`,
+          }
+        : row,
+    ),
+  },
+  { touch: false, document: "keep" },
+);
+if (rapKeep.programmeKind !== "relocation") {
+  checks.push(`rap keep programme=${rapKeep.programmeKind}`);
+}
+if (!rapKeep.documentSections[0]?.body.includes("Gemini-RAP sentence")) {
+  checks.push("RAP overlay discarded a usable Gemini relocation draft");
 }
 
 async function main() {

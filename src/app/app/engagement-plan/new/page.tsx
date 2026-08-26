@@ -14,6 +14,7 @@ import {
   previewSepExtract,
   rebuildSepDocument,
 } from "@/lib/sepComposer";
+import { requestSepDocumentDraft } from "@/lib/sepDraftClient";
 import {
   applySelectedInstrumentIds,
   joinSepPlace,
@@ -186,7 +187,7 @@ function NewEngagementPlanForm() {
       .filter((row) => row.length >= 2);
   }
 
-  function compose() {
+  async function compose() {
     if (mode === "facts") {
       if (sectorId === "auto") {
         pushToast("Pick a sector playbook to compose without a file.", "error");
@@ -233,18 +234,34 @@ function NewEngagementPlanForm() {
         instrumentIds,
         namedParties: parseNamed(factNamed),
       });
-      setDraft(plan);
-      setTitle(plan.title);
-      setPurpose(plan.purposeStatement);
-      setFactPlace(plan.placeHint);
-      setFactClient(plan.clientFunderHint);
-      setFactTimeline(plan.timelineHint);
+      const { plan: drafted, synthesizer, error } = await requestSepDocumentDraft(
+        plan,
+        mode === "document" ? text : "",
+      );
+      setDraft(drafted);
+      setTitle(drafted.title);
+      setPurpose(drafted.purposeStatement);
+      setFactPlace(drafted.placeHint);
+      setFactClient(drafted.clientFunderHint);
+      setFactTimeline(drafted.timelineHint);
       setInstrumentIds(
-        plan.instruments
+        drafted.instruments
           .map((row) => row.id)
           .filter((id) => SEP_INSTRUMENT_CATALOG.some((item) => item.id === id)),
       );
-      pushToast("Suggestion ready — edit, then save. Nothing is written to SRM yet.", "success");
+      if (synthesizer === "gemini") {
+        pushToast(
+          "Gemini drafted the client document. Edit, then save. Nothing is written to SRM yet.",
+          "success",
+        );
+      } else {
+        pushToast(
+          error
+            ? `${error} Using the playbook template. Edit, then save.`
+            : "Suggestion ready (playbook template). Edit, then save. Nothing is written to SRM yet.",
+          error ? "info" : "success",
+        );
+      }
     } finally {
       setComposing(false);
     }
@@ -252,16 +269,22 @@ function NewEngagementPlanForm() {
 
   function save() {
     if (!draft) return;
-    const next = rebuildSepDocument({
-      ...draft,
-      title: title.trim() || draft.title,
-      purposeStatement: purpose.trim() || draft.purposeStatement,
-      placeHint: factPlace.trim(),
-      clientFunderHint: factClient.trim(),
-      timelineHint: factTimeline.trim(),
-      instruments: applySelectedInstrumentIds(draft.instruments, instrumentIds),
-      status: "saved",
-    });
+    const next = rebuildSepDocument(
+      {
+        ...draft,
+        title: title.trim() || draft.title,
+        purposeStatement: purpose.trim() || draft.purposeStatement,
+        placeHint: factPlace.trim(),
+        clientFunderHint: factClient.trim(),
+        timelineHint: factTimeline.trim(),
+        instruments: applySelectedInstrumentIds(draft.instruments, instrumentIds),
+        status: "saved",
+        documentDrafter: draft.documentDrafter,
+      },
+      {
+        document: draft.documentDrafter === "gemini" ? "keep" : "rebuild",
+      },
+    );
     const saved = saveEngagementPlan(next);
     pushToast("Engagement plan saved.", "success");
     router.push(`/app/engagement-plan/${saved.id}`);
@@ -276,7 +299,7 @@ function NewEngagementPlanForm() {
         <PageHeader
           eyebrow="Stakeholder Intelligence"
           title="Compose engagement plan"
-          description="Suggest → apply → save. Map a tender, RFP, EIA extract, or facts pack onto a sector playbook. Relocation and migration briefs produce a census-to-restoration operating plan — not a product architecture essay. The local composer does not call a cloud language model and does not write the live desk until you apply after approval."
+          description="Suggest → apply → save. Map a tender, RFP, EIA extract, or facts pack onto a sector playbook. Gemini drafts the client document from those facts. Relocation briefs produce a census-to-restoration operating plan. Nothing is written to the live desk until you apply after approval."
           actions={
             <Link
               href="/app/engagement-plan"
@@ -419,6 +442,12 @@ function NewEngagementPlanForm() {
                     Timeline
                   </dt>
                   <dd>{extract.timeline || "—"}</dd>
+                </div>
+                <div>
+                  <dt className="uppercase tracking-wide text-tl-ink-muted">
+                    Budget
+                  </dt>
+                  <dd>{extract.budget || "—"}</dd>
                 </div>
               </dl>
               {extract.instruments.length ? (
@@ -650,18 +679,19 @@ function NewEngagementPlanForm() {
         <div className="rounded-lg border border-dashed border-tl-line bg-tl-paper/60 p-4 text-sm">
           <p className="font-medium text-tl-ink">Suggestion only</p>
           <p className="mt-1 text-tl-ink-muted">
-            The composer does not call a cloud language model. It maps the
-            extract onto a sector playbook. Edit before you present to a client.
-            Apply to the live SRM is a separate step after approval.
+            Gemini drafts the presentable SEP from the extract and playbook.
+            If Gemini is unavailable, the playbook template is used. Edit
+            before you present to a client. Apply to the live SRM is a
+            separate step after approval.
           </p>
           <button
             type="button"
             id="sep-compose-btn"
             disabled={busy || composing}
-            onClick={compose}
+            onClick={() => void compose()}
             className="mt-3 rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
           >
-            {composing ? "Composing…" : "Compose suggestion"}
+            {composing ? "Drafting document…" : "Compose suggestion"}
           </button>
         </div>
 
@@ -674,6 +704,9 @@ function NewEngagementPlanForm() {
               {SEP_SECTOR_LABELS[draft.sectorId]} · {draft.phases.length} phases ·{" "}
               {draft.stakeholderClasses.length} stakeholder classes ·{" "}
               {draft.activities.length} activities
+              {draft.documentDrafter === "gemini"
+                ? " · Document drafted by Gemini"
+                : " · Playbook template"}
             </p>
             <label className="block text-sm">
               <span className="mb-1 block font-medium">Plan title</span>

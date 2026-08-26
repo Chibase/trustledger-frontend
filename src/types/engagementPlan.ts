@@ -1,7 +1,8 @@
 /**
  * Stakeholder Engagement Plan (SEP) — SI deepening packet.
- * Plans are composed locally (suggest → apply → save). Applied rows
- * land in the existing SRM modules (registry, engagements, commitments).
+ * Facts and playbook mapping are local; Gemini drafts the presentable
+ * document (suggest → apply → save). Applied rows land in the existing
+ * SRM modules (registry, engagements, commitments).
  */
 
 import type { EngagementKind } from "@/types/engagement";
@@ -104,11 +105,18 @@ export type SepInstrument = {
   note: string;
 };
 
+export type SepDocumentTable = {
+  caption?: string;
+  headers: string[];
+  rows: string[][];
+};
+
 export type SepDocumentSection = {
   id: string;
   heading: string;
   body: string;
-  /** How TrustLedger operationalises this section (tender evidence). */
+  tables?: SepDocumentTable[];
+  /** How this section is executed on the live desk (operator only — never exported). */
   protocol?: string;
 };
 
@@ -125,6 +133,10 @@ export type EngagementPlan = {
   placeHint: string;
   clientFunderHint: string;
   timelineHint: string;
+  /** Professional fees / contract value if the briefing named one — never invented. */
+  budgetHint?: string;
+  /** Tender / RFP / bid number if the briefing labeled one. */
+  tenderRefHint?: string;
   createdAt: string;
   updatedAt: string;
   sourceExcerpt: string;
@@ -137,6 +149,8 @@ export type EngagementPlan = {
   grievancePath: string;
   assumptions: string[];
   documentSections: SepDocumentSection[];
+  /** Gemini drafts the client document; template is the playbook fallback. */
+  documentDrafter?: "gemini" | "template";
   applied?: {
     at: string;
     stakeholderIds: string[];

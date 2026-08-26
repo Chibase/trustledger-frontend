@@ -46,7 +46,7 @@ export default function EngagementPlanListPage() {
         <PageHeader
           eyebrow="Stakeholder Intelligence"
           title="Stakeholder engagement plans"
-          description="Upload or paste an RFP, tender, or briefing. TrustLedger maps a sector process from inception to close-out — a dashboard for the desk and a document you can present. Apply to SRM only after the assignment is approved."
+          description="Upload or paste an RFP, tender, or briefing. TrustLedger maps a sector process from inception to close-out. Gemini drafts the presentable document. Apply to SRM only after the assignment is approved."
           actions={
             <Link
               href="/app/engagement-plan/new"

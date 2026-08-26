@@ -1,11 +1,16 @@
 /**
  * Local SEP composer — maps a briefing/RFP/tender onto a sector playbook.
- * Suggestions only; humans apply. Does not call Cloud LLM (reportComposer rule).
+ * Facts, classes, and apply-rows stay local. Gemini drafts the presentable
+ * document via `/api/app/engagement-plan/draft` (suggest → human save).
+ * Activity reports still use reportComposer — not this path.
  */
 
 import { overlayRelocationPlaybook, detectSepProgramme } from "@/data/sepRelocation";
 import { SEP_SECTOR_PLAYBOOKS } from "@/data/sepSectors";
-import { buildSepDocument } from "@/lib/sepDocument";
+import {
+  buildSepDocument,
+  clientSepDocumentUsable,
+} from "@/lib/sepDocument";
 import {
   catalogInstrumentsByIds,
   detectCatalogInstruments,
@@ -85,7 +90,16 @@ function extractLabeled(text: string, labels: string[]): string {
 }
 
 function stripSepPrefix(value: string): string {
-  return value.replace(/^sep\s*[—–-]\s*/i, "").trim();
+  return value
+    .replace(/^[•●▪‣\-–—*]\s+/, "")
+    .replace(/^sep\s*[—–-]\s*/i, "")
+    .trim();
+}
+
+function isJunkTitle(value: string): boolean {
+  return /^(inception report|stakeholder engagement plan|sep|terms of reference|scope of work|briefing|confidential)$/i.test(
+    value.trim(),
+  );
 }
 
 export function detectSepSector(text: string): SepSectorId {
@@ -123,27 +137,34 @@ export function detectSepSourceKind(text: string): SepSourceKind {
 }
 
 function extractTitle(text: string): string {
-  const labeled = extractLabeled(text, [
-    "assignment",
-    "project",
-    "programme",
-    "title",
-    "working title",
-  ]);
-  if (labeled) return stripSepPrefix(labeled).slice(0, 140);
+  const labeled = stripSepPrefix(
+    extractLabeled(text, [
+      "project name",
+      "project",
+      "assignment",
+      "programme",
+      "title",
+      "working title",
+    ]),
+  );
+  if (labeled && !isJunkTitle(labeled)) return labeled.slice(0, 140);
   const lines = cleanLines(text).slice(0, 40);
   const skip =
-    /^(request for proposal|invitation to bid|confidential|page \d|stakeholder engagement plan|trustledger|tender-grade|prepared on|suggestion until|not legal advice|social licence|sector|source|client|timeline|issued|plan id|working title)/i;
-  const rapLine = lines.find(
-    (line) =>
-      /relocation and migration|resettlement action|\brap\b/i.test(line) &&
-      line.length < 140 &&
-      !skip.test(line),
-  );
+    /^(request for proposal|invitation to bid|confidential|page \d|stakeholder engagement plan|trustledger|tender-grade|prepared on|suggestion until|not legal advice|social licence|sector|source|client|timeline|issued|plan id|working title|inception report|chibase|prepared by|prepared for|operating plan|programme|housing|tender)$/i;
+  const rapLine = lines.find((line) => {
+    const t = stripSepPrefix(line);
+    return (
+      /relocation\s*(?:and|&)\s*migration|resettlement action/i.test(t) &&
+      t.length < 140 &&
+      !skip.test(t) &&
+      !isJunkTitle(t)
+    );
+  });
   if (rapLine) return stripSepPrefix(rapLine).slice(0, 140);
-  const heading = lines.find(
-    (line) => line.length > 12 && line.length < 140 && !skip.test(line),
-  );
+  const heading = lines.find((line) => {
+    const t = stripSepPrefix(line);
+    return t.length > 12 && t.length < 140 && !skip.test(t) && !isJunkTitle(t);
+  });
   return stripSepPrefix(heading || "Stakeholder engagement plan") || "Stakeholder engagement plan";
 }
 
@@ -188,6 +209,19 @@ function extractTimeline(text: string): string {
   return years?.[1] || "";
 }
 
+function extractBudget(text: string): string {
+  const labeled = extractLabeled(text, [
+    "budget",
+    "estimated budget",
+    "contract value",
+    "professional fees",
+  ]);
+  if (labeled && !/not stated|to be confirmed|n\/a/i.test(labeled)) {
+    return labeled;
+  }
+  return "";
+}
+
 function extractClient(text: string): string {
   const labeled = extractLabeled(text, [
     "client",
@@ -202,22 +236,65 @@ function extractClient(text: string): string {
   return org?.[1]?.trim() || "";
 }
 
+function extractTenderRef(text: string): string {
+  const labeled = extractLabeled(text, [
+    "tender reference number",
+    "tender reference",
+    "tender no",
+    "tender number",
+    "rfp reference",
+    "rfp no",
+    "rfp number",
+    "bid number",
+    "bid no",
+  ]);
+  return labeled.slice(0, 80);
+}
+
 function extractNamedParties(text: string): string[] {
-  const matches = text.match(
+  const flat = text.replace(/\s+/g, " ");
+  const matches = flat.match(
     /\b[A-Z][A-Za-z0-9&.’']+(?:\s+[A-Z][A-Za-z0-9&.’']+){0,6}\s+(?:Pty Ltd|Ltd|Limited|Municipality|Traditional Council|Royal Council|Trust|Forum|Association)\b/g,
   );
   return preferLongestOrgs(matches || []);
 }
 
+function municipalityCore(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s+(local|metropolitan)\s+municipality$/i, "")
+    .replace(/\s+municipality$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function preferLongestOrgs(names: string[]): string[] {
   const junk =
     /^(the|a|an)\s+(municipality|department|client)$|^municipality$|^the municipality$/i;
-  const cleaned = unique(names.map((n) => n.trim()).filter((n) => n && !junk.test(n)));
+  const cleaned = unique(
+    names
+      .map((n) => n.replace(/\s+/g, " ").trim())
+      .filter((n) => n && !junk.test(n)),
+  );
   const sorted = [...cleaned].sort((a, b) => b.length - a.length);
   const kept: string[] = [];
   for (const name of sorted) {
     const lower = name.toLowerCase();
-    if (kept.some((row) => row.toLowerCase().includes(lower) && row.length > name.length)) {
+    const core = municipalityCore(name);
+    if (
+      kept.some((row) => {
+        const rowLower = row.toLowerCase();
+        if (rowLower.includes(lower) && row.length > name.length) return true;
+        if (
+          /municipality/i.test(name) &&
+          /municipality/i.test(row) &&
+          municipalityCore(row) === core
+        ) {
+          return true;
+        }
+        return false;
+      })
+    ) {
       continue;
     }
     kept.push(name);
@@ -301,6 +378,7 @@ export type ComposeSepInput = {
   placeHint?: string;
   clientHint?: string;
   timelineHint?: string;
+  budgetHint?: string;
   purposeOverride?: string;
   /** Extra instruments ticked on the facts pack (or added to a tender compose). */
   instrumentIds?: string[];
@@ -313,6 +391,8 @@ export type SepExtractPreview = {
   place: string;
   client: string;
   timeline: string;
+  budget: string;
+  tenderRef: string;
   sectorId: SepSectorId;
   sourceKind: SepSourceKind;
   programmeKind: import("@/types/engagementPlan").SepProgrammeKind;
@@ -328,6 +408,8 @@ export function previewSepExtract(text: string): SepExtractPreview {
       place: "",
       client: "",
       timeline: "",
+      budget: "",
+      tenderRef: "",
       sectorId: "generic",
       sourceKind: "paste",
       programmeKind: "standard",
@@ -340,6 +422,8 @@ export function previewSepExtract(text: string): SepExtractPreview {
     place: extractPlace(trimmed),
     client: extractClient(trimmed),
     timeline: extractTimeline(trimmed),
+    budget: extractBudget(trimmed),
+    tenderRef: extractTenderRef(trimmed),
     sectorId: detectSepSector(trimmed),
     sourceKind: detectSepSourceKind(trimmed),
     programmeKind: detectSepProgramme(trimmed),
@@ -372,9 +456,20 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
     ...(usedPlaybookOnly ? [] : extractNamedParties(text)),
   ]);
   const now = new Date().toISOString();
-  const titleBase =
+  const extractedTitle = usedPlaybookOnly ? "" : extractTitle(text);
+  const titleBase = stripSepPrefix(
     input.projectName?.trim() ||
-    (usedPlaybookOnly ? SEP_SECTOR_LABELS[sectorId] : extractTitle(text));
+      extractedTitle ||
+      (programmeKind === "relocation"
+        ? "Relocation and Migration Plan"
+        : SEP_SECTOR_LABELS[sectorId]),
+  );
+  const projectTitle =
+    titleBase && !isJunkTitle(titleBase)
+      ? titleBase
+      : programmeKind === "relocation"
+        ? "Relocation and Migration Plan"
+        : SEP_SECTOR_LABELS[sectorId];
   const detected = usedPlaybookOnly ? [] : detectCatalogInstruments(text);
   const sourceKind: SepSourceKind = usedPlaybookOnly
     ? "manual"
@@ -382,18 +477,21 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
 
   const base: Omit<EngagementPlan, "documentSections"> = {
     id: `SEP-${Date.now().toString(36).toUpperCase()}`,
-    title: `SEP — ${titleBase}`.slice(0, 160),
+    title: `SEP — ${projectTitle}`.slice(0, 160),
     status: "suggested",
     sourceKind,
     sectorId,
     programmeKind,
     projectId: input.projectId || null,
-    projectNameHint: titleBase,
+    projectNameHint: projectTitle,
     placeHint: input.placeHint?.trim() || (usedPlaybookOnly ? "" : extractPlace(text)),
     clientFunderHint:
       input.clientHint?.trim() || (usedPlaybookOnly ? "" : extractClient(text)),
     timelineHint:
       input.timelineHint?.trim() || (usedPlaybookOnly ? "" : extractTimeline(text)),
+    budgetHint:
+      input.budgetHint?.trim() || (usedPlaybookOnly ? "" : extractBudget(text)),
+    tenderRefHint: usedPlaybookOnly ? "" : extractTenderRef(text),
     createdAt: now,
     updatedAt: now,
     sourceExcerpt: usedPlaybookOnly
@@ -422,6 +520,7 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
       "Named people are only listed when they appear in the briefing or the facts pack. Do not invent counterparts.",
       "Social Licence to Build™ is mapped to shipped TrustLedger modules. This document does not claim unshipped portals, GIS editing, or a staffed 24/7 division.",
     ],
+    documentDrafter: "template",
   };
 
   return { ...base, documentSections: buildSepDocument(base) };
@@ -443,11 +542,14 @@ function uniqueInstruments(
 
 export function rebuildSepDocument(
   plan: EngagementPlan,
-  opts?: { touch?: boolean },
+  opts?: { touch?: boolean; document?: "rebuild" | "keep" },
 ): EngagementPlan {
   const programmeKind =
     plan.programmeKind ||
     detectSepProgramme(plan.title, plan.projectNameHint, plan.sourceExcerpt);
+  const overlayCensus =
+    programmeKind === "relocation" &&
+    !plan.activities.some((row) => row.id === "census");
   let next: Omit<EngagementPlan, "documentSections"> = {
     ...plan,
     timelineHint: plan.timelineHint || "",
@@ -455,10 +557,7 @@ export function rebuildSepDocument(
     updatedAt:
       opts?.touch === false ? plan.updatedAt : new Date().toISOString(),
   };
-  if (
-    programmeKind === "relocation" &&
-    !next.activities.some((row) => row.id === "census")
-  ) {
+  if (overlayCensus) {
     const overlaid = overlayRelocationPlaybook(
       SEP_SECTOR_PLAYBOOKS[next.sectorId] || SEP_SECTOR_PLAYBOOKS.generic,
     );
@@ -482,5 +581,31 @@ export function rebuildSepDocument(
       assumptions: unique([...overlaid.assumptions, ...next.assumptions]),
     };
   }
-  return { ...next, documentSections: buildSepDocument(next) };
+
+  const existing = (plan.documentSections || []).map((section) => ({
+    id: section.id,
+    heading: section.heading,
+    body: section.body,
+    ...(section.tables?.length ? { tables: section.tables } : {}),
+  }));
+  const usable = clientSepDocumentUsable({
+    programmeKind,
+    documentSections: existing,
+  });
+  const keepRequested = opts?.document === "keep";
+  const keepGemini =
+    opts?.document !== "rebuild" && plan.documentDrafter === "gemini";
+  if (existing.length && usable && (keepRequested || keepGemini)) {
+    return {
+      ...next,
+      documentDrafter: plan.documentDrafter,
+      documentSections: existing,
+    };
+  }
+
+  return {
+    ...next,
+    documentDrafter: "template",
+    documentSections: buildSepDocument(next),
+  };
 }
