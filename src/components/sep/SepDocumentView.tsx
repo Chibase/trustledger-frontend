@@ -4,13 +4,12 @@ import {
   quadrantForClass,
   SEP_QUADRANT_LABELS,
 } from "@/lib/sepMatrix";
+import { SEP_ISSUER_LINE, sepCoverBlurb } from "@/lib/sepDocument";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
   SEP_PROGRAMME_LABELS,
   SEP_PURPOSE_LABELS,
   SEP_SECTOR_LABELS,
-  SEP_SOURCE_LABELS,
-  SEP_STATUS_LABELS,
 } from "@/types/engagementPlan";
 
 type Props = {
@@ -31,7 +30,10 @@ export function SepDocumentView({ plan }: Props) {
     >
       <header className="sep-cover border-b border-tl-line pb-10">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tl-trust">
-          TrustLedger SRM
+          TrustLedger
+        </p>
+        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-tl-ink-muted">
+          Chibase Consulting
         </p>
         <p className="mt-3 text-sm font-medium text-tl-trust">
           Stakeholder Engagement Plan
@@ -40,11 +42,13 @@ export function SepDocumentView({ plan }: Props) {
           {plan.title}
         </h2>
         <p className="mt-3 max-w-xl text-sm text-tl-ink-muted">
-          {plan.programmeKind === "relocation"
-            ? "Operating plan for census, entitlements, host consultation, the physical move, livelihood restoration, and one grievance path. Suggestion until a human applies rows. Not legal advice."
-            : "Working stakeholder engagement plan executed on the TrustLedger desk after award. Suggestion until a human applies rows. Not legal advice."}
+          {sepCoverBlurb(plan)}
         </p>
         <dl className="mt-8 grid gap-3 text-sm sm:grid-cols-2">
+          <Meta label="Prepared by" value="Chibase Consulting" />
+          {plan.clientFunderHint ? (
+            <Meta label="Prepared for" value={plan.clientFunderHint} />
+          ) : null}
           {plan.programmeKind === "relocation" ? (
             <Meta
               label="Programme"
@@ -52,22 +56,17 @@ export function SepDocumentView({ plan }: Props) {
             />
           ) : null}
           <Meta label="Sector" value={SEP_SECTOR_LABELS[plan.sectorId]} />
-          <Meta
-            label="Source"
-            value={`${SEP_SOURCE_LABELS[plan.sourceKind]} · ${SEP_STATUS_LABELS[plan.status]}`}
-          />
           {plan.projectNameHint ? (
             <Meta label="Assignment" value={plan.projectNameHint} />
-          ) : null}
-          {plan.clientFunderHint ? (
-            <Meta label="Client / procuring entity" value={plan.clientFunderHint} />
           ) : null}
           {plan.placeHint ? <Meta label="Place" value={plan.placeHint} /> : null}
           {plan.timelineHint ? (
             <Meta label="Timeline" value={plan.timelineHint} />
           ) : null}
+          {plan.budgetHint ? (
+            <Meta label="Budget (as briefed)" value={plan.budgetHint} />
+          ) : null}
           <Meta label="Issued" value={issued} />
-          <Meta label="Plan ID" value={plan.id} mono />
         </dl>
       </header>
 
@@ -119,25 +118,13 @@ export function SepDocumentView({ plan }: Props) {
                 </table>
               </div>
             ) : null}
-            {section.protocol ? (
-              <div className="mt-4 rounded-md border border-dashed border-tl-trust/40 bg-tl-trust/5 px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-tl-trust">
-                  TrustLedger SRM execution protocol
-                </p>
-                <div className="mt-2">
-                  <SepRichText text={section.protocol} />
-                </div>
-              </div>
-            ) : null}
           </section>
         ))}
       </div>
 
       <footer className="mt-10 border-t border-tl-line pt-4 text-xs text-tl-ink-muted">
-        Prepared on the TrustLedger SRM desk from the supplied briefing extract
-        or facts pack and a sector playbook. Not legal advice. Not a substitute
-        for statutory processes named in the briefing. Humans apply rows to the
-        live desk — the composer never writes them alone.
+        {SEP_ISSUER_LINE} Not legal advice. Not a substitute for statutory
+        processes named in the briefing.
       </footer>
     </article>
   );

@@ -108,7 +108,7 @@ export type SepDocumentSection = {
   id: string;
   heading: string;
   body: string;
-  /** How TrustLedger operationalises this section (tender evidence). */
+  /** How this section is executed on the live desk (operator only — never exported). */
   protocol?: string;
 };
 
@@ -125,6 +125,8 @@ export type EngagementPlan = {
   placeHint: string;
   clientFunderHint: string;
   timelineHint: string;
+  /** Professional fees / contract value if the briefing named one — never invented. */
+  budgetHint?: string;
   createdAt: string;
   updatedAt: string;
   sourceExcerpt: string;

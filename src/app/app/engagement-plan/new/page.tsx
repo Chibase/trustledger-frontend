@@ -420,6 +420,12 @@ function NewEngagementPlanForm() {
                   </dt>
                   <dd>{extract.timeline || "—"}</dd>
                 </div>
+                <div>
+                  <dt className="uppercase tracking-wide text-tl-ink-muted">
+                    Budget
+                  </dt>
+                  <dd>{extract.budget || "—"}</dd>
+                </div>
               </dl>
               {extract.instruments.length ? (
                 <p className="mt-2 text-xs text-tl-ink">

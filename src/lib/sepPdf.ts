@@ -1,6 +1,6 @@
 /**
  * Branded executive PDF for a saved SEP. Trust tokens only (DESIGN_SYSTEM).
- * Does not call a cloud model. Cover + sections + protocol boxes + tables.
+ * Client report — no product architecture, no execution-protocol boxes.
  */
 
 import PDFDocument from "pdfkit";
@@ -9,12 +9,12 @@ import {
   quadrantForClass,
   SEP_QUADRANT_LABELS,
 } from "@/lib/sepMatrix";
+import { SEP_ISSUER_LINE, sepCoverBlurb } from "@/lib/sepDocument";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
   SEP_PROGRAMME_LABELS,
   SEP_PURPOSE_LABELS,
   SEP_SECTOR_LABELS,
-  SEP_SOURCE_LABELS,
 } from "@/types/engagementPlan";
 
 const PAGE_MARGIN = 52;
@@ -23,7 +23,6 @@ const MUTED = "#5b6b76";
 const TRUST = "#0e7c66";
 const TRUST_INK = "#085f4d";
 const LINE = "#d7dee4";
-const PAPER = "#f3f5f7";
 
 function clip(value: string, max: number): string {
   return value.replace(/\u0000/g, "").trim().slice(0, max);
@@ -62,7 +61,7 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
       info: {
         Title: clip(plan.title, 180),
         Subject: "Stakeholder Engagement Plan",
-        Author: "TrustLedger SRM",
+        Author: "Chibase Consulting",
         Creator: "TrustLedger",
       },
     });
@@ -125,7 +124,13 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
       .font("Helvetica-Bold")
       .fontSize(9)
       .fillColor(TRUST)
-      .text("TRUSTLEDGER SRM", { width: contentWidth, characterSpacing: 1.4 });
+      .text("TRUSTLEDGER", { width: contentWidth, characterSpacing: 1.4 });
+    doc.moveDown(0.25);
+    doc
+      .font("Helvetica")
+      .fontSize(8)
+      .fillColor(MUTED)
+      .text("CHIBASE CONSULTING", { width: contentWidth, characterSpacing: 1.2 });
     doc.moveDown(0.35);
     doc
       .font("Helvetica")
@@ -143,27 +148,22 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
       .font("Helvetica")
       .fontSize(9)
       .fillColor(MUTED)
-      .text(
-        plan.programmeKind === "relocation"
-          ? "Operating plan for census, entitlements, host consultation, the physical move, livelihood restoration, and one grievance path. Suggestion until a human applies rows. Not legal advice."
-          : "Working stakeholder engagement plan executed on the TrustLedger desk after award. Suggestion until a human applies rows. Not legal advice.",
-        { width: contentWidth },
-      );
+      .text(sepCoverBlurb(plan), { width: contentWidth });
     doc.moveDown(0.8);
     rule();
     doc.moveDown(0.6);
 
+    kv("Prepared by", "Chibase Consulting");
+    kv("Prepared for", plan.clientFunderHint || "");
     if (plan.programmeKind === "relocation") {
       kv("Programme", SEP_PROGRAMME_LABELS.relocation);
     }
     kv("Sector", SEP_SECTOR_LABELS[plan.sectorId] || plan.sectorId);
-    kv("Source", SEP_SOURCE_LABELS[plan.sourceKind] || plan.sourceKind);
     kv("Assignment", plan.projectNameHint || "");
-    kv("Client / procuring entity", plan.clientFunderHint || "");
     kv("Place", plan.placeHint || "");
     kv("Timeline", plan.timelineHint || "");
+    kv("Budget (as briefed)", plan.budgetHint || "");
     kv("Issued", issuedLabel(plan.updatedAt));
-    kv("Plan ID", plan.id);
 
     doc.moveDown(0.4);
     rule();
@@ -173,7 +173,8 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
       .fontSize(8)
       .fillColor(MUTED)
       .text(
-        "Prepared on the TrustLedger SRM desk. Apply writes prospect stakeholders, draft engagements, and open commitments only after approval. Grievance cases are not invented at apply.",
+        SEP_ISSUER_LINE +
+          " Not legal advice. Not a substitute for statutory processes named in the briefing.",
         { width: contentWidth },
       );
 
@@ -193,52 +194,6 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
         drawStakeholderTable(doc, plan, left, contentWidth, ensureSpace);
       }
 
-      if (section.protocol) {
-        const protocol = plain(section.protocol);
-        const textH = doc.heightOfString(protocol, {
-          width: contentWidth - 16,
-          lineGap: 2,
-        });
-        const boxH = textH + 28;
-        const pageRoom =
-          doc.page.height -
-          doc.page.margins.top -
-          doc.page.margins.bottom;
-        if (boxH > pageRoom - 24) {
-          ensureSpace(36);
-          doc
-            .font("Helvetica-Bold")
-            .fontSize(8)
-            .fillColor(TRUST)
-            .text("TRUSTLEDGER SRM EXECUTION PROTOCOL", {
-              width: contentWidth,
-            });
-          doc.moveDown(0.25);
-          bodyText(protocol, 9);
-        } else {
-          ensureSpace(boxH + 8);
-          const y = doc.y;
-          doc.save();
-          doc.rect(left, y, contentWidth, boxH).fill(PAPER);
-          doc.restore();
-          doc
-            .font("Helvetica-Bold")
-            .fontSize(8)
-            .fillColor(TRUST)
-            .text("TRUSTLEDGER SRM EXECUTION PROTOCOL", left + 8, y + 8, {
-              width: contentWidth - 16,
-            });
-          doc
-            .font("Helvetica")
-            .fontSize(9)
-            .fillColor(INK)
-            .text(protocol, left + 8, y + 22, {
-              width: contentWidth - 16,
-              lineGap: 2,
-            });
-          doc.y = y + boxH + 10;
-        }
-      }
       doc.moveDown(0.6);
     }
 
@@ -250,7 +205,8 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
       .fontSize(8)
       .fillColor(MUTED)
       .text(
-        "Not legal advice. Not a substitute for statutory processes named in the briefing. Humans apply rows to the live desk — the composer never writes them alone.",
+        SEP_ISSUER_LINE +
+          " Not legal advice. Not a substitute for statutory processes named in the briefing.",
         { width: contentWidth },
       );
 

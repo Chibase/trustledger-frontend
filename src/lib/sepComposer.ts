@@ -188,6 +188,23 @@ function extractTimeline(text: string): string {
   return years?.[1] || "";
 }
 
+function extractBudget(text: string): string {
+  const labeled = extractLabeled(text, [
+    "budget",
+    "estimated budget",
+    "contract value",
+    "professional fees",
+    "fee",
+  ]);
+  if (labeled && !/not stated|to be confirmed|n\/a/i.test(labeled)) {
+    return labeled;
+  }
+  const zar = text.match(
+    /\b(?:ZAR|R)\s*[\d][\d\s,]*(?:\.\d{2})?(?:\s*(?:million|m|billion))?\b/i,
+  );
+  return zar?.[0]?.replace(/\s+/g, " ").trim() || "";
+}
+
 function extractClient(text: string): string {
   const labeled = extractLabeled(text, [
     "client",
@@ -301,6 +318,7 @@ export type ComposeSepInput = {
   placeHint?: string;
   clientHint?: string;
   timelineHint?: string;
+  budgetHint?: string;
   purposeOverride?: string;
   /** Extra instruments ticked on the facts pack (or added to a tender compose). */
   instrumentIds?: string[];
@@ -313,6 +331,7 @@ export type SepExtractPreview = {
   place: string;
   client: string;
   timeline: string;
+  budget: string;
   sectorId: SepSectorId;
   sourceKind: SepSourceKind;
   programmeKind: import("@/types/engagementPlan").SepProgrammeKind;
@@ -328,6 +347,7 @@ export function previewSepExtract(text: string): SepExtractPreview {
       place: "",
       client: "",
       timeline: "",
+      budget: "",
       sectorId: "generic",
       sourceKind: "paste",
       programmeKind: "standard",
@@ -340,6 +360,7 @@ export function previewSepExtract(text: string): SepExtractPreview {
     place: extractPlace(trimmed),
     client: extractClient(trimmed),
     timeline: extractTimeline(trimmed),
+    budget: extractBudget(trimmed),
     sectorId: detectSepSector(trimmed),
     sourceKind: detectSepSourceKind(trimmed),
     programmeKind: detectSepProgramme(trimmed),
@@ -394,6 +415,8 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
       input.clientHint?.trim() || (usedPlaybookOnly ? "" : extractClient(text)),
     timelineHint:
       input.timelineHint?.trim() || (usedPlaybookOnly ? "" : extractTimeline(text)),
+    budgetHint:
+      input.budgetHint?.trim() || (usedPlaybookOnly ? "" : extractBudget(text)),
     createdAt: now,
     updatedAt: now,
     sourceExcerpt: usedPlaybookOnly

@@ -16,21 +16,27 @@ const mining = composeEngagementPlan({
 });
 
 const checks: string[] = [];
+const architectureEssay =
+  /three shipped anchors|strategic advisory|rapid-response workflows|srm integration|TrustLedger SRM execution protocol|Themba|shipped modules|Capture templates|Apply seeds|Social Licence to Build/i;
 if (housing.sectorId !== "housing") checks.push(`housing detect=${housing.sectorId}`);
 if (housing.programmeKind === "relocation") checks.push("housing should stay standard programme");
 if (housing.sourceKind !== "rfp") checks.push(`housing source=${housing.sourceKind}`);
 if (housing.phases.length !== 7) checks.push(`housing phases=${housing.phases.length}`);
-if (housing.documentSections.length !== 7) {
+if (housing.documentSections.length !== 8) {
   checks.push(`housing sections=${housing.documentSections.length}`);
 }
 if (housing.documentSections[0]?.id !== "summary") {
   checks.push(`housing first=${housing.documentSections[0]?.id}`);
 }
-if (!housing.documentSections[0]?.protocol) {
-  checks.push("housing missing execution protocol");
+if (housing.documentSections[7]?.id !== "conclusion") {
+  checks.push(`housing last=${housing.documentSections[7]?.id}`);
 }
-if (!housing.documentSections.every((row) => row.protocol)) {
-  checks.push("section missing protocol");
+if (housing.documentSections.some((row) => row.protocol)) {
+  checks.push("client document must not carry execution protocols");
+}
+const housingDoc = housing.documentSections.map((row) => row.body).join("\n");
+if (architectureEssay.test(housingDoc)) {
+  checks.push("housing document still contains architecture copy");
 }
 if (!housing.placeHint.toLowerCase().includes("ward")) {
   checks.push(`housing place=${housing.placeHint}`);
@@ -101,14 +107,20 @@ if (!preview.instruments.some((row) => row.id === "nema-eia")) {
 }
 
 const md = planToMarkdown(housing);
-if (!md.includes("TrustLedger SRM execution protocol")) {
-  checks.push("markdown missing protocol");
+if (md.includes("TrustLedger SRM execution protocol")) {
+  checks.push("markdown still has execution protocol");
 }
 if (!md.includes("| Class |")) checks.push("markdown missing matrix table");
+if (!md.includes("Chibase Consulting")) checks.push("markdown missing issuer");
+if (!/Community-Based Participatory Research/i.test(md)) {
+  checks.push("markdown missing CBPR");
+}
+if (!md.includes("8. Conclusion")) checks.push("markdown missing conclusion");
 
 const word = planToWordHtml(housing);
-if (!word.includes("execution protocol")) checks.push("word missing protocol");
+if (/execution protocol/i.test(word)) checks.push("word still has execution protocol");
 if (!word.includes("<table")) checks.push("word missing table");
+if (!word.includes("Chibase Consulting")) checks.push("word missing issuer");
 
 const applyPreview = previewSepApply(housing);
 if (
@@ -118,9 +130,6 @@ if (
 ) {
   checks.push(`preview ${JSON.stringify(applyPreview)}`);
 }
-
-const architectureEssay =
-  /three shipped anchors|strategic advisory|rapid-response workflows|srm integration/i;
 
 const relocation = composeEngagementPlan({
   text: SEP_RELOCATION_EXAMPLE_BRIEF,
@@ -167,11 +176,27 @@ const relocationSummary =
 if (architectureEssay.test(relocationSummary)) {
   checks.push("relocation summary still architecture essay");
 }
-if (!/operating plan for relocation/i.test(relocationSummary)) {
-  checks.push("relocation summary missing operating-plan lead");
+if (!/relocation and migration assignment/i.test(relocationSummary)) {
+  checks.push("relocation summary missing assignment lead");
 }
 if (!/cut-off/i.test(relocationSummary) || !/census/i.test(relocationSummary)) {
   checks.push("relocation summary missing census/cut-off");
+}
+if (!/Chibase Consulting/i.test(relocationSummary)) {
+  checks.push("relocation summary missing Chibase Consulting");
+}
+if (/Themba|TrustLedger SRM|execution protocol/i.test(relocationSummary)) {
+  checks.push("relocation summary still names product architecture");
+}
+const relocationDoc = relocation.documentSections.map((row) => row.body).join("\n");
+if (architectureEssay.test(relocationDoc)) {
+  checks.push("relocation document still contains architecture copy");
+}
+if (!/Community-Based Participatory Research/i.test(relocationDoc)) {
+  checks.push("relocation document missing CBPR");
+}
+if (!relocation.documentSections.some((row) => row.id === "conclusion")) {
+  checks.push("relocation missing conclusion");
 }
 
 const wmmlmCover = `TRUSTLEDGER SRM
@@ -237,6 +262,9 @@ if (!rebuilt.activities.some((row) => row.id === "census")) {
 }
 if (architectureEssay.test(rebuilt.documentSections[0]?.body || "")) {
   checks.push("rebuild still architecture essay");
+}
+if (rebuilt.documentSections.some((row) => row.protocol)) {
+  checks.push("rebuild document still has protocols");
 }
 
 const rapMd = planToMarkdown(relocation);

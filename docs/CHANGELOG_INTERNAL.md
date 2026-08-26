@@ -14,6 +14,7 @@
 - Plans org-scoped by org id cookie / email (not a shared `session` bucket). Re-apply toasts only newly created rows.
 - Gated on existing `engagements` capability. Client gates also read the trial cookie / active org when the page did not pass a plan id. ADR-053.
 - **Relocation / RAP overlay:** briefs that are a physical or economic move (relocation, migration plan, RAP, cut-off, host community) compose an operating plan — census, entitlements, host consultation, move-week helpdesk, livelihood restoration — not a Social Licence to Build™ architecture essay. Municipality names keep the full Local Municipality string; “The Municipality” fragments are dropped. Saved architecture SEPs upgrade on reopen. ADR-053.
+- **Client report voice:** the exported SEP is a bid-grade report (what / how / when / who, CBPR, risks, GRM, M&E, conclusion). TrustLedger and Chibase Consulting appear as letterhead only. No execution-protocol boxes, Themba, Capture, Apply, or product architecture in client-facing copy. Operator dashboard still maps SLB → shipped desks. ADR-053.
 
 ## 2026-08-25 — ClickUp diary live on Chibase Workspace
 

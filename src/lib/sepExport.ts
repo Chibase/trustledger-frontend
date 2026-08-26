@@ -8,13 +8,13 @@ import {
   SEP_PROGRAMME_LABELS,
   SEP_PURPOSE_LABELS,
   SEP_SECTOR_LABELS,
-  SEP_SOURCE_LABELS,
 } from "@/types/engagementPlan";
 import {
   interestForClass,
   quadrantForClass,
   SEP_QUADRANT_LABELS,
 } from "@/lib/sepMatrix";
+import { SEP_ISSUER_LINE, sepCoverBlurb } from "@/lib/sepDocument";
 
 function safeName(plan: EngagementPlan): string {
   return plan.title.replace(/[^\w\- ]+/g, "").trim().slice(0, 80) || plan.id;
@@ -48,19 +48,23 @@ export function planToMarkdown(plan: EngagementPlan): string {
   const lines = [
     `# ${plan.title}`,
     "",
-    `TrustLedger · Stakeholder Engagement Plan`,
+    `TrustLedger · Chibase Consulting`,
     "",
+    `Stakeholder Engagement Plan`,
+    "",
+    sepCoverBlurb(plan),
+    "",
+    `- Prepared by: Chibase Consulting`,
+    plan.clientFunderHint ? `- Prepared for: ${plan.clientFunderHint}` : null,
     plan.programmeKind === "relocation"
       ? `- Programme: ${SEP_PROGRAMME_LABELS.relocation}`
       : null,
     `- Sector: ${SEP_SECTOR_LABELS[plan.sectorId]}`,
-    `- Source: ${SEP_SOURCE_LABELS[plan.sourceKind]}`,
     `- Issued: ${issuedLabel(plan.updatedAt)}`,
-    `- Plan ID: ${plan.id}`,
     plan.projectNameHint ? `- Assignment: ${plan.projectNameHint}` : null,
-    plan.clientFunderHint ? `- Client: ${plan.clientFunderHint}` : null,
     plan.placeHint ? `- Place: ${plan.placeHint}` : null,
     plan.timelineHint ? `- Timeline: ${plan.timelineHint}` : null,
+    plan.budgetHint ? `- Budget (as briefed): ${plan.budgetHint}` : null,
     "",
   ].filter((row) => row !== null) as string[];
 
@@ -69,20 +73,12 @@ export function planToMarkdown(plan: EngagementPlan): string {
     if (section.id === "stakeholders") {
       lines.push(stakeholderMarkdown(plan));
     }
-    if (section.protocol) {
-      lines.push(
-        `### TrustLedger SRM execution protocol`,
-        "",
-        section.protocol,
-        "",
-      );
-    }
   }
 
   lines.push(
     "---",
     "",
-    "Prepared on the TrustLedger SRM desk. Suggestion only until a human applies rows after approval. Not legal advice.",
+    `${SEP_ISSUER_LINE} Not legal advice. Not a substitute for statutory processes named in the briefing.`,
     "",
   );
   return lines.join("\n");
@@ -103,17 +99,17 @@ function rich(value: string): string {
 
 export function planToWordHtml(plan: EngagementPlan): string {
   const meta = [
+    ["Prepared by", "Chibase Consulting"],
+    ["Prepared for", plan.clientFunderHint],
     plan.programmeKind === "relocation"
       ? ["Programme", SEP_PROGRAMME_LABELS.relocation]
       : null,
     ["Sector", SEP_SECTOR_LABELS[plan.sectorId]],
-    ["Source", SEP_SOURCE_LABELS[plan.sourceKind]],
     ["Assignment", plan.projectNameHint],
-    ["Client", plan.clientFunderHint],
     ["Place", plan.placeHint],
     ["Timeline", plan.timelineHint],
+    ["Budget (as briefed)", plan.budgetHint],
     ["Issued", issuedLabel(plan.updatedAt)],
-    ["Plan ID", plan.id],
   ].filter((row): row is [string, string] => Boolean(row && row[1]));
 
   const classRows = plan.stakeholderClasses
@@ -132,16 +128,9 @@ export function planToWordHtml(plan: EngagementPlan): string {
 ${classRows}
 </table>`
           : "";
-      const protocol = section.protocol
-        ? `<div style="border:1px dashed #0e7c66;background:#f3f5f7;padding:12px;margin:12px 0;">
-<p style="color:#0e7c66;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;"><strong>TrustLedger SRM execution protocol</strong></p>
-<p>${rich(section.protocol)}</p>
-</div>`
-        : "";
       return `<h2>${esc(section.heading)}</h2>
 <p>${rich(section.body)}</p>
-${table}
-${protocol}`;
+${table}`;
     })
     .join("\n");
 
@@ -159,19 +148,16 @@ ${protocol}`;
 </style>
 </head>
 <body>
-<p style="color:#0e7c66;letter-spacing:0.12em;text-transform:uppercase;font-size:11px;">TrustLedger SRM</p>
+<p style="color:#0e7c66;letter-spacing:0.12em;text-transform:uppercase;font-size:11px;">TrustLedger</p>
+<p style="color:#5b6b76;letter-spacing:0.1em;text-transform:uppercase;font-size:10px;">Chibase Consulting</p>
 <p><strong>Stakeholder Engagement Plan</strong></p>
 <h1>${esc(plan.title)}</h1>
-<p>${
-    plan.programmeKind === "relocation"
-      ? "Operating plan for census, entitlements, host consultation, the physical move, livelihood restoration, and one grievance path. Suggestion until a human applies rows. Not legal advice."
-      : "Working stakeholder engagement plan executed on the TrustLedger desk after award. Suggestion until a human applies rows. Not legal advice."
-  }</p>
+<p>${esc(sepCoverBlurb(plan))}</p>
 <table border="1" cellpadding="6" cellspacing="0" width="100%">
 ${meta.map(([k, v]) => `<tr><td><strong>${esc(k)}</strong></td><td>${esc(String(v))}</td></tr>`).join("")}
 </table>
 ${sections}
-<p style="font-size:10pt;color:#5b6b76;">Prepared on the TrustLedger SRM desk. Not legal advice. Humans apply rows to the live desk.</p>
+<p style="font-size:10pt;color:#5b6b76;">${esc(SEP_ISSUER_LINE)} Not legal advice. Not a substitute for statutory processes named in the briefing.</p>
 </body>
 </html>`;
 }
