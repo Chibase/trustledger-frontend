@@ -121,6 +121,13 @@ export default function EngagementPlanDetailPage() {
       );
       if (synthesizer === "gemini") {
         pushToast("Gemini redrafted the client document.", "success");
+      } else if (drafted.documentDrafter === "gemini") {
+        pushToast(
+          error
+            ? `${error} Existing Gemini document kept.`
+            : "Gemini was unavailable. Existing document kept.",
+          "info",
+        );
       } else {
         pushToast(
           error

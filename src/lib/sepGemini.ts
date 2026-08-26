@@ -399,12 +399,17 @@ export async function draftSepDocument(
         ? plan.documentSections
         : [],
     },
-    { touch: false, document: "rebuild" },
+    {
+      touch: false,
+      document: plan.documentDrafter === "gemini" ? "keep" : "rebuild",
+    },
   );
   const fallback: EngagementPlan = {
     ...prepared,
-    documentDrafter: "template",
-    documentSections: prepared.documentSections,
+    documentDrafter: prepared.documentDrafter || "template",
+    documentSections: prepared.documentSections.length
+      ? prepared.documentSections
+      : buildSepDocument(prepared),
   };
   const key = geminiApiKey();
   if (!key) return { plan: fallback, synthesizer: "template" };
