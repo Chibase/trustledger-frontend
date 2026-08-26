@@ -26,7 +26,6 @@ export default async function AppDashboardPage() {
   return (
     <div className="space-y-7">
       {isPlanOwner ? <SetupChecklistBanner planId={user.trialPlan} /> : null}
-      {isPlanOwner ? <PlanOwnerMasterPanel /> : null}
       <ExecutivePortfolioDashboard
         role={user.role}
         planId={user.trialPlan}
@@ -34,6 +33,7 @@ export default async function AppDashboardPage() {
         seedIncidents={incidents}
         seedProjects={projects}
       />
+      {isPlanOwner ? <PlanOwnerMasterPanel /> : null}
     </div>
   );
 }

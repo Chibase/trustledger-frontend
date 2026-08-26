@@ -6,6 +6,7 @@ import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { buildProjectActivity } from "@/lib/dashboardActivity";
 import { readDeskTier } from "@/lib/deskVisibility";
+import { hasCapability } from "@/lib/entitlements";
 import { packsForDesk } from "@/lib/reportPackAccess";
 import {
   listWorkspaceIncidents,
@@ -35,6 +36,7 @@ const QUICK_LINKS: Array<{
   { href: "/app/incidents", label: "Incidents", hint: "Open cases" },
   { href: "/app/capture", label: "Capture", hint: "Minutes & registers" },
   { href: "/app/stakeholders", label: "Stakeholders", hint: "CRM registry" },
+  { href: "/app/engagement-plan", label: "Engagement plan", hint: "SEP from briefing" },
   { href: "/app/reports", label: "Reports", hint: "Packs & write" },
   { href: "/app/issues/report", label: "Report issue", hint: "New intake" },
 ];
@@ -53,12 +55,17 @@ export function ActivityDashboard({
   const [tier, setTier] = useState<DeskTier>("clo");
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents);
   const [projects, setProjects] = useState<Project[]>(seedProjects);
+  const [showSep, setShowSep] = useState(false);
 
   useEffect(() => {
-    setTier(readDeskTier(role));
-    setIncidents(listWorkspaceIncidents(seedIncidents));
-    setProjects(listWorkspaceProjects(seedProjects));
-  }, [role, seedIncidents, seedProjects]);
+    const frame = requestAnimationFrame(() => {
+      setTier(readDeskTier(role));
+      setIncidents(listWorkspaceIncidents(seedIncidents));
+      setProjects(listWorkspaceProjects(seedProjects));
+      setShowSep(hasCapability("engagements", planId));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [role, planId, seedIncidents, seedProjects]);
 
   const activity = useMemo(
     () => buildProjectActivity(projects, incidents),
@@ -95,7 +102,9 @@ export function ActivityDashboard({
           Overall navigation
         </h2>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {QUICK_LINKS.map((link) => (
+          {QUICK_LINKS.filter(
+            (link) => link.href !== "/app/engagement-plan" || showSep,
+          ).map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}

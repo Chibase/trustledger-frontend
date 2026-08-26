@@ -46,13 +46,14 @@ function NewEngagementPlanForm() {
   const searchParams = useSearchParams();
   const { pushToast } = useToast();
   const seeded = exampleSector(searchParams);
+  const seededProject = searchParams.get("project")?.trim() || "";
   const [text, setText] = useState(
     seeded ? SEP_EXAMPLE_BRIEFS[seeded] : "",
   );
   const [sectorId, setSectorId] = useState<SepSectorId | "auto">(
     seeded || "auto",
   );
-  const [projectId, setProjectId] = useState("");
+  const [projectId, setProjectId] = useState(seededProject);
   const [projects, setProjects] = useState<Project[]>([]);
   const [busy, setBusy] = useState(false);
   const [composing, setComposing] = useState(false);
@@ -68,6 +69,14 @@ function NewEngagementPlanForm() {
     }, 0);
     return () => window.clearTimeout(handle);
   }, [seeded]);
+
+  useEffect(() => {
+    if (!seededProject) return;
+    const handle = window.setTimeout(() => {
+      setProjectId(seededProject);
+    }, 0);
+    return () => window.clearTimeout(handle);
+  }, [seededProject]);
 
   useEffect(() => {
     let cancelled = false;
