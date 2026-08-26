@@ -81,6 +81,11 @@ export const PUBLIC_FAQS: FaqItem[] = [
       "Yes, as a separate consulting engagement — not as a fifth TrustLedger software column. Chibase Consulting is an independent practice (social facilitation, MEL, IKS method, short-cycle field intervention). You can request any of those packages as an add-on to Solo, Practitioner, Project, or Institutional. Pricing is Chibase’s own; the engagement does not unlock desk modules. Software checkout stays on TrustLedger; consulting packages live on the Chibase site.",
   },
   {
+    question: "Can TrustLedger turn an RFP or tender into a stakeholder engagement plan?",
+    answer:
+      "On entitled plans (Project, Institutional, or a CRM add-on), the Engagement plan module reads a briefing, tender, or RFP extract and maps a seven-phase process from inception to close-out for the sector of the work. You get a process dashboard and a client-presentable SEP document. After the assignment is approved, a human applies the suggestion so stakeholders, draft engagements, and commitments land on the SRM desk. The composer does not write the live desk alone.",
+  },
+  {
     question: "Where does TrustLedger store live customer data?",
     answer:
       "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. You use the TrustLedger product app for day-to-day work; marketing content lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",

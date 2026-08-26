@@ -56,12 +56,20 @@ export default function AppCommitmentsPage() {
           title="Commitments"
           description="Promises from engagements — owner, deadline, and evidence toward closed. Promote action items from an engagement detail."
           actions={
-            <Link
-              href="/app/engagements"
-              className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
-            >
-              From engagements
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/app/engagement-plan"
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+              >
+                Engagement plan
+              </Link>
+              <Link
+                href="/app/engagements"
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+              >
+                From engagements
+              </Link>
+            </div>
           }
         />
 

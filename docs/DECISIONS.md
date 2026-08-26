@@ -610,3 +610,18 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Viewers can collaborate on a specific report/case; Cloud DocType sync is a later packet.
 - **Alternatives considered:** Extend product FeedbackDrawer (rejected — wrong audience/SoT); require Project plan for all discussion (rejected — Solo/Practitioner also view reports/cases).
 
+### ADR-053: Stakeholder Engagement Plan from briefing / RFP
+
+- **Date:** 2026-08-26
+- **Status:** Accepted
+- **Context:** Proposal and inception work often starts as a tender, RFP, or briefing — not as already-named registry rows. Teams need a client-presentable SEP and a process map that can seed the SRM desk once the assignment is approved, across sectors, without inventing counterparts or auto-writing live data.
+- **Decision:**
+  1. Ship **Engagement plan** under `/app/engagement-plan`, gated on the existing `engagements` capability (Project+ / CRM add-on). No new entitlement SKU.
+  2. **Local composer** (`sepComposer`) maps the extract onto a sector playbook (seven phases: inception → close-out). No Cloud LLM. Pattern remains suggest → human apply → save (ADR-006).
+  3. Outputs: process **dashboard** for the desk and an eight-section **presentable document** (Print / PDF).
+  4. After approval, **Apply to SRM** creates prospect stakeholders, draft engagements, and open commitments via existing services. Duplicate names/titles are skipped. Plans stay org-scoped in the browser until a Cloud DocType exists; applied rows follow the live SI path.
+  5. Do not over-claim statutes: instruments appear only when cited in the brief or named in the playbook as “if cited”. Not legal advice.
+- **Consequences:** Capture after award is shorter because the plan already named classes, methods, and standing promises. Packet **SI-SEP**.
+- **Alternatives considered:** New paid capability (rejected — same SI seat); Cloud Grok compose (rejected — reportComposer / ADR-006); auto-write on compose (rejected — governance).
+
+

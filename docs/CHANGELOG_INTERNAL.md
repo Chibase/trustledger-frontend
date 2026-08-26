@@ -1,5 +1,14 @@
 # Internal changelog
 
+## 2026-08-26 — Stakeholder engagement plan (SI-SEP)
+
+- New **Engagement plan** desk (`/app/engagement-plan`): paste or upload an RFP / tender / briefing (PDF text layer or .txt / .md / .csv), or pick a sector playbook with no file.
+- Local composer maps a seven-phase process (inception → close-out) for infrastructure, housing, mining, energy, water, education, health, agriculture, municipal, conservation, logistics, or generic. Suggestion only — no Cloud LLM.
+- Outputs: process dashboard (who / when / which SRM module) and an eight-section presentable SEP (Print / PDF).
+- After client approval, **Apply to SRM** seeds prospect stakeholders, draft engagements, and open commitments; duplicates skipped. Humans apply.
+- Plans org-scoped by org id cookie / email (not a shared `session` bucket). Re-apply toasts only newly created rows.
+- Gated on existing `engagements` capability. ADR-053.
+
 ## 2026-08-25 — ClickUp diary live on Chibase Workspace
 
 - Google Calendar and Email ClickApp are connected as `admin@chibaseconsulting.co.za`. `trustledger.co.za` verification stays parked until Admin shows Active. No MX change.

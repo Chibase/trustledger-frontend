@@ -63,6 +63,21 @@ body {
     overflow: visible !important;
     height: auto !important;
   }
+
+  body:has(#tl-sep-document) * {
+    visibility: hidden;
+  }
+
+  body:has(#tl-sep-document) #tl-sep-document,
+  body:has(#tl-sep-document) #tl-sep-document * {
+    visibility: visible;
+  }
+
+  body:has(#tl-sep-document) #tl-sep-document {
+    position: static !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
 }
 
 .font-display {
