@@ -1,44 +1,24 @@
 /**
  * Client-side SEP export — Markdown, Word-compatible HTML, branded PDF.
- * Print layout still uses the document view + browser print (cover in CSS).
  */
 
-import type { EngagementPlan } from "@/types/engagementPlan";
-import {
-  SEP_PROGRAMME_LABELS,
-  SEP_PURPOSE_LABELS,
-  SEP_SECTOR_LABELS,
-} from "@/types/engagementPlan";
-import {
-  interestForClass,
-  quadrantForClass,
-  SEP_QUADRANT_LABELS,
-} from "@/lib/sepMatrix";
-import { SEP_ISSUER_LINE, sepCoverBlurb } from "@/lib/sepDocument";
+import type { EngagementPlan, SepDocumentTable } from "@/types/engagementPlan";
+import { SEP_ISSUER_LINE, sepCoverBlurb, sepCoverFields } from "@/lib/sepDocument";
 
 function safeName(plan: EngagementPlan): string {
-  return plan.title.replace(/[^\w\- ]+/g, "").trim().slice(0, 80) || plan.id;
+  return (
+    (plan.projectNameHint || plan.title).replace(/[^\w\- ]+/g, "").trim().slice(0, 80) ||
+    plan.id
+  );
 }
 
-function issuedLabel(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("en-ZA", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-function stakeholderMarkdown(plan: EngagementPlan): string {
-  if (!plan.stakeholderClasses.length) return "";
-  const rows = plan.stakeholderClasses.map((row) => {
-    return `| ${row.label} | ${row.influence} | ${interestForClass(row)} | ${SEP_QUADRANT_LABELS[quadrantForClass(row)]} | ${SEP_PURPOSE_LABELS[row.purpose]} |`;
-  });
+function tableMarkdown(table: SepDocumentTable): string {
+  if (!table.headers.length) return "";
+  const rows = table.rows.map((row) => `| ${row.map((c) => c.replace(/\|/g, "/")).join(" | ")} |`);
   return [
-    "",
-    "| Class | Influence | Interest | Quadrant | Purpose |",
-    "| --- | --- | --- | --- | --- |",
+    table.caption ? `\n*${table.caption}*\n` : "",
+    `| ${table.headers.join(" | ")} |`,
+    `| ${table.headers.map(() => "---").join(" | ")} |`,
     ...rows,
     "",
   ].join("\n");
@@ -46,32 +26,20 @@ function stakeholderMarkdown(plan: EngagementPlan): string {
 
 export function planToMarkdown(plan: EngagementPlan): string {
   const lines = [
-    `# ${plan.title}`,
+    `# Stakeholder Engagement Plan`,
     "",
-    `TrustLedger · Chibase Consulting`,
-    "",
-    `Stakeholder Engagement Plan`,
+    `**${plan.projectNameHint || plan.title}**`,
     "",
     sepCoverBlurb(plan),
     "",
-    `- Prepared by: Chibase Consulting`,
-    plan.clientFunderHint ? `- Prepared for: ${plan.clientFunderHint}` : null,
-    plan.programmeKind === "relocation"
-      ? `- Programme: ${SEP_PROGRAMME_LABELS.relocation}`
-      : null,
-    `- Sector: ${SEP_SECTOR_LABELS[plan.sectorId]}`,
-    `- Issued: ${issuedLabel(plan.updatedAt)}`,
-    plan.projectNameHint ? `- Assignment: ${plan.projectNameHint}` : null,
-    plan.placeHint ? `- Place: ${plan.placeHint}` : null,
-    plan.timelineHint ? `- Timeline: ${plan.timelineHint}` : null,
-    plan.budgetHint ? `- Budget (as briefed): ${plan.budgetHint}` : null,
+    ...sepCoverFields(plan).map(([k, v]) => `- ${k}: ${v}`),
     "",
-  ].filter((row) => row !== null) as string[];
+  ];
 
   for (const section of plan.documentSections) {
     lines.push(`## ${section.heading}`, "", section.body, "");
-    if (section.id === "stakeholders") {
-      lines.push(stakeholderMarkdown(plan));
+    for (const table of section.tables || []) {
+      lines.push(tableMarkdown(table));
     }
   }
 
@@ -97,40 +65,30 @@ function rich(value: string): string {
     .replace(/\n/g, "<br/>");
 }
 
-export function planToWordHtml(plan: EngagementPlan): string {
-  const meta = [
-    ["Prepared by", "Chibase Consulting"],
-    ["Prepared for", plan.clientFunderHint],
-    plan.programmeKind === "relocation"
-      ? ["Programme", SEP_PROGRAMME_LABELS.relocation]
-      : null,
-    ["Sector", SEP_SECTOR_LABELS[plan.sectorId]],
-    ["Assignment", plan.projectNameHint],
-    ["Place", plan.placeHint],
-    ["Timeline", plan.timelineHint],
-    ["Budget (as briefed)", plan.budgetHint],
-    ["Issued", issuedLabel(plan.updatedAt)],
-  ].filter((row): row is [string, string] => Boolean(row && row[1]));
-
-  const classRows = plan.stakeholderClasses
+function tableHtml(table: SepDocumentTable): string {
+  const head = table.headers
+    .map((h) => `<th>${esc(h)}</th>`)
+    .join("");
+  const body = table.rows
     .map(
       (row) =>
-        `<tr><td>${esc(row.label)}</td><td>${esc(row.influence)}</td><td>${esc(interestForClass(row))}</td><td>${esc(SEP_QUADRANT_LABELS[quadrantForClass(row)])}</td><td>${esc(SEP_PURPOSE_LABELS[row.purpose])}</td></tr>`,
+        `<tr>${row.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`,
     )
     .join("");
+  return `<table border="1" cellpadding="6" cellspacing="0" width="100%">
+<tr>${head}</tr>
+${body}
+</table>`;
+}
 
+export function planToWordHtml(plan: EngagementPlan): string {
+  const meta = sepCoverFields(plan);
   const sections = plan.documentSections
     .map((section) => {
-      const table =
-        section.id === "stakeholders" && classRows
-          ? `<table border="1" cellpadding="6" cellspacing="0" width="100%">
-<tr><th>Class</th><th>Influence</th><th>Interest</th><th>Quadrant</th><th>Purpose</th></tr>
-${classRows}
-</table>`
-          : "";
+      const tables = (section.tables || []).map(tableHtml).join("\n");
       return `<h2>${esc(section.heading)}</h2>
 <p>${rich(section.body)}</p>
-${table}`;
+${tables}`;
     })
     .join("\n");
 
@@ -139,22 +97,22 @@ ${table}`;
       xmlns:w="urn:schemas-microsoft-com:office:word">
 <head>
 <meta charset="utf-8" />
-<title>${esc(plan.title)}</title>
+<title>${esc(plan.projectNameHint || plan.title)}</title>
 <style>
-  body { font-family: Calibri, sans-serif; color: #12202a; max-width: 44rem; }
-  h1, h2, h3 { color: #085f4d; }
-  table { border-collapse: collapse; font-size: 11pt; margin: 12px 0; }
-  th { text-align: left; color: #085f4d; }
+  body { font-family: Calibri, sans-serif; color: #12202a; max-width: 48rem; }
+  h1, h2 { color: #085f4d; }
+  table { border-collapse: collapse; font-size: 10pt; margin: 12px 0; }
+  th { text-align: left; background: #0e7c66; color: #ffffff; }
 </style>
 </head>
 <body>
-<p style="color:#0e7c66;letter-spacing:0.12em;text-transform:uppercase;font-size:11px;">TrustLedger</p>
-<p style="color:#5b6b76;letter-spacing:0.1em;text-transform:uppercase;font-size:10px;">Chibase Consulting</p>
-<p><strong>Stakeholder Engagement Plan</strong></p>
-<h1>${esc(plan.title)}</h1>
+<p style="letter-spacing:0.12em;text-transform:uppercase;font-size:11px;color:#5b6b76;">Chibase Consulting</p>
+<p style="letter-spacing:0.12em;text-transform:uppercase;font-size:11px;color:#0e7c66;">TrustLedger</p>
+<h1>Stakeholder Engagement Plan</h1>
+<p style="font-size:14pt;color:#085f4d;"><strong>${esc(plan.projectNameHint || plan.title)}</strong></p>
 <p>${esc(sepCoverBlurb(plan))}</p>
 <table border="1" cellpadding="6" cellspacing="0" width="100%">
-${meta.map(([k, v]) => `<tr><td><strong>${esc(k)}</strong></td><td>${esc(String(v))}</td></tr>`).join("")}
+${meta.map(([k, v]) => `<tr><td width="34%"><strong>${esc(k)}</strong></td><td>${esc(v)}</td></tr>`).join("")}
 </table>
 ${sections}
 <p style="font-size:10pt;color:#5b6b76;">${esc(SEP_ISSUER_LINE)} Not legal advice. Not a substitute for statutory processes named in the briefing.</p>

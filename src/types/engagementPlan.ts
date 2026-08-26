@@ -104,10 +104,17 @@ export type SepInstrument = {
   note: string;
 };
 
+export type SepDocumentTable = {
+  caption?: string;
+  headers: string[];
+  rows: string[][];
+};
+
 export type SepDocumentSection = {
   id: string;
   heading: string;
   body: string;
+  tables?: SepDocumentTable[];
   /** How this section is executed on the live desk (operator only — never exported). */
   protocol?: string;
 };
@@ -127,6 +134,8 @@ export type EngagementPlan = {
   timelineHint: string;
   /** Professional fees / contract value if the briefing named one — never invented. */
   budgetHint?: string;
+  /** Tender / RFP / bid number if the briefing labeled one. */
+  tenderRefHint?: string;
   createdAt: string;
   updatedAt: string;
   sourceExcerpt: string;

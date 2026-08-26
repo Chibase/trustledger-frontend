@@ -15,6 +15,7 @@
 - Gated on existing `engagements` capability. Client gates also read the trial cookie / active org when the page did not pass a plan id. ADR-053.
 - **Relocation / RAP overlay:** briefs that are a physical or economic move (relocation, migration plan, RAP, cut-off, host community) compose an operating plan — census, entitlements, host consultation, move-week helpdesk, livelihood restoration — not a Social Licence to Build™ architecture essay. Municipality names keep the full Local Municipality string; “The Municipality” fragments are dropped. Saved architecture SEPs upgrade on reopen. ADR-053.
 - **Client report voice:** the exported SEP is a bid-grade report (what / how / when / who, CBPR, risks, GRM, M&E, conclusion). TrustLedger and Chibase Consulting appear as letterhead only. No execution-protocol boxes, Themba, Capture, Apply, or product architecture in client-facing copy. Operator dashboard still maps SLB → shipped desks. ADR-053.
+- **Tender layout:** cover block (project, procuring entity, implementing entity, duration, framework), numbered sections with 1.1-style subsections, and tables for stakeholders, engagement schedule, risks, and KPIs — matching a funder-readable SEP, not a wall of product copy. Junk titles such as “Inception report” are skipped. Municipality name fragments are collapsed.
 
 ## 2026-08-25 — ClickUp diary live on Chibase Workspace
 

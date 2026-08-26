@@ -22,14 +22,20 @@ if (housing.sectorId !== "housing") checks.push(`housing detect=${housing.sector
 if (housing.programmeKind === "relocation") checks.push("housing should stay standard programme");
 if (housing.sourceKind !== "rfp") checks.push(`housing source=${housing.sourceKind}`);
 if (housing.phases.length !== 7) checks.push(`housing phases=${housing.phases.length}`);
-if (housing.documentSections.length !== 8) {
+if (housing.documentSections.length !== 9) {
   checks.push(`housing sections=${housing.documentSections.length}`);
 }
 if (housing.documentSections[0]?.id !== "summary") {
   checks.push(`housing first=${housing.documentSections[0]?.id}`);
 }
-if (housing.documentSections[7]?.id !== "conclusion") {
-  checks.push(`housing last=${housing.documentSections[7]?.id}`);
+if (housing.documentSections[8]?.id !== "conclusion") {
+  checks.push(`housing last=${housing.documentSections[8]?.id}`);
+}
+if (!housing.documentSections.find((row) => row.id === "stakeholders")?.tables?.length) {
+  checks.push("housing missing stakeholder table");
+}
+if (!housing.documentSections.find((row) => row.id === "methods")?.tables?.length) {
+  checks.push("housing missing engagement schedule table");
 }
 if (housing.documentSections.some((row) => row.protocol)) {
   checks.push("client document must not carry execution protocols");
@@ -126,12 +132,14 @@ const md = planToMarkdown(housing);
 if (md.includes("TrustLedger SRM execution protocol")) {
   checks.push("markdown still has execution protocol");
 }
-if (!md.includes("| Class |")) checks.push("markdown missing matrix table");
+if (!md.includes("| Stakeholder category |") && !md.includes("| Engagement mechanism |")) {
+  checks.push("markdown missing report tables");
+}
 if (!md.includes("Chibase Consulting")) checks.push("markdown missing issuer");
 if (!/Community-Based Participatory Research/i.test(md)) {
   checks.push("markdown missing CBPR");
 }
-if (!md.includes("8. Conclusion")) checks.push("markdown missing conclusion");
+if (!md.includes("9. Summary for the client")) checks.push("markdown missing client summary");
 
 const word = planToWordHtml(housing);
 if (/execution protocol/i.test(word)) checks.push("word still has execution protocol");
@@ -192,7 +200,7 @@ const relocationSummary =
 if (architectureEssay.test(relocationSummary)) {
   checks.push("relocation summary still architecture essay");
 }
-if (!/relocation and migration assignment/i.test(relocationSummary)) {
+if (!/relocation and migration of project-affected/i.test(relocationSummary)) {
   checks.push("relocation summary missing assignment lead");
 }
 if (!/cut-off/i.test(relocationSummary) || !/census/i.test(relocationSummary)) {
@@ -250,11 +258,28 @@ if (!/3\s*months/i.test(coverPreview.timeline)) {
   checks.push(`cover timeline=${coverPreview.timeline}`);
 }
 if (
-  coverPreview.namedParties.some((name) =>
-    /^(the municipality|mandela local municipality)$/i.test(name),
-  )
+  coverPreview.namedParties.filter((name) => /municipality/i.test(name)).length > 1
 ) {
   checks.push(`cover named ${coverPreview.namedParties.join("; ")}`);
+}
+
+const inceptionPaste = previewSepExtract(`TRUSTLEDGER
+Stakeholder Engagement Plan
+SEP — • Inception report
+ASSIGNMENT
+• Inception report
+CLIENT / PROCURING ENTITY
+Winnie Madikizela Mandela Local Municipality
+TIMELINE
+3 months
+This Stakeholder Engagement Plan is the operating plan for relocation and migration.
+Relocation and Migration Plan
+`);
+if (/inception report/i.test(inceptionPaste.title)) {
+  checks.push(`inception junk title=${inceptionPaste.title}`);
+}
+if (!/relocation and migration/i.test(inceptionPaste.title)) {
+  checks.push(`inception title=${inceptionPaste.title}`);
 }
 
 const stale = composeEngagementPlan({
@@ -284,8 +309,8 @@ if (rebuilt.documentSections.some((row) => row.protocol)) {
 }
 
 const rapMd = planToMarkdown(relocation);
-if (!rapMd.includes("Relocation & migration")) {
-  checks.push("markdown missing programme line");
+if (!/Relocation and Migration Plan/i.test(rapMd)) {
+  checks.push("markdown missing project name");
 }
 
 async function main() {
