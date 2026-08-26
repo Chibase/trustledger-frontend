@@ -26,7 +26,8 @@ export function OpsEngagementPlanPanel() {
             Map an RFP, tender, or briefing from inception to close-out. Output
             is a process dashboard plus a presentable SEP. After approval, a
             human applies the suggestion to the SRM (registry, engagements,
-            commitments). The composer lives on the customer desk.
+            commitments). Open the desk below — operators are homed here, not
+            on the customer executive roll-up.
           </p>
         </div>
         <div className="flex flex-wrap gap-2 print:hidden">
@@ -37,10 +38,10 @@ export function OpsEngagementPlanPanel() {
             Open engagement plan
           </Link>
           <Link
-            href="/app/dashboard#engagement-plans"
+            href="/app/engagement-plan/new"
             className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium hover:bg-tl-paper"
           >
-            Customer executive
+            New from briefing
           </Link>
         </div>
       </div>

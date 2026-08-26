@@ -8,7 +8,7 @@ const NAV_EXEC = [
 
 const NAV_PRODUCT = [
   { href: "/app/engagement-plan", label: "Engagement plan desk" },
-  { href: "/app/dashboard", label: "Customer executive" },
+  { href: "/app/engagement-plan/new", label: "New from briefing" },
 ];
 
 const NAV_CONTROL = [
