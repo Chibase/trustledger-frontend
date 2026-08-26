@@ -6,6 +6,7 @@ import {
 import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { TrendChart } from "@/components/ops/charts/TrendChart";
 import { ExecutiveActions } from "@/components/ops/ExecutiveActions";
+import { OpsEngagementPlanPanel } from "@/components/ops/OpsEngagementPlanPanel";
 import { TedsMaturityPanel } from "@/components/maturity/TedsMaturityPanel";
 import {
   CONTROL_PILLARS,
@@ -37,11 +38,21 @@ export default async function ExecutiveBoardPage() {
           </p>
           <p className="mt-2 text-xs text-tl-ink-muted">As of {asOf}</p>
         </div>
-        <ExecutiveActions
-          talkingPoints={brief.talkingPoints}
-          quotes={brief.voice.quotes.slice(0, 5).map((q) => q.quote)}
-        />
+        <div className="flex flex-wrap items-start gap-2">
+          <Link
+            href="#engagement-plans"
+            className="rounded-md bg-tl-trust px-3 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink print:hidden"
+          >
+            Engagement plan
+          </Link>
+          <ExecutiveActions
+            talkingPoints={brief.talkingPoints}
+            quotes={brief.voice.quotes.slice(0, 5).map((q) => q.quote)}
+          />
+        </div>
       </header>
+
+      <OpsEngagementPlanPanel />
 
       <TedsMaturityPanel
         audience="board"

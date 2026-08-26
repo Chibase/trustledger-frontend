@@ -19,7 +19,7 @@ We are **closer** than before Version 002 kickoff: national **ZA geography** and
 
 | Level | Where | What you see |
 |-------|--------|----------------|
-| **Board / investors** | `/ops/executive` | Full domain table + % progress |
+| **Board / investors** | `/ops/executive` | Full domain table + % progress; **Stakeholder engagement plan** card under the brief heading |
 | **Platform ops** | `/ops` | Compact pulse + priority next |
 
 > Do **not** render `TedsMaturityPanel` on `/app/*` (client, admin product dashboards, or reports). Product surfaces show **trust / sentiment / TAT** instead.
