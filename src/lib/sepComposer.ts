@@ -6,6 +6,10 @@
 import { SEP_SECTOR_PLAYBOOKS } from "@/data/sepSectors";
 import { SEP_SLB_LANES, SLB_PHILOSOPHY } from "@/lib/sepExecution";
 import {
+  catalogInstrumentsByIds,
+  detectCatalogInstruments,
+} from "@/lib/sepInstruments";
+import {
   interestForClass,
   quadrantForClass,
   SEP_QUADRANT_LABELS,
@@ -13,6 +17,7 @@ import {
 } from "@/lib/sepMatrix";
 import type {
   EngagementPlan,
+  SepInstrument,
   SepSectorId,
   SepSourceKind,
   SepStakeholderClass,
@@ -31,45 +36,6 @@ const SECTOR_HINTS: Array<{ id: SepSectorId; re: RegExp }> = [
   { id: "agriculture", re: /\b(irrigation|smallholder|agri[- ]?park|farmers. association|grazing)\b/i },
   { id: "education", re: /\b(school|sgb|learner|education district|classroom block)\b/i },
   { id: "health", re: /\b(clinic|hospital|phc|health facility|maternity)\b/i },
-];
-
-const INSTRUMENT_HINTS: Array<{ id: string; re: RegExp; label: string; note: string }> = [
-  {
-    id: "nema-eia",
-    re: /\b(nema|eia|bar\b|s&eir|scoping and eir|environmental authorisation|i&ap)\b/i,
-    label: "Environmental authorisation / public participation",
-    note: "I&AP rounds in the brief are engagements with minutes, not a side notebook.",
-  },
-  {
-    id: "mprda-slp",
-    re: /\b(mprda|social and labour plan|\bslp\b|mining charter)\b/i,
-    label: "Mining social performance (as cited)",
-    note: "SLP lines become commitments with evidence, not appendix claims.",
-  },
-  {
-    id: "wula",
-    re: /\b(wula|water use licence|water-use licence)\b/i,
-    label: "Water-use authorisation (as cited)",
-    note: "Licence consultation conditions belong on the engagement calendar.",
-  },
-  {
-    id: "ifc",
-    re: /\b(ifc performance|equator principle|ps1|esai|esmp)\b/i,
-    label: "Funder safeguard (as cited)",
-    note: "Only the standard named in the RFP. Map it onto registry, engagements, and grievance.",
-  },
-  {
-    id: "pppfa",
-    re: /\b(pppfa|preferential procurement|local content|b-?bbee)\b/i,
-    label: "Preferential procurement / local content (as cited)",
-    note: "Labour and procurement targets feed Intelligence + commitments.",
-  },
-  {
-    id: "spluma",
-    re: /\b(spluma|land use|rezoning|township establishment)\b/i,
-    label: "Land-use process (as cited)",
-    note: "Statutory land-use meetings are still logged as engagements.",
-  },
 ];
 
 function cleanLines(text: string): string[] {
@@ -219,18 +185,38 @@ function mergeNamedIntoClasses(
   named: string[],
 ): SepStakeholderClass[] {
   if (!named.length) return classes;
-  return classes.map((row) => {
+  const attached = new Set<string>();
+  const next = classes.map((row) => {
     if (row.id === "client-funder" || row.id === "local-government") {
       const hits = named.filter((name) =>
         /municipality|department|agency|pty|ltd|soc/i.test(name),
       );
+      hits.forEach((name) => attached.add(name.toLowerCase()));
       return hits.length ? { ...row, namedFromBrief: hits.slice(0, 4) } : row;
     }
     if (row.id === "traditional-authority") {
       const hits = named.filter((name) =>
         /traditional|royal|inkosi|kgosi/i.test(name),
       );
+      hits.forEach((name) => attached.add(name.toLowerCase()));
       return hits.length ? { ...row, namedFromBrief: hits.slice(0, 4) } : row;
+    }
+    return row;
+  });
+  const leftover = named.filter((name) => !attached.has(name.toLowerCase()));
+  if (!leftover.length) return next;
+  let placed = false;
+  return next.map((row) => {
+    if (placed) return row;
+    if (row.kind === "community_group") {
+      placed = true;
+      return {
+        ...row,
+        namedFromBrief: unique([
+          ...(row.namedFromBrief || []),
+          ...leftover,
+        ]).slice(0, 6),
+      };
     }
     return row;
   });
@@ -343,6 +329,8 @@ function buildDocument(plan: Omit<EngagementPlan, "documentSections">): Engageme
       id: "assumptions",
       heading: "7. Assumptions and limits",
       body: plan.assumptions.map((row) => `• ${row}`).join("\n"),
+      protocol:
+        "Limits stay on the exported plan. Apply still only writes named classes, draft engagements, and open commitments — never invented people or grievance cases. Empty reports mean empty desk work.",
     },
   ];
 }
@@ -356,29 +344,68 @@ export type ComposeSepInput = {
   clientHint?: string;
   timelineHint?: string;
   purposeOverride?: string;
+  /** Extra instruments ticked on the facts pack (or added to a tender compose). */
+  instrumentIds?: string[];
+  /** Operator-named PAP / I&AP organisations (not invented by the composer). */
+  namedParties?: string[];
 };
 
+export type SepExtractPreview = {
+  title: string;
+  place: string;
+  client: string;
+  timeline: string;
+  sectorId: SepSectorId;
+  sourceKind: SepSourceKind;
+  instruments: SepInstrument[];
+  namedParties: string[];
+};
+
+export function previewSepExtract(text: string): SepExtractPreview {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return {
+      title: "",
+      place: "",
+      client: "",
+      timeline: "",
+      sectorId: "generic",
+      sourceKind: "paste",
+      instruments: [],
+      namedParties: [],
+    };
+  }
+  return {
+    title: extractTitle(trimmed),
+    place: extractPlace(trimmed),
+    client: extractClient(trimmed),
+    timeline: extractTimeline(trimmed),
+    sectorId: detectSepSector(trimmed),
+    sourceKind: detectSepSourceKind(trimmed),
+    instruments: detectCatalogInstruments(trimmed),
+    namedParties: extractNamedParties(trimmed),
+  };
+}
+
 export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
+  const rawText = (input.text || "").trim();
+  const usedPlaybookOnly = !rawText;
   const sectorHint =
     !input.sectorId || input.sectorId === "auto"
-      ? detectSepSector((input.text || "").trim())
+      ? detectSepSector(rawText)
       : input.sectorId;
   const playbook = SEP_SECTOR_PLAYBOOKS[sectorHint];
-  const text = (input.text || "").trim() || playbook.summary;
+  const text = rawText || playbook.summary;
   const sectorId = sectorHint;
-  const usedPlaybookOnly = !(input.text || "").trim();
-  const named = extractNamedParties(text);
+  const named = unique([
+    ...(input.namedParties || []).map((row) => row.trim()).filter(Boolean),
+    ...(usedPlaybookOnly ? [] : extractNamedParties(text)),
+  ]);
   const now = new Date().toISOString();
   const titleBase =
     input.projectName?.trim() ||
     (usedPlaybookOnly ? SEP_SECTOR_LABELS[sectorId] : extractTitle(text));
-  const detected = INSTRUMENT_HINTS.filter((row) => row.re.test(text)).map(
-    (row) => ({
-      id: row.id,
-      label: row.label,
-      note: row.note,
-    }),
-  );
+  const detected = usedPlaybookOnly ? [] : detectCatalogInstruments(text);
   const sourceKind: SepSourceKind = usedPlaybookOnly
     ? "manual"
     : detectSepSourceKind(text);
@@ -391,12 +418,18 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
     sectorId,
     projectId: input.projectId || null,
     projectNameHint: titleBase,
-    placeHint: input.placeHint?.trim() || extractPlace(text),
-    clientFunderHint: input.clientHint?.trim() || extractClient(text),
-    timelineHint: input.timelineHint?.trim() || extractTimeline(text),
+    placeHint: input.placeHint?.trim() || (usedPlaybookOnly ? "" : extractPlace(text)),
+    clientFunderHint:
+      input.clientHint?.trim() || (usedPlaybookOnly ? "" : extractClient(text)),
+    timelineHint:
+      input.timelineHint?.trim() || (usedPlaybookOnly ? "" : extractTimeline(text)),
     createdAt: now,
     updatedAt: now,
-    sourceExcerpt: snippet(text),
+    sourceExcerpt: usedPlaybookOnly
+      ? snippet(
+          `Facts pack · ${SEP_SECTOR_LABELS[sectorId]}. ${playbook.summary}`,
+        )
+      : snippet(text),
     purposeStatement:
       input.purposeOverride?.trim() || extractPurpose(text),
     phases: playbook.phases,
@@ -406,12 +439,16 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
     ),
     activities: playbook.activities,
     commitments: playbook.commitments,
-    instruments: uniqueInstruments([...detected, ...playbook.instruments]),
+    instruments: uniqueInstruments([
+      ...catalogInstrumentsByIds(input.instrumentIds || []),
+      ...detected,
+      ...playbook.instruments,
+    ]),
     grievancePath: playbook.grievancePath,
     assumptions: [
       ...playbook.assumptions,
       "Composer output is a suggestion from the extract (or facts pack) plus the sector playbook. Edit before presenting to a client.",
-      "Named people are only listed when they appear in the briefing. Do not invent counterparts.",
+      "Named people are only listed when they appear in the briefing or the facts pack. Do not invent counterparts.",
       "Social Licence to Build™ is mapped to shipped TrustLedger modules. This document does not claim unshipped portals, GIS editing, or a staffed 24/7 division.",
     ],
   };

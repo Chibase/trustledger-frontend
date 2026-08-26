@@ -52,7 +52,7 @@ export default function EngagementPlanListPage() {
               href="/app/engagement-plan/new"
               className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
             >
-              New plan from briefing
+              New plan
             </Link>
           }
         />

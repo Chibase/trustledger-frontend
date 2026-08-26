@@ -1,6 +1,12 @@
 import { SepRichText } from "@/components/sep/SepRichText";
+import {
+  interestForClass,
+  quadrantForClass,
+  SEP_QUADRANT_LABELS,
+} from "@/lib/sepMatrix";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
+  SEP_PURPOSE_LABELS,
   SEP_SECTOR_LABELS,
   SEP_SOURCE_LABELS,
   SEP_STATUS_LABELS,
@@ -67,6 +73,45 @@ export function SepDocumentView({ plan }: Props) {
             <div className="mt-2">
               <SepRichText text={section.body} />
             </div>
+            {section.id === "stakeholders" ? (
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[36rem] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-tl-line text-xs uppercase tracking-wide text-tl-ink-muted">
+                      <th className="py-2 pr-3 font-medium">Class</th>
+                      <th className="py-2 pr-3 font-medium">Influence</th>
+                      <th className="py-2 pr-3 font-medium">Interest</th>
+                      <th className="py-2 pr-3 font-medium">Quadrant</th>
+                      <th className="py-2 font-medium">Purpose</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {plan.stakeholderClasses.map((row) => (
+                      <tr
+                        key={row.id}
+                        className="border-b border-tl-line align-top"
+                      >
+                        <td className="py-2 pr-3 font-medium text-tl-ink">
+                          {row.label}
+                        </td>
+                        <td className="py-2 pr-3 capitalize text-tl-ink-muted">
+                          {row.influence}
+                        </td>
+                        <td className="py-2 pr-3 capitalize text-tl-ink-muted">
+                          {interestForClass(row)}
+                        </td>
+                        <td className="py-2 pr-3 text-tl-ink-muted">
+                          {SEP_QUADRANT_LABELS[quadrantForClass(row)]}
+                        </td>
+                        <td className="py-2 text-tl-ink-muted">
+                          {SEP_PURPOSE_LABELS[row.purpose]}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
             {section.protocol ? (
               <div className="mt-4 rounded-md border border-dashed border-tl-trust/40 bg-tl-trust/5 px-4 py-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-tl-trust">

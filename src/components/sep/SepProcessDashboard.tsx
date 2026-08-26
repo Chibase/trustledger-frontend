@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { SepMatrixBoard } from "@/components/sep/SepMatrixBoard";
+import { SepSrmGraph } from "@/components/sep/SepSrmGraph";
 import { SEP_SECTOR_PLAYBOOKS } from "@/data/sepSectors";
 import { SEP_SLB_LANES } from "@/lib/sepExecution";
 import {
@@ -83,6 +85,10 @@ export function SepProcessDashboard({ plan }: Props) {
           ))}
         </ul>
       </section>
+
+      <SepSrmGraph />
+
+      <SepMatrixBoard plan={plan} />
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
         <h2 className="font-display text-lg font-semibold text-tl-ink">
