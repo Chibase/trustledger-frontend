@@ -6,7 +6,8 @@
 - Local composer maps a seven-phase process (inception → close-out) for infrastructure, housing, mining, energy, water, education, health, agriculture, municipal, conservation, logistics, or generic. Suggestion only — no Cloud LLM.
 - Outputs: process dashboard (who / when / which SRM module) and an eight-section presentable SEP (Print / PDF).
 - After client approval, **Apply to SRM** seeds prospect stakeholders, draft engagements, and open commitments; duplicates skipped. Humans apply.
-- Executive dashboard: **Engagement plan** button beside the heading; **Stakeholder engagement plans** card immediately under it (not below the eight empowerment KPIs). The card stays visible on Solo/Practitioner with an upgrade note. Project dashboards keep the linked-plan strip when entitled.
+- Executive dashboard (`/app/dashboard`): **Engagement plan** button beside the heading; **Stakeholder engagement plans** card immediately under it.
+- **Ops Executive Board** (`/ops/executive`): same module as a C-suite card under the brief heading, sidebar **Engagement plan** / **Open SEP desk**, and a TEDS domain row with Open → `/app/engagement-plan`.
 - Plans org-scoped by org id cookie / email (not a shared `session` bucket). Re-apply toasts only newly created rows.
 - Gated on existing `engagements` capability. Client gates also read the trial cookie / active org when the page did not pass a plan id. ADR-053.
 
