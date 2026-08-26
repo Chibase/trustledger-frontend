@@ -8,6 +8,7 @@ import {
 } from "@/components/ops/charts/BarChart";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
+import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPortfolioOverview,
@@ -39,6 +40,7 @@ type Props = {
  */
 export function ExecutivePortfolioDashboard({
   role,
+  planId = null,
   isPlanOwner = false,
   seedIncidents = [],
   seedProjects = [],
@@ -102,7 +104,8 @@ export function ExecutivePortfolioDashboard({
           Roll-up of empowerment budgets, targets, and progress across your
           projects (including Draft). Open a project dashboard to capture,
           monitor, edit, and generate reports — that data feeds this view.
-          Desk: {DESK_TIER_LABELS[tier]}.
+          Engagement plans from a briefing sit on this roll-up until you apply
+          them to the SRM. Desk: {DESK_TIER_LABELS[tier]}.
         </p>
       </header>
 
@@ -144,6 +147,8 @@ export function ExecutivePortfolioDashboard({
           }
         />
       </div>
+
+      <SepDashboardPanel planId={planId} />
 
       {(spendBars.length > 0 || hireBars.length > 0) && (
         <section className="grid gap-4 lg:grid-cols-2">

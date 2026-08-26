@@ -45,7 +45,7 @@ Do **not** start with Reports. Seed in this order:
 
 | Nav item | Purpose |
 |----------|---------|
-| **Dashboard** | Activity pulse — projects and cases at a glance |
+| **Dashboard** | Executive portfolio — projects, empowerment, engagement plans, cases |
 | **Capture** | Minutes / registers with field templates → extract → apply (Project+) |
 | **Engagements** | Log meetings and consultations (Project+) |
 | **Engagement plan** | Compose a SEP from an RFP / tender / briefing; apply to SRM after approval (Project+) |
@@ -125,7 +125,7 @@ Use **Engagement plan** when the work starts as a briefing, tender, or RFP rathe
 4. **Save**, then present the document (Print / PDF) or walk the process dashboard.  
 5. After the client approves the assignment, **Apply to SRM**. Prospect stakeholders, draft engagements, and open commitments land on the existing desks. Duplicate names/titles are skipped. Humans apply; the composer never writes the live desk alone.
 
-Plans stay in this workspace until a Cloud document type exists. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
+Plans also appear on the **Executive dashboard** and on a **project dashboard** when linked to that project. Plans stay in this workspace until a Cloud document type exists. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
 
 ---
 

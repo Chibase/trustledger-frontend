@@ -6,6 +6,7 @@
 - Local composer maps a seven-phase process (inception → close-out) for infrastructure, housing, mining, energy, water, education, health, agriculture, municipal, conservation, logistics, or generic. Suggestion only — no Cloud LLM.
 - Outputs: process dashboard (who / when / which SRM module) and an eight-section presentable SEP (Print / PDF).
 - After client approval, **Apply to SRM** seeds prospect stakeholders, draft engagements, and open commitments; duplicates skipped. Humans apply.
+- Executive dashboard and project dashboards show plan counts, recent plans, and compose shortcuts (Project+).
 - Plans org-scoped by org id cookie / email (not a shared `session` bucket). Re-apply toasts only newly created rows.
 - Gated on existing `engagements` capability. ADR-053.
 
