@@ -194,15 +194,11 @@ function extractBudget(text: string): string {
     "estimated budget",
     "contract value",
     "professional fees",
-    "fee",
   ]);
   if (labeled && !/not stated|to be confirmed|n\/a/i.test(labeled)) {
     return labeled;
   }
-  const zar = text.match(
-    /\b(?:ZAR|R)\s*[\d][\d\s,]*(?:\.\d{2})?(?:\s*(?:million|m|billion))?\b/i,
-  );
-  return zar?.[0]?.replace(/\s+/g, " ").trim() || "";
+  return "";
 }
 
 function extractClient(text: string): string {

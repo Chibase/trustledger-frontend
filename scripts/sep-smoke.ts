@@ -41,6 +41,22 @@ if (architectureEssay.test(housingDoc)) {
 if (!housing.placeHint.toLowerCase().includes("ward")) {
   checks.push(`housing place=${housing.placeHint}`);
 }
+const housingAssumptions =
+  housing.documentSections.find((row) => row.id === "assumptions")?.body || "";
+if (!/personal information/i.test(housingAssumptions)) {
+  checks.push("housing assumptions dropped sector limit");
+}
+if (housingAssumptions.includes("Capture")) {
+  checks.push("housing assumptions still name Capture");
+}
+
+const unlabeledRand = composeEngagementPlan({
+  text: "Tender\nProject: Clinic upgrade\nClient: Example Department of Health\nCompensation of R50 000 per household is discussed. Terms of reference.",
+  sectorId: "health",
+});
+if (unlabeledRand.budgetHint) {
+  checks.push(`invented budget ${unlabeledRand.budgetHint}`);
+}
 if (!housing.instruments.some((row) => row.id === "nema-eia")) {
   checks.push("housing missing NEMA instrument");
 }

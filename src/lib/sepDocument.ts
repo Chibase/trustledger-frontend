@@ -373,8 +373,16 @@ function assumptionsBody(plan: Omit<EngagementPlan, "documentSections">): string
       : "This plan does not claim a public SMS or WhatsApp community portal, a geographic information-system editing service, or a staffed 24-hour call centre unless the client separately specifies and funds it.",
     "Professional fees, field logistics, and disbursements are as in the financial proposal. This document does not invent a budget line.",
     "The team will edit this plan with the client at inception before it is treated as the working instruction.",
+    ...plan.assumptions
+      .filter(
+        (row) =>
+          !/TrustLedger|Themba|Composer|Social Licence to Build|shipped module|execution protocol/i.test(
+            row,
+          ),
+      )
+      .map(fieldVoice),
   ];
-  return rows.map((row) => `• ${row}`).join("\n");
+  return Array.from(new Set(rows)).map((row) => `• ${row}`).join("\n");
 }
 
 function conclusionBody(plan: Omit<EngagementPlan, "documentSections">): string {
