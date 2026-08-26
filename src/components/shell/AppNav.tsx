@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { PlanId } from "@/config/plans";
-import { hasCapability } from "@/lib/entitlements";
+import { hasCapability, resolveClientPlanId } from "@/lib/entitlements";
 import type { CapabilityId } from "@/types/entitlements";
 import type { UserRole } from "@/types/rbac";
 
@@ -227,7 +227,7 @@ export function AppNav({ role, variant = "light", planId }: AppNavProps) {
     const map: Record<string, boolean> = {};
     for (const item of NAV) {
       map[item.href] = item.capability
-        ? hasCapability(item.capability, planId)
+        ? hasCapability(item.capability, resolveClientPlanId(planId))
         : true;
     }
     const handle = window.setTimeout(() => {

@@ -125,7 +125,7 @@ Use **Engagement plan** when the work starts as a briefing, tender, or RFP rathe
 4. **Save**, then present the document (Print / PDF) or walk the process dashboard.  
 5. After the client approves the assignment, **Apply to SRM**. Prospect stakeholders, draft engagements, and open commitments land on the existing desks. Duplicate names/titles are skipped. Humans apply; the composer never writes the live desk alone.
 
-Plans also appear on the **Executive dashboard** and on a **project dashboard** when linked to that project. Plans stay in this workspace until a Cloud document type exists. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
+On the **Executive dashboard** (`/app/dashboard`), **Engagement plan** is a primary button next to the page heading. The **Stakeholder engagement plans** module sits immediately under that heading (not below the empowerment KPIs). If the workspace plan does not include it, the same card stays on screen with an upgrade note. Linked plans also appear on a **project dashboard**. Plans stay in this workspace until a Cloud document type exists. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
 
 ---
 

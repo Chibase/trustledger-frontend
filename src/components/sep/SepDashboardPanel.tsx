@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
-import { hasCapability, hasCapabilityForPlan } from "@/lib/entitlements";
+import {
+  hasCapability,
+  hasCapabilityForPlan,
+  resolveClientPlanId,
+  upgradeHrefForCapability,
+  upgradeLabelForCapability,
+} from "@/lib/entitlements";
 import {
   listEngagementPlans,
   listEngagementPlansForProject,
@@ -19,9 +25,18 @@ type Props = {
   planId?: PlanId | null;
   /** When set, only plans linked to this project. */
   projectId?: string;
+  /**
+   * Keep this module on the Executive dashboard even when the plan does not
+   * include engagements — show an upgrade note instead of hiding.
+   */
+  alwaysShow?: boolean;
 };
 
-export function SepDashboardPanel({ planId = null, projectId }: Props) {
+export function SepDashboardPanel({
+  planId = null,
+  projectId,
+  alwaysShow = false,
+}: Props) {
   const [allowed, setAllowed] = useState(() =>
     hasCapabilityForPlan("engagements", planId),
   );
@@ -29,7 +44,8 @@ export function SepDashboardPanel({ planId = null, projectId }: Props) {
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      setAllowed(hasCapability("engagements", planId));
+      const resolved = resolveClientPlanId(planId);
+      setAllowed(hasCapability("engagements", resolved));
       setRows(
         projectId
           ? listEngagementPlansForProject(projectId)
@@ -49,13 +65,48 @@ export function SepDashboardPanel({ planId = null, projectId }: Props) {
     ? `/app/engagement-plan/new?project=${encodeURIComponent(projectId)}`
     : "/app/engagement-plan/new";
 
-  if (!allowed) return null;
+  if (!allowed && !alwaysShow) return null;
+
+  if (!allowed) {
+    return (
+      <section
+        id="engagement-plans"
+        aria-labelledby="sep-dash-heading"
+        className="rounded-lg border border-tl-trust/30 bg-tl-paper p-4"
+      >
+        <h2
+          id="sep-dash-heading"
+          className="text-base font-semibold text-tl-ink"
+        >
+          Stakeholder engagement plans
+        </h2>
+        <p className="mt-1 text-sm text-tl-ink-muted">
+          Map an RFP, tender, or briefing from inception to close-out, then
+          apply the suggestion to the SRM after approval.{" "}
+          {upgradeLabelForCapability("engagements")}.
+        </p>
+        <Link
+          href={upgradeHrefForCapability("engagements")}
+          className="mt-3 inline-block rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+        >
+          Upgrade to include this module
+        </Link>
+      </section>
+    );
+  }
 
   return (
-    <section className="space-y-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
+    <section
+      id="engagement-plans"
+      aria-labelledby="sep-dash-heading"
+      className="space-y-3 rounded-lg border border-tl-trust/30 bg-tl-surface p-4"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-tl-ink">
+          <h2
+            id="sep-dash-heading"
+            className="text-base font-semibold text-tl-ink"
+          >
             Stakeholder engagement plans
           </h2>
           <p className="mt-1 text-xs text-tl-ink-muted">
@@ -64,16 +115,16 @@ export function SepDashboardPanel({ planId = null, projectId }: Props) {
               : "RFP / tender / briefing mapped from inception to close-out. Open a plan for the process dashboard and presentable document."}
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <Link
             href={composeHref}
-            className="text-xs font-medium text-tl-trust-ink hover:underline"
+            className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
           >
             New from briefing
           </Link>
           <Link
             href="/app/engagement-plan"
-            className="text-xs font-medium text-tl-trust-ink hover:underline"
+            className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper"
           >
             All plans
           </Link>
@@ -81,7 +132,7 @@ export function SepDashboardPanel({ planId = null, projectId }: Props) {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <KpiCard label="Plans" value={String(rows.length)} />
+        <KpiCard label="Plans" value={String(rows.length)} tone="trust" />
         <KpiCard
           label="Applied to SRM"
           value={String(applied)}
@@ -96,7 +147,7 @@ export function SepDashboardPanel({ planId = null, projectId }: Props) {
       </div>
 
       {recent.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-tl-line bg-tl-surface px-4 py-6 text-sm text-tl-ink-muted">
+        <p className="rounded-lg border border-dashed border-tl-line bg-tl-paper/60 px-4 py-6 text-sm text-tl-ink-muted">
           No engagement plans yet.{" "}
           <Link href={composeHref} className="text-tl-trust-ink underline">
             Compose from a briefing
@@ -104,7 +155,7 @@ export function SepDashboardPanel({ planId = null, projectId }: Props) {
           or pick a sector playbook.
         </p>
       ) : (
-        <ul className="divide-y divide-tl-line overflow-hidden rounded-lg border border-tl-line bg-tl-surface">
+        <ul className="divide-y divide-tl-line overflow-hidden rounded-lg border border-tl-line bg-tl-paper/40">
           {recent.map((row) => (
             <li key={row.id}>
               <Link
