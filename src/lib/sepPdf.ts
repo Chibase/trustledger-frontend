@@ -189,32 +189,49 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
 
       if (section.protocol) {
         const protocol = plain(section.protocol);
-        const boxH = Math.min(
-          220,
-          doc.heightOfString(protocol, { width: contentWidth - 16, lineGap: 2 }) +
-            28,
-        );
-        ensureSpace(boxH + 8);
-        const y = doc.y;
-        doc.save();
-        doc.rect(left, y, contentWidth, boxH).fill(PAPER);
-        doc.restore();
-        doc
-          .font("Helvetica-Bold")
-          .fontSize(8)
-          .fillColor(TRUST)
-          .text("TRUSTLEDGER SRM EXECUTION PROTOCOL", left + 8, y + 8, {
-            width: contentWidth - 16,
-          });
-        doc
-          .font("Helvetica")
-          .fontSize(9)
-          .fillColor(INK)
-          .text(protocol, left + 8, y + 22, {
-            width: contentWidth - 16,
-            lineGap: 2,
-          });
-        doc.y = y + boxH + 10;
+        const textH = doc.heightOfString(protocol, {
+          width: contentWidth - 16,
+          lineGap: 2,
+        });
+        const boxH = textH + 28;
+        const pageRoom =
+          doc.page.height -
+          doc.page.margins.top -
+          doc.page.margins.bottom;
+        if (boxH > pageRoom - 24) {
+          ensureSpace(36);
+          doc
+            .font("Helvetica-Bold")
+            .fontSize(8)
+            .fillColor(TRUST)
+            .text("TRUSTLEDGER SRM EXECUTION PROTOCOL", {
+              width: contentWidth,
+            });
+          doc.moveDown(0.25);
+          bodyText(protocol, 9);
+        } else {
+          ensureSpace(boxH + 8);
+          const y = doc.y;
+          doc.save();
+          doc.rect(left, y, contentWidth, boxH).fill(PAPER);
+          doc.restore();
+          doc
+            .font("Helvetica-Bold")
+            .fontSize(8)
+            .fillColor(TRUST)
+            .text("TRUSTLEDGER SRM EXECUTION PROTOCOL", left + 8, y + 8, {
+              width: contentWidth - 16,
+            });
+          doc
+            .font("Helvetica")
+            .fontSize(9)
+            .fillColor(INK)
+            .text(protocol, left + 8, y + 22, {
+              width: contentWidth - 16,
+              lineGap: 2,
+            });
+          doc.y = y + boxH + 10;
+        }
       }
       doc.moveDown(0.6);
     }

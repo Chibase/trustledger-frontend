@@ -94,10 +94,16 @@ export default function EngagementPlanDetailPage() {
     if (!plan) return;
     setApplying(true);
     try {
-      const result = await applyEngagementPlanToSrm({
+      const ready = persist({
         ...plan,
+        purposeStatement: purpose.trim() || plan.purposeStatement,
+        placeHint: place.trim(),
+        clientFunderHint: client.trim(),
+        timelineHint: timeline.trim(),
         projectId: projectId || plan.projectId,
+        status: plan.status === "suggested" ? "saved" : plan.status,
       });
+      const result = await applyEngagementPlanToSrm(ready);
       setPlan(result.plan);
       pushToast(
         result.stakeholders + result.engagements + result.commitments === 0
