@@ -44,6 +44,25 @@ if (mining.title !== "SEP — Mining / extractives") {
 if (mining.sourceKind !== "manual") {
   checks.push(`mining source=${mining.sourceKind}`);
 }
+if (mining.programmeKind === "relocation") {
+  checks.push("mining playbook-only compose should stay standard");
+}
+
+const hostOnly = composeEngagementPlan({
+  text: "Request for Proposal\nProject: Grid connection I&AP rounds\nClient: Example IPP Pty Ltd\nConsult the host community, landowners, and municipality. Terms of reference.",
+  sectorId: "auto",
+});
+if (hostOnly.programmeKind === "relocation") {
+  checks.push("host-community consultation must not overlay RAP");
+}
+
+const utilityMove = composeEngagementPlan({
+  text: "Tender\nProject: 11kV utility relocation along the road reserve\nClient: Example Public Works Department\nConsult adjacent households before the line is moved. Terms of reference.",
+  sectorId: "auto",
+});
+if (utilityMove.programmeKind === "relocation") {
+  checks.push("utility relocation without RAP context must stay standard");
+}
 
 const facts = composeEngagementPlan({
   text: "",

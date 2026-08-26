@@ -14,12 +14,19 @@ import type {
   SepStakeholderClass,
 } from "@/types/engagementPlan";
 
-const RELOCATION_RE =
-  /\b(resettle|resettlement|\brap\b|relocation|migration plan|physical displacement|economic displacement|livelihood restoration|cut-?off date|project-affected (?:person|people|household|part(?:y|ies))|involuntary|host community)\b/i;
+const STRONG_RAP_RE =
+  /\b(resettle|resettlement|\brap\b|relocation and migration|migration plan|physical displacement|economic displacement|involuntary resettlement|resettlement action|cut-?off date)\b/i;
+const RELOCATION_WORD_RE = /\brelocation\b/i;
+const RELOCATION_CONTEXT_RE =
+  /\b(pap\b|project-affected|census|entitlement|host communit|displaced|livelihood restoration|cut-?off)\b/i;
 
 export function detectSepProgramme(...chunks: Array<string | undefined>): SepProgrammeKind {
   const text = chunks.filter(Boolean).join(" \n ");
-  return RELOCATION_RE.test(text) ? "relocation" : "standard";
+  if (STRONG_RAP_RE.test(text)) return "relocation";
+  if (RELOCATION_WORD_RE.test(text) && RELOCATION_CONTEXT_RE.test(text)) {
+    return "relocation";
+  }
+  return "standard";
 }
 
 const RAP_PHASES: SepPhase[] = [
