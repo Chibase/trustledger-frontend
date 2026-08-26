@@ -25,6 +25,7 @@ export type NavItem = {
     | "stakeholders"
     | "capture"
     | "engagements"
+    | "sep"
     | "commitments"
     | "intelligence";
 };
@@ -46,6 +47,12 @@ const NAV: NavItem[] = [
     href: "/app/engagements",
     label: "Engagements",
     icon: "engagements",
+    capability: "engagements",
+  },
+  {
+    href: "/app/engagement-plan",
+    label: "Engagement plan",
+    icon: "sep",
     capability: "engagements",
   },
   {
@@ -179,6 +186,13 @@ function NavIcon({ name }: { name: NavItem["icon"] }) {
         <svg {...common}>
           <path d="M5 6h14v4H5V6Zm0 8h9v4H5v-4Z" />
           <path d="M17 14h2v4h-2v-4Z" />
+        </svg>
+      );
+    case "sep":
+      return (
+        <svg {...common}>
+          <path d="M6 4h9l5 5v11H6V4Z" />
+          <path d="M15 4v5h5M9 13h6M9 17h4" />
         </svg>
       );
     case "commitments":

@@ -51,12 +51,20 @@ export default function AppEngagementsPage() {
           title="Engagements"
           description="Meetings, consultations, and walkabouts linked to projects and stakeholders. Capture hub applies create records here."
           actions={
-            <Link
-              href="/app/capture"
-              className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-            >
-              Capture engagement
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/app/engagement-plan"
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+              >
+                Engagement plan
+              </Link>
+              <Link
+                href="/app/capture"
+                className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+              >
+                Capture engagement
+              </Link>
+            </div>
           }
         />
 
