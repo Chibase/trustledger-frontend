@@ -182,10 +182,10 @@ export function runTenderParserSmokeTests(): {
   
   let passed = 0;
   let failed = 0;
-  const results = [];
+  const results: Array<{ name: string; checks: Array<[string, boolean]> }> = [];
   
   for (const suite of TENDER_PARSER_SMOKE_TESTS) {
-    const checks = suite.test(intelligence);
+    const checks = suite.test(intelligence) as Array<[string, boolean]>;
     const suitePassed = checks.every(([, result]) => result);
     
     if (suitePassed) {

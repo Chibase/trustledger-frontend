@@ -291,10 +291,6 @@ export function selectMethodsForObjective(
     .map((id) => ({ id, score: scoreMethod(id, objective, constraints) }))
     .sort((a, b) => b.score - a.score);
 
-  const preferred = METHOD_SELECTION_MATRIX.find((row) =>
-    row.objectivePattern.test(objective),
-  );
-
   return ranked.map((row, index) => {
     const entry = METHOD_LIBRARY[row.id];
     const matrixHit = METHOD_SELECTION_MATRIX.find(

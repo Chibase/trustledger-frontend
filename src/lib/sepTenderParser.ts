@@ -26,13 +26,6 @@ export type TenderParserConfig = {
   allowProvisionalInference: boolean; // Allow "professional_inference" status
 };
 
-const DEFAULT_CONFIG: TenderParserConfig = {
-  minConfidenceThreshold: "medium",
-  verboseLogging: false,
-  maxExtractionLength: 5000,
-  allowProvisionalInference: true,
-};
-
 /**
  * Extraction finding — what was found with confidence and source.
  */
@@ -164,29 +157,6 @@ function findSourceLines(
   }
   
   return lineNumbers;
-}
-
-/**
- * Assess extraction confidence based on:
- * - Pattern strength (exact match > fuzzy)
- * - Repetition (appears multiple times)
- * - Context alignment
- */
-function assessConfidence(
-  value: string,
-  lines: string[],
-  patternStrength: "exact" | "fuzzy" = "exact"
-): ExtractionConfidence {
-  if (!value || value.length < 2) return "low";
-  
-  const occurrences = lines.filter((line) =>
-    line.toLowerCase().includes(value.toLowerCase())
-  ).length;
-  
-  if (patternStrength === "exact" && occurrences >= 2) return "high";
-  if (patternStrength === "exact" && occurrences === 1) return "medium";
-  if (patternStrength === "fuzzy" && occurrences >= 2) return "medium";
-  return "low";
 }
 
 /**
@@ -428,7 +398,8 @@ function extractRegulatoryReferences(
   const references = new Set<string>();
   
   for (const pattern of EXTRACTION_PATTERNS.regulatoryReferences) {
-    const matches = text.matchAll(pattern);
+    const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
+    const matches = text.matchAll(new RegExp(pattern.source, flags));
     for (const match of matches) {
       if (match[0]) {
         references.add(normalizeText(match[0], 50));
@@ -454,10 +425,9 @@ function extractRegulatoryReferences(
  */
 export function parseTender(
   tenderText: string,
-  config: Partial<TenderParserConfig> = {}
+  config: Partial<TenderParserConfig> = {},
 ): TenderIntelligence {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
-  
+  void config;
   const lines = splitIntoLines(tenderText);
   const tenderTextLower = tenderText.toLowerCase();
 
@@ -477,42 +447,38 @@ export function parseTender(
   
   // Extract each component
   const tenderNumber = extractTenderNumber(tenderTextLower, lines);
-  const tenderTitle = extractTenderTitle(tenderTextLower, lines) ||
-    (labeledTitle
-      ? {
-          value: labeledTitle,
-          confidence: "high" as const,
-          sourceLines: findSourceLines(lines, labeledTitle),
-          evidence: "tender_fact" as const,
-        }
-      : null);
-  const procuringEntity = extractProcuringEntity(tenderTextLower, lines) ||
-    (labeledProcuring
-      ? {
-          value: labeledProcuring,
-          confidence: "high" as const,
-          sourceLines: findSourceLines(lines, labeledProcuring),
-          evidence: "tender_fact" as const,
-        }
-      : null);
-  const projectSector = extractProjectSector(tenderTextLower, lines) ||
-    (labeledSector
-      ? {
-          value: labeledSector,
-          confidence: "high" as const,
-          sourceLines: findSourceLines(lines, labeledSector),
-          evidence: "tender_fact" as const,
-        }
-      : null);
-  const projectLocation = extractProjectLocation(tenderTextLower, lines) ||
-    (labeledLocation
-      ? {
-          value: labeledLocation,
-          confidence: "high" as const,
-          sourceLines: findSourceLines(lines, labeledLocation),
-          evidence: "tender_fact" as const,
-        }
-      : null);
+  const tenderTitle = labeledTitle
+    ? {
+        value: labeledTitle,
+        confidence: "high" as const,
+        sourceLines: findSourceLines(lines, labeledTitle),
+        evidence: "tender_fact" as const,
+      }
+    : extractTenderTitle(tenderTextLower, lines);
+  const procuringEntity = labeledProcuring
+    ? {
+        value: labeledProcuring,
+        confidence: "high" as const,
+        sourceLines: findSourceLines(lines, labeledProcuring),
+        evidence: "tender_fact" as const,
+      }
+    : extractProcuringEntity(tenderTextLower, lines);
+  const projectSector = labeledSector
+    ? {
+        value: labeledSector,
+        confidence: "high" as const,
+        sourceLines: findSourceLines(lines, labeledSector),
+        evidence: "tender_fact" as const,
+      }
+    : extractProjectSector(tenderTextLower, lines);
+  const projectLocation = labeledLocation
+    ? {
+        value: labeledLocation,
+        confidence: "high" as const,
+        sourceLines: findSourceLines(lines, labeledLocation),
+        evidence: "tender_fact" as const,
+      }
+    : extractProjectLocation(tenderTextLower, lines);
   const contractPeriod = extractContractPeriod(tenderTextLower, lines);
   const namedStakeholders = extractNamedStakeholders(tenderText, lines);
   const sepRequirements = extractSepRequirements(tenderTextLower, lines);
@@ -554,7 +520,7 @@ export function parseTender(
     requirements:
       sepRequirements?.value?.map((r, i) => ({
         id: `REQ-${i}`,
-        category: r.category as any,
+        category: asRequirementCategory(r.category),
         text: r.text,
         sourceReference: `Section extraction`,
         mandatory: true,
@@ -595,13 +561,34 @@ function extractMonthsFromPeriod(periodStr?: string): number | undefined {
 }
 
 /**
+ * Map extracted keyword categories onto the TenderIntelligence union.
+ */
+function asRequirementCategory(
+  value: string,
+): TenderIntelligence["requirements"][number]["category"] {
+  const allowed: TenderIntelligence["requirements"][number]["category"][] = [
+    "participation",
+    "consultation",
+    "local_content",
+    "livelihood",
+    "resettlement",
+    "vulnerability",
+    "grievance",
+    "reporting",
+    "evaluation",
+    "other",
+  ];
+  return allowed.includes(value as TenderIntelligence["requirements"][number]["category"])
+    ? (value as TenderIntelligence["requirements"][number]["category"])
+    : "other";
+}
+
+/**
  * Helper: classify stakeholder kind from name patterns.
  */
 function classifyStakeholderKind(
   name: string
 ): "government" | "community" | "contractor" | "funder" | "ngo" | "other" {
-  const nameLower = name.toLowerCase();
-  
   if (/municipality|department|agency|soc|government|council/i.test(name)) {
     return "government";
   }
