@@ -61,8 +61,19 @@ function participationFor(args: {
 }): { level: ParticipationLevel; influence: string[]; method: string; frequency: string } {
   const n = args.name.toLowerCase();
   if (/household|affected|pap|displac/.test(n) || args.kind === "household_group") {
+    if (args.displacement === "none") {
+      return {
+        level: "involve",
+        influence: [
+          "how construction or service disruption is timed and explained",
+          "grievance channels and helpdesk hours",
+        ],
+        method: "meetings, mapping, ranking",
+        frequency: "at each decision gate and monthly thereafter",
+      };
+    }
     return {
-      level: args.displacement === "none" ? "involve" : "collaborate",
+      level: "collaborate",
       influence: [
         "relocation / design options that remain negotiable",
         "livelihood restoration pathways",
@@ -253,7 +264,9 @@ export function generateParticipationObjectives(
       ? stakeholder.whatTheyCanInfluence
       : ["information needs and meeting timing"];
     const decisionArea = /household|affected/i.test(stakeholder.nameOrCategory)
-      ? "relocation options, entitlements, and livelihood pathways"
+      ? displacement
+        ? "relocation options, entitlements, and livelihood pathways"
+        : "disruption timing, information design, and grievance channels"
       : /host/i.test(stakeholder.nameOrCategory)
         ? "host-community consent and service-load conditions"
         : /municipal|department|authority/i.test(stakeholder.nameOrCategory)

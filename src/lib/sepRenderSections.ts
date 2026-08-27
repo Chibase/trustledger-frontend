@@ -97,7 +97,6 @@ export function renderAcademicSections(
     body: para(
       `**4.1 Requirement.** Every identifiable SEP-related tender requirement must be mapped to a response, a section, and evidence. Partial and missing rows must be flagged before the plan is treated as complete ${citeSpec("s.18")}.`,
       `**4.2 Coverage on this draft.** ${summary.covered} covered; ${summary.partial} partial; ${summary.missing} missing (of ${plan.complianceMatrix.length} extracted requirements). The plan does not claim compliance where the matrix shows only partial coverage.`,
-      `*Table 4.1. Tender requirements mapped to SEP response*`,
       `The full matrix, including evidence paths, is reproduced in Appendix J.`,
     ),
     tables: [
@@ -148,7 +147,6 @@ export function renderAcademicSections(
     body: para(
       `**6.1 Identification.** Stakeholders are listed as classes and named organisations from the tender. Personal names are not invented ${citeSpec("s.3, s.8")}.`,
       `**6.2 Representation.** Representation is not treated as valid until the group confirms it. Office-bearers are a starting list, not a substitute for that check ${citeSpec("s.12")}.`,
-      `*Table 6.1. Stakeholder register (this draft)*`,
     ),
     tables: [
       {
@@ -191,7 +189,6 @@ export function renderAcademicSections(
       plan.socialContext.opportunities.length
         ? `**8.2 Opportunity.** ${plan.socialContext.opportunities.map((row) => row.description).join("; ")} Required conditions: ${plan.socialContext.opportunities.flatMap((row) => row.requiredConditions).slice(0, 4).join("; ")}.`
         : `**8.2 Opportunity.** No local-content opportunity is claimed beyond what the tender states.`,
-      `*Table 8.1. Social risk register (this draft)*`,
     ),
     tables: [
       {

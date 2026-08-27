@@ -165,7 +165,6 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
     }
 
     function addContentPage() {
-      if (pagesMade >= 45) return;
       manualPage = true;
       doc.addPage();
       pagesMade += 1;
@@ -195,19 +194,20 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
       const value = text.trim();
       if (!value) return;
       doc.font(opts.font).fontSize(opts.size).fillColor(opts.color);
-      const room = bottomLimit() - doc.y;
-      if (room < 18) addContentPage();
-      doc.font(opts.font).fontSize(opts.size).fillColor(opts.color);
-      const beforePages = pagesMade;
+      const measured = doc.heightOfString(value, {
+        width: contentWidth,
+        lineGap: opts.lineGap,
+      });
+      const room = bottomLimit() - doc.y - 2;
+      if (room < 18 || (measured > room && room < 80)) {
+        addContentPage();
+        doc.font(opts.font).fontSize(opts.size).fillColor(opts.color);
+      }
       doc.text(value, {
         width: contentWidth,
         lineGap: opts.lineGap,
         align: opts.align || "left",
       });
-      if (doc.y > bottomLimit()) {
-        doc.y = Math.min(doc.y, bottomLimit());
-      }
-      pagesMade = Math.max(pagesMade, beforePages);
     }
 
     function bodyText(text: string, extraTables: SepDocumentTable[] = []) {
@@ -419,7 +419,6 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
         const body = section.body || "";
         const tables = section.tables || [];
         if (!body.trim() && !tables.length) continue;
-        if (pagesMade > 45) break;
         ensureSpace(36);
         doc
           .font("Times-Bold")
@@ -437,7 +436,7 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
         plan.implementingEntityHint?.trim() || "Stakeholder Engagement Plan",
         48,
       );
-      const count = Math.min(range.count, 45);
+      const count = range.count;
       for (let i = 0; i < count; i += 1) {
         doc.switchToPage(i);
         const isCover = i === 0;
