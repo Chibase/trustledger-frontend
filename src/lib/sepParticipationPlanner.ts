@@ -305,12 +305,307 @@ function monthHint(index: number, durationMonths: number): string {
   return `Month ${month} of ${durationMonths} (calendar dates TBC at inception)`;
 }
 
+type ActivityTarget = "authorities" | "affected" | "host" | "all" | "vulnerable" | "traditional";
+
+type ActivityDraft = {
+  name: string;
+  purpose: string;
+  trigger: string;
+  month: number;
+  methodHint: "pra" | "pla" | "cbpr" | "other";
+  tools: string[];
+  output: string;
+  decision: string;
+  owner: string;
+  records: string[];
+  target: ActivityTarget;
+};
+
+/**
+ * Sequence is selected from the assignment (Framework s.1; Specification s.9.1, s.11).
+ * Census / host-consent / restoration steps are included only when displacement is stated.
+ */
+export function selectActivityTemplates(
+  project: ProjectProfile,
+  durationMonths: number,
+): ActivityDraft[] {
+  const duration = Math.max(1, durationMonths);
+  const displaced = project.displacementType !== "none";
+  const physical = project.displacementType === "physical" || project.displacementType === "mixed";
+  const economic =
+    project.displacementType === "economic" ||
+    project.displacementType === "access_based" ||
+    project.displacementType === "mixed";
+  const short = duration <= 3;
+  const research =
+    project.researchIntensity === "participatory_research" ||
+    project.researchIntensity === "longitudinal";
+  const traditionalFirst =
+    project.sector === "mining" ||
+    project.sector === "conservation" ||
+    project.complexityFactors.some((row) => /traditional|customary/i.test(row));
+  const drafts: ActivityDraft[] = [];
+
+  drafts.push({
+    name: "Inception briefing with procuring and municipal authorities",
+    purpose: "Lock what is negotiable, reporting format, and statutory windows before community work starts",
+    trigger: "Contract start",
+    month: 1,
+    methodHint: "other",
+    tools: ["briefing note"],
+    output: "Inception note: negotiable items, TBC list, reporting calendar",
+    decision: "Community activities do not start until negotiable items are stated in writing",
+    owner: "Plan Owner",
+    records: ["inception minutes", "negotiable-items list"],
+    target: "authorities",
+  });
+
+  if (traditionalFirst) {
+    drafts.push({
+      name: "Courtesy meeting with traditional / customary authority",
+      purpose: "Confirm protocol, venue and sequence before any public notice",
+      trigger: "After inception",
+      month: 1,
+      methodHint: "other",
+      tools: ["protocol note"],
+      output: "Agreed protocol for public contact (or a documented TBC)",
+      decision: "Public notice is not issued until protocol is recorded",
+      owner: "Facilitation Lead",
+      records: ["protocol minutes"],
+      target: "traditional",
+    });
+  }
+
+  if (project.sector === "conservation" || project.sector === "agriculture") {
+    drafts.push({
+      name: "Participatory transect and resource mapping",
+      purpose: "Walk the landscape with resource users so land, water and seasonal use are described by those who use them",
+      trigger: "After protocol / inception",
+      month: short ? 1 : 2,
+      methodHint: "pra",
+      tools: ["transects", "mapping"],
+      output: "Validated resource map and transect notes",
+      decision: "Design options that affect access are not locked before the transect is validated",
+      owner: "Facilitation Lead",
+      records: ["transect notes", "signed map", "attendance register"],
+      target: "all",
+    });
+  } else {
+    drafts.push({
+      name: displaced
+        ? "Stakeholder map validation workshop"
+        : "Institutional and interest mapping workshop",
+      purpose: displaced
+        ? "Understand local conditions and validate who is affected, who influences, and who is missing"
+        : "Map the structures that already govern the place and who must be reached before public notice",
+      trigger: traditionalFirst ? "After protocol meeting" : "After inception",
+      month: 1,
+      methodHint: "pra",
+      tools: ["social mapping", "institutional mapping"],
+      output: "Validated stakeholder map with influence/interest notes",
+      decision: "Map used to tailor engagement methods per group",
+      owner: "Facilitation Lead",
+      records: ["signed map", "attendance register"],
+      target: "all",
+    });
+  }
+
+  drafts.push({
+    name: "Grievance mechanism co-design workshop",
+    purpose: "Establish one grievance mechanism for all project-related complaints, with usable channels",
+    trigger: short ? "Month 1, before first public activity" : "Month 1–2, before first material impact",
+    month: Math.min(2, duration),
+    methodHint: "pla",
+    tools: ["action planning"],
+    output: "Agreed grievance workflow, channels, and 48-hour acknowledgement standard",
+    decision: "The mechanism is not declared operational until users confirm channels they can actually use",
+    owner: "Community liaison",
+    records: ["grievance SOP", "channel map", "attendance register"],
+    target: "all",
+  });
+
+  if (project.vulnerabilityIntensity !== "low") {
+    drafts.push({
+      name: "Vulnerable-group focus groups and home visits",
+      purpose: "Identify participation barriers and alternative mechanisms for groups standard meetings will miss",
+      trigger: "In parallel with mapping",
+      month: Math.min(2, duration),
+      methodHint: "pra",
+      tools: ["ranking", "social mapping"],
+      output: "Vulnerability matrix and access adjustments",
+      decision: "Public calendar is not issued until access adjustments are listed",
+      owner: "Facilitation Lead",
+      records: ["disaggregated attendance", "home-visit log"],
+      target: "vulnerable",
+    });
+  }
+
+  if (physical) {
+    drafts.push({
+      name: "Participatory household census",
+      purpose: "Co-produce household knowledge that entitlements and restoration will rely on",
+      trigger: "After map validation",
+      month: Math.min(2, duration),
+      methodHint: "cbpr",
+      tools: ["participatory census"],
+      output: "Validated household census; tender estimates remain estimates until this is done",
+      decision: "Census is the only basis for targeting entitlements and livelihood support",
+      owner: "Social Performance Lead",
+      records: ["consent records", "census forms", "joint analysis minutes"],
+      target: "affected",
+    });
+  }
+
+  if (economic || project.sector === "agriculture") {
+    drafts.push({
+      name: "Livelihood and seasonal calendar sessions",
+      purpose: "Diagnose livelihood systems and critical periods before options are ranked",
+      trigger: physical ? "During census analysis" : "After mapping",
+      month: Math.min(physical ? 3 : 2, duration),
+      methodHint: "pra",
+      tools: ["seasonal calendars", "ranking"],
+      output: "Livelihood analysis and seasonal constraints",
+      decision: "Disruption windows must respect validated critical periods",
+      owner: "Livelihood Lead",
+      records: ["seasonal calendars", "ranking sheets"],
+      target: "affected",
+    });
+  }
+
+  if (physical) {
+    drafts.push({
+      name: "Relocation options and entitlements consultation",
+      purpose: "Consult affected households on relocation options, entitlements, and what remains fixed",
+      trigger: "After draft census",
+      month: Math.min(3, duration),
+      methodHint: "pla",
+      tools: ["option ranking", "priority matrix"],
+      output: "Ranked options and decision log (no invented package values)",
+      decision: "Client cannot lock a relocation option households have not ranked",
+      owner: "Plan Owner",
+      records: ["decision log", "ranking sheets", "attendance register"],
+      target: "affected",
+    });
+    drafts.push({
+      name: "Host-community consent process",
+      purpose: "Obtain and record host-community conditions before any physical move is scheduled",
+      trigger: "After options shortlist",
+      month: Math.min(3, duration),
+      methodHint: "pla",
+      tools: ["action planning"],
+      output: "Host consent conditions (or a documented refusal / TBC)",
+      decision: "Move-week is not scheduled without a recorded host position",
+      owner: "Community liaison",
+      records: ["consent record", "minutes"],
+      target: "host",
+    });
+  } else if (economic) {
+    drafts.push({
+      name: "Access and livelihood restoration ranking",
+      purpose: "Rank restoration pathways with the people who lose access or income",
+      trigger: "After livelihood analysis",
+      month: Math.min(3, duration),
+      methodHint: "pla",
+      tools: ["option ranking", "priority matrix"],
+      output: "Ranked restoration pathways (no invented package values)",
+      decision: "Restoration packages are not locked until ranking is on the decision log",
+      owner: "Livelihood Lead",
+      records: ["decision log", "ranking sheets"],
+      target: "affected",
+    });
+  } else {
+    drafts.push({
+      name:
+        project.sector === "municipal"
+          ? "Ward and municipal calendar alignment"
+          : "Public-notice and comment-window design",
+      purpose:
+        project.sector === "municipal"
+          ? "Place this assignment on the municipal public-participation calendar named in the briefing"
+          : "Design notice, comment windows and feedback so a statutory meeting is still a real meeting",
+      trigger: "After mapping and grievance design",
+      month: Math.min(2, duration),
+      methodHint: "pla",
+      tools: ["action planning"],
+      output: "Notice pack contents, comment window, and feedback duty",
+      decision: "Public notice is not treated as consultation until the feedback duty is stated",
+      owner: "Facilitation Lead",
+      records: ["notice pack", "calendar extract"],
+      target: "authorities",
+    });
+  }
+
+  if (research) {
+    drafts.push({
+      name: "Community-defined impact research",
+      purpose: "Co-produce evidence on impacts using questions the affected people help set",
+      trigger: "After mapping",
+      month: Math.min(Math.max(3, Math.floor(duration / 2)), duration),
+      methodHint: "cbpr",
+      tools: ["participatory research", "community-defined indicators"],
+      output: "Jointly analysed impact findings; baselines remain TBC until collected",
+      decision: "Impact claims in reports must cite this research or be marked TBC",
+      owner: "Social Performance Lead",
+      records: ["research protocol", "consent records", "joint analysis minutes"],
+      target: "affected",
+    });
+  }
+
+  if (project.sector === "mining") {
+    drafts.push({
+      name: "Social and Labour Plan promise review",
+      purpose: "Read SLP commitments that the briefing named against what communities can recognise as evidence",
+      trigger: "After mapping",
+      month: Math.min(3, duration),
+      methodHint: "pla",
+      tools: ["commitment register"],
+      output: "SLP promises that are in the briefing, with evidence fields — none invented",
+      decision: "Only briefing-named SLP items enter the commitment register",
+      owner: "Plan Owner",
+      records: ["commitment register extract"],
+      target: "all",
+    });
+  }
+
+  if (!short) {
+    drafts.push({
+      name: "Progress and commitment review",
+      purpose: "Document engagements; maintain the commitment register; produce progress reports from records",
+      trigger: duration >= 8 ? "Quarterly" : "Monthly",
+      month: Math.min(4, duration),
+      methodHint: "other",
+      tools: ["commitment register"],
+      output: "Progress report from records (no invented counts)",
+      decision: "Unfulfilled commitments are escalated rather than restated as plans",
+      owner: "Plan Owner",
+      records: ["progress report", "meeting minutes", "register extract"],
+      target: "authorities",
+    });
+  }
+
+  drafts.push({
+    name: "Close-out learning session",
+    purpose: "After-action review of what participation changed, what remains TBC, and handover of records",
+    trigger: "Final month",
+    month: duration,
+    methodHint: "pla",
+    tools: ["after-action review", "community scorecards"],
+    output: "Learning note and handover pack",
+    decision: "Outstanding commitments and grievances are handed over, not closed on paper",
+    owner: "Plan Owner",
+    records: ["learning note", "handover inventory"],
+    target: "all",
+  });
+
+  return drafts;
+}
+
 export function generateEngagementActivities(
   participationObjectives: ParticipationObjective[],
   methodSelections: MethodSelection[],
   socialContext: SocialContextProfile,
   constraints: PlannerConstraints,
-  projectId: string,
+  project: ProjectProfile,
   stakeholders: StakeholderProfile[],
 ): EngagementActivity[] {
   const now = isoNow();
@@ -326,168 +621,32 @@ export function generateEngagementActivities(
       row.stakeholderType === "government" ||
       row.stakeholderType === "traditional_authority",
   );
-  const vulnerableLabels = socialContext.vulnerabilities.map((row) => row.group);
+  const traditional = stakeholders.filter((row) => row.stakeholderType === "traditional_authority");
+  const host = stakeholders.filter((row) => /host/i.test(row.nameOrCategory));
+  const vulnerable = stakeholders.filter((row) =>
+    /women|elder|disabled|informal|vulnerab/i.test(row.nameOrCategory),
+  );
+
+  const resolveTargets = (kind: ActivityTarget): StakeholderProfile[] => {
+    if (kind === "authorities") return authorities.length ? authorities : stakeholders;
+    if (kind === "affected") return affected.length ? affected : stakeholders;
+    if (kind === "host") return host.length ? host : traditional.length ? traditional : affected;
+    if (kind === "traditional") return traditional.length ? traditional : authorities;
+    if (kind === "vulnerable") return vulnerable.length ? vulnerable : affected.length ? affected : stakeholders;
+    return stakeholders;
+  };
 
   const methodByHint = (hint: "pra" | "pla" | "cbpr") =>
     methodSelections.find((row) => row.methodology === hint);
 
-  const templates: Array<{
-    name: string;
-    purpose: string;
-    trigger: string;
-    month: number;
-    methodHint: "pra" | "pla" | "cbpr" | "other";
-    tools: string[];
-    output: string;
-    decision: string;
-    owner: string;
-    records: string[];
-    targets: StakeholderProfile[];
-  }> = [
-    {
-      name: "Inception briefing with procuring and municipal authorities",
-      purpose: "Lock what is negotiable, reporting format, and statutory windows before community work starts",
-      trigger: "Contract start",
-      month: 1,
-      methodHint: "other",
-      tools: ["briefing note"],
-      output: "Inception note: negotiable items, TBC list, reporting calendar",
-      decision: "Community activities do not start until negotiable items are stated in writing",
-      owner: "Plan Owner",
-      records: ["inception minutes", "negotiable-items list"],
-      targets: authorities,
-    },
-    {
-      name: "Stakeholder map validation workshop",
-      purpose: "Understand local conditions and validate who is affected, who influences, and who is missing",
-      trigger: "After inception",
-      month: 1,
-      methodHint: "pra",
-      tools: ["social mapping", "institutional mapping"],
-      output: "Validated stakeholder map with influence/interest notes",
-      decision: "Map used to tailor engagement methods per group",
-      owner: "Facilitation Lead",
-      records: ["signed map", "attendance register"],
-      targets: stakeholders,
-    },
-    {
-      name: "Participatory household census",
-      purpose: "Co-produce household knowledge that entitlements and restoration will rely on",
-      trigger: "After map validation",
-      month: 2,
-      methodHint: "cbpr",
-      tools: ["participatory census"],
-      output: "Validated household census; tender estimates remain estimates until this is done",
-      decision: "Census is the only basis for targeting entitlements and livelihood support",
-      owner: "Social Performance Lead",
-      records: ["consent records", "census forms", "joint analysis minutes"],
-      targets: affected,
-    },
-    {
-      name: "Livelihood and seasonal calendar sessions",
-      purpose: "Diagnose livelihood systems and critical periods before restoration options are ranked",
-      trigger: "During census analysis",
-      month: 2,
-      methodHint: "pra",
-      tools: ["seasonal calendars", "ranking"],
-      output: "Livelihood analysis and seasonal constraints",
-      decision: "Disruption and move windows must respect validated critical periods",
-      owner: "Livelihood Lead",
-      records: ["seasonal calendars", "ranking sheets"],
-      targets: affected,
-    },
-    {
-      name: "Vulnerable-group focus groups and home visits",
-      purpose: "Identify participation barriers and alternative mechanisms for groups standard meetings will miss",
-      trigger: "In parallel with mapping",
-      month: 2,
-      methodHint: "pra",
-      tools: ["ranking", "social mapping"],
-      output: "Vulnerability matrix and access adjustments",
-      decision: "Public calendar is not issued until access adjustments are listed",
-      owner: "Facilitation Lead",
-      records: ["disaggregated attendance", "home-visit log"],
-      targets: stakeholders.filter((row) =>
-        /women|elder|disabled|informal|vulnerab/i.test(row.nameOrCategory),
-      ),
-    },
-    {
-      name: "Relocation options and entitlements consultation",
-      purpose: "Consult affected households on relocation options, entitlements, and what remains fixed",
-      trigger: "After draft census",
-      month: 3,
-      methodHint: "pla",
-      tools: ["option ranking", "priority matrix"],
-      output: "Ranked options and decision log (no invented package values)",
-      decision: "Client cannot lock a relocation option households have not ranked",
-      owner: "Plan Owner",
-      records: ["decision log", "ranking sheets", "attendance register"],
-      targets: affected,
-    },
-    {
-      name: "Host-community consent process",
-      purpose: "Obtain and record host-community conditions before any physical move is scheduled",
-      trigger: "After options shortlist",
-      month: 3,
-      methodHint: "pla",
-      tools: ["action planning"],
-      output: "Host consent conditions (or a documented refusal / TBC)",
-      decision: "Move-week is not scheduled without a recorded host position",
-      owner: "CLO",
-      records: ["consent record", "minutes"],
-      targets: stakeholders.filter((row) => /host|traditional/i.test(row.nameOrCategory)),
-    },
-    {
-      name: "Grievance mechanism co-design workshop",
-      purpose: "Establish one grievance mechanism for all project-related complaints, with usable channels",
-      trigger: "Month 1–2, before first material impact",
-      month: 2,
-      methodHint: "pla",
-      tools: ["action planning"],
-      output: "Agreed GRM workflow, channels, and 48-hour acknowledgement standard",
-      decision: "GRM is not declared operational until users confirm channels they can actually use",
-      owner: "CLO",
-      records: ["GRM SOP", "channel map", "attendance register"],
-      targets: stakeholders,
-    },
-    {
-      name: "Monthly progress and commitment review",
-      purpose: "Document all engagements; maintain the commitment register; produce monthly progress reports",
-      trigger: "Monthly",
-      month: Math.min(4, duration),
-      methodHint: "other",
-      tools: ["commitment register"],
-      output: "Monthly progress report from records (no invented counts)",
-      decision: "Unfulfilled commitments are escalated rather than restated as plans",
-      owner: "Plan Owner",
-      records: ["monthly report", "meeting minutes", "register extract"],
-      targets: authorities,
-    },
-    {
-      name: "Close-out learning session",
-      purpose: "After-action review of what participation changed, what remains TBC, and handover of records",
-      trigger: "Final month",
-      month: duration,
-      methodHint: "pla",
-      tools: ["after-action review", "community scorecards"],
-      output: "Learning note and handover pack",
-      decision: "Outstanding commitments and grievances are handed over, not closed on paper",
-      owner: "Plan Owner",
-      records: ["learning note", "handover inventory"],
-      targets: stakeholders,
-    },
-  ];
-
-  if (vulnerableLabels.length && templates[4]) {
-    templates[4].targets = templates[4].targets.length ? templates[4].targets : affected;
-  }
+  const templates = selectActivityTemplates(project, duration);
 
   const activities: EngagementActivity[] = templates.map((template, index) => {
     const method = template.methodHint === "other" ? undefined : methodByHint(template.methodHint);
-    const targetIds = (template.targets.length ? template.targets : affected).map((row) => row.id);
+    const targetIds = resolveTargets(template.target).map((row) => row.id);
     return {
       id: seq("ACT", index + 1),
-      projectProfileId: projectId,
+      projectProfileId: project.id,
       activityName: template.name,
       purpose: template.purpose,
       trigger: template.trigger,
@@ -499,7 +658,12 @@ export function generateEngagementActivities(
           : `${template.methodHint.toUpperCase()} — ${method?.tool || template.tools[0]}`,
       methodSelectionId: method?.id,
       tools: template.tools,
-      informationNeeded: ["tender requirements", "prior activity outputs", "TBC items log"],
+      informationNeeded: [
+        "tender requirements",
+        "prior activity outputs",
+        "TBC items log",
+        socialContext.affectedPeople.geographicLocation,
+      ],
       facilitationApproach:
         "Separate or sequential sessions where mixed groups would silence vulnerable participants. Languages of the project area TBC at inception.",
       expectedOutput: template.output,
@@ -527,6 +691,7 @@ export function generateEngagementActivities(
 export function generateCommunicationPlan(
   stakeholders: StakeholderProfile[],
   socialContext: SocialContextProfile,
+  project?: ProjectProfile,
 ): CommunicationPlan[] {
   const now = isoNow();
   const language = "Languages of the project area, to be confirmed at inception — not assumed";
@@ -539,36 +704,58 @@ export function generateCommunicationPlan(
     ),
   ].slice(0, 8);
 
-  const groups: Array<{ audience: string; message: string; points: string[]; channel: CommunicationPlan["channel"]; channels: string[]; frequency: string }> = [
+  const displaced = project ? project.displacementType !== "none" : true;
+  const physical =
+    project?.displacementType === "physical" || project?.displacementType === "mixed";
+
+  const groups: Array<{
+    audience: string;
+    message: string;
+    points: string[];
+    channel: CommunicationPlan["channel"];
+    channels: string[];
+    frequency: string;
+  }> = [
     {
-      audience: "Project-affected households",
-      message: "No relocation option will be locked without your ranking of the options that actually exist.",
-      points: [
-        "Census first — tender household figures remain estimates",
-        "What you can influence (options, pathways, GRM channels)",
-        "How to lodge a complaint within 48-hour acknowledgement",
-      ],
+      audience: displaced ? "Project-affected households" : "People who live with the project",
+      message: displaced
+        ? "No option that changes your home, stand or livelihood will be locked without your ranking of the options that actually exist."
+        : "You will be told what is already decided and what you can still influence before public notice is treated as consultation.",
+      points: displaced
+        ? [
+            "Enumeration first — tender household figures remain estimates",
+            "What you can influence (options, pathways, grievance channels)",
+            "How to lodge a complaint within 48-hour acknowledgement",
+          ]
+        : [
+            "What is negotiable vs already decided",
+            "How to use the grievance path (48-hour acknowledgement)",
+            "How comments are returned on the decision log",
+          ],
       channel: "community_meeting",
       channels: ["in-person meeting", "home visit", "notice board"],
       frequency: "before each decision gate",
     },
     {
+      audience: "Municipal and procuring authorities",
+      message: "This assignment will report from records, not from invented counts.",
+      points: ["Progress report from records", "Commitment register extract", "Grievance trend note"],
+      channel: "email",
+      channels: ["email", "written letter", "in-person briefing"],
+      frequency: project && project.implementationHorizon === "short_term" ? "at each gate" : "monthly",
+    },
+  ];
+
+  if (physical) {
+    groups.splice(1, 0, {
       audience: "Host community structures",
       message: "A physical move is not scheduled until host conditions are recorded.",
-      points: ["Service-load concerns", "Consent conditions", "GRM is the same mechanism"],
+      points: ["Service-load concerns", "Consent conditions", "The grievance path is the same mechanism"],
       channel: "in_person_meeting",
       channels: ["in-person meeting", "letter to validated representatives"],
       frequency: "before options are shortlisted and before move-week",
-    },
-    {
-      audience: "Municipal and procuring authorities",
-      message: "This assignment will report from records, not from invented counts.",
-      points: ["Monthly progress report", "Commitment register extract", "GRM trend note"],
-      channel: "email",
-      channels: ["email", "written letter", "in-person briefing"],
-      frequency: "monthly",
-    },
-  ];
+    });
+  }
 
   for (const stakeholder of stakeholders) {
     if (groups.some((row) => row.audience.toLowerCase() === stakeholder.nameOrCategory.toLowerCase())) {
@@ -1011,13 +1198,28 @@ export function planParticipation(args: {
 
   const seedMethods: MethodSelection[] = [];
   const seen = new Set<string>();
-  for (const objective of [
+  const methodObjectives: string[] = [
     "Understand local conditions and validate the stakeholder map",
-    "Co-produce a participatory census of affected households",
-    "Plan relocation options, entitlements, and host-community consent",
     "Co-design a grievance mechanism",
-    "Diagnose livelihood systems and seasonal constraints",
-  ]) {
+  ];
+  if (args.project.displacementType === "physical" || args.project.displacementType === "mixed") {
+    methodObjectives.push("Co-produce a participatory census of affected households");
+    methodObjectives.push("Plan relocation options, entitlements, and host-community consent");
+  } else if (args.project.displacementType !== "none") {
+    methodObjectives.push("Diagnose livelihood systems and seasonal constraints");
+    methodObjectives.push("Plan restoration pathways with affected people");
+  } else {
+    methodObjectives.push("Identify community priorities before design choices are locked");
+  }
+  if (
+    args.project.researchIntensity === "participatory_research" ||
+    args.project.researchIntensity === "longitudinal"
+  ) {
+    methodObjectives.push(
+      "Conduct participatory research on impacts with community-defined indicators",
+    );
+  }
+  for (const objective of methodObjectives) {
     const ranked = selectMethodsForObjective(objective, stakeholders, { durationMonths: duration });
     const top = ranked[0];
     if (top && !seen.has(top.methodology)) {
@@ -1031,11 +1233,15 @@ export function planParticipation(args: {
     seedMethods,
     args.socialContext,
     { durationMonths: duration, budget: args.constraints?.budget },
-    args.project.id,
+    args.project,
     stakeholders,
   );
   const methods = bindMethodsToActivities(seedMethods, activities);
-  const communications = generateCommunicationPlan(stakeholders, args.socialContext);
+  const communications = generateCommunicationPlan(
+    stakeholders,
+    args.socialContext,
+    args.project,
+  );
   const grievanceFramework = generateGrievanceFramework(args.socialContext, args.risks);
   const commitments = generateCommitments(args.tender, args.project, stakeholders, activities);
   const indicators = generateIndicators(activities, participationObjectives, args.risks);

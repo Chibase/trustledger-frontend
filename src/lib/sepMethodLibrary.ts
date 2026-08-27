@@ -77,7 +77,7 @@ export const METHOD_LIBRARY: Record<MethodLibraryId, MethodLibraryEntry> = {
       "Trained facilitators are required",
       "Time-intensive; not a substitute for statutory process",
     ],
-    reference: "Chambers 1994; FAO PRA Manual",
+    reference: "Participatory Methodologies Framework v1.0, s.3.1; Chambers; FAO PRA Manual",
   },
   pla: {
     id: "pla",
@@ -94,7 +94,7 @@ export const METHOD_LIBRARY: Record<MethodLibraryId, MethodLibraryEntry> = {
       "option ranking",
     ],
     selectionCriteria:
-      "Use when the assignment must move from diagnosis to agreed action — restoration options, host-community consent, grievance design, sequencing, or mid-course adaptation.",
+      "Use when the assignment must move from diagnosis to agreed action — option ranking, grievance design, sequencing, or mid-course adaptation.",
     participantRequirements: [
       "People who will live with the decision",
       "Decision-owners who can say what is negotiable",
@@ -128,7 +128,7 @@ export const METHOD_LIBRARY: Record<MethodLibraryId, MethodLibraryEntry> = {
       "Requires an honest statement of what is negotiable",
       "Elite capture if only office-bearers attend",
     ],
-    reference: "Chambers 2008; IIED PLA Notes",
+    reference: "Participatory Methodologies Framework v1.0, s.1, s.3; Chambers; IIED PLA Notes",
   },
   cbpr: {
     id: "cbpr",
@@ -179,7 +179,7 @@ export const METHOD_LIBRARY: Record<MethodLibraryId, MethodLibraryEntry> = {
       "Personal information must be minimised and protected",
       "Cannot invent household counts to fill a tender estimate",
     ],
-    reference: "Israel et al. 1998; Minkler & Wallerstein",
+    reference: "Participatory Methodologies Framework v1.0, s.3; Israel et al.; CDC CBPR literature",
   },
 };
 

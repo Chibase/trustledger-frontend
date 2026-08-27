@@ -54,7 +54,7 @@ if (/TrustLedger Protocol|SL-?2?B protocol/i.test(housingDoc)) {
 const housingMethods =
   housing.documentSections.find((row) => row.id === "methods")?.body || "";
 if (
-  !/\*\*4\.3 Tools\.\*\*/.test(housingMethods) ||
+  !/\*\*4\.4 Tools\.\*\*/.test(housingMethods) ||
   !/TrustLedger/.test(housingMethods) ||
   !/SL2B/.test(housingMethods)
 ) {
@@ -158,16 +158,21 @@ if (md.includes("TrustLedger SRM execution protocol") || /TrustLedger Protocol/i
 if (!md.includes("| Stakeholder category |") && !md.includes("| Engagement mechanism |")) {
   checks.push("markdown missing report tables");
 }
-if (!md.includes("Chibase Consulting")) checks.push("markdown missing issuer");
-if (!/Community-Based Participatory Research/i.test(md)) {
-  checks.push("markdown missing CBPR");
+if (!/Prepared by the implementing organisation/i.test(md) && !/Prepared by /.test(md)) {
+  checks.push("markdown missing implementing-organisation issuer");
+}
+if (/Chibase Consulting/i.test(md)) {
+  checks.push("markdown still names Chibase Consulting");
+}
+if (!/Community-Based Participatory Research/i.test(md) && !/Participatory Rural Appraisal/i.test(md)) {
+  checks.push("markdown missing participatory method");
 }
 if (!md.includes("9. Summary for the client")) checks.push("markdown missing client summary");
 
 const word = planToWordHtml(housing);
 if (/execution protocol/i.test(word)) checks.push("word still has execution protocol");
 if (!word.includes("<table")) checks.push("word missing table");
-if (!word.includes("Chibase Consulting")) checks.push("word missing issuer");
+if (/Chibase Consulting/i.test(word)) checks.push("word still names Chibase Consulting");
 
 const applyPreview = previewSepApply(housing);
 if (
@@ -229,8 +234,8 @@ if (!/relocation and migration of project-affected/i.test(relocationSummary)) {
 if (!/cut-off/i.test(relocationSummary) || !/census/i.test(relocationSummary)) {
   checks.push("relocation summary missing census/cut-off");
 }
-if (!/Chibase Consulting/i.test(relocationSummary)) {
-  checks.push("relocation summary missing Chibase Consulting");
+if (/Chibase Consulting/i.test(relocationSummary)) {
+  checks.push("relocation summary still names Chibase Consulting");
 }
 if (/Themba|TrustLedger SRM|execution protocol/i.test(relocationSummary)) {
   checks.push("relocation summary still names product architecture");

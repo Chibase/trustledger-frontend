@@ -27,21 +27,20 @@ type GeminiGenerateResponse = {
   error?: { message?: string };
 };
 
-const SYSTEM = `You are a South African consulting writer at Chibase Consulting.
-Draft a Stakeholder Engagement Plan a municipal client or funder can send as a bid / inception document.
+const SYSTEM = `You are drafting a Stakeholder Engagement Plan for a TrustLedger SRM workspace.
+The implementing organisation is the entity named in the facts pack (workspace / appointed organisation). Never default to a vendor brand. Never write “Chibase Consulting” unless that exact name is the implementingEntity in the facts.
 
-Voice: formal, specific, bid-grade. Implementing entity is always Chibase Consulting.
-Cover the assignment: what this project is, what this document is, what the plan will do (what / how / when / who), risks, grievance redress, and how progress will be shown.
+Voice: formal, specific, bid-grade, academic/reporting style (numbered subsections, table captions). Cover the assignment: what this project is, what this document is, what the plan will do (what / how / when / who), risks, grievance redress, and how progress will be shown.
 
 Required structure (nine sections, use the given ids and headings):
 1. Project overview — subsections **1.1 The project**, **1.2 This document**, **1.3 This plan**
 2. Regulatory and compliance framework — only statutes supplied in the facts
-3. Stakeholder identification and mapping — include **3.1 Stakeholder categorization matrix**
-4. Engagement methodology — include **4.1 Community-Based Participatory Research (CBPR)**, **4.2 Engagement schedule**, and **4.3 Tools**
-5. Grievance mechanism — five stages (lodgement, acknowledgement within 48 hours, investigation, resolution, close/escalation) and **5.2 Priority risks**
-6. Local economic participation — only if the briefing named targets; otherwise say they follow what the briefing names
+3. Stakeholder identification and mapping — include **3.1 Stakeholder categorization matrix** and Table 3.1
+4. Engagement methodology — **4.1 Method selection**, **4.2** the methods required by this assignment (CBPR only if relocation / formal research is in the facts; otherwise PRA/PLA), **4.3 Engagement schedule**, **4.4 Tools**, and Table 4.1
+5. Grievance mechanism — **5.1 Grievance workflow** (five stages: lodgement, acknowledgement within 48 hours, investigation, resolution, close/escalation) as Table 5.1, **5.2 Issue categories**, **5.3 Priority risks** as Table 5.2
+6. Local economic participation — **6.1** / **6.2** academic subsections; only if the briefing named targets; otherwise say they follow what the briefing names. No bare numbered lists.
 7. Monitoring, evaluation and reporting — **7.1 Indicators** with no invented numbers
-8. Assumptions and limits
+8. Assumptions and limits — **8.1 Basis.** **8.2 Facts not invented.** **8.3 Calendar.** **8.4 Scope limits.** **8.5 Fees.** **8.6 Confirmation.**
 9. Summary for the client
 
 Hard bans (never write these in body or tables):
@@ -49,10 +48,13 @@ software product, dashboards, desks, Themba, Capture, Apply, execution protocol,
 
 Do not write a heading or paragraph called TrustLedger Protocol, SL2B, or Social Licence to Build protocol. Do not annex SL2B anywhere in the document.
 
-In section 4 only, include one short **4.3 Tools** paragraph: TrustLedger is the record of engagements, promises, and grievances; Social Licence to Build (SL2B) is the sequencing frame (who is met, in what order, how promises are kept). They are tools, not a protocol annex. Do not mention TrustLedger or SL2B in any other section.
+In section 4 only, include one short **4.4 Tools** paragraph: TrustLedger is the record of engagements, promises, and grievances; Social Licence to Build (SL2B) is the sequencing frame (who is met, in what order, how promises are kept). They are tools, not a protocol annex. Do not mention TrustLedger or SL2B in any other section.
+
+Cite only: TrustLedger SRM — SEP Generation Specification v1.0; Reference Framework for Participatory Social Engagement Methodologies; and literature named in Specification s.25. Do not invent methods, processes, statutes, or case studies.
 
 If a fact is missing, say it will be locked at inception. Do not invent counterparts.
 Relocation / RAP assignments: census → entitlements → host-community consent → move-week helpdesk → livelihood restoration. One grievance path. This is not a full RAP if the client still requires a separate RAP.
+Non-relocation assignments must not copy the relocation sequence.
 Not legal advice.
 
 Return JSON only.`;
@@ -298,7 +300,9 @@ function factsForPrompt(
     {
       projectName: plan.projectNameHint,
       procuringEntity: plan.clientFunderHint || null,
-      implementingEntity: "Chibase Consulting",
+      implementingEntity:
+        plan.implementingEntityHint?.trim() ||
+        "the implementing organisation named at appointment",
       location: plan.placeHint || null,
       duration: plan.timelineHint || null,
       budgetAsBriefed: plan.budgetHint || null,

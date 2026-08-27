@@ -1,10 +1,11 @@
 /**
  * Tender-style SEP PDF: cover block, running header/footer, page numbers, tables.
- * No product-architecture boxes.
+ * Markdown tables in section bodies are parsed and drawn as real tables.
+ * Pages are created only while there is remaining text — no trailing blanks.
  */
 
 import PDFDocument from "pdfkit";
-import { SEP_ISSUER_LINE, sepCoverFields } from "@/lib/sepDocument";
+import { sepCoverFields, sepPreparedBy } from "@/lib/sepDocument";
 import type { EngagementPlan, SepDocumentTable } from "@/types/engagementPlan";
 
 const PAGE_MARGIN = 54;
@@ -30,22 +31,111 @@ export function isSepPlanPayload(value: unknown): value is EngagementPlan {
   const row = value as Record<string, unknown>;
   if (typeof row.id !== "string" || row.id.length > 80) return false;
   if (typeof row.title !== "string" || row.title.length > 240) return false;
-  if (!Array.isArray(row.documentSections) || row.documentSections.length > 48) {
+  if (!Array.isArray(row.documentSections) || row.documentSections.length > 64) {
     return false;
   }
   return true;
 }
 
+function isTableLine(line: string): boolean {
+  return /^\s*\|.+\|\s*$/.test(line);
+}
+
+function parseMarkdownTable(lines: string[]): SepDocumentTable | null {
+  const body = lines.filter((line) => isTableLine(line));
+  if (body.length < 2) return null;
+  const cells = (line: string) =>
+    line
+      .split("|")
+      .slice(1, -1)
+      .map((cell) => cell.trim());
+  const headers = cells(body[0]!);
+  if (!headers.length || headers.every((h) => /^[-: ]+$/.test(h))) return null;
+  const rows = body.slice(1).filter((line) => !cells(line).every((c) => /^[-: ]+$/.test(c))).map(cells);
+  if (!rows.length) return null;
+  return { headers, rows };
+}
+
+type BodyBlock =
+  | { kind: "prose"; text: string }
+  | { kind: "list"; items: string[] }
+  | { kind: "heading"; text: string }
+  | { kind: "table"; table: SepDocumentTable }
+  | { kind: "caption"; text: string };
+
+function blocksFromBody(text: string): BodyBlock[] {
+  const lines = (text || "").replace(/\r\n/g, "\n").split("\n");
+  const blocks: BodyBlock[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    if (!lines[i]!.trim()) {
+      i += 1;
+      continue;
+    }
+    if (/^\*[^*].*\*$/.test(lines[i]!.trim()) && /table\s+\d/i.test(lines[i]!)) {
+      blocks.push({ kind: "caption", text: lines[i]!.trim().replace(/^\*|\*$/g, "") });
+      i += 1;
+      continue;
+    }
+    if (isTableLine(lines[i]!)) {
+      const chunk: string[] = [];
+      while (i < lines.length && (isTableLine(lines[i]!) || !lines[i]!.trim())) {
+        if (isTableLine(lines[i]!)) chunk.push(lines[i]!);
+        i += 1;
+      }
+      const table = parseMarkdownTable(chunk);
+      if (table) blocks.push({ kind: "table", table });
+      else blocks.push({ kind: "prose", text: chunk.join(" ") });
+      continue;
+    }
+    const first = lines[i]!.trim();
+    const numbered = first.match(/^\*\*(\d+(?:\.\d+)*[^*]{0,80})\*\*\s*(.*)$/);
+    if (numbered) {
+      blocks.push({ kind: "heading", text: plain(numbered[1] || "") });
+      if (numbered[2]?.trim()) {
+        blocks.push({ kind: "prose", text: numbered[2].trim() });
+      }
+      i += 1;
+      continue;
+    }
+    if (/^(\d+\.\s|[•\-]\s)/.test(first)) {
+      const items: string[] = [];
+      while (i < lines.length && /^(\d+\.\s|[•\-]\s)/.test(lines[i]!.trim())) {
+        items.push(plain(lines[i]!.trim().replace(/^(\d+\.\s|[•\-]\s)/, "")));
+        i += 1;
+      }
+      blocks.push({ kind: "list", items });
+      continue;
+    }
+    const para: string[] = [];
+    while (
+      i < lines.length &&
+      lines[i]!.trim() &&
+      !isTableLine(lines[i]!) &&
+      !/^\*\*\d+(\.\d+)*/.test(lines[i]!.trim()) &&
+      !/^(\d+\.\s|[•\-]\s)/.test(lines[i]!.trim())
+    ) {
+      para.push(lines[i]!.trim());
+      i += 1;
+    }
+    if (para.length) blocks.push({ kind: "prose", text: para.join(" ") });
+    else i += 1;
+  }
+  return blocks;
+}
+
 export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
   return new Promise((resolve, reject) => {
+    const preparedBy = sepPreparedBy(plan);
     const doc = new PDFDocument({
       size: "A4",
       margin: PAGE_MARGIN,
       bufferPages: true,
+      autoFirstPage: true,
       info: {
         Title: clip(plan.projectNameHint || plan.title, 180),
         Subject: "Stakeholder Engagement Plan",
-        Author: "Chibase Consulting",
+        Author: plan.implementingEntityHint?.trim() || "Implementing organisation",
         Creator: "TrustLedger",
       },
     });
@@ -59,18 +149,34 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
       pageWidth - doc.page.margins.left - doc.page.margins.right;
     const left = doc.page.margins.left;
     let onCover = true;
+    let manualPage = false;
 
     doc.on("pageAdded", () => {
-      if (onCover) return;
-      doc.y = doc.page.margins.top + HEADER_H;
+      if (!manualPage) pagesMade += 1;
+      if (manualPage) {
+        doc.y = doc.page.margins.top + HEADER_H;
+      }
     });
+
+    let pagesMade = 1;
 
     function bottomLimit() {
       return doc.page.height - doc.page.margins.bottom - (onCover ? 0 : FOOTER_H);
     }
 
+    function addContentPage() {
+      if (pagesMade >= 45) return;
+      manualPage = true;
+      doc.addPage();
+      pagesMade += 1;
+      manualPage = false;
+      doc.y = doc.page.margins.top + HEADER_H;
+    }
+
     function ensureSpace(needed: number) {
-      if (doc.y + needed > bottomLimit()) doc.addPage();
+      const room = bottomLimit() - doc.y;
+      const maxBlock = Math.min(needed, 36);
+      if (room < maxBlock) addContentPage();
     }
 
     function rule() {
@@ -82,65 +188,93 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
         .stroke();
     }
 
-    function bodyText(text: string, size = 10) {
-      const blocks = (text || "").split(/\n{2,}/);
-      for (const raw of blocks) {
-        const block = raw.trim();
-        if (!block) continue;
-        const isSub = /^\*\*\d+\.\d+[^*]*\*\*/.test(block.split("\n")[0] || "");
-        const lines = block.split("\n");
-        const isList = lines.every((line) => /^[•\-]\s/.test(line.trim()));
-        if (isSub) {
-          const heading = plain(block.replace(/\*\*/g, ""));
+    function writeBlock(
+      text: string,
+      opts: { font: string; size: number; color: string; lineGap: number; align?: "left" | "justify" },
+    ) {
+      const value = text.trim();
+      if (!value) return;
+      doc.font(opts.font).fontSize(opts.size).fillColor(opts.color);
+      const room = bottomLimit() - doc.y;
+      if (room < 18) addContentPage();
+      doc.font(opts.font).fontSize(opts.size).fillColor(opts.color);
+      const beforePages = pagesMade;
+      doc.text(value, {
+        width: contentWidth,
+        lineGap: opts.lineGap,
+        align: opts.align || "left",
+      });
+      if (doc.y > bottomLimit()) {
+        doc.y = Math.min(doc.y, bottomLimit());
+      }
+      pagesMade = Math.max(pagesMade, beforePages);
+    }
+
+    function bodyText(text: string, extraTables: SepDocumentTable[] = []) {
+      const blocks = blocksFromBody(text);
+      for (const table of extraTables) {
+        blocks.push({ kind: "table", table });
+      }
+      for (const block of blocks) {
+        if (block.kind === "heading") {
           ensureSpace(28);
-          doc
-            .font("Helvetica-Bold")
-            .fontSize(11)
-            .fillColor(TRUST_INK)
-            .text(heading, { width: contentWidth });
-          doc.moveDown(0.25);
+          writeBlock(block.text, {
+            font: "Times-Bold",
+            size: 11,
+            color: TRUST_INK,
+            lineGap: 1.5,
+          });
+          doc.moveDown(0.28);
           continue;
         }
-        if (isList) {
-          for (const line of lines) {
-            const item = plain(line.replace(/^[•\-]\s/, ""));
-            const h = doc.heightOfString(item, {
-              width: contentWidth - 14,
+        if (block.kind === "caption") {
+          ensureSpace(18);
+          writeBlock(block.text, {
+            font: "Times-Italic",
+            size: 9,
+            color: MUTED,
+            lineGap: 1.2,
+          });
+          doc.moveDown(0.15);
+          continue;
+        }
+        if (block.kind === "list") {
+          for (const item of block.items) {
+            writeBlock(`•  ${item}`, {
+              font: "Times-Roman",
+              size: 10,
+              color: INK,
               lineGap: 2,
             });
-            ensureSpace(h + 6);
-            doc
-              .font("Helvetica")
-              .fontSize(size)
-              .fillColor(INK)
-              .text(`•  ${item}`, { width: contentWidth, lineGap: 2 });
           }
-          doc.moveDown(0.3);
+          doc.moveDown(0.28);
           continue;
         }
-        const h = doc.heightOfString(plain(block), {
-          width: contentWidth,
+        if (block.kind === "table") {
+          drawTable(block.table);
+          continue;
+        }
+        writeBlock(plain(block.text), {
+          font: "Times-Roman",
+          size: 10,
+          color: INK,
           lineGap: 2.5,
+          align: "justify",
         });
-        ensureSpace(h + 8);
-        doc
-          .font("Helvetica")
-          .fontSize(size)
-          .fillColor(INK)
-          .text(plain(block), { width: contentWidth, lineGap: 2.5, align: "justify" });
-        doc.moveDown(0.4);
+        doc.moveDown(0.35);
       }
     }
 
     function drawTable(table: SepDocumentTable) {
       const cols = table.headers.length;
+      if (!cols || !table.rows.length) return;
       const widths = table.headers.map((_, i) => {
-        if (cols === 5) {
-          return contentWidth * [0.24, 0.2, 0.18, 0.2, 0.18][i];
-        }
-        if (cols === 4) {
-          return contentWidth * [0.22, 0.34, 0.2, 0.24][i];
-        }
+        if (cols === 7) return contentWidth * [0.16, 0.16, 0.12, 0.14, 0.16, 0.14, 0.12][i]!;
+        if (cols === 6) return contentWidth * [0.16, 0.2, 0.16, 0.16, 0.16, 0.16][i]!;
+        if (cols === 5) return contentWidth * [0.24, 0.2, 0.18, 0.2, 0.18][i]!;
+        if (cols === 4) return contentWidth * [0.22, 0.34, 0.2, 0.24][i]!;
+        if (cols === 3) return contentWidth * [0.28, 0.44, 0.28][i]!;
+        if (cols === 2) return contentWidth * [0.34, 0.66][i]!;
         return contentWidth / cols;
       });
       const pad = 5;
@@ -149,57 +283,52 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
         let h = 16;
         cells.forEach((cell, i) => {
           const cellH = doc.heightOfString(clip(cell, 400), {
-            width: widths[i] - pad * 2,
+            width: widths[i]! - pad * 2,
           });
           h = Math.max(h, cellH + pad * 2);
         });
-        return Math.min(Math.max(h, 18), 90);
+        return Math.min(Math.max(h, 18), 72);
       }
 
       if (table.caption) {
-        ensureSpace(20);
+        ensureSpace(18);
         doc
-          .font("Helvetica-Oblique")
-          .fontSize(8)
+          .font("Times-Italic")
+          .fontSize(9)
           .fillColor(MUTED)
           .text(table.caption, { width: contentWidth });
-        doc.moveDown(0.2);
+        doc.moveDown(0.15);
       }
 
       const headerH = heights(table.headers);
-      ensureSpace(headerH + 8);
-      let x = left;
-      const hy = doc.y;
-      doc.save();
-      doc.rect(left, hy, contentWidth, headerH).fill(TRUST);
-      doc.restore();
-      doc.font("Helvetica-Bold").fontSize(7.5).fillColor("#ffffff");
-      table.headers.forEach((header, i) => {
-        doc.text(header, x + pad, hy + pad, {
-          width: widths[i] - pad * 2,
+
+      function paintHeader() {
+        ensureSpace(headerH + 8);
+        let x = left;
+        const hy = doc.y;
+        doc.save();
+        doc.rect(left, hy, contentWidth, headerH).fill(TRUST);
+        doc.restore();
+        doc.font("Times-Bold").fontSize(8).fillColor("#ffffff");
+        table.headers.forEach((header, i) => {
+          doc.text(header, x + pad, hy + pad, {
+            width: widths[i]! - pad * 2,
+            height: headerH - pad * 2,
+            ellipsis: true,
+          });
+          x += widths[i]!;
         });
-        x += widths[i];
-      });
-      doc.y = hy + headerH;
+        doc.y = hy + headerH;
+      }
+
+      paintHeader();
 
       table.rows.forEach((row, rowIndex) => {
         const cells = table.headers.map((_, i) => row[i] || "");
         const rh = heights(cells);
         if (doc.y + rh > bottomLimit()) {
-          doc.addPage();
-          let hx = left;
-          const ny = doc.y;
-          doc.save();
-          doc.rect(left, ny, contentWidth, headerH).fill(TRUST);
-          doc.restore();
-          doc.font("Helvetica-Bold").fontSize(7.5).fillColor("#ffffff");
-          table.headers.forEach((header, i) => {
-            doc.text(header, hx + pad, ny + pad, {
-              width: widths[i] - pad * 2,
-            });
-            hx += widths[i];
-          });
-          doc.y = ny + headerH;
+          addContentPage();
+          paintHeader();
         }
         const y = doc.y;
         if (rowIndex % 2 === 0) {
@@ -212,46 +341,42 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
           .lineWidth(0.4)
           .rect(left, y, contentWidth, rh)
           .stroke();
-        x = left;
-        doc.font("Helvetica").fontSize(7.5).fillColor(INK);
+        let x = left;
+        doc.font("Times-Roman").fontSize(8).fillColor(INK);
         cells.forEach((cell, i) => {
           doc.text(clip(cell, 400), x + pad, y + pad, {
-            width: widths[i] - pad * 2,
+            width: widths[i]! - pad * 2,
+            height: rh - pad * 2,
+            ellipsis: true,
           });
-          x += widths[i];
+          x += widths[i]!;
         });
         doc.y = y + rh;
       });
-      doc.moveDown(0.7);
+      doc.moveDown(0.55);
     }
 
     // Cover
     doc.rect(0, 0, pageWidth, 8).fill(TRUST);
     doc.moveDown(2);
     doc
-      .font("Helvetica")
-      .fontSize(8)
+      .font("Times-Roman")
+      .fontSize(9)
       .fillColor(TRUST)
-      .text("CHIBASE CONSULTING", {
+      .text("TRUSTLEDGER  ·  SOCIAL ENGAGEMENT & PARTICIPATION", {
         width: contentWidth,
-        characterSpacing: 1.6,
+        characterSpacing: 1.2,
       });
-    doc.moveDown(0.15);
+    doc.moveDown(1.2);
     doc
-      .font("Helvetica")
-      .fontSize(8)
-      .fillColor(MUTED)
-      .text("TRUSTLEDGER", { width: contentWidth, characterSpacing: 1.6 });
-    doc.moveDown(1.1);
-    doc
-      .font("Helvetica-Bold")
+      .font("Times-Bold")
       .fontSize(18)
       .fillColor(INK)
       .text("Stakeholder Engagement Plan", { width: contentWidth });
     doc.moveDown(0.25);
     doc
-      .font("Helvetica")
-      .fontSize(11)
+      .font("Times-Roman")
+      .fontSize(12)
       .fillColor(TRUST_INK)
       .text(plain(plan.projectNameHint || plan.title), { width: contentWidth });
     doc.moveDown(0.8);
@@ -261,12 +386,12 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
     for (const [label, value] of sepCoverFields(plan)) {
       ensureSpace(22);
       const y = doc.y;
-      doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(label, left, y, {
+      doc.font("Times-Roman").fontSize(9).fillColor(MUTED).text(label, left, y, {
         width: contentWidth * 0.32,
       });
       doc
-        .font("Helvetica-Bold")
-        .fontSize(9)
+        .font("Times-Bold")
+        .fontSize(10)
         .fillColor(INK)
         .text(plain(value), left + contentWidth * 0.34, y, {
           width: contentWidth * 0.66,
@@ -278,70 +403,83 @@ export function buildSepPdf(plan: EngagementPlan): Promise<Buffer> {
     rule();
     doc.moveDown(0.5);
     doc
-      .font("Helvetica")
-      .fontSize(8)
+      .font("Times-Italic")
+      .fontSize(9)
       .fillColor(MUTED)
       .text(
-        `${SEP_ISSUER_LINE} Not legal advice. Not a substitute for statutory processes named in the briefing.`,
+        `${preparedBy} Not legal advice. Not a substitute for statutory processes named in the briefing.`,
         { width: contentWidth },
       );
 
     onCover = false;
-    doc.addPage();
-    doc.y = doc.page.margins.top + HEADER_H;
+    addContentPage();
 
-    for (const section of plan.documentSections) {
-      ensureSpace(40);
-      doc
-        .font("Helvetica-Bold")
-        .fontSize(13)
-        .fillColor(INK)
-        .text(plain(section.heading), { width: contentWidth });
-      doc.moveDown(0.35);
-      bodyText(section.body || "");
-      for (const table of section.tables || []) {
-        drawTable(table);
+    try {
+      for (const section of plan.documentSections) {
+        const body = section.body || "";
+        const tables = section.tables || [];
+        if (!body.trim() && !tables.length) continue;
+        if (pagesMade > 45) break;
+        ensureSpace(36);
+        doc
+          .font("Times-Bold")
+          .fontSize(13)
+          .fillColor(INK)
+          .text(plain(section.heading), { width: contentWidth });
+        doc.moveDown(0.3);
+        bodyText(body, tables);
+        doc.moveDown(0.25);
       }
-      doc.moveDown(0.35);
-    }
 
-    const range = doc.bufferedPageRange();
-    const project = clip(plan.projectNameHint || "Stakeholder Engagement Plan", 70);
-    for (let i = 0; i < range.count; i += 1) {
-      doc.switchToPage(i);
-      const isCover = i === 0;
-      if (!isCover) {
-        doc.save();
-        doc.rect(0, 0, pageWidth, 32).fill(HEADER);
+      const range = doc.bufferedPageRange();
+      const project = clip(plan.projectNameHint || "Stakeholder Engagement Plan", 70);
+      const issuer = clip(
+        plan.implementingEntityHint?.trim() || "Stakeholder Engagement Plan",
+        48,
+      );
+      const count = Math.min(range.count, 45);
+      for (let i = 0; i < count; i += 1) {
+        doc.switchToPage(i);
+        const isCover = i === 0;
+        if (!isCover) {
+          doc.save();
+          doc.rect(0, 0, pageWidth, 32).fill(HEADER);
+          doc
+            .font("Times-Roman")
+            .fontSize(8)
+            .fillColor(TRUST_INK)
+            .text("Stakeholder Engagement Plan", PAGE_MARGIN, 12, {
+              width: contentWidth * 0.55,
+              height: 12,
+              ellipsis: true,
+            });
+          doc
+            .font("Times-Roman")
+            .fontSize(8)
+            .fillColor(MUTED)
+            .text(project, PAGE_MARGIN + contentWidth * 0.55, 12, {
+              width: contentWidth * 0.45,
+              align: "right",
+              height: 12,
+              ellipsis: true,
+            });
+          doc.restore();
+        }
         doc
-          .font("Helvetica")
-          .fontSize(8)
-          .fillColor(TRUST_INK)
-          .text("Stakeholder Engagement Plan", PAGE_MARGIN, 12, {
-            width: contentWidth * 0.55,
-          });
-        doc
-          .font("Helvetica")
+          .font("Times-Roman")
           .fontSize(8)
           .fillColor(MUTED)
-          .text(project, PAGE_MARGIN + contentWidth * 0.55, 12, {
-            width: contentWidth * 0.45,
-            align: "right",
-          });
-        doc.restore();
+          .text(
+            `${issuer}    Page ${i + 1} of ${count}`,
+            PAGE_MARGIN,
+            doc.page.height - 36,
+            { width: contentWidth, align: "left", height: 12, ellipsis: true },
+          );
       }
-      doc
-        .font("Helvetica")
-        .fontSize(8)
-        .fillColor(MUTED)
-        .text(
-          `Chibase Consulting    Page ${i + 1} of ${range.count}`,
-          PAGE_MARGIN,
-          doc.page.height - 36,
-          { width: contentWidth, align: "left" },
-        );
-    }
 
-    doc.end();
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
   });
 }

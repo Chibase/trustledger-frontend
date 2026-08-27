@@ -3,7 +3,7 @@
  */
 
 import type { EngagementPlan, SepDocumentTable } from "@/types/engagementPlan";
-import { SEP_ISSUER_LINE, sepCoverBlurb, sepCoverFields } from "@/lib/sepDocument";
+import { sepCoverBlurb, sepCoverFields, sepPreparedBy } from "@/lib/sepDocument";
 
 function safeName(plan: EngagementPlan): string {
   return (
@@ -46,7 +46,7 @@ export function planToMarkdown(plan: EngagementPlan): string {
   lines.push(
     "---",
     "",
-    `${SEP_ISSUER_LINE} Not legal advice. Not a substitute for statutory processes named in the briefing.`,
+    `${sepPreparedBy(plan)} Not legal advice. Not a substitute for statutory processes named in the briefing.`,
     "",
   );
   return lines.join("\n");
@@ -106,8 +106,7 @@ ${tables}`;
 </style>
 </head>
 <body>
-<p style="letter-spacing:0.12em;text-transform:uppercase;font-size:11px;color:#5b6b76;">Chibase Consulting</p>
-<p style="letter-spacing:0.12em;text-transform:uppercase;font-size:11px;color:#0e7c66;">TrustLedger</p>
+<p style="letter-spacing:0.12em;text-transform:uppercase;font-size:11px;color:#0e7c66;">TrustLedger  ·  Social Engagement &amp; Participation</p>
 <h1>Stakeholder Engagement Plan</h1>
 <p style="font-size:14pt;color:#085f4d;"><strong>${esc(plan.projectNameHint || plan.title)}</strong></p>
 <p>${esc(sepCoverBlurb(plan))}</p>
@@ -115,7 +114,7 @@ ${tables}`;
 ${meta.map(([k, v]) => `<tr><td width="34%"><strong>${esc(k)}</strong></td><td>${esc(v)}</td></tr>`).join("")}
 </table>
 ${sections}
-<p style="font-size:10pt;color:#5b6b76;">${esc(SEP_ISSUER_LINE)} Not legal advice. Not a substitute for statutory processes named in the briefing.</p>
+<p style="font-size:10pt;color:#5b6b76;">${esc(sepPreparedBy(plan))} Not legal advice. Not a substitute for statutory processes named in the briefing.</p>
 </body>
 </html>`;
 }
@@ -176,8 +175,16 @@ export function sepDocumentToMarkdown(doc: {
   title: string;
   version: string;
   generatedAt: string;
-  documentSections: Array<{ sectionTitle: string; body: string }>;
+  documentSections: Array<{
+    sectionTitle: string;
+    body: string;
+    tables?: SepDocumentTable[];
+  }>;
+  implementingOrganisation?: string;
 }): string {
+  const prepared = sepPreparedBy({
+    implementingEntityHint: doc.implementingOrganisation,
+  });
   const lines = [
     `# ${doc.title}`,
     "",
@@ -187,16 +194,19 @@ export function sepDocumentToMarkdown(doc: {
       year: "numeric",
     })}`,
     "",
-    "Prepared by Chibase Consulting.",
+    prepared,
     "",
   ];
   for (const section of doc.documentSections) {
     lines.push(`## ${section.sectionTitle}`, "", section.body, "");
+    for (const table of section.tables || []) {
+      lines.push(tableMarkdown(table));
+    }
   }
   lines.push(
     "---",
     "",
-    `${SEP_ISSUER_LINE} Not legal advice. Not a substitute for statutory processes named in the briefing.`,
+    `${prepared} Not legal advice. Not a substitute for statutory processes named in the briefing.`,
     "",
   );
   return lines.join("\n");
@@ -206,12 +216,22 @@ export function sepDocumentToWordHtml(doc: {
   title: string;
   version: string;
   generatedAt: string;
-  documentSections: Array<{ sectionTitle: string; body: string }>;
+  documentSections: Array<{
+    sectionTitle: string;
+    body: string;
+    tables?: SepDocumentTable[];
+  }>;
+  implementingOrganisation?: string;
 }): string {
+  const prepared = sepPreparedBy({
+    implementingEntityHint: doc.implementingOrganisation,
+  });
   const sections = doc.documentSections
     .map((section) => {
+      const tables = (section.tables || []).map(tableHtml).join("\n");
       return `<h2>${esc(section.sectionTitle)}</h2>
-${mdTableToHtml(section.body)}`;
+${mdTableToHtml(section.body)}
+${tables}`;
     })
     .join("\n");
 
@@ -229,12 +249,11 @@ ${mdTableToHtml(section.body)}`;
 </style>
 </head>
 <body>
-<p style="letter-spacing:0.12em;text-transform:uppercase;font-size:11px;color:#5b6b76;">Chibase Consulting</p>
-<p style="letter-spacing:0.12em;text-transform:uppercase;font-size:11px;color:#0e7c66;">TrustLedger</p>
+<p style="letter-spacing:0.12em;text-transform:uppercase;font-size:11px;color:#0e7c66;">TrustLedger  ·  Social Engagement &amp; Participation</p>
 <h1>${esc(doc.title)}</h1>
 <p>Version ${esc(doc.version)}</p>
 ${sections}
-<p style="font-size:10pt;color:#5b6b76;">${esc(SEP_ISSUER_LINE)} Not legal advice. Not a substitute for statutory processes named in the briefing.</p>
+<p style="font-size:10pt;color:#5b6b76;">${esc(prepared)} Not legal advice. Not a substitute for statutory processes named in the briefing.</p>
 </body>
 </html>`;
 }
@@ -248,7 +267,12 @@ export function engagementPlanFromSepDocument(
     id: string;
     title: string;
     generatedAt: string;
-    documentSections: Array<{ sectionId: string; sectionTitle: string; body: string }>;
+    documentSections: Array<{
+      sectionId: string;
+      sectionTitle: string;
+      body: string;
+      tables?: SepDocumentTable[];
+    }>;
   },
   meta: {
     projectName: string;
@@ -258,6 +282,7 @@ export function engagementPlanFromSepDocument(
     tenderRef: string;
     sectorId: import("@/types/engagementPlan").SepSectorId;
     programmeKind?: import("@/types/engagementPlan").SepProgrammeKind;
+    implementingEntity?: string;
   },
 ): EngagementPlan {
   return {
@@ -273,6 +298,7 @@ export function engagementPlanFromSepDocument(
     clientFunderHint: meta.client,
     timelineHint: meta.timeline,
     tenderRefHint: meta.tenderRef,
+    implementingEntityHint: meta.implementingEntity,
     createdAt: doc.generatedAt,
     updatedAt: doc.generatedAt,
     sourceExcerpt: "",
@@ -288,6 +314,7 @@ export function engagementPlanFromSepDocument(
       id: row.sectionId,
       heading: row.sectionTitle,
       body: row.body,
+      ...(row.tables?.length ? { tables: row.tables } : {}),
     })),
     documentDrafter: "template",
   };

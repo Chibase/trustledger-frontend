@@ -20,7 +20,10 @@ import type {
   TenderIntelligence,
 } from "@/types/sepAnalysis";
 
-export function generateSepFromTender(tenderText: string): {
+export function generateSepFromTender(
+  tenderText: string,
+  opts?: { implementingOrganisation?: string },
+): {
   tender: TenderIntelligence;
   plan: SepGenerationPlan;
   document: SEPDocument;
@@ -48,6 +51,7 @@ export function generateSepFromTender(tenderText: string): {
     complianceMatrix: [],
     qaResults: [],
     createdAt: new Date().toISOString(),
+    implementingOrganisation: opts?.implementingOrganisation?.trim() || undefined,
   };
 
   draft.complianceMatrix = buildComplianceMatrix(tender, draft);

@@ -745,9 +745,14 @@ export type SEPDocument = {
   documentSections: Array<{
     sectionNumber: number;
     sectionTitle: string;
-    sectionId: string; // Matches spec section ids
-    body: string; // Rendered content
-    linkedObjectIds?: string[]; // Analysis objects used
+    sectionId: string;
+    body: string;
+    tables?: Array<{
+      caption?: string;
+      headers: string[];
+      rows: string[][];
+    }>;
+    linkedObjectIds?: string[];
   }>;
   
   // Traceability
@@ -789,4 +794,6 @@ export type SepGenerationPlan = {
   complianceMatrix: ComplianceItem[];
   qaResults: QAResult[];
   createdAt: string;
+  /** Organisation that will implement the SEP — never defaulted to a vendor brand. */
+  implementingOrganisation?: string;
 };

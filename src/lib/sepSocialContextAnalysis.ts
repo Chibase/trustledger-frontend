@@ -859,15 +859,25 @@ export function buildProjectProfileFromTender(
     tender.projectName,
     ...tender.requirements.map((r) => r.text),
     ...tender.scope.tasks,
+    ...tender.scope.activities,
   ].join(" ");
 
   const sectorMatch = SECTOR_KEYWORDS.find((row) => row.re.test(blob));
   const sector = sectorMatch?.sector || mapSectorString(tender.projectSector);
 
+  const deniesDisplacement =
+    /does not (state|involve|include|require|contemplate).{0,160}(displac|relocation|resettlement)/i.test(
+      blob,
+    ) ||
+    /no (physical or economic|physical|economic) displacement/i.test(blob) ||
+    /households are not being moved/i.test(blob);
+
   const hasPhysical =
+    !deniesDisplacement &&
     /relocation|resettlement|displac|affected household|physical move/i.test(blob);
   const hasEconomic =
-    /economic displacement|livelihood|income loss|access loss/i.test(blob);
+    !deniesDisplacement &&
+    /economic displacement|livelihood restoration|income loss|access loss/i.test(blob);
   const displacementType: ProjectProfile["displacementType"] = hasPhysical && hasEconomic
     ? "mixed"
     : hasPhysical
@@ -921,7 +931,7 @@ export function buildProjectProfileFromTender(
     participationIntensity:
       displacementType !== "none" ? "collaborate" : "consult",
     researchIntensity:
-      /census|participatory|research|baseline/i.test(blob)
+      /census|participatory research|community-based participatory|cbpr|baseline survey/i.test(blob)
         ? "participatory_research"
         : "diagnostic",
     implementationHorizon,

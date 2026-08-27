@@ -12,7 +12,7 @@ import {
   generateSocialRisks,
 } from "../src/lib/sepSocialContextAnalysis";
 import { planParticipation, validateInclusionDesign } from "../src/lib/sepParticipationPlanner";
-import { RELOCATION_TENDER_FIXTURE } from "./sep-tender-parser-smoke";
+import { INFRASTRUCTURE_TENDER_FIXTURE, RELOCATION_TENDER_FIXTURE } from "./sep-tender-parser-smoke";
 
 const checks: Array<{ name: string; ok: boolean; detail?: string }> = [];
 
@@ -65,7 +65,7 @@ function main() {
     planned.activities.every((a) => a.expectedOutput.trim() && a.decisionLinkage.trim()),
   );
   check(
-    "methods include PRA, PLA and CBPR",
+    "methods include PRA, PLA and CBPR on relocation",
     ["pra", "pla", "cbpr"].every((id) => planned.methods.some((m) => m.methodology === id)),
   );
   check(
@@ -86,7 +86,7 @@ function main() {
     "GRM has eight-plus operational stages",
     planned.grievanceFramework.stages.length >= 8,
   );
-  check("communications cover affected households", planned.communications.some((c) => /household/i.test(c.audience)));
+  check("communications cover affected people", planned.communications.some((c) => /household|people who live/i.test(c.audience)));
   check(
     "indicators include input, process, output, outcome",
     ["input", "process", "output", "outcome"].every((t) =>
@@ -103,6 +103,33 @@ function main() {
   check(
     "no invented household attendance counts in activities",
     planned.activities.every((a) => !/\b\d{3,}\s+(people|households)\s+will attend/i.test(a.participantEstimate || "")),
+  );
+
+  const roadTender = parseTender(INFRASTRUCTURE_TENDER_FIXTURE);
+  const roadProject = buildProjectProfileFromTender(roadTender);
+  const roadContext = analyseSocialContext(roadTender, roadProject);
+  const roadRisks = generateSocialRisks(roadContext, roadProject);
+  const road = planParticipation({
+    tender: roadTender,
+    project: roadProject,
+    socialContext: roadContext,
+    risks: roadRisks,
+    constraints: { durationMonths: roadTender.contractPeriod.durationMonths || 8 },
+  });
+  const relocNames = planned.activities.map((a) => a.activityName).join(" | ");
+  const roadNames = road.activities.map((a) => a.activityName).join(" | ");
+  check(
+    "road assignment has no household census",
+    !road.activities.some((a) => /census/i.test(a.activityName)),
+  );
+  check(
+    "road assignment has no host-community consent process",
+    !road.activities.some((a) => /host-community consent/i.test(a.activityName)),
+  );
+  check(
+    "activity sequence differs between relocation and road upgrade",
+    relocNames !== roadNames,
+    `reloc=${relocNames}\nroad=${roadNames}`,
   );
 
   const failed = checks.filter((row) => !row.ok);

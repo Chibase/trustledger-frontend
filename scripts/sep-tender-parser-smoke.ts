@@ -283,7 +283,44 @@ export function inspectTenderIntelligence(tenderText: string): void {
   console.log("");
 }
 
-/**
- * Export test fixture for use in other test suites.
- */
-export { RELOCATION_TENDER_FIXTURE };
+const INFRASTRUCTURE_TENDER_FIXTURE = `
+INVITATION TO BID
+
+Tender Number: PW/2026/0312
+Procuring Entity: Example District Municipality
+Issued by: Department of Public Works
+
+PROJECT TITLE
+Upgrade of District Road DR012 between Ward 4 and Ward 7
+
+PROJECT SECTOR
+Public works / civil infrastructure
+
+LOCATION
+Ward 4 and Ward 7, Example District Municipality, Eastern Cape
+
+CONTRACT PERIOD
+Duration: 8 months
+
+SCOPE OF WORK
+The assignment requires stakeholder identification, public participation aligned to the municipal calendar, and a grievance path for construction disruption. Households are not being moved.
+
+DELIVERABLES
+1. Stakeholder identification and mapping
+2. Public participation programme
+3. Grievance mechanism design
+4. Monthly progress reports
+
+STAKEHOLDERS
+- Ward committees (Ward 4 and Ward 7)
+- Local Municipality
+- Road users and adjacent landowners
+- Department of Public Works
+
+REGULATORY FRAMEWORK
+Municipal consultation requirements and Environmental Impact Assessment public participation where triggered.
+
+REQUIREMENTS
+Ensure notice and comment on construction windows. Document all engagements. Establish one grievance mechanism for all project-related complaints.
+`;
+export { RELOCATION_TENDER_FIXTURE, INFRASTRUCTURE_TENDER_FIXTURE };
