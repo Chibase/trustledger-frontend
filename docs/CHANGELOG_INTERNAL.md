@@ -1,5 +1,14 @@
 # Internal changelog
 
+## 2026-08-27 — SEP generation engine Phases D–G
+
+- **Phase D:** PRA / PLA / CBPR method library (`src/lib/sepMethodLibrary.ts`) and tender compliance matrix (requirement → SEP response → evidence → covered/partial/missing) (`src/lib/sepComplianceMatrix.ts`).
+- **Phase E:** Participation planner — every major stakeholder gets an explicit objective and decision linkage; activities, communications, GRM (48-hour acknowledgement), commitments, and input/process/output/outcome indicators (`src/lib/sepParticipationPlanner.ts`).
+- **Phase F:** Fourteen automated QA tests plus approval blockers (`src/lib/sepQualityAssurance.ts`).
+- **Phase G:** 25-section tender-grade SEP renderer plus appendices (stakeholder register, engagement matrix, risk register, GRM, tools, indicators, reporting templates, consultation record, commitment register, compliance matrix, QA report). Markdown / Word HTML / PDF export for the analysis document. End-to-end pipeline: tender → parse → classify → social context → plan → compliance → QA → render (`src/lib/sepGenerationPipeline.ts`).
+- Smoke tests: `scripts/sep-compliance-smoke.ts`, `scripts/sep-participation-smoke.ts`, `scripts/sep-qa-smoke.ts`, `scripts/sep-renderer-smoke.ts`.
+- Provenance and no-fabrication rules unchanged: tender estimates stay estimates; household counts, budgets, and sites are not invented. Client voice remains bid-grade (ADR-053).
+
 ## 2026-08-26 — Stakeholder engagement plan (SI-SEP)
 
 - New **Engagement plan** desk (`/app/engagement-plan`): paste or upload an RFP / tender / briefing (PDF text layer or .txt / .md / .csv), or pick a sector playbook with no file.

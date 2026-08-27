@@ -30,7 +30,7 @@ export function isSepPlanPayload(value: unknown): value is EngagementPlan {
   const row = value as Record<string, unknown>;
   if (typeof row.id !== "string" || row.id.length > 80) return false;
   if (typeof row.title !== "string" || row.title.length > 240) return false;
-  if (!Array.isArray(row.documentSections) || row.documentSections.length > 16) {
+  if (!Array.isArray(row.documentSections) || row.documentSections.length > 48) {
     return false;
   }
   return true;
