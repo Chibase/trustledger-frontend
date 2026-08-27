@@ -5,6 +5,10 @@
  */
 
 import {
+  citeFramework,
+  citeSpec,
+} from "@/data/sepCanon";
+import {
   interestForClass,
   quadrantForClass,
   SEP_QUADRANT_LABELS,
@@ -60,7 +64,17 @@ export function sepCoverBlurb(
   return "Stakeholder Engagement Plan for identification, consultation, promises, and grievance redress on this assignment.";
 }
 
-export const SEP_ISSUER_LINE = "Prepared by Chibase Consulting.";
+export function sepPreparedBy(
+  plan?: Pick<EngagementPlan, "implementingEntityHint">,
+): string {
+  const name = plan?.implementingEntityHint?.replace(/\s+/g, " ").trim();
+  return name
+    ? `Prepared by ${name}.`
+    : "Prepared by the implementing organisation named at appointment.";
+}
+
+/** @deprecated Use sepPreparedBy(plan). Kept so existing imports compile. */
+export const SEP_ISSUER_LINE = sepPreparedBy();
 
 export function sepCoverFields(
   plan: Pick<
@@ -71,6 +85,7 @@ export function sepCoverFields(
     | "timelineHint"
     | "budgetHint"
     | "tenderRefHint"
+    | "implementingEntityHint"
     | "instruments"
     | "updatedAt"
     | "programmeKind"
@@ -89,7 +104,7 @@ export function sepCoverFields(
   return [
     ["Project name", plan.projectNameHint || ""],
     ["Tender / reference", plan.tenderRefHint || "As in the briefing"],
-    ["Implementing entity", "Chibase Consulting"],
+    ["Implementing organisation", plan.implementingEntityHint?.trim() || "Named at appointment (TBC)"],
     ["Procuring entity", plan.clientFunderHint || ""],
     ["Location", plan.placeHint || ""],
     ["Duration", plan.timelineHint || ""],
@@ -120,7 +135,7 @@ export const SEP_PROTOCOL_HEADING =
 
 /** Methodology-only: tools, not a protocol annex. */
 export const SEP_TOOLS_PARAGRAPH =
-  "**4.3 Tools.** TrustLedger is the record of engagements, promises, and grievances on this assignment. Social Licence to Build (SL2B) is the sequencing frame — who is met, in what order, and how promises are kept. They are tools Chibase Consulting uses to run the plan, not a separate protocol annex.";
+  "**4.4 Tools.** TrustLedger is the record of engagements, promises, and grievances on this assignment. Social Licence to Build (SL2B) is the sequencing frame — who is met, in what order, and how promises are kept. They are tools used to run the plan, not a separate protocol annex.";
 
 export function stripSepProtocolCopy(value: string): string {
   let text = value.replace(/\u0000/g, "");
@@ -240,7 +255,7 @@ function overviewBody(plan: Omit<EngagementPlan, "documentSections">): string {
   return [
     `**1.1 The project.** This assignment is **${a.title}**, for **${a.client}**, in **${a.place}**, over **${a.time}** (${a.sector.toLowerCase()}). ${plan.purposeStatement}`,
     "",
-    `**1.2 This document.** This is the Stakeholder Engagement Plan (SEP). It is the instruction Chibase Consulting will follow if appointed. It tells the procuring entity and, where relevant, the funder: what will be done, how it will be done, when, by whom, what is at stake, and how risk will be carried. It is not legal advice.`,
+    `**1.2 This document.** This is the Stakeholder Engagement Plan (SEP). It is the instruction the implementing organisation will follow if appointed. It tells the procuring entity and, where relevant, the funder: what will be done, how it will be done, when, by whom, what is at stake, and how risk will be carried. It is not legal advice.`,
     "",
     rap
       ? "**1.3 This plan.** The work is a relocation and migration of project-affected households — not a round of information sessions. The plan covers: locking sending and receiving sites and a cut-off date; a participatory census and asset inventory; consultation on entitlements, replacement sites, and move windows (including home visits to vulnerable households); host-community consent before first arrivals; a move-week helpdesk; livelihood restoration follow-up; and one grievance path with acknowledgement within 48 hours."
@@ -290,6 +305,7 @@ function stakeholderTable(
   plan: Omit<EngagementPlan, "documentSections">,
 ): SepDocumentTable {
   return {
+    caption: "Table 3.1. Stakeholder categorisation (planning classes until named in the field)",
     headers: [
       "Stakeholder category",
       "Who they are",
@@ -313,13 +329,13 @@ function methodsBody(plan: Omit<EngagementPlan, "documentSections">): string {
   const a = assignment(plan);
   const rap = plan.programmeKind === "relocation";
   return [
-    `Work is sequenced over **${a.time}**. Statutory dates in the briefing override typical durations. Owners below are roles; names are confirmed at kick-off.`,
+    `**4.1 Method selection.** Work is sequenced over **${a.time}**. Methods are chosen because of identified project needs, not as a standing calendar ${citeFramework("s.1")}; ${citeSpec("s.9")}. Statutory dates in the briefing override typical durations. Owners below are roles; names are confirmed at kick-off.`,
     "",
-    "**4.1 Community-Based Participatory Research (CBPR)**",
+    rap
+      ? `**4.2 Community-Based Participatory Research (CBPR).** Affected households help define the problem, validate findings, and test options ${citeFramework("s.3")}. Local knowledge (including customary protocol) is used before public notice. Draft census figures, maps, and options are taken back to the people they describe before they are presented as decisions. Results are returned in accessible language, including home visits where a hall meeting will not reach. Related methods: PRA for diagnosis (mapping, seasonal calendars); PLA for option ranking and host consent ${citeSpec("s.9.1")}.`
+      : `**4.2 Participatory Rural Appraisal (PRA) and Participatory Learning and Action (PLA).** Affected people help describe local conditions and then rank what can still be changed ${citeFramework("s.3")}. Local knowledge (including customary protocol) is used before public notice. Draft maps and options are taken back to the people they describe before they are presented as decisions. Community-Based Participatory Research (CBPR) is used only if the briefing requires formal community research ${citeSpec("s.9.1")}.`,
     "",
-    "Affected people help define the problem, validate findings, and test options. Local knowledge (including customary protocol) is used before public notice. Draft census figures, maps, and options are taken back to the people they describe before they are presented as decisions. Results are returned in accessible language, including home visits where a hall meeting will not reach. Related methods: IAP2-style purpose (inform / consult / involve) per class; ward and municipal channels; walkabouts and focus groups.",
-    "",
-    "**4.2 Engagement schedule**",
+    "**4.3 Engagement schedule.**",
     "",
     rap
       ? "Cut-off and census precede entitlement workshops. Host consultation precedes first arrivals. The grievance path is briefed at first public contact, census launch, and move week."
@@ -333,6 +349,7 @@ function scheduleTable(
   plan: Omit<EngagementPlan, "documentSections">,
 ): SepDocumentTable {
   return {
+    caption: "Table 4.1. Engagement schedule (roles, not personal names)",
     headers: [
       "Engagement mechanism",
       "Target audience",
@@ -356,28 +373,30 @@ function scheduleTable(
 function riskBody(plan: Omit<EngagementPlan, "documentSections">): string {
   const rap = plan.programmeKind === "relocation";
   return [
-    "A grievance path is how this assignment stays legitimate when something goes wrong. It is explained at first public contact and repeated when a new group is met.",
+    `A grievance path is how this assignment stays legitimate when something goes wrong. It is explained at first public contact and repeated when a new group is met ${citeSpec("s.14")}.`,
     "",
-    "**5.1 Grievance workflow**",
-    "",
-    "**Stage 1 — Lodgement.** In the meeting; in writing to the named community liaison; by telephone to the number given at first contact; or at the site / move-week helpdesk. Informal messages are written into the same register. One reference per concern.",
-    "",
-    "**Stage 2 — Acknowledgement.** Within 48 hours, with the reference and the name of the person responsible.",
-    "",
-    "**Stage 3 — Investigation.** The complainant’s account is on the record. Target: assessment within five working days unless the contract sets another period.",
-    "",
-    "**Stage 4 — Resolution.** Proposed action is communicated. Target: ten working days unless the contract sets another period.",
-    "",
-    "**Stage 5 — Close and escalation.** Verified with the complainant or a supervisor before close. Unresolved items remain visible to the client and may go to an independent mediation step the client names.",
+    "**5.1 Grievance workflow.** One mechanism handles all project-related complaints. Informal messages are written into the same register. One reference per concern. This plan does not claim a public SMS portal or a staffed 24-hour call centre unless the client separately funds one.",
     "",
     rap
-      ? "Categories on this assignment: census / eligibility; compensation or package; replacement site or services; treatment or dignity; host-community amenity; contractor conduct."
-      : "Categories on this assignment: access and livelihood; notice and process; treatment or dignity; labour and local content; contractor conduct; other.",
+      ? "**5.2 Issue categories.** Census / eligibility; compensation or package; replacement site or services; treatment or dignity; host-community amenity; contractor conduct."
+      : "**5.2 Issue categories.** Access and livelihood; notice and process; treatment or dignity; labour and local content; contractor conduct; other.",
     "",
-    "This plan does not claim a public SMS portal or a staffed 24-hour call centre unless the client separately funds one.",
-    "",
-    "**5.2 Priority risks and mitigations**",
+    `**5.3 Priority risks and mitigations.** Material risks for this assignment are listed in Table 5.2. Early-warning and participation responses sit with the named role ${citeSpec("s.15")}.`,
   ].join("\n");
+}
+
+function grievanceStagesTable(): SepDocumentTable {
+  return {
+    caption: "Table 5.1. Grievance workflow",
+    headers: ["Stage", "Function", "Service level", "Record"],
+    rows: [
+      ["1. Lodgement", "In the meeting; in writing to the named community liaison; by telephone to the number given at first contact; or at the site / move-week helpdesk.", "On receipt", "Issue log entry"],
+      ["2. Acknowledgement", "Confirm receipt with the reference and the name of the person responsible.", "48 hours", "Acknowledgement record"],
+      ["3. Investigation", "The complainant’s account is on the record.", "Five working days unless the contract sets another period", "Investigation note"],
+      ["4. Resolution", "Proposed action is communicated.", "Ten working days unless the contract sets another period", "Written or minuted response"],
+      ["5. Close and escalation", "Verified with the complainant or a supervisor before close. Unresolved items remain visible to the client.", "Before close", "Closure record"],
+    ],
+  };
 }
 
 function riskTable(
@@ -444,6 +463,7 @@ function riskTable(
         ],
       ];
   return {
+    caption: "Table 5.2. Priority social risks and mitigations",
     headers: ["Risk", "Mitigation", "Owner", "When"],
     rows,
   };
@@ -454,16 +474,24 @@ function ledBody(plan: Omit<EngagementPlan, "documentSections">): string {
     /pppfa|epwp|mprda|slp|local content/i.test(`${row.id} ${row.label}`),
   );
   if (!cited) {
-    return "Local hire, supplier participation, and skills measures will follow targets the briefing names. This plan does not invent percentages or a procurement marketplace. Where the client names targets, they are explained at first contact, recorded as owned promises, and reported with evidence.";
+    return [
+      `**6.1 Scope.** Local hire, supplier participation, and skills measures follow only targets the briefing names. Percentages and marketplaces are not invented ${citeSpec("s.3")}.`,
+      "",
+      "**6.2 Treatment in this draft.** Where the client later names targets, they are explained at first contact, recorded as owned promises, and reported with evidence. Until then this section records the duty, not a quota.",
+    ].join("\n");
   }
   return [
-    "Local labour and enterprise are part of social licence on this assignment because the briefing named them. They are explained at first contact so they are not rumours.",
+    `**6.1 Basis.** Local labour and enterprise appear here because the briefing named them. They are explained at first contact so they are not rumours ${citeSpec("s.3")}.`,
     "",
-    "• Local supplier registration against packages the client opens — transparent, not a private list.",
-    "• Labour intake in partnership with the ward and traditional authority where they exist, on a rotation the community can see.",
-    "• Skills or induction measures named in the briefing, timed to early works.",
+    "**6.2 Measures named in the briefing.**",
     "",
-    "Targets and evidence sit in the promise log. This is not a claim that a separate procurement platform is being supplied.",
+    "**6.2.1 Local supplier registration.** Against packages the client opens — transparent, not a private list.",
+    "",
+    "**6.2.2 Labour intake.** In partnership with the ward and traditional authority where they exist, on a rotation the community can see.",
+    "",
+    "**6.2.3 Skills or induction.** Measures named in the briefing, timed to early works.",
+    "",
+    "**6.3 Evidence.** Targets and evidence sit in the promise log. This is not a claim that a separate procurement platform is being supplied.",
   ].join("\n");
 }
 
@@ -500,6 +528,7 @@ function kpiTable(
         ["Local content (if cited)", "Labour / spend facts the briefing required, with evidence", "Monthly"],
       ];
   return {
+    caption: "Table 7.1. Monitoring indicators (values populated from fieldwork — not invented here)",
     headers: ["Indicator", "How it is read", "When"],
     rows,
   };
@@ -507,27 +536,26 @@ function kpiTable(
 
 function assumptionsBody(plan: Omit<EngagementPlan, "documentSections">): string {
   const rap = plan.programmeKind === "relocation";
-  const rows = [
-    "This plan is based on the briefing extract (or facts supplied without a file). It is not legal advice and not a substitute for statutory processes the competent authority must still run.",
-    "Names, household counts, replacement sites, and package values are not invented.",
-    "Typical durations flex to the contract period. Dates in the briefing and in law override the schedule sketched here.",
+  const extra = plan.assumptions
+    .filter(
+      (row) =>
+        !/TrustLedger|Themba|Composer|Social Licence to Build|shipped module|execution protocol/i.test(
+          row,
+        ),
+    )
+    .map(fieldVoice);
+  const parts = [
+    `**8.1 Basis.** This plan is based on the briefing extract (or facts supplied without a file). It is not legal advice and not a substitute for statutory processes the competent authority must still run ${citeSpec("s.3")}.`,
+    `**8.2 Facts not invented.** Names, household counts, replacement sites, and package values are not invented ${citeSpec("s.3")}.`,
+    "**8.3 Calendar.** Typical durations flex to the contract period. Dates in the briefing and in law override the schedule sketched here.",
     rap
-      ? "This engagement plan is not a full Resettlement Action Plan where the client or funder still requires one."
-      : "This plan does not claim a public SMS portal or a staffed 24-hour call centre unless the client separately funds it.",
-    "Professional fees sit in the financial proposal. A budget line appears here only if the briefing labeled one.",
-    "The plan will be confirmed with the client at inception before it is treated as the working instruction.",
-    ...plan.assumptions
-      .filter(
-        (row) =>
-          !/TrustLedger|Themba|Composer|Social Licence to Build|shipped module|execution protocol/i.test(
-            row,
-          ),
-      )
-      .map(fieldVoice),
+      ? "**8.4 Scope limits.** This engagement plan is not a full Resettlement Action Plan where the client or funder still requires one."
+      : "**8.4 Scope limits.** This plan does not claim a public SMS portal or a staffed 24-hour call centre unless the client separately funds it.",
+    "**8.5 Fees.** Professional fees sit in the financial proposal. A budget line appears here only if the briefing labeled one.",
+    "**8.6 Confirmation.** The plan will be confirmed with the client at inception before it is treated as the working instruction.",
+    ...extra.map((row, index) => `**8.${7 + index} Assignment-specific note.** ${row}`),
   ];
-  return Array.from(new Set(rows))
-    .map((row) => `• ${row}`)
-    .join("\n");
+  return Array.from(new Set(parts)).join("\n\n");
 }
 
 function conclusionBody(plan: Omit<EngagementPlan, "documentSections">): string {
@@ -540,7 +568,7 @@ function conclusionBody(plan: Omit<EngagementPlan, "documentSections">): string 
       ? "What is at stake is whether households leave under rules they can recognise, arrive at a host site that was asked, can still make a living afterwards, and have a grievance path that answers within 48 hours."
       : "What is at stake is whether the people who live with this project recognise the process as fair: the right order of courtesy, a hearing that can change an option, promises that outlive the meeting, and a grievance path that works.",
     "",
-    "The schedule, matrix, grievance stages, and indicators above are the basis on which Chibase Consulting asks to be appointed. Inception in week 0 will lock remaining facts (sites, counterparts, calendar) and this document will become the working instruction — still subject to law and to what fieldwork then shows.",
+    `The schedule, matrix, grievance stages, and indicators above are the basis on which the implementing organisation asks to be appointed. Inception in week 0 will lock remaining facts (sites, counterparts, calendar) and this document will become the working instruction — still subject to law and to what fieldwork then shows.`,
   ].join("\n");
 }
 
@@ -575,7 +603,7 @@ export function buildSepDocument(
       "grievance",
       "5. Grievance mechanism and risk mitigation",
       riskBody(plan),
-      [riskTable(plan)],
+      [grievanceStagesTable(), riskTable(plan)],
     ),
     section("led", "6. Local economic participation", ledBody(plan)),
     section(
