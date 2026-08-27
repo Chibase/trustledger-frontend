@@ -221,7 +221,7 @@ function analyseSocialSystems(
 
   // Named informal groups from tender
   for (const stakeholder of tender.namedStakeholders) {
-    if (stakeholder.kind === "community_group" || stakeholder.kind === "ngo") {
+    if (stakeholder.kind === "community" || stakeholder.kind === "ngo") {
       informal.push({
         name: stakeholder.name,
         role: "Community voice",
@@ -828,4 +828,121 @@ export function generateSocialRisks(
   }
 
   return risks;
+}
+
+const SECTOR_KEYWORDS: Array<{
+  sector: ProjectProfile["sector"];
+  re: RegExp;
+}> = [
+  { sector: "water", re: /\b(water|sanitation|wula|wastewater|reservoir|bulk water)\b/i },
+  { sector: "housing", re: /\b(housing|human settlement|relocation|resettlement|rap|migration plan)\b/i },
+  { sector: "mining", re: /\b(mining|mine|mprda|slp|extractive)\b/i },
+  { sector: "energy", re: /\b(energy|solar|wind|ipp|substation|generation)\b/i },
+  { sector: "infrastructure", re: /\b(road|highway|bridge|infrastructure|civil works)\b/i },
+  { sector: "agriculture", re: /\b(agriculture|irrigation|smallholder|farming)\b/i },
+  { sector: "health", re: /\b(health|clinic|hospital|phc)\b/i },
+  { sector: "education", re: /\b(education|school|learner)\b/i },
+  { sector: "municipal", re: /\b(municipal|idp|ward committee|mfma)\b/i },
+  { sector: "conservation", re: /\b(conservation|heritage|protected area|biodiversity)\b/i },
+];
+
+/**
+ * Classify a ProjectProfile from tender facts (Specification Section 6).
+ * Does not invent counts, sites, or approvals.
+ */
+export function buildProjectProfileFromTender(
+  tender: TenderIntelligence
+): ProjectProfile {
+  const blob = [
+    tender.projectSector,
+    tender.tenderTitle,
+    tender.projectName,
+    ...tender.requirements.map((r) => r.text),
+    ...tender.scope.tasks,
+  ].join(" ");
+
+  const sectorMatch = SECTOR_KEYWORDS.find((row) => row.re.test(blob));
+  const sector = sectorMatch?.sector || mapSectorString(tender.projectSector);
+
+  const hasPhysical =
+    /relocation|resettlement|displac|affected household|physical move/i.test(blob);
+  const hasEconomic =
+    /economic displacement|livelihood|income loss|access loss/i.test(blob);
+  const displacementType: ProjectProfile["displacementType"] = hasPhysical && hasEconomic
+    ? "mixed"
+    : hasPhysical
+      ? "physical"
+      : hasEconomic
+        ? "economic"
+        : "none";
+
+  const duration = tender.contractPeriod.durationMonths;
+  const implementationHorizon: ProjectProfile["implementationHorizon"] =
+    !duration ? "medium_term" : duration <= 9 ? "short_term" : duration <= 24 ? "medium_term" : "long_term";
+
+  const socialImpactProfile: ProjectProfile["socialImpactProfile"] =
+    displacementType === "physical" || displacementType === "mixed"
+      ? "critical"
+      : displacementType === "economic"
+        ? "high"
+        : "moderate";
+
+  return {
+    id: `PROJ-${tender.id.replace(/^TENDER-/, "")}`,
+    tenderIntelligenceId: tender.id,
+    sector,
+    socialImpactProfile,
+    socialImpactRationale:
+      displacementType === "none"
+        ? "No physical or economic displacement is stated in the tender; impact intensity remains to be confirmed in the field."
+        : `Tender indicates ${displacementType} displacement. Participation and livelihood restoration are therefore material to assignment design.`,
+    displacementType,
+    displacementDescription:
+      displacementType === "none"
+        ? undefined
+        : "As stated in the tender; household counts and sites remain TBC pending participatory census.",
+    stakeholderComplexity:
+      tender.namedStakeholders.length >= 4 ? "high" : "medium",
+    complexityFactors: [
+      ...(displacementType !== "none" ? ["displacement / relocation"] : []),
+      ...(tender.namedStakeholders.some((s) => /traditional|authority/i.test(s.name))
+        ? ["customary / traditional authority"]
+        : []),
+      ...(tender.namedStakeholders.some((s) => /municipal/i.test(s.name))
+        ? ["municipal authority"]
+        : []),
+    ],
+    conflictSensitivity: /grievance|dispute|conflict|distrust/i.test(blob) ? "medium" : "low",
+    conflictIndicators: /grievance|dispute/i.test(blob)
+      ? ["Tender requires a grievance pathway — prior or anticipated social tension cannot be ruled out"]
+      : [],
+    vulnerabilityIntensity: "high",
+    vulnerableGroups: ["elderly", "disabled persons", "female-headed households", "informal occupants"],
+    participationIntensity:
+      displacementType !== "none" ? "collaborate" : "consult",
+    researchIntensity:
+      /census|participatory|research|baseline/i.test(blob)
+        ? "participatory_research"
+        : "diagnostic",
+    implementationHorizon,
+    classificationNotes:
+      "Classification is a professional inference from tender text only. Field confirmation is required.",
+    classifiedAt: new Date().toISOString(),
+    classifiedBy: "SEP classification engine",
+  };
+}
+
+function mapSectorString(value: string): ProjectProfile["sector"] {
+  const lower = value.toLowerCase();
+  if (lower.includes("water")) return "water";
+  if (lower.includes("hous")) return "housing";
+  if (lower.includes("min")) return "mining";
+  if (lower.includes("energy")) return "energy";
+  if (lower.includes("agric")) return "agriculture";
+  if (lower.includes("health")) return "health";
+  if (lower.includes("educ")) return "education";
+  if (lower.includes("municipal")) return "municipal";
+  if (lower.includes("infra") || lower.includes("transport")) return "infrastructure";
+  if (lower.includes("conserv")) return "conservation";
+  return "generic";
 }

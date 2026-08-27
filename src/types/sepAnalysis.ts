@@ -75,7 +75,7 @@ export type TenderIntelligence = {
   requirements: Array<{
     id: string;
     category: "participation" | "consultation" | "local_content" | "livelihood" | 
-              "resettlement" | "vulnerability" | "reporting" | "evaluation" | "other";
+              "resettlement" | "vulnerability" | "grievance" | "reporting" | "evaluation" | "other";
     text: string;
     sourceReference: string;        // Tender page or section
     mandatory: boolean;
@@ -118,7 +118,7 @@ export type ProjectProfile = {
   // Sector classification
   sector: "housing" | "infrastructure" | "transport" | "water" | "energy" | 
           "mining" | "education" | "health" | "municipal" | "research" | 
-          "environmental" | "generic";
+          "environmental" | "agriculture" | "conservation" | "generic";
   
   // Social impact profile
   socialImpactProfile: "low" | "moderate" | "high" | "critical";
@@ -667,7 +667,7 @@ export type ComplianceItem = {
   tenderRequirement: string; // The requirement text
   requirementCategory: "participation" | "consultation" | "local_content" | 
                        "livelihood" | "resettlement" | "vulnerability" | 
-                       "reporting" | "evaluation" | "other";
+                       "grievance" | "reporting" | "evaluation" | "other";
   sourceReference: string; // Tender page/section
   mandatory: boolean;
   
@@ -763,4 +763,30 @@ export type SEPDocument = {
   
   // Export formats
   formatsAvailable: ("markdown" | "docx" | "pdf")[];
+};
+
+export type RequirementCategory = TenderIntelligence["requirements"][number]["category"];
+
+/**
+ * SepGenerationPlan — analysis-layer plan assembled by Phases C–F.
+ * Distinct from the desk `EngagementPlan` in `@/types/engagementPlan`.
+ */
+export type SepGenerationPlan = {
+  id: string;
+  projectProfileId: string;
+  tenderIntelligenceId: string;
+  project: ProjectProfile;
+  socialContext: SocialContextProfile;
+  stakeholders: StakeholderProfile[];
+  risks: SocialRisk[];
+  participationObjectives: ParticipationObjective[];
+  methods: MethodSelection[];
+  activities: EngagementActivity[];
+  communications: CommunicationPlan[];
+  grievanceFramework: GrievanceFramework;
+  commitments: Commitment[];
+  indicators: Indicator[];
+  complianceMatrix: ComplianceItem[];
+  qaResults: QAResult[];
+  createdAt: string;
 };

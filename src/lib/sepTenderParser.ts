@@ -128,6 +128,25 @@ function splitIntoLines(text: string): string[] {
 }
 
 /**
+ * Read the value on the next non-empty line after a heading such as "PROJECT TITLE".
+ */
+function extractLabeledBlock(lines: string[], labels: string[]): string | null {
+  const wanted = labels.map((label) => label.replace(/:$/, "").trim().toLowerCase());
+  for (let i = 0; i < lines.length - 1; i++) {
+    const heading = lines[i].replace(/:$/, "").trim().toLowerCase();
+    if (!wanted.includes(heading)) continue;
+    for (let j = i + 1; j < lines.length; j++) {
+      const next = lines[j].trim();
+      if (!next) continue;
+      if (wanted.includes(next.replace(/:$/, "").toLowerCase())) continue;
+      if (/^[A-Z][A-Z\s\/&]{8,}$/.test(next) && next.length < 40) continue;
+      return normalizeText(next, 150);
+    }
+  }
+  return null;
+}
+
+/**
  * Find line numbers where a pattern matches (for source attribution).
  */
 function findSourceLines(
@@ -441,13 +460,59 @@ export function parseTender(
   
   const lines = splitIntoLines(tenderText);
   const tenderTextLower = tenderText.toLowerCase();
+
+  const labeledTitle = extractLabeledBlock(lines, [
+    "PROJECT TITLE",
+    "TENDER TITLE",
+    "RFP TITLE",
+    "ASSIGNMENT",
+  ]);
+  const labeledSector = extractLabeledBlock(lines, ["PROJECT SECTOR", "SECTOR"]);
+  const labeledLocation = extractLabeledBlock(lines, ["LOCATION", "PROJECT LOCATION", "SITE"]);
+  const labeledProcuring = extractLabeledBlock(lines, [
+    "PROCURING ENTITY",
+    "CLIENT",
+    "EMPLOYER",
+  ]);
   
   // Extract each component
   const tenderNumber = extractTenderNumber(tenderTextLower, lines);
-  const tenderTitle = extractTenderTitle(tenderTextLower, lines);
-  const procuringEntity = extractProcuringEntity(tenderTextLower, lines);
-  const projectSector = extractProjectSector(tenderTextLower, lines);
-  const projectLocation = extractProjectLocation(tenderTextLower, lines);
+  const tenderTitle = extractTenderTitle(tenderTextLower, lines) ||
+    (labeledTitle
+      ? {
+          value: labeledTitle,
+          confidence: "high" as const,
+          sourceLines: findSourceLines(lines, labeledTitle),
+          evidence: "tender_fact" as const,
+        }
+      : null);
+  const procuringEntity = extractProcuringEntity(tenderTextLower, lines) ||
+    (labeledProcuring
+      ? {
+          value: labeledProcuring,
+          confidence: "high" as const,
+          sourceLines: findSourceLines(lines, labeledProcuring),
+          evidence: "tender_fact" as const,
+        }
+      : null);
+  const projectSector = extractProjectSector(tenderTextLower, lines) ||
+    (labeledSector
+      ? {
+          value: labeledSector,
+          confidence: "high" as const,
+          sourceLines: findSourceLines(lines, labeledSector),
+          evidence: "tender_fact" as const,
+        }
+      : null);
+  const projectLocation = extractProjectLocation(tenderTextLower, lines) ||
+    (labeledLocation
+      ? {
+          value: labeledLocation,
+          confidence: "high" as const,
+          sourceLines: findSourceLines(lines, labeledLocation),
+          evidence: "tender_fact" as const,
+        }
+      : null);
   const contractPeriod = extractContractPeriod(tenderTextLower, lines);
   const namedStakeholders = extractNamedStakeholders(tenderText, lines);
   const sepRequirements = extractSepRequirements(tenderTextLower, lines);
