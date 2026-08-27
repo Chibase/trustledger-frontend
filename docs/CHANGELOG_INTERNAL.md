@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-08-27 — SEP operator desk only (SI-SEP)
+
+- Stakeholder engagement plan is **off commercial plans** until the composer matches the product vision. Customer Solo / Practitioner / Project / Institutional (and demo Project lens) no longer see nav, Executive/project dashboards, onboarding, SI shortcuts, or draft/PDF APIs.
+- Access is the Platform Operator allowlist (`PLATFORM_OPERATOR_EMAILS`) and complimentary VIP (`isVip`). `/ops/executive` stays the operator home. No new entitlement SKU; `engagements` still gates Engagements, not SEP.
+- Public product, plan comparison, Themba, and AEO FAQ no longer sell a Project+ SEP module. ADR-053.
+
 ## 2026-08-26 — Stakeholder engagement plan (SI-SEP)
 
 - New **Engagement plan** desk (`/app/engagement-plan`): paste or upload an RFP / tender / briefing (PDF text layer or .txt / .md / .csv), or pick a sector playbook with no file.

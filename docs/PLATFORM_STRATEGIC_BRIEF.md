@@ -16,7 +16,7 @@
 TrustLedger has moved from a **demo-first Vercel prototype** to an **operational-grade commercial platform**:
 
 1. **Version 001 resolution desk is live** for paying customers on Frappe Cloud (projects, incidents/grievance desk, AI suggest→apply→save, reports shell).
-2. **Version 002 Stakeholder Intelligence is the SRM engine** — registry, engagements, commitments, and (SI-SEP) a briefing→engagement-plan composer that seeds those desks after human apply. Cloud DocTypes + live BFF CRUD exist for `TL Stakeholder` / `TL Engagement` / `TL Commitment`. Without this layer there is no durable Stakeholder Relationship Management.
+2. **Version 002 Stakeholder Intelligence is the SRM engine** — registry, engagements, and commitments. Cloud DocTypes + live BFF CRUD exist for `TL Stakeholder` / `TL Engagement` / `TL Commitment`. The briefing→engagement-plan composer (SI-SEP) stays on the **operator desk** until it is product-ready — do not sell it on commercial plans. Without the SI layer there is no durable Stakeholder Relationship Management.
 3. **Commercial path works end-to-end:** marketing → assessment/quote/contact → `/trial` or Paystack `/pay` → email verification → trial workspace or live Owner login → Ops finance/billing.
 4. **Sample demo desk is retired** (ADR-033). Public education is `/product`; buyers use own-data trial or live Cloud — never fictional `INC-*` bleed into customer desks.
 5. **Platform Ops command centre** is real: readiness ladder, Owner provision, DocType ensure/smoke, charge-due, Executive Board view.
@@ -294,7 +294,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 | Topic | Approved line |
 |-------|----------------|
 | What it is | TrustLedger helps operators run **grievance resolution** and **Stakeholder Intelligence** for projects where social licence decides whether work moves. |
-| Desk vs SI | The **grievance desk** is the live case path (projects, incidents, evidence, reports). **Stakeholder Intelligence** is registry, engagements, engagement plan (RFP/briefing → process + presentable SEP; apply after approval), and commitments on TrustLedger Cloud for entitled plans. Never name Version 001/002 or TEDS in public copy. |
+| Desk vs SI | The **grievance desk** is the live case path (projects, incidents, evidence, reports). **Stakeholder Intelligence** is registry, engagements, and commitments on TrustLedger Cloud for entitled plans. Do not claim a briefing-to-SEP composer is on commercial plans — it is still being built on the operator desk. Never name Version 001/002 or TEDS in public copy. |
 | How to start | Start a **14-day trial** (`/trial`) with your own data, or **Subscribe** (`/pay`). Learn features on `/product`. |
 | Live access | After provision, sign in at `/login/live` (email OTP when access email is on). |
 | AI | Suggestions only — a human **applies** before anything is saved. |

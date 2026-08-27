@@ -190,7 +190,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Done (UI modules)** |
 | **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
 | **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
-| **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase dashboard + Gemini-drafted tender SEP (template fallback; PDF/MD/Word); human apply seeds registry / engagements / commitments | **Active** |
+| **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase dashboard + Gemini-drafted tender SEP (template fallback; PDF/MD/Word); human apply seeds registry / engagements / commitments. **Operator / VIP desk only** until product-ready — not on commercial plans. | **Active** |
 
 ### HubSpot cutover (ACTIVE)
 
@@ -323,3 +323,4 @@ src/app/api/webhooks/clickup/
 | 2026-08-21 | MKT-3 — operator briefs (topic / length / LinkedIn·Reddit·ESG·blog) |
 | 2026-08-21 | MKT-4 — marketing review inbox + archive |
 | 2026-08-26 | SI-SEP — stakeholder engagement plan from RFP/tender/briefing; sector playbooks; apply to SRM (ADR-053) |
+| 2026-08-27 | SI-SEP — operator / VIP desk only; off commercial plans until product-ready |

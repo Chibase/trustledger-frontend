@@ -9,6 +9,7 @@ import {
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
+import { useSepDesk } from "@/components/sep/SepDeskContext";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPortfolioOverview,
@@ -40,7 +41,6 @@ type Props = {
  */
 export function ExecutivePortfolioDashboard({
   role,
-  planId = null,
   isPlanOwner = false,
   seedIncidents = [],
   seedProjects = [],
@@ -48,6 +48,7 @@ export function ExecutivePortfolioDashboard({
   const [tier, setTier] = useState<DeskTier>("clo");
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents);
   const [projects, setProjects] = useState<Project[]>(seedProjects);
+  const sepDesk = useSepDesk();
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -105,19 +106,20 @@ export function ExecutivePortfolioDashboard({
             Roll-up of empowerment budgets, targets, and progress across your
             projects (including Draft). Open a project dashboard to capture,
             monitor, edit, and generate reports — that data feeds this view.
-            Stakeholder engagement plans sit on this roll-up until you apply
-            them to the SRM. Desk: {DESK_TIER_LABELS[tier]}.
+            Desk: {DESK_TIER_LABELS[tier]}.
           </p>
         </div>
+        {sepDesk ? (
         <Link
           href="#engagement-plans"
           className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
         >
           Engagement plan
         </Link>
+        ) : null}
       </header>
 
-      <SepDashboardPanel planId={planId} alwaysShow />
+      {sepDesk ? <SepDashboardPanel /> : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(totals.projectCount)} />

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { SepDeskGate } from "@/components/sep/SepDeskContext";
 import { SepDocumentView } from "@/components/sep/SepDocumentView";
 import { SepExportActions } from "@/components/sep/SepExportActions";
 import { SepProcessDashboard } from "@/components/sep/SepProcessDashboard";
@@ -173,7 +173,7 @@ export default function EngagementPlanDetailPage() {
   const preview = plan ? previewSepApply(plan) : null;
 
   return (
-    <FeatureGate capability="engagements">
+    <SepDeskGate>
       <div className="space-y-6 print:space-y-0">
         <div className="print:hidden">
           <PageHeader
@@ -412,6 +412,6 @@ export default function EngagementPlanDetailPage() {
           </>
         ) : null}
       </div>
-    </FeatureGate>
+    </SepDeskGate>
   );
 }

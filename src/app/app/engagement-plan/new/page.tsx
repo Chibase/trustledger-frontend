@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { SepDeskGate } from "@/components/sep/SepDeskContext";
 import { SepInstrumentPicker } from "@/components/sep/SepInstrumentPicker";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
@@ -45,7 +45,7 @@ function exampleSector(
 
 export default function NewEngagementPlanPage() {
   return (
-    <FeatureGate capability="engagements">
+    <SepDeskGate>
       <Suspense
         fallback={
           <p className="text-sm text-tl-ink-muted">Loading compose desk…</p>
@@ -53,7 +53,7 @@ export default function NewEngagementPlanPage() {
       >
         <NewEngagementPlanForm />
       </Suspense>
-    </FeatureGate>
+    </SepDeskGate>
   );
 }
 

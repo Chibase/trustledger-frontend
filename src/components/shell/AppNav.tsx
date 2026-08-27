@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { PlanId } from "@/config/plans";
+import { useSepDesk } from "@/components/sep/SepDeskContext";
 import { hasCapability, resolveClientPlanId } from "@/lib/entitlements";
 import type { CapabilityId } from "@/types/entitlements";
 import type { UserRole } from "@/types/rbac";
@@ -53,7 +54,6 @@ const NAV: NavItem[] = [
     href: "/app/engagement-plan",
     label: "Engagement plan",
     icon: "sep",
-    capability: "engagements",
   },
   {
     href: "/app/commitments",
@@ -220,6 +220,7 @@ type AppNavProps = {
 
 export function AppNav({ role, variant = "light", planId }: AppNavProps) {
   const pathname = usePathname();
+  const sepDesk = useSepDesk();
   const [capsReady, setCapsReady] = useState(false);
   const [allowed, setAllowed] = useState<Record<string, boolean>>({});
 
@@ -238,6 +239,7 @@ export function AppNav({ role, variant = "light", planId }: AppNavProps) {
   }, [planId]);
 
   const items = NAV.filter((item) => {
+    if (item.href === "/app/engagement-plan") return sepDesk;
     if (item.roles && !item.roles.includes(role)) return false;
     if (!capsReady) return !item.capability || item.capability === "dashboard";
     return allowed[item.href] !== false;

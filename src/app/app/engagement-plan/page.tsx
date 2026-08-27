@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { SepDeskGate } from "@/components/sep/SepDeskContext";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { deleteEngagementPlan, listEngagementPlans } from "@/lib/sepStore";
 import type { EngagementPlan } from "@/types/engagementPlan";
@@ -41,7 +41,7 @@ export default function EngagementPlanListPage() {
   }
 
   return (
-    <FeatureGate capability="engagements">
+    <SepDeskGate>
       <div className="space-y-6">
         <PageHeader
           eyebrow="Stakeholder Intelligence"
@@ -112,6 +112,6 @@ export default function EngagementPlanListPage() {
           </ul>
         )}
       </div>
-    </FeatureGate>
+    </SepDeskGate>
   );
 }

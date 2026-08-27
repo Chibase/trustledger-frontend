@@ -38,7 +38,7 @@ const STEPS: OnboardingStepDef[] = [
     id: "welcome",
     title: "Your desk starts empty",
     body: "TrustLedger is a Social Relations Management desk. Nothing here is sample theatre — you seed your own project data, then add records as fieldwork continues. Use Next, then follow each step’s link to the screen where you do the work.",
-    tip: "Memorise the spine: Project → engagement plan (optional) → people → contact → promises → cases → evidence → reports.",
+    tip: "Memorise the spine: Project → people → contact → promises → cases → evidence → reports.",
   },
   {
     id: "project",
@@ -48,15 +48,6 @@ const STEPS: OnboardingStepDef[] = [
     ctaLabel: "Go create project",
     capability: "projects",
     tip: "Solo allows one active project. You can refine details later on the project dashboard.",
-  },
-  {
-    id: "sep",
-    title: "Compose an engagement plan",
-    body: "If you have an RFP, tender, or briefing, open Engagement plan, paste or upload it, and compose a sector process from inception to close-out. Save the presentable document. Apply to the SRM desk only after the assignment is approved — never auto-write the live registry.",
-    href: "/app/engagement-plan/new",
-    ctaLabel: "Go compose engagement plan",
-    capability: "engagements",
-    tip: "No file yet? Pick a sector playbook and compose from that spine, then tighten after inception.",
   },
   {
     id: "stakeholders",

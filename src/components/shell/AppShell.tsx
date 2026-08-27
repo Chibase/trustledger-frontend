@@ -3,6 +3,7 @@ import { OperatorBanner } from "@/components/shell/OperatorBanner";
 import { TrialBanner } from "@/components/shell/TrialBanner";
 import { SetupWizard } from "@/components/onboarding/SetupWizard";
 import { TrialPasswordChangePrompt } from "@/components/shell/TrialPasswordChangePrompt";
+import { SepDeskProvider } from "@/components/sep/SepDeskContext";
 import { AppNav } from "@/components/shell/AppNav";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
@@ -28,6 +29,8 @@ type AppShellProps = {
   trial?: TrialSnapshot;
   isGuest?: boolean;
   isVip?: boolean;
+  /** Operator / VIP desk only — not a commercial plan module. */
+  sepDesk?: boolean;
 };
 
 export function AppShell({
@@ -41,6 +44,7 @@ export function AppShell({
   trial,
   isGuest = false,
   isVip = false,
+  sepDesk = false,
 }: AppShellProps) {
   const planLabel = packageLabel(trialPlan, { mode, vip: isVip });
   const modeLabel =
@@ -50,9 +54,10 @@ export function AppShell({
 
   return (
     <ToastProvider>
-      <SessionEmailBridge email={userEmail} />
-      <EmailCaptureGate />
-      <div className="min-h-full bg-tl-paper text-tl-ink">
+      <SepDeskProvider allowed={sepDesk}>
+        <SessionEmailBridge email={userEmail} />
+        <EmailCaptureGate />
+        <div className="min-h-full bg-tl-paper text-tl-ink">
         {mode === "trial" && trial ? (
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
         ) : null}
@@ -122,7 +127,8 @@ export function AppShell({
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </SepDeskProvider>
     </ToastProvider>
   );
 }

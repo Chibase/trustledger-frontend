@@ -35,10 +35,6 @@ const FEATURES = [
     body: "Meetings, consultations, walkabouts, and briefings with attendance, minutes, and action items. Capture once; link to stakeholders and projects.",
   },
   {
-    title: "Stakeholder engagement plan",
-    body: "Paste or upload an RFP, tender, or briefing. TrustLedger maps a seven-phase process from inception to close-out for the sector of the assignment — a desk dashboard plus a document you can present. After approval, apply the plan so registry, engagements, and commitments are seeded instead of re-typed.",
-  },
-  {
     title: "Field templates",
     body: "Minutes, attendance registers, and field notes with labeled fields. Paste or upload rough notes (.txt / .md / .csv / .pdf), arrange into the form, then Suggest → Apply. Late handover after an on-site meeting is supported. Bundled on Project and Institutional; also free on /resources.",
   },
@@ -85,7 +81,7 @@ const STEPS = [
   {
     n: "4",
     title: "Build Stakeholder Intelligence",
-    body: "Add stakeholders, compose an engagement plan from a briefing when you have one, log engagements, track commitments — the SRM engine without which there is no programme trust.",
+    body: "Add stakeholders, log engagements, track commitments — the SRM engine without which there is no programme trust.",
     href: "/app/stakeholders",
     cta: "Open CRM (after sign-in)",
   },

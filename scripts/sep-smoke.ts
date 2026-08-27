@@ -7,6 +7,8 @@ import { joinSepPlace } from "../src/lib/sepInstruments";
 import { planToMarkdown, planToWordHtml } from "../src/lib/sepExport";
 import { buildSepPdf } from "../src/lib/sepPdf";
 import { previewSepApply } from "../src/lib/sepApply";
+import { canAccessSepDesk } from "../src/lib/sepAccess";
+import { onboardingStepsForPlan } from "../src/config/onboardingSteps";
 
 const housing = composeEngagementPlan({
   text: SEP_EXAMPLE_BRIEFS.housing,
@@ -18,6 +20,34 @@ const mining = composeEngagementPlan({
 });
 
 const checks: string[] = [];
+
+{
+  const prev = process.env.PLATFORM_OPERATOR_EMAILS;
+  process.env.PLATFORM_OPERATOR_EMAILS = "ops@example.com";
+  try {
+    if (canAccessSepDesk({ email: "customer@project.co.za" })) {
+      checks.push("customer email must not open SEP desk");
+    }
+    if (!canAccessSepDesk({ email: "ops@example.com" })) {
+      checks.push("operator email must open SEP desk");
+    }
+    if (!canAccessSepDesk({ isVip: true, email: "vip@client.co.za" })) {
+      checks.push("VIP must open SEP desk");
+    }
+    if (canAccessSepDesk({})) {
+      checks.push("empty identity must not open SEP desk");
+    }
+  } finally {
+    if (prev === undefined) delete process.env.PLATFORM_OPERATOR_EMAILS;
+    else process.env.PLATFORM_OPERATOR_EMAILS = prev;
+  }
+}
+if (onboardingStepsForPlan("project").some((step) => step.id === "sep")) {
+  checks.push("project onboarding still includes SEP");
+}
+if (onboardingStepsForPlan("institutional").some((step) => step.id === "sep")) {
+  checks.push("institutional onboarding still includes SEP");
+}
 const architectureEssay = SEP_ARCHITECTURE_VOICE;
 if (housing.sectorId !== "housing") checks.push(`housing detect=${housing.sectorId}`);
 if (housing.programmeKind === "relocation") checks.push("housing should stay standard programme");
