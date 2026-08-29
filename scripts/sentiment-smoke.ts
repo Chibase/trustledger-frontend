@@ -79,14 +79,14 @@ function main() {
     `warning=${alert.warning} negative=${alert.negative}`,
   );
 
-  const stable = relationshipHealthFromLabels(
-    ["positive", "positive", "neutral"],
-    [40, 55, 0],
+  const mixed = relationshipHealthFromLabels(
+    ["positive", "negative"],
+    [40, -40],
   );
   check(
-    "mostly constructive notes are stable",
-    stable.warning === "ok" && stable.positive === 2,
-    `warning=${stable.warning}`,
+    "balanced mix is watch not alert",
+    mixed.warning === "watch",
+    `warning=${mixed.warning}`,
   );
 
   const unlabeled = relationshipHealthFromLabels([null, null]);

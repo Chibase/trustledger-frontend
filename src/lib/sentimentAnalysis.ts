@@ -43,7 +43,7 @@ const POSITIVE: Array<{ re: RegExp; weight: number; cue: string }> = [
   { re: /\b(resolved|progress|improved?|success(?:ful)?)\b/i, weight: 22, cue: "progress" },
   { re: /\b(constructive|cooperative|collaborat(?:e|ed|ion)|partnership)\b/i, weight: 20, cue: "cooperation" },
   { re: /\b(satisfied|productive|cordial|respectful|helpful)\b/i, weight: 18, cue: "constructive tone" },
-  { re: /\b(agreed|agreement|committed to|commitment honoured)\b/i, weight: 16, cue: "agreement" },
+  { re: /\b(agreed|agreement|commitment honoured)\b/i, weight: 16, cue: "agreement" },
   { re: /\b(trust|confident|good faith)\b/i, weight: 16, cue: "trust" },
   { re: /\bdankie\b/i, weight: 22, cue: "appreciation (Afrikaans)" },
 ];
@@ -165,10 +165,10 @@ export function relationshipHealthFromLabels(
 
   if (sampleSize > 0) {
     const negShare = negative / sampleSize;
-    if (negShare >= 0.4 || (negative >= 2 && negative > positive)) {
+    if (negShare >= 0.5 && negative > positive) {
       warning = "alert";
       headline = `Early warning: ${negative} of ${sampleSize} scored notes are negative. Leadership should review community relationship health.`;
-    } else if (negShare >= 0.2 || (negative >= 1 && positive === 0)) {
+    } else if (negative > 0) {
       warning = "watch";
       headline = `Watch: mixed or declining notes (${negative} negative of ${sampleSize} scored). Keep engaging before this corridor hardens.`;
     } else {
