@@ -8,6 +8,7 @@ import {
 } from "@/components/ops/charts/BarChart";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { TrustPulse } from "@/components/trust/TrustPulse";
+import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
 import { listDemoIncidents, listDemoProjects } from "@/lib/demoStore";
 import {
   canSee,
@@ -21,6 +22,8 @@ import { readTrialModeFromDocument } from "@/lib/trial";
 import { listTrialIncidents, listTrialProjects } from "@/lib/trialStore";
 import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
+import { engagementService } from "@/services/engagementService";
+import type { Engagement } from "@/types/engagement";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
@@ -79,12 +82,15 @@ export function DeskWorkspacePanels({
   const [matrix, setMatrix] = useState(() => readVisibilityMatrix());
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents);
   const [projects, setProjects] = useState<Project[]>(seedProjects);
+  const [engagements, setEngagements] = useState<Engagement[]>([]);
 
   useEffect(() => {
-    const desk = readDeskTier(role);
-    setTier(desk);
-    setMatrix(readVisibilityMatrix());
     let cancelled = false;
+    const frame = requestAnimationFrame(() => {
+      const desk = readDeskTier(role);
+      setTier(desk);
+      setMatrix(readVisibilityMatrix());
+    });
     (async () => {
       const [iRows, pRows] = await Promise.all([
         incidentService.list(),
@@ -96,13 +102,18 @@ export function DeskWorkspacePanels({
       const localP = trial ? listTrialProjects() : listDemoProjects();
       setIncidents(mergeIncidents([...seedIncidents, ...iRows], localI));
       setProjects(mergeProjects([...seedProjects, ...pRows], localP));
+      if (hasCapability("engagements", planId)) {
+        const notes = await engagementService.list();
+        if (!cancelled) setEngagements(notes);
+      }
     })();
     return () => {
       cancelled = true;
+      cancelAnimationFrame(frame);
     };
     // Seed arrays from RSC are stable per request; merge once on mount / role change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role]);
+  }, [role, planId]);
 
   const open = incidents.filter((i) => i.status !== "Closed");
   const ranked = useMemo(() => rankFilings(incidents), [incidents]);
@@ -154,6 +165,13 @@ export function DeskWorkspacePanels({
           levelLabel={DESK_TIER_LABELS[tier]}
           avgTatHours={averageTatHours(incidents)}
           openOverTarget={overTat}
+        />
+      ) : null}
+
+      {hasCapability("engagements", planId) ? (
+        <RelationshipHealthPulse
+          engagements={engagements}
+          levelLabel="Communication notes"
         />
       ) : null}
 

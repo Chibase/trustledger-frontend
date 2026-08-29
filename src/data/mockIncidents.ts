@@ -26,6 +26,7 @@ export const mockIncidents: Incident[] = [
     nature: "water",
     impactScore: 82,
     sentimentScore: -75,
+    sentimentLabel: "negative",
     processStages: {
       reportedAt: "2026-07-08T09:20:00+02:00",
       resourceDeployedAt: "2026-07-08T14:30:00+02:00",
@@ -83,6 +84,7 @@ export const mockIncidents: Incident[] = [
     nature: "dust",
     impactScore: 58,
     sentimentScore: -45,
+    sentimentLabel: "negative",
     processStages: {
       reportedAt: "2026-07-09T18:05:00+02:00",
       resourceDeployedAt: "2026-07-09T20:00:00+02:00",
@@ -134,6 +136,7 @@ export const mockIncidents: Incident[] = [
     nature: "safety",
     impactScore: 76,
     sentimentScore: -60,
+    sentimentLabel: "negative",
     processStages: {
       reportedAt: "2026-07-10T07:40:00+02:00",
       resourceDeployedAt: null,
@@ -179,6 +182,7 @@ export const mockIncidents: Incident[] = [
     nature: "water",
     impactScore: 64,
     sentimentScore: -40,
+    sentimentLabel: "negative",
     processStages: {
       reportedAt: "2026-07-07T11:15:00+02:00",
       resourceDeployedAt: "2026-07-07T15:00:00+02:00",

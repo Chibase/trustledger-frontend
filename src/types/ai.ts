@@ -24,8 +24,12 @@ export type IncidentTriageSuggestion = {
   promptVersion: string;
 };
 
+export type SentimentLabel = "positive" | "neutral" | "negative";
+
 export type SentimentSuggestion = {
   sentimentScore: number;
+  /** Leadership label — positive / neutral / negative. */
+  sentimentLabel: SentimentLabel;
   confidenceScore: number;
   rationale: string;
   sourceType: "Survey" | "Interview" | "Community Meeting" | "Social Media" | "Other";

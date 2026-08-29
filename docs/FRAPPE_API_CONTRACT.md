@@ -20,7 +20,7 @@ Envelope: standard Frappe `{ "message": <payload> }`
 | `listCommitments` | `/api/method/srm_core.api.commitments.list_commitments` | `{ projectId?, engagementId?, query? }` | `Commitment[]` |
 | `listEvidence` | `/api/method/srm_core.api.incidents.list_evidence` | `{ incident }` | `EvidenceStub[]` |
 | `suggestTriage` | `/api/method/srm_core.api.ai.suggest_triage` | triage request | triage suggestion |
-| `suggestSentiment` | `/api/method/srm_core.api.ai.suggest_sentiment` | sentiment request | sentiment suggestion |
+| `suggestSentiment` | `/api/method/srm_core.api.ai.suggest_sentiment` | `{ text, geographicArea?, linkedIncidentId?, sourceType? }` | `{ sentimentScore, sentimentLabel: positive\|neutral\|negative, confidenceScore, rationale, sourceType, model, promptVersion }` |
 | `draftResponse` | `/api/method/srm_core.api.ai.draft_response` | draft request | draft suggestion |
 | `generateReportBrief` | `/api/method/srm_core.api.ai.generate_report_brief` | brief request | brief suggestion |
 | `getSession` | `/api/method/srm_core.api.auth.get_session` | (session cookie) | `{ user, fullName, roles, trustLedgerRole }` |

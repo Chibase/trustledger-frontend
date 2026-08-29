@@ -32,6 +32,11 @@ export type Engagement = {
   captureId?: string;
   source: EngagementSource;
   createdAt: string;
+  /** Applied note sentiment — positive / neutral / negative. */
+  sentimentLabel?: "positive" | "neutral" | "negative" | null;
+  sentimentScore?: number | null;
+  sentimentRationale?: string;
+  sentimentAnalyzedAt?: string;
 };
 
 export const ENGAGEMENT_KIND_LABELS: Record<EngagementKind, string> = {

@@ -9,6 +9,10 @@ import {
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import { parseLabeledStakeholders, parseLabeledTitle } from "@/lib/parseFieldTemplate";
+import {
+  analyzeCommunicationNote,
+  sentimentLabelFromScore,
+} from "@/lib/sentimentAnalysis";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type { ReportSectionId } from "@/types/activityReport";
 import { REPORT_SECTION_IDS } from "@/types/activityReport";
@@ -138,20 +142,37 @@ function mockTriage(input: TriageRequest): IncidentTriageSuggestion {
 }
 
 function mockSentiment(input: SentimentRequest): SentimentSuggestion {
-  const text = input.text.toLowerCase();
-  let sentimentScore = -20;
-  if (/angry|furious|threat|protest|unsafe/.test(text)) sentimentScore = -75;
-  else if (/concern|worried|delay|broken/.test(text)) sentimentScore = -45;
-  else if (/thank|appreciate|resolved|good/.test(text)) sentimentScore = 55;
-
+  const analyzed = analyzeCommunicationNote(input.text);
   return {
-    sentimentScore,
-    confidenceScore: 0.72,
-    rationale:
-      "Demo intensity estimate from wording cues. Live mode uses TrustLedger Cloud AI.",
-    sourceType: input.sourceType ?? "Other",
+    sentimentScore: analyzed.score,
+    sentimentLabel: analyzed.label,
+    confidenceScore: analyzed.confidence,
+    rationale: analyzed.rationale,
+    sourceType: input.sourceType ?? "Community Meeting",
     model: MODEL,
     promptVersion: PROMPT_VERSION,
+  };
+}
+
+function normalizeSentiment(
+  raw: Partial<SentimentSuggestion>,
+  input: SentimentRequest,
+): SentimentSuggestion {
+  const analyzed = analyzeCommunicationNote(input.text);
+  const score =
+    typeof raw.sentimentScore === "number" ? raw.sentimentScore : analyzed.score;
+  const label = raw.sentimentLabel ?? sentimentLabelFromScore(score);
+  return {
+    sentimentScore: score,
+    sentimentLabel: label,
+    confidenceScore:
+      typeof raw.confidenceScore === "number"
+        ? raw.confidenceScore
+        : analyzed.confidence,
+    rationale: raw.rationale?.trim() || analyzed.rationale,
+    sourceType: raw.sourceType ?? input.sourceType ?? "Community Meeting",
+    model: raw.model || MODEL,
+    promptVersion: raw.promptVersion || PROMPT_VERSION,
   };
 }
 
@@ -454,7 +475,15 @@ export const aiService = {
       await delay();
       return mockSentiment(input);
     }
-    return callFrappeMethod(FRAPPE_METHODS.suggestSentiment, { ...input });
+    try {
+      const raw = await callFrappeMethod<Partial<SentimentSuggestion>>(
+        FRAPPE_METHODS.suggestSentiment,
+        { ...input },
+      );
+      return normalizeSentiment(raw || {}, input);
+    } catch {
+      return mockSentiment(input);
+    }
   },
 
   async draftResponse(
