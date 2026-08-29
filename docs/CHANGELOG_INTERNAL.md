@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-29 — Communication-note sentiment (SANRAL SRM)
+
+- One-click **Analyze sentiment** on engagement communication notes and incident case notes. Classifies **positive / neutral / negative**, then **apply → save** (ADR-006).
+- Saved labels feed a **Relationship health** early-warning pulse on Engagements, the executive dashboard, and desk trust panels.
+- Heuristic analyzer (`src/lib/sentimentAnalysis.ts`) when Cloud AI is mocked or unreachable; live `suggest_sentiment` still normalises to a label. Sentiment overlay persists if Cloud DocType fields are not yet present.
+- Incident assist now saves the applied score (it previously suggested only). Smoke: `npx tsx scripts/sentiment-smoke.ts`.
+
 ## 2026-08-27 — SEP output: academic format, logged references, no trailing blank pages
 
 - PDF generation stops at the last page that has body text (pdfkit no longer auto-paginates leftover empty sheets). Structured tables are drawn; markdown pipes are parsed if they remain in a body.

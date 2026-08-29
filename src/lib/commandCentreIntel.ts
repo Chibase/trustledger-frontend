@@ -276,12 +276,13 @@ export function buildAiToolsOverview(): AiToolsOverview {
       {
         id: "sentiment",
         name: "Sentiment assist",
-        purpose: "Intensity estimate for incident narrative",
+        purpose:
+          "One-click positive / neutral / negative analysis of communication notes; feeds the relationship-health early warning",
         model: "grok-4.5",
-        promptVersion: "srm-ai-v0",
-        status: "watch",
+        promptVersion: "srm-ai-v0-evidence",
+        status: runtime,
         challenge: "Keyword mock vs real multilingual nuance",
-        recommendation: "Discharge mock path once Cloud model is stable",
+        recommendation: "Keep suggest → apply → save; discharge mock once Cloud model is stable",
       },
       {
         id: "report-brief",

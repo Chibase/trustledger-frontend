@@ -9,6 +9,8 @@ import {
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
+import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
+import { hasCapability } from "@/lib/entitlements";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPortfolioOverview,
@@ -24,7 +26,9 @@ import type { PlanId } from "@/config/plans";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { Engagement } from "@/types/engagement";
 import type { UserRole } from "@/types/rbac";
+import { engagementService } from "@/services/engagementService";
 
 type Props = {
   role: UserRole;
@@ -48,6 +52,8 @@ export function ExecutivePortfolioDashboard({
   const [tier, setTier] = useState<DeskTier>("clo");
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents);
   const [projects, setProjects] = useState<Project[]>(seedProjects);
+  const [engagements, setEngagements] = useState<Engagement[]>([]);
+  const showNotesPulse = hasCapability("engagements", planId);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -57,6 +63,17 @@ export function ExecutivePortfolioDashboard({
     });
     return () => cancelAnimationFrame(frame);
   }, [role, seedIncidents, seedProjects]);
+
+  useEffect(() => {
+    if (!hasCapability("engagements", planId)) return;
+    let cancelled = false;
+    void engagementService.list().then((rows) => {
+      if (!cancelled) setEngagements(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [planId]);
 
   const openProjects = useMemo(
     () => projects.filter(isExecutiveDashboardProject),
@@ -118,6 +135,13 @@ export function ExecutivePortfolioDashboard({
       </header>
 
       <SepDashboardPanel planId={planId} alwaysShow />
+
+      {showNotesPulse ? (
+        <RelationshipHealthPulse
+          engagements={engagements}
+          levelLabel="Communication notes"
+        />
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(totals.projectCount)} />

@@ -81,8 +81,9 @@ If a module is missing, it is usually a **plan gate**, not a broken screen. Upgr
 ### Ongoing — Contact & promises (Project+)
 
 1. After each meeting, log an **Engagement** linked to project + stakeholders. Prefer the **Meeting minutes** or **Attendance register** template (Capture hub, or `/resources`) so names and actions map on first paste.  
-2. Promote promises to **Commitments** with an owner and status.  
-3. Update commitment status as fieldwork moves — do not wait for month-end.
+2. Open the engagement and click **Analyze sentiment**. Review the positive / neutral / negative label, then **Apply & save** so leadership can see relationship health on the Engagements list and dashboard.  
+3. Promote promises to **Commitments** with an owner and status.  
+4. Update commitment status as fieldwork moves — do not wait for month-end.
 
 ### When harm or a complaint arrives
 
@@ -133,6 +134,7 @@ On the **Executive dashboard** (`/app/dashboard`), **Engagement plan** is a prim
 ## 6. AI Assist rules
 
 - Pattern: **suggest → human apply → save**  
+- Communication notes: one-click sentiment (positive / neutral / negative) on Engagements and incident descriptions; apply to feed the relationship-health pulse  
 - Never claim or expect autonomous grievance closure  
 - Solo has **no** AI Assist — upgrade to Practitioner for that step-up  
 

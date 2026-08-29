@@ -4,6 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
+import { NoteSentimentAssist } from "@/components/ai/NoteSentimentAssist";
 import { DiscussionSpace } from "@/components/discussion/DiscussionSpace";
 import { ProcessStageTimeline } from "@/components/incidents/ProcessStageTimeline";
 import { ProcessStageActions } from "@/components/incidents/ProcessStageActions";
@@ -33,12 +34,12 @@ import {
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { listWorkspaceIncidents } from "@/lib/workspaceData";
 import { aiService } from "@/services/aiService";
+import { communicationNoteText } from "@/lib/sentimentAnalysis";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type {
   AiSuggestionStatus,
   DraftResponseSuggestion,
-  SentimentSuggestion,
 } from "@/types/ai";
 
 type IncidentDetailPageProps = {
@@ -57,12 +58,8 @@ export default function AppIncidentDetailPage({
   const [fileName, setFileName] = useState("");
 
   const [draftStatus, setDraftStatus] = useState<AiSuggestionStatus>("idle");
-  const [sentimentStatus, setSentimentStatus] =
-    useState<AiSuggestionStatus>("idle");
   const [draftError, setDraftError] = useState<string | null>(null);
-  const [sentimentError, setSentimentError] = useState<string | null>(null);
   const [draft, setDraft] = useState<DraftResponseSuggestion | null>(null);
-  const [sentiment, setSentiment] = useState<SentimentSuggestion | null>(null);
   const [responseText, setResponseText] = useState("");
   const [author, setAuthor] = useState<{ name: string; role?: string }>({
     name: "Viewer",
@@ -227,27 +224,6 @@ export default function AppIncidentDetailPage({
       setDraft(null);
       setDraftError(err instanceof Error ? err.message : "Draft failed.");
       setDraftStatus("error");
-    }
-  }
-
-  async function handleSentiment() {
-    setSentimentError(null);
-    setSentimentStatus("loading");
-    try {
-      const result = await aiService.suggestSentiment({
-        text: caseRecord.description,
-        geographicArea: caseRecord.ward,
-        linkedIncidentId: caseRecord.id,
-        sourceType: "Other",
-      });
-      setSentiment(result);
-      setSentimentStatus("ready");
-    } catch (err) {
-      setSentiment(null);
-      setSentimentError(
-        err instanceof Error ? err.message : "Sentiment assist failed.",
-      );
-      setSentimentStatus("error");
     }
   }
 
@@ -454,40 +430,38 @@ export default function AppIncidentDetailPage({
         </AiSuggestionPanel>
       </section>
 
-      <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold">Sentiment capture</h2>
-          <AiAssistButton
-            label="Estimate sentiment"
-            onClick={handleSentiment}
-            loading={sentimentStatus === "loading"}
-          />
-        </div>
-        <p className="text-sm text-tl-ink-muted">
-          Feeds priority blend (impact 70% + sentiment intensity 30%).
-        </p>
-        <AiSuggestionPanel
-          title="Sentiment suggestion"
-          status={sentimentStatus}
-          error={sentimentError}
-          model={sentiment?.model}
-          promptVersion={sentiment?.promptVersion}
-          confidence={sentiment?.confidenceScore}
-        >
-          {sentiment ? (
-            <dl className="space-y-2">
-              <div>
-                <dt className="font-medium">Score (-100 to 100)</dt>
-                <dd>{sentiment.sentimentScore}</dd>
-              </div>
-              <div>
-                <dt className="font-medium">Rationale</dt>
-                <dd>{sentiment.rationale}</dd>
-              </div>
-            </dl>
-          ) : null}
-        </AiSuggestionPanel>
-      </section>
+      <NoteSentimentAssist
+        noteText={communicationNoteText({
+          title: caseRecord.title,
+          description: caseRecord.description,
+        })}
+        geographicArea={caseRecord.ward}
+        linkedIncidentId={caseRecord.id}
+        sourceType="Other"
+        planId={planId}
+        saved={{
+          label: caseRecord.sentimentLabel,
+          score: caseRecord.sentimentScore,
+        }}
+        onApply={async (suggestion) => {
+          const next: Incident = {
+            ...caseRecord,
+            sentimentScore: suggestion.sentimentScore,
+            sentimentLabel: suggestion.sentimentLabel,
+            timeline: [
+              {
+                id: `evt-sent-${Date.now()}`,
+                type: "sentiment",
+                summary: `Sentiment applied: ${suggestion.sentimentLabel} (${suggestion.sentimentScore})`,
+                at: new Date().toISOString(),
+              },
+              ...caseRecord.timeline,
+            ],
+          };
+          const saved = await incidentService.save(next);
+          setIncident(saved);
+        }}
+      />
     </div>
   );
 }

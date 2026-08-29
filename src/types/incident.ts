@@ -70,6 +70,8 @@ export interface Incident {
   nature?: ComplaintNatureId | string;
   impactScore: number;
   sentimentScore: number | null;
+  /** Applied label when sentiment was captured from the case note. */
+  sentimentLabel?: "positive" | "neutral" | "negative" | null;
   timeline: IncidentTimelineEvent[];
   geo?: IncidentGeoContext;
   processStages?: IncidentProcessStages;

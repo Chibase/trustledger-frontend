@@ -180,6 +180,27 @@ function fieldsFor(name: SiDocTypeName): FieldDef[] {
         options: "seed\nminutes\nattendance\nsocial_intel\npasted_report\ndiscussion",
         default: "minutes",
       },
+      {
+        fieldname: "sentiment_label",
+        label: "Sentiment",
+        fieldtype: "Select",
+        options: "\npositive\nneutral\nnegative",
+      },
+      {
+        fieldname: "sentiment_score",
+        label: "Sentiment score",
+        fieldtype: "Int",
+      },
+      {
+        fieldname: "sentiment_rationale",
+        label: "Sentiment rationale",
+        fieldtype: "Small Text",
+      },
+      {
+        fieldname: "sentiment_analyzed_at",
+        label: "Sentiment analysed at",
+        fieldtype: "Datetime",
+      },
       { fieldname: "tl_org_id", label: "TrustLedger org id", fieldtype: "Data" },
     ];
   }

@@ -141,7 +141,8 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Grievance / incident desk | Live UI + TL Incident path; verify/close stamps in UI | All plans (core) |
 | Projects (light) | List/detail; Cloud DocType exists | All plans |
 | Stakeholder registry | Create/list; Cloud SI BFF | Project + Institutional (+ addon_crm) |
-| Engagements | List/detail/capture apply; Cloud SI | Project + Institutional (+ addon_commitments pack) |
+| Engagements | List/detail/capture apply; Cloud SI; one-click note sentiment | Project + Institutional (+ addon_commitments pack) |
+| Communication-note sentiment | Analyze → apply → save; relationship-health pulse on dashboard & Engagements | Practitioner+ AI; notes live on Project+ engagements |
 | Commitments board | Promote from engagements; Cloud SI | Project + Institutional |
 | Capture hub | Minutes → AI extract → apply | Project + Institutional |
 | Trial own-data | `/trial` empty workspace | Acquisition |
