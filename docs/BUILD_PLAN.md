@@ -230,6 +230,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **CP-1** | Solo entry plan | ADR-035 — `solo` R1,999 / 1 seat / essentials; wire Paystack + entitlements + seats + docs (`docs/SOLO_PLAN.md`) | **Done** |
+| **CP-2** | Focused SKUs (land-and-expand) | ADR-054 — persona desks on **one** TrustLedger workspace (grievance / local-spend evidence / field capture). No standalone product repos or per-SKU Cloud sites. Runbook `docs/MODULAR_SKUS.md` | **Done (decision + public copy)** |
 
 ### User enablement
 
@@ -323,3 +324,4 @@ src/app/api/webhooks/clickup/
 | 2026-08-21 | MKT-3 — operator briefs (topic / length / LinkedIn·Reddit·ESG·blog) |
 | 2026-08-21 | MKT-4 — marketing review inbox + archive |
 | 2026-08-27 | SI-SEP — academic 25-section SEP; logged Spec + Framework PDFs; project-specific sequence; implementing organisation issuer; PDF cuts at last text page |
+| 2026-08-31 | CP-2 / ADR-054 — focused SKUs on one workspace (not standalone products); `docs/MODULAR_SKUS.md` |

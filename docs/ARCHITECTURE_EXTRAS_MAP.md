@@ -137,5 +137,7 @@ If three answers are “no,” do not ship in the current plan box.
 | 2 | SUPPORT Phase C | Helpdesk for **paid** support only; wire from in-app Support drawer |
 | 3 | Ops-only Insights | Internal dashboards; no customer marketing claim |
 | Later | V003 portal | Only after desk + SI maturity and honest packaging |
+| Never | Standalone Grievance / Supplier / Field products | ADR-054 — focused SKUs on one workspace (`docs/MODULAR_SKUS.md`) |
 
 Do **not** start with Typebot + Gemini embed + Helpdesk-as-grievance + Insights-in-`/app` as one project — that fights the ADRs and inflates cost.
+Do **not** split TrustLedger into separately licensed Frappe apps to chase smaller buyers — use Solo + entitlements.

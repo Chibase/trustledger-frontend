@@ -37,7 +37,7 @@ Aligned to marketing tiers (ADR-035 Solo entry):
 
 | Plan | Owner | Additional seats | Notes |
 |------|-------|------------------|-------|
-| **Solo** (entry) | 1 × **admin** (purchaser) | **0** | Lone consultant essentials — no AI Assist, 1 project |
+| **Solo** (entry) | 1 × **admin** (purchaser) | **0** | Lone consultant essentials — no AI Assist, 1 project. Also the **grievance focused SKU** (ADR-054) — not a second product. |
 | **Practitioner** | 1 × **admin** (purchaser) | **0** by default (optional later: +1–2 paid add-ons) | Owner + AI Assist + light governance |
 | **Project** | 1 × **admin** | Unlimited **per project environment** at client/contractor/community | Owner assigns people to projects |
 | **Institutional** | 1+ owners (custom) | Custom roles/seats/regions | Sales-defined |

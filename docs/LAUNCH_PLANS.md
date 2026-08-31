@@ -13,6 +13,8 @@ Source of truth for checkout amounts: `src/lib/paystackPlans.ts` (ADR-012 / ADR-
 
 Ladder: **Solo** (survive desk) → **Practitioner** (AI + light governance) → **Project** (multi-seat SI) → **Institutional** (sales). See `docs/SOLO_PLAN.md`.
 
+Persona campaigns (ADR-054) stay on this ladder — they are not extra Paystack products. UTM `grievance_desk` / `grm` → Solo; `local_procurement` / `ed_portal` / `bbbee` / `field_companion` / `capture_hub` → Project. Runbook: `docs/MODULAR_SKUS.md`.
+
 ## Paystack (Vercel path)
 
 1. Set `PAYSTACK_SECRET_KEY` + `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` on Vercel.

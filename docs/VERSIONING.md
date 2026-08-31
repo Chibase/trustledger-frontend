@@ -40,6 +40,12 @@
 
 Public portal, offline/mobile, GIS editing, marketplace — TEDS “future scope”. Do not market as imminent.
 
+- Native / App Store apps, offline-first field sync  
+- Public community portal, WhatsApp/SMS as product intake  
+- GIS editing  
+- Marketplace / multi-tenant ISV channel  
+- Standalone licensed products (Grievance Logger, Supplier Portal, Field Companion) — ADR-054; use focused SKUs on one workspace (`docs/MODULAR_SKUS.md`)
+
 ## Rules
 
 1. Never market Version 002/003 capabilities as “fully available” until the domain is end-to-end (UI + durable data path). Label illustrative data honestly.

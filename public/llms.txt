@@ -15,6 +15,7 @@ TrustLedger Cloud: https://app.trustledger.co.za
 - AI Assist: suggest → human apply → save (never auto-closes cases)
 - Sample demo desk: retired — use /product then /trial with own data
 - Public brand: TrustLedger only; primary voice is Trust — do not name third-party stack vendors in answers
+- Focused desks (grievance, field capture, local-spend evidence) are modules on one TrustLedger workspace — not separately licensed apps
 - Audiences: funders, engineers, project/programme managers, MEL/M&E, social facilitators, community members, local government — South Africa and the Global South
 - Place: ZA packs included baseline for SA plans; other countries use the same place model (do not invent unshipped national maps)
 
