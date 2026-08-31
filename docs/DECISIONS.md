@@ -625,4 +625,19 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Capture after award is shorter because the plan already named classes, methods, and standing promises. Packet **SI-SEP**. Relocation assignments no longer export a municipal LED consultation pack with SLB three-anchor copy.
 - **Alternatives considered:** New paid capability (rejected — same SI seat); Cloud Grok for activity reports (rejected — reportComposer / ADR-006); auto-write on compose (rejected — governance). Gemini for the **client SEP document only** is accepted because the operator already uses it for marketing drafts and the user directed that Gemini write this document.
 
+### ADR-054: Focused SKUs on one TrustLedger workspace (not standalone products)
+
+- **Date:** 2026-08-31
+- **Status:** Accepted
+- **Context:** Smaller civil firms, Tier-2 contractors, municipalities, and independent CLOs often need one compliance headache solved (grievance logging, local ED/B-BBEE evidence, field registers) before they will buy full Stakeholder Relationship Management. A land-and-expand funnel and persona marketing are commercially sound. Splitting the platform into separately licensed SaaS products (Grievance Logger, Supplier Portal, Field Companion) with their own Git repos, Frappe apps, and Cloud sites would fork tenancy, billing, security, and the TrustLedger brand — and would promise WhatsApp portals and native offline apps that are explicitly later (`docs/VERSIONING.md` V003+).
+- **Decision:**
+  1. **One product, focused desks.** TrustLedger remains the only customer-facing software brand (ADR-002 / ADR-039). Grievance, local-spend evidence, and field capture are **entry stories** on the existing plan ladder and entitlement switchboard (ADR-024 / ADR-035) — not independent products.
+  2. **Do not** create standalone Git repositories, a “core + plugin” Frappe install set for customers, or per-SKU Cloud sites as the default. Dedicated sites stay **L5 Isolation** (ADR-038). A future `srm-core` module split is engineering, not a catalogue.
+  3. **Upgrade = entitlement change** on the same Customer. Do not build migration scripts as if standalone databases will later merge into SRM. Trial → live `tl-org-data` migrate remains the durable path (OD-3).
+  4. **Honest mapping** (runbook `docs/MODULAR_SKUS.md`): Desk A grievance = Solo/Practitioner (WhatsApp/public portal **not** shipped). Desk B local procurement = Capture / Intelligence **evidence** on Project+ (not a vendor marketplace). Desk C field companion = Capture hub + templates in the **browser** (no native offline app).
+  5. Public agents, FAQ, and `/product` may market personas and focused desks. They must not name separate SKU brands, promise a supplier self-registration portal, or promise offline-first mobile.
+  6. Packet: **CP-2**. Candidate future capability (vendor register) waits for a new `CapabilityId` / price — do not add `AddonId` until DocTypes exist.
+- **Consequences:** Land-and-expand is the Solo → Practitioner → Project ladder plus add-ons. Persona UTM (`grievance_desk`, `local_procurement`, `field_companion`) maps onto existing Paystack plans. North star stays Stakeholder Intelligence deepening — this ADR is packaging, not a new product line.
+- **Alternatives considered:** Three separately licensed Frappe apps (rejected — ops, tenancy, and brand cost; `srm-core` is not even the live SoT for every desk); hide TrustLedger on standalone sites (rejected — ADR-002); build WhatsApp intake / native offline now to make the SKUs “complete” (rejected — V003+; over-claim).
+
 

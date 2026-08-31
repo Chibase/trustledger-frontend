@@ -45,6 +45,8 @@ export const CAPABILITY_LABELS: Record<CapabilityId, string> = {
  * Sellable add-ons that can turn individual capabilities on above a base plan.
  * Chibase Consulting packages (facilitation / MEL / IKS / field) are NOT AddonIds —
  * they do not unlock product capabilities (ADR-048).
+ * Do not add standalone-product AddonIds (ADR-054). A future vendor-register
+ * module needs its own CapabilityId + price before it becomes an AddonId.
  */
 export type AddonId =
   | "addon_capture"

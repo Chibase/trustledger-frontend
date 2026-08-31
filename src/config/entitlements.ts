@@ -2,6 +2,8 @@
  * Default capability grants per commercial plan.
  * Solo = essentials only (ADR-035). Revisit packaging via PLATFORM_STRATEGIC_BRIEF.
  * geoIntake = ZA baseline place intel on all SA plans (ADR-040) — not fictional INC-* seed.
+ * Focused SKUs (grievance / local-spend evidence / field capture) are plan
+ * stories on this switchboard — not separate products (ADR-054).
  */
 
 import type { PlanId } from "@/config/plans";

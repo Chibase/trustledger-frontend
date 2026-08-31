@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-08-31 — Focused SKUs on one workspace (ADR-054 / CP-2)
+
+- Commercial land-and-expand for smaller organisations is **packaging**, not three standalone products. Runbook: `docs/MODULAR_SKUS.md`.
+- Grievance desk = Solo/Practitioner; local procurement = Capture/Intelligence **evidence** (not a vendor marketplace); field companion = Capture hub in the browser (no native offline app).
+- Public FAQ, Themba, `/product`, and `llms.txt` say one TrustLedger workspace — upgrade is a plan change. Persona UTM maps onto existing Paystack plans.
+- Do not provision per-SKU Cloud sites or split Git product repos. Dedicated isolation remains ADR-038 L5.
+
 ## 2026-08-29 — Communication-note sentiment (SANRAL SRM)
 
 - One-click **Analyze sentiment** on engagement communication notes and incident case notes. Classifies **positive / neutral / negative**, then **apply → save** (ADR-006).
