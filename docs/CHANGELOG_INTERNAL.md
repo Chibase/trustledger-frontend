@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-01 — Ledger API spec + canonicalization vectors
+
+- Publish-ready `docs/LEDGER_API.md`: create_entry / get_chain / verify_entry / public_key, byte-level canonical JSON, SHA-256 concat order, ed25519 over ASCII-hex `current_hash`, Base64 signature + public key.
+- Reference implementations: `examples/python/canonicalize_hash_sign.py` (Python 3.10+) and `examples/typescript/canonicalizeHashSign.ts` (Node Web Crypto Ed25519). No private keys in git; ephemeral TEST-ONLY keypairs at runtime.
+- Locked acceptance vectors in `tests/ledger_vectors/test_vectors.json` (three entities; Python and TypeScript MUST emit the same hex). Run steps: `docs/LEDGER_API_EXAMPLES_README.md`.
+- Human review required before merge to `master` (canonicalization + signature scheme are breaking).
+
 ## 2026-08-31 — Focused SKUs on one workspace (ADR-054 / CP-2)
 
 - Commercial land-and-expand for smaller organisations is **packaging**, not three standalone products. Runbook: `docs/MODULAR_SKUS.md`.

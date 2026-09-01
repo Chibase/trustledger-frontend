@@ -1,0 +1,85 @@
+{
+  "spec_version": "1.0",
+  "hash_algorithm": "SHA-256",
+  "signature_scheme": "ed25519",
+  "signature_message": "utf8_ascii_hex_of_current_hash",
+  "signature_encoding": "standard_base64",
+  "public_key_encoding": "standard_base64_raw_32_bytes",
+  "canonicalization": {
+    "sort_keys": true,
+    "separators": [",", ":"],
+    "ensure_ascii": false,
+    "encoding": "utf-8"
+  },
+  "byte_concat_order": [
+    "prev_hash_bytes",
+    "canonical_entity_bytes",
+    "timestamp_bytes",
+    "actor_id_bytes"
+  ],
+  "notes": "Python 3.10 json.dumps and the TypeScript reference MUST emit canonical_json and expected_sha256_hex exactly. verify_fixture_test_only contains a public key + signature only — the private key was generated ephemerally and is not in this repository.",
+  "vectors": [
+    {
+      "id": "vector-1",
+      "entity": {
+        "id": "EVID-0099",
+        "parent_type": "inspection",
+        "parent_id": "INSP-1001",
+        "filename": "culvert_block_20260801.jpg",
+        "gps_lat": -33.0002,
+        "gps_lon": 25.7001,
+        "timestamp": "2026-08-01T09:17:00Z",
+        "uploader_id": "USER-INS-01"
+      },
+      "prev_hash": null,
+      "ledger_timestamp": "2026-08-01T09:17:30Z",
+      "actor_id": "USER-INS-01",
+      "canonical_json": "{\"filename\":\"culvert_block_20260801.jpg\",\"gps_lat\":-33.0002,\"gps_lon\":25.7001,\"id\":\"EVID-0099\",\"parent_id\":\"INSP-1001\",\"parent_type\":\"inspection\",\"timestamp\":\"2026-08-01T09:17:00Z\",\"uploader_id\":\"USER-INS-01\"}",
+      "expected_sha256_hex": "f75f31fd969b0de632af1c7604a536d5bf068cde34459e1ad8ab0a7f4f533059"
+    },
+    {
+      "id": "vector-2",
+      "entity": {
+        "id": "INC-302",
+        "site_id": "SITE-014",
+        "reported_by": "USER-PUB-01",
+        "description": "Road washed-out over culvert; immediate closure recommended",
+        "severity": "High",
+        "timestamp": "2026-08-02T14:30:00Z",
+        "note": "Café ward walkabout"
+      },
+      "prev_hash": "",
+      "ledger_timestamp": "2026-08-02T14:31:00Z",
+      "actor_id": "USER-PUB-01",
+      "canonical_json": "{\"description\":\"Road washed-out over culvert; immediate closure recommended\",\"id\":\"INC-302\",\"note\":\"Café ward walkabout\",\"reported_by\":\"USER-PUB-01\",\"severity\":\"High\",\"site_id\":\"SITE-014\",\"timestamp\":\"2026-08-02T14:30:00Z\"}",
+      "expected_sha256_hex": "a8968732a70660bad2f2db7547238c6970d78e5a5cde4adff3c0740b77a25d06"
+    },
+    {
+      "id": "vector-3",
+      "entity": {
+        "id": "INSP-1002",
+        "asset_id": "ASSET-211",
+        "inspector_id": "USER-INS-02",
+        "date_time": "2026-08-02T10:45:00Z",
+        "score": 88,
+        "notes": "Guard rail OK",
+        "checklist_json": {
+          "fasteners": "secure",
+          "corrosion": "none"
+        },
+        "status": "Completed"
+      },
+      "prev_hash": "f75f31fd969b0de632af1c7604a536d5bf068cde34459e1ad8ab0a7f4f533059",
+      "ledger_timestamp": "2026-08-02T10:46:00Z",
+      "actor_id": "USER-INS-02",
+      "canonical_json": "{\"asset_id\":\"ASSET-211\",\"checklist_json\":{\"corrosion\":\"none\",\"fasteners\":\"secure\"},\"date_time\":\"2026-08-02T10:45:00Z\",\"id\":\"INSP-1002\",\"inspector_id\":\"USER-INS-02\",\"notes\":\"Guard rail OK\",\"score\":88,\"status\":\"Completed\"}",
+      "expected_sha256_hex": "e2ffac3e9aa4b466dee47b9e74c61b9bfd6d28e16a0883ec67fc8436a2308ef6"
+    }
+  ],
+  "verify_fixture_test_only": {
+    "warning": "TEST-ONLY. Public key and signature for vector-1. Private key was generated ephemerally and is not in this repository. Do not use in production.",
+    "vector_id": "vector-1",
+    "public_key_base64": "ktdnmKwz9NE9/9D8PAwjzPhRZLN3ZjTMnChUZ58Hy1c=",
+    "signature_base64": "oqw3ddGMvAsw8D3LsoqqVU3izSlW7RgBWgisEzTShX86Qbyp/Q+vaUndwthPktrhdi5FJvR8Vm6cbQgJqUsJCw=="
+  }
+}
