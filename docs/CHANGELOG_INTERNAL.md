@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-01 — CI ledger acceptance + import dry-run
+
+- `.github/workflows/ledger-acceptance.yml` on pull_request (`src/`, `docs/`, `tests/**`, `tools/**`). Checkout, Node 20, Python 3.12, `tools/ci_run.sh`.
+- Jest (`test:ledger`, `test:audit`) + pytest ledger vectors + `tools/import_script.py --dry-run`. Fails the job if those checks fail. No staging secrets; skip dry-run only when the demo import pack is not in the tree.
+- Local Docker instructions: `tools/ci/README.md`.
+
 ## 2026-09-01 — AuditTrailViewer chain UI follow-up
 
 - Preview / Storybook mock chain is hash-stable (vector-1 + vector-3). File **Checksum** renders only when `canonical_entity.checksum` is present — `current_hash` stays on the prev → current line.
