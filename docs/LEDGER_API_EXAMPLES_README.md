@@ -9,7 +9,8 @@ Publish-ready spec: [`docs/LEDGER_API.md`](LEDGER_API.md). Vector README: [`test
 | `examples/typescript/canonicalizeHashSign.ts` | TypeScript equivalents (`canonicalJson`, `computeHash`, `signHashEd25519`, `verifySignature`) |
 | `tests/ledger_vectors/test_vectors.json` | Six locked entities + `canonical_json` + `expected_hash_hex` |
 | `tests/test_ledger_vectors.py` | pytest |
-| `tests/ledgerVectors.test.ts` | Jest |
+| `docs/KEY_MANAGEMENT.md` | KMS/HSM, ZIP-only TEST keys, rotation checklist |
+| `examples/python/sign_via_kms_example.py` | Mocked AWS/GCP Sign call (key handle only; `TRUSTLEDGER_KMS_MOCK=1`) |
 
 Both reference scripts MUST print the same `expected_hash_hex` values. No private keys are committed. Scripts generate an ephemeral TEST-ONLY keypair at runtime and do not write it to disk.
 

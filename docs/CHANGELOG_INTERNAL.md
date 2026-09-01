@@ -5,6 +5,23 @@
 - `tools/demo/api-examples/`: Postman collection folders (Create Plan, Create entity, Evidence upload, Ledger) with `BASE_URL` / `API_KEY` placeholders; readable curl in README; `curl-examples.sh` prints or `--execute` (staging only).
 - Auth documented as Frappe `Authorization: token ${API_KEY}`. `plans.create` marked proposed. Human must confirm method names and auth before a real import. No live calls in this packet.
 
+## 2026-09-01 — SRM demo import pack (offline zip)
+
+- `tools/demo/srm-import/`: medium CSVs (5/20/50/200/30/80/400/500), 30 royalty-free JPEGs with injected EXIF GPS/time, `import_script.py --dry-run|--run|--create-ledger`, Postman collection with `BASE_URL` / `API_KEY` placeholders.
+- Zip: `tools/demo/trustledger-srm-demo.zip`. TEST keypair labelled `TEST-KEYPAIR-DO-NOT-USE-IN-PROD`. Script refuses production host and `--run` without `--i-approve-staging`.
+- Do not import into customer workspaces. Human must supply a scoped staging key before `--run`.
+
+## 2026-09-01 — Ledger key management (KMS mock)
+
+- `docs/KEY_MANAGEMENT.md`: no private keys in git; TEST keys only in demo ZIP `TEST-KEYPAIR-DO-NOT-USE-IN-PROD/`; AWS/GCP Sign call shapes; rotation/audit checklist.
+- `examples/python/sign_via_kms_example.py`: mocked KMS client, key **handle** from env, default `TRUSTLEDGER_KMS_MOCK=1`. Does not persist or print a private key. Human security review before production.
+
+## 2026-09-01 — CI ledger acceptance + import dry-run
+
+- `.github/workflows/ledger-acceptance.yml` on pull_request (`src/`, `docs/`, `tests/**`, `tools/**`). Checkout, Node 20, Python 3.12, `tools/ci_run.sh`.
+- Jest (`test:ledger`, `test:audit`) + pytest ledger vectors + `tools/import_script.py --dry-run`. Fails the job if those checks fail. No staging secrets; skip dry-run only when the demo import pack is not in the tree.
+- Local Docker instructions: `tools/ci/README.md`.
+
 ## 2026-09-01 — AuditTrailViewer chain UI follow-up
 
 - Preview / Storybook mock chain is hash-stable (vector-1 + vector-3). File **Checksum** renders only when `canonical_entity.checksum` is present — `current_hash` stays on the prev → current line.

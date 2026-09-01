@@ -1,0 +1,21 @@
+user_id,org_id,full_name,email,role,desk_tier,status
+USER-0001,ORG-0001,Anele Dlamini,user0001@example.test,community,2,active
+USER-0002,ORG-0002,Sipho Botha,user0002@example.test,contractor,3,active
+USER-0003,ORG-0003,Lindiwe Ndlovu,user0003@example.test,client,4,active
+USER-0004,ORG-0004,Johan van Wyk,user0004@example.test,admin,5,active
+USER-0005,ORG-0005,Thandi Mokoena,user0005@example.test,community,1,active
+USER-0006,ORG-0001,Pieter Naidoo,user0006@example.test,contractor,2,active
+USER-0007,ORG-0002,Naledi Khumalo,user0007@example.test,client,3,active
+USER-0008,ORG-0003,Chris Petersen,user0008@example.test,admin,4,active
+USER-0009,ORG-0004,Zanele Dlamini,user0009@example.test,community,5,active
+USER-0010,ORG-0005,Marco Botha,user0010@example.test,contractor,1,active
+USER-0011,ORG-0001,Anele Ndlovu,user0011@example.test,client,2,active
+USER-0012,ORG-0002,Sipho van Wyk,user0012@example.test,admin,3,active
+USER-0013,ORG-0003,Lindiwe Mokoena,user0013@example.test,community,4,active
+USER-0014,ORG-0004,Johan Naidoo,user0014@example.test,contractor,5,active
+USER-0015,ORG-0005,Thandi Khumalo,user0015@example.test,client,1,active
+USER-0016,ORG-0001,Pieter Petersen,user0016@example.test,admin,2,active
+USER-0017,ORG-0002,Naledi Dlamini,user0017@example.test,community,3,active
+USER-0018,ORG-0003,Chris Botha,user0018@example.test,contractor,4,active
+USER-0019,ORG-0004,Zanele Ndlovu,user0019@example.test,client,5,active
+USER-0020,ORG-0005,Marco van Wyk,user0020@example.test,admin,1,active

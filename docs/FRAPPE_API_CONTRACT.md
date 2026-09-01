@@ -73,7 +73,9 @@ Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH
 
 ## Write methods (staging / import — confirm before live use)
 
-List/get paths above are what the Vercel app calls today. **Create** paths below are the defaults used by `tools/demo/api-examples/` (Postman + curl). Human must confirm names and `Authorization: token key:secret` vs session cookie before a real import. They may 404 until srm-core implements them.
+List/get paths above are what the Vercel app calls today. **Create** paths below are the defaults used by `tools/demo/api-examples/` (Postman + curl) and `tools/demo/srm-import/import_script.py`. Human must confirm names and `Authorization: token key:secret` vs session cookie before a real import. They may 404 until srm-core implements them.
+
+Offline pack: `tools/demo/srm-import/` (zip `tools/demo/trustledger-srm-demo.zip`). Do not import to production without a human-scoped key.
 
 | Action | Path | Notes |
 |--------|------|-------|
