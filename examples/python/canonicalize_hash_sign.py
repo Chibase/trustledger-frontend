@@ -96,6 +96,15 @@ def load_vectors() -> dict[str, Any]:
         return json.load(f)
 
 
+def vector_timestamp(v: dict[str, Any]) -> str:
+    """Ledger mix-in timestamp (not entity.timestamp)."""
+    return str(v.get("timestamp") or v.get("ledger_timestamp") or "")
+
+
+def vector_expected_hash(v: dict[str, Any]) -> str:
+    return str(v.get("expected_hash_hex") or v.get("expected_sha256_hex") or "")
+
+
 def check_vectors(doc: dict[str, Any]) -> int:
     failed = 0
     for v in doc["vectors"]:
@@ -103,16 +112,17 @@ def check_vectors(doc: dict[str, Any]) -> int:
         got_hash = compute_hash(
             v.get("prev_hash"),
             v["entity"],
-            v["ledger_timestamp"],
+            vector_timestamp(v),
             v["actor_id"],
         )
+        expected = vector_expected_hash(v)
         print(f"{v['id']}: canonical={got_canon}")
         print(f"{v['id']}: sha256={got_hash}")
         if got_canon != v["canonical_json"]:
             print(f"{v['id']}: FAIL canonical JSON mismatch", file=sys.stderr)
             failed += 1
-        if got_hash != v["expected_sha256_hex"]:
-            print(f"{v['id']}: FAIL hash mismatch expected {v['expected_sha256_hex']}", file=sys.stderr)
+        if got_hash != expected:
+            print(f"{v['id']}: FAIL hash mismatch expected {expected}", file=sys.stderr)
             failed += 1
     return failed
 
@@ -125,7 +135,7 @@ def check_verify_fixture(doc: dict[str, Any]) -> int:
         print("skip TEST-ONLY signature fixture (pip install pynacl)")
         return 0
     vector = next(v for v in doc["vectors"] if v["id"] == fixture["vector_id"])
-    current_hash = vector["expected_sha256_hex"]
+    current_hash = vector_expected_hash(vector)
     pk = base64.b64decode(fixture["public_key_base64"])
     ok = verify_signature(pk, fixture["signature_base64"], current_hash)
     print(f"verify_fixture_test_only ({fixture['vector_id']}): {ok}")
@@ -150,7 +160,7 @@ def main() -> int:
         h = compute_hash(
             first.get("prev_hash"),
             first["entity"],
-            first["ledger_timestamp"],
+            vector_timestamp(first),
             first["actor_id"],
         )
         sig = sign_hash_ed25519(sk_bytes, h)

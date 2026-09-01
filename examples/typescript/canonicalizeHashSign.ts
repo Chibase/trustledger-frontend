@@ -16,7 +16,6 @@
 import { createHash, webcrypto } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 export type JsonValue =
   | null
@@ -116,22 +115,34 @@ export async function generateTestKeypair(): Promise<{
   return { privateKey: pair.privateKey, publicKeyBytes };
 }
 
-type VectorDoc = {
-  vectors: Array<{
-    id: string;
-    entity: JsonValue;
-    prev_hash: string | null;
-    ledger_timestamp: string;
-    actor_id: string;
-    canonical_json: string;
-    expected_sha256_hex: string;
-  }>;
+export type LedgerVector = {
+  id: string;
+  entity: JsonValue;
+  prev_hash: string | null;
+  timestamp?: string;
+  ledger_timestamp?: string;
+  actor_id: string;
+  canonical_json: string;
+  expected_hash_hex?: string;
+  expected_sha256_hex?: string;
+};
+
+export type VectorDoc = {
+  vectors: LedgerVector[];
   verify_fixture_test_only?: {
     vector_id: string;
     public_key_base64: string;
     signature_base64: string;
   };
 };
+
+export function vectorTimestamp(v: LedgerVector): string {
+  return v.timestamp || v.ledger_timestamp || "";
+}
+
+export function vectorExpectedHash(v: LedgerVector): string {
+  return v.expected_hash_hex || v.expected_sha256_hex || "";
+}
 
 function loadVectors(root: string): VectorDoc {
   const vectorsPath = path.join(root, "tests", "ledger_vectors", "test_vectors.json");
@@ -145,10 +156,11 @@ export async function checkVectors(doc: VectorDoc): Promise<number> {
   let failed = 0;
   for (const v of doc.vectors) {
     const gotCanon = canonicalJson(v.entity);
+    const expected = vectorExpectedHash(v);
     const gotHash = computeHash(
       v.prev_hash,
       v.entity,
-      v.ledger_timestamp,
+      vectorTimestamp(v),
       v.actor_id,
     );
     console.log(`${v.id}: canonical=${gotCanon}`);
@@ -157,17 +169,24 @@ export async function checkVectors(doc: VectorDoc): Promise<number> {
       console.error(`${v.id}: FAIL canonical JSON mismatch`);
       failed += 1;
     }
-    if (gotHash !== v.expected_sha256_hex) {
-      console.error(`${v.id}: FAIL hash mismatch expected ${v.expected_sha256_hex}`);
+    if (gotHash !== expected) {
+      console.error(`${v.id}: FAIL hash mismatch expected ${expected}`);
       failed += 1;
     }
   }
   return failed;
 }
 
+function repoRoot(): string {
+  const argv1 = process.argv[1]?.replace(/\\/g, "/") ?? "";
+  if (/(^|\/)canonicalizeHashSign\.(ts|js)$/.test(argv1)) {
+    return path.resolve(path.dirname(process.argv[1]!), "..", "..");
+  }
+  return process.cwd();
+}
+
 async function main(): Promise<void> {
-  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-  const doc = loadVectors(root);
+  const doc = loadVectors(repoRoot());
   let failed = await checkVectors(doc);
 
   const fixture = doc.verify_fixture_test_only;
@@ -181,7 +200,7 @@ async function main(): Promise<void> {
       const ok = await verifySignature(
         pk,
         fixture.signature_base64,
-        vector.expected_sha256_hex,
+        vectorExpectedHash(vector),
       );
       console.log(`verify_fixture_test_only (${fixture.vector_id}): ${ok}`);
       if (!ok) failed += 1;
@@ -195,7 +214,7 @@ async function main(): Promise<void> {
   const h = computeHash(
     first.prev_hash,
     first.entity,
-    first.ledger_timestamp,
+    vectorTimestamp(first),
     first.actor_id,
   );
   const sig = await signHashEd25519(privateKey, h);
@@ -210,11 +229,8 @@ async function main(): Promise<void> {
   }
 }
 
-const isDirectRun =
-  typeof process.argv[1] === "string" &&
-  fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
-
-if (isDirectRun) {
+const argv1 = process.argv[1]?.replace(/\\/g, "/") ?? "";
+if (/(^|\/)canonicalizeHashSign\.(ts|js)$/.test(argv1)) {
   main().catch((err: unknown) => {
     console.error(err);
     process.exit(1);

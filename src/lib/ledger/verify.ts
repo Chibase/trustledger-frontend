@@ -1,8 +1,6 @@
 // Ledger signature verification helper using @noble/ed25519 when available
 // Falls back to throwing if noble is not installed. Add @noble/ed25519 as a dependency to the frontend package.
 
-import * as base64 from 'base-64';
-
 let noble: any = null;
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

@@ -409,7 +409,7 @@ Stored row:
 }
 ```
 
-Vectors 2 and 3 (unicode + nested object + chained `prev_hash`) live in `tests/ledger_vectors/test_vectors.json`.
+Vectors 2–6 (unicode, nested objects, booleans/nulls, arrays of objects, chained `prev_hash`) live in `tests/ledger_vectors/test_vectors.json`.
 
 ---
 
