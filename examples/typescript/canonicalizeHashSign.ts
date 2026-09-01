@@ -1,68 +1,222 @@
-/*
-Reference TypeScript/Node example for canonical JSON and chain hashing.
-Requires: npm install @noble/ed25519 (if you want to run signing examples)
+/**
+ * Ledger canonical JSON + SHA-256 chain hash + ed25519 sign/verify.
+ *
+ * TypeScript / Node reference for docs/LEDGER_API.md.
+ * Matches Python 3.10 json.dumps(separators=(',', ':'), sort_keys=True, ensure_ascii=False).
+ *
+ *   npx tsx examples/typescript/canonicalizeHashSign.ts
+ *
+ * Signing uses Node Web Crypto Ed25519 (Node 19+) by default.
+ * Optional isomorphic lib: npm install @noble/ed25519 (or tweetnacl) — same raw 32-byte keys.
+ *
+ * TEST-ONLY: the demo runner generates an ephemeral keypair, prints the public key,
+ * signs vector-1, verifies, and drops the private key. Nothing is written to disk.
+ */
 
-Usage:
-  # install deps
-  npm install
-  # run with ts-node or compile
-  npx ts-node examples/typescript/canonicalizeHashSign.ts
-*/
+import { createHash, webcrypto } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-import * as fs from 'fs';
-import * as path from 'path';
-import * as crypto from 'crypto';
+export type JsonValue =
+  | null
+  | boolean
+  | number
+  | string
+  | JsonValue[]
+  | { [key: string]: JsonValue };
 
-// Optional: ed25519 signing libs (uncomment after installing)
-// import { utils, sign, getPublicKey } from '@noble/ed25519';
-
-export function canonicalJsonBytes(obj: any): Buffer {
-  // deterministic JSON: sort keys, separators no spaces
-  const canonical = JSON.stringify(obj, Object.keys(obj).sort(), 0);
-  // The above simple stringify with sorted keys is not fully robust for nested objects; for demos it's acceptable.
-  // For production, use a canonicalize function that sorts object keys recursively. Here we implement a small helper.
-  function canonicalize(value: any): any {
-    if (Array.isArray(value)) return value.map(canonicalize);
-    if (value && typeof value === 'object') {
-      const keys = Object.keys(value).sort();
-      const out: any = {};
-      for (const k of keys) out[k] = canonicalize(value[k]);
-      return out;
-    }
-    return value;
+function sortKeys(value: JsonValue): JsonValue {
+  if (Array.isArray(value)) {
+    return value.map(sortKeys);
   }
-  const can = canonicalize(obj);
-  const s = JSON.stringify(can);
-  return Buffer.from(s, 'utf8');
+  if (value !== null && typeof value === "object") {
+    const out: { [key: string]: JsonValue } = {};
+    for (const key of Object.keys(value).sort()) {
+      out[key] = sortKeys(value[key]!);
+    }
+    return out;
+  }
+  return value;
 }
 
-export function computeCurrentHash(prev_hash: string | null, canonical_entity_bytes: Buffer, timestamp: string, actor_id: string): string {
-  const prev = (prev_hash || '');
-  const data = Buffer.concat([Buffer.from(prev, 'utf8'), canonical_entity_bytes, Buffer.from(timestamp, 'utf8'), Buffer.from(actor_id, 'utf8')]);
-  const h = crypto.createHash('sha256').update(data).digest('hex');
-  return h;
+/** Deterministic JSON string: sorted keys, separators (",", ":"), UTF-8 / ensure_ascii=false. */
+export function canonicalJson(obj: JsonValue): string {
+  return JSON.stringify(sortKeys(obj));
 }
 
-// Signing example (requires @noble/ed25519)
-// export async function signCurrentHashEd25519(privateKeyHex: string, currentHashHex: string): Promise<string> {
-//   const priv = Buffer.from(privateKeyHex, 'hex');
-//   const sig = await sign(Buffer.from(currentHashHex, 'utf8'), priv);
-//   return Buffer.from(sig).toString('base64');
-// }
+/**
+ * SHA-256 lowercase hex of:
+ *   prev_hash_bytes + canonical_entity_bytes + timestamp_bytes + actor_id_bytes
+ * null / "" prev_hash → empty prev_hash_bytes.
+ */
+export function computeHash(
+  prevHash: string | null | undefined,
+  entity: JsonValue,
+  timestamp: string,
+  actorId: string,
+): string {
+  const prev = prevHash ? Buffer.from(prevHash, "utf8") : Buffer.alloc(0);
+  const data = Buffer.concat([
+    prev,
+    Buffer.from(canonicalJson(entity), "utf8"),
+    Buffer.from(timestamp, "utf8"),
+    Buffer.from(actorId, "utf8"),
+  ]);
+  return createHash("sha256").update(data).digest("hex");
+}
 
-// Demo runner: read test vectors
-if (require.main === module) {
-  const root = path.resolve(__dirname, '../../');
-  const vectorsPath = path.join(root, 'tests', 'ledger_vectors', 'test_vectors.json');
+export async function signHashEd25519(
+  privateKey: CryptoKey,
+  currentHashHex: string,
+): Promise<string> {
+  const sig = await webcrypto.subtle.sign(
+    "Ed25519",
+    privateKey,
+    Buffer.from(currentHashHex, "utf8"),
+  );
+  return Buffer.from(sig).toString("base64");
+}
+
+export async function verifySignature(
+  publicKeyBytes: Uint8Array,
+  signatureB64: string,
+  currentHashHex: string,
+): Promise<boolean> {
+  try {
+    const key = await webcrypto.subtle.importKey(
+      "raw",
+      publicKeyBytes,
+      "Ed25519",
+      false,
+      ["verify"],
+    );
+    return webcrypto.subtle.verify(
+      "Ed25519",
+      key,
+      Buffer.from(signatureB64, "base64"),
+      Buffer.from(currentHashHex, "utf8"),
+    );
+  } catch {
+    return false;
+  }
+}
+
+export async function generateTestKeypair(): Promise<{
+  privateKey: CryptoKey;
+  publicKeyBytes: Uint8Array;
+}> {
+  const pair = await webcrypto.subtle.generateKey("Ed25519", true, [
+    "sign",
+    "verify",
+  ]);
+  const publicKeyBytes = new Uint8Array(
+    await webcrypto.subtle.exportKey("raw", pair.publicKey),
+  );
+  return { privateKey: pair.privateKey, publicKeyBytes };
+}
+
+type VectorDoc = {
+  vectors: Array<{
+    id: string;
+    entity: JsonValue;
+    prev_hash: string | null;
+    ledger_timestamp: string;
+    actor_id: string;
+    canonical_json: string;
+    expected_sha256_hex: string;
+  }>;
+  verify_fixture_test_only?: {
+    vector_id: string;
+    public_key_base64: string;
+    signature_base64: string;
+  };
+};
+
+function loadVectors(root: string): VectorDoc {
+  const vectorsPath = path.join(root, "tests", "ledger_vectors", "test_vectors.json");
   if (!fs.existsSync(vectorsPath)) {
-    console.error('test_vectors.json not found at', vectorsPath);
+    throw new Error(`test_vectors.json not found at ${vectorsPath}`);
+  }
+  return JSON.parse(fs.readFileSync(vectorsPath, "utf8")) as VectorDoc;
+}
+
+export async function checkVectors(doc: VectorDoc): Promise<number> {
+  let failed = 0;
+  for (const v of doc.vectors) {
+    const gotCanon = canonicalJson(v.entity);
+    const gotHash = computeHash(
+      v.prev_hash,
+      v.entity,
+      v.ledger_timestamp,
+      v.actor_id,
+    );
+    console.log(`${v.id}: canonical=${gotCanon}`);
+    console.log(`${v.id}: sha256=${gotHash}`);
+    if (gotCanon !== v.canonical_json) {
+      console.error(`${v.id}: FAIL canonical JSON mismatch`);
+      failed += 1;
+    }
+    if (gotHash !== v.expected_sha256_hex) {
+      console.error(`${v.id}: FAIL hash mismatch expected ${v.expected_sha256_hex}`);
+      failed += 1;
+    }
+  }
+  return failed;
+}
+
+async function main(): Promise<void> {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+  const doc = loadVectors(root);
+  let failed = await checkVectors(doc);
+
+  const fixture = doc.verify_fixture_test_only;
+  if (fixture) {
+    const vector = doc.vectors.find((v) => v.id === fixture.vector_id);
+    if (!vector) {
+      console.error("FAIL verify fixture vector missing");
+      failed += 1;
+    } else {
+      const pk = Buffer.from(fixture.public_key_base64, "base64");
+      const ok = await verifySignature(
+        pk,
+        fixture.signature_base64,
+        vector.expected_sha256_hex,
+      );
+      console.log(`verify_fixture_test_only (${fixture.vector_id}): ${ok}`);
+      if (!ok) failed += 1;
+    }
+  }
+
+  const { privateKey, publicKeyBytes } = await generateTestKeypair();
+  console.log("\nGenerated ephemeral ed25519 keypair (TEST-ONLY; not saved)");
+  console.log("public_key_base64:", Buffer.from(publicKeyBytes).toString("base64"));
+  const first = doc.vectors[0]!;
+  const h = computeHash(
+    first.prev_hash,
+    first.entity,
+    first.ledger_timestamp,
+    first.actor_id,
+  );
+  const sig = await signHashEd25519(privateKey, h);
+  console.log("ephemeral_signature_base64 (vector-1):", sig);
+  console.log(
+    "ephemeral_verify_ok:",
+    await verifySignature(publicKeyBytes, sig, h),
+  );
+
+  if (failed) {
     process.exit(1);
   }
-  const vectors = JSON.parse(fs.readFileSync(vectorsPath, 'utf8'));
-  console.log('Computing hashes for', vectors.length, 'vectors');
-  vectors.forEach((v: any, i: number) => {
-    const c = canonicalJsonBytes(v.entity);
-    const h = computeCurrentHash(v.prev_hash || '', c, v.ledger_timestamp, v.actor_id);
-    console.log(`VECTOR ${i+1}: id=${v.entity.id} hash=${h}`);
+}
+
+const isDirectRun =
+  typeof process.argv[1] === "string" &&
+  fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (isDirectRun) {
+  main().catch((err: unknown) => {
+    console.error(err);
+    process.exit(1);
   });
 }
