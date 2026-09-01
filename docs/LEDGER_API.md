@@ -416,7 +416,7 @@ Vectors 2–6 (unicode, nested objects, booleans/nulls, arrays of objects, chain
 ## 8. Security and operations
 
 - Do not commit private signing keys, PKCS8 PEMs, or hex seeds.
-- Production: KMS/HSM; publish only `kid` + public key via `public_key`.
+- Production: KMS/HSM; publish only `kid` + public key via `public_key`. See `docs/KEY_MANAGEMENT.md`.
 - Demo/test keypairs from the example scripts: print public key, sign once, discard private key. Mark TEST-ONLY.
 - `srm-core` MUST persist `canonical_entity` as structured JSON (not a display string) so verifiers can re-canonicalize.
 
