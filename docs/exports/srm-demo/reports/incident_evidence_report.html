@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>TrustLedger SRM — Incident evidence pack (synthetic)</title>
+  <style>
+    :root { --ink:#12202a; --muted:#5b6b76; --trust:#0e7c66; --line:#d7dee4; --paper:#f3f5f7; --amber:#c47a10; }
+    body { font-family: "Source Sans 3", "DejaVu Sans", sans-serif; color: var(--ink); background: white; margin: 24px; }
+    h1 { font-family: "Source Serif 4", serif; font-size: 1.6rem; margin: 0 0 0.25rem; }
+    .meta { color: var(--muted); font-size: 0.85rem; }
+    .kpis { display: flex; gap: 12px; margin: 16px 0 24px; }
+    .kpi { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.4rem; color: var(--trust); }
+    article { border-top: 1px solid var(--line); padding: 16px 0; page-break-inside: avoid; }
+    img { max-width: 320px; border-radius: 4px; }
+    code, .hash { font-family: ui-monospace, monospace; font-size: 0.72rem; word-break: break-all; }
+    .banner { background: #1f4b7a; color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <p class="banner">SYNTHETIC DEMO — no real PII — Eastern Cape-like coordinates</p>
+  <h1>Incident evidence pack</h1>
+  <p class="meta">TrustLedger SRM — Demo: Consolidated Evidence<br/>As of 2026-09-01T08:00:00Z · Filter: SITE-014 / High+Open (example)</p>
+  <div class="kpis">
+    <div class="kpi"><span>Open incidents</span><b>17</b></div>
+    <div class="kpi"><span>Overdue work orders</span><b>53</b></div>
+    <div class="kpi"><span>% inspected 30d</span><b>66.0%</b></div>
+    <div class="kpi"><span>Avg inspection score</span><b>73.0</b></div>
+  </div>
+  <article>
+    <h2>INC-302 · Road washed-out over culvert</h2>
+    <p>SITE-014 · R72 Bridge 3 - West · High · Open · 2026-08-02T14:30:00Z</p>
+    <p>Reported by USER-PUB-01 (mock). Linked asset ASSET-210 · WO-075 due 2026-08-10.</p>
+    <p><img src="../images/culvert_block_20260801.jpg" alt="Partial blockage at culvert (synthetic)"/></p>
+    <p>Evidence <strong>EVID-0099</strong> · GPS -33.0002, 25.7001 · 2026-08-01T09:17:00Z<br/>
+    Inspection <strong>INSP-1001</strong> score 72 · drainage partial_blocked</p>
+    <p>Ledger hashes for this trail are resolved at export time from <code>ledger_entries.csv</code>
+    (search entity_id INSP-1001, EVID-0099, INC-302, WO-075). Signature verification uses
+    <code>keys/ledger_ed25519_public.pem</code>.</p>
+    <p class="hash" id="ledger-hashes">{{ledger_chain}}</p>
+  </article>
+  <p class="meta">Render to PDF via browser Print → Save as PDF, or <code>wkhtmltopdf reports/incident_evidence_report.html out.pdf</code>.</p>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{# TrustLedger SRM demo — incident evidence pack (Jinja-style)
+   Fill incidents, evidence, ledger from CSV/JSON. Do not call Cloud LLM for this pack. #}
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><title>{{ plan_name }}</title></head>
+<body>
+<h1>{{ plan_name }} — filtered incidents</h1>
+<p>As of {{ as_of }} · filter {{ filter_label }}</p>
+{% for inc in incidents %}
+  <section>
+    <h2>{{ inc.id }} · {{ inc.description }}</h2>
+    <p>{{ inc.site_id }} · {{ inc.severity }} · {{ inc.status }} · {{ inc.date_time }}</p>
+    {% for ev in inc.evidence %}
+      <figure>
+        <img src="{{ images_dir }}/{{ ev.filename }}" alt="{{ ev.description }}"/>
+        <figcaption>{{ ev.id }} · {{ ev.gps_lat }}, {{ ev.gps_lon }} · {{ ev.timestamp }} · {{ ev.checksum }}</figcaption>
+      </figure>
+    {% endfor %}
+    <ol>
+    {% for lgr in inc.ledger %}
+      <li>{{ lgr.id }} {{ lgr.action }} {{ lgr.entity_type }}/{{ lgr.entity_id }}
+          prev={{ lgr.prev_hash }} current={{ lgr.current_hash }} sig={{ lgr.signature }}</li>
+    {% endfor %}
+    </ol>
+  </section>
+{% endfor %}
+</body></html>

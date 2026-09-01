@@ -1,0 +1,545 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.6022,
+          -33.9601
+        ]
+      },
+      "properties": {
+        "id": "INC-301",
+        "site_id": "SITE-001",
+        "severity": "High",
+        "status": "Resolved",
+        "description": "Illegal dumping at culvert mouth",
+        "date_time": "2026-08-17T04:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.7001,
+          -33.0002
+        ]
+      },
+      "properties": {
+        "id": "INC-302",
+        "site_id": "SITE-014",
+        "severity": "High",
+        "status": "Open",
+        "description": "Road washed-out over culvert; immediate closure recommended",
+        "date_time": "2026-08-02T14:30:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.4481,
+          -33.4212
+        ]
+      },
+      "properties": {
+        "id": "INC-303",
+        "site_id": "SITE-003",
+        "severity": "Medium",
+        "status": "Resolved",
+        "description": "Contractor noted scour at outlet apron",
+        "date_time": "2026-07-11T09:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.5891,
+          -33.8042
+        ]
+      },
+      "properties": {
+        "id": "INC-304",
+        "site_id": "SITE-004",
+        "severity": "Medium",
+        "status": "Investigating",
+        "description": "Contractor noted scour at outlet apron",
+        "date_time": "2026-08-05T18:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.9052,
+          -33.0154
+        ]
+      },
+      "properties": {
+        "id": "INC-305",
+        "site_id": "SITE-005",
+        "severity": "Critical",
+        "status": "Closed",
+        "description": "Ponding after storm; one lane restricted",
+        "date_time": "2026-08-14T03:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.8754,
+          -33.0251
+        ]
+      },
+      "properties": {
+        "id": "INC-306",
+        "site_id": "SITE-006",
+        "severity": "Medium",
+        "status": "Closed",
+        "description": "Night works lighting complaint from adjacent erf (synthetic)",
+        "date_time": "2026-08-15T14:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          26.5311,
+          -33.3102
+        ]
+      },
+      "properties": {
+        "id": "INC-307",
+        "site_id": "SITE-007",
+        "severity": "Medium",
+        "status": "Investigating",
+        "description": "Parapet spall above walkway",
+        "date_time": "2026-07-20T13:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.7842,
+          -31.5894
+        ]
+      },
+      "properties": {
+        "id": "INC-308",
+        "site_id": "SITE-008",
+        "severity": "Critical",
+        "status": "Open",
+        "description": "Sand drift covering coastal inlet",
+        "date_time": "2026-08-10T14:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.8681,
+          -31.5208
+        ]
+      },
+      "properties": {
+        "id": "INC-309",
+        "site_id": "SITE-009",
+        "severity": "High",
+        "status": "Resolved",
+        "description": "Night works lighting complaint from adjacent erf (synthetic)",
+        "date_time": "2026-07-18T17:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          24.7702,
+          -34.0284
+        ]
+      },
+      "properties": {
+        "id": "INC-310",
+        "site_id": "SITE-010",
+        "severity": "Medium",
+        "status": "Closed",
+        "description": "Sand drift covering coastal inlet",
+        "date_time": "2026-08-10T19:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          24.9214,
+          -34.0506
+        ]
+      },
+      "properties": {
+        "id": "INC-311",
+        "site_id": "SITE-011",
+        "severity": "High",
+        "status": "Investigating",
+        "description": "Illegal dumping at culvert mouth",
+        "date_time": "2026-06-26T02:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.6903,
+          -33.5452
+        ]
+      },
+      "properties": {
+        "id": "INC-312",
+        "site_id": "SITE-012",
+        "severity": "Low",
+        "status": "Closed",
+        "description": "Guardrail struck overnight; sharp edges exposed",
+        "date_time": "2026-06-28T17:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.7604,
+          -32.9581
+        ]
+      },
+      "properties": {
+        "id": "INC-313",
+        "site_id": "SITE-013",
+        "severity": "Medium",
+        "status": "Investigating",
+        "description": "Contractor noted scour at outlet apron",
+        "date_time": "2026-08-06T04:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.7001,
+          -33.0002
+        ]
+      },
+      "properties": {
+        "id": "INC-314",
+        "site_id": "SITE-014",
+        "severity": "Low",
+        "status": "Resolved",
+        "description": "Contractor noted scour at outlet apron",
+        "date_time": "2026-08-20T16:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9714,
+          -31.6282
+        ]
+      },
+      "properties": {
+        "id": "INC-315",
+        "site_id": "SITE-015",
+        "severity": "Low",
+        "status": "Open",
+        "description": "Guardrail struck overnight; sharp edges exposed",
+        "date_time": "2026-06-17T00:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.9712,
+          -33.4406
+        ]
+      },
+      "properties": {
+        "id": "INC-316",
+        "site_id": "SITE-016",
+        "severity": "Low",
+        "status": "Resolved",
+        "description": "Ponding after storm; one lane restricted",
+        "date_time": "2026-07-22T23:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          24.8311,
+          -34.1704
+        ]
+      },
+      "properties": {
+        "id": "INC-317",
+        "site_id": "SITE-017",
+        "severity": "Critical",
+        "status": "Closed",
+        "description": "Night works lighting complaint from adjacent erf (synthetic)",
+        "date_time": "2026-08-02T04:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.3912,
+          -32.8803
+        ]
+      },
+      "properties": {
+        "id": "INC-318",
+        "site_id": "SITE-018",
+        "severity": "Medium",
+        "status": "Open",
+        "description": "Guardrail struck overnight; sharp edges exposed",
+        "date_time": "2026-07-16T18:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.1506,
+          -32.3305
+        ]
+      },
+      "properties": {
+        "id": "INC-319",
+        "site_id": "SITE-019",
+        "severity": "Critical",
+        "status": "Open",
+        "description": "Community report of missing catchpit grate",
+        "date_time": "2026-08-17T09:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.8204,
+          -33.6951
+        ]
+      },
+      "properties": {
+        "id": "INC-320",
+        "site_id": "SITE-020",
+        "severity": "Low",
+        "status": "Resolved",
+        "description": "Sand drift covering coastal inlet",
+        "date_time": "2026-07-30T23:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.6022,
+          -33.9601
+        ]
+      },
+      "properties": {
+        "id": "INC-321",
+        "site_id": "SITE-001",
+        "severity": "Medium",
+        "status": "Open",
+        "description": "Parapet spall above walkway",
+        "date_time": "2026-06-11T17:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.6108,
+          -33.8704
+        ]
+      },
+      "properties": {
+        "id": "INC-322",
+        "site_id": "SITE-002",
+        "severity": "Medium",
+        "status": "Investigating",
+        "description": "Community report of missing catchpit grate",
+        "date_time": "2026-08-08T04:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.4481,
+          -33.4212
+        ]
+      },
+      "properties": {
+        "id": "INC-323",
+        "site_id": "SITE-003",
+        "severity": "High",
+        "status": "Open",
+        "description": "Night works lighting complaint from adjacent erf (synthetic)",
+        "date_time": "2026-07-14T14:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          25.5891,
+          -33.8042
+        ]
+      },
+      "properties": {
+        "id": "INC-324",
+        "site_id": "SITE-004",
+        "severity": "High",
+        "status": "Resolved",
+        "description": "Contractor noted scour at outlet apron",
+        "date_time": "2026-07-03T08:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.9052,
+          -33.0154
+        ]
+      },
+      "properties": {
+        "id": "INC-325",
+        "site_id": "SITE-005",
+        "severity": "Medium",
+        "status": "Open",
+        "description": "Guardrail struck overnight; sharp edges exposed",
+        "date_time": "2026-07-31T21:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.8754,
+          -33.0251
+        ]
+      },
+      "properties": {
+        "id": "INC-326",
+        "site_id": "SITE-006",
+        "severity": "Medium",
+        "status": "Open",
+        "description": "Sand drift covering coastal inlet",
+        "date_time": "2026-06-27T23:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          26.5311,
+          -33.3102
+        ]
+      },
+      "properties": {
+        "id": "INC-327",
+        "site_id": "SITE-007",
+        "severity": "High",
+        "status": "Closed",
+        "description": "Sand drift covering coastal inlet",
+        "date_time": "2026-07-10T22:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.7842,
+          -31.5894
+        ]
+      },
+      "properties": {
+        "id": "INC-328",
+        "site_id": "SITE-008",
+        "severity": "Medium",
+        "status": "Open",
+        "description": "Guardrail struck overnight; sharp edges exposed",
+        "date_time": "2026-07-14T04:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.8681,
+          -31.5208
+        ]
+      },
+      "properties": {
+        "id": "INC-329",
+        "site_id": "SITE-009",
+        "severity": "Medium",
+        "status": "Investigating",
+        "description": "Sand drift covering coastal inlet",
+        "date_time": "2026-07-19T13:00:00Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          24.7702,
+          -34.0284
+        ]
+      },
+      "properties": {
+        "id": "INC-330",
+        "site_id": "SITE-010",
+        "severity": "Medium",
+        "status": "Open",
+        "description": "Community report of missing catchpit grate",
+        "date_time": "2026-07-17T19:00:00Z"
+      }
+    }
+  ]
+}

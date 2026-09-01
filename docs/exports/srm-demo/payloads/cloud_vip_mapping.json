@@ -1,0 +1,32 @@
+{
+  "note": "Use when importing into a VIP / live workspace via existing TL Project / TL Incident / TL Evidence DocTypes. Fill CUSTOMER with the Frappe Customer name (e.g. VIP Pilot \u2014 Chibase).",
+  "customer": "${CUSTOMER}",
+  "project": {
+    "id": "PRJ-SRM-DEMO-001",
+    "name": "TrustLedger SRM \u2014 Demo: Consolidated Evidence",
+    "clientFunder": "Coastal District Municipality (synthetic)",
+    "budgetTotal": 12500000,
+    "budgetSpent": 1840000,
+    "ward": "R72 corridor (illustrative)",
+    "municipality": "Coastal District Municipality",
+    "status": "Active",
+    "contractorName": "Demo JV (synthetic)",
+    "startDate": "2026-05-01",
+    "targetEndDate": "2026-11-30",
+    "publicSummary": "Demo plan to show consolidation of scattered tools into one evidence-backed SRM with immutable ledgered audit trail."
+  },
+  "hero_incident": {
+    "id": "INC-302",
+    "title": "Road washed-out over culvert (R72 Bridge 3 West)",
+    "description": "Road washed-out over culvert; immediate closure recommended",
+    "ward": "R72 Bridge 3 - West",
+    "geographicArea": "SITE-014 \u00b7 -33.0002,25.7001",
+    "status": "Open",
+    "priority": "P2-High",
+    "projectId": "PRJ-SRM-DEMO-001",
+    "projectName": "TrustLedger SRM \u2014 Demo: Consolidated Evidence",
+    "reportedByRole": "community",
+    "filedByTier": "clo",
+    "reportedAt": "2026-08-02T14:30:00Z"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "as_of": "2026-09-01T08:00:00Z",
+  "open_incidents": 17,
+  "overdue_work_orders": 53,
+  "pct_assets_inspected_last_30_days": 66.0,
+  "avg_inspection_score": 73.0,
+  "counts": {
+    "organizations": 5,
+    "sites": 20,
+    "assets": 50,
+    "inspections": 200,
+    "incidents": 30,
+    "work_orders": 80,
+    "evidence": 400,
+    "ledger_entries": 500,
+    "unique_images": 30
+  }
+}

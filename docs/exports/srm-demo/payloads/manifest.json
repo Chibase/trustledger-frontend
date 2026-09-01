@@ -1,0 +1,76 @@
+{
+  "plan": "TrustLedger SRM \u2014 Demo: Consolidated Evidence",
+  "synthetic": true,
+  "gps_bounds": {
+    "lat": [
+      -34.5,
+      -31.5
+    ],
+    "lon": [
+      24.0,
+      29.0
+    ]
+  },
+  "unique_images": [
+    "culvert_block_20260801.jpg",
+    "r72_bridge_west_deck.jpg",
+    "washout_lane_closure.jpg",
+    "swartkops_silt_cell.jpg",
+    "n2_gqeberha_shoulder.jpg",
+    "sundays_river_joint.jpg",
+    "motherwell_inlet.jpg",
+    "buffalo_overpass_bearing.jpg",
+    "harbour_road_ponding.jpg",
+    "makhanda_guardrail.jpg",
+    "mthatha_ring_debris.jpg",
+    "qumbu_mitre_drain.jpg",
+    "humansdorp_crossing.jpg",
+    "jeffreys_sand_inlet.jpg",
+    "addo_livestock_grid.jpg",
+    "mdantsane_open_channel.jpg",
+    "psj_terrace_wall.jpg",
+    "paterson_n10_marker.jpg",
+    "stfrancis_causeway_scour.jpg",
+    "qonce_signal_mast.jpg",
+    "butterworth_screen.jpg",
+    "colchester_floodplain.jpg",
+    "temp_repair_bags.jpg",
+    "inspector_checklist_board.jpg",
+    "night_works_lighting.jpg",
+    "parapet_spall.jpg",
+    "catchpit_grate.jpg",
+    "gantry_bolt_corrosion.jpg",
+    "channel_vegetation.jpg",
+    "evidence_wide_context.jpg"
+  ],
+  "hero": {
+    "organization": "ORG-001",
+    "site": "SITE-014",
+    "asset": "ASSET-210",
+    "inspection": "INSP-1001",
+    "incident": "INC-302",
+    "work_order": "WO-075",
+    "evidence": "EVID-0099"
+  },
+  "canonicalisation": "json.dumps(sort_keys=True, separators=(',', ':'), ensure_ascii=False)",
+  "hash": "sha256(prev_hash + canonical_entity_representation + timestamp + actor_id); NULL prev treated as 64 zero hex chars",
+  "signature": "ed25519 over UTF-8 current_hash; stored as sig:<base64>",
+  "kpis": {
+    "as_of": "2026-09-01T08:00:00Z",
+    "open_incidents": 17,
+    "overdue_work_orders": 53,
+    "pct_assets_inspected_last_30_days": 66.0,
+    "avg_inspection_score": 73.0,
+    "counts": {
+      "organizations": 5,
+      "sites": 20,
+      "assets": 50,
+      "inspections": 200,
+      "incidents": 30,
+      "work_orders": 80,
+      "evidence": 400,
+      "ledger_entries": 500,
+      "unique_images": 30
+    }
+  }
+}

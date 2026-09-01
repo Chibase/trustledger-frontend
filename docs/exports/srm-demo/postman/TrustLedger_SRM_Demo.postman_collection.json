@@ -1,0 +1,243 @@
+{
+  "info": {
+    "_postman_id": "tl-srm-demo-consolidated-evidence",
+    "name": "TrustLedger SRM — Demo: Consolidated Evidence",
+    "description": "Hypothetical ingestion API plus current Cloud (Frappe resource / product-smoke) examples.\n\nVariables to fill:\n- baseUrl — sandbox only (never production unless seeding a private Chibase VIP workspace)\n- apiKey — Bearer token or leave blank and switch to Frappe token header\n- planId — created plan / TL Project id\n- customer — Frappe Customer name, e.g. VIP Pilot — Chibase\n\nDo not run against live customer tenants.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "apiKey", "value": "REPLACE_ME" },
+    { "key": "planId", "value": "REPLACE_PLAN_ID" },
+    { "key": "customer", "value": "VIP Pilot — Chibase" },
+    { "key": "frappeToken", "value": "REPLACE_KEY:REPLACE_SECRET" }
+  ],
+  "item": [
+    {
+      "name": "0. Plan",
+      "item": [
+        {
+          "name": "POST /api/plans (create demo plan)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"TrustLedger SRM — Demo: Consolidated Evidence\",\n  \"description\": \"Demo plan to show consolidation of scattered tools into one evidence-backed SRM with immutable ledgered audit trail.\",\n  \"visibility\": \"private\",\n  \"pin_to_dashboard\": true,\n  \"snapshot_label\": \"Demo baseline (master)\",\n  \"modules\": [\"data_collection\", \"evidence_attachments\", \"ledger_audit_trail\", \"mapping_gis\", \"workflows_approvals\", \"reporting_dashboards\", \"integrations_api_csv\", \"offline_sync\"]\n}"
+            },
+            "url": "{{baseUrl}}/api/plans",
+            "description": "If this route 404s, create the plan in the VIP Owner UI (Projects → New) named exactly as above, then set planId."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Hypothetical entity APIs",
+      "item": [
+        {
+          "name": "POST /api/organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"id\": \"ORG-001\",\n  \"name\": \"Coastal District Municipality\",\n  \"type\": \"Municipality\",\n  \"region\": \"Eastern Cape\",\n  \"description\": \"Demo municipality\"\n}"
+            },
+            "url": "{{baseUrl}}/api/organization"
+          }
+        },
+        {
+          "name": "POST /api/site",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"id\": \"SITE-014\",\n  \"org_id\": \"ORG-001\",\n  \"name\": \"R72 Bridge 3 - West\",\n  \"latitude\": -33.0002,\n  \"longitude\": 25.7001,\n  \"description\": \"Bridge on R72; drainage culvert on SW corner\"\n}"
+            },
+            "url": "{{baseUrl}}/api/site"
+          }
+        },
+        {
+          "name": "POST /api/asset",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"id\": \"ASSET-210\",\n  \"site_id\": \"SITE-014\",\n  \"asset_type\": \"Culvert - reinforced concrete\",\n  \"condition\": \"Fair\",\n  \"installation_date\": \"2012-05-01\",\n  \"asset_tag\": \"CLV-R72-210\",\n  \"notes\": \"Minor hairline cracks\"\n}"
+            },
+            "url": "{{baseUrl}}/api/asset"
+          }
+        },
+        {
+          "name": "POST /api/inspection",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"id\": \"INSP-1001\",\n  \"asset_id\": \"ASSET-210\",\n  \"inspector_id\": \"USER-INS-01\",\n  \"date_time\": \"2026-08-01T09:15:00Z\",\n  \"score\": 72,\n  \"notes\": \"Blockage and small cracks\",\n  \"checklist_json\": {\"drainage\":\"partial_blocked\",\"structural_cracks\":\"hairline\"},\n  \"status\": \"Completed\"\n}"
+            },
+            "url": "{{baseUrl}}/api/inspection"
+          }
+        },
+        {
+          "name": "POST /api/incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"id\": \"INC-302\",\n  \"site_id\": \"SITE-014\",\n  \"reported_by\": \"USER-PUB-01\",\n  \"date_time\": \"2026-08-02T14:30:00Z\",\n  \"severity\": \"High\",\n  \"status\": \"Open\",\n  \"description\": \"Road washed-out over culvert; immediate closure recommended\"\n}"
+            },
+            "url": "{{baseUrl}}/api/incident"
+          }
+        },
+        {
+          "name": "POST /api/work_order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"id\": \"WO-075\",\n  \"incident_id\": \"INC-302\",\n  \"asset_id\": \"ASSET-210\",\n  \"created_by\": \"USER-MGR-01\",\n  \"assigned_to\": \"USER-CTR-01\",\n  \"due_date\": \"2026-08-10\",\n  \"status\": \"Open\",\n  \"cost_estimate\": 15000,\n  \"notes\": \"Temporary repair to re-open lane\"\n}"
+            },
+            "url": "{{baseUrl}}/api/work_order"
+          }
+        },
+        {
+          "name": "POST /api/evidence",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"id\": \"EVID-0099\",\n  \"parent_type\": \"inspection\",\n  \"parent_id\": \"INSP-1001\",\n  \"filename\": \"culvert_block_20260801.jpg\",\n  \"file_type\": \"image\",\n  \"gps_lat\": -33.0002,\n  \"gps_lon\": 25.7001,\n  \"timestamp\": \"2026-08-01T09:17:00Z\",\n  \"uploader_id\": \"USER-INS-01\",\n  \"checksum\": \"sha256:REPLACE_FROM_CSV\",\n  \"description\": \"Photo showing partial blockage\"\n}"
+            },
+            "url": "{{baseUrl}}/api/evidence"
+          }
+        },
+        {
+          "name": "POST /api/evidence/upload (multipart + EXIF metadata)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "plan_id", "type": "text", "value": "{{planId}}" },
+                { "key": "id", "type": "text", "value": "EVID-0099" },
+                { "key": "parent_type", "type": "text", "value": "inspection" },
+                { "key": "parent_id", "type": "text", "value": "INSP-1001" },
+                { "key": "gps_lat", "type": "text", "value": "-33.0002" },
+                { "key": "gps_lon", "type": "text", "value": "25.7001" },
+                { "key": "timestamp", "type": "text", "value": "2026-08-01T09:17:00Z" },
+                { "key": "checksum", "type": "text", "value": "sha256:REPLACE_FROM_CSV" },
+                { "key": "uploader_id", "type": "text", "value": "USER-INS-01" },
+                { "key": "description", "type": "text", "value": "Photo showing partial blockage" },
+                { "key": "file", "type": "file", "src": "images/culvert_block_20260801.jpg" }
+              ]
+            },
+            "url": "{{baseUrl}}/api/evidence/upload"
+          }
+        },
+        {
+          "name": "POST /api/ledger (when import bypasses business logic)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"id\": \"LGR-5001\",\n  \"action\": \"create\",\n  \"entity_type\": \"organization\",\n  \"entity_id\": \"ORG-001\",\n  \"timestamp\": \"2026-05-01T08:00:00Z\",\n  \"actor_id\": \"USER-ADMIN-01\",\n  \"prev_hash\": \"NULL\",\n  \"current_hash\": \"sha256:REPLACE_FROM_CSV\",\n  \"signature\": \"sig:REPLACE_FROM_CSV\",\n  \"notes\": \"Seed organisation\"\n}"
+            },
+            "url": "{{baseUrl}}/api/ledger"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. VIP-style Cloud DocTypes (current product)",
+      "item": [
+        {
+          "name": "POST /api/resource/TL Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "token {{frappeToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_code\": \"PRJ-SRM-DEMO-001\",\n  \"project_title\": \"TrustLedger SRM — Demo: Consolidated Evidence\",\n  \"customer\": \"{{customer}}\",\n  \"municipality\": \"Coastal District Municipality\",\n  \"ward\": \"R72 corridor (illustrative)\",\n  \"status\": \"Active\",\n  \"public_summary\": \"Demo plan to show consolidation of scattered tools into one evidence-backed SRM with immutable ledgered audit trail.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/resource/TL%20Project",
+            "description": "Same create path VIP / live Owner uses for TL Project. Host: https://app.trustledger.co.za (sandbox Customer only)."
+          }
+        },
+        {
+          "name": "POST /api/resource/TL Incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "token {{frappeToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"incident_code\": \"INC-302\",\n  \"title\": \"Road washed-out over culvert (R72 Bridge 3 West)\",\n  \"description\": \"Road washed-out over culvert; immediate closure recommended\",\n  \"customer\": \"{{customer}}\",\n  \"project\": \"PRJ-SRM-DEMO-001\",\n  \"ward\": \"R72 Bridge 3 - West\",\n  \"geographic_area\": \"SITE-014\",\n  \"status\": \"Open\",\n  \"priority\": \"P2-High\"\n}"
+            },
+            "url": "{{baseUrl}}/api/resource/TL%20Incident"
+          }
+        },
+        {
+          "name": "POST /api/method/upload_file + TL Evidence",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "token {{frappeToken}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "images/culvert_block_20260801.jpg" },
+                { "key": "is_private", "type": "text", "value": "1" },
+                { "key": "folder", "type": "text", "value": "Home" }
+              ]
+            },
+            "url": "{{baseUrl}}/api/method/upload_file"
+          }
+        }
+      ]
+    }
+  ]
+}

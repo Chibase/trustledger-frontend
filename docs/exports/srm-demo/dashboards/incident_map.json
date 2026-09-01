@@ -1,0 +1,53 @@
+{
+  "id": "dash-map-srm-demo",
+  "name": "Incident Map",
+  "plan": "TrustLedger SRM \u2014 Demo: Consolidated Evidence",
+  "map": {
+    "engine": "leaflet",
+    "center": [
+      -33.0,
+      26.5
+    ],
+    "zoom": 7,
+    "bounds": [
+      [
+        -34.5,
+        24.0
+      ],
+      [
+        -31.5,
+        29.0
+      ]
+    ],
+    "geojson": "incident_map.geojson",
+    "heatmap": {
+      "weight_field": "severity",
+      "weights": {
+        "Low": 1,
+        "Medium": 2,
+        "High": 4,
+        "Critical": 6
+      }
+    },
+    "popup": {
+      "title": "{id}",
+      "body": "{description}",
+      "links": [
+        "Open evidence for site",
+        "Open ledger chain for incident id"
+      ]
+    }
+  },
+  "filters": [
+    "severity",
+    "status",
+    "site_id",
+    "date_time"
+  ],
+  "click_behaviour": "Open incident drawer with evidence thumbnails + ledger hashes for entity_id",
+  "recreate_ui": [
+    "Enable Mapping / GIS module",
+    "Import dashboards/incident_map.geojson",
+    "Heatmap by severity; click incident \u2192 evidence + ledger"
+  ]
+}

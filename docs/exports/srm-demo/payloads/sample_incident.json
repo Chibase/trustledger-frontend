@@ -1,0 +1,10 @@
+{
+  "plan_id": "${TRUSTLEDGER_PLAN_ID}",
+  "id": "INC-302",
+  "site_id": "SITE-014",
+  "reported_by": "USER-PUB-01",
+  "date_time": "2026-08-02T14:30:00Z",
+  "severity": "High",
+  "status": "Open",
+  "description": "Road washed-out over culvert; immediate closure recommended"
+}

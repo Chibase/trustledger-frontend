@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-01 — SRM demo pack: Consolidated Evidence
+
+- Offline VIP-style demo package for plan **TrustLedger SRM — Demo: Consolidated Evidence** (`docs/exports/srm-demo/`, zip `docs/exports/trustledger-srm-demo.zip`).
+- Synthetic Eastern Cape-like registers: 5 orgs, 20 sites, 50 assets, 200 inspections, 30 incidents, 80 work orders, 400 evidence rows, 500 chained Ed25519-signed ledger entries, 30 EXIF JPEGs.
+- Import/validate scripts (`--dry-run` PASS), Postman/curl, three dashboard JSON exports, PDF HTML template, 12–15 minute runbook. No live Cloud write (no Owner credentials in this environment).
+- Index: `docs/DEMO_PLAN_SRM_CONSOLIDATED_EVIDENCE.md`.
+
 ## 2026-08-31 — Focused SKUs on one workspace (ADR-054 / CP-2)
 
 - Commercial land-and-expand for smaller organisations is **packaging**, not three standalone products. Runbook: `docs/MODULAR_SKUS.md`.
