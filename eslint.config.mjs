@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Standalone ledger reference scripts / vector tests (not the Next app)
+    "examples/**",
+    "tests/**",
   ]),
 ]);
 
