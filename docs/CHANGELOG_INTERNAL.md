@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-01 — srm-core Postman + curl examples
+
+- `tools/demo/api-examples/`: Postman collection folders (Create Plan, Create entity, Evidence upload, Ledger) with `BASE_URL` / `API_KEY` placeholders; readable curl in README; `curl-examples.sh` prints or `--execute` (staging only).
+- Auth documented as Frappe `Authorization: token ${API_KEY}`. `plans.create` marked proposed. Human must confirm method names and auth before a real import. No live calls in this packet.
+
 ## 2026-09-01 — SRM demo import pack (offline zip)
 
 - `tools/demo/srm-import/`: medium CSVs (5/20/50/200/30/80/400/500), 30 royalty-free JPEGs with injected EXIF GPS/time, `import_script.py --dry-run|--run|--create-ledger`, Postman collection with `BASE_URL` / `API_KEY` placeholders.

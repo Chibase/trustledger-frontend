@@ -71,19 +71,25 @@ Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH
 6. AI methods wrapping xAI with JSON schema validation
 7. Notes + evidence list endpoints
 
-## Demo import create methods (staging pack)
+## Write methods (staging / import — confirm before live use)
 
-Offline pack: `tools/demo/srm-import/` (zip `tools/demo/trustledger-srm-demo.zip`).  
-These **create** paths are what `import_script.py --run` POSTs. They are not live on Cloud until srm-core implements them. Do not import to production without a human-scoped key.
+List/get paths above are what the Vercel app calls today. **Create** paths below are the defaults used by `tools/demo/api-examples/` (Postman + curl) and `tools/demo/srm-import/import_script.py`. Human must confirm names and `Authorization: token key:secret` vs session cookie before a real import. They may 404 until srm-core implements them.
 
-| Action | Path |
-|--------|------|
-| Create organisation | `/api/method/srm_core.api.organizations.create_organization` |
-| Create site | `/api/method/srm_core.api.sites.create_site` |
-| Create asset | `/api/method/srm_core.api.assets.create_asset` |
-| Create inspection | `/api/method/srm_core.api.inspections.create_inspection` |
-| Create incident | `/api/method/srm_core.api.incidents.create_incident` |
-| Create work order | `/api/method/srm_core.api.work_orders.create_work_order` |
-| Upload evidence (multipart) | `/api/method/srm_core.api.evidence.upload_evidence` |
-| Create ledger entry | `/api/method/srm_core.api.ledger.create_entry` |
+Offline pack: `tools/demo/srm-import/` (zip `tools/demo/trustledger-srm-demo.zip`). Do not import to production without a human-scoped key.
 
+| Action | Path | Notes |
+|--------|------|-------|
+| Create plan | `/api/method/srm_core.api.plans.create` | **Proposed.** Skip if Cloud does not expose it. |
+| Create organisation | `/api/method/srm_core.api.organizations.create_organization` | Demo import |
+| Create site | `/api/method/srm_core.api.sites.create_site` | Demo import |
+| Create asset | `/api/method/srm_core.api.assets.create_asset` | Demo import |
+| Create inspection | `/api/method/srm_core.api.inspections.create_inspection` | Demo import |
+| Create incident | `/api/method/srm_core.api.incidents.create_incident` | Demo import |
+| Create work order | `/api/method/srm_core.api.work_orders.create_work_order` | Demo import |
+| Upload evidence | `/api/method/srm_core.api.evidence.upload_evidence` | multipart: `gps_lat`, `gps_lon`, `timestamp`, `checksum`, `file` |
+| Create ledger entry | `/api/method/srm_core.api.ledger.create_entry` | `docs/LEDGER_API.md` |
+| Verify ledger entry | `/api/method/srm_core.api.ledger.verify_entry` | `docs/LEDGER_API.md` |
+| Get ledger chain | `/api/method/srm_core.api.ledger.get_chain` | GET `entity_id` |
+| Ledger public key | `/api/method/srm_core.api.ledger.public_key` | Public key only |
+
+Postman: `tools/demo/api-examples/TrustLedger_srm_core.postman_collection.json` (`BASE_URL`, `API_KEY` placeholders). Curl: `tools/demo/api-examples/README.md`.
