@@ -1,0 +1,23 @@
+TrustLedger SRM demo import — acceptance log
+mode: dry-run
+
+count organizations.csv: 5 (expected 5) [OK]
+count sites.csv: 20 (expected 20) [OK]
+count assets.csv: 50 (expected 50) [OK]
+count inspections.csv: 200 (expected 200) [OK]
+count incidents.csv: 30 (expected 30) [OK]
+count work_orders.csv: 80 (expected 80) [OK]
+count evidence.csv: 400 (expected 400) [OK]
+count users_and_roles.csv: 20 (expected 20) [OK]
+count ledger_entries.csv: 500 (expected 500) [OK]
+gps_bounds_failures: 0
+evidence_checksum_missing: 0
+evidence_local_images_verified: 30 (need >= 30)
+exif_gps_time_mismatches: 0
+ledger_hash_mismatches: 0
+ledger_signature_mismatches: 0
+
+missing_or_invalid_references: none
+
+referential_integrity: PASS
+overall: PASS

@@ -70,3 +70,20 @@ Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH
 5. Engagements + commitments DocTypes (24c–24d)
 6. AI methods wrapping xAI with JSON schema validation
 7. Notes + evidence list endpoints
+
+## Demo import create methods (staging pack)
+
+Offline pack: `tools/demo/srm-import/` (zip `tools/demo/trustledger-srm-demo.zip`).  
+These **create** paths are what `import_script.py --run` POSTs. They are not live on Cloud until srm-core implements them. Do not import to production without a human-scoped key.
+
+| Action | Path |
+|--------|------|
+| Create organisation | `/api/method/srm_core.api.organizations.create_organization` |
+| Create site | `/api/method/srm_core.api.sites.create_site` |
+| Create asset | `/api/method/srm_core.api.assets.create_asset` |
+| Create inspection | `/api/method/srm_core.api.inspections.create_inspection` |
+| Create incident | `/api/method/srm_core.api.incidents.create_incident` |
+| Create work order | `/api/method/srm_core.api.work_orders.create_work_order` |
+| Upload evidence (multipart) | `/api/method/srm_core.api.evidence.upload_evidence` |
+| Create ledger entry | `/api/method/srm_core.api.ledger.create_entry` |
+

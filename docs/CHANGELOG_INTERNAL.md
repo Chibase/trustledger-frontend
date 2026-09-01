@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-01 — SRM demo import pack (offline zip)
+
+- `tools/demo/srm-import/`: medium CSVs (5/20/50/200/30/80/400/500), 30 royalty-free JPEGs with injected EXIF GPS/time, `import_script.py --dry-run|--run|--create-ledger`, Postman collection with `BASE_URL` / `API_KEY` placeholders.
+- Zip: `tools/demo/trustledger-srm-demo.zip`. TEST keypair labelled `TEST-KEYPAIR-DO-NOT-USE-IN-PROD`. Script refuses production host and `--run` without `--i-approve-staging`.
+- Do not import into customer workspaces. Human must supply a scoped staging key before `--run`.
+
 ## 2026-09-01 — Ledger key management (KMS mock)
 
 - `docs/KEY_MANAGEMENT.md`: no private keys in git; TEST keys only in demo ZIP `TEST-KEYPAIR-DO-NOT-USE-IN-PROD/`; AWS/GCP Sign call shapes; rotation/audit checklist.

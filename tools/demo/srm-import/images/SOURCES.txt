@@ -1,0 +1,33 @@
+Royalty-free placeholder stills for the TrustLedger SRM demo pack.
+EXIF GPS and timestamps are synthetic and must match evidence.csv rows EVID-0001–EVID-0030.
+
+field_01.jpg: Lorem Picsum seed trustledger-srm-01 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_02.jpg: Lorem Picsum seed trustledger-srm-02 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_03.jpg: Lorem Picsum seed trustledger-srm-03 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_04.jpg: Lorem Picsum seed trustledger-srm-04 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_05.jpg: Lorem Picsum seed trustledger-srm-05 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_06.jpg: Lorem Picsum seed trustledger-srm-06 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_07.jpg: Lorem Picsum seed trustledger-srm-07 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_08.jpg: Lorem Picsum seed trustledger-srm-08 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_09.jpg: Lorem Picsum seed trustledger-srm-09 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_10.jpg: Lorem Picsum seed trustledger-srm-10 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_11.jpg: Lorem Picsum seed trustledger-srm-11 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_12.jpg: Lorem Picsum seed trustledger-srm-12 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_13.jpg: Lorem Picsum seed trustledger-srm-13 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_14.jpg: Lorem Picsum seed trustledger-srm-14 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_15.jpg: Lorem Picsum seed trustledger-srm-15 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_16.jpg: Lorem Picsum seed trustledger-srm-16 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_17.jpg: Lorem Picsum seed trustledger-srm-17 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_18.jpg: Lorem Picsum seed trustledger-srm-18 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_19.jpg: Lorem Picsum seed trustledger-srm-19 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_20.jpg: Lorem Picsum seed trustledger-srm-20 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_21.jpg: Lorem Picsum seed trustledger-srm-21 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_22.jpg: Lorem Picsum seed trustledger-srm-22 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_23.jpg: Lorem Picsum seed trustledger-srm-23 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_24.jpg: Lorem Picsum seed trustledger-srm-24 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_25.jpg: Lorem Picsum seed trustledger-srm-25 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_26.jpg: Lorem Picsum seed trustledger-srm-26 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_27.jpg: Lorem Picsum seed trustledger-srm-27 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_28.jpg: Lorem Picsum seed trustledger-srm-28 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_29.jpg: Lorem Picsum seed trustledger-srm-29 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
+field_30.jpg: Lorem Picsum seed trustledger-srm-30 (Unsplash / royalty-free) or generated still; EXIF GPS/time injected for demo.
