@@ -28,7 +28,6 @@ const mockedChain: LedgerEntry[] = [
       parent_type: "inspection",
       timestamp: "2026-08-01T09:17:00Z",
       uploader_id: "USER-INS-01",
-      checksum: "sha256:demo-checksum",
     },
   },
 ];
