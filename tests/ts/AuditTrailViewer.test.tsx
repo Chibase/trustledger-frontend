@@ -4,6 +4,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AuditTrailViewer from "@/components/audit/AuditTrailViewer";
+import {
+  MOCK_LEDGER_CHAIN,
+  TEST_ONLY_PUBLIC_KEY,
+  VECTOR_1_HASH,
+  VECTOR_3_HASH,
+} from "@/lib/ledger/mockChain";
 import type { LedgerEntry } from "@/lib/ledger/types";
 import { verifyLedgerEntry } from "@/lib/ledger/verifyEntry";
 
@@ -12,31 +18,8 @@ jest.mock("@/lib/ledger/verify", () => ({
   verificationCryptoAvailable: () => true,
 }));
 
-const ENTRY: LedgerEntry = {
-  id: "LGR-5001",
-  action: "create",
-  entity_type: "evidence",
-  entity_id: "EVID-0099",
-  timestamp: "2026-08-01T09:17:30Z",
-  actor_id: "USER-INS-01",
-  prev_hash: "",
-  current_hash:
-    "f75f31fd969b0de632af1c7604a536d5bf068cde34459e1ad8ab0a7f4f533059",
-  signature:
-    "oqw3ddGMvAsw8D3LsoqqVU3izSlW7RgBWgisEzTShX86Qbyp/Q+vaUndwthPktrhdi5FJvR8Vm6cbQgJqUsJCw==",
-  canonical_entity: {
-    filename: "culvert_block_20260801.jpg",
-    gps_lat: -33.0002,
-    gps_lon: 25.7001,
-    id: "EVID-0099",
-    parent_id: "INSP-1001",
-    parent_type: "inspection",
-    timestamp: "2026-08-01T09:17:00Z",
-    uploader_id: "USER-INS-01",
-  },
-};
-
-const PUB = "ktdnmKwz9NE9/9D8PAwjzPhRZLN3ZjTMnChUZ58Hy1c=";
+const ENTRY: LedgerEntry = MOCK_LEDGER_CHAIN[0]!;
+const PUB = TEST_ONLY_PUBLIC_KEY;
 
 const { verifySignatureBase64 } = jest.requireMock("@/lib/ledger/verify") as {
   verifySignatureBase64: jest.Mock;
@@ -59,17 +42,30 @@ test("renders a chain of entries with prev → current hash and evidence metadat
     <AuditTrailViewer
       entityType="evidence"
       entityId="EVID-0099"
-      initialEntries={[withMeta]}
+      initialEntries={[withMeta, MOCK_LEDGER_CHAIN[1]!]}
       initialPublicKey={PUB}
     />,
   );
   expect(screen.getByRole("heading", { name: /audit trail/i })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /verify chain/i })).toBeInTheDocument();
   expect(screen.getByText(/genesis/i)).toBeInTheDocument();
+  expect(screen.getByText(/LGR-5001/)).toBeInTheDocument();
+  expect(screen.getByText(/LGR-5002/)).toBeInTheDocument();
   expect(screen.getByText(/gps_lat/i)).toBeInTheDocument();
   expect(screen.getByText("-33.0002")).toBeInTheDocument();
   expect(screen.getByText("25.7001")).toBeInTheDocument();
   expect(screen.getByText("sha256:demo-checksum")).toBeInTheDocument();
+  expect(screen.getByText(/USER-INS-01/)).toBeInTheDocument();
+  expect(screen.getByText(/USER-INS-02/)).toBeInTheDocument();
+  const hashes = screen.getAllByText(
+    new RegExp(`${VECTOR_1_HASH.slice(0, 10)}…${VECTOR_1_HASH.slice(-6)}`),
+  );
+  expect(hashes.length).toBeGreaterThanOrEqual(2);
+  expect(
+    screen.getByText(
+      new RegExp(`${VECTOR_3_HASH.slice(0, 10)}…${VECTOR_3_HASH.slice(-6)}`),
+    ),
+  ).toBeInTheDocument();
 });
 
 test("loading then error UX when get_chain fails", async () => {
@@ -134,10 +130,23 @@ test("Verify shows mismatch when stored current_hash does not match", async () =
   );
 });
 
+test("Verify chain marks matching signed entry verified", async () => {
+  const user = userEvent.setup();
+  render(
+    <AuditTrailViewer
+      entityType="evidence"
+      entityId="EVID-0099"
+      initialEntries={MOCK_LEDGER_CHAIN}
+      initialPublicKey={PUB}
+    />,
+  );
+  await user.click(screen.getByRole("button", { name: /verify chain/i }));
+  await waitFor(() =>
+    expect(screen.getByText(/^verified$/i)).toBeInTheDocument(),
+  );
+});
+
 test("verifyLedgerEntry: mock public key + matching hash → verified", async () => {
-  const { verifySignatureBase64 } = jest.requireMock("@/lib/ledger/verify") as {
-    verifySignatureBase64: jest.Mock;
-  };
   verifySignatureBase64.mockResolvedValueOnce(true);
   const outcome = await verifyLedgerEntry(ENTRY, PUB);
   expect(outcome.status).toBe("verified");
@@ -145,9 +154,6 @@ test("verifyLedgerEntry: mock public key + matching hash → verified", async ()
 });
 
 test("verifyLedgerEntry: mock public key rejected signature → bad_signature", async () => {
-  const { verifySignatureBase64 } = jest.requireMock("@/lib/ledger/verify") as {
-    verifySignatureBase64: jest.Mock;
-  };
   verifySignatureBase64.mockResolvedValueOnce(false);
   const outcome = await verifyLedgerEntry(ENTRY, PUB);
   expect(outcome.status).toBe("bad_signature");

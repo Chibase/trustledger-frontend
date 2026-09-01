@@ -16,7 +16,8 @@ Reusable **Audit trail / verification** panel for TrustLedger desks.
 |------|------|
 | `src/components/audit/AuditTrailViewer.tsx` | Viewer |
 | `src/components/audit/AuditTrailPanel.tsx` | Collapsible mount |
-| `src/stories/AuditTrailViewer.stories.tsx` | Storybook CSF (no Storybook package required to typecheck) |
+| `src/stories/AuditTrailViewer.stories.tsx` | Storybook CSF — mocked vector-1 → vector-3 chain |
+| `src/lib/ledger/mockChain.ts` | TEST-ONLY public key + two-entry chain fixture |
 | `tests/ts/AuditTrailViewer.test.tsx` | Jest + Testing Library |
 
 ## Proposed production mounts (needs UX sign-off)
