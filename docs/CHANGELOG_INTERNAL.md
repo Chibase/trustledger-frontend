@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-01 — Ledger key management (KMS mock)
+
+- `docs/KEY_MANAGEMENT.md`: no private keys in git; TEST keys only in demo ZIP `TEST-KEYPAIR-DO-NOT-USE-IN-PROD/`; AWS/GCP Sign call shapes; rotation/audit checklist.
+- `examples/python/sign_via_kms_example.py`: mocked KMS client, key **handle** from env, default `TRUSTLEDGER_KMS_MOCK=1`. Does not persist or print a private key. Human security review before production.
+
 ## 2026-09-01 — CI ledger acceptance + import dry-run
 
 - `.github/workflows/ledger-acceptance.yml` on pull_request (`src/`, `docs/`, `tests/**`, `tools/**`). Checkout, Node 20, Python 3.12, `tools/ci_run.sh`.
