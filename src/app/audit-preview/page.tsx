@@ -1,18 +1,8 @@
+"use client";
+
 import { AuditTrailViewer } from "@/components/audit/AuditTrailViewer";
 import type { LedgerEntry } from "@/lib/ledger/types";
 
-/**
- * CSF-style story (no @storybook/react dependency so Next typecheck stays green).
- * Wire Storybook + MSW in the frontend dev flow when adding Storybook to CI.
- */
-const meta = {
-  title: "Audit/AuditTrailViewer",
-  component: AuditTrailViewer,
-};
-
-export default meta;
-
-/** TEST-ONLY public key from tests/ledger_vectors/test_vectors.json. Not a secret. */
 const TEST_PUBLIC_KEY =
   "ktdnmKwz9NE9/9D8PAwjzPhRZLN3ZjTMnChUZ58Hy1c=";
 
@@ -38,47 +28,45 @@ const mockedChain: LedgerEntry[] = [
       parent_type: "inspection",
       timestamp: "2026-08-01T09:17:00Z",
       uploader_id: "USER-INS-01",
+      checksum: "sha256:demo-checksum",
     },
   },
 ];
 
-export const WithMockedChain = {
-  name: "Mocked ledger chain",
-  render: () => (
-    <div className="mx-auto max-w-2xl p-4">
+/** Public UX preview for PR review — not a production desk. */
+export default function AuditPreviewPage() {
+  return (
+    <main className="mx-auto max-w-2xl space-y-8 p-6">
+      <header>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-tl-trust">
+          UX preview
+        </p>
+        <h1 className="mt-1 font-display text-2xl font-semibold text-tl-ink">
+          Audit trail / verification
+        </h1>
+        <p className="mt-2 text-sm text-tl-ink-muted">
+          Mocked ledger chain (TEST-ONLY public key). Confirm copy and
+          placement on Incident / Evidence before merge.
+        </p>
+      </header>
       <AuditTrailViewer
         entityType="evidence"
         entityId="EVID-0099"
         initialEntries={mockedChain}
         initialPublicKey={TEST_PUBLIC_KEY}
       />
-    </div>
-  ),
-};
-
-export const VerificationUnavailable = {
-  name: "No public key",
-  render: () => (
-    <div className="mx-auto max-w-2xl p-4">
       <AuditTrailViewer
         entityType="evidence"
         entityId="EVID-0099"
         initialEntries={mockedChain}
         initialPublicKey={null}
       />
-    </div>
-  ),
-};
-
-export const EmptyChain = {
-  render: () => (
-    <div className="mx-auto max-w-2xl p-4">
       <AuditTrailViewer
         entityType="incident"
         entityId="INC-1001"
         initialEntries={[]}
         initialPublicKey={TEST_PUBLIC_KEY}
       />
-    </div>
-  ),
-};
+    </main>
+  );
+}

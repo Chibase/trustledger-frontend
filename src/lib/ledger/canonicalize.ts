@@ -1,36 +1,80 @@
-// Canonicalization helpers and compute hash utilities
+import type { LedgerJson } from "@/lib/ledger/types";
 
-export function canonicalizeObject(obj: any): Uint8Array {
-  // Recursively sort object keys and stringify without extra spaces
-  function canonicalize(value: any): any {
-    if (Array.isArray(value)) return value.map(canonicalize);
-    if (value && typeof value === 'object') {
-      const keys = Object.keys(value).sort();
-      const out: any = {};
-      for (const k of keys) out[k] = canonicalize(value[k]);
-      return out;
-    }
-    return value;
+function sortKeys(value: LedgerJson): LedgerJson {
+  if (Array.isArray(value)) {
+    return value.map(sortKeys);
   }
-  const canonical = canonicalize(obj);
-  const s = JSON.stringify(canonical); // no extra spaces by default
-  return new TextEncoder().encode(s);
+  if (value !== null && typeof value === "object") {
+    const out: { [key: string]: LedgerJson } = {};
+    for (const key of Object.keys(value).sort()) {
+      out[key] = sortKeys(value[key]!);
+    }
+    return out;
+  }
+  return value;
 }
 
-export async function computeCurrentHashHex(prev_hash: string | null, canonical_entity_bytes: Uint8Array, timestamp: string, actor_id: string): Promise<string> {
-  const prev = new TextEncoder().encode(prev_hash || '');
-  const t = new TextEncoder().encode(timestamp);
-  const a = new TextEncoder().encode(actor_id);
-  // concat
-  const data = new Uint8Array(prev.length + canonical_entity_bytes.length + t.length + a.length);
-  data.set(prev, 0);
-  data.set(canonical_entity_bytes, prev.length);
-  data.set(t, prev.length + canonical_entity_bytes.length);
-  data.set(a, prev.length + canonical_entity_bytes.length + t.length);
+/** Spec §4: sorted keys, separators (",", ":"), ensure_ascii=false. */
+export function canonicalJson(obj: LedgerJson): string {
+  return JSON.stringify(sortKeys(obj));
+}
 
-  // compute sha256
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+export function asLedgerJson(value: unknown): LedgerJson {
+  if (
+    value === null ||
+    typeof value === "boolean" ||
+    typeof value === "number" ||
+    typeof value === "string"
+  ) {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map(asLedgerJson);
+  }
+  if (typeof value === "object") {
+    const out: { [key: string]: LedgerJson } = {};
+    for (const [key, nested] of Object.entries(value)) {
+      out[key] = asLedgerJson(nested);
+    }
+    return out;
+  }
+  return null;
+}
+
+function concatBytes(parts: Uint8Array[]): Uint8Array {
+  const length = parts.reduce((sum, part) => sum + part.length, 0);
+  const data = new Uint8Array(length);
+  let offset = 0;
+  for (const part of parts) {
+    data.set(part, offset);
+    offset += part.length;
+  }
+  return data;
+}
+
+function toHex(bytes: Uint8Array): string {
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Spec §5: SHA-256 hex of
+ * prev_hash_bytes + canonical_entity_bytes + timestamp_bytes + actor_id_bytes.
+ * null / "" prev_hash → empty prev_hash_bytes.
+ */
+export async function computeCurrentHashHex(
+  prevHash: string | null | undefined,
+  entity: LedgerJson,
+  timestamp: string,
+  actorId: string,
+): Promise<string> {
+  const encoder = new TextEncoder();
+  const prev = encoder.encode(prevHash || "");
+  const data = concatBytes([
+    prev,
+    encoder.encode(canonicalJson(entity)),
+    encoder.encode(timestamp),
+    encoder.encode(actorId),
+  ]);
+  const digest = await crypto.subtle.digest("SHA-256", data as BufferSource);
+  return toHex(new Uint8Array(digest));
 }

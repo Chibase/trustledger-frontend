@@ -8,6 +8,7 @@ import { NoteSentimentAssist } from "@/components/ai/NoteSentimentAssist";
 import { DiscussionSpace } from "@/components/discussion/DiscussionSpace";
 import { ProcessStageTimeline } from "@/components/incidents/ProcessStageTimeline";
 import { ProcessStageActions } from "@/components/incidents/ProcessStageActions";
+import { AuditTrailPanel } from "@/components/audit/AuditTrailPanel";
 import { evidenceService } from "@/services/noteService";
 import { incidentService } from "@/services/incidentService";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
@@ -350,13 +351,20 @@ export default function AppIncidentDetailPage({
         ) : (
           <ul className="mb-4 space-y-2">
             {evidence.map((file) => (
-              <li key={file.id}>
-                {file.fileName}
-                <span className="text-tl-ink-muted">
-                  {" "}
-                  · {file.classification}
-                  {file.isPrimary ? " · primary" : ""}
-                </span>
+              <li key={file.id} className="space-y-2">
+                <div>
+                  {file.fileName}
+                  <span className="text-tl-ink-muted">
+                    {" "}
+                    · {file.classification}
+                    {file.isPrimary ? " · primary" : ""}
+                  </span>
+                </div>
+                <AuditTrailPanel
+                  entityType="evidence"
+                  entityId={file.id}
+                  summaryLabel={`Audit trail — ${file.fileName}`}
+                />
               </li>
             ))}
           </ul>
@@ -393,6 +401,9 @@ export default function AppIncidentDetailPage({
           library). Files over 2 MB store metadata only until Cloud File (T5).
         </p>
       </section>
+
+      {/* Proposed production mount — UX must confirm copy and placement. */}
+      <AuditTrailPanel entityType="incident" entityId={caseRecord.id} />
 
       <section className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">

@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-01 — AuditTrailViewer on incident / evidence desks
+
+- Reusable `AuditTrailViewer` fetches `get_chain` + `public_key`, shows prev_hash → current_hash, actor, timestamp, evidence GPS/checksum, and Verify / Verify chain.
+- Collapsible `AuditTrailPanel` proposed on `/app/incidents/[id]` (case + per-evidence). UX must confirm copy and placement before treating this as the production layout.
+- Jest + Testing Library: `npm run test:audit`. Story: `src/stories/AuditTrailViewer.stories.tsx`. No private keys.
+
 ## 2026-09-01 — Ledger canonicalization vectors (6) + pytest/Jest
 
 - `tests/ledger_vectors/test_vectors.json` now has **six** locked entities (`entity`, `canonical_json`, `prev_hash` including JSON `null`, `timestamp`, `actor_id`, `expected_hash_hex`).

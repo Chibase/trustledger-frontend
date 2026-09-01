@@ -44,4 +44,8 @@ export const FRAPPE_METHODS = {
   listSocioIndicators: "/api/method/srm_core.api.geo.list_indicators",
   listStakeholders: "/api/method/srm_core.api.stakeholders.list_stakeholders",
   getStakeholder: "/api/method/srm_core.api.stakeholders.get_stakeholder",
+  ledgerGetChain: "/api/method/srm_core.api.ledger.get_chain",
+  ledgerPublicKey: "/api/method/srm_core.api.ledger.public_key",
+  ledgerVerifyEntry: "/api/method/srm_core.api.ledger.verify_entry",
+  ledgerCreateEntry: "/api/method/srm_core.api.ledger.create_entry",
 } as const;

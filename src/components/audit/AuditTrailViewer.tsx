@@ -1,167 +1,309 @@
-import React, { useEffect, useState } from 'react';
-import { canonicalizeObject, computeCurrentHashHex } from '@/lib/ledger/canonicalize';
-import { verifySignatureBase64 } from '@/lib/ledger/verify';
+"use client";
 
-type LedgerEntry = {
-  id: string;
-  action: string;
-  entity_type: string;
-  entity_id: string;
-  timestamp: string;
-  actor_id: string;
-  prev_hash: string | null;
-  current_hash: string;
-  signature?: string | null;
-  canonical_entity?: any;
-};
+import { useCallback, useEffect, useId, useState } from "react";
+import { API_BASE_URL } from "@/config/api";
+import { parseLedgerChain, parsePublicKey } from "@/lib/ledger/parseChain";
+import type { LedgerEntry, LedgerJson, VerifyStatus } from "@/lib/ledger/types";
+import { verifyLedgerEntry } from "@/lib/ledger/verifyEntry";
 
-type Props = {
+const GET_CHAIN = "/api/method/srm_core.api.ledger.get_chain";
+const PUBLIC_KEY = "/api/method/srm_core.api.ledger.public_key";
+
+export type AuditTrailViewerProps = {
   entityType: string;
   entityId: string;
-  apiBaseUrl?: string; // optional override
+  apiBaseUrl?: string;
+  /** Storybook / tests: skip network. */
+  initialEntries?: LedgerEntry[];
+  initialPublicKey?: string | null;
 };
 
-export function AuditTrailViewer({ entityType, entityId, apiBaseUrl }: Props) {
-  const [chain, setChain] = useState<LedgerEntry[] | null>(null);
-  const [pubKeyB64, setPubKeyB64] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
-  const [verifications, setVerifications] = useState<Record<string, boolean | string>>({});
-  const base = apiBaseUrl || process.env.NEXT_PUBLIC_API_BASE_URL || '';
+function resolveBase(apiBaseUrl?: string): string {
+  const raw =
+    apiBaseUrl ||
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    API_BASE_URL;
+  return raw.replace(/\/$/, "");
+}
+
+function shortHash(value: string | null | undefined): string {
+  if (!value) return "∅ genesis";
+  if (value.length <= 18) return value;
+  return `${value.slice(0, 10)}…${value.slice(-6)}`;
+}
+
+function evidenceFields(entity: LedgerJson | undefined): {
+  checksum?: string;
+  gps_lat?: string;
+  gps_lon?: string;
+  timestamp?: string;
+} | null {
+  if (!entity || typeof entity !== "object" || Array.isArray(entity)) {
+    return null;
+  }
+  const rec = entity;
+  const checksum =
+    typeof rec.checksum === "string"
+      ? rec.checksum
+      : typeof rec.file_hash === "string"
+        ? rec.file_hash
+        : undefined;
+  const gps_lat =
+    typeof rec.gps_lat === "number" || typeof rec.gps_lat === "string"
+      ? String(rec.gps_lat)
+      : undefined;
+  const gps_lon =
+    typeof rec.gps_lon === "number" || typeof rec.gps_lon === "string"
+      ? String(rec.gps_lon)
+      : undefined;
+  const timestamp =
+    typeof rec.timestamp === "string" ? rec.timestamp : undefined;
+  if (!checksum && !gps_lat && !gps_lon && !timestamp) return null;
+  return { checksum, gps_lat, gps_lon, timestamp };
+}
+
+function statusLabel(status: VerifyStatus, hasPublicKey: boolean): string {
+  if (status === "verified") return "Verified";
+  if (status === "hash_mismatch") return "Mismatch";
+  if (status === "bad_signature") return "Mismatch";
+  if (!hasPublicKey) return "Verification not available";
+  if (status === "unavailable") return "Verification not available";
+  return "Not verified";
+}
+
+export function AuditTrailViewer({
+  entityType,
+  entityId,
+  apiBaseUrl,
+  initialEntries,
+  initialPublicKey,
+}: AuditTrailViewerProps) {
+  const headingId = useId();
+  const skipFetch = initialEntries !== undefined;
+  const [chain, setChain] = useState<LedgerEntry[] | null>(
+    initialEntries ?? null,
+  );
+  const [publicKeyB64, setPublicKeyB64] = useState<string | null>(
+    initialPublicKey === undefined ? null : initialPublicKey,
+  );
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [phase, setPhase] = useState<"idle" | "loading" | "verifying">(
+    skipFetch ? "idle" : "loading",
+  );
+  const [verifications, setVerifications] = useState<
+    Record<string, VerifyStatus>
+  >({});
+  const base = resolveBase(apiBaseUrl);
 
   useEffect(() => {
+    if (skipFetch) return;
+    const controller = new AbortController();
+
     async function load() {
-      setStatus('loading');
+      setPhase("loading");
+      setLoadError(null);
       try {
-        const q = new URL(`${base}/api/method/srm_core.api.ledger.get_chain`);
-        q.searchParams.set('entity_id', entityId);
-        const r = await fetch(q.toString(), { credentials: 'include', method: 'GET' });
-        const json = await r.json();
-        const entries: LedgerEntry[] = json?.message || [];
-        setChain(entries);
+        const chainUrl = `${base}${GET_CHAIN}?entity_id=${encodeURIComponent(entityId)}`;
+        const chainRes = await fetch(chainUrl, {
+          credentials: "include",
+          method: "GET",
+          signal: controller.signal,
+        });
+        const chainJson: unknown = await chainRes.json();
+        const parsed = parseLedgerChain(chainJson);
+        if (!parsed.ok) {
+          setChain([]);
+          setLoadError(parsed.error);
+        } else {
+          setChain(parsed.entries);
+        }
       } catch (err) {
-        console.error(err);
+        if (controller.signal.aborted) return;
         setChain([]);
+        setLoadError(
+          err instanceof Error ? err.message : "Could not load the audit trail.",
+        );
       }
 
       try {
-        const r2 = await fetch(`${base}/api/method/srm_core.api.ledger.public_key`);
-        const j2 = await r2.json();
-        const key = j2?.message?.public_key;
-        setPubKeyB64(key || null);
-      } catch (e) {
-        setPubKeyB64(null);
+        const keyRes = await fetch(`${base}${PUBLIC_KEY}`, {
+          credentials: "include",
+          method: "GET",
+          signal: controller.signal,
+        });
+        const keyJson: unknown = await keyRes.json();
+        const key = parsePublicKey(keyJson);
+        setPublicKeyB64(key?.public_key ?? null);
+      } catch {
+        if (controller.signal.aborted) return;
+        setPublicKeyB64(null);
       }
 
-      setStatus(null);
+      if (!controller.signal.aborted) setPhase("idle");
     }
-    load();
-  }, [entityId, base]);
 
-  async function verifyEntry(entry: LedgerEntry) {
-    if (!entry.signature) return 'no-signature';
-    if (!entry.canonical_entity) return 'no-canonical';
-    if (!pubKeyB64) return 'no-pubkey';
+    void load();
+    return () => controller.abort();
+  }, [base, entityId, skipFetch]);
 
-    // Recompute canonical JSON bytes and hash
-    try {
-      const canonicalBytes = canonicalizeObject(entry.canonical_entity);
-      const recomputed = await computeCurrentHashHex(entry.prev_hash || '', canonicalBytes, entry.timestamp, entry.actor_id);
-      if (recomputed !== entry.current_hash) {
-        setVerifications((s) => ({ ...s, [entry.id]: false }));
-        return false;
-      }
-      const ok = await verifySignatureBase64(pubKeyB64, entry.signature, recomputed);
-      setVerifications((s) => ({ ...s, [entry.id]: ok }));
-      return ok;
-    } catch (err) {
-      console.error('verify error', err);
-      setVerifications((s) => ({ ...s, [entry.id]: 'error' }));
-      return 'error';
-    }
-  }
+  const runVerify = useCallback(
+    async (entry: LedgerEntry) => {
+      const outcome = await verifyLedgerEntry(entry, publicKeyB64);
+      setVerifications((prev) => ({ ...prev, [entry.id]: outcome.status }));
+      return outcome.status;
+    },
+    [publicKeyB64],
+  );
 
   async function verifyAll() {
-    if (!chain) return;
-    setStatus('verifying');
-    for (const e of chain) {
-      // eslint-disable-next-line no-await-in-loop
-      // only verify entries that have signature + canonical_entity
-      if (e.signature && e.canonical_entity) await verifyEntry(e);
+    if (!chain?.length) return;
+    setPhase("verifying");
+    for (const entry of chain) {
+      await runVerify(entry);
     }
-    setStatus(null);
+    setPhase("idle");
   }
 
+  const hasPublicKey = Boolean(publicKeyB64);
+
   return (
-    <div className="tl-audit rounded-md border p-3 bg-white">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">Audit trail</h3>
+    <section
+      className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm"
+      aria-labelledby={headingId}
+    >
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <button
-            onClick={() => verifyAll()}
-            className="px-3 py-1 text-sm rounded bg-tl-trust text-white"
-            disabled={!chain || chain.length === 0 || status === 'verifying'}
-          >
-            Verify chain
-          </button>
+          <h3 id={headingId} className="font-semibold text-tl-ink">
+            Audit trail / verification
+          </h3>
+          <p className="mt-0.5 text-xs text-tl-ink-muted">
+            {entityType} · {entityId}
+          </p>
         </div>
+        <button
+          type="button"
+          onClick={() => void verifyAll()}
+          disabled={!chain?.length || phase === "verifying" || phase === "loading"}
+          className="rounded-md bg-tl-trust px-3 py-1.5 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {phase === "verifying" ? "Verifying…" : "Verify chain"}
+        </button>
       </div>
 
-      {status === 'loading' ? (
-        <p className="text-sm text-gray-500">Loading ledger...</p>
+      {!hasPublicKey && phase !== "loading" ? (
+        <p
+          className="mb-3 rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-xs text-tl-ink-muted"
+          role="status"
+        >
+          Verification not available. Cloud has not published a public key;
+          hash checks still run. Server-side verify_entry remains the fallback.
+        </p>
       ) : null}
 
-      {!chain || chain.length === 0 ? (
-        <p className="text-sm text-gray-500">No ledger entries found for this entity.</p>
-      ) : (
-        <ol className="space-y-2">
-          {chain.map((entry) => (
-            <li key={entry.id} className="rounded border p-2 bg-tl-paper">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="text-xs text-tl-ink-muted">{entry.action} · {new Date(entry.timestamp).toLocaleString()}</div>
-                  <div className="font-mono text-sm">{entry.current_hash}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs">Actor: {entry.actor_id}</div>
-                  <div className="mt-2">
+      {phase === "loading" ? (
+        <p className="text-sm text-tl-ink-muted" role="status">
+          Loading ledger…
+        </p>
+      ) : null}
+
+      {loadError ? (
+        <p className="text-sm text-tl-danger" role="alert">
+          {loadError}
+        </p>
+      ) : null}
+
+      {phase !== "loading" && !loadError && chain && chain.length === 0 ? (
+        <p className="text-sm text-tl-ink-muted">
+          No ledger entries found for this entity.
+        </p>
+      ) : null}
+
+      {chain && chain.length > 0 ? (
+        <ol className="space-y-3">
+          {chain.map((entry) => {
+            const status = verifications[entry.id] ?? "idle";
+            const meta = evidenceFields(entry.canonical_entity);
+            return (
+              <li
+                key={entry.id}
+                className="rounded-md border border-tl-line bg-tl-paper p-3"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-tl-ink-muted">
+                      {entry.action || "entry"} · {entry.id}
+                    </p>
+                    <p className="mt-1 font-mono text-xs text-tl-ink">
+                      <span className="text-tl-ink-muted">
+                        {shortHash(entry.prev_hash)}
+                      </span>
+                      {" → "}
+                      <span>{shortHash(entry.current_hash)}</span>
+                    </p>
+                    <p className="mt-1 text-xs text-tl-ink-muted">
+                      {entry.timestamp
+                        ? new Date(entry.timestamp).toLocaleString("en-ZA")
+                        : "—"}{" "}
+                      · Actor {entry.actor_id || "—"}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p
+                      className={
+                        status === "verified"
+                          ? "text-xs font-medium text-tl-trust-ink"
+                          : status === "hash_mismatch" ||
+                              status === "bad_signature"
+                            ? "text-xs font-medium text-tl-danger"
+                            : "text-xs font-medium text-tl-amber"
+                      }
+                    >
+                      {statusLabel(status, hasPublicKey)}
+                    </p>
                     <button
-                      onClick={() => verifyEntry(entry)}
-                      className="px-2 py-1 text-xs rounded border"
-                    >Verify</button>
+                      type="button"
+                      className="mt-2 rounded-md border border-tl-line bg-tl-surface px-2 py-1 text-xs font-medium text-tl-ink hover:bg-tl-paper"
+                      onClick={() => void runVerify(entry)}
+                    >
+                      Verify
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-2 text-sm text-tl-ink-muted">
-                {entry.canonical_entity ? (
-                  <details>
-                    <summary className="cursor-pointer">View canonical entity</summary>
-                    <pre className="whitespace-pre-wrap text-xs mt-2">{JSON.stringify(entry.canonical_entity, null, 2)}</pre>
-                  </details>
-                ) : (
-                  <div className="text-xs">No canonical entity stored with this ledger entry.</div>
-                )}
-
-                <div className="mt-2">
-                  <span className="text-xs">Verification status: </span>
-                  <span className="font-medium">
-                    {verifications[entry.id] === true ? (
-                      <span className="text-green-600">Verified</span>
-                    ) : verifications[entry.id] === false ? (
-                      <span className="text-red-600">Mismatch</span>
-                    ) : typeof verifications[entry.id] === 'string' ? (
-                      <span className="text-amber-700">{verifications[entry.id]}</span>
-                    ) : (
-                      <span className="text-gray-500">Not verified</span>
-                    )}
-                  </span>
-                </div>
-              </div>
-            </li>
-          ))}
+                {meta ? (
+                  <dl className="mt-3 grid gap-1 text-xs text-tl-ink-muted sm:grid-cols-2">
+                    {meta.checksum ? (
+                      <div>
+                        <dt className="font-medium text-tl-ink">Checksum</dt>
+                        <dd className="break-all font-mono">{meta.checksum}</dd>
+                      </div>
+                    ) : null}
+                    {meta.gps_lat ? (
+                      <div>
+                        <dt className="font-medium text-tl-ink">gps_lat</dt>
+                        <dd>{meta.gps_lat}</dd>
+                      </div>
+                    ) : null}
+                    {meta.gps_lon ? (
+                      <div>
+                        <dt className="font-medium text-tl-ink">gps_lon</dt>
+                        <dd>{meta.gps_lon}</dd>
+                      </div>
+                    ) : null}
+                    {meta.timestamp ? (
+                      <div>
+                        <dt className="font-medium text-tl-ink">Timestamp</dt>
+                        <dd>{meta.timestamp}</dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                ) : null}
+              </li>
+            );
+          })}
         </ol>
-      )}
-    </div>
+      ) : null}
+    </section>
   );
 }
 
