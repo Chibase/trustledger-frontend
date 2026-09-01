@@ -1,13 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useId, useState } from "react";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL, FRAPPE_METHODS } from "@/config/api";
 import { parseLedgerChain, parsePublicKey } from "@/lib/ledger/parseChain";
 import type { LedgerEntry, LedgerJson, VerifyStatus } from "@/lib/ledger/types";
 import { verifyLedgerEntry } from "@/lib/ledger/verifyEntry";
-
-const GET_CHAIN = "/api/method/srm_core.api.ledger.get_chain";
-const PUBLIC_KEY = "/api/method/srm_core.api.ledger.public_key";
 
 export type AuditTrailViewerProps = {
   entityType: string;
@@ -103,7 +100,7 @@ export function AuditTrailViewer({
       setPhase("loading");
       setLoadError(null);
       try {
-        const chainUrl = `${base}${GET_CHAIN}?entity_id=${encodeURIComponent(entityId)}`;
+        const chainUrl = `${base}${FRAPPE_METHODS.ledgerGetChain}?entity_id=${encodeURIComponent(entityId)}`;
         const chainRes = await fetch(chainUrl, {
           credentials: "include",
           method: "GET",
@@ -126,7 +123,7 @@ export function AuditTrailViewer({
       }
 
       try {
-        const keyRes = await fetch(`${base}${PUBLIC_KEY}`, {
+        const keyRes = await fetch(`${base}${FRAPPE_METHODS.ledgerPublicKey}`, {
           credentials: "include",
           method: "GET",
           signal: controller.signal,

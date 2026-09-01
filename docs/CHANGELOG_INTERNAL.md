@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-01 — AuditTrailViewer chain UI follow-up
+
+- Preview / Storybook mock chain is hash-stable (vector-1 + vector-3). File **Checksum** renders only when `canonical_entity.checksum` is present — `current_hash` stays on the prev → current line.
+- Jest covers a two-entry prev_hash → current_hash chain plus Verify chain. Endpoints read from `FRAPPE_METHODS`.
+- Human must still confirm Incident / Evidence placement from #188 before treating that desk as final.
+
 ## 2026-09-01 — AuditTrailViewer on incident / evidence desks
 
 - Reusable `AuditTrailViewer` fetches `get_chain` + `public_key`, shows prev_hash → current_hash, actor, timestamp, evidence GPS/checksum, and Verify / Verify chain.
