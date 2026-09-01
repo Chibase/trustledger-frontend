@@ -267,27 +267,27 @@ export function AuditTrailViewer({
                   </div>
                 </div>
 
-                {meta || entry.current_hash ? (
+                {meta ? (
                   <dl className="mt-3 grid gap-1 text-xs text-tl-ink-muted sm:grid-cols-2">
-                    <div>
-                      <dt className="font-medium text-tl-ink">Checksum</dt>
-                      <dd className="break-all font-mono">
-                        {meta?.checksum || entry.current_hash}
-                      </dd>
-                    </div>
-                    {meta?.gps_lat ? (
+                    {meta.checksum ? (
+                      <div>
+                        <dt className="font-medium text-tl-ink">Checksum</dt>
+                        <dd className="break-all font-mono">{meta.checksum}</dd>
+                      </div>
+                    ) : null}
+                    {meta.gps_lat ? (
                       <div>
                         <dt className="font-medium text-tl-ink">gps_lat</dt>
                         <dd>{meta.gps_lat}</dd>
                       </div>
                     ) : null}
-                    {meta?.gps_lon ? (
+                    {meta.gps_lon ? (
                       <div>
                         <dt className="font-medium text-tl-ink">gps_lon</dt>
                         <dd>{meta.gps_lon}</dd>
                       </div>
                     ) : null}
-                    {meta?.timestamp ? (
+                    {meta.timestamp ? (
                       <div>
                         <dt className="font-medium text-tl-ink">Timestamp</dt>
                         <dd>{meta.timestamp}</dd>
