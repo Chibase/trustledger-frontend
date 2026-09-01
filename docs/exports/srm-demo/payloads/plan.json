@@ -1,0 +1,19 @@
+{
+  "name": "TrustLedger SRM \u2014 Demo: Consolidated Evidence",
+  "description": "Demo plan to show consolidation of scattered tools into one evidence-backed SRM with immutable ledgered audit trail.",
+  "visibility": "private",
+  "account": "Chibase",
+  "pin_to_dashboard": true,
+  "snapshot_label": "Demo baseline (master)",
+  "clone_label": "Demo \u2014 SANRAL",
+  "modules": [
+    "data_collection",
+    "evidence_attachments",
+    "ledger_audit_trail",
+    "mapping_gis",
+    "workflows_approvals",
+    "reporting_dashboards",
+    "integrations_api_csv",
+    "offline_sync"
+  ]
+}

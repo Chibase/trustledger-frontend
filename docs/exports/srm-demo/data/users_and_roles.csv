@@ -1,0 +1,8 @@
+id,username,role,email (mock),phone (mock),notes
+USER-ADMIN-01,admin_demo,Demo Admin,admin@example.local,000-000-0000,Full permissions
+USER-INS-01,inspector_demo,Inspector Mobile,inspector@example.local,000-000-0001,"Field capture, offline sync, evidence upload"
+USER-MGR-01,pm_demo,Project Manager,pm@example.local,000-000-0002,"Work orders, incident triage, dashboard pin"
+USER-AUD-01,auditor_demo,Auditor,auditor@example.local,000-000-0003,"Read ledger, verify signatures, export reports"
+USER-CTR-01,contractor_demo,External Contractor,contractor@example.local,000-000-0004,Assigned work orders only
+USER-PUB-01,public_demo,Public Reporter,reporter@example.local,000-000-0005,Viewer + public intake (no PII)
+USER-VIEW-01,viewer_demo,Viewer,viewer@example.local,000-000-0006,Read-only dashboards

@@ -1,0 +1,100 @@
+{
+  "id": "dash-exec-srm-demo",
+  "name": "Executive Summary",
+  "plan": "TrustLedger SRM \u2014 Demo: Consolidated Evidence",
+  "theme": {
+    "ink": "#12202a",
+    "trust": "#0e7c66",
+    "amber": "#c47a10",
+    "danger": "#b42318",
+    "paper": "#f3f5f7"
+  },
+  "kpis": [
+    {
+      "id": "open_incidents",
+      "label": "Open incidents",
+      "value": 17,
+      "tone": "amber"
+    },
+    {
+      "id": "overdue_wo",
+      "label": "Overdue work orders",
+      "value": 53,
+      "tone": "danger"
+    },
+    {
+      "id": "inspected_30d",
+      "label": "% assets inspected (30d)",
+      "value": 66.0,
+      "unit": "%",
+      "tone": "trust"
+    },
+    {
+      "id": "avg_score",
+      "label": "Avg inspection score",
+      "value": 73.0,
+      "tone": "trust"
+    }
+  ],
+  "saved_filters": [
+    {
+      "id": "open-high",
+      "label": "Open + High/Critical incidents",
+      "where": {
+        "status": [
+          "Open"
+        ],
+        "severity": [
+          "High",
+          "Critical"
+        ]
+      }
+    },
+    {
+      "id": "overdue-wo",
+      "label": "Overdue work orders",
+      "where": {
+        "status": [
+          "Overdue",
+          "Open"
+        ],
+        "due_before": "2026-09-01"
+      }
+    },
+    {
+      "id": "r72-hero",
+      "label": "R72 Bridge 3 West trail",
+      "where": {
+        "site_id": "SITE-014"
+      }
+    }
+  ],
+  "widgets": [
+    {
+      "type": "kpi-row",
+      "source": "kpis"
+    },
+    {
+      "type": "table",
+      "title": "Open incidents",
+      "entity": "incident",
+      "filter": "open-high"
+    },
+    {
+      "type": "table",
+      "title": "Overdue work orders",
+      "entity": "work_order",
+      "filter": "overdue-wo"
+    },
+    {
+      "type": "bar",
+      "title": "Inspections by score band",
+      "entity": "inspection"
+    }
+  ],
+  "recreate_ui": [
+    "VIP / Institutional workspace \u2192 Dashboards \u2192 New dashboard \u2192 Executive Summary",
+    "Add 4 KPI tiles mapped to incident status, work-order due/status, inspection recency, mean score",
+    "Pin to Plan Owner dashboard; save filter 'R72 Bridge 3 West trail'"
+  ]
+}

@@ -24,4 +24,10 @@ Folder: [`platform-brief/`](./platform-brief/)
 
 **Live SRM showcase (consortium / DFI):** `docs/DEMO_PLAN_SRM_SHOWCASE.md` — 30-minute platform-in-action run sheet (not a slide deck).
 
+## SRM demo pack (consolidated evidence)
+
+Folder: [`srm-demo/`](./srm-demo/)
+
+Ready-to-import synthetic dataset and 12–15 minute runbook for **TrustLedger SRM — Demo: Consolidated Evidence** (VIP-style private plan). Zip: `docs/exports/trustledger-srm-demo.zip`. Do not load into paying customer tenants.
+
 Generated: 2026-07-23

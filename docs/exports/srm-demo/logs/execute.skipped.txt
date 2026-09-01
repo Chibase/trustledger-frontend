@@ -1,0 +1,12 @@
+Execute against a live API was **not run**. This environment has no Chibase Owner session or sandbox API key, and the brief forbids production writes.
+
+To produce execute.log:
+
+```bash
+export TRUSTLEDGER_BASE_URL="https://YOUR_SANDBOX"
+export TRUSTLEDGER_API_KEY="..."
+export TRUSTLEDGER_PLAN_ID="PRJ-SRM-DEMO-001"   # or omit to POST /api/plans
+python3 scripts/import_srm_demo.py --execute
+```
+
+Dry-run acceptance is in `dry-run.log`.

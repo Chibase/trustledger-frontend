@@ -1,0 +1,21 @@
+id,org_id,name,latitude,longitude,description
+SITE-001,ORG-001,N2 Gqeberha Approach,-33.9601,25.6022,N2 inbound pavement and drainage at Gqeberha western approach
+SITE-002,ORG-001,Swartkops River Culvert Cluster,-33.8704,25.6108,Triple-cell culvert under collector; siltation watch
+SITE-003,ORG-002,R72 Sundays River Bridge,-33.4212,25.4481,Deck joints and expansion gaps on R72 crossing
+SITE-004,ORG-001,Motherwell Access Road km 3.2,-33.8042,25.5891,Access road shoulder failure; stormwater inlets
+SITE-005,ORG-003,Buffalo City N2 Overpass,-33.0154,27.9052,Overpass bearings and parapet inspection zone
+SITE-006,ORG-003,East London Harbour Road,-33.0251,27.8754,Harbour link; high HGV wear and ponding
+SITE-007,ORG-002,Makhanda R67 Shoulder,-33.3102,26.5311,R67 cut-slope and guardrail run
+SITE-008,ORG-004,Mthatha N2 Ring Culvert,-31.5894,28.7842,Ring-road reinforced culvert; debris after storms
+SITE-009,ORG-004,Qumbu R61 South Approach,-31.5208,28.8681,R61 approach; drainage mitre drains
+SITE-010,ORG-005,Humansdorp R102 Crossing,-34.0284,24.7702,R102 crossing and pedestrian refuge
+SITE-011,ORG-005,Jeffreys Bay Coastal Collector,-34.0506,24.9214,Coastal collector; wind-blown sand on inlets
+SITE-012,ORG-002,Addo Access Road km 8,-33.5452,25.6903,Game-area access; livestock grid and culvert
+SITE-013,ORG-003,Mdantsane Collector Drain,-32.9581,27.7604,Open channel drain along collector; informal crossings
+SITE-014,ORG-001,R72 Bridge 3 - West,-33.0002,25.7001,Bridge on R72; drainage culvert on SW corner
+SITE-015,ORG-004,Port St Johns R61 Terrace,-31.6282,28.9714,Terrace wall and drainage on R61 descent
+SITE-016,ORG-002,Paterson N10 Link,-33.4406,25.9712,N10 link pavement and kilometre markers
+SITE-017,ORG-005,St Francis Bay Causeway,-34.1704,24.8311,Causeway deck and tidal scour watch
+SITE-018,ORG-003,Qonce R63 Crossing,-32.8803,27.3912,R63 urban crossing; signal mast and inlet
+SITE-019,ORG-004,Butterworth N2 Culvert 12,-32.3305,28.1506,N2 box culvert; debris screens
+SITE-020,ORG-001,Colchester R72 East,-33.6951,25.8204,R72 east of Colchester; floodplain culverts

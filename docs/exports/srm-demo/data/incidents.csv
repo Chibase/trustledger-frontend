@@ -1,0 +1,31 @@
+id,site_id,reported_by,date_time,severity,status,description
+INC-301,SITE-001,USER-INS-01,2026-08-17T04:00:00Z,High,Resolved,Illegal dumping at culvert mouth
+INC-302,SITE-014,USER-PUB-01,2026-08-02T14:30:00Z,High,Open,Road washed-out over culvert; immediate closure recommended
+INC-303,SITE-003,USER-PUB-01,2026-07-11T09:00:00Z,Medium,Resolved,Contractor noted scour at outlet apron
+INC-304,SITE-004,USER-CTR-01,2026-08-05T18:00:00Z,Medium,Investigating,Contractor noted scour at outlet apron
+INC-305,SITE-005,USER-INS-01,2026-08-14T03:00:00Z,Critical,Closed,Ponding after storm; one lane restricted
+INC-306,SITE-006,USER-CTR-01,2026-08-15T14:00:00Z,Medium,Closed,Night works lighting complaint from adjacent erf (synthetic)
+INC-307,SITE-007,USER-MGR-01,2026-07-20T13:00:00Z,Medium,Investigating,Parapet spall above walkway
+INC-308,SITE-008,USER-INS-01,2026-08-10T14:00:00Z,Critical,Open,Sand drift covering coastal inlet
+INC-309,SITE-009,USER-MGR-01,2026-07-18T17:00:00Z,High,Resolved,Night works lighting complaint from adjacent erf (synthetic)
+INC-310,SITE-010,USER-MGR-01,2026-08-10T19:00:00Z,Medium,Closed,Sand drift covering coastal inlet
+INC-311,SITE-011,USER-MGR-01,2026-06-26T02:00:00Z,High,Investigating,Illegal dumping at culvert mouth
+INC-312,SITE-012,USER-MGR-01,2026-06-28T17:00:00Z,Low,Closed,Guardrail struck overnight; sharp edges exposed
+INC-313,SITE-013,USER-MGR-01,2026-08-06T04:00:00Z,Medium,Investigating,Contractor noted scour at outlet apron
+INC-314,SITE-014,USER-INS-01,2026-08-20T16:00:00Z,Low,Resolved,Contractor noted scour at outlet apron
+INC-315,SITE-015,USER-CTR-01,2026-06-17T00:00:00Z,Low,Open,Guardrail struck overnight; sharp edges exposed
+INC-316,SITE-016,USER-INS-01,2026-07-22T23:00:00Z,Low,Resolved,Ponding after storm; one lane restricted
+INC-317,SITE-017,USER-INS-01,2026-08-02T04:00:00Z,Critical,Closed,Night works lighting complaint from adjacent erf (synthetic)
+INC-318,SITE-018,USER-INS-01,2026-07-16T18:00:00Z,Medium,Open,Guardrail struck overnight; sharp edges exposed
+INC-319,SITE-019,USER-PUB-01,2026-08-17T09:00:00Z,Critical,Open,Community report of missing catchpit grate
+INC-320,SITE-020,USER-PUB-01,2026-07-30T23:00:00Z,Low,Resolved,Sand drift covering coastal inlet
+INC-321,SITE-001,USER-MGR-01,2026-06-11T17:00:00Z,Medium,Open,Parapet spall above walkway
+INC-322,SITE-002,USER-CTR-01,2026-08-08T04:00:00Z,Medium,Investigating,Community report of missing catchpit grate
+INC-323,SITE-003,USER-MGR-01,2026-07-14T14:00:00Z,High,Open,Night works lighting complaint from adjacent erf (synthetic)
+INC-324,SITE-004,USER-INS-01,2026-07-03T08:00:00Z,High,Resolved,Contractor noted scour at outlet apron
+INC-325,SITE-005,USER-INS-01,2026-07-31T21:00:00Z,Medium,Open,Guardrail struck overnight; sharp edges exposed
+INC-326,SITE-006,USER-CTR-01,2026-06-27T23:00:00Z,Medium,Open,Sand drift covering coastal inlet
+INC-327,SITE-007,USER-PUB-01,2026-07-10T22:00:00Z,High,Closed,Sand drift covering coastal inlet
+INC-328,SITE-008,USER-CTR-01,2026-07-14T04:00:00Z,Medium,Open,Guardrail struck overnight; sharp edges exposed
+INC-329,SITE-009,USER-PUB-01,2026-07-19T13:00:00Z,Medium,Investigating,Sand drift covering coastal inlet
+INC-330,SITE-010,USER-CTR-01,2026-07-17T19:00:00Z,Medium,Open,Community report of missing catchpit grate

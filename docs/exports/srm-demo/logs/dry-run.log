@@ -1,0 +1,164 @@
+{
+  "ok": true,
+  "counts": {
+    "organizations": 5,
+    "sites": 20,
+    "assets": 50,
+    "inspections": 200,
+    "incidents": 30,
+    "work_orders": 80,
+    "evidence": 400,
+    "users_and_roles": 7,
+    "ledger_entries": 500
+  },
+  "expected": {
+    "organizations": 5,
+    "sites": 20,
+    "assets": 50,
+    "inspections": 200,
+    "incidents": 30,
+    "work_orders": 80,
+    "evidence": 400,
+    "users_and_roles": 7,
+    "ledger_entries": 500
+  },
+  "unique_images": 30,
+  "image_files_on_disk": 30,
+  "ledger_chain_links_ok": 500,
+  "ledger_signatures_ok": 500,
+  "sample_chain_ids": [
+    "LGR-5166",
+    "LGR-5486",
+    "LGR-5078",
+    "LGR-5203",
+    "LGR-5334",
+    "LGR-5025",
+    "LGR-5038",
+    "LGR-5421",
+    "LGR-5275",
+    "LGR-5049"
+  ],
+  "sample_chains": [
+    {
+      "id": "LGR-5166",
+      "entity": "inspection/INSP-1085",
+      "action": "create",
+      "prev_hash": "sha256:55e6c4f10ef8c06fed79d58eebebff982cb92fcb39b287eb3e52a0fc42ad2040",
+      "current_hash": "sha256:307aa180f5043867968d0fa9cfa1688285fad9c19eafd00828080dc7bea7bfe8",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5165"
+    },
+    {
+      "id": "LGR-5486",
+      "entity": "work_order/WO-019",
+      "action": "create",
+      "prev_hash": "sha256:bc4203b8bd3b7391bfa15045c795f58b04caa8ac8e580a7afffff11a6258acd6",
+      "current_hash": "sha256:2e9d5b079d59ff4b694bd0dacb0d1d49a7fa68e3c27adfd3eb40c77b00a0a2db",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5485"
+    },
+    {
+      "id": "LGR-5078",
+      "entity": "inspection/INSP-1017",
+      "action": "create",
+      "prev_hash": "sha256:8594b398bafa0ae370f9d47333ad73fa458026df88323cdff8ba0b36754c1791",
+      "current_hash": "sha256:901028fa8c81445a720ac7c349fea64b6a2ba35c1d91bf7027e269786093490b",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5077"
+    },
+    {
+      "id": "LGR-5203",
+      "entity": "evidence/EVID-0061",
+      "action": "create",
+      "prev_hash": "sha256:667e520949446cc3e2d40285e660500977c2b426c68899a10ba7fb30c3e1a7f6",
+      "current_hash": "sha256:73819b26d483cd754e1de25e26abd31a2215e64268f7edaed4bc6b69ebc5519f",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5202"
+    },
+    {
+      "id": "LGR-5334",
+      "entity": "evidence/EVID-0139",
+      "action": "create",
+      "prev_hash": "sha256:018bcd08dc74552bcf17fa43ad677ab69f16961f0a9973d522fefe38afbc644c",
+      "current_hash": "sha256:089e2b7b767200c5a5b59ec145b8be73c1f91f9294e22b4e7f2669087a0d2890",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5333"
+    },
+    {
+      "id": "LGR-5025",
+      "entity": "site/SITE-020",
+      "action": "create",
+      "prev_hash": "sha256:09ead7e24172cacb90432a7edb11a1eb577322a69960b9f603705be9e489026a",
+      "current_hash": "sha256:5666ab2ed92f30120719cce67991986d61e7bf210f1c1fac2b14a4fb2d439cc7",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5024"
+    },
+    {
+      "id": "LGR-5038",
+      "entity": "asset/ASSET-213",
+      "action": "create",
+      "prev_hash": "sha256:2b490393c974e9342d3307c029ad1608cab7363363faa56921a491befd02d15b",
+      "current_hash": "sha256:68bc4f1f265d74a370c21741d5dea9d38810a93f7dbdc9644c256deddd1e676e",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5037"
+    },
+    {
+      "id": "LGR-5421",
+      "entity": "work_order/WO-008",
+      "action": "update",
+      "prev_hash": "sha256:b6448bedb968f2fe0d0e4c3c28e54903a115588e33a55e9192fa8766e73dccd9",
+      "current_hash": "sha256:bd29725b42cb6d98d946115027a861cda2232803afd25df185746996dae9228d",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5420"
+    },
+    {
+      "id": "LGR-5275",
+      "entity": "evidence/EVID-0095",
+      "action": "create",
+      "prev_hash": "sha256:37e27936729fcecb4b8a737bec7330888fa9b9fbe17e614133275bfcb7ee4b9b",
+      "current_hash": "sha256:850041a79cf2de7509597469686172bf497f904a31b53abfc54a64aa902a0950",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5274"
+    },
+    {
+      "id": "LGR-5049",
+      "entity": "asset/ASSET-224",
+      "action": "create",
+      "prev_hash": "sha256:e428eb48d78c5e2d2d83deabc3c72c23815202e1f262bf918ee9157744c734df",
+      "current_hash": "sha256:a8a3b9b2c86e6906a33b9a69c59c50372776aa5dc9db6f2151628cbe59d7b423",
+      "chain_link_ok": true,
+      "signature_ok": true,
+      "hash_matches_csv": true,
+      "previous_id": "LGR-5048"
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "hero": {
+    "ORG-001": true,
+    "SITE-014": true,
+    "ASSET-210": true,
+    "INSP-1001": true,
+    "INC-302": true,
+    "WO-075": true,
+    "EVID-0099": true
+  }
+}

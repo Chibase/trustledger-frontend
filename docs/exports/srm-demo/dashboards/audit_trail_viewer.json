@@ -1,0 +1,211 @@
+{
+  "id": "dash-audit-srm-demo",
+  "name": "Audit Trail Viewer",
+  "plan": "TrustLedger SRM \u2014 Demo: Consolidated Evidence",
+  "search": {
+    "placeholder": "Entity id (e.g. EVID-0099, INC-302, ASSET-210)",
+    "quick_jumps": [
+      "INSP-1001",
+      "INC-302",
+      "WO-075",
+      "EVID-0099"
+    ]
+  },
+  "panels": [
+    {
+      "type": "entity-header"
+    },
+    {
+      "type": "evidence-gallery",
+      "fields": [
+        "filename",
+        "gps_lat",
+        "gps_lon",
+        "timestamp",
+        "checksum"
+      ]
+    },
+    {
+      "type": "ledger-chain",
+      "fields": [
+        "id",
+        "action",
+        "prev_hash",
+        "current_hash",
+        "signature"
+      ],
+      "verify_public_key": "keys/ledger_ed25519_public.pem"
+    }
+  ],
+  "sample_chain": [
+    {
+      "id": "LGR-5336",
+      "action": "create",
+      "entity_type": "work_order",
+      "entity_id": "WO-018",
+      "prev_hash": "sha256:fc46625c8a99684385e4a1d1130758f7e1c3ee7ae13d9d421c1f092cbf9f6ace",
+      "current_hash": "sha256:a3e872d241515225b232add8eb8125522946e75ba4a3ce3a88ebf32f5e84bcca",
+      "signature": "sig:3nFP74n/DJu9sdeMFdIozR52pDmjP+KibMF2QPeoul1+8I5jeb4XR3gsk3ZhvAdYukyNLmCtp1vTopGtRsU9AQ==",
+      "timestamp": "2026-08-01T07:00:00Z",
+      "actor_id": "USER-ADMIN-01"
+    },
+    {
+      "id": "LGR-5337",
+      "action": "create",
+      "entity_type": "inspection",
+      "entity_id": "INSP-1001",
+      "prev_hash": "sha256:a3e872d241515225b232add8eb8125522946e75ba4a3ce3a88ebf32f5e84bcca",
+      "current_hash": "sha256:a13ca8bb0bd800cd263e4ee63a700b74bb45c0c6bfe00f2351757bff8eeca7d7",
+      "signature": "sig:QxRLvRsB2Ck3zboxKJx58AhqdY36y/mcnHrZBw0cWyLoq0rEyE2gUn1w1Q+ai3lM6QriVVwkE0cjlb7r8Z1UAg==",
+      "timestamp": "2026-08-01T09:15:00Z",
+      "actor_id": "USER-INS-01"
+    },
+    {
+      "id": "LGR-5338",
+      "action": "create",
+      "entity_type": "evidence",
+      "entity_id": "EVID-0099",
+      "prev_hash": "sha256:a13ca8bb0bd800cd263e4ee63a700b74bb45c0c6bfe00f2351757bff8eeca7d7",
+      "current_hash": "sha256:56f7d4ef90238d855d3dff8fc4bc2e4d6e082eff2115f1daa4b5893e277ee63c",
+      "signature": "sig:t6Nit1lcetMO7Fe9XMI4Gv4TkxXbCuwCuKkP4JrUEZoyAbc3m3GH9IkseWOT6AxhWyi2EFtonB9u0DGrNwxmAA==",
+      "timestamp": "2026-08-01T09:17:00Z",
+      "actor_id": "USER-INS-01"
+    },
+    {
+      "id": "LGR-5339",
+      "action": "create",
+      "entity_type": "evidence",
+      "entity_id": "EVID-0001",
+      "prev_hash": "sha256:56f7d4ef90238d855d3dff8fc4bc2e4d6e082eff2115f1daa4b5893e277ee63c",
+      "current_hash": "sha256:54ab81d8b602204048c7ed6462497538ec4674ec157252d32b5e07ed0e748521",
+      "signature": "sig:2BoYCL2MCA+/X94VHwftzPBqyb5L9f/SCEW5vNbqyCV0x6/woViglMF8WZp/hRm8sJDiT3O+aX0JtRYHNJ8hCg==",
+      "timestamp": "2026-08-01T09:18:00Z",
+      "actor_id": "USER-INS-01"
+    },
+    {
+      "id": "LGR-5340",
+      "action": "create",
+      "entity_type": "inspection",
+      "entity_id": "INSP-1092",
+      "prev_hash": "sha256:54ab81d8b602204048c7ed6462497538ec4674ec157252d32b5e07ed0e748521",
+      "current_hash": "sha256:f7126e75b8916cf8f892094c835a31504db5b07b7ef6787e0bab9dff9c1d7a69",
+      "signature": "sig:0dLonhwZ/iM89T55jyun6JFiMnpTXSxzMN9/PDZSbuRi5Wpc1r4l+VKl1aSN3l4Zq35D25O3DHDKCvntKNhwAA==",
+      "timestamp": "2026-08-01T11:30:00Z",
+      "actor_id": "USER-INS-01"
+    },
+    {
+      "id": "LGR-5341",
+      "action": "create",
+      "entity_type": "evidence",
+      "entity_id": "EVID-0092",
+      "prev_hash": "sha256:f7126e75b8916cf8f892094c835a31504db5b07b7ef6787e0bab9dff9c1d7a69",
+      "current_hash": "sha256:15145f77b98a4194479a8ac83bbaabd72b9cfbe44fe54c78d993fa5e6d538df7",
+      "signature": "sig:j/aBDx3EdTiaDTD78oNEBCK5oBDO/j06qo5AnUZ2dDqyUjbcq3F/czOKND4E78pU9dXAQIxPg9v032lZfwb2Aw==",
+      "timestamp": "2026-08-01T11:44:00Z",
+      "actor_id": "USER-INS-01"
+    },
+    {
+      "id": "LGR-5342",
+      "action": "create",
+      "entity_type": "inspection",
+      "entity_id": "INSP-1109",
+      "prev_hash": "sha256:15145f77b98a4194479a8ac83bbaabd72b9cfbe44fe54c78d993fa5e6d538df7",
+      "current_hash": "sha256:cc1264bd76edf4fd599f1d3556ab81f462844e1026e4bc7baa85d9b71a710a8d",
+      "signature": "sig:i0vlLirFwmxZIdcJitEarWESosrh/OiTwaAuCMPaCfCwPVALdPNsQJI3WDIZ3n6DLwiPFcj1836cl2pWGMrgBg==",
+      "timestamp": "2026-08-01T12:00:00Z",
+      "actor_id": "USER-INS-01"
+    },
+    {
+      "id": "LGR-5343",
+      "action": "create",
+      "entity_type": "evidence",
+      "entity_id": "EVID-0109",
+      "prev_hash": "sha256:cc1264bd76edf4fd599f1d3556ab81f462844e1026e4bc7baa85d9b71a710a8d",
+      "current_hash": "sha256:d0be6771ffa7d430758f18074816ab4c12c0f92cfa040879083086fab1dcd598",
+      "signature": "sig:hB4a58F+pWNTPw3MaOhkA15VLf5KZW9kvfNeo898+7nfQASjXQORfZZ2nnOV+3VrB8I8oYekuWUXhwTfLwZDBA==",
+      "timestamp": "2026-08-01T12:09:00Z",
+      "actor_id": "USER-INS-01"
+    },
+    {
+      "id": "LGR-5344",
+      "action": "update",
+      "entity_type": "inspection",
+      "entity_id": "INSP-1001",
+      "prev_hash": "sha256:d0be6771ffa7d430758f18074816ab4c12c0f92cfa040879083086fab1dcd598",
+      "current_hash": "sha256:4057d4efebaeddc7bc2292efe74cc659d5221767bde0e9d955fa8c8f19597b1c",
+      "signature": "sig:m5N/t7W5RuG2J2jZsb1IqlHPW8ehBVLRqNSIjp1HgrOr8tpUMOp/vCHMvdw8aIm/uibDGo0ma2maSdZAcqdxAg==",
+      "timestamp": "2026-08-01T15:15:00Z",
+      "actor_id": "USER-MGR-01"
+    },
+    {
+      "id": "LGR-5345",
+      "action": "create",
+      "entity_type": "incident",
+      "entity_id": "INC-317",
+      "prev_hash": "sha256:4057d4efebaeddc7bc2292efe74cc659d5221767bde0e9d955fa8c8f19597b1c",
+      "current_hash": "sha256:a42d5f76c415cfbd8963a473524911c028d86deb1699fb8f9e5c66b1d20c2e5a",
+      "signature": "sig:AbRWiy90ajFesG8oElqdmZKEv7/oSKW1AQzeCtBz2M2tMK4r1+cdjoxArUm79MBSN014Ptb9l61D6NfHDn3YDA==",
+      "timestamp": "2026-08-02T04:00:00Z",
+      "actor_id": "USER-INS-01"
+    }
+  ],
+  "sample_evidence": [
+    {
+      "id": "EVID-0001",
+      "parent_type": "inspection",
+      "parent_id": "INSP-1001",
+      "filename": "culvert_block_20260801.jpg",
+      "file_type": "image",
+      "gps_lat": -33.000321,
+      "gps_lon": 25.699737,
+      "timestamp": "2026-08-01T09:18:00Z",
+      "uploader_id": "USER-INS-01",
+      "checksum": "sha256:c89982d8497e6ca24bd2c329c3454d7493b24ad75096ae78fe9048f7d7c38f01",
+      "description": "Upstream inlet"
+    },
+    {
+      "id": "EVID-0099",
+      "parent_type": "inspection",
+      "parent_id": "INSP-1001",
+      "filename": "culvert_block_20260801.jpg",
+      "file_type": "image",
+      "gps_lat": -33.0002,
+      "gps_lon": 25.7001,
+      "timestamp": "2026-08-01T09:17:00Z",
+      "uploader_id": "USER-INS-01",
+      "checksum": "sha256:c89982d8497e6ca24bd2c329c3454d7493b24ad75096ae78fe9048f7d7c38f01",
+      "description": "Photo showing partial blockage"
+    },
+    {
+      "id": "EVID-0202",
+      "parent_type": "incident",
+      "parent_id": "INC-302",
+      "filename": "colchester_floodplain.jpg",
+      "file_type": "image",
+      "gps_lat": -32.999529,
+      "gps_lon": 25.700786,
+      "timestamp": "2026-08-02T14:48:00Z",
+      "uploader_id": "USER-PUB-01",
+      "checksum": "sha256:7f018c26f2691810cf7996d66cac47fd620495759a97de7a7506034b1d8bea97",
+      "description": "Downstream outlet"
+    },
+    {
+      "id": "EVID-0311",
+      "parent_type": "inspection",
+      "parent_id": "INSP-1001",
+      "filename": "mthatha_ring_debris.jpg",
+      "file_type": "image",
+      "gps_lat": -33.000361,
+      "gps_lon": 25.700644,
+      "timestamp": "2026-08-01T09:31:00Z",
+      "uploader_id": "USER-INS-01",
+      "checksum": "sha256:bfc8ca8b80c9b3953f593ba5c5a296f10e3e8e55f0b423310fc1ffe23ad54a61",
+      "description": "Downstream outlet"
+    }
+  ],
+  "recreate_ui": [
+    "Enable Ledger / Audit Trail module",
+    "Add search-by-entity-id dashlet",
+    "Show evidence GPS+timestamp and hash chain with signature verify using demo public key"
+  ]
+}

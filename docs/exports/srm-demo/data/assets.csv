@@ -1,0 +1,51 @@
+id,site_id,asset_type,condition,installation_date,asset_tag,notes
+ASSET-201,SITE-001,Culvert - reinforced concrete,Poor,2007-01-01,001-201,Vegetation encroachment
+ASSET-202,SITE-002,Bridge deck joint,Fair,2011-04-01,002-202,Hairline map cracking
+ASSET-203,SITE-003,Guardrail run,Good,2007-11-01,003-203,Siltation after storm
+ASSET-204,SITE-004,Stormwater inlet,Good,2017-01-01,004-204,Routine watch item
+ASSET-205,SITE-005,Catchpit,Good,2010-04-01,005-205,Siltation after storm
+ASSET-206,SITE-006,Retaining wall,Critical,2010-12-01,006-206,Scour marks after 2024 rains
+ASSET-207,SITE-007,Pavement section,Poor,2018-10-01,007-207,Routine watch item
+ASSET-208,SITE-008,Sign gantry,Critical,2009-12-01,008-208,Vegetation encroachment
+ASSET-209,SITE-009,Streetlight column,Fair,2012-03-01,009-209,Vegetation encroachment
+ASSET-210,SITE-014,Culvert - reinforced concrete,Fair,2012-05-01,CLV-R72-210,Minor hairline cracks
+ASSET-211,SITE-011,Expansion bearing,Critical,2007-02-01,011-211,Routine watch item
+ASSET-212,SITE-012,Parapet,Poor,2015-06-01,012-212,Vegetation encroachment
+ASSET-213,SITE-013,Culvert - reinforced concrete,Critical,2005-12-01,013-213,Siltation after storm
+ASSET-214,SITE-014,Bridge deck joint,Good,2007-07-01,014-214,Siltation after storm
+ASSET-215,SITE-015,Guardrail run,Poor,2013-11-01,015-215,Siltation after storm
+ASSET-216,SITE-016,Stormwater inlet,Good,2010-12-01,016-216,Routine watch item
+ASSET-217,SITE-017,Catchpit,Good,2011-05-01,017-217,Scour marks after 2024 rains
+ASSET-218,SITE-018,Retaining wall,Poor,2007-07-01,018-218,Bolt corrosion at base
+ASSET-219,SITE-019,Pavement section,Poor,2015-03-01,019-219,Vegetation encroachment
+ASSET-220,SITE-020,Sign gantry,Poor,2010-11-01,020-220,Hairline map cracking
+ASSET-221,SITE-001,Streetlight column,Fair,2006-10-01,001-221,Siltation after storm
+ASSET-222,SITE-002,Open channel drain,Critical,2011-03-01,002-222,Bolt corrosion at base
+ASSET-223,SITE-003,Expansion bearing,Poor,2012-11-01,003-223,Siltation after storm
+ASSET-224,SITE-004,Parapet,Poor,2011-11-01,004-224,Routine watch item
+ASSET-225,SITE-005,Culvert - reinforced concrete,Poor,2011-01-01,005-225,Bolt corrosion at base
+ASSET-226,SITE-006,Bridge deck joint,Fair,2012-02-01,006-226,Siltation after storm
+ASSET-227,SITE-007,Guardrail run,Critical,2014-04-01,007-227,Bolt corrosion at base
+ASSET-228,SITE-008,Stormwater inlet,Poor,2018-03-01,008-228,Scour marks after 2024 rains
+ASSET-229,SITE-009,Catchpit,Poor,2011-12-01,009-229,Hairline map cracking
+ASSET-230,SITE-010,Retaining wall,Critical,2022-07-01,010-230,Vegetation encroachment
+ASSET-231,SITE-011,Pavement section,Critical,2011-03-01,011-231,Routine watch item
+ASSET-232,SITE-012,Sign gantry,Fair,2005-02-01,012-232,Hairline map cracking
+ASSET-233,SITE-013,Streetlight column,Critical,2009-11-01,013-233,Siltation after storm
+ASSET-234,SITE-014,Open channel drain,Fair,2006-07-01,014-234,Siltation after storm
+ASSET-235,SITE-015,Expansion bearing,Poor,2018-09-01,015-235,Siltation after storm
+ASSET-236,SITE-016,Parapet,Good,2004-11-01,016-236,Hairline map cracking
+ASSET-237,SITE-017,Culvert - reinforced concrete,Poor,2021-05-01,017-237,Routine watch item
+ASSET-238,SITE-018,Bridge deck joint,Fair,2013-07-01,018-238,Bolt corrosion at base
+ASSET-239,SITE-019,Guardrail run,Poor,2004-12-01,019-239,Siltation after storm
+ASSET-240,SITE-020,Stormwater inlet,Good,2009-09-01,020-240,Hairline map cracking
+ASSET-241,SITE-001,Catchpit,Fair,2013-11-01,001-241,Scour marks after 2024 rains
+ASSET-242,SITE-002,Retaining wall,Good,2015-03-01,002-242,Siltation after storm
+ASSET-243,SITE-003,Pavement section,Good,2014-08-01,003-243,Routine watch item
+ASSET-244,SITE-004,Sign gantry,Fair,2015-05-01,004-244,Routine watch item
+ASSET-245,SITE-005,Streetlight column,Good,2011-10-01,005-245,Routine watch item
+ASSET-246,SITE-006,Open channel drain,Fair,2019-02-01,006-246,Scour marks after 2024 rains
+ASSET-247,SITE-007,Expansion bearing,Fair,2019-09-01,007-247,Vegetation encroachment
+ASSET-248,SITE-008,Parapet,Critical,2020-10-01,008-248,Scour marks after 2024 rains
+ASSET-249,SITE-009,Culvert - reinforced concrete,Fair,2021-12-01,009-249,Hairline map cracking
+ASSET-250,SITE-010,Bridge deck joint,Poor,2013-07-01,010-250,Bolt corrosion at base
