@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-01 — Ledger canonicalization vectors (6) + pytest/Jest
+
+- `tests/ledger_vectors/test_vectors.json` now has **six** locked entities (`entity`, `canonical_json`, `prev_hash` including JSON `null`, `timestamp`, `actor_id`, `expected_hash_hex`).
+- pytest: `tests/test_ledger_vectors.py`. Jest: `tests/ledgerVectors.test.ts` via `npm run test:ledger` (`jest.ledger.config.cjs`).
+- Run book: `tests/ledger_vectors/README.md`. Human review of domain correctness before merge.
+
 ## 2026-09-01 — Ledger API spec + canonicalization vectors
 
 - Publish-ready `docs/LEDGER_API.md`: create_entry / get_chain / verify_entry / public_key, byte-level canonical JSON, SHA-256 concat order, ed25519 over ASCII-hex `current_hash`, Base64 signature + public key.
