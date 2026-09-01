@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-01 — srm-core Postman + curl examples
+
+- `tools/demo/api-examples/`: Postman collection folders (Create Plan, Create entity, Evidence upload, Ledger) with `BASE_URL` / `API_KEY` placeholders; readable curl in README; `curl-examples.sh` prints or `--execute` (staging only).
+- Auth documented as Frappe `Authorization: token ${API_KEY}`. `plans.create` marked proposed. Human must confirm method names and auth before a real import. No live calls in this packet.
+
 ## 2026-09-01 — AuditTrailViewer chain UI follow-up
 
 - Preview / Storybook mock chain is hash-stable (vector-1 + vector-3). File **Checksum** renders only when `canonical_entity.checksum` is present — `current_hash` stays on the prev → current line.
