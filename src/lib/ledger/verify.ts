@@ -1,23 +1,43 @@
-// Ledger signature verification helper using @noble/ed25519 when available
-// Falls back to throwing if noble is not installed. Add @noble/ed25519 as a dependency to the frontend package.
+export async function verifySignatureBase64(
+  publicKeyB64: string,
+  signatureB64: string,
+  currentHashHex: string,
+): Promise<boolean> {
+  const publicKey = b64ToBytes(publicKeyB64);
+  const signature = b64ToBytes(signatureB64);
+  const message = new TextEncoder().encode(currentHashHex);
 
-let noble: any = null;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  noble = require('@noble/ed25519');
-} catch (err) {
-  noble = null;
+  if (!globalThis.crypto?.subtle) {
+    throw new Error("verification_unavailable");
+  }
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      publicKey as BufferSource,
+      "Ed25519",
+      false,
+      ["verify"],
+    );
+    return crypto.subtle.verify(
+      "Ed25519",
+      key,
+      signature as BufferSource,
+      message as BufferSource,
+    );
+  } catch {
+    throw new Error("verification_unavailable");
+  }
 }
 
-export async function verifySignatureBase64(pubKeyB64: string, signatureB64: string, currentHashHex: string): Promise<boolean> {
-  if (!noble) {
-    // In environments without noble, we cannot verify; caller should handle fallback.
-    throw new Error('ed25519 verification library not available (install @noble/ed25519)');
+function b64ToBytes(value: string): Uint8Array {
+  const binary = atob(value);
+  const out = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    out[i] = binary.charCodeAt(i);
   }
-  const pub = Buffer.from(pubKeyB64, 'base64');
-  const sig = Buffer.from(signatureB64, 'base64');
-  // noble expects hex or Uint8Array
-  const msgBytes = Buffer.from(currentHashHex, 'utf-8');
-  const ok = await noble.verify(sig, msgBytes, pub);
-  return ok;
+  return out;
+}
+
+export function verificationCryptoAvailable(): boolean {
+  return Boolean(globalThis.crypto?.subtle);
 }
