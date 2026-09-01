@@ -1,0 +1,21 @@
+site_id,org_id,name,project_code,ward,municipality,gps_lat,gps_lon,status
+SITE-0001,ORG-0001,Corridor access km 11.1,NCGR-B,Ward 2,Sundays River Valley,-33.4000,25.4400,active
+SITE-0002,ORG-0002,Corridor access km 12.2,NCGR-B,Ward 3,Sundays River Valley,-33.3877,25.4400,active
+SITE-0003,ORG-0003,Corridor access km 13.3,NCGR-B,Ward 4,Sundays River Valley,-33.3754,25.4511,active
+SITE-0004,ORG-0004,Corridor access km 14.4,NCGR-B,Ward 5,Sarah Baartman,-33.3631,25.4511,active
+SITE-0005,ORG-0005,Corridor access km 15.5,NCGR-B,Ward 6,Nelson Mandela Bay,-33.3508,25.4622,active
+SITE-0006,ORG-0001,Corridor access km 16.6,NCGR-B,Ward 7,Sundays River Valley,-33.3385,25.4622,active
+SITE-0007,ORG-0002,Corridor access km 17.7,NCGR-B,Ward 8,Sundays River Valley,-33.3262,25.4733,active
+SITE-0008,ORG-0003,Corridor access km 18.8,NCGR-B,Ward 9,Sundays River Valley,-33.3139,25.4733,active
+SITE-0009,ORG-0004,Corridor access km 19.9,NCGR-B,Ward 10,Sarah Baartman,-33.3016,25.4844,active
+SITE-0010,ORG-0005,Corridor access km 20.0,NCGR-B,Ward 11,Nelson Mandela Bay,-33.2893,25.4844,active
+SITE-0011,ORG-0001,Corridor access km 21.1,NCGR-B,Ward 12,Sundays River Valley,-33.4000,25.4955,active
+SITE-0012,ORG-0002,Corridor access km 22.2,NCGR-B,Ward 1,Sundays River Valley,-33.3877,25.4955,active
+SITE-0013,ORG-0003,Corridor access km 23.3,NCGR-B,Ward 2,Sundays River Valley,-33.3754,25.5066,active
+SITE-0014,ORG-0004,Corridor access km 24.4,NCGR-B,Ward 3,Sarah Baartman,-33.3631,25.5066,active
+SITE-0015,ORG-0005,Corridor access km 25.5,NCGR-B,Ward 4,Nelson Mandela Bay,-33.3508,25.5177,active
+SITE-0016,ORG-0001,Corridor access km 26.6,NCGR-B,Ward 5,Sundays River Valley,-33.3385,25.5177,active
+SITE-0017,ORG-0002,Corridor access km 27.7,NCGR-B,Ward 6,Sundays River Valley,-33.3262,25.5288,active
+SITE-0018,ORG-0003,Corridor access km 28.8,NCGR-B,Ward 7,Sundays River Valley,-33.3139,25.5288,active
+SITE-0019,ORG-0004,Corridor access km 29.9,NCGR-B,Ward 8,Sarah Baartman,-33.3016,25.5399,active
+SITE-0020,ORG-0005,Corridor access km 30.0,NCGR-B,Ward 9,Nelson Mandela Bay,-33.2893,25.5399,active

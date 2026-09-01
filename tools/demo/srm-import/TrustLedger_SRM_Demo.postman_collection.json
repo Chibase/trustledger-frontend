@@ -1,0 +1,82 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-trustledger-srm-demo",
+    "name": "TrustLedger SRM demo import",
+    "description": "Sample create + evidence upload against srm-core. Set collection variables BASE_URL and API_KEY (Frappe token key:secret). Do not save production secrets in this file.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "BASE_URL", "value": "https://YOUR-STAGING-HOST" },
+    { "key": "API_KEY", "value": "frappe_api_key:frappe_api_secret" }
+  ],
+  "item": [
+    {
+      "name": "Create organization",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "token {{API_KEY}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"org_id\": \"ORG-0001\",\n  \"name\": \"Sundays River Valley Local Municipality\",\n  \"org_type\": \"client\",\n  \"province\": \"Eastern Cape\",\n  \"municipality\": \"Sundays River Valley\",\n  \"contact_email\": \"srm.org0001@example.test\",\n  \"status\": \"active\"\n}"
+        },
+        "url": "{{BASE_URL}}/api/method/srm_core.api.organizations.create_organization"
+      }
+    },
+    {
+      "name": "Create incident",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "token {{API_KEY}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"incident_id\": \"INC-0001\",\n  \"org_id\": \"ORG-0001\",\n  \"site_id\": \"SITE-0001\",\n  \"title\": \"Access road dust affecting livestock\",\n  \"description\": \"Illustrative grievance for the SRM demo pack. Not a live matter.\",\n  \"status\": \"Open\",\n  \"priority\": \"P4-Low\",\n  \"reported_by\": \"USER-0001\",\n  \"reported_at\": \"2026-07-02T09:00:00Z\",\n  \"ward\": \"Ward 2\",\n  \"category\": \"grievance\"\n}"
+        },
+        "url": "{{BASE_URL}}/api/method/srm_core.api.incidents.create_incident"
+      }
+    },
+    {
+      "name": "Upload evidence (multipart)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "token {{API_KEY}}" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "evidence_id", "value": "EVID-0001", "type": "text" },
+            { "key": "parent_type", "value": "inspection", "type": "text" },
+            { "key": "parent_id", "value": "INSP-0001", "type": "text" },
+            { "key": "gps_lat", "value": "-33.4000", "type": "text" },
+            { "key": "gps_lon", "value": "25.4400", "type": "text" },
+            { "key": "timestamp", "value": "2026-06-01T11:00:00Z", "type": "text" },
+            { "key": "checksum", "value": "<sha256 of images/field_01.jpg after EXIF inject>", "type": "text" },
+            { "key": "file", "type": "file", "src": "images/field_01.jpg" }
+          ]
+        },
+        "url": "{{BASE_URL}}/api/method/srm_core.api.evidence.upload_evidence"
+      }
+    },
+    {
+      "name": "Create ledger entry",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "token {{API_KEY}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"entity_type\": \"evidence\",\n  \"entity_id\": \"EVID-0001\",\n  \"action\": \"create\",\n  \"timestamp\": \"2026-06-01T11:00:00Z\",\n  \"actor_id\": \"USER-0001\",\n  \"canonical_entity\": {\n    \"filename\": \"field_01.jpg\",\n    \"gps_lat\": -33.4,\n    \"gps_lon\": 25.44,\n    \"id\": \"EVID-0001\",\n    \"parent_id\": \"INSP-0001\",\n    \"parent_type\": \"inspection\",\n    \"timestamp\": \"2026-06-01T11:00:00Z\",\n    \"uploader_id\": \"USER-0001\"\n  },\n  \"prev_hash\": null,\n  \"signature\": \"<from ledger_entries.csv — TEST-ONLY>\"\n}"
+        },
+        "url": "{{BASE_URL}}/api/method/srm_core.api.ledger.create_entry"
+      }
+    }
+  ]
+}

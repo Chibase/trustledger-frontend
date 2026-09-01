@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-01 — SRM demo import pack (offline zip)
+
+- `tools/demo/srm-import/`: medium CSVs (5/20/50/200/30/80/400/500), 30 royalty-free JPEGs with injected EXIF GPS/time, `import_script.py --dry-run|--run|--create-ledger`, Postman collection with `BASE_URL` / `API_KEY` placeholders.
+- Zip: `tools/demo/trustledger-srm-demo.zip`. TEST keypair labelled `TEST-KEYPAIR-DO-NOT-USE-IN-PROD`. Script refuses production host and `--run` without `--i-approve-staging`.
+- Do not import into customer workspaces. Human must supply a scoped staging key before `--run`.
+
 ## 2026-09-01 — AuditTrailViewer chain UI follow-up
 
 - Preview / Storybook mock chain is hash-stable (vector-1 + vector-3). File **Checksum** renders only when `canonical_entity.checksum` is present — `current_hash` stays on the prev → current line.
