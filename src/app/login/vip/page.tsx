@@ -22,8 +22,6 @@ function VipShowcaseLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = sanitizeNext(searchParams.get("next"));
-  const [email, setEmail] = useState("admin@chibaseconsulting.co.za");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [enabled, setEnabled] = useState<boolean | null>(null);
@@ -52,8 +50,8 @@ function VipShowcaseLoginForm() {
     setError(null);
     try {
       const form = new FormData(event.currentTarget);
-      const emailValue = String(form.get("email") || email).trim().toLowerCase();
-      const passwordValue = String(form.get("password") || password);
+      const emailValue = String(form.get("email") || "").trim().toLowerCase();
+      const passwordValue = String(form.get("password") || "");
       const res = await fetch("/api/auth/vip-showcase", {
         method: "POST",
         headers: {
@@ -121,8 +119,7 @@ function VipShowcaseLoginForm() {
               name="email"
               type="email"
               autoComplete="username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              defaultValue="admin@chibaseconsulting.co.za"
               className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               required
             />
@@ -136,8 +133,6 @@ function VipShowcaseLoginForm() {
               name="password"
               type="password"
               autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               required
             />
@@ -149,7 +144,7 @@ function VipShowcaseLoginForm() {
           ) : null}
           <button
             type="submit"
-            disabled={pending || enabled === null}
+            disabled={pending}
             className="w-full rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-50"
           >
             {pending ? "Opening workspace…" : "Open VIP workspace"}
