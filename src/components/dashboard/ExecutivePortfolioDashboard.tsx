@@ -130,12 +130,14 @@ export function ExecutivePortfolioDashboard({
             module for evidence, then return here. Desk: {DESK_TIER_LABELS[tier]}.
           </p>
         </div>
-        <Link
-          href="/app/engagement-plan"
-          className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-        >
-          Engagement plan module
-        </Link>
+        {showNotesPulse ? (
+          <Link
+            href="/app/engagement-plan"
+            className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+          >
+            Engagement plan module
+          </Link>
+        ) : null}
       </header>
 
       <ModuleContributionBoard planId={planId} vip={isVip} mode={mode} />
