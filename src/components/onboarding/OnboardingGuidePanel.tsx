@@ -4,29 +4,42 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { PlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import {
   onboardingStepsForPlan,
   type OnboardingStepId,
 } from "@/config/onboardingSteps";
+import { demoSeedAllowed, packagingPlanId } from "@/lib/planPackaging";
+import { useLaunchSetupWizard } from "@/components/onboarding/SetupWizardGate";
 import {
   clearOnboardingStep,
   markOnboardingStepComplete,
   readOnboardingState,
-  requestOnboardingWizard,
   type OnboardingState,
 } from "@/lib/onboardingGuide";
 
 type OnboardingGuidePanelProps = {
   planId?: PlanId | null;
+  vip?: boolean;
+  mode?: TlMode | null;
 };
 
 /**
  * /app/guide — checklist that takes you to each task screen.
  */
-export function OnboardingGuidePanel({ planId }: OnboardingGuidePanelProps) {
+export function OnboardingGuidePanel({
+  planId,
+  vip = false,
+  mode = null,
+}: OnboardingGuidePanelProps) {
+  const launchSetup = useLaunchSetupWizard();
   const [state, setState] = useState<OnboardingState | null>(null);
-  const steps = onboardingStepsForPlan(planId);
-  const planName = planId ? PLANS[planId].name : "your plan";
+  const steps = onboardingStepsForPlan(planId, { vip, mode });
+  const resolved = packagingPlanId({ planId, vip, mode });
+  const vipShowcase = demoSeedAllowed({ vip, mode });
+  const planName = vipShowcase
+    ? "VIP · Institutional"
+    : PLANS[resolved].name;
 
   useEffect(() => {
     function sync() {
@@ -59,11 +72,14 @@ export function OnboardingGuidePanel({ planId }: OnboardingGuidePanelProps) {
           <p className="mt-1 text-sm text-tl-ink-muted">
             Setup checklist for {planName}. Each step title is a link to the
             screen where you do that work — not only an explanation.
+            {vipShowcase
+              ? " NCGR-B is preloaded; this guide walks the same module spine."
+              : ""}
           </p>
         </div>
         <button
           type="button"
-          onClick={() => requestOnboardingWizard()}
+          onClick={() => launchSetup()}
           className="rounded-md bg-tl-trust px-3 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
         >
           Launch setup wizard

@@ -24,10 +24,16 @@ export default async function AppDashboardPage() {
     user.isPlanOwner === true ||
     (user.role === "admin" && (user.mode === "trial" || Boolean(user.orgId)));
 
+  const vipShowcase = isVipShowcaseWorkspace(user.mode, user.isVip);
+
   return (
     <div className="space-y-7">
-      {isPlanOwner && !isVipShowcaseWorkspace(user.mode, user.isVip) ? (
-        <SetupChecklistBanner planId={user.trialPlan} />
+      {isPlanOwner || vipShowcase ? (
+        <SetupChecklistBanner
+          planId={user.trialPlan}
+          vip={Boolean(user.isVip)}
+          mode={user.mode}
+        />
       ) : null}
       <ExecutivePortfolioDashboard
         role={user.role}

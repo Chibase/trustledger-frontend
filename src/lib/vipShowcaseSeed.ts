@@ -9,7 +9,7 @@ import { TL_MODE_COOKIE, TL_VIP_COOKIE } from "@/lib/auth.constants";
 import { saveCaptureRecord } from "@/lib/captureStore";
 import { saveCapturedEmail } from "@/lib/emailGate";
 import { ensureSavedIndicatorBrief } from "@/lib/indicatorBriefStore";
-import { completeOnboardingWizard } from "@/lib/onboardingGuide";
+import { restoreVipShowcaseSetupIfSeedDismissed } from "@/lib/onboardingGuide";
 import {
   saveOrgEvidence,
   saveOrgIncident,
@@ -208,7 +208,7 @@ export function applyVipShowcaseSeed(input: {
   seedSepIfMissing();
   seedEsgIfMissing();
 
-  completeOnboardingWizard();
+  restoreVipShowcaseSetupIfSeedDismissed();
   if (input.email.includes("@")) {
     saveCapturedEmail(input.email, "save");
   }

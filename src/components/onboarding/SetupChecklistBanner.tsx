@@ -3,25 +3,35 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { PlanId } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import { onboardingStepsForPlan } from "@/config/onboardingSteps";
+import { demoSeedAllowed } from "@/lib/planPackaging";
+import { useLaunchSetupWizard } from "@/components/onboarding/SetupWizardGate";
 import {
   markOnboardingStepComplete,
   readOnboardingState,
-  requestOnboardingWizard,
   type OnboardingState,
 } from "@/lib/onboardingGuide";
 
 type SetupChecklistBannerProps = {
   planId?: PlanId | null;
+  vip?: boolean;
+  mode?: TlMode | null;
 };
 
 /**
  * Compact progress strip on Dashboard / Guide until setup is done.
  * Next incomplete step links straight to that task screen.
  */
-export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
+export function SetupChecklistBanner({
+  planId,
+  vip = false,
+  mode = null,
+}: SetupChecklistBannerProps) {
   const [state, setState] = useState<OnboardingState | null>(null);
-  const steps = onboardingStepsForPlan(planId).filter(
+  const vipShowcase = demoSeedAllowed({ vip, mode });
+  const launchSetup = useLaunchSetupWizard();
+  const steps = onboardingStepsForPlan(planId, { vip, mode }).filter(
     (s) => s.id !== "welcome" && s.id !== "done",
   );
 
@@ -37,14 +47,13 @@ export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
     };
   }, []);
 
-  if (!state || state.wizardCompleted) return null;
+  if (state?.wizardCompleted) return null;
 
-  const doneCount = steps.filter((s) =>
-    state.completedSteps.includes(s.id),
-  ).length;
+  const completed = state?.completedSteps ?? [];
+  const doneCount = steps.filter((s) => completed.includes(s.id)).length;
   const total = steps.length || 1;
   const pct = Math.round((doneCount / total) * 100);
-  const nextStep = steps.find((s) => !state.completedSteps.includes(s.id));
+  const nextStep = steps.find((s) => !completed.includes(s.id));
 
   return (
     <section
@@ -57,7 +66,10 @@ export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
             First-time setup
           </p>
           <p className="mt-1 text-sm text-tl-ink">
-            Seed your SRM desk in order — {doneCount} of {total} steps marked.
+            {vipShowcase
+              ? "Walk the preloaded Institutional modules in order —"
+              : "Seed your SRM desk in order —"}{" "}
+            {doneCount} of {total} steps marked.
           </p>
           {nextStep?.href ? (
             <p className="mt-1 text-sm">
@@ -93,7 +105,7 @@ export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
           ) : (
             <button
               type="button"
-              onClick={() => requestOnboardingWizard()}
+              onClick={() => launchSetup()}
               className="rounded-md bg-tl-trust px-3 py-2 text-xs font-medium text-white hover:bg-tl-trust-ink"
             >
               Continue setup

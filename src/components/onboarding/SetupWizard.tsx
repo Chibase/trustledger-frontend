@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { PlanId } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import {
   onboardingStepsForPlan,
   type OnboardingStepId,
@@ -12,6 +14,7 @@ import {
   dismissOnboardingWizard,
   markOnboardingStepComplete,
   readOnboardingState,
+  restoreVipShowcaseSetupIfSeedDismissed,
   shouldAutoOpenWizard,
   type OnboardingState,
 } from "@/lib/onboardingGuide";
@@ -19,48 +22,86 @@ import { mustChangePassword } from "@/lib/trialBillingClient";
 
 type SetupWizardProps = {
   planId?: PlanId | null;
-  /** When true, skip auto-open (e.g. junior non-owner). */
+  /** When false, the wizard never opens (juniors use Guide on demand). */
   enabled?: boolean;
+  /** VIP showcase: keep the preloaded desk visible; Guide/Settings still launch. */
+  skipAutoOpen?: boolean;
+  vip?: boolean;
+  mode?: TlMode | null;
+  /** Direct open from SetupWizardGate (same React tree as Guide/Settings). */
+  requestedOpen?: boolean;
+  onRequestedClose?: () => void;
 };
 
 /**
  * First-login setup wizard — plan-aware spine (UG-1).
  * Each step title/CTA navigates to the screen where that task is done.
  */
-export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
+export function SetupWizard({
+  planId,
+  enabled = true,
+  skipAutoOpen = false,
+  vip = false,
+  mode = null,
+  requestedOpen = false,
+  onRequestedClose,
+}: SetupWizardProps) {
   const [open, setOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [state, setState] = useState<OnboardingState | null>(null);
 
-  const steps = onboardingStepsForPlan(planId);
+  const steps = onboardingStepsForPlan(planId, { vip, mode });
   const step = steps[stepIndex] ?? steps[0];
 
   useEffect(() => {
     if (!enabled) return;
 
     function sync() {
-      if (mustChangePassword()) {
+      // VIP hides the temp-password prompt; leftover trial flags must not
+      // swallow Guide / Settings launch.
+      if (!skipAutoOpen && mustChangePassword()) {
         setOpen(false);
         return;
       }
       const next = readOnboardingState();
       setState(next);
-      if (shouldAutoOpenWizard(next)) {
+      if (shouldAutoOpenWizard(next, { skipAutoOpen })) {
         setOpen(true);
       }
     }
 
-    const frame = requestAnimationFrame(sync);
     window.addEventListener("tl-onboarding-changed", sync);
     window.addEventListener("storage", sync);
+    try {
+      if (skipAutoOpen) restoreVipShowcaseSetupIfSeedDismissed();
+    } catch {
+      /* seed restore must not prevent Guide/Settings launch */
+    }
+    const frame = requestAnimationFrame(sync);
+    function onHash() {
+      if (window.location.hash === "#setup-wizard") {
+        setState(readOnboardingState());
+        setOpen(true);
+      }
+    }
+    window.addEventListener("hashchange", onHash);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("tl-onboarding-changed", sync);
       window.removeEventListener("storage", sync);
+      window.removeEventListener("hashchange", onHash);
     };
-  }, [enabled]);
+  }, [enabled, skipAutoOpen]);
 
-  if (!enabled || !open || !step || !state) return null;
+  if (!enabled) return null;
+
+  const host = (
+    <span data-setup-wizard={open || requestedOpen ? "open" : "ready"} hidden />
+  );
+
+  const showDialog = open || requestedOpen;
+  const resolvedState = state ?? (showDialog ? readOnboardingState() : null);
+  if (!showDialog || !step || !resolvedState) return host;
 
   const total = steps.length;
   const progress = Math.round(((stepIndex + 1) / total) * 100);
@@ -70,6 +111,10 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
   function close(permanent: boolean) {
     dismissOnboardingWizard(permanent);
     setOpen(false);
+    onRequestedClose?.();
+    if (typeof window !== "undefined" && window.location.hash === "#setup-wizard") {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
   }
 
   /** Leave the wizard open path and go do the task in-app. */
@@ -77,6 +122,7 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
     markOnboardingStepComplete(step.id);
     dismissOnboardingWizard(false);
     setOpen(false);
+    onRequestedClose?.();
     setState(readOnboardingState());
   }
 
@@ -85,6 +131,7 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
     if (isLast) {
       completeOnboardingWizard();
       setOpen(false);
+      onRequestedClose?.();
       return;
     }
     setStepIndex((i) => Math.min(i + 1, total - 1));
@@ -96,8 +143,8 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
     if (i >= 0) setStepIndex(i);
   }
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-4 sm:items-center">
+  const dialog = (
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/40 p-4 sm:items-center">
       <div
         role="dialog"
         aria-modal="true"
@@ -159,7 +206,7 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
 
           <ol className="mt-5 space-y-1.5">
             {steps.map((s, i) => {
-              const done = state.completedSteps.includes(s.id);
+              const done = resolvedState.completedSteps.includes(s.id);
               const current = i === stepIndex;
               return (
                 <li key={s.id}>
@@ -196,6 +243,7 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
                           markOnboardingStepComplete(s.id);
                           dismissOnboardingWizard(false);
                           setOpen(false);
+                          onRequestedClose?.();
                         }}
                         className="shrink-0 font-medium text-tl-trust-ink underline underline-offset-2"
                       >
@@ -256,5 +304,20 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
         </div>
       </div>
     </div>
+  );
+
+  if (typeof document === "undefined") {
+    return (
+      <>
+        {host}
+        {dialog}
+      </>
+    );
+  }
+  return (
+    <>
+      {host}
+      {createPortal(dialog, document.body)}
+    </>
   );
 }
