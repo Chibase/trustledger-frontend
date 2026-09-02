@@ -14,7 +14,7 @@ import {
 
 export default function EngagementPlanListPage() {
   const [rows, setRows] = useState<EngagementPlan[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const load = () => {
