@@ -20,7 +20,7 @@ import {
   saveOrgStakeholder,
 } from "@/lib/orgDataSpace";
 import { isVipShowcaseWorkspace } from "@/lib/planLabel";
-import { listOrgs, removeOrg, setActiveOrgId } from "@/lib/orgStore";
+import { listOrgs, getActiveOrgId, removeOrg, setActiveOrgId } from "@/lib/orgStore";
 import { saveAuthoredReport } from "@/lib/reportStore";
 import { composeEngagementPlan } from "@/lib/sepComposer";
 import {
@@ -338,11 +338,16 @@ function filterSepExecution(): number {
 }
 
 function removeForeignShowcaseOrgs(sessionEmail: string): number {
+  const activeId = getActiveOrgId();
+  const session = sessionEmail.trim().toLowerCase();
   let removed = 0;
   for (const org of listOrgs()) {
     if (org.name !== VIP_SHOWCASE_ORG_NAME) continue;
     if (isVipShowcaseDefaultEmail(org.ownerEmail)) continue;
-    if (isVipShowcaseDefaultEmail(sessionEmail)) continue;
+    // Never delete the signed-in workspace (legacy /login/vip extras reused
+    // this name). Strip NCGR-B rows instead; drop only other leftover orgs.
+    if (org.id === activeId) continue;
+    if (session && org.ownerEmail === session) continue;
     if (removeOrg(org.id)) {
       removed += 1;
       try {

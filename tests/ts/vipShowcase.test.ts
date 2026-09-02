@@ -145,6 +145,47 @@ describe("VIP showcase pack", () => {
       root["org-thozi"]?.projects?.some((row) => row.id === "PRJ-NCGR-B"),
     ).toBe(true);
   });
+
+  it("keeps the signed-in org even if it still has the old showcase name", () => {
+    window.localStorage.clear();
+    const guestOrg = {
+      id: "org-legacy-guest",
+      name: "VIP Pilot — NCGR-B Showcase",
+      planId: "institutional" as const,
+      createdAt: "2026-09-01T00:00:00.000Z",
+      ownerEmail: "guest@example.com",
+      ownerName: "Guest",
+      members: [],
+      invites: [],
+    };
+    const stray = {
+      ...guestOrg,
+      id: "org-stray-test",
+      ownerEmail: "qa@example.com",
+      ownerName: "QA",
+    };
+    window.localStorage.setItem(
+      "tl-orgs",
+      JSON.stringify({
+        "org-legacy-guest": guestOrg,
+        "org-stray-test": stray,
+      }),
+    );
+    window.localStorage.setItem("tl-active-org-id", "org-legacy-guest");
+    applyVipShowcaseSeed({
+      orgId: "org-legacy-guest",
+      email: "guest@example.com",
+    });
+    const orgs = JSON.parse(window.localStorage.getItem("tl-orgs") || "{}") as Record<
+      string,
+      { id: string }
+    >;
+    expect(orgs["org-legacy-guest"]).toBeDefined();
+    expect(orgs["org-stray-test"]).toBeUndefined();
+    expect(window.localStorage.getItem("tl-active-org-id")).toBe(
+      "org-legacy-guest",
+    );
+  });
 });
 
 function restoreEnv(key: string, value: string | undefined) {
