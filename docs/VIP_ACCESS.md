@@ -92,6 +92,6 @@ A packaged **VIP Institutional** workspace with the NCGR-B illustrative programm
 | Production / preview / local | Enabled unless `VIP_SHOWCASE_LOGIN=0`. Password is `VIP_SHOWCASE_PASSWORD` or the documented default in `src/lib/vipShowcaseAuth.ts` (`DEFAULT_PREVIEW_PASSWORD`) |
 | Allowlist | `thozi@chibaseconsulting.co.za` (not the Platform Operator mailbox) plus `VIP_SHOWCASE_EMAILS` |
 
-Do **not** link `/login/vip` from marketing. Declare the programme **illustrative** in the room. Paying guests still use Ops **Create VIP access + temp password** + `/login/live`.
+Do **not** link `/login/vip` from marketing. If that mailbox is typed on `/login/live`, TrustLedger sends it to the showcase form instead of Cloud. Declare the programme **illustrative** in the room. Paying guests still use Ops **Create VIP access + temp password** + `/login/live`.
 
 Related: `src/data/vipShowcase.ts`, `src/lib/vipShowcaseSeed.ts`, `POST /api/auth/vip-showcase`.

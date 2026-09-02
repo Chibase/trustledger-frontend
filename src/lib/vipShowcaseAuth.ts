@@ -4,13 +4,14 @@
  */
 
 import { createHash, timingSafeEqual } from "crypto";
+import { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
+
+export { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
 
 export const VIP_SHOWCASE_WEEKS = 8;
 export const VIP_SHOWCASE_PLAN_ID = "institutional" as const;
 export const VIP_SHOWCASE_ORG_NAME = "VIP Pilot — NCGR-B Showcase";
 export const VIP_SHOWCASE_OWNER_NAME = "Thozamile KaDlanga";
-/** Dedicated showcase login — not the Platform Operator / master-plan mailbox. */
-export const VIP_SHOWCASE_DEFAULT_EMAIL = "thozi@chibaseconsulting.co.za";
 
 /** Documented showcase password; override with VIP_SHOWCASE_PASSWORD. */
 export const DEFAULT_PREVIEW_PASSWORD = "NcgrB-Showcase-2026";
@@ -45,6 +46,11 @@ export function allowedVipShowcaseEmails(): string[] {
 export function isAllowedVipShowcaseEmail(email: string): boolean {
   const needle = email.trim().toLowerCase();
   return allowedVipShowcaseEmails().includes(needle);
+}
+
+/** Showcase mailbox belongs on /login/vip, not Frappe /login/live. */
+export function isVipShowcaseLiveLoginMailbox(usr: string): boolean {
+  return isVipShowcaseEnabled() && isAllowedVipShowcaseEmail(usr);
 }
 
 function passwordDigest(password: string): Buffer {

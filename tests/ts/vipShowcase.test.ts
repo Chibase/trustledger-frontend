@@ -6,6 +6,7 @@ import {
   DEFAULT_PREVIEW_PASSWORD,
   isAllowedVipShowcaseEmail,
   isVipShowcaseEnabled,
+  isVipShowcaseLiveLoginMailbox,
   vipShowcaseClientIp,
   vipShowcasePasswordsMatch,
 } from "@/lib/vipShowcaseAuth";
@@ -131,6 +132,20 @@ describe("VIP showcase auth gate", () => {
     expect(isAllowedVipShowcaseEmail("stranger@example.com")).toBe(false);
     expect(allowedVipShowcaseEmails()).toContain(
       "thozi@chibaseconsulting.co.za",
+    );
+  });
+
+  it("sends the showcase mailbox away from live Cloud login", () => {
+    delete process.env.VIP_SHOWCASE_LOGIN;
+    expect(isVipShowcaseLiveLoginMailbox("thozi@chibaseconsulting.co.za")).toBe(
+      true,
+    );
+    expect(isVipShowcaseLiveLoginMailbox("admin@chibaseconsulting.co.za")).toBe(
+      false,
+    );
+    process.env.VIP_SHOWCASE_LOGIN = "0";
+    expect(isVipShowcaseLiveLoginMailbox("thozi@chibaseconsulting.co.za")).toBe(
+      false,
     );
   });
 
