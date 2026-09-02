@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-02 — VIP Institutional showcase workspace
+
+- Packaged complimentary **VIP · Institutional** workspace with illustrative NCGR-B corridor programme (project, 10 stakeholders, 5 engagements, 4 commitments, 3 cases + evidence, capture minutes, activity pack).
+- Gated sign-in `/login/vip` + `POST /api/auth/vip-showcase` (allowlisted emails). Production fail-closed without `VIP_SHOWCASE_PASSWORD`; preview/local uses the default in `vipShowcaseAuth`.
+- Own-data ids (`PRJ-NCGR-B` / `INC-NCGR-*`) — not retired public `INC-1001` seed. Showcase banner only on trial+VIP sessions (live Cloud VIP guests keep their own workspace, no NCGR-B strip).
+- Runbook: `docs/VIP_ACCESS.md` (showcase section). Paying Cloud VIPs still use Ops provision + `/login/live`.
+
 ## 2026-09-01 — srm-core Postman + curl examples
 
 - `tools/demo/api-examples/`: Postman collection folders (Create Plan, Create entity, Evidence upload, Ledger) with `BASE_URL` / `API_KEY` placeholders; readable curl in README; `curl-examples.sh` prints or `--execute` (staging only).

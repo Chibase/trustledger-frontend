@@ -32,6 +32,7 @@ export default async function ProductLayout({
 
   if (
     user.mode === "trial" &&
+    !user.isVip &&
     user.trial &&
     (user.trial.status === "expired" || user.trial.status === "purged")
   ) {

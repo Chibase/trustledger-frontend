@@ -13,7 +13,8 @@
 
 | Step | Where | What |
 |------|--------|------|
-| 1 | `/trial` or live Owner login | Open a **Project** or **Institutional** workspace |
+| 0 | `/login/vip` | Operator **VIP Institutional showcase** — seeded NCGR-B illustrative programme (preview/local; Production needs `VIP_SHOWCASE_PASSWORD`). See `docs/VIP_ACCESS.md`. |
+| 1 | `/trial` or live Owner login | Or open a **Project** or **Institutional** workspace and seed by hand |
 | 2 | `/app/projects` | Create project `NCGR-B Corridor & Access` (or rename fixture below) |
 | 3 | `/app/stakeholders` | Seed registry (table below) |
 | 4 | `/app/engagements` | Seed 4–6 meetings linked to the project |

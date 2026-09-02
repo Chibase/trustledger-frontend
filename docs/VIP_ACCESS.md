@@ -79,3 +79,20 @@ Response includes `temporaryPassword`. Share `/login/live` + email + password wi
 - `src/components/ops/VipAccessPanel.tsx`
 - `src/lib/orgSeats.ts` — `vip` seat/desk invite bypass (paid plans keep gates)
 - Charge-due: `src/lib/entitlementCloud.ts` (trial + authorization only)
+
+## VIP illustrative showcase (operator / preview)
+
+A packaged **VIP Institutional** workspace with the NCGR-B illustrative programme from `docs/DEMO_PLAN_SRM_SHOWCASE.md`. This is **not** the retired public `/demo` and **not** Cloud Owner provision.
+
+| Item | Value |
+| --- | --- |
+| Sign-in | `/login/vip` |
+| Plan | Institutional + `tl-vip` (complimentary) |
+| Data | Browser own-data (`PRJ-NCGR-B`, `INC-NCGR-*`) — never `INC-1001` sample ids |
+| Production | Fail-closed unless `VIP_SHOWCASE_PASSWORD` (or `VIP_SHOWCASE_LOGIN=1`) is set on the host |
+| Preview / local | Enabled; default preview password lives in `src/lib/vipShowcaseAuth.ts` (`DEFAULT_PREVIEW_PASSWORD`) |
+| Allowlist | `admin@chibaseconsulting.co.za`, `PLATFORM_OPERATOR_EMAILS`, `VIP_SHOWCASE_EMAILS` |
+
+Do **not** link `/login/vip` from marketing. Declare the programme **illustrative** in the room. Paying guests still use Ops **Create VIP access + temp password** + `/login/live`.
+
+Related: `src/data/vipShowcase.ts`, `src/lib/vipShowcaseSeed.ts`, `POST /api/auth/vip-showcase`.

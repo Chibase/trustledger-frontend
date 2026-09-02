@@ -2,7 +2,10 @@
 module.exports = {
   testEnvironment: "jsdom",
   roots: ["<rootDir>/tests"],
-  testMatch: ["<rootDir>/tests/ts/AuditTrailViewer.test.tsx"],
+  testMatch: [
+    "<rootDir>/tests/ts/AuditTrailViewer.test.tsx",
+    "<rootDir>/tests/ts/vipShowcase.test.ts",
+  ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",

@@ -9,6 +9,14 @@ export function isVipCustomerName(name: string | null | undefined): boolean {
   return Boolean(name && /^VIP Pilot\b/i.test(name.trim()));
 }
 
+/** Complimentary VIP illustrative showcase (browser) vs live Cloud VIP. */
+export function isVipShowcaseWorkspace(
+  mode?: TlMode | null,
+  isVip?: boolean,
+): boolean {
+  return mode === "trial" && Boolean(isVip);
+}
+
 /** Short badge for nav / plan strip. */
 export function packageLabel(
   planId?: PlanId | null,
