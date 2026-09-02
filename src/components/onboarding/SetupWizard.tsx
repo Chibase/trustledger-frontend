@@ -78,10 +78,18 @@ export function SetupWizard({
       /* seed restore must not prevent Guide/Settings launch */
     }
     const frame = requestAnimationFrame(sync);
+    function onHash() {
+      if (window.location.hash === "#setup-wizard") {
+        setState(readOnboardingState());
+        setOpen(true);
+      }
+    }
+    window.addEventListener("hashchange", onHash);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("tl-onboarding-changed", sync);
       window.removeEventListener("storage", sync);
+      window.removeEventListener("hashchange", onHash);
     };
   }, [enabled, skipAutoOpen]);
 
@@ -104,6 +112,9 @@ export function SetupWizard({
     dismissOnboardingWizard(permanent);
     setOpen(false);
     onRequestedClose?.();
+    if (typeof window !== "undefined" && window.location.hash === "#setup-wizard") {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
   }
 
   /** Leave the wizard open path and go do the task in-app. */

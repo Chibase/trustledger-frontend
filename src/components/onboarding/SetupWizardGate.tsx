@@ -18,6 +18,9 @@ export function useLaunchSetupWizard(): () => void {
   return useCallback(() => {
     requestOnboardingWizard();
     ctx?.launch();
+    if (typeof window !== "undefined") {
+      window.location.hash = "setup-wizard";
+    }
   }, [ctx]);
 }
 

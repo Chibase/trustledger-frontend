@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { OperatorBanner } from "@/components/shell/OperatorBanner";
 import { TrialBanner } from "@/components/shell/TrialBanner";
