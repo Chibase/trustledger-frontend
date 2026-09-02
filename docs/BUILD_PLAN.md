@@ -190,7 +190,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Done (UI modules)** |
 | **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
 | **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
-| **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase dashboard + Gemini-drafted tender SEP (template fallback; PDF/MD/Word); human apply seeds registry / engagements / commitments. Analysis engine (Phases A–G): 25-section academic SEP; logged Spec + Framework references; project-specific method sequence; implementing organisation (not a vendor brand) | **Active** |
+| **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase **process map** + **plan execution dashboard** (roadmap, KPIs, outcomes, mitigations, practitioner snapshot) + Gemini-drafted tender SEP; human apply seeds registry / engagements / commitments. Analysis engine (Phases A–G) | **Active** |
 
 ### HubSpot cutover (ACTIVE)
 

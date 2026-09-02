@@ -640,4 +640,17 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** Land-and-expand is the Solo → Practitioner → Project ladder plus add-ons. Persona UTM (`grievance_desk`, `local_procurement`, `field_companion`) maps onto existing Paystack plans. North star stays Stakeholder Intelligence deepening — this ADR is packaging, not a new product line.
 - **Alternatives considered:** Three separately licensed Frappe apps (rejected — ops, tenancy, and brand cost; `srm-core` is not even the live SoT for every desk); hide TrustLedger on standalone sites (rejected — ADR-002); build WhatsApp intake / native offline now to make the SKUs “complete” (rejected — V003+; over-claim).
 
+### ADR-055: Plan-centric SEP execution dashboard
+
+- **Date:** 2026-09-02
+- **Status:** Accepted
+- **Context:** The SEP process dashboard mixed SLB product mapping with the assignment. Clients need a single-plan execution view from submission, with tasks, hurdles, mitigations, and an on-demand snapshot.
+- **Decision:**
+  1. Default tab is **Plan dashboard** (`SepExecutionDashboard`), scoped to `EngagementPlan.id`.
+  2. Overlay lives in the browser (`tl-sep-execution`) until a Cloud DocType exists — same as the composer (ADR-053).
+  3. Practitioner / Plan Owner edit outcomes and interventions. Client / Board / CEO get snapshot + charts read-only.
+  4. Operator **Process map** (SLB → desks) stays on a separate tab.
+- **Consequences:** No new Paystack SKU. No SQL. Cloud persistence is a later packet.
+- **Alternatives considered:** Frappe DocType in this packet (rejected — not on Cloud yet); cross-plan programme roll-up (rejected — user asked plan-only).
+
 

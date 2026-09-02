@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { SepDocumentView } from "@/components/sep/SepDocumentView";
+import { SepExecutionDashboard } from "@/components/sep/SepExecutionDashboard";
 import { SepExportActions } from "@/components/sep/SepExportActions";
 import { SepProcessDashboard } from "@/components/sep/SepProcessDashboard";
 import { SepSrmGraph } from "@/components/sep/SepSrmGraph";
@@ -24,7 +25,7 @@ import {
 } from "@/types/engagementPlan";
 import type { Project } from "@/types/project";
 
-type Tab = "dashboard" | "document" | "apply";
+type Tab = "dashboard" | "process" | "document" | "apply";
 
 export default function EngagementPlanDetailPage() {
   const params = useParams();
@@ -227,7 +228,8 @@ export default function EngagementPlanDetailPage() {
             >
               {(
                 [
-                  ["dashboard", "Process dashboard"],
+                  ["dashboard", "Plan dashboard"],
+                  ["process", "Process map"],
                   ["document", "Presentable document"],
                   ["apply", "Apply to SRM"],
                 ] as const
@@ -250,6 +252,12 @@ export default function EngagementPlanDetailPage() {
             </div>
 
             {tab === "dashboard" ? (
+              <div className="print:hidden">
+                <SepExecutionDashboard plan={plan} />
+              </div>
+            ) : null}
+
+            {tab === "process" ? (
               <div className="print:hidden">
                 <SepProcessDashboard plan={plan} />
               </div>
