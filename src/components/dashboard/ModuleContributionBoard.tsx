@@ -13,7 +13,10 @@ import {
   recordEmptyStateCta,
   recordExecutiveDrill,
 } from "@/lib/planPackagingMetrics";
-import type { PlanModuleContribution } from "@/types/planPackaging";
+import type {
+  PlanDashboardModuleKey,
+  PlanModuleContribution,
+} from "@/types/planPackaging";
 
 type Props = {
   planId?: PlanId | null;
@@ -39,7 +42,8 @@ export function ModuleContributionBoard({
   const [demoSeeded, setDemoSeeded] = useState(() =>
     resolvePlanDashboardPackaging({ planId, vip, mode }).demoSeedAllowed,
   );
-  const [suggestedNextKey, setSuggestedNextKey] = useState<string | null>(null);
+  const [suggestedNextKey, setSuggestedNextKey] =
+    useState<PlanDashboardModuleKey | null>(null);
 
   useEffect(() => {
     const read = () => {

@@ -66,7 +66,8 @@ export function ensureSavedIndicatorBrief(
   row: SavedIndicatorBrief,
 ): SavedIndicatorBrief {
   const existing = readAll();
-  if (existing.some((item) => item.id === row.id)) return row;
+  const found = existing.find((item) => item.id === row.id);
+  if (found) return found;
   writeAll([row, ...existing]);
   return row;
 }

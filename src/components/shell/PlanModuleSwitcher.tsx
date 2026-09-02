@@ -5,10 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { PlanId } from "@/config/plans";
 import { PLAN_DASHBOARD_CATALOG } from "@/config/tierFlow";
-import { hasCapability, resolveClientPlanId } from "@/lib/entitlements";
+import { hasCapability } from "@/lib/entitlements";
 import {
   descriptorForPath,
   resolvePlanDashboardPackaging,
+  suggestedNextModuleKey,
 } from "@/lib/planPackaging";
 import {
   recordExecutiveDrill,
@@ -44,12 +45,23 @@ export function PlanModuleSwitcher({
         mode,
         measureEmpty: true,
       });
-      const resolved =
-        next.planId === "demo" ? resolveClientPlanId(planId) : next.planId;
-      next.moduleDashboards = next.moduleDashboards.filter((row) =>
-        hasCapability(row.capability, resolved),
+      const moduleDashboards = next.moduleDashboards.filter((row) =>
+        hasCapability(row.capability, next.planId),
       );
-      setPackaging(next);
+      const visibleKeys = moduleDashboards.map((row) => row.key);
+      const suggestedNextKey =
+        next.suggestedNextKey && visibleKeys.includes(next.suggestedNextKey)
+          ? next.suggestedNextKey
+          : suggestedNextModuleKey(
+              next.planId,
+              next.emptyStateFlags,
+              visibleKeys,
+            );
+      setPackaging({
+        ...next,
+        moduleDashboards,
+        suggestedNextKey,
+      });
     }, 0);
     return () => window.clearTimeout(handle);
   }, [planId, vip, mode]);

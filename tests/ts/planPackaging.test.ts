@@ -47,6 +47,7 @@ describe("tier flow packaging", () => {
     expect(view.executiveDashboard.key).toBe("executive");
     expect(view.moduleDashboards.some((m) => m.key === "sep")).toBe(true);
     expect(view.demoSeedAllowed).toBe(false);
+    expect(view.planId).toBe("institutional");
   });
 
   it("allows demo seed only for trial+VIP showcase", () => {

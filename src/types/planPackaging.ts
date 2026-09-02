@@ -48,7 +48,7 @@ export type TierFlowDefinition = {
 };
 
 export type PlanDashboardPackaging = {
-  planId: PlanId | "demo";
+  planId: PlanId;
   vip: boolean;
   demoSeedAllowed: boolean;
   executiveDashboard: PlanDashboardDescriptor;
