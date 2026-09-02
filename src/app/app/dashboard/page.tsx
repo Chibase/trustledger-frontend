@@ -25,7 +25,9 @@ export default async function AppDashboardPage() {
 
   return (
     <div className="space-y-7">
-      {isPlanOwner ? <SetupChecklistBanner planId={user.trialPlan} /> : null}
+      {isPlanOwner && !user.isVip ? (
+        <SetupChecklistBanner planId={user.trialPlan} />
+      ) : null}
       <ExecutivePortfolioDashboard
         role={user.role}
         planId={user.trialPlan}

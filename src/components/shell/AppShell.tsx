@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { OperatorBanner } from "@/components/shell/OperatorBanner";
 import { TrialBanner } from "@/components/shell/TrialBanner";
+import { VipShowcaseBanner } from "@/components/shell/VipShowcaseBanner";
 import { SetupWizard } from "@/components/onboarding/SetupWizard";
 import { TrialPasswordChangePrompt } from "@/components/shell/TrialPasswordChangePrompt";
 import { AppNav } from "@/components/shell/AppNav";
@@ -53,11 +54,14 @@ export function AppShell({
       <SessionEmailBridge email={userEmail} />
       <EmailCaptureGate />
       <div className="min-h-full bg-tl-paper text-tl-ink">
-        {mode === "trial" && trial ? (
+        {isVip ? <VipShowcaseBanner /> : null}
+        {mode === "trial" && trial && !isVip ? (
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
         ) : null}
-        {mode === "trial" ? <TrialPasswordChangePrompt /> : null}
-        {showSetupWizard ? <SetupWizard planId={trialPlan} enabled /> : null}
+        {mode === "trial" && !isVip ? <TrialPasswordChangePrompt /> : null}
+        {showSetupWizard ? (
+          <SetupWizard planId={trialPlan} enabled={!isVip} />
+        ) : null}
         {showOperatorBanner ? <OperatorBanner /> : null}
         <MobileNav
           role={role}
