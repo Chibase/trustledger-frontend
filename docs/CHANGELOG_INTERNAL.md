@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-09-02 — VIP showcase vs live Cloud login
+
+- `thozi@chibaseconsulting.co.za` on `/login/live` is sent to `/login/vip` (409 + client redirect). Cloud 401 was Frappe rejecting the showcase mailbox.
+
 ## 2026-09-02 — VIP showcase login email
 
 - `/login/vip` allowlist default is `thozi@chibaseconsulting.co.za` so it does not share the Platform Operator / master-plan mailbox. Extra addresses stay on `VIP_SHOWCASE_EMAILS` only.

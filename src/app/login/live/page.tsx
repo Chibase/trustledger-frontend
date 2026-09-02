@@ -3,6 +3,10 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import {
+  isVipShowcaseDefaultEmail,
+  VIP_SHOWCASE_DEFAULT_EMAIL,
+} from "@/lib/vipShowcaseIdentity";
 
 function sanitizeNext(value: string | null): string {
   if (
@@ -82,6 +86,10 @@ function LiveLoginForm() {
         .replace(/^\uFEFF/, "")
         .replace(/[\u200B-\u200D\uFEFF]/g, "")
         .replace(/\u2026/g, "");
+      if (isVipShowcaseDefaultEmail(cleanUsr)) {
+        router.replace("/login/vip");
+        return;
+      }
       if (pwd.includes("\u2026")) {
         setError(
           "Password looked truncated (contained …). Re-type the full password from TrustLedger Cloud — do not paste a shortened copy.",
@@ -103,8 +111,18 @@ function LiveLoginForm() {
         needsVerification?: boolean;
         emailHint?: string;
         message?: string;
+        redirectTo?: string;
       };
+      if (payload.redirectTo === "/login/vip") {
+        router.replace("/login/vip");
+        return;
+      }
       if (!response.ok) {
+        if (isVipShowcaseDefaultEmail(cleanUsr)) {
+          throw new Error(
+            `That mailbox is for the VIP showcase workspace. Open /login/vip — live Cloud sign-in will not accept it.`,
+          );
+        }
         throw new Error(payload.error || "Login failed");
       }
       if (payload.needsVerification) {
@@ -184,6 +202,11 @@ function LiveLoginForm() {
       if (!email.includes("@")) {
         throw new Error("Enter your email above first, then request a reset.");
       }
+      if (isVipShowcaseDefaultEmail(email)) {
+        throw new Error(
+          "That mailbox is the VIP showcase login. Open /login/vip — Cloud password reset will not work for it.",
+        );
+      }
       const response = await fetch("/api/auth/live/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -216,7 +239,7 @@ function LiveLoginForm() {
       <p className="mt-2 text-sm text-tl-ink-muted">
         {step === "otp"
           ? `Enter the 6-digit code we sent${emailHint ? ` to ${emailHint}` : ""}.`
-          : "Use your TrustLedger Cloud email and password. We email a one-time code before opening the live product."}
+          : "Use your TrustLedger Cloud email and password. We email a one-time code before opening the live product. The illustrative VIP workspace is a different form (/login/vip)."}
       </p>
 
       {step === "credentials" ? (
@@ -252,6 +275,16 @@ function LiveLoginForm() {
               required
             />
           </div>
+          {isVipShowcaseDefaultEmail(usr) ? (
+            <p className="text-sm text-tl-trust-ink" role="status">
+              {VIP_SHOWCASE_DEFAULT_EMAIL} opens the illustrative VIP workspace
+              at{" "}
+              <Link href="/login/vip" className="underline">
+                /login/vip
+              </Link>
+              — this Cloud form will not accept it.
+            </p>
+          ) : null}
           {error ? (
             <p className="text-sm text-red-700" role="alert">
               {error}
@@ -347,7 +380,12 @@ function LiveLoginForm() {
         </Link>
         . Reset links go to TrustLedger Cloud (
         <span className="font-mono">app.trustledger.co.za</span>
-        ); set a new password there, then return here to sign in.
+        ); set a new password there, then return here to sign in. Illustrative
+        VIP programme:{" "}
+        <Link href="/login/vip" className="text-tl-trust-ink underline">
+          /login/vip
+        </Link>
+        .
       </p>
     </main>
   );
