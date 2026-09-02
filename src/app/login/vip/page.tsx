@@ -119,7 +119,7 @@ function VipShowcaseLoginForm() {
               name="email"
               type="email"
               autoComplete="username"
-              defaultValue="admin@chibaseconsulting.co.za"
+              defaultValue="thozi@chibaseconsulting.co.za"
               className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               required
             />

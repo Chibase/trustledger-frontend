@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-09-02 — VIP showcase login email
+
+- `/login/vip` allowlist default is `thozi@chibaseconsulting.co.za` so it does not share the Platform Operator / master-plan mailbox. Extra addresses stay on `VIP_SHOWCASE_EMAILS` only.
+
 ## 2026-09-02 — VIP Institutional showcase workspace
 
 - Packaged complimentary **VIP · Institutional** workspace with illustrative NCGR-B corridor programme (project, 10 stakeholders, 5 engagements, 4 commitments, 3 cases + evidence, capture minutes, activity pack).

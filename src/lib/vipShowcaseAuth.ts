@@ -5,17 +5,18 @@
  */
 
 import { createHash, timingSafeEqual } from "crypto";
-import { getPlatformOperatorEmails } from "@/lib/platformOperator";
 
 export const VIP_SHOWCASE_WEEKS = 8;
 export const VIP_SHOWCASE_PLAN_ID = "institutional" as const;
 export const VIP_SHOWCASE_ORG_NAME = "VIP Pilot — NCGR-B Showcase";
 export const VIP_SHOWCASE_OWNER_NAME = "Thozamile KaDlanga";
+/** Dedicated showcase login — not the Platform Operator / master-plan mailbox. */
+export const VIP_SHOWCASE_DEFAULT_EMAIL = "thozi@chibaseconsulting.co.za";
 
 /** Preview / local default only — Production requires VIP_SHOWCASE_PASSWORD. */
 export const DEFAULT_PREVIEW_PASSWORD = "NcgrB-Showcase-2026";
 
-const DEFAULT_EMAILS = ["admin@chibaseconsulting.co.za"];
+const DEFAULT_EMAILS = [VIP_SHOWCASE_DEFAULT_EMAIL];
 
 export function isHostedProduction(): boolean {
   return process.env.VERCEL_ENV === "production";
@@ -41,9 +42,6 @@ export function vipShowcaseExpectedPassword(): string | null {
 export function allowedVipShowcaseEmails(): string[] {
   const out = new Set<string>();
   for (const email of DEFAULT_EMAILS) out.add(email);
-  for (const email of getPlatformOperatorEmails()) {
-    if (email.includes("@")) out.add(email);
-  }
   const extra =
     process.env.VIP_SHOWCASE_EMAILS || process.env.VIP_SHOWCASE_EMAIL || "";
   for (const part of extra.split(/[,;\s]+/)) {
@@ -79,7 +77,7 @@ export function vipShowcasePasswordsMatch(
 }
 
 export function displayNameForVipEmail(email: string): string {
-  if (email.trim().toLowerCase() === "admin@chibaseconsulting.co.za") {
+  if (email.trim().toLowerCase() === VIP_SHOWCASE_DEFAULT_EMAIL) {
     return VIP_SHOWCASE_OWNER_NAME;
   }
   const local = email.split("@")[0] || "Plan Owner";

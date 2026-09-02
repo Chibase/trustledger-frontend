@@ -91,15 +91,19 @@ describe("VIP showcase auth gate", () => {
     ).toBe(false);
   });
 
-  it("allowlists the operator email", () => {
+  it("allowlists the showcase mailbox, not the Platform Operator master plan", () => {
     delete process.env.PLATFORM_OPERATOR_EMAILS;
     delete process.env.VIP_SHOWCASE_EMAILS;
-    expect(isAllowedVipShowcaseEmail("admin@chibaseconsulting.co.za")).toBe(
+    process.env.PLATFORM_OPERATOR_EMAILS = "admin@chibaseconsulting.co.za";
+    expect(isAllowedVipShowcaseEmail("thozi@chibaseconsulting.co.za")).toBe(
       true,
+    );
+    expect(isAllowedVipShowcaseEmail("admin@chibaseconsulting.co.za")).toBe(
+      false,
     );
     expect(isAllowedVipShowcaseEmail("stranger@example.com")).toBe(false);
     expect(allowedVipShowcaseEmails()).toContain(
-      "admin@chibaseconsulting.co.za",
+      "thozi@chibaseconsulting.co.za",
     );
   });
 });
