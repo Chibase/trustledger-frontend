@@ -62,12 +62,17 @@ export function ExecutivePortfolioDashboard({
   const showNotesPulse = hasCapability("engagements", planId);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
+    const refresh = () => {
       setTier(readDeskTier(role));
       setIncidents(listWorkspaceIncidents(seedIncidents));
       setProjects(listWorkspaceProjects(seedProjects));
-    });
-    return () => cancelAnimationFrame(frame);
+    };
+    const frame = requestAnimationFrame(refresh);
+    window.addEventListener("tl-workspace-seeded", refresh);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("tl-workspace-seeded", refresh);
+    };
   }, [role, seedIncidents, seedProjects]);
 
   useEffect(() => {

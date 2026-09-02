@@ -17,6 +17,7 @@ import {
   saveOrgStakeholder,
 } from "@/lib/orgDataSpace";
 import { isVipShowcaseWorkspace } from "@/lib/planLabel";
+import { setActiveOrgId } from "@/lib/orgStore";
 import { saveAuthoredReport } from "@/lib/reportStore";
 import { composeEngagementPlan } from "@/lib/sepComposer";
 import {
@@ -176,6 +177,10 @@ export function applyVipShowcaseSeed(input: {
     };
   }
 
+  if (input.orgId) {
+    setActiveOrgId(input.orgId);
+  }
+
   const pack = VIP_SHOWCASE_PACK;
   saveOrgProject(pack.project, input.orgId);
   for (const incident of pack.incidents) {
@@ -204,6 +209,7 @@ export function applyVipShowcaseSeed(input: {
     saveCapturedEmail(input.email, "save");
   }
 
+  const previousBundle = readBundleVersion();
   writeBundleVersion(VIP_DEMO_BUNDLE_VERSION);
   console.info(
     "[plan-packaging] VIP demo bundle",
@@ -211,8 +217,11 @@ export function applyVipShowcaseSeed(input: {
     "seeded/migrated",
     pack.project.id,
     "from",
-    readBundleVersion(),
+    previousBundle,
   );
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("tl-workspace-seeded"));
+  }
 
   return {
     projectId: pack.project.id,

@@ -27,11 +27,19 @@ export function ModuleContributionBoard({
   mode = null,
 }: Props) {
   const [aggregate, setAggregate] = useState(0);
-  const [rows, setRows] = useState<PlanModuleContribution[]>([]);
-  const [demoSeeded, setDemoSeeded] = useState(false);
-  const [suggestedNextKey, setSuggestedNextKey] = useState<string | null>(
-    null,
+  const [rows, setRows] = useState<PlanModuleContribution[]>(() => {
+    const packaging = resolvePlanDashboardPackaging({
+      planId,
+      vip,
+      mode,
+      measureEmpty: false,
+    });
+    return buildModuleContributions(packaging).contributions;
+  });
+  const [demoSeeded, setDemoSeeded] = useState(() =>
+    resolvePlanDashboardPackaging({ planId, vip, mode }).demoSeedAllowed,
   );
+  const [suggestedNextKey, setSuggestedNextKey] = useState<string | null>(null);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
