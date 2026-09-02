@@ -13,6 +13,7 @@ import {
   dismissOnboardingWizard,
   markOnboardingStepComplete,
   readOnboardingState,
+  restoreVipShowcaseSetupIfSeedDismissed,
   shouldAutoOpenWizard,
   type OnboardingState,
 } from "@/lib/onboardingGuide";
@@ -48,9 +49,14 @@ export function SetupWizard({
 
   useEffect(() => {
     if (!enabled) return;
+    if (skipAutoOpen) {
+      restoreVipShowcaseSetupIfSeedDismissed();
+    }
 
     function sync() {
-      if (mustChangePassword()) {
+      // VIP hides the temp-password prompt; leftover trial flags must not
+      // swallow Guide / Settings launch.
+      if (!skipAutoOpen && mustChangePassword()) {
         setOpen(false);
         return;
       }

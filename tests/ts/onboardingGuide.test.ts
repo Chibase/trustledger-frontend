@@ -17,6 +17,7 @@ describe("VIP setup unlock", () => {
     expect(shouldAutoOpenWizard(undefined, { skipAutoOpen: true })).toBe(false);
     requestOnboardingWizard();
     expect(shouldAutoOpenWizard(undefined, { skipAutoOpen: true })).toBe(true);
+    expect(readOnboardingState().wizardCompleted).toBe(false);
   });
 
   it("restores seed-dismissed VIP setup once without forcing the modal", () => {

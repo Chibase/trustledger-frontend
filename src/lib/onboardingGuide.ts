@@ -7,7 +7,7 @@ import type { OnboardingStepId } from "@/config/onboardingSteps";
 const STORAGE_KEY = "tl-onboarding-v1";
 const SNOOZE_KEY = "tl-onboarding-snooze";
 /** One-time restore after VIP seed used to mark setup complete. */
-const VIP_SETUP_UNLOCK_KEY = "tl-vip-setup-unlock-v1";
+const VIP_SETUP_UNLOCK_KEY = "tl-vip-setup-unlock-v2";
 
 export type OnboardingState = {
   /** User chose “Don’t show again” or finished wizard. */
@@ -82,6 +82,7 @@ export function requestOnboardingWizard(): OnboardingState {
   return patchOnboardingState({
     forceOpen: true,
     dismissed: false,
+    wizardCompleted: false,
   });
 }
 
