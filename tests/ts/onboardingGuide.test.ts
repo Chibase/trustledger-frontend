@@ -55,6 +55,15 @@ describe("VIP setup unlock", () => {
       "/app/projects/PRJ-NCGR-B",
     );
 
+    const liveVip = onboardingStepsForPlan("institutional", {
+      vip: true,
+      mode: "live",
+    });
+    expect(liveVip[0]?.title).toBe("Your desk starts empty");
+    expect(liveVip.find((s) => s.id === "project")?.href).toBe(
+      "/app/projects?new=1",
+    );
+
     const solo = onboardingStepsForPlan("solo", { vip: false, mode: "trial" });
     expect(solo.map((s) => s.id)).not.toContain("sep");
     expect(solo.map((s) => s.id)).not.toContain("stakeholders");
