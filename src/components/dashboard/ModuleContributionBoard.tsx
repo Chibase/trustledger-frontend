@@ -29,6 +29,9 @@ export function ModuleContributionBoard({
   const [aggregate, setAggregate] = useState(0);
   const [rows, setRows] = useState<PlanModuleContribution[]>([]);
   const [demoSeeded, setDemoSeeded] = useState(false);
+  const [suggestedNextKey, setSuggestedNextKey] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -42,6 +45,7 @@ export function ModuleContributionBoard({
       setRows(next.contributions);
       setAggregate(next.aggregateProgressPct);
       setDemoSeeded(packaging.demoSeedAllowed);
+      setSuggestedNextKey(packaging.suggestedNextKey);
     }, 0);
     return () => window.clearTimeout(handle);
   }, [planId, vip, mode]);
@@ -85,6 +89,9 @@ export function ModuleContributionBoard({
               <p className="text-sm font-medium text-tl-ink">{row.label}</p>
               <p className="text-xs tabular-nums text-tl-ink-muted">
                 {row.contributionPct}% of roll-up · {row.scorePct}% fill
+                {row.key === suggestedNextKey && row.empty
+                  ? " · next in sequence"
+                  : ""}
               </p>
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-sm bg-tl-paper">

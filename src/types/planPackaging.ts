@@ -30,10 +30,21 @@ export type PlanDashboardDescriptor = {
   emptyHint: string;
 };
 
+/** Soft sequence hint: prefer filling `after` before suggesting this module. */
+export type TierFlowGate = {
+  module: PlanDashboardModuleKey;
+  after: PlanDashboardModuleKey;
+};
+
 export type TierFlowDefinition = {
   planId: PlanId;
   /** Ordered dashboards for this tier. Always starts with executive. */
   modules: PlanDashboardModuleKey[];
+  /**
+   * Advisory progression only. Entitled modules stay reachable so non-VIP
+   * plans can populate any desk immediately.
+   */
+  gates?: TierFlowGate[];
 };
 
 export type PlanDashboardPackaging = {
@@ -43,6 +54,8 @@ export type PlanDashboardPackaging = {
   executiveDashboard: PlanDashboardDescriptor;
   moduleDashboards: PlanDashboardDescriptor[];
   emptyStateFlags: { key: PlanDashboardModuleKey; empty: boolean }[];
+  /** First empty module in tier sequence, honouring advisory gates. */
+  suggestedNextKey: PlanDashboardModuleKey | null;
 };
 
 export type PlanModuleContribution = {

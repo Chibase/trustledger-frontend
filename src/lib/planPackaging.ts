@@ -7,6 +7,7 @@ import {
   hrefForDashboardModule,
   includedDashboardKeys,
   PLAN_DASHBOARD_CATALOG,
+  TIER_FLOW,
 } from "@/config/tierFlow";
 import { isPlanId, type PlanId } from "@/config/plans";
 import { resolveClientPlanId } from "@/lib/entitlements";
@@ -51,13 +52,54 @@ export function demoSeedAllowed(input: {
   return isVipShowcaseWorkspace(input.mode, input.vip);
 }
 
+/**
+ * Commercial SKU for packaging. Complimentary VIP showcase always uses
+ * Institutional sequence, even if a leftover cookie still says Solo.
+ */
+export function packagingPlanId(input: {
+  planId?: PlanId | null;
+  vip?: boolean;
+  mode?: TlMode | null;
+}): PlanId {
+  if (demoSeedAllowed(input)) return "institutional";
+  const resolved = resolveClientPlanId(input.planId) || input.planId || null;
+  return resolved && isPlanId(resolved) ? resolved : "project";
+}
+
+export function suggestedNextModuleKey(
+  planId: PlanId,
+  emptyStateFlags: { key: PlanDashboardModuleKey; empty: boolean }[],
+  moduleKeys: PlanDashboardModuleKey[],
+): PlanDashboardModuleKey | null {
+  const empty = new Set(
+    emptyStateFlags.filter((row) => row.empty).map((row) => row.key),
+  );
+  const gates = TIER_FLOW[planId]?.gates || [];
+  for (const key of moduleKeys) {
+    if (!empty.has(key)) continue;
+    const gate = gates.find((row) => row.module === key);
+    if (gate?.after && empty.has(gate.after)) continue;
+    return key;
+  }
+  return moduleKeys.find((key) => empty.has(key)) || null;
+}
+
+export function isPathEntitledForPlan(
+  pathname: string,
+  planId: PlanId | null | undefined,
+): boolean {
+  const current = descriptorForPath(pathname);
+  if (!current) return true;
+  return includedDashboardKeys(planId).includes(current.key);
+}
+
 export function resolvePlanDashboardPackaging(input: {
   planId?: PlanId | null;
   vip?: boolean;
   mode?: TlMode | null;
   measureEmpty?: boolean;
 }): PlanDashboardPackaging {
-  const planId = resolveClientPlanId(input.planId) || input.planId || null;
+  const planId = packagingPlanId(input);
   const keys = includedDashboardKeys(planId);
   const descriptors = keys.map((key) => PLAN_DASHBOARD_CATALOG[key]);
   const executive =
@@ -70,9 +112,16 @@ export function resolvePlanDashboardPackaging(input: {
         empty: moduleRowCount(row.key) === 0,
       }))
     : descriptors.map((row) => ({ key: row.key, empty: false }));
+  const suggestedNextKey = input.measureEmpty
+    ? suggestedNextModuleKey(
+        planId,
+        emptyStateFlags,
+        modules.map((row) => row.key),
+      )
+    : null;
 
   return {
-    planId: planId && isPlanId(planId) ? planId : "demo",
+    planId,
     vip: Boolean(input.vip),
     demoSeedAllowed: demoSeedAllowed({
       mode: input.mode,
@@ -81,6 +130,7 @@ export function resolvePlanDashboardPackaging(input: {
     executiveDashboard: executive,
     moduleDashboards: modules,
     emptyStateFlags,
+    suggestedNextKey,
   };
 }
 

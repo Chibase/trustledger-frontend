@@ -15,6 +15,8 @@ import { SessionEmailBridge } from "@/components/shell/SessionEmailBridge";
 import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import { packageLabel, isVipShowcaseWorkspace } from "@/lib/planLabel";
+import { PlanDashboardAccessGate } from "@/components/shell/PlanDashboardAccessGate";
+import { PlanModuleEmptyBanner } from "@/components/shell/PlanModuleEmptyBanner";
 import { PlanModuleSwitcher } from "@/components/shell/PlanModuleSwitcher";
 import { VipPackagingSync } from "@/components/shell/VipPackagingSync";
 import type { TrialSnapshot } from "@/lib/trial";
@@ -135,7 +137,18 @@ export function AppShell({
                 vip={isVip}
                 mode={mode}
               />
-              {children}
+              <PlanModuleEmptyBanner
+                planId={trialPlan}
+                vip={isVip}
+                mode={mode}
+              />
+              <PlanDashboardAccessGate
+                planId={trialPlan}
+                vip={isVip}
+                mode={mode}
+              >
+                {children}
+              </PlanDashboardAccessGate>
             </div>
           </div>
         </div>

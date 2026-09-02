@@ -1,12 +1,19 @@
-import { includedDashboardKeys } from "@/config/tierFlow";
+import {
+  includedDashboardKeys,
+  isDashboardModuleEntitled,
+  PLAN_DASHBOARD_CATALOG,
+  TIER_FLOW,
+} from "@/config/tierFlow";
 import {
   buildModuleContributions,
   dashboardHrefFromLegacySlug,
   demoSeedAllowed,
+  isPathEntitledForPlan,
   moduleFillScore,
+  packagingPlanId,
   resolvePlanDashboardPackaging,
+  suggestedNextModuleKey,
 } from "@/lib/planPackaging";
-import { PLAN_DASHBOARD_CATALOG } from "@/config/tierFlow";
 
 describe("tier flow packaging", () => {
   it("always starts with executive and keeps SEP as a module", () => {
@@ -75,5 +82,79 @@ describe("tier flow packaging", () => {
     expect(contributions.length).toBe(packaging.moduleDashboards.length);
     expect(aggregateProgressPct).toBeGreaterThanOrEqual(0);
     expect(aggregateProgressPct).toBeLessThanOrEqual(100);
+  });
+
+  it("uses identical module sequence for VIP and non-VIP on the same tier", () => {
+    const vip = resolvePlanDashboardPackaging({
+      planId: "institutional",
+      vip: true,
+      mode: "trial",
+    });
+    const paid = resolvePlanDashboardPackaging({
+      planId: "institutional",
+      vip: false,
+      mode: "trial",
+    });
+    expect(vip.moduleDashboards.map((row) => row.key)).toEqual(
+      paid.moduleDashboards.map((row) => row.key),
+    );
+    expect(vip.executiveDashboard.key).toBe(paid.executiveDashboard.key);
+    expect(vip.demoSeedAllowed).toBe(true);
+    expect(paid.demoSeedAllowed).toBe(false);
+  });
+
+  it("keeps cross-tier sequence differences in TIER_FLOW config", () => {
+    expect(TIER_FLOW.solo.modules).not.toEqual(TIER_FLOW.institutional.modules);
+    expect(TIER_FLOW.solo.modules).toEqual(TIER_FLOW.practitioner.modules);
+    expect(TIER_FLOW.project.modules).toEqual(TIER_FLOW.institutional.modules);
+    expect(TIER_FLOW.institutional.gates?.some((g) => g.module === "sep")).toBe(
+      true,
+    );
+  });
+
+  it("blocks unauthorized module paths per tier", () => {
+    expect(isDashboardModuleEntitled("sep", "solo")).toBe(false);
+    expect(isDashboardModuleEntitled("esg", "practitioner")).toBe(false);
+    expect(isDashboardModuleEntitled("sep", "institutional")).toBe(true);
+    expect(isPathEntitledForPlan("/app/engagement-plan", "solo")).toBe(false);
+    expect(isPathEntitledForPlan("/app/engagement-plan", "institutional")).toBe(
+      true,
+    );
+    expect(isPathEntitledForPlan("/app/settings", "solo")).toBe(true);
+  });
+
+  it("forces Institutional sequence for the VIP showcase even if the cookie is Solo", () => {
+    expect(
+      packagingPlanId({ planId: "solo", vip: true, mode: "trial" }),
+    ).toBe("institutional");
+    expect(
+      packagingPlanId({ planId: "solo", vip: false, mode: "trial" }),
+    ).toBe("solo");
+    expect(
+      packagingPlanId({ planId: "project", vip: true, mode: "live" }),
+    ).toBe("project");
+  });
+
+  it("suggests the first empty module honouring advisory gates", () => {
+    const next = suggestedNextModuleKey(
+      "institutional",
+      [
+        { key: "projects", empty: true },
+        { key: "incidents", empty: true },
+        { key: "sep", empty: true },
+      ],
+      ["projects", "incidents", "sep"],
+    );
+    expect(next).toBe("projects");
+    const afterProjects = suggestedNextModuleKey(
+      "institutional",
+      [
+        { key: "projects", empty: false },
+        { key: "incidents", empty: true },
+        { key: "sep", empty: true },
+      ],
+      ["projects", "incidents", "capture", "stakeholders", "engagements", "sep"],
+    );
+    expect(afterProjects).toBe("incidents");
   });
 });

@@ -38,12 +38,14 @@ export function PlanModuleSwitcher({
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
-      const resolved = resolveClientPlanId(planId);
       const next = resolvePlanDashboardPackaging({
-        planId: resolved,
+        planId,
         vip,
         mode,
+        measureEmpty: true,
       });
+      const resolved =
+        next.planId === "demo" ? resolveClientPlanId(planId) : next.planId;
       next.moduleDashboards = next.moduleDashboards.filter((row) =>
         hasCapability(row.capability, resolved),
       );
@@ -89,6 +91,8 @@ export function PlanModuleSwitcher({
           const active =
             pathname === item.href ||
             (item.key !== "executive" && pathname.startsWith(`${item.href}/`));
+          const suggested =
+            packaging.suggestedNextKey === item.key && !packaging.demoSeedAllowed;
           return (
             <Link
               key={item.key}
@@ -103,6 +107,9 @@ export function PlanModuleSwitcher({
               }
             >
               {item.label}
+              {suggested ? (
+                <span className="ml-1 font-normal opacity-80">· next</span>
+              ) : null}
             </Link>
           );
         })}

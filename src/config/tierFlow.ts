@@ -10,6 +10,7 @@ import type {
   PlanDashboardDescriptor,
   PlanDashboardModuleKey,
   TierFlowDefinition,
+  TierFlowGate,
 } from "@/types/planPackaging";
 
 export const PLAN_DASHBOARD_CATALOG: Record<
@@ -108,12 +109,28 @@ const SI_FLOW: PlanDashboardModuleKey[] = [
   "reports",
 ];
 
-/** Config-driven sequence per commercial tier. VIP uses Institutional. */
+const SOLO_GATES: TierFlowGate[] = [
+  { module: "incidents", after: "projects" },
+  { module: "reports", after: "incidents" },
+];
+
+const SI_GATES: TierFlowGate[] = [
+  { module: "incidents", after: "projects" },
+  { module: "capture", after: "projects" },
+  { module: "stakeholders", after: "projects" },
+  { module: "engagements", after: "stakeholders" },
+  { module: "sep", after: "engagements" },
+  { module: "commitments", after: "engagements" },
+  { module: "esg", after: "projects" },
+  { module: "reports", after: "incidents" },
+];
+
+/** Config-driven sequence per commercial tier. VIP showcase uses Institutional. */
 export const TIER_FLOW: Record<PlanId, TierFlowDefinition> = {
-  solo: { planId: "solo", modules: SOLO_FLOW },
-  practitioner: { planId: "practitioner", modules: SOLO_FLOW },
-  project: { planId: "project", modules: SI_FLOW },
-  institutional: { planId: "institutional", modules: SI_FLOW },
+  solo: { planId: "solo", modules: SOLO_FLOW, gates: SOLO_GATES },
+  practitioner: { planId: "practitioner", modules: SOLO_FLOW, gates: SOLO_GATES },
+  project: { planId: "project", modules: SI_FLOW, gates: SI_GATES },
+  institutional: { planId: "institutional", modules: SI_FLOW, gates: SI_GATES },
 };
 
 export function capabilityForModule(
@@ -135,6 +152,13 @@ export function includedDashboardKeys(
   return flow.modules.filter((key) =>
     allowed.has(PLAN_DASHBOARD_CATALOG[key].capability),
   );
+}
+
+export function isDashboardModuleEntitled(
+  key: PlanDashboardModuleKey,
+  planId: PlanId | null | undefined,
+): boolean {
+  return includedDashboardKeys(planId).includes(key);
 }
 
 export function hrefForDashboardModule(

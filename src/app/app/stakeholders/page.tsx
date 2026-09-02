@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { GeoCascadePicker } from "@/components/geo/GeoCascadePicker";
+import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { guideRequestsNewTask } from "@/config/onboardingSteps";
@@ -113,6 +114,7 @@ export default function AppStakeholdersPage() {
   }
 
   return (
+    <FeatureGate capability="stakeholdersCrm">
     <div className="space-y-6">
       <PageHeader
         eyebrow="Stakeholder Intelligence"
@@ -314,5 +316,6 @@ export default function AppStakeholdersPage() {
         ) : null}
       </ul>
     </div>
+    </FeatureGate>
   );
 }
