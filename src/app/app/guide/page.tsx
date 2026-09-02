@@ -10,6 +10,7 @@ export default async function AppGuidePage() {
       planId={user.trialPlan}
       vip={Boolean(user.isVip)}
       mode={user.mode}
+      email={user.email}
     />
   );
 }

@@ -24,7 +24,7 @@ export default async function AppDashboardPage() {
     user.isPlanOwner === true ||
     (user.role === "admin" && (user.mode === "trial" || Boolean(user.orgId)));
 
-  const vipShowcase = isVipShowcaseWorkspace(user.mode, user.isVip);
+  const vipShowcase = isVipShowcaseWorkspace(user.mode, user.isVip, user.email);
 
   return (
     <div className="space-y-7">
@@ -33,6 +33,7 @@ export default async function AppDashboardPage() {
           planId={user.trialPlan}
           vip={Boolean(user.isVip)}
           mode={user.mode}
+          email={user.email}
         />
       ) : null}
       <ExecutivePortfolioDashboard
@@ -41,6 +42,7 @@ export default async function AppDashboardPage() {
         isPlanOwner={isPlanOwner}
         isVip={Boolean(user.isVip)}
         mode={user.mode}
+        email={user.email}
         seedIncidents={incidents}
         seedProjects={projects}
       />

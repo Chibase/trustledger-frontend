@@ -38,6 +38,7 @@ type Props = {
   isPlanOwner?: boolean;
   isVip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
   seedIncidents?: Incident[];
   seedProjects?: Project[];
 };
@@ -52,6 +53,7 @@ export function ExecutivePortfolioDashboard({
   isPlanOwner = false,
   isVip = false,
   mode = null,
+  email = null,
   seedIncidents = [],
   seedProjects = [],
 }: Props) {
@@ -145,7 +147,12 @@ export function ExecutivePortfolioDashboard({
         ) : null}
       </header>
 
-      <ModuleContributionBoard planId={planId} vip={isVip} mode={mode} />
+      <ModuleContributionBoard
+        planId={planId}
+        vip={isVip}
+        mode={mode}
+        email={email}
+      />
 
       <SepDashboardPanel planId={planId} alwaysShow />
 

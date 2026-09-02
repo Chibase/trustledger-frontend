@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-02 — NCGR-B seed is Thozamile only
+
+- Illustrative NCGR-B preload is **Thozamile KaDlanga** (`thozi@chibaseconsulting.co.za`, `/login/vip`, admin · VIP · trial) only. Other complimentary VIP sessions (Cloud `/login/live` guests) are Institutional and start empty.
+- Leftover NCGR-B rows (`PRJ-NCGR-B`, `INC-NCGR-*`, SEP/ESG-NCGR-B, demo bundle) are reversed on the next load for any non-showcase mailbox. Extra `/login/vip` allowlist addresses no longer receive theatre or the NCGR-B org name.
+- Ops **C-Suite** board (`/ops/executive`) is unchanged. Cloud VIP Customer rows cannot be cancelled from this environment (no Frappe keys here) — keep the Nomcebo guest; cancel leftover test VIP Pilot Customers in Desk if any remain.
+
 ## 2026-09-02 — VIP setup wizard unlocked
 
 - VIP showcase no longer disables the UG-1 setup wizard or hides the executive checklist. Seed does not mark onboarding complete; a one-time restore reopens Guide/Settings launch after older sessions that had been auto-dismissed. The modal still skips auto-open so NCGR-B stays visible. Institutional walkthrough copy (not “desk starts empty”). Leftover Solo cookies still resolve Institutional steps via `packagingPlanId`.

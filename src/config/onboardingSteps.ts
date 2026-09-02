@@ -7,6 +7,7 @@
 import { isPlanId, type PlanId } from "@/config/plans";
 import { hasCapabilityForPlan } from "@/lib/entitlements";
 import type { TlMode } from "@/lib/auth.constants";
+import { isVipShowcaseWorkspace } from "@/lib/planLabel";
 import type { CapabilityId } from "@/types/entitlements";
 
 export type OnboardingStepId =
@@ -125,6 +126,7 @@ const STEPS: OnboardingStepDef[] = [
 export type OnboardingStepsOpts = {
   mode?: TlMode | null;
   vip?: boolean;
+  email?: string | null;
 };
 
 const VIP_SHOWCASE_STEP_OVERRIDES: Partial<
@@ -165,7 +167,7 @@ function stepsPlanId(
 }
 
 function isVipShowcaseSteps(opts?: OnboardingStepsOpts): boolean {
-  return opts?.mode === "trial" && Boolean(opts?.vip);
+  return isVipShowcaseWorkspace(opts?.mode, opts?.vip, opts?.email);
 }
 
 /** Steps visible for this commercial plan (or Project lens when plan unknown). */

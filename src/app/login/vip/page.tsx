@@ -97,12 +97,13 @@ function VipShowcaseLoginForm() {
         VIP showcase workspace
       </h1>
       <p className="mt-2 text-sm text-tl-ink-muted">
-        Complimentary full package with an illustrative Northern Cape corridor
-        programme. Sign in as{" "}
+        Complimentary full package. Illustrative Northern Cape corridor
+        programme is preloaded only for{" "}
         <code className="font-mono text-xs">thozi@chibaseconsulting.co.za</code>
-        — not the Platform Operator mailbox. This is not the retired public
-        sample, and it is not a paying customer desk — declare it illustrative
-        in the room.
+        {" "}
+        (Thozamile KaDlanga). Other complimentary VIP guests sign in on live
+        Cloud and start with their own empty desks — not this theatre. This is
+        not the retired public sample.
       </p>
 
       {enabled === false ? (

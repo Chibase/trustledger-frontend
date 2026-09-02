@@ -1,7 +1,11 @@
 import { VIP_SHOWCASE_PACK } from "@/data/vipShowcase";
-import { applyVipShowcaseSeed } from "@/lib/vipShowcaseSeed";
+import {
+  applyVipShowcaseSeed,
+  purgeVipShowcaseSeed,
+} from "@/lib/vipShowcaseSeed";
 import { looksLikeReportTemplateGuide } from "@/lib/reportComposer";
 import { isVipShowcaseWorkspace, packageLabel } from "@/lib/planLabel";
+import { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
 import {
   allowedVipShowcaseEmails,
   DEFAULT_PREVIEW_PASSWORD,
@@ -53,10 +57,20 @@ describe("VIP showcase pack", () => {
     expect(packageLabel("institutional", { vip: true })).toBe("VIP");
   });
 
-  it("treats only trial+VIP as the illustrative showcase workspace", () => {
-    expect(isVipShowcaseWorkspace("trial", true)).toBe(true);
-    expect(isVipShowcaseWorkspace("live", true)).toBe(false);
-    expect(isVipShowcaseWorkspace("trial", false)).toBe(false);
+  it("treats only Thozamile's trial+VIP mailbox as the illustrative showcase", () => {
+    expect(
+      isVipShowcaseWorkspace("trial", true, VIP_SHOWCASE_DEFAULT_EMAIL),
+    ).toBe(true);
+    expect(isVipShowcaseWorkspace("trial", true, "guest@example.com")).toBe(
+      false,
+    );
+    expect(
+      isVipShowcaseWorkspace("live", true, VIP_SHOWCASE_DEFAULT_EMAIL),
+    ).toBe(false);
+    expect(
+      isVipShowcaseWorkspace("trial", false, VIP_SHOWCASE_DEFAULT_EMAIL),
+    ).toBe(false);
+    expect(isVipShowcaseWorkspace("trial", true)).toBe(false);
   });
 
   it("does not preload demo desks unless this is the showcase workspace", () => {
@@ -66,6 +80,70 @@ describe("VIP showcase pack", () => {
     });
     expect(result.skipped).toBe(true);
     expect(result.incidents).toBe(0);
+  });
+
+  it("seeds NCGR-B for Thozamile even when forceShowcase is set", () => {
+    window.localStorage.clear();
+    const skipped = applyVipShowcaseSeed({
+      orgId: "org-guest",
+      email: "guest@example.com",
+      forceShowcase: true,
+    });
+    expect(skipped.skipped).toBe(true);
+    expect(skipped.projectId).toBe("");
+
+    const seeded = applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
+      forceShowcase: true,
+    });
+    expect(seeded.skipped).toBeUndefined();
+    expect(seeded.projectId).toBe("PRJ-NCGR-B");
+    expect(seeded.incidents).toBe(3);
+    const root = JSON.parse(
+      window.localStorage.getItem("tl-org-data") || "{}",
+    ) as Record<string, { projects?: Array<{ id: string }> }>;
+    expect(
+      root["org-thozi"]?.projects?.some((row) => row.id === "PRJ-NCGR-B"),
+    ).toBe(true);
+  });
+
+  it("reverses leftover NCGR-B for a non-showcase VIP session", () => {
+    window.localStorage.clear();
+    applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
+      forceShowcase: true,
+    });
+    const guest = applyVipShowcaseSeed({
+      orgId: "org-guest",
+      email: "nomcebo@example.com",
+    });
+    expect(guest.skipped).toBe(true);
+    expect(guest.purged).toBe(true);
+    const root = JSON.parse(
+      window.localStorage.getItem("tl-org-data") || "{}",
+    ) as Record<string, { projects?: Array<{ id: string }> }>;
+    const projects = Object.values(root).flatMap((bucket) => bucket.projects || []);
+    expect(projects.some((row) => row.id === "PRJ-NCGR-B")).toBe(false);
+    expect(window.localStorage.getItem("tl-vip-demo-bundle")).toBeNull();
+  });
+
+  it("does not purge Thozamile's showcase while she is signed in", () => {
+    window.localStorage.clear();
+    applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
+      forceShowcase: true,
+    });
+    const result = purgeVipShowcaseSeed(VIP_SHOWCASE_DEFAULT_EMAIL);
+    expect(result.purged).toBe(false);
+    const root = JSON.parse(
+      window.localStorage.getItem("tl-org-data") || "{}",
+    ) as Record<string, { projects?: Array<{ id: string }> }>;
+    expect(
+      root["org-thozi"]?.projects?.some((row) => row.id === "PRJ-NCGR-B"),
+    ).toBe(true);
   });
 });
 

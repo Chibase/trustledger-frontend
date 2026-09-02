@@ -22,6 +22,7 @@ type OnboardingGuidePanelProps = {
   planId?: PlanId | null;
   vip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
 };
 
 /**
@@ -31,12 +32,13 @@ export function OnboardingGuidePanel({
   planId,
   vip = false,
   mode = null,
+  email = null,
 }: OnboardingGuidePanelProps) {
   const launchSetup = useLaunchSetupWizard();
   const [state, setState] = useState<OnboardingState | null>(null);
-  const steps = onboardingStepsForPlan(planId, { vip, mode });
-  const resolved = packagingPlanId({ planId, vip, mode });
-  const vipShowcase = demoSeedAllowed({ vip, mode });
+  const steps = onboardingStepsForPlan(planId, { vip, mode, email });
+  const resolved = packagingPlanId({ planId, vip, mode, email });
+  const vipShowcase = demoSeedAllowed({ vip, mode, email });
   const planName = vipShowcase
     ? "VIP · Institutional"
     : PLANS[resolved].name;

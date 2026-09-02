@@ -29,6 +29,7 @@ type SetupWizardGateProps = {
   skipAutoOpen?: boolean;
   vip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
   children: React.ReactNode;
 };
 
@@ -37,6 +38,7 @@ export function SetupWizardGate({
   skipAutoOpen = false,
   vip = false,
   mode = null,
+  email = null,
   children,
 }: SetupWizardGateProps) {
   const [requestedOpen, setRequestedOpen] = useState(false);
@@ -52,6 +54,7 @@ export function SetupWizardGate({
         skipAutoOpen={skipAutoOpen}
         vip={vip}
         mode={mode}
+        email={email}
         requestedOpen={requestedOpen}
         onRequestedClose={() => setRequestedOpen(false)}
       />

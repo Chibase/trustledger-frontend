@@ -25,6 +25,7 @@ export async function GET(_request: Request, { params }: Props) {
     planId: planHint,
     vip: Boolean(user.isVip),
     mode: user.mode,
+    email: user.email,
     measureEmpty: false,
   });
   return NextResponse.json({

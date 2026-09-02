@@ -28,6 +28,7 @@ type SetupWizardProps = {
   skipAutoOpen?: boolean;
   vip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
   /** Direct open from SetupWizardGate (same React tree as Guide/Settings). */
   requestedOpen?: boolean;
   onRequestedClose?: () => void;
@@ -43,6 +44,7 @@ export function SetupWizard({
   skipAutoOpen = false,
   vip = false,
   mode = null,
+  email = null,
   requestedOpen = false,
   onRequestedClose,
 }: SetupWizardProps) {
@@ -50,7 +52,7 @@ export function SetupWizard({
   const [stepIndex, setStepIndex] = useState(0);
   const [state, setState] = useState<OnboardingState | null>(null);
 
-  const steps = onboardingStepsForPlan(planId, { vip, mode });
+  const steps = onboardingStepsForPlan(planId, { vip, mode, email });
   const step = steps[stepIndex] ?? steps[0];
 
   useEffect(() => {

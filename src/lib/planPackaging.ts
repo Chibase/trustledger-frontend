@@ -1,6 +1,6 @@
 /**
  * Resolve plan-as-container dashboards. No SQL — commercial PlanId + cookies.
- * Demo seed is VIP showcase only (trial + tl-vip). Live Cloud VIP keeps own data.
+ * Demo seed is Thozamile's VIP showcase only. Other VIP / live Cloud keep own data.
  */
 
 import {
@@ -44,24 +44,27 @@ function readLocalArray<T extends { id: string }>(key: string): T[] {
   }
 }
 
-/** VIP illustrative seed only — never customer/trial own-data workspaces. */
+/** VIP illustrative seed — Thozamile's trial+VIP mailbox only. */
 export function demoSeedAllowed(input: {
   mode?: TlMode | null;
   vip?: boolean;
+  email?: string | null;
 }): boolean {
-  return isVipShowcaseWorkspace(input.mode, input.vip);
+  return isVipShowcaseWorkspace(input.mode, input.vip, input.email);
 }
 
 /**
- * Commercial SKU for packaging. Complimentary VIP showcase always uses
+ * Commercial SKU for packaging. Trial + complimentary VIP always uses
  * Institutional sequence, even if a leftover cookie still says Solo.
+ * Seed/theatre stays email-gated via `demoSeedAllowed`.
  */
 export function packagingPlanId(input: {
   planId?: PlanId | null;
   vip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
 }): PlanId {
-  if (demoSeedAllowed(input)) return "institutional";
+  if (input.vip && input.mode === "trial") return "institutional";
   const resolved = resolveClientPlanId(input.planId) || input.planId || null;
   return resolved && isPlanId(resolved) ? resolved : "project";
 }
@@ -97,6 +100,7 @@ export function resolvePlanDashboardPackaging(input: {
   planId?: PlanId | null;
   vip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
   measureEmpty?: boolean;
 }): PlanDashboardPackaging {
   const planId = packagingPlanId(input);
@@ -126,6 +130,7 @@ export function resolvePlanDashboardPackaging(input: {
     demoSeedAllowed: demoSeedAllowed({
       mode: input.mode,
       vip: input.vip,
+      email: input.email,
     }),
     executiveDashboard: executive,
     moduleDashboards: modules,

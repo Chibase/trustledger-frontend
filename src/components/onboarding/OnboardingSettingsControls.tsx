@@ -8,14 +8,16 @@ import { isVipShowcaseWorkspace } from "@/lib/planLabel";
 type OnboardingSettingsControlsProps = {
   isVip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
 };
 
 /** Settings strip — reopen wizard / open Guide. */
 export function OnboardingSettingsControls({
   isVip = false,
   mode = null,
+  email = null,
 }: OnboardingSettingsControlsProps) {
-  const vipShowcase = isVipShowcaseWorkspace(mode, isVip);
+  const vipShowcase = isVipShowcaseWorkspace(mode, isVip, email);
   const launchSetup = useLaunchSetupWizard();
   return (
     <section className="rounded-lg border border-tl-line bg-tl-paper px-4 py-3">
