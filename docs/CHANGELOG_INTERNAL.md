@@ -3,7 +3,7 @@
 ## 2026-09-02 — Plan-as-container dashboards (VIP demo only)
 
 - Commercial plan packages **module dashboards** in a fixed tier sequence (`TIER_FLOW` + advisory gates). SEP is a module, not the plan. Executive landing shows per-module contribution and aggregate progress. Persistent **Plan modules** switcher (executive ↔ module in two clicks). Unauthorized module URLs show the plan upsell. Empty module desks show a guided banner (no preload).
-- VIP illustrative showcase seeds all included desks (including SEP-NCGR-B and ESG-NCGR-B) on login / session sync. Non-VIP and live Cloud VIP stay unseeded. `GET /api/app/plans/dashboards` and `GET /api/plans/:id/dashboards`. Legacy `/plans/:id/sep` → `/app/engagement-plan`. ADR-056.
+- VIP illustrative showcase seeds all included desks (including SEP-NCGR-B and ESG-NCGR-B) on login / session sync. Non-VIP and live Cloud VIP stay unseeded. Incidents desk copy does not tell the showcase that nothing is preloaded. `GET /api/app/plans/dashboards` and `GET /api/plans/:id/dashboards`. Legacy `/plans/:id/sep` → `/app/engagement-plan`. ADR-056.
 
 ## 2026-09-02 — SEP plan execution dashboard
 
