@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { SepAnalytics } from "@/components/sep/SepAnalytics";
 import { SepOutcomeBoard } from "@/components/sep/SepOutcomeBoard";
 import { SepPlanSnapshotHeader } from "@/components/sep/SepPlanSnapshotHeader";
@@ -41,6 +41,20 @@ function sessionRole(): UserRole {
   return isUserRole(raw) ? raw : "admin";
 }
 
+function subscribeNoop() {
+  return () => undefined;
+}
+
+function readCanEdit(snapshotOnly: boolean): boolean {
+  if (snapshotOnly) return false;
+  if (typeof document === "undefined") return false;
+  const tier = readDeskTier(sessionRole());
+  return canEditSepExecution({
+    deskTier: tier,
+    isPlanOwner: readOrgOwnerCookie(),
+  });
+}
+
 type Props = {
   plan: EngagementPlan;
   snapshotOnly?: boolean;
@@ -55,30 +69,27 @@ export function SepExecutionDashboard({ plan, snapshotOnly = false }: Props) {
   );
 
   const actor = readCookie(TL_USER_NAME_COOKIE) || "Plan Owner";
-  const [canEdit, setCanEdit] = useState(false);
+  const canEdit = useSyncExternalStore(
+    subscribeNoop,
+    () => readCanEdit(snapshotOnly),
+    () => false,
+  );
 
   useEffect(() => {
-    if (snapshotOnly) {
-      setCanEdit(false);
-      return;
-    }
-    const tier = readDeskTier(sessionRole());
-    setCanEdit(
-      canEditSepExecution({
-        deskTier: tier,
-        isPlanOwner: readOrgOwnerCookie(),
-      }),
-    );
-  }, [snapshotOnly]);
-
-  useEffect(() => {
-    try {
-      const loaded = loadSepExecutionView(plan, { ownerName: actor });
-      setOverlay(loaded);
-      setError(null);
-    } catch {
-      setError("Could not load this plan’s execution overlay.");
-    }
+    let cancelled = false;
+    const handle = window.setTimeout(() => {
+      if (cancelled) return;
+      try {
+        setOverlay(loadSepExecutionView(plan, { ownerName: actor }));
+        setError(null);
+      } catch {
+        setError("Could not load this plan’s execution overlay.");
+      }
+    }, 0);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
   }, [plan, actor]);
 
   if (error) {

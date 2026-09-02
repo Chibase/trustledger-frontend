@@ -180,7 +180,7 @@ export function backfillSepExecution(
       id: newId("MS"),
       planId: plan.id,
       phaseId: phase.id,
-      title: "title" in phase ? String(phase.title) : phase.id,
+      title: phase.title,
       dueOn: addUtcDays(submittedAt, phaseOffset(phase.id)),
       completedOn: null,
       status: "upcoming",
@@ -218,7 +218,38 @@ export function backfillSepExecution(
   }
 
   overlay.milestones.sort((a, b) => a.dueOn.localeCompare(b.dueOn));
-  return saveSepExecution(overlay);
+  return saveSepExecution(refreshSepMilestoneStatus(overlay));
+}
+
+/** Advance milestone done/due/slipped from tasks and due dates. */
+export function refreshSepMilestoneStatus(
+  overlay: SepExecutionOverlay,
+  todayIso = new Date().toISOString().slice(0, 10),
+): SepExecutionOverlay {
+  for (const mile of overlay.milestones) {
+    const linked = overlay.tasks.filter((t) => t.milestoneId === mile.id);
+    const allDone =
+      linked.length > 0 && linked.every((t) => t.status === "done");
+    if (allDone) {
+      mile.status = "done";
+      const dates = linked
+        .map((t) => t.completedOn)
+        .filter((d): d is string => Boolean(d))
+        .sort();
+      mile.completedOn = dates[dates.length - 1] || todayIso;
+      continue;
+    }
+    if (todayIso > mile.dueOn.slice(0, 10)) {
+      mile.status = "slipped";
+    } else if (
+      linked.some((t) => t.status === "in_progress" || t.status === "done")
+    ) {
+      mile.status = "due";
+    } else if (mile.status !== "done") {
+      mile.status = "upcoming";
+    }
+  }
+  return overlay;
 }
 
 export function appendSepActivity(

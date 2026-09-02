@@ -9,7 +9,6 @@ import type { IncidentStatus } from "@/types/incident";
 import type { SepPhaseId } from "@/types/engagementPlan";
 import { SEP_PHASE_ORDER } from "@/types/engagementPlan";
 import type {
-  MitigationIntervention,
   PlanMilestone,
   PlanOutcomeEvent,
   SepCanonicalStatus,
@@ -55,6 +54,9 @@ export function phaseLabel(id: SepPhaseId): string {
 /**
  * Map a linked desk row into success / hurdle / failure / mitigated.
  * Unknown statuses stay hurdles so the plan does not over-claim success.
+ *
+ * Open / in-progress commitments still normalise to hurdle for KPI helpers,
+ * but must not be seeded as dashboard outcome events (see shouldSeed*).
  */
 export function normalizePlatformStatus(input: {
   source: "engagement" | "commitment" | "incident";
@@ -77,6 +79,12 @@ export function normalizePlatformStatus(input: {
   if (s === "closed") return "success";
   if (s === "escalated") return "failure";
   return "hurdle";
+}
+
+/** Seed an outcome only for exceptional/terminal commitment states. */
+export function shouldSeedCommitmentOutcome(status: string): boolean {
+  const s = status.trim().toLowerCase();
+  return s === "fulfilled" || s === "broken" || s === "overdue";
 }
 
 export function normalizeEngagementStatus(

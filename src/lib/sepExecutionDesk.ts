@@ -23,9 +23,14 @@ import {
   normalizeEngagementStatus,
   normalizeIncidentStatus,
   phaseLabel,
+  shouldSeedCommitmentOutcome,
   snapshotHealth,
 } from "@/lib/sepKpis";
-import { backfillSepExecution, saveSepExecution } from "@/lib/sepExecutionStore";
+import {
+  backfillSepExecution,
+  refreshSepMilestoneStatus,
+  saveSepExecution,
+} from "@/lib/sepExecutionStore";
 import { listWorkspaceIncidents } from "@/lib/workspaceData";
 
 function readLocalArray<T extends { id: string }>(key: string): T[] {
@@ -43,21 +48,21 @@ function readLocalArray<T extends { id: string }>(key: string): T[] {
 export function listLinkedEngagements(plan: EngagementPlan): Engagement[] {
   const ids = new Set(plan.applied?.engagementIds || []);
   const rows = readLocalArray<Engagement>("tl-engagements");
-  return rows.filter(
-    (row) =>
-      ids.has(row.id) ||
-      (plan.projectId && row.projectId === plan.projectId),
-  );
+  if (ids.size > 0) return rows.filter((row) => ids.has(row.id));
+  if (plan.projectId) {
+    return rows.filter((row) => row.projectId === plan.projectId);
+  }
+  return [];
 }
 
 export function listLinkedCommitments(plan: EngagementPlan): Commitment[] {
   const ids = new Set(plan.applied?.commitmentIds || []);
   const rows = readLocalArray<Commitment>("tl-commitments");
-  return rows.filter(
-    (row) =>
-      ids.has(row.id) ||
-      (plan.projectId && row.projectId === plan.projectId),
-  );
+  if (ids.size > 0) return rows.filter((row) => ids.has(row.id));
+  if (plan.projectId) {
+    return rows.filter((row) => row.projectId === plan.projectId);
+  }
+  return [];
 }
 
 export function listLinkedIncidents(plan: EngagementPlan): Incident[] {
@@ -100,6 +105,7 @@ export function syncSepExecutionFromPlatform(
     const key = `commitment:${commitment.id}`;
     if (sourced.has(key)) continue;
     const canon = normalizeCommitmentStatus(commitment.status);
+    if (!shouldSeedCommitmentOutcome(commitment.status)) continue;
     if (canon === "success" || canon === "hurdle" || canon === "failure") {
       next.events.push({
         id: `EVT-cmt-${commitment.id}`,
@@ -148,7 +154,8 @@ export function loadSepExecutionView(
   opts?: { ownerName?: string },
 ): SepExecutionOverlay {
   const seeded = backfillSepExecution(plan, { ownerName: opts?.ownerName });
-  return syncSepExecutionFromPlatform(plan, seeded);
+  const synced = syncSepExecutionFromPlatform(plan, seeded);
+  return saveSepExecution(refreshSepMilestoneStatus(synced));
 }
 
 export function buildSepPlanSnapshot(

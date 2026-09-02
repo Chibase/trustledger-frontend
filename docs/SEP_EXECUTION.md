@@ -6,6 +6,7 @@ Operator/client view for a **single** Stakeholder Engagement Plan (`EngagementPl
 
 - Overlay is org-scoped in the browser (`tl-sep-execution`) until a Cloud DocType exists (ADR-053). No SQL. There is **no HTTP CRUD API** in this packet — `src/lib/sepExecutionDesk.ts` is the service contract (snapshot, timeline, analytics, platform sync). Flag this if a BFF is required before go-live persistence.
 - In-plan filters (date range, task, milestone, severity, outcome kind) never query another `plan_id`.
+- Linked commitments seed outcome events only for overdue / broken / fulfilled. Open or in-progress promises stay on the promise board and do not inflate hurdle counts.
 - `plan_id` = engagement plan id. Linked SRM rows use `applied.*Ids` and `projectId`.
 - Practitioner / Plan Owner (desk rank delivery and below, or org owner) can log outcomes and mitigations. Client / Board / CEO see snapshot + charts read-only.
 - Gemini still drafts the presentable document only. Activity reports stay on `reportComposer`.

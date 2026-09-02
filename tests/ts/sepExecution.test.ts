@@ -7,10 +7,12 @@ import {
   normalizeEngagementStatus,
   normalizeIncidentStatus,
   normalizePlatformStatus,
+  shouldSeedCommitmentOutcome,
 } from "@/lib/sepKpis";
 import {
   backfillSepExecution,
   getSepExecution,
+  refreshSepMilestoneStatus,
   saveSepExecution,
 } from "@/lib/sepExecutionStore";
 import {
@@ -183,6 +185,12 @@ describe("SEP status normalization", () => {
         mitigated: true,
       }),
     ).toBe("mitigated");
+    expect(shouldSeedCommitmentOutcome("open")).toBe(false);
+    expect(shouldSeedCommitmentOutcome("in_progress")).toBe(false);
+    expect(shouldSeedCommitmentOutcome("cancelled")).toBe(false);
+    expect(shouldSeedCommitmentOutcome("overdue")).toBe(true);
+    expect(shouldSeedCommitmentOutcome("fulfilled")).toBe(true);
+    expect(shouldSeedCommitmentOutcome("broken")).toBe(true);
   });
 });
 
@@ -208,6 +216,28 @@ describe("SEP KPI computations", () => {
       scheduleVarianceDays: 0,
       failureOpen: 0,
     })).toBe("red");
+  });
+
+  it("marks overdue milestones slipped and completed-task milestones done", () => {
+    const next = refreshSepMilestoneStatus(
+      JSON.parse(JSON.stringify(overlayFixture())) as SepExecutionOverlay,
+      "2026-07-20",
+    );
+    expect(next.milestones.find((m) => m.id === "MS-1")?.status).toBe("done");
+    expect(next.milestones.find((m) => m.id === "MS-2")?.status).toBe("slipped");
+    const finished = JSON.parse(
+      JSON.stringify(overlayFixture()),
+    ) as SepExecutionOverlay;
+    const ward = finished.tasks.find((t) => t.id === "TSK-2");
+    if (ward) {
+      ward.status = "done";
+      ward.completedOn = "2026-07-12";
+    }
+    const done = refreshSepMilestoneStatus(finished, "2026-07-20");
+    expect(done.milestones.find((m) => m.id === "MS-2")?.status).toBe("done");
+    expect(done.milestones.find((m) => m.id === "MS-2")?.completedOn).toBe(
+      "2026-07-12",
+    );
   });
 });
 
