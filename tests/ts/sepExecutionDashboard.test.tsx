@@ -1,12 +1,14 @@
 /**
  * @jest-environment jsdom
  */
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { SepExecutionDashboard } from "@/components/sep/SepExecutionDashboard";
 import { SepOutcomeBoard } from "@/components/sep/SepOutcomeBoard";
 import { SepPlanSnapshotHeader } from "@/components/sep/SepPlanSnapshotHeader";
 import { SepPractitionerSnapshot } from "@/components/sep/SepPractitionerSnapshot";
 import { SepRoadmap } from "@/components/sep/SepRoadmap";
+import type { EngagementPlan } from "@/types/engagementPlan";
 import type { SepExecutionOverlay, SepPlanSnapshot } from "@/types/sepExecution";
 
 const snapshot: SepPlanSnapshot = {
@@ -185,5 +187,68 @@ describe("SEP execution dashboard widgets", () => {
     expect(
       screen.queryByRole("button", { name: "Add intervention" }),
     ).toBeNull();
+  });
+
+  it("mounts a plan-only execution dashboard from the composed plan", async () => {
+    const plan: EngagementPlan = {
+      id: "SEP-UI-1",
+      title: "Ward 4 access plan",
+      status: "saved",
+      sourceKind: "briefing",
+      sectorId: "infrastructure",
+      projectId: null,
+      projectNameHint: "Test road",
+      placeHint: "Ward 4",
+      clientFunderHint: "Municipality",
+      timelineHint: "12 weeks",
+      createdAt: "2026-06-01T08:00:00.000Z",
+      updatedAt: "2026-06-01T08:00:00.000Z",
+      sourceExcerpt: "Test brief",
+      purposeStatement: "Consult on access.",
+      phases: [
+        {
+          id: "inception",
+          order: 1,
+          title: "Inception",
+          intent: "",
+          exitCriteria: "",
+          typicalDuration: "1 week",
+          module: "engagements",
+        },
+      ],
+      stakeholderClasses: [],
+      activities: [
+        {
+          id: "ACT-1",
+          phaseId: "inception",
+          title: "Kick-off imbizo",
+          method: "Meeting",
+          purpose: "inform",
+          engagementKind: "meeting",
+          ownerHint: "CLO",
+          timingHint: "Week 1",
+          evidenceHint: "Minutes",
+          module: "engagements",
+        },
+      ],
+      commitments: [],
+      instruments: [],
+      grievancePath: "",
+      assumptions: [],
+      documentSections: [],
+    };
+    render(<SepExecutionDashboard plan={plan} />);
+    expect(screen.getByText(/Loading plan dashboard/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: "Ward 4 access plan" }),
+      ).toBeInTheDocument();
+    });
+    expect(screen.getByText(/scoped to plan/)).toBeInTheDocument();
+    expect(screen.getAllByText(/SEP-UI-1/).length).toBeGreaterThan(0);
+    expect(screen.getByText("Roadmap from submission")).toBeInTheDocument();
+    expect(screen.getByText("Today")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open practitioner snapshot" })).toBeInTheDocument();
+    expect(screen.queryByText(/Social Licence to Build/)).toBeNull();
   });
 });
