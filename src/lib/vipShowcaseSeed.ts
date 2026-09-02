@@ -94,9 +94,10 @@ function writeBundleVersion(version: number) {
 }
 
 function seedSepIfMissing() {
-  const pack = VIP_SHOWCASE_PACK;
-  if (listEngagementPlansForProject(VIP_SHOWCASE_PROJECT_ID).length) return;
-  const composed = composeEngagementPlan({
+  try {
+    const pack = VIP_SHOWCASE_PACK;
+    if (listEngagementPlansForProject(VIP_SHOWCASE_PROJECT_ID).length) return;
+    const composed = composeEngagementPlan({
     text: `Illustrative briefing: NCGR-B 132 kV corridor reinforcement and community access roads in Ward 4, Joe Morolong Local Municipality, Northern Cape. Consult the traditional authority before bush clearing. Local labour target 60% of unskilled and semi-skilled hours. Acknowledge grievances within 48 hours. Dust suppression on the access road during haul weeks.`,
     sectorId: "energy",
     projectId: VIP_SHOWCASE_PROJECT_ID,
@@ -119,6 +120,9 @@ function seedSepIfMissing() {
       commitmentIds: pack.commitments.map((row) => row.id),
     },
   });
+  } catch (err) {
+    console.info("[plan-packaging] SEP seed skipped", err);
+  }
 }
 
 function seedEsgIfMissing() {

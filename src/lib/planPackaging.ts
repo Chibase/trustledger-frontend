@@ -144,8 +144,11 @@ export function moduleRowCount(key: PlanDashboardModuleKey): number {
       return listWorkspaceIncidents().length;
     case "capture":
       return listCaptureRecords().length;
-    case "stakeholders":
-      return listOrgStakeholders(getActiveOrgId()).length;
+    case "stakeholders": {
+      const org = listOrgStakeholders(getActiveOrgId()).length;
+      const crm = readLocalArray<{ id: string }>("tl-crm-stakeholders").length;
+      return Math.max(org, crm);
+    }
     case "engagements":
       return readLocalArray<Engagement>("tl-engagements").length;
     case "sep":

@@ -42,7 +42,7 @@ export function ModuleContributionBoard({
   const [suggestedNextKey, setSuggestedNextKey] = useState<string | null>(null);
 
   useEffect(() => {
-    const handle = window.setTimeout(() => {
+    const read = () => {
       const packaging = resolvePlanDashboardPackaging({
         planId,
         vip,
@@ -54,8 +54,13 @@ export function ModuleContributionBoard({
       setAggregate(next.aggregateProgressPct);
       setDemoSeeded(packaging.demoSeedAllowed);
       setSuggestedNextKey(packaging.suggestedNextKey);
-    }, 0);
-    return () => window.clearTimeout(handle);
+    };
+    const handle = window.setTimeout(read, 0);
+    window.addEventListener("tl-workspace-seeded", read);
+    return () => {
+      window.clearTimeout(handle);
+      window.removeEventListener("tl-workspace-seeded", read);
+    };
   }, [planId, vip, mode]);
 
   if (rows.length === 0) return null;
