@@ -33,7 +33,11 @@ function upsertById<T extends { id: string }>(key: string, rows: T[]) {
   const byId = new Map<string, T>();
   for (const row of existing) byId.set(row.id, row);
   for (const row of rows) byId.set(row.id, row);
-  window.localStorage.setItem(key, JSON.stringify([...byId.values()]));
+  try {
+    window.localStorage.setItem(key, JSON.stringify([...byId.values()]));
+  } catch {
+    // Quota / private mode — org desks still persist via saveOrg*.
+  }
 }
 
 export function applyVipShowcaseSeed(input: {

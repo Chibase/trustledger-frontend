@@ -3,6 +3,7 @@
 ## 2026-09-02 — VIP showcase login email
 
 - `/login/vip` allowlist default is `thozi@chibaseconsulting.co.za` so it does not share the Platform Operator / master-plan mailbox. Extra addresses stay on `VIP_SHOWCASE_EMAILS` only.
+- Rate-limit IP prefers `x-vercel-forwarded-for` (else last `x-forwarded-for` hop); attempt map is pruned/capped. Showcase seed `setItem` is quota-safe. INC-NCGR-01 SLA flag matches the 48-hour acknowledge.
 
 ## 2026-09-02 — VIP Institutional showcase workspace
 

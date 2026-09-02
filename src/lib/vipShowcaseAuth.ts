@@ -88,10 +88,41 @@ export function displayNameForVipEmail(email: string): string {
 
 const RATE_WINDOW_MS = 15 * 60 * 1000;
 const RATE_MAX = 10;
+const RATE_MAP_CAP = 500;
 const attempts = new Map<string, { count: number; resetAt: number }>();
+
+function pruneVipShowcaseAttempts(now: number) {
+  for (const [key, row] of attempts) {
+    if (now >= row.resetAt) attempts.delete(key);
+  }
+  while (attempts.size > RATE_MAP_CAP) {
+    const oldest = attempts.keys().next().value;
+    if (!oldest) break;
+    attempts.delete(oldest);
+  }
+}
+
+/** Prefer Vercel’s hop; otherwise the last x-forwarded-for entry (proxy-appended). */
+export function vipShowcaseClientIp(request: Request): string {
+  const vercel = request.headers.get("x-vercel-forwarded-for");
+  if (vercel) {
+    const first = vercel.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  const xf = request.headers.get("x-forwarded-for");
+  if (xf) {
+    const hops = xf
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    if (hops.length) return hops[hops.length - 1]!;
+  }
+  return request.headers.get("x-real-ip")?.trim() || "unknown";
+}
 
 export function vipShowcaseRateLimitOk(ip: string): boolean {
   const now = Date.now();
+  pruneVipShowcaseAttempts(now);
   const row = attempts.get(ip);
   if (!row || now >= row.resetAt) {
     attempts.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
