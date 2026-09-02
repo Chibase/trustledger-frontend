@@ -9,6 +9,7 @@ module.exports = {
     "<rootDir>/tests/ts/sepExecutionDashboard.test.tsx",
     "<rootDir>/tests/ts/planPackaging.test.ts",
     "<rootDir>/tests/ts/onboardingGuide.test.ts",
+    "<rootDir>/tests/ts/SetupWizard.test.tsx",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {
