@@ -46,14 +46,13 @@ export function SetupChecklistBanner({
     };
   }, []);
 
-  if (!state || state.wizardCompleted) return null;
+  if (state?.wizardCompleted) return null;
 
-  const doneCount = steps.filter((s) =>
-    state.completedSteps.includes(s.id),
-  ).length;
+  const completed = state?.completedSteps ?? [];
+  const doneCount = steps.filter((s) => completed.includes(s.id)).length;
   const total = steps.length || 1;
   const pct = Math.round((doneCount / total) * 100);
-  const nextStep = steps.find((s) => !state.completedSteps.includes(s.id));
+  const nextStep = steps.find((s) => !completed.includes(s.id));
 
   return (
     <section

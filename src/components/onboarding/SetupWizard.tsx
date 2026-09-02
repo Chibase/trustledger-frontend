@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import {
@@ -113,8 +114,8 @@ export function SetupWizard({
     if (i >= 0) setStepIndex(i);
   }
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-4 sm:items-center">
+  const dialog = (
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/40 p-4 sm:items-center">
       <div
         role="dialog"
         aria-modal="true"
@@ -274,4 +275,7 @@ export function SetupWizard({
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return dialog;
+  return createPortal(dialog, document.body);
 }
