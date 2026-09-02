@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isPlatformOperatorIdentity } from "@/lib/platformOperator";
 import {
   displayNameForVipEmail,
   isAllowedVipShowcaseEmail,
@@ -7,6 +8,7 @@ import {
   vipShowcaseExpectedPassword,
   vipShowcasePasswordsMatch,
   vipShowcaseRateLimitOk,
+  VIP_SHOWCASE_DEFAULT_EMAIL,
   VIP_SHOWCASE_ORG_NAME,
   VIP_SHOWCASE_PLAN_ID,
   VIP_SHOWCASE_WEEKS,
@@ -52,7 +54,7 @@ export async function POST(request: Request) {
   }
 
   const email = (body.email || "").trim().toLowerCase();
-  const password = body.password || "";
+  const password = (body.password || "").trim();
   if (!email.includes("@") || !password) {
     return NextResponse.json(
       { error: "Email and password are required." },
@@ -71,8 +73,15 @@ export async function POST(request: Request) {
   const emailOk = isAllowedVipShowcaseEmail(email);
   const passOk = vipShowcasePasswordsMatch(password, expected);
   if (!emailOk || !passOk) {
+    const operatorAttempt =
+      isPlatformOperatorIdentity(email) ||
+      email === "admin@chibaseconsulting.co.za";
     return NextResponse.json(
-      { error: "Email or password is not recognised for VIP showcase." },
+      {
+        error: operatorAttempt
+          ? `That mailbox is the Platform Operator / master plan. Use ${VIP_SHOWCASE_DEFAULT_EMAIL} here, or /login/live for Ops.`
+          : "Email or password is not recognised for VIP showcase.",
+      },
       { status: 401 },
     );
   }

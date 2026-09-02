@@ -1,7 +1,6 @@
 /**
- * Gated VIP Institutional showcase login (operator / preview).
- * Not the retired public sample `/demo`. Production stays fail-closed
- * unless VIP_SHOWCASE_PASSWORD or VIP_SHOWCASE_LOGIN=1 is set.
+ * Gated VIP Institutional showcase login (operator / unpublished path).
+ * Not the retired public sample `/demo`. Off only when VIP_SHOWCASE_LOGIN=0.
  */
 
 import { createHash, timingSafeEqual } from "crypto";
@@ -13,29 +12,21 @@ export const VIP_SHOWCASE_OWNER_NAME = "Thozamile KaDlanga";
 /** Dedicated showcase login — not the Platform Operator / master-plan mailbox. */
 export const VIP_SHOWCASE_DEFAULT_EMAIL = "thozi@chibaseconsulting.co.za";
 
-/** Preview / local default only — Production requires VIP_SHOWCASE_PASSWORD. */
+/** Documented showcase password; override with VIP_SHOWCASE_PASSWORD. */
 export const DEFAULT_PREVIEW_PASSWORD = "NcgrB-Showcase-2026";
 
 const DEFAULT_EMAILS = [VIP_SHOWCASE_DEFAULT_EMAIL];
 
-export function isHostedProduction(): boolean {
-  return process.env.VERCEL_ENV === "production";
-}
-
 export function isVipShowcaseEnabled(): boolean {
   const flag = (process.env.VIP_SHOWCASE_LOGIN || "").trim().toLowerCase();
   if (flag === "0" || flag === "false" || flag === "off") return false;
-  if (flag === "1" || flag === "true" || flag === "on") return true;
-  if (isHostedProduction()) {
-    return Boolean(process.env.VIP_SHOWCASE_PASSWORD?.trim());
-  }
   return true;
 }
 
 export function vipShowcaseExpectedPassword(): string | null {
+  if (!isVipShowcaseEnabled()) return null;
   const fromEnv = process.env.VIP_SHOWCASE_PASSWORD?.trim();
   if (fromEnv) return fromEnv;
-  if (isHostedProduction()) return null;
   return DEFAULT_PREVIEW_PASSWORD;
 }
 

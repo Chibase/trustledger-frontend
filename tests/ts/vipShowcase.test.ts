@@ -82,10 +82,22 @@ describe("VIP showcase auth gate", () => {
     restoreEnv("PLATFORM_OPERATOR_EMAILS", prev.ops);
   });
 
-  it("is off on hosted Production without a password", () => {
+  it("is on in hosted Production with the documented password unless explicitly off", () => {
     process.env.VERCEL_ENV = "production";
     delete process.env.VIP_SHOWCASE_LOGIN;
     delete process.env.VIP_SHOWCASE_PASSWORD;
+    expect(isVipShowcaseEnabled()).toBe(true);
+    expect(
+      vipShowcasePasswordsMatch(
+        DEFAULT_PREVIEW_PASSWORD,
+        DEFAULT_PREVIEW_PASSWORD,
+      ),
+    ).toBe(true);
+  });
+
+  it("turns off when VIP_SHOWCASE_LOGIN=0", () => {
+    process.env.VERCEL_ENV = "production";
+    process.env.VIP_SHOWCASE_LOGIN = "0";
     expect(isVipShowcaseEnabled()).toBe(false);
   });
 
