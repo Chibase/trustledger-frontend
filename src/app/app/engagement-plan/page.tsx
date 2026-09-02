@@ -14,21 +14,21 @@ import {
 
 export default function EngagementPlanListPage() {
   const [rows, setRows] = useState<EngagementPlan[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    const handle = window.setTimeout(() => {
-      if (cancelled) return;
+    const load = () => {
       try {
         setRows(listEngagementPlans());
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
-    }, 0);
+    };
+    const handle = window.setTimeout(load, 0);
+    window.addEventListener("tl-workspace-seeded", load);
     return () => {
-      cancelled = true;
       window.clearTimeout(handle);
+      window.removeEventListener("tl-workspace-seeded", load);
     };
   }, []);
 

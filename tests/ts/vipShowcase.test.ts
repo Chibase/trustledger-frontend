@@ -1,4 +1,5 @@
 import { VIP_SHOWCASE_PACK } from "@/data/vipShowcase";
+import { applyVipShowcaseSeed } from "@/lib/vipShowcaseSeed";
 import { looksLikeReportTemplateGuide } from "@/lib/reportComposer";
 import { isVipShowcaseWorkspace, packageLabel } from "@/lib/planLabel";
 import {
@@ -56,6 +57,15 @@ describe("VIP showcase pack", () => {
     expect(isVipShowcaseWorkspace("trial", true)).toBe(true);
     expect(isVipShowcaseWorkspace("live", true)).toBe(false);
     expect(isVipShowcaseWorkspace("trial", false)).toBe(false);
+  });
+
+  it("does not preload demo desks unless this is the showcase workspace", () => {
+    const result = applyVipShowcaseSeed({
+      orgId: "org-test",
+      email: "owner@example.com",
+    });
+    expect(result.skipped).toBe(true);
+    expect(result.incidents).toBe(0);
   });
 });
 

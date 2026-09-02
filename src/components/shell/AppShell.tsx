@@ -15,6 +15,10 @@ import { SessionEmailBridge } from "@/components/shell/SessionEmailBridge";
 import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import { packageLabel, isVipShowcaseWorkspace } from "@/lib/planLabel";
+import { PlanDashboardAccessGate } from "@/components/shell/PlanDashboardAccessGate";
+import { PlanModuleEmptyBanner } from "@/components/shell/PlanModuleEmptyBanner";
+import { PlanModuleSwitcher } from "@/components/shell/PlanModuleSwitcher";
+import { VipPackagingSync } from "@/components/shell/VipPackagingSync";
 import type { TrialSnapshot } from "@/lib/trial";
 import type { UserRole } from "@/types/rbac";
 
@@ -55,6 +59,9 @@ export function AppShell({
       <EmailCaptureGate />
       <div className="min-h-full bg-tl-paper text-tl-ink">
         {isVipShowcaseWorkspace(mode, isVip) ? <VipShowcaseBanner /> : null}
+        {isVipShowcaseWorkspace(mode, isVip) ? (
+          <VipPackagingSync email={userEmail || ""} />
+        ) : null}
         {mode === "trial" && trial && !isVip ? (
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
         ) : null}
@@ -72,6 +79,8 @@ export function AppShell({
           mode={mode === "live" ? "live" : "demo"}
           isGuest={isGuest || mode === "trial"}
           planId={trialPlan}
+          vip={isVip}
+          appMode={mode}
         />
 
         <div className="flex min-h-[calc(100vh-2.25rem)]">
@@ -92,7 +101,13 @@ export function AppShell({
               <p className="mb-2 px-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-white/40">
                 Workspace
               </p>
-              <AppNav role={role} variant="ink" planId={trialPlan} />
+              <AppNav
+                role={role}
+                variant="ink"
+                planId={trialPlan}
+                vip={isVip}
+                mode={mode}
+              />
             </div>
 
             <div className="space-y-3 border-t border-white/10 px-4 py-4">
@@ -125,7 +140,23 @@ export function AppShell({
 
           <div className="min-w-0 flex-1">
             <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
-              {children}
+              <PlanModuleSwitcher
+                planId={trialPlan}
+                vip={isVip}
+                mode={mode}
+              />
+              <PlanModuleEmptyBanner
+                planId={trialPlan}
+                vip={isVip}
+                mode={mode}
+              />
+              <PlanDashboardAccessGate
+                planId={trialPlan}
+                vip={isVip}
+                mode={mode}
+              >
+                {children}
+              </PlanDashboardAccessGate>
             </div>
           </div>
         </div>

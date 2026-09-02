@@ -33,6 +33,8 @@ export default async function AppDashboardPage() {
         role={user.role}
         planId={user.trialPlan}
         isPlanOwner={isPlanOwner}
+        isVip={Boolean(user.isVip)}
+        mode={user.mode}
         seedIncidents={incidents}
         seedProjects={projects}
       />

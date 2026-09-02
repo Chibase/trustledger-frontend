@@ -127,7 +127,9 @@ Use **Engagement plan** when the work starts as a briefing, tender, or RFP rathe
 5. **Save**, then present (Print / PDF with cover, Markdown, or Word). The **Plan dashboard** is the execution view for that plan only (roadmap from submission, task graphs, success/hurdle/failure, mitigations). **Open practitioner snapshot** is the client/superior briefing. **Process map** still shows Social Licence to Build™ → shipped desks for operators.  
 6. After the client approves the assignment, **Apply to SRM**. Prospect stakeholders, draft engagements, and open commitments land on the existing desks. Duplicate names/titles are skipped. Humans apply; the composer never writes the live desk alone. The composer does not invent SMS/WhatsApp portals or write Themba into the live case desk.
 
-On the **Executive dashboard** (`/app/dashboard`), **Engagement plan** is a primary button next to the page heading. The **Stakeholder engagement plans** module sits immediately under that heading (not below the empowerment KPIs). If the workspace plan does not include it, the same card stays on screen with an upgrade note. Linked plans also appear on a **project dashboard**. Plans stay in this workspace until a Cloud document type exists. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
+On the **Executive dashboard** (`/app/dashboard`), the **Plan modules** strip is the sequence for your commercial plan (executive first, then the desks that plan includes). Open a module, then **Return to executive view**. Module cards on the executive page show contribution to overall progress. Empty desks show a short prompt to add the first record — only the VIP showcase is preloaded. **Engagement plan** is one module on Project+ — not the whole product. A URL for a desk that is not on your plan shows an upgrade note instead of the module.
+
+If the workspace plan does not include a module, it stays off the switcher (or shows an upgrade note on the executive SEP card). Linked plans also appear on a **project dashboard**. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
 
 ---
 
