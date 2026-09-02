@@ -9,6 +9,8 @@ import type { Engagement } from "@/types/engagement";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import type { Incident } from "@/types/incident";
 import type {
+  SepEventSeverity,
+  SepOutcomeKind,
   SepPlanSnapshot,
   SepTimelineEvent,
   SepExecutionOverlay,
@@ -240,7 +242,94 @@ export function buildSepTimeline(
       status: mit.status,
     });
   }
+  const today = new Date().toISOString();
+  rows.push({
+    id: "today",
+    at: today,
+    kind: "today",
+    title: "Today",
+    detail: "Current position on the implementation calendar",
+  });
   return rows.sort((a, b) => a.at.localeCompare(b.at));
+}
+
+export type SepInPlanFilters = {
+  fromOn: string;
+  toOn: string;
+  taskId: string;
+  milestoneId: string;
+  severity: SepEventSeverity | "all";
+  kind: SepOutcomeKind | "all";
+};
+
+export const EMPTY_SEP_FILTERS: SepInPlanFilters = {
+  fromOn: "",
+  toOn: "",
+  taskId: "all",
+  milestoneId: "all",
+  severity: "all",
+  kind: "all",
+};
+
+function inDateRange(iso: string, fromOn: string, toOn: string): boolean {
+  const d = iso.slice(0, 10);
+  if (fromOn && d < fromOn) return false;
+  if (toOn && d > toOn) return false;
+  return true;
+}
+
+/** Filter overlay widgets without changing stored plan_id data. */
+export function filterSepOverlay(
+  overlay: SepExecutionOverlay,
+  filters: SepInPlanFilters,
+): SepExecutionOverlay {
+  const taskId = filters.taskId !== "all" ? filters.taskId : "";
+  const milestoneId = filters.milestoneId !== "all" ? filters.milestoneId : "";
+  const severity = filters.severity !== "all" ? filters.severity : "";
+  const kind = filters.kind !== "all" ? filters.kind : "";
+
+  const tasks = overlay.tasks.filter((t) => {
+    if (taskId && t.id !== taskId) return false;
+    if (milestoneId && t.milestoneId !== milestoneId) return false;
+    if (t.completedOn) {
+      return (
+        inDateRange(t.plannedOn, filters.fromOn, filters.toOn) ||
+        inDateRange(t.completedOn, filters.fromOn, filters.toOn)
+      );
+    }
+    return inDateRange(t.plannedOn, filters.fromOn, filters.toOn);
+  });
+  const milestones = overlay.milestones.filter((m) => {
+    if (milestoneId && m.id !== milestoneId) return false;
+    if (m.completedOn) {
+      return (
+        inDateRange(m.dueOn, filters.fromOn, filters.toOn) ||
+        inDateRange(m.completedOn, filters.fromOn, filters.toOn)
+      );
+    }
+    return inDateRange(m.dueOn, filters.fromOn, filters.toOn);
+  });
+  const events = overlay.events.filter((ev) => {
+    if (!inDateRange(ev.occurredOn, filters.fromOn, filters.toOn)) return false;
+    if (taskId && ev.taskId !== taskId) return false;
+    if (milestoneId && ev.milestoneId !== milestoneId) return false;
+    if (severity && ev.severity !== severity) return false;
+    if (kind && ev.kind !== kind) return false;
+    return true;
+  });
+  const eventIds = new Set(events.map((ev) => ev.id));
+  const interventions = overlay.interventions.filter((row) => {
+    if (overlay.events.length > 0 && !eventIds.has(row.eventId)) return false;
+    return inDateRange(row.startOn, filters.fromOn, filters.toOn);
+  });
+
+  return {
+    ...overlay,
+    tasks,
+    milestones,
+    events,
+    interventions,
+  };
 }
 
 export function taskCompletionTrend(

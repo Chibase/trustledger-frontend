@@ -13,6 +13,10 @@ import {
   getSepExecution,
   saveSepExecution,
 } from "@/lib/sepExecutionStore";
+import {
+  EMPTY_SEP_FILTERS,
+  filterSepOverlay,
+} from "@/lib/sepExecutionDesk";
 import type { SepExecutionOverlay } from "@/types/sepExecution";
 
 function samplePlan(): EngagementPlan {
@@ -243,5 +247,27 @@ describe("SEP execution store scoping", () => {
     });
     expect(saved.planId).toBe("SEP-TEST-1");
     expect(getSepExecution("SEP-TEST-1")?.planId).toBe("SEP-TEST-1");
+  });
+});
+
+describe("SEP in-plan filters", () => {
+  it("keeps only matching events and does not change planId", () => {
+    const overlay = overlayFixture();
+    const filtered = filterSepOverlay(overlay, {
+      ...EMPTY_SEP_FILTERS,
+      severity: "medium",
+      fromOn: "2026-06-01",
+      toOn: "2026-06-30",
+    });
+    expect(filtered.planId).toBe("SEP-TEST-1");
+    expect(filtered.events).toHaveLength(1);
+    expect(filtered.events[0]?.title).toBe("Low turnout");
+    expect(filtered.interventions).toHaveLength(1);
+    const empty = filterSepOverlay(overlay, {
+      ...EMPTY_SEP_FILTERS,
+      kind: "failure",
+    });
+    expect(empty.events).toHaveLength(0);
+    expect(empty.interventions).toHaveLength(0);
   });
 });

@@ -142,6 +142,7 @@ export type SepPlanSnapshot = {
 export type SepTimelineKind =
   | "submitted"
   | "approved"
+  | "today"
   | "milestone"
   | "task"
   | "delay"
