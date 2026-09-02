@@ -3,10 +3,11 @@
 ## 2026-09-02 — VIP showcase vs live Cloud login
 
 - `thozi@chibaseconsulting.co.za` on `/login/live` is sent to `/login/vip` (409 + client redirect). Cloud 401 was Frappe rejecting the showcase mailbox.
+- Split client-safe showcase constants (`vipShowcaseIdentity`) from server-only password/rate-limit (`vipShowcaseAuth` + `server-only`) so Node crypto and the documented password stay off the client bundle. Extra allowlist addresses: `VIP_SHOWCASE_EMAILS` or `VIP_SHOWCASE_EMAIL`.
 
 ## 2026-09-02 — VIP showcase login email
 
-- `/login/vip` allowlist default is `thozi@chibaseconsulting.co.za` so it does not share the Platform Operator / master-plan mailbox. Extra addresses stay on `VIP_SHOWCASE_EMAILS` only.
+- `/login/vip` allowlist default is `thozi@chibaseconsulting.co.za` so it does not share the Platform Operator / master-plan mailbox. Extra addresses: `VIP_SHOWCASE_EMAILS` or `VIP_SHOWCASE_EMAIL`.
 - Rate-limit IP prefers `x-vercel-forwarded-for` (else last `x-forwarded-for` hop); attempt map is pruned/capped. Showcase seed `setItem` is quota-safe. INC-NCGR-01 SLA flag matches the 48-hour acknowledge.
 - Showcase login stays on unless `VIP_SHOWCASE_LOGIN=0`, including Production, so the documented password works without a Vercel env round-trip. Operator mailboxes get a distinct 401.
 
