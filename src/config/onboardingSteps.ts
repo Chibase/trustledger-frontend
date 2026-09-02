@@ -4,10 +4,9 @@
  * Every actionable step has an href that lands on the place to do the work.
  */
 
-import type { PlanId } from "@/config/plans";
+import { isPlanId, type PlanId } from "@/config/plans";
 import { hasCapabilityForPlan } from "@/lib/entitlements";
 import type { TlMode } from "@/lib/auth.constants";
-import { demoSeedAllowed, packagingPlanId } from "@/lib/planPackaging";
 import type { CapabilityId } from "@/types/entitlements";
 
 export type OnboardingStepId =
@@ -155,20 +154,27 @@ const VIP_SHOWCASE_STEP_OVERRIDES: Partial<
   },
 };
 
+/** Commercial plan for setup steps. VIP showcase always uses Institutional. */
+function stepsPlanId(
+  planId?: PlanId | null,
+  opts?: OnboardingStepsOpts,
+): PlanId {
+  if (opts?.mode === "trial" && opts?.vip) return "institutional";
+  if (planId && isPlanId(planId)) return planId;
+  return "project";
+}
+
+function isVipShowcaseSteps(opts?: OnboardingStepsOpts): boolean {
+  return opts?.mode === "trial" && Boolean(opts?.vip);
+}
+
 /** Steps visible for this commercial plan (or Project lens when plan unknown). */
 export function onboardingStepsForPlan(
   planId?: PlanId | null,
   opts?: OnboardingStepsOpts,
 ): OnboardingStepDef[] {
-  const resolved = packagingPlanId({
-    planId,
-    vip: opts?.vip,
-    mode: opts?.mode,
-  });
-  const vipShowcase = demoSeedAllowed({
-    vip: opts?.vip,
-    mode: opts?.mode,
-  });
+  const resolved = stepsPlanId(planId, opts);
+  const vipShowcase = isVipShowcaseSteps(opts);
   return STEPS.filter((step) => {
     if (!step.capability) return true;
     return hasCapabilityForPlan(step.capability, resolved);

@@ -50,9 +50,6 @@ export function SetupWizard({
 
   useEffect(() => {
     if (!enabled) return;
-    if (skipAutoOpen) {
-      restoreVipShowcaseSetupIfSeedDismissed();
-    }
 
     function sync() {
       // VIP hides the temp-password prompt; leftover trial flags must not
@@ -68,9 +65,14 @@ export function SetupWizard({
       }
     }
 
-    const frame = requestAnimationFrame(sync);
     window.addEventListener("tl-onboarding-changed", sync);
     window.addEventListener("storage", sync);
+    try {
+      if (skipAutoOpen) restoreVipShowcaseSetupIfSeedDismissed();
+    } catch {
+      /* seed restore must not prevent Guide/Settings launch */
+    }
+    const frame = requestAnimationFrame(sync);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("tl-onboarding-changed", sync);
@@ -78,7 +80,13 @@ export function SetupWizard({
     };
   }, [enabled, skipAutoOpen]);
 
-  if (!enabled || !open || !step || !state) return null;
+  if (!enabled) return null;
+
+  const host = (
+    <span data-setup-wizard={open ? "open" : "ready"} hidden />
+  );
+
+  if (!open || !step || !state) return host;
 
   const total = steps.length;
   const progress = Math.round(((stepIndex + 1) / total) * 100);
@@ -276,6 +284,18 @@ export function SetupWizard({
     </div>
   );
 
-  if (typeof document === "undefined") return dialog;
-  return createPortal(dialog, document.body);
+  if (typeof document === "undefined") {
+    return (
+      <>
+        {host}
+        {dialog}
+      </>
+    );
+  }
+  return (
+    <>
+      {host}
+      {createPortal(dialog, document.body)}
+    </>
+  );
 }
