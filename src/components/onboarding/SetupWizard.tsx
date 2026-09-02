@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { PlanId } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import {
   onboardingStepsForPlan,
   type OnboardingStepId,
@@ -19,20 +20,30 @@ import { mustChangePassword } from "@/lib/trialBillingClient";
 
 type SetupWizardProps = {
   planId?: PlanId | null;
-  /** When true, skip auto-open (e.g. junior non-owner). */
+  /** When false, the wizard never opens (juniors use Guide on demand). */
   enabled?: boolean;
+  /** VIP showcase: keep the preloaded desk visible; Guide/Settings still launch. */
+  skipAutoOpen?: boolean;
+  vip?: boolean;
+  mode?: TlMode | null;
 };
 
 /**
  * First-login setup wizard — plan-aware spine (UG-1).
  * Each step title/CTA navigates to the screen where that task is done.
  */
-export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
+export function SetupWizard({
+  planId,
+  enabled = true,
+  skipAutoOpen = false,
+  vip = false,
+  mode = null,
+}: SetupWizardProps) {
   const [open, setOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [state, setState] = useState<OnboardingState | null>(null);
 
-  const steps = onboardingStepsForPlan(planId);
+  const steps = onboardingStepsForPlan(planId, { vip, mode });
   const step = steps[stepIndex] ?? steps[0];
 
   useEffect(() => {
@@ -45,7 +56,7 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
       }
       const next = readOnboardingState();
       setState(next);
-      if (shouldAutoOpenWizard(next)) {
+      if (shouldAutoOpenWizard(next, { skipAutoOpen })) {
         setOpen(true);
       }
     }
@@ -58,7 +69,7 @@ export function SetupWizard({ planId, enabled = true }: SetupWizardProps) {
       window.removeEventListener("tl-onboarding-changed", sync);
       window.removeEventListener("storage", sync);
     };
-  }, [enabled]);
+  }, [enabled, skipAutoOpen]);
 
   if (!enabled || !open || !step || !state) return null;
 

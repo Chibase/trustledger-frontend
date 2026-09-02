@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { PlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import {
   onboardingStepsForPlan,
   type OnboardingStepId,
 } from "@/config/onboardingSteps";
+import { demoSeedAllowed, packagingPlanId } from "@/lib/planPackaging";
 import {
   clearOnboardingStep,
   markOnboardingStepComplete,
@@ -18,15 +20,25 @@ import {
 
 type OnboardingGuidePanelProps = {
   planId?: PlanId | null;
+  vip?: boolean;
+  mode?: TlMode | null;
 };
 
 /**
  * /app/guide — checklist that takes you to each task screen.
  */
-export function OnboardingGuidePanel({ planId }: OnboardingGuidePanelProps) {
+export function OnboardingGuidePanel({
+  planId,
+  vip = false,
+  mode = null,
+}: OnboardingGuidePanelProps) {
   const [state, setState] = useState<OnboardingState | null>(null);
-  const steps = onboardingStepsForPlan(planId);
-  const planName = planId ? PLANS[planId].name : "your plan";
+  const steps = onboardingStepsForPlan(planId, { vip, mode });
+  const resolved = packagingPlanId({ planId, vip, mode });
+  const vipShowcase = demoSeedAllowed({ vip, mode });
+  const planName = vipShowcase
+    ? "VIP · Institutional"
+    : PLANS[resolved].name;
 
   useEffect(() => {
     function sync() {
@@ -59,6 +71,9 @@ export function OnboardingGuidePanel({ planId }: OnboardingGuidePanelProps) {
           <p className="mt-1 text-sm text-tl-ink-muted">
             Setup checklist for {planName}. Each step title is a link to the
             screen where you do that work — not only an explanation.
+            {vipShowcase
+              ? " NCGR-B is preloaded; this guide walks the same module spine."
+              : ""}
           </p>
         </div>
         <button

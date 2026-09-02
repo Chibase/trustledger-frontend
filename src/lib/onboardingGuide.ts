@@ -6,6 +6,8 @@ import type { OnboardingStepId } from "@/config/onboardingSteps";
 
 const STORAGE_KEY = "tl-onboarding-v1";
 const SNOOZE_KEY = "tl-onboarding-snooze";
+/** One-time restore after VIP seed used to mark setup complete. */
+const VIP_SETUP_UNLOCK_KEY = "tl-vip-setup-unlock-v1";
 
 export type OnboardingState = {
   /** User chose “Don’t show again” or finished wizard. */
@@ -118,12 +120,33 @@ function isSnoozed(): boolean {
 }
 
 /** Auto-open once for new workspaces until dismissed / completed / snoozed. */
-export function shouldAutoOpenWizard(state?: OnboardingState): boolean {
+export function shouldAutoOpenWizard(
+  state?: OnboardingState,
+  opts?: { skipAutoOpen?: boolean },
+): boolean {
   const s = state ?? readOnboardingState();
   if (s.forceOpen) return true;
+  if (opts?.skipAutoOpen) return false;
   if (s.dismissed || s.wizardCompleted) return false;
   if (isSnoozed()) return false;
   return true;
+}
+
+/**
+ * VIP seed used to dismiss setup because NCGR-B is preloaded. Unlock once so
+ * Guide / Settings / the checklist can launch the wizard. Does not force-open.
+ */
+export function restoreVipShowcaseSetupIfSeedDismissed(): OnboardingState {
+  const cur = readOnboardingState();
+  if (!canUseStorage()) return cur;
+  if (window.localStorage.getItem(VIP_SETUP_UNLOCK_KEY) === "1") return cur;
+  window.localStorage.setItem(VIP_SETUP_UNLOCK_KEY, "1");
+  if (!cur.wizardCompleted && !cur.dismissed) return cur;
+  return patchOnboardingState({
+    wizardCompleted: false,
+    dismissed: false,
+    forceOpen: false,
+  });
 }
 
 export function clearOnboardingStep(id: OnboardingStepId): OnboardingState {

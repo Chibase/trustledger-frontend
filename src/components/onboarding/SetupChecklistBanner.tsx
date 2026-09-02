@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { PlanId } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import { onboardingStepsForPlan } from "@/config/onboardingSteps";
+import { demoSeedAllowed } from "@/lib/planPackaging";
 import {
   markOnboardingStepComplete,
   readOnboardingState,
@@ -13,15 +15,22 @@ import {
 
 type SetupChecklistBannerProps = {
   planId?: PlanId | null;
+  vip?: boolean;
+  mode?: TlMode | null;
 };
 
 /**
  * Compact progress strip on Dashboard / Guide until setup is done.
  * Next incomplete step links straight to that task screen.
  */
-export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
+export function SetupChecklistBanner({
+  planId,
+  vip = false,
+  mode = null,
+}: SetupChecklistBannerProps) {
   const [state, setState] = useState<OnboardingState | null>(null);
-  const steps = onboardingStepsForPlan(planId).filter(
+  const vipShowcase = demoSeedAllowed({ vip, mode });
+  const steps = onboardingStepsForPlan(planId, { vip, mode }).filter(
     (s) => s.id !== "welcome" && s.id !== "done",
   );
 
@@ -57,7 +66,10 @@ export function SetupChecklistBanner({ planId }: SetupChecklistBannerProps) {
             First-time setup
           </p>
           <p className="mt-1 text-sm text-tl-ink">
-            Seed your SRM desk in order — {doneCount} of {total} steps marked.
+            {vipShowcase
+              ? "Walk the preloaded Institutional modules in order —"
+              : "Seed your SRM desk in order —"}{" "}
+            {doneCount} of {total} steps marked.
           </p>
           {nextStep?.href ? (
             <p className="mt-1 text-sm">

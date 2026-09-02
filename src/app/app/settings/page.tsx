@@ -55,7 +55,7 @@ export default async function AppSettingsPage() {
         isVip={isVip}
       />
 
-      <OnboardingSettingsControls />
+      <OnboardingSettingsControls isVip={isVip} />
 
       {isPlanOwner ? (
         <section className="space-y-4">

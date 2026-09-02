@@ -1,0 +1,63 @@
+import { onboardingStepsForPlan } from "@/config/onboardingSteps";
+import {
+  completeOnboardingWizard,
+  readOnboardingState,
+  requestOnboardingWizard,
+  restoreVipShowcaseSetupIfSeedDismissed,
+  shouldAutoOpenWizard,
+} from "@/lib/onboardingGuide";
+
+describe("VIP setup unlock", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+  });
+
+  it("keeps Guide/Settings launch working when auto-open is skipped", () => {
+    expect(shouldAutoOpenWizard(undefined, { skipAutoOpen: true })).toBe(false);
+    requestOnboardingWizard();
+    expect(shouldAutoOpenWizard(undefined, { skipAutoOpen: true })).toBe(true);
+  });
+
+  it("restores seed-dismissed VIP setup once without forcing the modal", () => {
+    completeOnboardingWizard();
+    expect(readOnboardingState().wizardCompleted).toBe(true);
+
+    const unlocked = restoreVipShowcaseSetupIfSeedDismissed();
+    expect(unlocked.wizardCompleted).toBe(false);
+    expect(unlocked.dismissed).toBe(false);
+    expect(unlocked.forceOpen).toBe(false);
+    expect(shouldAutoOpenWizard(unlocked, { skipAutoOpen: true })).toBe(false);
+
+    completeOnboardingWizard();
+    const again = restoreVipShowcaseSetupIfSeedDismissed();
+    expect(again.wizardCompleted).toBe(true);
+  });
+
+  it("uses the Institutional spine for VIP even if a leftover cookie says Solo", () => {
+    const vip = onboardingStepsForPlan("solo", { vip: true, mode: "trial" });
+    expect(vip.map((s) => s.id)).toEqual(
+      expect.arrayContaining([
+        "welcome",
+        "project",
+        "sep",
+        "stakeholders",
+        "engagements",
+        "commitments",
+        "incident",
+        "capture",
+        "reports",
+        "done",
+      ]),
+    );
+    expect(vip[0]?.title).toBe("Walk the Institutional desk");
+    expect(vip.find((s) => s.id === "project")?.href).toBe(
+      "/app/projects/PRJ-NCGR-B",
+    );
+
+    const solo = onboardingStepsForPlan("solo", { vip: false, mode: "trial" });
+    expect(solo.map((s) => s.id)).not.toContain("sep");
+    expect(solo.map((s) => s.id)).not.toContain("stakeholders");
+    expect(solo[0]?.title).toBe("Your desk starts empty");
+  });
+});

@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-09-02 — VIP setup wizard unlocked
+
+- VIP showcase no longer disables the UG-1 setup wizard or hides the executive checklist. Seed does not mark onboarding complete; a one-time restore reopens Guide/Settings launch after older sessions that had been auto-dismissed. The modal still skips auto-open so NCGR-B stays visible. Institutional walkthrough copy (not “desk starts empty”). Leftover Solo cookies still resolve Institutional steps via `packagingPlanId`.
+
 ## 2026-09-02 — Plan-as-container dashboards (VIP demo only)
 
 - Commercial plan packages **module dashboards** in a fixed tier sequence (`TIER_FLOW` + advisory gates). SEP is a module, not the plan. Executive landing shows per-module contribution and aggregate progress. Persistent **Plan modules** switcher (executive ↔ module in two clicks). Unauthorized module URLs show the plan upsell. Empty module desks show a guided banner (no preload).

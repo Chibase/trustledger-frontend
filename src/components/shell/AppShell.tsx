@@ -69,7 +69,9 @@ export function AppShell({
         {showSetupWizard ? (
           <SetupWizard
             planId={trialPlan}
-            enabled={!isVipShowcaseWorkspace(mode, isVip)}
+            skipAutoOpen={isVipShowcaseWorkspace(mode, isVip)}
+            vip={isVip}
+            mode={mode}
           />
         ) : null}
         {showOperatorBanner ? <OperatorBanner /> : null}
