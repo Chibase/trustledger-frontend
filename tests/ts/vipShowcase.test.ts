@@ -73,6 +73,33 @@ describe("VIP showcase pack", () => {
     expect(isVipShowcaseWorkspace("trial", true)).toBe(false);
   });
 
+  it("seeds Thozamile when the email argument is empty but the session cookie is set", () => {
+    window.localStorage.clear();
+    document.cookie = `tl-user-email=${encodeURIComponent(VIP_SHOWCASE_DEFAULT_EMAIL)}`;
+    document.cookie = "tl-mode=trial";
+    document.cookie = "tl-vip=1";
+    const result = applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: "",
+    });
+    expect(result.skipped).toBeUndefined();
+    expect(result.projectId).toBe("PRJ-NCGR-B");
+  });
+
+  it("does not seed a Cloud VIP guest when the email argument is empty", () => {
+    window.localStorage.clear();
+    document.cookie = "tl-user-email=nomcebo%40example.com";
+    document.cookie = "tl-mode=live";
+    document.cookie = "tl-vip=1";
+    const result = applyVipShowcaseSeed({
+      orgId: "org-guest",
+      email: "",
+      forceShowcase: true,
+    });
+    expect(result.skipped).toBe(true);
+    expect(result.projectId).toBe("");
+  });
+
   it("does not preload demo desks unless this is the showcase workspace", () => {
     const result = applyVipShowcaseSeed({
       orgId: "org-test",

@@ -5,7 +5,7 @@
  */
 
 import { VIP_SHOWCASE_PACK, VIP_SHOWCASE_PROJECT_ID } from "@/data/vipShowcase";
-import { TL_MODE_COOKIE, TL_USER_EMAIL_COOKIE, TL_VIP_COOKIE } from "@/lib/auth.constants";
+import { TL_MODE_COOKIE, TL_VIP_COOKIE } from "@/lib/auth.constants";
 import { saveCaptureRecord } from "@/lib/captureStore";
 import { saveCapturedEmail } from "@/lib/emailGate";
 import { ensureSavedIndicatorBrief } from "@/lib/indicatorBriefStore";
@@ -18,7 +18,7 @@ import {
   saveOrgProject,
   saveOrgStakeholder,
 } from "@/lib/orgDataSpace";
-import { isVipShowcaseWorkspace } from "@/lib/planLabel";
+import { isVipShowcaseWorkspace, resolveVipShowcaseEmail } from "@/lib/planLabel";
 import { listOrgs, getActiveOrgId, removeOrg, setActiveOrgId } from "@/lib/orgStore";
 import { saveAuthoredReport } from "@/lib/reportStore";
 import { composeEngagementPlan } from "@/lib/sepComposer";
@@ -62,10 +62,13 @@ function readCookie(name: string): string {
   return decodeURIComponent(row.split("=").slice(1).join("="));
 }
 
-function showcaseCookiesOk(email: string): boolean {
+function sessionMailbox(email?: string | null): string {
+  return resolveVipShowcaseEmail(email);
+}
+
+function showcaseSessionOk(mailbox: string): boolean {
   const mode = readCookie(TL_MODE_COOKIE);
   const vip = readCookie(TL_VIP_COOKIE) === "1";
-  const mailbox = email || readCookie(TL_USER_EMAIL_COOKIE);
   return isVipShowcaseWorkspace(
     mode === "trial" ? "trial" : "live",
     vip,
@@ -73,7 +76,7 @@ function showcaseCookiesOk(email: string): boolean {
   );
 }
 
-function showcaseSeedIds(): Set<string> {
+function buildShowcaseSeedIds(): Set<string> {
   const pack = VIP_SHOWCASE_PACK;
   const ids = new Set<string>([
     pack.project.id,
@@ -99,9 +102,10 @@ function showcaseSeedIds(): Set<string> {
   return ids;
 }
 
+const SHOWCASE_SEED_IDS = buildShowcaseSeedIds();
+
 function isShowcaseSeedId(id?: string | null): boolean {
-  if (!id) return false;
-  return showcaseSeedIds().has(id);
+  return Boolean(id && SHOWCASE_SEED_IDS.has(id));
 }
 
 function upsertById<T extends { id: string }>(key: string, rows: T[]) {
@@ -394,7 +398,8 @@ export function purgeVipShowcaseSeed(sessionEmail = ""): {
   if (typeof window === "undefined") {
     return { purged: false, removed: 0 };
   }
-  if (isVipShowcaseDefaultEmail(sessionEmail || readCookie(TL_USER_EMAIL_COOKIE))) {
+  const mailbox = sessionMailbox(sessionEmail);
+  if (isVipShowcaseDefaultEmail(mailbox)) {
     return { purged: false, removed: 0 };
   }
 
@@ -405,7 +410,7 @@ export function purgeVipShowcaseSeed(sessionEmail = ""): {
   removed += filterOrgDataBuckets();
   removed += filterEngagementPlans();
   removed += filterSepExecution();
-  removed += removeForeignShowcaseOrgs(sessionEmail);
+  removed += removeForeignShowcaseOrgs(mailbox);
 
   try {
     if (window.localStorage.getItem(VIP_DEMO_BUNDLE_KEY)) {
@@ -442,14 +447,15 @@ export function applyVipShowcaseSeed(input: {
     return skippedResult();
   }
 
+  const mailbox = sessionMailbox(input.email);
   const allowSeed =
-    isVipShowcaseDefaultEmail(input.email) &&
-    (Boolean(input.forceShowcase) || showcaseCookiesOk(input.email));
+    isVipShowcaseDefaultEmail(mailbox) &&
+    (Boolean(input.forceShowcase) || showcaseSessionOk(mailbox));
 
   // Cloud complimentary VIP (Nomcebo and any /login/live guest) never receive
   // NCGR-B. forceShowcase cannot override a non-Thozamile mailbox.
   if (!allowSeed) {
-    const purged = purgeVipShowcaseSeed(input.email);
+    const purged = purgeVipShowcaseSeed(mailbox);
     console.info("[plan-packaging] skip VIP seed (not Thozamile showcase)");
     return skippedResult(purged);
   }
@@ -482,8 +488,8 @@ export function applyVipShowcaseSeed(input: {
   seedEsgIfMissing();
 
   restoreVipShowcaseSetupIfSeedDismissed();
-  if (input.email.includes("@")) {
-    saveCapturedEmail(input.email, "save");
+  if (mailbox.includes("@")) {
+    saveCapturedEmail(mailbox, "save");
   }
 
   const previousBundle = readBundleVersion();
