@@ -5,6 +5,8 @@ module.exports = {
   testMatch: [
     "<rootDir>/tests/ts/AuditTrailViewer.test.tsx",
     "<rootDir>/tests/ts/vipShowcase.test.ts",
+    "<rootDir>/tests/ts/sepExecution.test.ts",
+    "<rootDir>/tests/ts/sepExecutionDashboard.test.tsx",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {

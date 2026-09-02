@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-02 — SEP plan execution dashboard
+
+- `/app/engagement-plan/[id]` **Plan dashboard** is scoped to that plan: snapshot KPIs, roadmap from submission, task/activity charts, success/hurdle/failure log, mitigations, practitioner snapshot for client/superior. Process map moved to its own tab.
+- Overlay `tl-sep-execution` backfills from the composed plan. Linked SRM rows (applied ids / project) normalise to success/hurdle/failure/mitigated. Runbook: `docs/SEP_EXECUTION.md`.
+
 ## 2026-09-02 — VIP showcase vs live Cloud login
 
 - `thozi@chibaseconsulting.co.za` on `/login/live` is sent to `/login/vip` (409 + client redirect). Cloud 401 was Frappe rejecting the showcase mailbox.
