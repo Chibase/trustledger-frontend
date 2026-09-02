@@ -129,20 +129,31 @@ describe("VIP showcase auth gate", () => {
   });
 });
 
+function requestWithHeaders(headers: Record<string, string>): Request {
+  const lookup = new Map(
+    Object.entries(headers).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+  return {
+    headers: {
+      get(name: string) {
+        return lookup.get(name.toLowerCase()) ?? null;
+      },
+    },
+  } as Request;
+}
+
 describe("VIP showcase client IP", () => {
   it("prefers x-vercel-forwarded-for first hop over spoofable x-forwarded-for", () => {
-    const request = new Request("https://example.test/api/auth/vip-showcase", {
-      headers: {
-        "x-forwarded-for": "1.1.1.1, 10.0.0.1",
-        "x-vercel-forwarded-for": "203.0.113.9, 10.0.0.1",
-      },
+    const request = requestWithHeaders({
+      "x-forwarded-for": "1.1.1.1, 10.0.0.1",
+      "x-vercel-forwarded-for": "203.0.113.9, 10.0.0.1",
     });
     expect(vipShowcaseClientIp(request)).toBe("203.0.113.9");
   });
 
   it("uses the last x-forwarded-for hop when Vercel header is absent", () => {
-    const request = new Request("https://example.test/api/auth/vip-showcase", {
-      headers: { "x-forwarded-for": "1.1.1.1, 10.0.0.1" },
+    const request = requestWithHeaders({
+      "x-forwarded-for": "1.1.1.1, 10.0.0.1",
     });
     expect(vipShowcaseClientIp(request)).toBe("10.0.0.1");
   });
