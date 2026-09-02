@@ -51,7 +51,7 @@ function VipShowcaseLoginForm() {
     try {
       const form = new FormData(event.currentTarget);
       const emailValue = String(form.get("email") || "").trim().toLowerCase();
-      const passwordValue = String(form.get("password") || "");
+      const passwordValue = String(form.get("password") || "").trim();
       const res = await fetch("/api/auth/vip-showcase", {
         method: "POST",
         headers: {
@@ -94,16 +94,18 @@ function VipShowcaseLoginForm() {
       </h1>
       <p className="mt-2 text-sm text-tl-ink-muted">
         Complimentary full package with an illustrative Northern Cape corridor
-        programme. This is not the retired public sample, and it is not a
-        paying customer desk — declare it illustrative in the room.
+        programme. Sign in as{" "}
+        <code className="font-mono text-xs">thozi@chibaseconsulting.co.za</code>
+        — not the Platform Operator mailbox. This is not the retired public
+        sample, and it is not a paying customer desk — declare it illustrative
+        in the room.
       </p>
 
       {enabled === false ? (
         <p className="mt-6 rounded-md border border-tl-line bg-tl-surface p-4 text-sm text-tl-ink-muted">
-          VIP showcase login is not enabled on this host. Use Ops → VIP
-          complimentary access for a live Cloud guest, or set{" "}
-          <code className="font-mono text-xs">VIP_SHOWCASE_PASSWORD</code> on
-          Production.
+          VIP showcase login is turned off on this host (
+          <code className="font-mono text-xs">VIP_SHOWCASE_LOGIN=0</code>). Use
+          Ops → VIP complimentary access for a live Cloud guest.
         </p>
       ) : (
         <form
@@ -119,7 +121,7 @@ function VipShowcaseLoginForm() {
               name="email"
               type="email"
               autoComplete="username"
-              defaultValue="admin@chibaseconsulting.co.za"
+              defaultValue="thozi@chibaseconsulting.co.za"
               className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               required
             />

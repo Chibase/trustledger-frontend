@@ -1,9 +1,15 @@
 # Internal changelog
 
+## 2026-09-02 — VIP showcase login email
+
+- `/login/vip` allowlist default is `thozi@chibaseconsulting.co.za` so it does not share the Platform Operator / master-plan mailbox. Extra addresses stay on `VIP_SHOWCASE_EMAILS` only.
+- Rate-limit IP prefers `x-vercel-forwarded-for` (else last `x-forwarded-for` hop); attempt map is pruned/capped. Showcase seed `setItem` is quota-safe. INC-NCGR-01 SLA flag matches the 48-hour acknowledge.
+- Showcase login stays on unless `VIP_SHOWCASE_LOGIN=0`, including Production, so the documented password works without a Vercel env round-trip. Operator mailboxes get a distinct 401.
+
 ## 2026-09-02 — VIP Institutional showcase workspace
 
 - Packaged complimentary **VIP · Institutional** workspace with illustrative NCGR-B corridor programme (project, 10 stakeholders, 5 engagements, 4 commitments, 3 cases + evidence, capture minutes, activity pack).
-- Gated sign-in `/login/vip` + `POST /api/auth/vip-showcase` (allowlisted emails). Production fail-closed without `VIP_SHOWCASE_PASSWORD`; preview/local uses the default in `vipShowcaseAuth`.
+- Gated sign-in `/login/vip` + `POST /api/auth/vip-showcase` (allowlisted emails). Off only with `VIP_SHOWCASE_LOGIN=0`; password is `VIP_SHOWCASE_PASSWORD` or the documented default in `vipShowcaseAuth`.
 - Own-data ids (`PRJ-NCGR-B` / `INC-NCGR-*`) — not retired public `INC-1001` seed. Showcase banner only on trial+VIP sessions (live Cloud VIP guests keep their own workspace, no NCGR-B strip).
 - Runbook: `docs/VIP_ACCESS.md` (showcase section). Paying Cloud VIPs still use Ops provision + `/login/live`.
 

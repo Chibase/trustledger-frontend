@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
+import { isPlatformOperatorIdentity } from "@/lib/platformOperator";
 import {
   displayNameForVipEmail,
   isAllowedVipShowcaseEmail,
   isVipShowcaseEnabled,
+  vipShowcaseClientIp,
   vipShowcaseExpectedPassword,
   vipShowcasePasswordsMatch,
   vipShowcaseRateLimitOk,
+  VIP_SHOWCASE_DEFAULT_EMAIL,
   VIP_SHOWCASE_ORG_NAME,
   VIP_SHOWCASE_PLAN_ID,
   VIP_SHOWCASE_WEEKS,
@@ -13,12 +16,6 @@ import {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-function clientIp(request: Request): string {
-  const xf = request.headers.get("x-forwarded-for");
-  if (xf) return xf.split(",")[0]?.trim() || "unknown";
-  return request.headers.get("x-real-ip") || "unknown";
-}
 
 export async function GET() {
   return NextResponse.json({
@@ -41,7 +38,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const ip = clientIp(request);
+  const ip = vipShowcaseClientIp(request);
   if (!vipShowcaseRateLimitOk(ip)) {
     return NextResponse.json(
       { error: "Too many sign-in attempts. Try again later." },
@@ -57,7 +54,7 @@ export async function POST(request: Request) {
   }
 
   const email = (body.email || "").trim().toLowerCase();
-  const password = body.password || "";
+  const password = (body.password || "").trim();
   if (!email.includes("@") || !password) {
     return NextResponse.json(
       { error: "Email and password are required." },
@@ -76,8 +73,15 @@ export async function POST(request: Request) {
   const emailOk = isAllowedVipShowcaseEmail(email);
   const passOk = vipShowcasePasswordsMatch(password, expected);
   if (!emailOk || !passOk) {
+    const operatorAttempt =
+      isPlatformOperatorIdentity(email) ||
+      email === "admin@chibaseconsulting.co.za";
     return NextResponse.json(
-      { error: "Email or password is not recognised for VIP showcase." },
+      {
+        error: operatorAttempt
+          ? `That mailbox is the Platform Operator / master plan. Use ${VIP_SHOWCASE_DEFAULT_EMAIL} here, or /login/live for Ops.`
+          : "Email or password is not recognised for VIP showcase.",
+      },
       { status: 401 },
     );
   }

@@ -1,49 +1,38 @@
 /**
- * Gated VIP Institutional showcase login (operator / preview).
- * Not the retired public sample `/demo`. Production stays fail-closed
- * unless VIP_SHOWCASE_PASSWORD or VIP_SHOWCASE_LOGIN=1 is set.
+ * Gated VIP Institutional showcase login (operator / unpublished path).
+ * Not the retired public sample `/demo`. Off only when VIP_SHOWCASE_LOGIN=0.
  */
 
 import { createHash, timingSafeEqual } from "crypto";
-import { getPlatformOperatorEmails } from "@/lib/platformOperator";
 
 export const VIP_SHOWCASE_WEEKS = 8;
 export const VIP_SHOWCASE_PLAN_ID = "institutional" as const;
 export const VIP_SHOWCASE_ORG_NAME = "VIP Pilot — NCGR-B Showcase";
 export const VIP_SHOWCASE_OWNER_NAME = "Thozamile KaDlanga";
+/** Dedicated showcase login — not the Platform Operator / master-plan mailbox. */
+export const VIP_SHOWCASE_DEFAULT_EMAIL = "thozi@chibaseconsulting.co.za";
 
-/** Preview / local default only — Production requires VIP_SHOWCASE_PASSWORD. */
+/** Documented showcase password; override with VIP_SHOWCASE_PASSWORD. */
 export const DEFAULT_PREVIEW_PASSWORD = "NcgrB-Showcase-2026";
 
-const DEFAULT_EMAILS = ["admin@chibaseconsulting.co.za"];
-
-export function isHostedProduction(): boolean {
-  return process.env.VERCEL_ENV === "production";
-}
+const DEFAULT_EMAILS = [VIP_SHOWCASE_DEFAULT_EMAIL];
 
 export function isVipShowcaseEnabled(): boolean {
   const flag = (process.env.VIP_SHOWCASE_LOGIN || "").trim().toLowerCase();
   if (flag === "0" || flag === "false" || flag === "off") return false;
-  if (flag === "1" || flag === "true" || flag === "on") return true;
-  if (isHostedProduction()) {
-    return Boolean(process.env.VIP_SHOWCASE_PASSWORD?.trim());
-  }
   return true;
 }
 
 export function vipShowcaseExpectedPassword(): string | null {
+  if (!isVipShowcaseEnabled()) return null;
   const fromEnv = process.env.VIP_SHOWCASE_PASSWORD?.trim();
   if (fromEnv) return fromEnv;
-  if (isHostedProduction()) return null;
   return DEFAULT_PREVIEW_PASSWORD;
 }
 
 export function allowedVipShowcaseEmails(): string[] {
   const out = new Set<string>();
   for (const email of DEFAULT_EMAILS) out.add(email);
-  for (const email of getPlatformOperatorEmails()) {
-    if (email.includes("@")) out.add(email);
-  }
   const extra =
     process.env.VIP_SHOWCASE_EMAILS || process.env.VIP_SHOWCASE_EMAIL || "";
   for (const part of extra.split(/[,;\s]+/)) {
@@ -79,7 +68,7 @@ export function vipShowcasePasswordsMatch(
 }
 
 export function displayNameForVipEmail(email: string): string {
-  if (email.trim().toLowerCase() === "admin@chibaseconsulting.co.za") {
+  if (email.trim().toLowerCase() === VIP_SHOWCASE_DEFAULT_EMAIL) {
     return VIP_SHOWCASE_OWNER_NAME;
   }
   const local = email.split("@")[0] || "Plan Owner";
@@ -90,10 +79,41 @@ export function displayNameForVipEmail(email: string): string {
 
 const RATE_WINDOW_MS = 15 * 60 * 1000;
 const RATE_MAX = 10;
+const RATE_MAP_CAP = 500;
 const attempts = new Map<string, { count: number; resetAt: number }>();
+
+function pruneVipShowcaseAttempts(now: number) {
+  for (const [key, row] of attempts) {
+    if (now >= row.resetAt) attempts.delete(key);
+  }
+  while (attempts.size > RATE_MAP_CAP) {
+    const oldest = attempts.keys().next().value;
+    if (!oldest) break;
+    attempts.delete(oldest);
+  }
+}
+
+/** Prefer Vercel’s hop; otherwise the last x-forwarded-for entry (proxy-appended). */
+export function vipShowcaseClientIp(request: Request): string {
+  const vercel = request.headers.get("x-vercel-forwarded-for");
+  if (vercel) {
+    const first = vercel.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  const xf = request.headers.get("x-forwarded-for");
+  if (xf) {
+    const hops = xf
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    if (hops.length) return hops[hops.length - 1]!;
+  }
+  return request.headers.get("x-real-ip")?.trim() || "unknown";
+}
 
 export function vipShowcaseRateLimitOk(ip: string): boolean {
   const now = Date.now();
+  pruneVipShowcaseAttempts(now);
   const row = attempts.get(ip);
   if (!row || now >= row.resetAt) {
     attempts.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });

@@ -6,6 +6,7 @@ import {
   DEFAULT_PREVIEW_PASSWORD,
   isAllowedVipShowcaseEmail,
   isVipShowcaseEnabled,
+  vipShowcaseClientIp,
   vipShowcasePasswordsMatch,
 } from "@/lib/vipShowcaseAuth";
 
@@ -20,6 +21,12 @@ describe("VIP showcase pack", () => {
     expect(pack.evidence.length).toBeGreaterThanOrEqual(2);
     expect(pack.incidents.map((i) => i.status).sort()).toEqual(
       ["Closed", "Escalated", "Investigating"].sort(),
+    );
+    expect(pack.incidents.find((i) => i.id === "INC-NCGR-01")?.slaBreached).toBe(
+      false,
+    );
+    expect(pack.incidents.find((i) => i.id === "INC-NCGR-03")?.slaBreached).toBe(
+      true,
     );
     expect(pack.stakeholders.every((s) => s.source === "trial")).toBe(true);
     expect(pack.engagements.every((e) => e.source !== "seed")).toBe(true);
@@ -51,27 +58,46 @@ describe("VIP showcase pack", () => {
   });
 });
 
+function restoreEnv(key: string, value: string | undefined) {
+  if (value === undefined) delete process.env[key];
+  else process.env[key] = value;
+}
+
 describe("VIP showcase auth gate", () => {
   const prev = {
     login: process.env.VIP_SHOWCASE_LOGIN,
     password: process.env.VIP_SHOWCASE_PASSWORD,
     vercel: process.env.VERCEL_ENV,
     emails: process.env.VIP_SHOWCASE_EMAILS,
+    email: process.env.VIP_SHOWCASE_EMAIL,
     ops: process.env.PLATFORM_OPERATOR_EMAILS,
   };
 
   afterEach(() => {
-    process.env.VIP_SHOWCASE_LOGIN = prev.login;
-    process.env.VIP_SHOWCASE_PASSWORD = prev.password;
-    process.env.VERCEL_ENV = prev.vercel;
-    process.env.VIP_SHOWCASE_EMAILS = prev.emails;
-    process.env.PLATFORM_OPERATOR_EMAILS = prev.ops;
+    restoreEnv("VIP_SHOWCASE_LOGIN", prev.login);
+    restoreEnv("VIP_SHOWCASE_PASSWORD", prev.password);
+    restoreEnv("VERCEL_ENV", prev.vercel);
+    restoreEnv("VIP_SHOWCASE_EMAILS", prev.emails);
+    restoreEnv("VIP_SHOWCASE_EMAIL", prev.email);
+    restoreEnv("PLATFORM_OPERATOR_EMAILS", prev.ops);
   });
 
-  it("is off on hosted Production without a password", () => {
+  it("is on in hosted Production with the documented password unless explicitly off", () => {
     process.env.VERCEL_ENV = "production";
     delete process.env.VIP_SHOWCASE_LOGIN;
     delete process.env.VIP_SHOWCASE_PASSWORD;
+    expect(isVipShowcaseEnabled()).toBe(true);
+    expect(
+      vipShowcasePasswordsMatch(
+        DEFAULT_PREVIEW_PASSWORD,
+        DEFAULT_PREVIEW_PASSWORD,
+      ),
+    ).toBe(true);
+  });
+
+  it("turns off when VIP_SHOWCASE_LOGIN=0", () => {
+    process.env.VERCEL_ENV = "production";
+    process.env.VIP_SHOWCASE_LOGIN = "0";
     expect(isVipShowcaseEnabled()).toBe(false);
   });
 
@@ -91,15 +117,56 @@ describe("VIP showcase auth gate", () => {
     ).toBe(false);
   });
 
-  it("allowlists the operator email", () => {
+  it("allowlists the showcase mailbox, not the Platform Operator master plan", () => {
     delete process.env.PLATFORM_OPERATOR_EMAILS;
     delete process.env.VIP_SHOWCASE_EMAILS;
-    expect(isAllowedVipShowcaseEmail("admin@chibaseconsulting.co.za")).toBe(
+    delete process.env.VIP_SHOWCASE_EMAIL;
+    process.env.PLATFORM_OPERATOR_EMAILS = "admin@chibaseconsulting.co.za";
+    expect(isAllowedVipShowcaseEmail("thozi@chibaseconsulting.co.za")).toBe(
       true,
+    );
+    expect(isAllowedVipShowcaseEmail("admin@chibaseconsulting.co.za")).toBe(
+      false,
     );
     expect(isAllowedVipShowcaseEmail("stranger@example.com")).toBe(false);
     expect(allowedVipShowcaseEmails()).toContain(
-      "admin@chibaseconsulting.co.za",
+      "thozi@chibaseconsulting.co.za",
     );
+  });
+
+  it("honours VIP_SHOWCASE_EMAIL extra address without leaking into later tests", () => {
+    process.env.VIP_SHOWCASE_EMAIL = "guest@example.com";
+    delete process.env.VIP_SHOWCASE_EMAILS;
+    expect(isAllowedVipShowcaseEmail("guest@example.com")).toBe(true);
+  });
+});
+
+function requestWithHeaders(headers: Record<string, string>): Request {
+  const lookup = new Map(
+    Object.entries(headers).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+  return {
+    headers: {
+      get(name: string) {
+        return lookup.get(name.toLowerCase()) ?? null;
+      },
+    },
+  } as Request;
+}
+
+describe("VIP showcase client IP", () => {
+  it("prefers x-vercel-forwarded-for first hop over spoofable x-forwarded-for", () => {
+    const request = requestWithHeaders({
+      "x-forwarded-for": "1.1.1.1, 10.0.0.1",
+      "x-vercel-forwarded-for": "203.0.113.9, 10.0.0.1",
+    });
+    expect(vipShowcaseClientIp(request)).toBe("203.0.113.9");
+  });
+
+  it("uses the last x-forwarded-for hop when Vercel header is absent", () => {
+    const request = requestWithHeaders({
+      "x-forwarded-for": "1.1.1.1, 10.0.0.1",
+    });
+    expect(vipShowcaseClientIp(request)).toBe("10.0.0.1");
   });
 });

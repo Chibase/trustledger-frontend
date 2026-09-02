@@ -504,7 +504,7 @@ export const vipShowcaseIncidents: Incident[] = [
     reporterName: "Mpho Tau",
     reportedAt: "2026-08-28T09:10:00+02:00",
     slaDueBy: "2026-08-30T09:10:00+02:00",
-    slaBreached: true,
+    slaBreached: false,
     escalationLevel: "None",
     ownerName: "Lebogang Molefe",
     category: "Environment / pollution",

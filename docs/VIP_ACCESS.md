@@ -89,9 +89,8 @@ A packaged **VIP Institutional** workspace with the NCGR-B illustrative programm
 | Sign-in | `/login/vip` |
 | Plan | Institutional + `tl-vip` (complimentary) |
 | Data | Browser own-data (`PRJ-NCGR-B`, `INC-NCGR-*`) — never `INC-1001` sample ids |
-| Production | Fail-closed unless `VIP_SHOWCASE_PASSWORD` (or `VIP_SHOWCASE_LOGIN=1`) is set on the host |
-| Preview / local | Enabled; default preview password lives in `src/lib/vipShowcaseAuth.ts` (`DEFAULT_PREVIEW_PASSWORD`) |
-| Allowlist | `admin@chibaseconsulting.co.za`, `PLATFORM_OPERATOR_EMAILS`, `VIP_SHOWCASE_EMAILS` |
+| Production / preview / local | Enabled unless `VIP_SHOWCASE_LOGIN=0`. Password is `VIP_SHOWCASE_PASSWORD` or the documented default in `src/lib/vipShowcaseAuth.ts` (`DEFAULT_PREVIEW_PASSWORD`) |
+| Allowlist | `thozi@chibaseconsulting.co.za` (not the Platform Operator mailbox) plus `VIP_SHOWCASE_EMAILS` |
 
 Do **not** link `/login/vip` from marketing. Declare the programme **illustrative** in the room. Paying guests still use Ops **Create VIP access + temp password** + `/login/live`.
 
