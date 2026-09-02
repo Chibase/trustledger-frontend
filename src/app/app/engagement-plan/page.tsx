@@ -14,15 +14,10 @@ import {
 
 export default function EngagementPlanListPage() {
   const [rows, setRows] = useState<EngagementPlan[]>([]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const load = () => {
-      try {
-        setRows(listEngagementPlans());
-      } finally {
-        setLoading(false);
-      }
+      setRows(listEngagementPlans());
     };
     const handle = window.setTimeout(load, 0);
     window.addEventListener("tl-workspace-seeded", load);
@@ -57,9 +52,7 @@ export default function EngagementPlanListPage() {
           }
         />
 
-        {loading ? (
-          <p className="text-sm text-tl-ink-muted">Loading plans…</p>
-        ) : rows.length === 0 ? (
+        {rows.length === 0 ? (
           <div className="rounded-lg border border-dashed border-tl-line bg-tl-paper/60 p-6 text-sm text-tl-ink-muted">
             <p>
               No engagement plans yet. Paste a terms of reference, bid document,
