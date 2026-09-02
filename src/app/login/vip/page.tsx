@@ -46,18 +46,21 @@ function VipShowcaseLoginForm() {
     };
   }, []);
 
-  async function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError(null);
     try {
+      const form = new FormData(event.currentTarget);
+      const emailValue = String(form.get("email") || email).trim().toLowerCase();
+      const passwordValue = String(form.get("password") || password);
       const res = await fetch("/api/auth/vip-showcase", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: emailValue, password: passwordValue }),
       });
       const payload = (await res.json()) as {
         ok?: boolean;
@@ -115,6 +118,7 @@ function VipShowcaseLoginForm() {
             </label>
             <input
               id="vip-email"
+              name="email"
               type="email"
               autoComplete="username"
               value={email}
@@ -129,6 +133,7 @@ function VipShowcaseLoginForm() {
             </label>
             <input
               id="vip-password"
+              name="password"
               type="password"
               autoComplete="current-password"
               value={password}

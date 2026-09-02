@@ -1,6 +1,6 @@
 import { VIP_SHOWCASE_PACK } from "@/data/vipShowcase";
 import { looksLikeReportTemplateGuide } from "@/lib/reportComposer";
-import { packageLabel } from "@/lib/planLabel";
+import { isVipShowcaseWorkspace, packageLabel } from "@/lib/planLabel";
 import {
   allowedVipShowcaseEmails,
   DEFAULT_PREVIEW_PASSWORD,
@@ -42,6 +42,12 @@ describe("VIP showcase pack", () => {
 
   it("labels Institutional as VIP", () => {
     expect(packageLabel("institutional", { vip: true })).toBe("VIP");
+  });
+
+  it("treats only trial+VIP as the illustrative showcase workspace", () => {
+    expect(isVipShowcaseWorkspace("trial", true)).toBe(true);
+    expect(isVipShowcaseWorkspace("live", true)).toBe(false);
+    expect(isVipShowcaseWorkspace("trial", false)).toBe(false);
   });
 });
 

@@ -3,6 +3,7 @@ import { SetupChecklistBanner } from "@/components/onboarding/SetupChecklistBann
 import { PlanOwnerMasterPanel } from "@/components/org/PlanOwnerMasterPanel";
 import { getCurrentUser } from "@/lib/auth";
 import { isCustomerWorkspaceUser } from "@/lib/workspaceMode";
+import { isVipShowcaseWorkspace } from "@/lib/planLabel";
 import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
 
@@ -25,7 +26,7 @@ export default async function AppDashboardPage() {
 
   return (
     <div className="space-y-7">
-      {isPlanOwner && !user.isVip ? (
+      {isPlanOwner && !isVipShowcaseWorkspace(user.mode, user.isVip) ? (
         <SetupChecklistBanner planId={user.trialPlan} />
       ) : null}
       <ExecutivePortfolioDashboard
