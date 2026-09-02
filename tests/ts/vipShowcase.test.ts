@@ -10,6 +10,7 @@ import {
   vipShowcaseClientIp,
   vipShowcasePasswordsMatch,
 } from "@/lib/vipShowcaseAuth";
+import { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
 
 describe("VIP showcase pack", () => {
   it("ships a complete Institutional programme without retired sample ids", () => {
@@ -118,33 +119,38 @@ describe("VIP showcase auth gate", () => {
     ).toBe(false);
   });
 
-  it("allowlists the showcase mailbox, not the Platform Operator master plan", () => {
+  it("allowlists the showcase mailbox, not the Platform Operator or thozi@ other-plan mailbox", () => {
     delete process.env.PLATFORM_OPERATOR_EMAILS;
     delete process.env.VIP_SHOWCASE_EMAILS;
     delete process.env.VIP_SHOWCASE_EMAIL;
     process.env.PLATFORM_OPERATOR_EMAILS = "admin@chibaseconsulting.co.za";
-    expect(isAllowedVipShowcaseEmail("thozi@chibaseconsulting.co.za")).toBe(
+    expect(isAllowedVipShowcaseEmail(VIP_SHOWCASE_DEFAULT_EMAIL)).toBe(true);
+    expect(isAllowedVipShowcaseEmail("sirthoz@trustledgersrm.co.za")).toBe(
       true,
+    );
+    expect(isAllowedVipShowcaseEmail("thozi@chibaseconsulting.co.za")).toBe(
+      false,
     );
     expect(isAllowedVipShowcaseEmail("admin@chibaseconsulting.co.za")).toBe(
       false,
     );
     expect(isAllowedVipShowcaseEmail("stranger@example.com")).toBe(false);
-    expect(allowedVipShowcaseEmails()).toContain(
-      "thozi@chibaseconsulting.co.za",
-    );
+    expect(allowedVipShowcaseEmails()).toContain(VIP_SHOWCASE_DEFAULT_EMAIL);
   });
 
   it("sends the showcase mailbox away from live Cloud login", () => {
     delete process.env.VIP_SHOWCASE_LOGIN;
-    expect(isVipShowcaseLiveLoginMailbox("thozi@chibaseconsulting.co.za")).toBe(
+    expect(isVipShowcaseLiveLoginMailbox(VIP_SHOWCASE_DEFAULT_EMAIL)).toBe(
       true,
+    );
+    expect(isVipShowcaseLiveLoginMailbox("thozi@chibaseconsulting.co.za")).toBe(
+      false,
     );
     expect(isVipShowcaseLiveLoginMailbox("admin@chibaseconsulting.co.za")).toBe(
       false,
     );
     process.env.VIP_SHOWCASE_LOGIN = "0";
-    expect(isVipShowcaseLiveLoginMailbox("thozi@chibaseconsulting.co.za")).toBe(
+    expect(isVipShowcaseLiveLoginMailbox(VIP_SHOWCASE_DEFAULT_EMAIL)).toBe(
       false,
     );
   });

@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-09-02 — VIP showcase mailbox (sirthoz@)
+
+- Default `/login/vip` allowlist is `sirthoz@trustledgersrm.co.za`. `thozi@chibaseconsulting.co.za` stays on its other plan and uses `/login/live` (not intercepted to the showcase).
+
 ## 2026-09-02 — SEP plan execution dashboard
 
 - `/app/engagement-plan/[id]` **Plan dashboard** is scoped to that plan: snapshot KPIs, roadmap from submission, task/activity charts, success/hurdle/failure log, mitigations, practitioner snapshot for client/superior. Process map moved to its own tab.
