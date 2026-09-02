@@ -1,10 +1,13 @@
 /**
  * @jest-environment jsdom
  */
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SetupWizard } from "@/components/onboarding/SetupWizard";
-import { requestOnboardingWizard } from "@/lib/onboardingGuide";
+import {
+  SetupWizardGate,
+  useLaunchSetupWizard,
+} from "@/components/onboarding/SetupWizardGate";
 
 jest.mock("next/link", () => {
   return {
@@ -24,6 +27,15 @@ jest.mock("next/link", () => {
   };
 });
 
+function LaunchButton() {
+  const launch = useLaunchSetupWizard();
+  return (
+    <button type="button" onClick={() => launch()}>
+      Launch setup wizard
+    </button>
+  );
+}
+
 describe("SetupWizard VIP showcase", () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -33,21 +45,18 @@ describe("SetupWizard VIP showcase", () => {
   it("does not auto-open, then opens from Guide/Settings launch", async () => {
     const user = userEvent.setup();
     render(
-      <SetupWizard
-        planId="solo"
-        skipAutoOpen
-        vip
-        mode="trial"
-      />,
+      <SetupWizardGate planId="solo" skipAutoOpen vip mode="trial">
+        <LaunchButton />
+      </SetupWizardGate>,
     );
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
-    await act(async () => {
-      requestOnboardingWizard();
-    });
+    await user.click(
+      screen.getByRole("button", { name: /launch setup wizard/i }),
+    );
 
     expect(
       await screen.findByRole("dialog", { name: /walk the institutional desk/i }),
@@ -68,11 +77,9 @@ describe("SetupWizard VIP showcase", () => {
         skipAutoOpen
         vip
         mode="trial"
+        requestedOpen
       />,
     );
-    await act(async () => {
-      requestOnboardingWizard();
-    });
     expect(
       await screen.findByRole("dialog", { name: /walk the institutional desk/i }),
     ).toBeInTheDocument();

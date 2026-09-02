@@ -6,10 +6,10 @@ import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import { onboardingStepsForPlan } from "@/config/onboardingSteps";
 import { demoSeedAllowed } from "@/lib/planPackaging";
+import { useLaunchSetupWizard } from "@/components/onboarding/SetupWizardGate";
 import {
   markOnboardingStepComplete,
   readOnboardingState,
-  requestOnboardingWizard,
   type OnboardingState,
 } from "@/lib/onboardingGuide";
 
@@ -30,6 +30,7 @@ export function SetupChecklistBanner({
 }: SetupChecklistBannerProps) {
   const [state, setState] = useState<OnboardingState | null>(null);
   const vipShowcase = demoSeedAllowed({ vip, mode });
+  const launchSetup = useLaunchSetupWizard();
   const steps = onboardingStepsForPlan(planId, { vip, mode }).filter(
     (s) => s.id !== "welcome" && s.id !== "done",
   );
@@ -104,7 +105,7 @@ export function SetupChecklistBanner({
           ) : (
             <button
               type="button"
-              onClick={() => requestOnboardingWizard()}
+              onClick={() => launchSetup()}
               className="rounded-md bg-tl-trust px-3 py-2 text-xs font-medium text-white hover:bg-tl-trust-ink"
             >
               Continue setup

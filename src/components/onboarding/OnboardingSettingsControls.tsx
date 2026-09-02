@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { requestOnboardingWizard } from "@/lib/onboardingGuide";
+import { useLaunchSetupWizard } from "@/components/onboarding/SetupWizardGate";
 import type { TlMode } from "@/lib/auth.constants";
 import { isVipShowcaseWorkspace } from "@/lib/planLabel";
 
@@ -16,6 +16,7 @@ export function OnboardingSettingsControls({
   mode = null,
 }: OnboardingSettingsControlsProps) {
   const vipShowcase = isVipShowcaseWorkspace(mode, isVip);
+  const launchSetup = useLaunchSetupWizard();
   return (
     <section className="rounded-lg border border-tl-line bg-tl-paper px-4 py-3">
       <h2 className="font-display text-lg font-semibold text-tl-ink">
@@ -30,7 +31,7 @@ export function OnboardingSettingsControls({
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => requestOnboardingWizard()}
+          onClick={() => launchSetup()}
           className="rounded-md bg-tl-trust px-3 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
         >
           Launch setup wizard

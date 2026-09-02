@@ -28,6 +28,9 @@ type SetupWizardProps = {
   skipAutoOpen?: boolean;
   vip?: boolean;
   mode?: TlMode | null;
+  /** Direct open from SetupWizardGate (same React tree as Guide/Settings). */
+  requestedOpen?: boolean;
+  onRequestedClose?: () => void;
 };
 
 /**
@@ -40,6 +43,8 @@ export function SetupWizard({
   skipAutoOpen = false,
   vip = false,
   mode = null,
+  requestedOpen = false,
+  onRequestedClose,
 }: SetupWizardProps) {
   const [open, setOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
@@ -83,10 +88,12 @@ export function SetupWizard({
   if (!enabled) return null;
 
   const host = (
-    <span data-setup-wizard={open ? "open" : "ready"} hidden />
+    <span data-setup-wizard={open || requestedOpen ? "open" : "ready"} hidden />
   );
 
-  if (!open || !step || !state) return host;
+  const showDialog = open || requestedOpen;
+  const resolvedState = state ?? (showDialog ? readOnboardingState() : null);
+  if (!showDialog || !step || !resolvedState) return host;
 
   const total = steps.length;
   const progress = Math.round(((stepIndex + 1) / total) * 100);
@@ -96,6 +103,7 @@ export function SetupWizard({
   function close(permanent: boolean) {
     dismissOnboardingWizard(permanent);
     setOpen(false);
+    onRequestedClose?.();
   }
 
   /** Leave the wizard open path and go do the task in-app. */
@@ -103,6 +111,7 @@ export function SetupWizard({
     markOnboardingStepComplete(step.id);
     dismissOnboardingWizard(false);
     setOpen(false);
+    onRequestedClose?.();
     setState(readOnboardingState());
   }
 
@@ -111,6 +120,7 @@ export function SetupWizard({
     if (isLast) {
       completeOnboardingWizard();
       setOpen(false);
+      onRequestedClose?.();
       return;
     }
     setStepIndex((i) => Math.min(i + 1, total - 1));
@@ -185,7 +195,7 @@ export function SetupWizard({
 
           <ol className="mt-5 space-y-1.5">
             {steps.map((s, i) => {
-              const done = state.completedSteps.includes(s.id);
+              const done = resolvedState.completedSteps.includes(s.id);
               const current = i === stepIndex;
               return (
                 <li key={s.id}>
@@ -222,6 +232,7 @@ export function SetupWizard({
                           markOnboardingStepComplete(s.id);
                           dismissOnboardingWizard(false);
                           setOpen(false);
+                          onRequestedClose?.();
                         }}
                         className="shrink-0 font-medium text-tl-trust-ink underline underline-offset-2"
                       >

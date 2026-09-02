@@ -10,11 +10,11 @@ import {
   type OnboardingStepId,
 } from "@/config/onboardingSteps";
 import { demoSeedAllowed, packagingPlanId } from "@/lib/planPackaging";
+import { useLaunchSetupWizard } from "@/components/onboarding/SetupWizardGate";
 import {
   clearOnboardingStep,
   markOnboardingStepComplete,
   readOnboardingState,
-  requestOnboardingWizard,
   type OnboardingState,
 } from "@/lib/onboardingGuide";
 
@@ -32,6 +32,7 @@ export function OnboardingGuidePanel({
   vip = false,
   mode = null,
 }: OnboardingGuidePanelProps) {
+  const launchSetup = useLaunchSetupWizard();
   const [state, setState] = useState<OnboardingState | null>(null);
   const steps = onboardingStepsForPlan(planId, { vip, mode });
   const resolved = packagingPlanId({ planId, vip, mode });
@@ -78,7 +79,7 @@ export function OnboardingGuidePanel({
         </div>
         <button
           type="button"
-          onClick={() => requestOnboardingWizard()}
+          onClick={() => launchSetup()}
           className="rounded-md bg-tl-trust px-3 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
         >
           Launch setup wizard
