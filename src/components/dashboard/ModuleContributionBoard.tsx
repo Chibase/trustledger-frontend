@@ -90,7 +90,7 @@ export function ModuleContributionBoard({
             Each included desk contributes equally to strategy progress.{" "}
             {demoSeeded
               ? "VIP showcase desks include illustrative NCGR-B rows."
-              : "This plan starts empty — populate the desks from your own work."}
+              : "Nothing is preloaded on this plan — records here are yours."}
           </p>
         </div>
         <KpiCard

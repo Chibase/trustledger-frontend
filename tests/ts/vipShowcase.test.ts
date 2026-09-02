@@ -108,6 +108,71 @@ describe("VIP showcase pack", () => {
     ).toBe(true);
   });
 
+  it("does not preload or wipe a Cloud VIP guest's own records", () => {
+    window.localStorage.clear();
+    window.localStorage.setItem(
+      "tl-org-data",
+      JSON.stringify({
+        "org-guest": {
+          orgId: "org-guest",
+          projects: [{ id: "PRJ-OWN-1", name: "Guest site" }],
+          incidents: [
+            { id: "INC-OWN-1", title: "Own case", projectId: "PRJ-OWN-1" },
+          ],
+          evidence: [],
+          stakeholders: [{ id: "STK-OWN-1", name: "Own contact" }],
+          updatedAt: "2026-09-02T00:00:00.000Z",
+        },
+      }),
+    );
+    window.localStorage.setItem(
+      "tl-crm-stakeholders",
+      JSON.stringify([{ id: "STK-OWN-1", name: "Own contact" }]),
+    );
+    window.localStorage.setItem("tl-active-org-id", "org-guest");
+
+    applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
+      forceShowcase: true,
+    });
+    const guest = applyVipShowcaseSeed({
+      orgId: "org-guest",
+      email: "nomcebo@example.com",
+      forceShowcase: true,
+    });
+    expect(guest.skipped).toBe(true);
+    expect(guest.projectId).toBe("");
+
+    const root = JSON.parse(
+      window.localStorage.getItem("tl-org-data") || "{}",
+    ) as Record<
+      string,
+      {
+        projects?: Array<{ id: string }>;
+        incidents?: Array<{ id: string }>;
+        stakeholders?: Array<{ id: string }>;
+      }
+    >;
+    expect(root["org-guest"]?.projects?.some((row) => row.id === "PRJ-OWN-1")).toBe(
+      true,
+    );
+    expect(
+      root["org-guest"]?.incidents?.some((row) => row.id === "INC-OWN-1"),
+    ).toBe(true);
+    expect(
+      root["org-guest"]?.stakeholders?.some((row) => row.id === "STK-OWN-1"),
+    ).toBe(true);
+    const projects = Object.values(root).flatMap((bucket) => bucket.projects || []);
+    expect(projects.some((row) => row.id === "PRJ-NCGR-B")).toBe(false);
+
+    const crm = JSON.parse(
+      window.localStorage.getItem("tl-crm-stakeholders") || "[]",
+    ) as Array<{ id: string }>;
+    expect(crm.some((row) => row.id === "STK-OWN-1")).toBe(true);
+    expect(crm.some((row) => row.id.startsWith("STK-NCGR-"))).toBe(false);
+  });
+
   it("reverses leftover NCGR-B for a non-showcase VIP session", () => {
     window.localStorage.clear();
     applyVipShowcaseSeed({

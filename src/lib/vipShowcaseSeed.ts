@@ -10,7 +10,6 @@ import { saveCaptureRecord } from "@/lib/captureStore";
 import { saveCapturedEmail } from "@/lib/emailGate";
 import { ensureSavedIndicatorBrief } from "@/lib/indicatorBriefStore";
 import {
-  patchOnboardingState,
   restoreVipShowcaseSetupIfSeedDismissed,
 } from "@/lib/onboardingGuide";
 import {
@@ -102,8 +101,7 @@ function showcaseSeedIds(): Set<string> {
 
 function isShowcaseSeedId(id?: string | null): boolean {
   if (!id) return false;
-  if (showcaseSeedIds().has(id)) return true;
-  return /ncgr/i.test(id);
+  return showcaseSeedIds().has(id);
 }
 
 function upsertById<T extends { id: string }>(key: string, rows: T[]) {
@@ -419,11 +417,6 @@ export function purgeVipShowcaseSeed(sessionEmail = ""): {
   }
 
   if (removed > 0) {
-    patchOnboardingState({
-      wizardCompleted: false,
-      dismissed: false,
-      forceOpen: false,
-    });
     window.dispatchEvent(new Event("tl-workspace-seeded"));
     console.info("[plan-packaging] purged leftover NCGR-B showcase rows", removed);
   }
@@ -453,6 +446,8 @@ export function applyVipShowcaseSeed(input: {
     isVipShowcaseDefaultEmail(input.email) &&
     (Boolean(input.forceShowcase) || showcaseCookiesOk(input.email));
 
+  // Cloud complimentary VIP (Nomcebo and any /login/live guest) never receive
+  // NCGR-B. forceShowcase cannot override a non-Thozamile mailbox.
   if (!allowSeed) {
     const purged = purgeVipShowcaseSeed(input.email);
     console.info("[plan-packaging] skip VIP seed (not Thozamile showcase)");

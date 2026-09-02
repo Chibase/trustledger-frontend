@@ -3,7 +3,7 @@
 ## 2026-09-02 — NCGR-B seed is Thozamile only
 
 - Illustrative NCGR-B preload is **Thozamile KaDlanga** (`thozi@chibaseconsulting.co.za`, `/login/vip`, admin · VIP · trial) only. Other complimentary VIP sessions (Cloud `/login/live` guests) are Institutional and start empty.
-- Leftover NCGR-B rows (`PRJ-NCGR-B`, `INC-NCGR-*`, SEP/ESG-NCGR-B, demo bundle) are reversed on the next load for any non-showcase mailbox. Extra `/login/vip` allowlist addresses no longer receive theatre or the NCGR-B org name. The signed-in workspace is never deleted even if it still uses the old showcase org label.
+- Leftover NCGR-B rows (`PRJ-NCGR-B`, `INC-NCGR-*`, SEP/ESG-NCGR-B, demo bundle) are reversed on the next load for any non-showcase mailbox. Extra `/login/vip` allowlist addresses no longer receive theatre or the NCGR-B org name. The signed-in workspace is never deleted even if it still uses the old showcase org label. Purge removes **pack ids only** and does not reset Guide/setup, so a Cloud VIP guest loading her own data keeps those records.
 - Ops **C-Suite** board (`/ops/executive`) is unchanged. Cloud VIP Customer rows cannot be cancelled from this environment (no Frappe keys here) — keep the Nomcebo guest; cancel leftover test VIP Pilot Customers in Desk if any remain.
 
 ## 2026-09-02 — VIP setup wizard unlocked
