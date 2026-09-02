@@ -653,4 +653,17 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Consequences:** No new Paystack SKU. No SQL. Cloud persistence is a later packet.
 - **Alternatives considered:** Frappe DocType in this packet (rejected — not on Cloud yet); cross-plan programme roll-up (rejected — user asked plan-only).
 
+### ADR-056: Plan-as-container module packaging
+
+- **Date:** 2026-09-02
+- **Status:** Accepted
+- **Context:** VIP must not be “SEP-only.” A commercial plan is a container of module dashboards. SEP is one module. Only the VIP illustrative showcase is preloaded; other plans expose the same flow empty.
+- **Decision:**
+  1. `TIER_FLOW` defines allowed modules and sequence per `PlanId`. VIP complimentary uses the Institutional sequence.
+  2. Executive dashboard (`/app/dashboard`) is the plan landing; the module switcher is always visible. Module ↔ executive is two clicks.
+  3. Demo seed (`applyVipShowcaseSeed`) runs only for trial+VIP showcase. Live Cloud VIP and paying/trial workspaces are never seeded with NCGR-B.
+  4. No SQL / no new Cloud DocType. `GET /api/app/plans/dashboards` returns the packaging contract. Legacy `/plans/:id/sep` redirects to `/app/engagement-plan`.
+- **Consequences:** Nav order follows `TIER_FLOW`. Owner capability toggles can still hide a module. Place-pack baseline intel (ADR-040) is not treated as VIP demo seed.
+- **Alternatives considered:** `/plans/:id/modules/:key` as canonical IA (rejected — existing `/app/...` desks stay canonical); seed all trials (rejected — ADR-033).
+
 

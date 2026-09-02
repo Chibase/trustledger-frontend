@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { PlanId } from "@/config/plans";
+import { includedDashboardKeys, PLAN_DASHBOARD_CATALOG } from "@/config/tierFlow";
 import { hasCapability, resolveClientPlanId } from "@/lib/entitlements";
 import type { CapabilityId } from "@/types/entitlements";
 import type { UserRole } from "@/types/rbac";
@@ -224,11 +225,28 @@ export function AppNav({ role, variant = "light", planId }: AppNavProps) {
   const [allowed, setAllowed] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
+    const resolved = resolveClientPlanId(planId);
+    const flowHrefs = new Set(
+      includedDashboardKeys(resolved).map(
+        (key) => PLAN_DASHBOARD_CATALOG[key].href,
+      ),
+    );
     const map: Record<string, boolean> = {};
     for (const item of NAV) {
-      map[item.href] = item.capability
-        ? hasCapability(item.capability, resolveClientPlanId(planId))
-        : true;
+      const isPackaged = Object.values(PLAN_DASHBOARD_CATALOG).some(
+        (row) => row.href === item.href,
+      );
+      if (isPackaged) {
+        map[item.href] =
+          flowHrefs.has(item.href) &&
+          Boolean(
+            !item.capability || hasCapability(item.capability, resolved),
+          );
+      } else {
+        map[item.href] = item.capability
+          ? hasCapability(item.capability, resolved)
+          : true;
+      }
     }
     const handle = window.setTimeout(() => {
       setAllowed(map);
@@ -237,7 +255,21 @@ export function AppNav({ role, variant = "light", planId }: AppNavProps) {
     return () => window.clearTimeout(handle);
   }, [planId]);
 
-  const items = NAV.filter((item) => {
+  const catalogOrder = includedDashboardKeys(planId || "project");
+  const items = [...NAV]
+    .sort((a, b) => {
+      const ia = catalogOrder.findIndex(
+        (key) => PLAN_DASHBOARD_CATALOG[key].href === a.href,
+      );
+      const ib = catalogOrder.findIndex(
+        (key) => PLAN_DASHBOARD_CATALOG[key].href === b.href,
+      );
+      if (ia === -1 && ib === -1) return 0;
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    })
+    .filter((item) => {
     if (item.roles && !item.roles.includes(role)) return false;
     if (!capsReady) return !item.capability || item.capability === "dashboard";
     return allowed[item.href] !== false;

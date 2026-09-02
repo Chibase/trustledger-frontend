@@ -191,6 +191,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
 | **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
 | **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase **process map** + **plan execution dashboard** (roadmap, KPIs, outcomes, mitigations, practitioner snapshot) + Gemini-drafted tender SEP; human apply seeds registry / engagements / commitments. Analysis engine (Phases A–G) | **Active** |
+| **PP-1** | Plan-as-container packaging | TierFlow module sequence; executive roll-up; VIP-only demo seed across included desks; non-VIP empty | **Done** |
 
 ### HubSpot cutover (ACTIVE)
 

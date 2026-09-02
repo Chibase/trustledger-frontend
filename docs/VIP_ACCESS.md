@@ -94,4 +94,6 @@ A packaged **VIP Institutional** workspace with the NCGR-B illustrative programm
 
 Do **not** link `/login/vip` from marketing. If that mailbox is typed on `/login/live`, TrustLedger sends it to the showcase form instead of Cloud. Declare the programme **illustrative** in the room. Paying guests still use Ops **Create VIP access + temp password** + `/login/live`.
 
-Related: `src/data/vipShowcase.ts`, `src/lib/vipShowcaseSeed.ts`, `POST /api/auth/vip-showcase`.
+The showcase is an **Institutional** plan container: executive roll-up plus every included module dashboard (projects, incidents, capture, stakeholders, engagements, SEP, commitments, intelligence/ESG, reports). Seed bundle v2 adds SEP-NCGR-B and ESG-NCGR-B for workspaces that previously only had desk rows. Live Cloud VIP guests are **not** seeded.
+
+Related: `src/data/vipShowcase.ts`, `src/lib/vipShowcaseSeed.ts`, `POST /api/auth/vip-showcase`, `docs/DECISIONS.md` ADR-056.

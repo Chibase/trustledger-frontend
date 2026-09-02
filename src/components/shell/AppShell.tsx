@@ -15,6 +15,8 @@ import { SessionEmailBridge } from "@/components/shell/SessionEmailBridge";
 import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import { packageLabel, isVipShowcaseWorkspace } from "@/lib/planLabel";
+import { PlanModuleSwitcher } from "@/components/shell/PlanModuleSwitcher";
+import { VipPackagingSync } from "@/components/shell/VipPackagingSync";
 import type { TrialSnapshot } from "@/lib/trial";
 import type { UserRole } from "@/types/rbac";
 
@@ -55,6 +57,9 @@ export function AppShell({
       <EmailCaptureGate />
       <div className="min-h-full bg-tl-paper text-tl-ink">
         {isVipShowcaseWorkspace(mode, isVip) ? <VipShowcaseBanner /> : null}
+        {isVipShowcaseWorkspace(mode, isVip) ? (
+          <VipPackagingSync email={userEmail || ""} />
+        ) : null}
         {mode === "trial" && trial && !isVip ? (
           <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
         ) : null}
@@ -125,6 +130,11 @@ export function AppShell({
 
           <div className="min-w-0 flex-1">
             <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
+              <PlanModuleSwitcher
+                planId={trialPlan}
+                vip={isVip}
+                mode={mode}
+              />
               {children}
             </div>
           </div>
