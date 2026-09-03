@@ -403,12 +403,9 @@ function explainResendFailure(
     return (
       "Resend cannot deliver to that inbox yet: the From address is still on the test sender " +
       "(onboarding@resend.dev) or the domain is not verified. " +
-      "In Resend, verify " +
-      TRUSTLEDGER_APEX_DOMAIN +
-      " (or your mail domain), then set " +
+      `In Resend, verify ${TRUSTLEDGER_APEX_DOMAIN} (or your mail domain), then set ` +
       `RESEND_FROM_EMAIL to TrustLedger <${TRUSTLEDGER_NOREPLY_EMAIL}> (or another verified address) and Redeploy. ` +
-      "Until then, Resend only delivers test mail to the Resend account owner. " +
-      `(${hint}) Detail: ${snippet}`
+      `Until then, Resend only delivers test mail to the Resend account owner. (${hint}) Detail: ${snippet}`
     );
   }
   return `Resend HTTP ${status}: ${snippet} (${hint})`;

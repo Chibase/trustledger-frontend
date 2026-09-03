@@ -6,6 +6,7 @@ import type {
   MarketingChannel,
   MarketingKind,
 } from "@/lib/marketing/types";
+import { TRUSTLEDGER_MARKETING_URL } from "@/lib/security/hosts";
 
 function contentRoot(...parts: string[]): string {
   return path.join(process.cwd(), "content", ...parts);
@@ -70,7 +71,7 @@ function loadDir(rel: string): ContentDoc[] {
       kind: asKind(meta.kind),
       channel: asChannel(meta.channel),
       ctaLabel: meta.cta_label || "Learn more",
-      ctaUrl: meta.cta_url || "https://trustledgersrm.co.za/",
+      ctaUrl: meta.cta_url || `${TRUSTLEDGER_MARKETING_URL}/`,
       platforms: (meta.platforms || "linkedin")
         .split(/[,\s]+/)
         .map((s) => s.trim())

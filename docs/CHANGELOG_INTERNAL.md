@@ -3,7 +3,7 @@
 ## 2026-09-03 — Public domain trustledgersrm.co.za
 
 - Public apex is **trustledgersrm.co.za** (was trustledger.co.za). Cloud host **app.trustledgersrm.co.za**. Mailboxes `info@` / `sales@` / `noreply@` follow the new apex. Product name stays TrustLedger. Chibase domain unchanged. MX stays Webway.
-- Runtime constants in `src/lib/security/hosts.ts`. Footer, Themba, AEO FAQ, login/settings Cloud host, Resend preference, WordPress paste packs, `public/llms.txt`, and operational docs updated. CSP still allows the retired apex during cutover. Demo import tools still refuse both Cloud hostnames.
+- Runtime constants in `src/lib/security/hosts.ts` (marketing CTA fallbacks and Themba copy included). Footer, AEO FAQ, login/settings Cloud host, Resend preference, WordPress paste packs, `public/llms.txt`, and operational docs updated. CSP still allows the retired apex during cutover. Demo import tools still refuse both Cloud hostnames.
 - Historical changelog lines and captured CRM contact CSVs were left as recorded. Ops must still set Webway DNS, Frappe Cloud custom domain, Vercel `FRAPPE_BASE_URL` / `NEXT_PUBLIC_API_BASE_URL` / `RESEND_FROM_EMAIL`, Resend + reCAPTCHA hostnames, and paste the WP packs. ADR-057.
 
 ## 2026-09-03 — Report pack Copilot nits

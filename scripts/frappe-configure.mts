@@ -41,6 +41,9 @@ const { bootstrapCrmViews } = await import("@/lib/crmSetup");
 const { submitFrappeLead, verifyFrappeApiAuth } = await import(
   "@/lib/leadCapture"
 );
+const { TRUSTLEDGER_APEX_DOMAIN, TRUSTLEDGER_MARKETING_URL } = await import(
+  "@/lib/security/hosts"
+);
 
 const auth = await verifyFrappeApiAuth();
 console.log("auth", {
@@ -73,7 +76,7 @@ if (!si.ok) {
 const crm = await bootstrapCrmViews();
 console.log("crmBootstrap", JSON.stringify(crm, null, 2));
 
-const smokeEmail = `frappe-config-smoke+${Date.now()}@trustledgersrm.co.za`;
+const smokeEmail = `frappe-config-smoke+${Date.now()}@${TRUSTLEDGER_APEX_DOMAIN}`;
 const leadRes = await submitFrappeLead({
   email: smokeEmail,
   name: "Frappe config smoke",
@@ -81,7 +84,7 @@ const leadRes = await submitFrappeLead({
   message:
     "Disposable smoke lead from scripts/frappe-configure.mts — safe to delete.",
   pageName: "agent-frappe-configure",
-  pageUri: "https://trustledgersrm.co.za/ops",
+  pageUri: `${TRUSTLEDGER_MARKETING_URL}/ops`,
   sourceTag: "Website Contact",
   crmSource: "Website Contact",
   jobTitle: "Config smoke",
