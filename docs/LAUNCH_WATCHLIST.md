@@ -3,7 +3,7 @@
 **Status:** GO LIVE Done (2026-07-23). Use this as the instant-response runbook.
 
 Production: https://trustledger-frontend-pi.vercel.app  
-Cloud: https://app.trustledger.co.za  
+Cloud: https://app.trustledgersrm.co.za  
 Ops ladder: `/ops/readiness` · Health: `GET /api/health` (`deploySha`)
 
 ---
@@ -41,7 +41,7 @@ Ops ladder: `/ops/readiness` · Health: `GET /api/health` (`deploySha`)
 ```bash
 # Vercel Production — enables live login OTP + trial “verify email” copy
 RESEND_API_KEY=re_…
-RESEND_FROM_EMAIL=TrustLedger <noreply@trustledger.co.za>
+RESEND_FROM_EMAIL=TrustLedger <noreply@trustledgersrm.co.za>
 # Must be a verified domain in Resend — not onboarding@resend.dev (test-only).
 # If unset, the app auto-picks TrustLedger <noreply@first-verified-domain>.
 # Confirm: /api/health → launch.inviteEmailReady: true
@@ -63,7 +63,7 @@ FORM_REQUIRE_RECAPTCHA=1
 RECAPTCHA_MIN_SCORE=0.5
 ```
 
-Domains on the Google key: `trustledger-frontend-pi.vercel.app`, `trustledger.co.za`.  
+Domains on the Google key: `trustledger-frontend-pi.vercel.app`, `trustledgersrm.co.za`.  
 Until keys are set: honeypot + work-email + **tighter** rate limit (3/15 min) still run.
 
 ---
@@ -117,7 +117,7 @@ PLATFORM_OPERATOR_ONLY=0
 PLATFORM_OPERATOR_EMAILS=admin@chibaseconsulting.co.za   # ops only
 FRAPPE_OWNER_ISSUANCE=1
 FRAPPE_AUTO_PROVISION=1
-FRAPPE_BASE_URL=https://app.trustledger.co.za
+FRAPPE_BASE_URL=https://app.trustledgersrm.co.za
 FRAPPE_API_KEY=…
 FRAPPE_API_SECRET=…
 PAYSTACK_SECRET_KEY=sk_live_…

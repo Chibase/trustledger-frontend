@@ -34,6 +34,6 @@ See `TL_Marketing_removed.csv` and `TL_Marketing_segmentation.csv`.
 
 1. Pick audience: `TL Marketing` **or** one `TL Segment …` group.  
 2. Use the matching **segment intro** template (`../SEGMENT_INTROS.md` — `TL Intro Construction`, etc.).  
-3. Confirm segment **From name** + `sales@trustledger.co.za` before Send.  
+3. Confirm segment **From name** + `sales@trustledgersrm.co.za` before Send.  
 4. Send Test → Send.  
 5. New CRM Leads: only add to `TL Marketing` + a segment when org/role matches ICP.

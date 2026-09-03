@@ -13,8 +13,8 @@
 | Official name | **TrustLedger** |
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
-| Backend | **Frappe Cloud** `app.trustledger.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
-| Marketing | TrustLedger WP `trustledger.co.za` on Webway (CTAs). **Chibase Consulting** brochure on this app (`/firm`; DNS after WP cleanup). MX for both domains stays Webway. |
+| Backend | **Frappe Cloud** `app.trustledgersrm.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
+| Marketing | TrustLedger WP `trustledgersrm.co.za` on Webway (CTAs). **Chibase Consulting** brochure on this app (`/firm`; DNS after WP cleanup). MX for both domains stays Webway. |
 | Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
 **Current phase:** Phase 6 — **Version 002** core (ADR-023). Product label in market: **Version 001**. Demo/mock remains default until Frappe DocTypes land.
@@ -125,7 +125,7 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| 15 | WordPress CTA guide | Paste-ready buttons/UTM for trustledger.co.za | **Done** |
+| 15 | WordPress CTA guide | Paste-ready buttons/UTM for trustledgersrm.co.za | **Done** |
 | 16 | Evidence upload stub | Demo local evidence add on incident desk | **Done** |
 | 17 | Demo issue persistence | localStorage intake → appears in incident list | **Done** |
 | 18 | Toast feedback | Light success/error toasts on key actions | **Done** |

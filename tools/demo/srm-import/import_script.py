@@ -5,7 +5,7 @@
   python3 import_script.py --run --i-approve-staging --base-url "$BASE_URL" --api-key "$API_KEY"
   python3 import_script.py --run --create-ledger --i-approve-staging --base-url "$BASE_URL" --api-key "$API_KEY"
 
-Does not default to production. Refuses app.trustledger.co.za unless
+Does not default to production. Refuses app.trustledgersrm.co.za unless
 TRUSTLEDGER_ALLOW_PROD_IMPORT=YES is set by a human.
 """
 
@@ -53,7 +53,7 @@ EXPECTED = {
 
 ZA_LAT = (-35.0, -22.0)
 ZA_LON = (16.0, 33.0)
-PROD_HOSTS = ("app.trustledger.co.za",)
+PROD_HOSTS = ("app.trustledgersrm.co.za",)
 
 METHODS = {
     "organizations": "/api/method/srm_core.api.organizations.create_organization",
@@ -279,7 +279,7 @@ def refuse_production(base_url: str) -> None:
     if any(prod in host for prod in PROD_HOSTS):
         if os.environ.get("TRUSTLEDGER_ALLOW_PROD_IMPORT") != "YES":
             raise SystemExit(
-                "Refusing production import against app.trustledger.co.za. "
+                "Refusing production import against app.trustledgersrm.co.za. "
                 "A human must set TRUSTLEDGER_ALLOW_PROD_IMPORT=YES and provide a scoped key."
             )
 

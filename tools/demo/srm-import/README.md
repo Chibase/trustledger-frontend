@@ -3,7 +3,7 @@
 Offline package for a **staging** import of illustrative programme data (Sundays River / NCGR-B narrative).  
 **Not** a customer or trial workspace seed (ADR-033). Do not present `INC-*` rows as a live matter.
 
-Human must supply a **scoped staging API key** and explicitly approve `--run`. This pack will not import to production (`app.trustledger.co.za`) unless a human sets `TRUSTLEDGER_ALLOW_PROD_IMPORT=YES`.
+Human must supply a **scoped staging API key** and explicitly approve `--run`. This pack will not import to production (`app.trustledgersrm.co.za`) unless a human sets `TRUSTLEDGER_ALLOW_PROD_IMPORT=YES`.
 
 ## Fill in (do not commit)
 

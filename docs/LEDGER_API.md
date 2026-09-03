@@ -2,7 +2,7 @@
 
 **Status:** draft for human review — do not merge until canonicalization, signature scheme, and production key custody are approved.
 
-This document is the implementation contract for TrustLedger’s ledger (audit trail). Frontend, `srm-core` on TrustLedger Cloud (`https://app.trustledger.co.za`), and import tooling MUST produce identical canonical bytes, SHA-256 hex, and ed25519 signatures for the same inputs.
+This document is the implementation contract for TrustLedger’s ledger (audit trail). Frontend, `srm-core` on TrustLedger Cloud (`https://app.trustledgersrm.co.za`), and import tooling MUST produce identical canonical bytes, SHA-256 hex, and ed25519 signatures for the same inputs.
 
 Reference code (no private keys in git):
 
@@ -30,7 +30,7 @@ This is chain-of-custody evidence, not a general-purpose blockchain. Production 
 
 | Item | Value |
 |------|--------|
-| Host | `https://app.trustledger.co.za` (`NEXT_PUBLIC_API_BASE_URL`) |
+| Host | `https://app.trustledgersrm.co.za` (`NEXT_PUBLIC_API_BASE_URL`) |
 | Envelope | Frappe `{ "message": <payload> }` |
 | Auth | Session cookie / `credentials: include` (same as other Cloud methods) |
 | Content-Type | `application/json` for POST bodies |

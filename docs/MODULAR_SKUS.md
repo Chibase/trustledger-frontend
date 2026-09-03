@@ -69,7 +69,7 @@ What we **do not** do now: new Git repos, a “core Frappe app + plugin apps”,
 ## 3. Architecture (locked)
 
 ```text
-One Next.js product  →  one TrustLedger Cloud site (app.trustledger.co.za)
+One Next.js product  →  one TrustLedger Cloud site (app.trustledgersrm.co.za)
                          Customer + Plan Owner + entitlements
                          TL Project / Incident / Evidence
                          TL Stakeholder / Engagement / Commitment

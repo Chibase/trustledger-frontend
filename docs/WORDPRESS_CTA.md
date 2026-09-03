@@ -1,6 +1,6 @@
 # WordPress CTA → TrustLedger product links
 
-Marketing site: `https://trustledger.co.za`  
+Marketing site: `https://trustledgersrm.co.za`  
 Product (Vercel): `https://trustledger-frontend-pi.vercel.app`
 
 ## Primary journeys
@@ -32,6 +32,6 @@ See `docs/wordpress/PASTE_PLANS.md`. After each CTA change, paste `page-home.txt
 
 **Privacy extras (SEC-0):** `#pricing` in `page-home.txt` includes the TrustLedger data-protection blurb, foldable plan comparison, and optional privacy layer CTAs (Trust Pack / private cloud / support-access visibility). Append `home-conversion-css-patch.css` for comparison table styles. Client copy says **cloud**, not host brand names.
 
-**Contact fix (if footer still opens mail/search):** replace every footer/nav Contact `mailto:info@trustledger.co.za` (or relative `/contact`) with the absolute Contact URL above, or re-paste full `page-home.txt`. Purge SpeedyCache after.
+**Contact fix (if footer still opens mail/search):** replace every footer/nav Contact `mailto:info@trustledgersrm.co.za` (or relative `/contact`) with the absolute Contact URL above, or re-paste full `page-home.txt`. Purge SpeedyCache after.
 
-**Do not** paste HubSpot Free form embeds on trustledger.co.za.
+**Do not** paste HubSpot Free form embeds on trustledgersrm.co.za.

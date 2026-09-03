@@ -3,7 +3,7 @@
 The Vercel app calls these whitelisted methods when `NEXT_PUBLIC_DATA_MODE=live`.
 Until they exist, services fall back to Demo mocks.
 
-Base URL: `NEXT_PUBLIC_API_BASE_URL` (Frappe Cloud — `https://app.trustledger.co.za`)  
+Base URL: `NEXT_PUBLIC_API_BASE_URL` (Frappe Cloud — `https://app.trustledgersrm.co.za`)  
 Transport: `POST` JSON, `credentials: include`  
 Envelope: standard Frappe `{ "message": <payload> }`
 

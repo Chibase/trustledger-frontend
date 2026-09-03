@@ -2,13 +2,20 @@
  * Shared security headers for TrustLedger + Chibase origins.
  * Assessment may still be framed from the WordPress marketing host.
  * CSP frame-ancestors is the frame policy — do not also set X-Frame-Options
- * (SAMEORIGIN would break the assessment embed on trustledger.co.za).
+ * (SAMEORIGIN would break the assessment embed on the marketing apex).
  */
+
+import {
+  TRUSTLEDGER_APEX_DOMAIN,
+  TRUSTLEDGER_LEGACY_APEX_DOMAIN,
+} from "./hosts";
 
 const FRAME_ANCESTORS = [
   "'self'",
-  "https://trustledger.co.za",
-  "https://www.trustledger.co.za",
+  `https://${TRUSTLEDGER_APEX_DOMAIN}`,
+  `https://www.${TRUSTLEDGER_APEX_DOMAIN}`,
+  `https://${TRUSTLEDGER_LEGACY_APEX_DOMAIN}`,
+  `https://www.${TRUSTLEDGER_LEGACY_APEX_DOMAIN}`,
 ].join(" ");
 
 function scriptSrc(): string {

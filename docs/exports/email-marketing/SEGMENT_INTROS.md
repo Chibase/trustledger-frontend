@@ -4,7 +4,7 @@ Thought-provoking intros for each ICP Email Group. Loaded on Cloud as **Email Te
 
 ## Reply / From identity
 
-Outgoing mailbox stays **`sales@trustledger.co.za`** (configured Email Account).  
+Outgoing mailbox stays **`sales@trustledgersrm.co.za`** (configured Email Account).  
 Each segment uses a distinct **From display name** so replies feel relevant:
 
 | Segment | From name (Newsletter) | Reply behaviour |
@@ -16,7 +16,7 @@ Each segment uses a distinct **From display name** so replies feel relevant:
 | Social Facilitators | `TrustLedger Community Practice` | Replies → `sales@` inbox |
 | Related industries | `TrustLedger Practice` | Replies → `sales@` inbox |
 
-**Optional later (Webway):** aliases such as `construction@trustledger.co.za` → forward to `sales@`, then set Newsletter `sender_email` to the alias. Do not invent mailboxes in git.
+**Optional later (Webway):** aliases such as `construction@trustledgersrm.co.za` → forward to `sales@`, then set Newsletter `sender_email` to the alias. Do not invent mailboxes in git.
 
 In Desk Newsletter, confirm **Sender Name** + **Sender Email** before Send. Body copy also invites a reply with a segment-specific prompt.
 
@@ -31,7 +31,7 @@ In Desk Newsletter, confirm **Sender Name** + **Sender Email** before Send. Body
 | `14-intro-social-facilitators.html` | `TL Intro Social Facilitators` | `TL Segment Social Facilitators` | `/marketing/email/social-facilitators.png` |
 | `15-intro-related.html` | `TL Intro Related Industries` | `TL Segment Related Industries` | `/marketing/email/related-industries.png` |
 
-Images are on Cloud Files (`https://app.trustledger.co.za/files/tl-email-*.png`) and in this repo under `public/marketing/email/` for Vercel.
+Images are on Cloud Files (`https://app.trustledgersrm.co.za/files/tl-email-*.png`) and in this repo under `public/marketing/email/` for Vercel.
 
 ## Angle per segment (one-line)
 
@@ -48,7 +48,7 @@ Images are on Cloud Files (`https://app.trustledger.co.za/files/tl-email-*.png`)
 
 1. Desk → **Newsletter** → open the draft for that segment.  
 2. Confirm audience = matching **`TL Segment …`** group.  
-3. Confirm **Sender Name** (table above) + **`sales@trustledger.co.za`**.  
+3. Confirm **Sender Name** (table above) + **`sales@trustledgersrm.co.za`**.  
 4. **Send Test** to yourself (check image + reply).  
 5. Send to the segment (small lists first — Government / Social Facilitators are thin).  
 6. File replies in CRM Lead with the right Source / comment.

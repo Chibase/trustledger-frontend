@@ -302,7 +302,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "data",
     question: "Where does TrustLedger store live customer data?",
     answer:
-      "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. Day-to-day work happens in the TrustLedger product app; marketing lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",
+      "Live customer workspaces run on TrustLedger Cloud at app.trustledgersrm.co.za. Day-to-day work happens in the TrustLedger product app; marketing lives on trustledgersrm.co.za. Paying and trial workspaces never show fictional sample incidents.",
     keywords: ["data", "store", "cloud", "host", "security", "where"],
     links: [
       { href: "/contact", label: "Contact" },

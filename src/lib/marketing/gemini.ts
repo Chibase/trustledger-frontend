@@ -285,7 +285,7 @@ export async function synthesizeBrief(
     source?.ctaUrl ||
     (brief.brand === "chibase"
       ? "https://chibaseconsulting.co.za/practice"
-      : "https://trustledger.co.za/");
+      : "https://trustledgersrm.co.za/");
   const ctaUrl = withUtm(
     rawCta,
     slugifyBrief(brief.topic),

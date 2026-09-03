@@ -1,7 +1,7 @@
 # Frappe Jinja render hardening (PR #37924)
 
 **Source:** Frappe Team notice — security hardening for Jinja template rendering on **v15 / v16 Public Benches** (gradual rollout).  
-**TrustLedger site:** `https://app.trustledger.co.za` (Frappe Cloud).
+**TrustLedger site:** `https://app.trustledgersrm.co.za` (Frappe Cloud).
 
 ## Impact on TrustLedger
 
@@ -28,7 +28,7 @@ Emergency opt-out (bench `common_site_config`): `disable_render_safe_exec` — *
 ## Operator checklist (do this after Cloud updates)
 
 ### 1. Confirm you are on a Public Bench
-Cloud dashboard → site `app.trustledger.co.za` → note Shared vs Private bench.  
+Cloud dashboard → site `app.trustledgersrm.co.za` → note Shared vs Private bench.  
 Public = this rollout applies to you.
 
 ### 2. Inventory custom Jinja (Desk)

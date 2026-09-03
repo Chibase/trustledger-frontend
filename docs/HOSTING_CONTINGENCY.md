@@ -13,7 +13,7 @@
 | Layer | Host | If Vercel stops |
 |-------|------|-----------------|
 | Product UI + `/api/*` BFF | Vercel (Hobby today) | **Down** until redeployed elsewhere or Hobby restored |
-| CRM, Customers, Users, SI DocTypes | Frappe Cloud `app.trustledger.co.za` | **Intact** |
+| CRM, Customers, Users, SI DocTypes | Frappe Cloud `app.trustledgersrm.co.za` | **Intact** |
 | Git history / ability to redeploy | GitHub | **Intact** |
 | Trial-only browser `localStorage` | User device | At risk if URL changes mid-session — prefer **live VIP** |
 | Marketing apex | Webway / DNS → Vercel | May need DNS retarget |
@@ -31,9 +31,9 @@ Use a free uptime service (UptimeRobot, Better Stack free, Cronitor free, etc.).
 | Monitor | URL | Expect |
 |---------|-----|--------|
 | App health | `https://trustledger-frontend-pi.vercel.app/api/health` | HTTP 200; JSON `"ok": true` |
-| Cloud ping | `https://app.trustledger.co.za/api/method/frappe.ping` | HTTP 200 |
+| Cloud ping | `https://app.trustledgersrm.co.za/api/method/frappe.ping` | HTTP 200 |
 | Product page | `https://trustledger-frontend-pi.vercel.app/product` | HTTP 200 |
-| Apex (optional) | `https://trustledger.co.za` | HTTP 200 (or intentional redirect) |
+| Apex (optional) | `https://trustledgersrm.co.za` | HTTP 200 (or intentional redirect) |
 
 **Also read `launch` on `/api/health` weekly** (browser or `curl`):
 
@@ -53,7 +53,7 @@ Cursor / Cloud Agents do **not** replace uptime monitors. Re-check health when w
 
 ```bash
 curl -sS 'https://trustledger-frontend-pi.vercel.app/api/health' | head -c 800
-curl -sS -o /dev/null -w '%{http_code}\n' 'https://app.trustledger.co.za/api/method/frappe.ping'
+curl -sS -o /dev/null -w '%{http_code}\n' 'https://app.trustledgersrm.co.za/api/method/frappe.ping'
 ```
 
 Ops UI: `/ops/readiness` when signed in as Platform Operator.
@@ -65,10 +65,10 @@ Ops UI: `/ops/readiness` when signed in as Platform Operator.
 Live `/login/live` OTP and several transactional mails need Resend on **Vercel Production**.
 
 1. Resend dashboard → create/copy a full API key (`re_…`, long — never a 3-character stub).
-2. Resend → Domains → verify `trustledger.co.za` (or your mail domain) with the DNS records Resend shows.
+2. Resend → Domains → verify `trustledgersrm.co.za` (or your mail domain) with the DNS records Resend shows.
 3. Vercel → Project → Settings → Environment Variables → Production:
    - `RESEND_API_KEY` = full secret (no ellipsis / truncated paste)
-   - `RESEND_FROM_EMAIL` = `TrustLedger <noreply@trustledger.co.za>` (must match a verified domain — **not** `onboarding@resend.dev`)
+   - `RESEND_FROM_EMAIL` = `TrustLedger <noreply@trustledgersrm.co.za>` (must match a verified domain — **not** `onboarding@resend.dev`)
 4. **Redeploy** Production.
 5. Confirm `/api/health` → `launch.resend: true`, `resendAuthOk: true`, `inviteEmailReady: true`, `keyLooksTruncated: false`.
 6. Smoke: Team / Seats invite to a third-party inbox, and `/login/live` OTP.
@@ -86,7 +86,7 @@ Keep a private password-manager note (not in git) with the same names as Vercel 
 | Variable | Why |
 |----------|-----|
 | `NEXT_PUBLIC_SITE_URL` | Canonical product URL (update if host changes) |
-| `NEXT_PUBLIC_API_BASE_URL` / `FRAPPE_BASE_URL` | `https://app.trustledger.co.za` |
+| `NEXT_PUBLIC_API_BASE_URL` / `FRAPPE_BASE_URL` | `https://app.trustledgersrm.co.za` |
 | `NEXT_PUBLIC_DATA_MODE` | `live` |
 | `FRAPPE_API_KEY` / `FRAPPE_API_SECRET` | Cloud BFF |
 | `FRAPPE_OWNER_ISSUANCE` | VIP / Owner provision |
@@ -151,7 +151,7 @@ Optional: attach Guide reminder (`/app/guide`) after they land.
 When the first paid Customer is live:
 
 1. Upgrade **Vercel** (and other constrained tools) as budget allows.
-2. Keep Cloud SoT on `app.trustledger.co.za`.
+2. Keep Cloud SoT on `app.trustledgersrm.co.za`.
 3. Re-point production domain at the durable host.
 4. Keep free uptime monitors; drop standby only after Pro (or equivalent) is stable for 2 weeks.
 5. Do **not** drop monitoring just because Pro is paid.

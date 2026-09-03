@@ -5,7 +5,7 @@ brand: trustledger
 kind: trial-outreach
 channel: social
 cta_label: Start a 14-day trial
-cta_url: https://trustledger.co.za/trial
+cta_url: https://trustledgersrm.co.za/trial
 platforms: linkedin
 ---
 
@@ -17,4 +17,4 @@ The sample desk is retired. A 14-day trial opens an empty workspace for your pro
 
 Resolution you can audit.
 
-Start: https://trustledger.co.za/trial
+Start: https://trustledgersrm.co.za/trial
