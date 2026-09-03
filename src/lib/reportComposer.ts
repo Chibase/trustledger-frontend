@@ -1111,10 +1111,16 @@ function composeFunderBrief(input: ComposeNarrativeInput): {
   const scope =
     input.projectName || input.facts.projectName || "portfolio scope";
   const snap = funderSnapshotFromFacts(input.facts);
+  const cited = incidentsFromFacts(input.facts)
+    .map((i) => i.id)
+    .slice(0, 8);
   const materials = snap.materialItems.length
     ? snap.materialItems.map((m) => `- ${m.line}`).join("\n")
     : "- No material open items this period.";
   const asks = snap.asks.map((a) => `- ${a}`).join("\n");
+  const citations = cited.length
+    ? cited.join(", ")
+    : "none on file";
 
   const bodyMarkdown = `${composeHeader(input, title).trim()}
 
@@ -1126,6 +1132,7 @@ High-level position for **${scope}** in **${input.periodLabel}** (not a day-to-d
 - **Open / closed:** ${snap.openCount} / ${snap.closedCount}
 - **Material high-risk:** ${snap.highRiskCount}
 - **SLA pressure:** ${snap.slaBreachedCount}
+- **Cases cited:** ${citations}
 
 ## Material items
 

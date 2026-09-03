@@ -147,5 +147,41 @@ describe("report pack lenses", () => {
     expect(
       savedBodyMatchesLens("executive_risk", monthly.bodyMarkdown),
     ).toBe(false);
+    expect(
+      savedBodyMatchesLens(
+        "monthly_activity",
+        "## Summary\n\nLegacy monthly pack without the new detailed marker.",
+      ),
+    ).toBe(true);
+  });
+
+  it("cites INC ids on a funder brief even when every case is closed", () => {
+    const closed = mockIncidents.map((i) => ({
+      ...i,
+      status: "Closed" as const,
+      slaBreached: false,
+    }));
+    const funder = composeActivityReportMarkdown({
+      kind: "board_investor",
+      kindLabel: "Board / investor / funder brief",
+      audienceLabel: "Funders",
+      periodLabel: "August 2026",
+      authorTierLabel: "Delivery",
+      authorName: "Test Author",
+      includedSectionIds: ["portfolio_risk"],
+      includedSectionLabels: ["Portfolio risk"],
+      lockedSectionLabels: [],
+      facts: {
+        ...factsFromMocks(),
+        attended: closed,
+        escalated: [],
+        pending: [],
+        unresolvedBlocked: [],
+        resolved: closed,
+      },
+      tonePreference: "board",
+    });
+    expect(funder.bodyMarkdown).toMatch(/\bINC-\d+/);
+    expect(funder.bodyMarkdown).toMatch(/Cases cited:/);
   });
 });

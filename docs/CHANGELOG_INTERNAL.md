@@ -4,7 +4,7 @@
 
 - Monthly, executive risk brief, and client/funder pack no longer share one “category signals” view plus the same narrative.
 - **Monthly** is the detailed operational pack (activity, issues, meetings, evidence). **Executive risk brief** lists identified issues with project impact, impact level, mitigation in progress, process stage, expected outcome, and what executives can expedite. **Board / client / funder** is a high-level assurance snapshot (trust, material items, asks).
-- Local `reportComposer` writes those lenses; Cloud month-end templates stay blocked. Executive pack default kind is `executive_risk`. Switching kind on the project studio clears a stale draft so View matches the selected pack.
+- Local `reportComposer` writes those lenses; Cloud month-end templates stay blocked. Executive pack default kind is `executive_risk`. Switching kind on the project studio **or** the pack writer clears a stale draft so View matches the selected pack. Funder briefs still cite `INC-*` when every case is closed. Saved monthly narratives are kept; executive/funder library cards prefer cases cited in the saved body.
 - ADR-028 decision 6.
 
 ## 2026-09-02 — NCGR-B seed is Thozamile only

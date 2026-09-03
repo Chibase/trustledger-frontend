@@ -21,6 +21,7 @@ import {
   riskRowsFromFacts,
 } from "@/lib/reportComposer";
 import {
+  citedIncidentIds,
   executiveChartGroups,
   funderChartGroups,
   monthlyChartGroups,
@@ -217,7 +218,17 @@ function SavedReportLensBody({ report }: { report: SavedReport }) {
   const project = report.projectId
     ? listWorkspaceProjects().find((p) => p.id === report.projectId)
     : undefined;
-  const facts = buildPeriodActivityFacts(listWorkspaceIncidents(), {
+  const workspaceIncidents = listWorkspaceIncidents().filter(
+    (i) => !report.projectId || i.projectId === report.projectId,
+  );
+  const cited = citedIncidentIds(report.bodyMarkdown);
+  const incidents =
+    cited.length > 0
+      ? workspaceIncidents.filter((i) =>
+          cited.some((id) => id.toUpperCase() === i.id.toUpperCase()),
+        )
+      : workspaceIncidents;
+  const facts = buildPeriodActivityFacts(incidents, {
     projectId: report.projectId,
     projectName: report.projectName,
     project,

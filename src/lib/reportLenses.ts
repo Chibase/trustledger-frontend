@@ -100,7 +100,22 @@ export function savedBodyMatchesLens(kind: ReportKind, body: string): boolean {
   if (lens === "funder") {
     return /## Assurance snapshot/i.test(text) && /What we are asking/i.test(text);
   }
-  return /## Summary/i.test(text) && /detailed/i.test(text);
+  // Monthly and other detailed kinds keep the stored narrative.
+  return true;
+}
+
+/** Case ids cited in a saved or composed report body. */
+export function citedIncidentIds(body: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const match of body.matchAll(/\bINC-[A-Z0-9-]+\b/gi)) {
+    const id = match[0];
+    const key = id.toUpperCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(id);
+  }
+  return out;
 }
 
 function riskRank(incident: Incident): number {
@@ -322,10 +337,15 @@ export function buildFunderSnapshot(
       i.slaBreached,
   );
   const material = rankIncidentsForRisk(open).slice(0, 5);
-  const asks = material
+  const closedLead =
+    material.length > 0 ? [] : rankIncidentsForRisk(closed).slice(0, 5);
+  const leadForAsks = material.length ? material : closedLead;
+  const asks = leadForAsks
     .map((i) => executiveActionLine(i))
     .filter((line): line is string => Boolean(line))
     .slice(0, 3);
+
+  const materialSource = material.length ? material : closedLead;
 
   return {
     trustIndex: options?.trustIndex ?? 0,
@@ -334,9 +354,9 @@ export function buildFunderSnapshot(
     closedCount: closed.length,
     highRiskCount: highRisk.length,
     slaBreachedCount: open.filter((i) => i.slaBreached).length,
-    materialItems: material.map((i) => ({
+    materialItems: materialSource.map((i) => ({
       id: i.id,
-      line: `${i.id} — ${i.title} (${impactBandForIncident(i)} on ${i.projectName || "site"}).`,
+      line: `${i.id} — ${i.title} (${impactBandForIncident(i)} on ${i.projectName || "site"})${i.status === "Closed" ? " · closed" : ""}.`,
     })),
     asks: asks.length
       ? asks

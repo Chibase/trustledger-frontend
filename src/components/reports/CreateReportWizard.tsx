@@ -502,7 +502,14 @@ export function CreateReportWizard({
           <select
             className="w-full rounded-md border border-tl-line px-3 py-2"
             value={kind}
-            onChange={(e) => setKind(e.target.value as ReportKind)}
+            onChange={(e) => {
+              const next = e.target.value as ReportKind;
+              setKind(next);
+              setBody("");
+              setDraft(null);
+              setSavedId(null);
+              setStatus("idle");
+            }}
           >
             {REPORT_KINDS.map((id) => (
               <option key={id} value={id}>
