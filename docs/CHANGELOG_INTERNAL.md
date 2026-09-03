@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-03 — Report pack Copilot nits
+
+- Funder layout renders both chart groups (delivery position and assurance), not only the first.
+- Executive / funder writer shows a locked brief outline instead of catalogue topic chips that were not composed. Monthly still honours included sections.
+
 ## 2026-09-03 — Report packs are distinct lenses
 
 - Monthly, executive risk brief, and client/funder pack no longer share one “category signals” view plus the same narrative.

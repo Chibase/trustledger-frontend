@@ -1157,7 +1157,9 @@ This client / funder pack is an assurance snapshot. Detailed operational activit
 /**
  * Write a finished markdown report from picked topics + evidence facts.
  * Never returns instructional placeholders.
- * Monthly = detailed activity; executive = risk brief; funder = high-level snapshot.
+ * Monthly = detailed activity (honours includedSectionIds).
+ * Executive / funder = fixed briefs (topic ids are informational; the layout
+ * is locked so packs do not collapse back into one generic dump).
  */
 export function composeActivityReportMarkdown(
   input: ComposeNarrativeInput,
