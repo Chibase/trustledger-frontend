@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import {
-  HorizontalBarChart,
-  VerticalBarChart,
-} from "@/components/ops/charts/BarChart";
 import { CreateReportWizard } from "@/components/reports/CreateReportWizard";
+import {
+  ExecutiveRiskLayout,
+  FunderAssuranceLayout,
+  MonthlyOpsLayout,
+} from "@/components/reports/ReportLensLayout";
 import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import { KpiCard } from "@/components/ui/KpiCard";
 import type { PlanId } from "@/config/plans";
@@ -14,13 +15,22 @@ import { PLANS } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import {
   buildProjectActivity,
-  priorityBars,
   projectOpenBars,
   statusBars,
 } from "@/lib/dashboardActivity";
 import { readDeskTier } from "@/lib/deskVisibility";
 import { canDeskOpenPack, packsForDesk } from "@/lib/reportPackAccess";
 import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
+import {
+  buildPeriodActivityFacts,
+  riskRowsFromFacts,
+  funderSnapshotFromFacts,
+} from "@/lib/reportComposer";
+import {
+  executiveChartGroups,
+  funderChartGroups,
+  monthlyChartGroups,
+} from "@/lib/reportLenses";
 import {
   listWorkspaceIncidents,
   listWorkspaceProjects,
@@ -63,8 +73,6 @@ export function ReportsHub({
   authorName,
   planId = null,
   isPlanOwner = false,
-  mode: _mode = null,
-  isVip: _isVip = false,
 }: ReportsHubProps) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [pack, setPack] = useState<ReportPackId | null>(null);
@@ -73,13 +81,16 @@ export function ReportsHub({
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    setTier(readDeskTier(role));
-    setIncidents(listWorkspaceIncidents());
-    setProjects(listWorkspaceProjects());
-    const fromUrl = readInitialPack();
-    const allowed = packsForDesk(readDeskTier(role), planId);
-    if (fromUrl && allowed.includes(fromUrl)) setPack(fromUrl);
-    else if (allowed[0]) setPack(allowed[0]);
+    const frame = requestAnimationFrame(() => {
+      setTier(readDeskTier(role));
+      setIncidents(listWorkspaceIncidents());
+      setProjects(listWorkspaceProjects());
+      const fromUrl = readInitialPack();
+      const allowed = packsForDesk(readDeskTier(role), planId);
+      if (fromUrl && allowed.includes(fromUrl)) setPack(fromUrl);
+      else if (allowed[0]) setPack(allowed[0]);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [role, planId]);
 
   const allowed = useMemo(() => packsForDesk(tier, planId), [tier, planId]);
@@ -92,6 +103,15 @@ export function ReportsHub({
     (i) => i.priority === "P1-Critical" || i.priority === "P2-High",
   );
   const pulse = trustIndexFromIncidents(incidents);
+  const facts = useMemo(
+    () => buildPeriodActivityFacts(incidents),
+    [incidents],
+  );
+  const riskRows = useMemo(() => riskRowsFromFacts(facts), [facts]);
+  const funderSnapshot = useMemo(
+    () => funderSnapshotFromFacts(facts),
+    [facts],
+  );
   const active = pack ? REPORT_PACKS[pack] : null;
 
   function selectPack(id: ReportPackId) {
@@ -192,7 +212,8 @@ export function ReportsHub({
                 {active.label}
               </h2>
               <p className="mt-1 text-sm text-tl-ink-muted">
-                {active.composition} · evidence from workspace demo cases
+                {active.composition} · each pack shows a different lens on the
+                same workspace evidence
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -213,36 +234,72 @@ export function ReportsHub({
           </div>
 
           {active.id === "monthly" ? (
-            <MonthlyPackView
-              openCount={open.length}
-              highRisk={highRisk.length}
-              trustIndex={pulse.trustIndex}
-              trustLabel={pulse.label}
-              status={statusBars(incidents)}
-              byProject={projectOpenBars(activity)}
-              narrativeCases={open.slice(0, 4)}
-            />
+            <div className="space-y-5">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <KpiCard label="Open cases" value={String(open.length)} />
+                <KpiCard
+                  label="High risk"
+                  value={String(highRisk.length)}
+                  tone={highRisk.length > 0 ? "attention" : "default"}
+                />
+                <KpiCard
+                  label={`Trust · ${pulse.label}`}
+                  value={`${pulse.trustIndex}`}
+                />
+              </div>
+              <MonthlyOpsLayout
+                chartGroups={monthlyChartGroups(incidents, [
+                  ...statusBars(incidents),
+                  ...projectOpenBars(activity),
+                ])}
+                showCharts
+                showDetails={false}
+              />
+              <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
+                <h3 className="text-sm font-semibold text-tl-ink">
+                  Period activity (detailed)
+                </h3>
+                <p className="mt-2 text-sm text-tl-ink-muted">
+                  Monthly pack lists cases attended, meetings, evidence, and
+                  TAT — generate the full narrative with the evidence writer
+                  below. Lead items:
+                </p>
+                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-tl-ink">
+                  {open.slice(0, 8).map((c) => (
+                    <li key={c.id}>
+                      <span className="font-medium">{c.id}</span> — {c.title} (
+                      {c.priority}, {c.status}
+                      {c.ownerName ? `; owner ${c.ownerName}` : ""})
+                    </li>
+                  ))}
+                  {open.length === 0 ? (
+                    <li className="list-none text-tl-ink-muted">
+                      No open cases this period — closed work still appears in
+                      the generated monthly narrative.
+                    </li>
+                  ) : null}
+                </ul>
+              </section>
+            </div>
           ) : null}
 
           {active.id === "executive" ? (
-            <ExecutivePackView
-              highRisk={highRisk}
-              activity={activity}
-              priority={priorityBars(open)}
+            <ExecutiveRiskLayout
+              rows={riskRows}
               trustIndex={pulse.trustIndex}
+              trustLabel={pulse.label}
+              chartGroups={executiveChartGroups(riskRows)}
+              showCharts
+              showDetails={false}
             />
           ) : null}
 
           {active.id === "board_presentation" ? (
-            <BoardPackView
-              projects={projects.length}
-              openCount={open.length}
-              highRisk={highRisk.length}
-              trustIndex={pulse.trustIndex}
-              trustLabel={pulse.label}
-              status={statusBars(incidents)}
-              priority={priorityBars(open)}
-              topRisks={highRisk.slice(0, 5)}
+            <FunderAssuranceLayout
+              snapshot={funderSnapshot}
+              chartGroups={funderChartGroups(funderSnapshot)}
+              showCharts
+              showDetails={false}
             />
           ) : null}
 
@@ -253,224 +310,19 @@ export function ReportsHub({
                 {active.defaultKind.replaceAll("_", " ")}). Cloud Month-End
                 templates are blocked.
               </p>
-              <CreateReportWizard role={role} authorName={authorName} />
+              <CreateReportWizard
+                key={active.id}
+                role={role}
+                authorName={authorName}
+                initialKind={active.defaultKind}
+                initialAudience={active.defaultAudience}
+              />
             </div>
           ) : null}
 
           <ReportsLibrary role={role} />
         </section>
       ) : null}
-    </div>
-  );
-}
-
-function MonthlyPackView({
-  openCount,
-  highRisk,
-  trustIndex,
-  trustLabel,
-  status,
-  byProject,
-  narrativeCases,
-}: {
-  openCount: number;
-  highRisk: number;
-  trustIndex: number;
-  trustLabel: string;
-  status: Array<{ label: string; value: number }>;
-  byProject: Array<{ label: string; value: number }>;
-  narrativeCases: Incident[];
-}) {
-  return (
-    <div className="space-y-5">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <KpiCard label="Open cases" value={String(openCount)} />
-        <KpiCard
-          label="High risk"
-          value={String(highRisk)}
-          tone={highRisk > 0 ? "attention" : "default"}
-        />
-        <KpiCard label={`Trust · ${trustLabel}`} value={`${trustIndex}`} />
-      </div>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <figure className="rounded-lg border border-tl-line bg-tl-surface p-4">
-          <figcaption className="mb-3 text-sm font-medium text-tl-ink">
-            Case status mix
-          </figcaption>
-          <VerticalBarChart bars={status} />
-        </figure>
-        <figure className="rounded-lg border border-tl-line bg-tl-surface p-4">
-          <figcaption className="mb-3 text-sm font-medium text-tl-ink">
-            Open cases by project
-          </figcaption>
-          <HorizontalBarChart bars={byProject} />
-        </figure>
-      </div>
-      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-        <h3 className="text-sm font-semibold text-tl-ink">Period narrative</h3>
-        <p className="mt-2 text-sm text-tl-ink-muted">
-          Operational month in review: {openCount} open matters remain on the
-          desk, including {highRisk} high-risk items. Trust pulse sits at{" "}
-          {trustIndex}/100 ({trustLabel}). Lead cases below — expand with the
-          evidence AI writer for a full text pack.
-        </p>
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-tl-ink">
-          {narrativeCases.map((c) => (
-            <li key={c.id}>
-              <span className="font-medium">{c.id}</span> — {c.title} (
-              {c.priority}, {c.status})
-            </li>
-          ))}
-        </ul>
-      </section>
-    </div>
-  );
-}
-
-function ExecutivePackView({
-  highRisk,
-  activity,
-  priority,
-  trustIndex,
-}: {
-  highRisk: Incident[];
-  activity: ReturnType<typeof buildProjectActivity>;
-  priority: Array<{ label: string; value: number }>;
-  trustIndex: number;
-}) {
-  const hot = activity
-    .filter((r) => r.highRisk > 0 || r.breached > 0)
-    .sort((a, b) => b.highRisk - a.highRisk || b.breached - a.breached)
-    .slice(0, 5);
-
-  return (
-    <div className="space-y-5">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <KpiCard
-          label="Strategic high-risk cases"
-          value={String(highRisk.length)}
-          tone={highRisk.length > 0 ? "attention" : "default"}
-        />
-        <KpiCard label="Hot projects" value={String(hot.length)} />
-        <KpiCard label="Portfolio trust" value={`${trustIndex}`} />
-      </div>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <figure className="rounded-lg border border-tl-line bg-tl-surface p-4">
-          <figcaption className="mb-3 text-sm font-medium text-tl-ink">
-            Priority pressure (open)
-          </figcaption>
-          <VerticalBarChart bars={priority} />
-        </figure>
-        <figure className="rounded-lg border border-tl-line bg-tl-surface p-4">
-          <figcaption className="mb-3 text-sm font-medium text-tl-ink">
-            Project risk heat (open / high / SLA)
-          </figcaption>
-          <HorizontalBarChart
-            bars={hot.map((r) => ({
-              label: r.project.name.split("—")[0]?.trim().slice(0, 16) || r.project.id,
-              value: r.highRisk * 2 + r.breached + r.escalated,
-            }))}
-          />
-        </figure>
-      </div>
-      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-        <h3 className="text-sm font-semibold text-tl-ink">
-          Strategic issues & high risks
-        </h3>
-        <ul className="mt-3 divide-y divide-tl-line">
-          {highRisk.length === 0 ? (
-            <li className="py-2 text-sm text-tl-ink-muted">
-              No P1/P2 open items in scope.
-            </li>
-          ) : (
-            highRisk.slice(0, 6).map((c) => (
-              <li key={c.id} className="flex flex-wrap justify-between gap-2 py-2 text-sm">
-                <span>
-                  <span className="font-medium">{c.id}</span> — {c.title}
-                </span>
-                <span className="text-xs text-tl-amber">
-                  {c.priority}
-                  {c.slaBreached ? " · SLA" : ""}
-                </span>
-              </li>
-            ))
-          )}
-        </ul>
-      </section>
-    </div>
-  );
-}
-
-function BoardPackView({
-  projects,
-  openCount,
-  highRisk,
-  trustIndex,
-  trustLabel,
-  status,
-  priority,
-  topRisks,
-}: {
-  projects: number;
-  openCount: number;
-  highRisk: number;
-  trustIndex: number;
-  trustLabel: string;
-  status: Array<{ label: string; value: number }>;
-  priority: Array<{ label: string; value: number }>;
-  topRisks: Incident[];
-}) {
-  return (
-    <div className="space-y-5">
-      <p className="text-sm text-tl-ink-muted">
-        Presentation layout — short slides of assurance metrics for clients,
-        board, and funders. Print or export from the browser when ready.
-      </p>
-      <div className="grid gap-4 md:grid-cols-2">
-        <article className="flex min-h-[14rem] flex-col justify-between rounded-lg border border-tl-line bg-tl-surface p-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
-            Slide 1 · Assurance position
-          </p>
-          <div>
-            <p className="font-display text-3xl font-semibold text-tl-ink">
-              Trust {trustIndex}/100
-            </p>
-            <p className="mt-2 text-sm text-tl-ink-muted">
-              {trustLabel} across {projects} projects · {openCount} open ·{" "}
-              {highRisk} high risk
-            </p>
-          </div>
-        </article>
-        <article className="rounded-lg border border-tl-line bg-tl-surface p-6">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
-            Slide 2 · Status mix
-          </p>
-          <VerticalBarChart bars={status} />
-        </article>
-        <article className="rounded-lg border border-tl-line bg-tl-surface p-6">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
-            Slide 3 · Priority profile
-          </p>
-          <HorizontalBarChart bars={priority} />
-        </article>
-        <article className="rounded-lg border border-tl-line bg-tl-surface p-6">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
-            Slide 4 · Board asks
-          </p>
-          <ul className="space-y-2 text-sm text-tl-ink">
-            {topRisks.length === 0 ? (
-              <li className="text-tl-ink-muted">No critical asks this period.</li>
-            ) : (
-              topRisks.map((c) => (
-                <li key={c.id}>
-                  Confirm owner and next stage on{" "}
-                  <span className="font-medium">{c.id}</span> ({c.title}).
-                </li>
-              ))
-            )}
-          </ul>
-        </article>
-      </div>
     </div>
   );
 }

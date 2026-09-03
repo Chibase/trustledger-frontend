@@ -19,8 +19,17 @@ import { trustIndexFromIncidents } from "@/lib/grievanceProcess";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type {
   EvidenceStubRef,
+  ReportKind,
   ReportSectionId,
 } from "@/types/activityReport";
+import {
+  buildExecutiveRiskRows,
+  buildFunderSnapshot,
+  reportLensForKind,
+  type ExecutiveRiskRow,
+  type FunderSnapshot,
+  type ReportLens,
+} from "@/lib/reportLenses";
 import type { Incident } from "@/types/incident";
 import type { Project, ProjectDossier } from "@/types/project";
 
@@ -93,6 +102,7 @@ export function periodFactsHaveWritableEvidence(
 }
 
 export type ComposeNarrativeInput = {
+  kind?: ReportKind;
   kindLabel: string;
   audienceLabel: string;
   periodLabel: string;
@@ -105,6 +115,50 @@ export type ComposeNarrativeInput = {
   facts: PeriodActivityFacts;
   tonePreference?: "plain" | "formal" | "board";
 };
+
+function incidentsFromFacts(facts: PeriodActivityFacts): Incident[] {
+  const seen = new Set<string>();
+  const out: Incident[] = [];
+  for (const row of [
+    ...facts.unresolvedBlocked,
+    ...facts.escalated,
+    ...facts.pending,
+    ...facts.attended,
+    ...facts.resolved,
+  ]) {
+    if (seen.has(row.id)) continue;
+    seen.add(row.id);
+    out.push(row);
+  }
+  return out;
+}
+
+export function riskRowsFromFacts(facts: PeriodActivityFacts): ExecutiveRiskRow[] {
+  return buildExecutiveRiskRows(incidentsFromFacts(facts), {
+    promises: facts.dossier?.promises,
+  });
+}
+
+export function funderSnapshotFromFacts(
+  facts: PeriodActivityFacts,
+): FunderSnapshot {
+  return buildFunderSnapshot(incidentsFromFacts(facts), {
+    trustIndex: facts.trustIndex,
+    trustLabel: facts.trustLabel,
+  });
+}
+
+function inferReportLens(input: ComposeNarrativeInput): ReportLens {
+  if (input.kind) return reportLensForKind(input.kind);
+  if (/executive risk/i.test(input.kindLabel)) return "executive";
+  if (
+    /board|investor|funder/i.test(input.kindLabel) ||
+    input.tonePreference === "board"
+  ) {
+    return "funder";
+  }
+  return "monthly";
+}
 
 /** Detect fill-in-the-blank / how-to guides from weak LLM prompts. */
 export function looksLikeReportTemplateGuide(text: string): boolean {
@@ -903,6 +957,15 @@ Progress-claim and evidence documentation risk is concentrated on ${shortList(fa
 
 Portfolio risk for ${scope} in ${period}: **${facts.unresolvedBlocked.length}** blocked/SLA-pressured case${facts.unresolvedBlocked.length === 1 ? "" : "s"}, **${facts.escalated.length}** escalation${facts.escalated.length === 1 ? "" : "s"}, trust **${facts.trustLabel}**. Highest-visibility items: ${shortList(facts.escalated.length ? facts.escalated : facts.unresolvedBlocked)}.`;
 
+    case "identified_risks":
+    case "project_impact":
+    case "impact_level":
+    case "mitigation_in_progress":
+    case "mitigation_process":
+    case "expected_outcome":
+    case "executive_expedite":
+      return writeExecutiveRiskSection(id, label, facts);
+
     case "board_recommendations":
       return `## ${label}
 
@@ -927,13 +990,175 @@ Period activity on ${scope} for ${period} is summarised through cases ${shortLis
   }
 }
 
+function writeExecutiveRiskSection(
+  id: ReportSectionId,
+  label: string,
+  facts: PeriodActivityFacts,
+): string {
+  const rows = riskRowsFromFacts(facts);
+  if (!rows.length) {
+    return `## ${label}
+
+No open issues are on the desk for this scope. There is nothing for executives to expedite this cycle.`;
+  }
+  if (id === "identified_risks") {
+    return `## ${label}
+
+${rows.map((r) => `- **${r.id} — ${r.issue}** (${r.projectName || "site"}; ${r.impactLevel}).`).join("\n")}`;
+  }
+  if (id === "executive_expedite") {
+    const asks = rows.filter((r) => r.executiveAction);
+    return `## ${label}
+
+${
+  asks.length
+    ? asks.map((r) => `- **${r.id}:** ${r.executiveAction}`).join("\n")
+    : "No executive intervention is required this cycle — the desk can complete the current stages."
+}`;
+  }
+  return `## ${label}
+
+${rows
+  .map((r) => {
+    if (id === "project_impact") return `- **${r.id}:** ${r.projectImpact}`;
+    if (id === "impact_level")
+      return `- **${r.id}:** ${r.impactLevel} (${r.impactLevelDetail})`;
+    if (id === "mitigation_in_progress") return `- **${r.id}:** ${r.mitigation}`;
+    if (id === "mitigation_process") return `- **${r.id}:** ${r.processStage}`;
+    return `- **${r.id}:** ${r.expectedOutcome}`;
+  })
+  .join("\n")}`;
+}
+
+function composeHeader(input: ComposeNarrativeInput, title: string): string {
+  const scope =
+    input.projectName || input.facts.projectName || "portfolio scope";
+  const today = new Date().toLocaleDateString("en-ZA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  return `# ${title}
+
+**Date:** ${today}  
+**Prepared by:** ${input.authorName} (${input.authorTierLabel})  
+**Audience:** ${input.audienceLabel}  
+**Scope:** ${scope}  
+`;
+}
+
+function composeExecutiveRiskBrief(input: ComposeNarrativeInput): {
+  title: string;
+  bodyMarkdown: string;
+  executiveHighlight: string;
+} {
+  const title = `${input.kindLabel} — ${input.periodLabel}`;
+  const scope =
+    input.projectName || input.facts.projectName || "portfolio scope";
+  const rows = riskRowsFromFacts(input.facts);
+  const asks = rows.filter((r) => r.executiveAction);
+  const issueBlocks = rows.length
+    ? rows
+        .map(
+          (r) => `### ${r.id} — ${r.issue}
+
+- **Project impact:** ${r.projectImpact}
+- **Impact level:** ${r.impactLevel} (${r.impactLevelDetail})
+- **Mitigation in progress:** ${r.mitigation}
+- **Mitigation process:** ${r.processStage}
+- **Expected outcome:** ${r.expectedOutcome}
+- **Executive action:** ${r.executiveAction || "None required this cycle — desk can complete the current stage."}`,
+        )
+        .join("\n\n")
+    : "No open issues are on the desk for this scope.";
+
+  const bodyMarkdown = `${composeHeader(input, title).trim()}
+
+## Position
+
+Trust pulse for **${scope}** in **${input.periodLabel}**: **${input.facts.trustIndex}/100 (${input.facts.trustLabel})**. **${rows.length}** identified issue${rows.length === 1 ? "" : "s"}; **${asks.length}** need executive action to expedite.
+
+## Identified issues
+
+${issueBlocks}
+
+## What executives can expedite
+
+${
+  asks.length
+    ? asks.map((r) => `- **${r.id}:** ${r.executiveAction}`).join("\n")
+    : "No executive intervention is required this cycle."
+}
+
+## Closing
+
+This is an executive risk brief, not a monthly activity log. Human review is required before circulation.
+`;
+
+  return {
+    title,
+    bodyMarkdown: bodyMarkdown.trim(),
+    executiveHighlight: `Executive risk brief: ${rows.length} issue(s), ${asks.length} expedite ask(s), trust ${input.facts.trustIndex}/100.`,
+  };
+}
+
+function composeFunderBrief(input: ComposeNarrativeInput): {
+  title: string;
+  bodyMarkdown: string;
+  executiveHighlight: string;
+} {
+  const title = `${input.kindLabel} — ${input.periodLabel}`;
+  const scope =
+    input.projectName || input.facts.projectName || "portfolio scope";
+  const snap = funderSnapshotFromFacts(input.facts);
+  const materials = snap.materialItems.length
+    ? snap.materialItems.map((m) => `- ${m.line}`).join("\n")
+    : "- No material open items this period.";
+  const asks = snap.asks.map((a) => `- ${a}`).join("\n");
+
+  const bodyMarkdown = `${composeHeader(input, title).trim()}
+
+## Assurance snapshot
+
+High-level position for **${scope}** in **${input.periodLabel}** (not a day-to-day activity dump):
+
+- **Trust:** ${snap.trustIndex}/100 (${snap.trustLabel})
+- **Open / closed:** ${snap.openCount} / ${snap.closedCount}
+- **Material high-risk:** ${snap.highRiskCount}
+- **SLA pressure:** ${snap.slaBreachedCount}
+
+## Material items
+
+${materials}
+
+## What we are asking
+
+${asks}
+
+## Closing
+
+This client / funder pack is an assurance snapshot. Detailed operational activity sits in the monthly report. Human review is required before external circulation.
+`;
+
+  return {
+    title,
+    bodyMarkdown: bodyMarkdown.trim(),
+    executiveHighlight: `Funder snapshot: trust ${snap.trustIndex}/100; ${snap.openCount} open; ${snap.highRiskCount} high-risk.`,
+  };
+}
+
 /**
  * Write a finished markdown report from picked topics + evidence facts.
  * Never returns instructional placeholders.
+ * Monthly = detailed activity; executive = risk brief; funder = high-level snapshot.
  */
 export function composeActivityReportMarkdown(
   input: ComposeNarrativeInput,
 ): { title: string; bodyMarkdown: string; executiveHighlight: string } {
+  const lens = inferReportLens(input);
+  if (lens === "executive") return composeExecutiveRiskBrief(input);
+  if (lens === "funder") return composeFunderBrief(input);
+
   const tone =
     input.tonePreference === "board" ||
     /board|investor|funder/i.test(input.audienceLabel)
@@ -966,15 +1191,9 @@ export function composeActivityReportMarkdown(
       : `Evidence from project dossier / Capture packs (${input.facts.meetingCaptures.length} meeting/note capture${input.facts.meetingCaptures.length === 1 ? "" : "s"}; packs filed for empowerment, employment, GRM, or budget as available).`
     : `Lead case set: ${shortList(input.facts.attended)}.`;
 
-  const highlight =
-    tone === "board"
-      ? `## Executive highlight
+  const highlight = `## Summary
 
-Assurance position for **${scope}** in **${input.periodLabel}**: trust **${input.facts.trustIndex}/100 (${input.facts.trustLabel})**; **${input.facts.attended.length}** cases attended; **${input.facts.escalated.length}** escalations; **${input.facts.unresolvedBlocked.length}** blocked/SLA-pressured. ${packHint}
-`
-      : `## Summary
-
-This ${input.kindLabel.toLowerCase()} covers **${input.includedSectionLabels.length}** selected topic${input.includedSectionLabels.length === 1 ? "" : "s"} for **${input.periodLabel}** on **${scope}**. Trust pulse: **${input.facts.trustIndex}/100 (${input.facts.trustLabel})**. ${packHint}
+This detailed ${input.kindLabel.toLowerCase()} covers **${input.includedSectionLabels.length}** selected topic${input.includedSectionLabels.length === 1 ? "" : "s"} for **${input.periodLabel}** on **${scope}**. Trust pulse: **${input.facts.trustIndex}/100 (${input.facts.trustLabel})**. ${packHint}
 `;
 
   const lockedNote = input.lockedSectionLabels.length
@@ -989,7 +1208,7 @@ This ${input.kindLabel.toLowerCase()} covers **${input.includedSectionLabels.len
 
   const closing = `## Closing
 
-The findings above are drawn from TrustLedger workspace evidence for ${input.periodLabel}. Human review is required before external circulation; figures and annexures should be confirmed by the responsible desk.
+The findings above are drawn from TrustLedger workspace evidence for ${input.periodLabel}. This monthly pack is the detailed operational record. Human review is required before external circulation; figures and annexures should be confirmed by the responsible desk.
 `;
 
   const bodyMarkdown = [

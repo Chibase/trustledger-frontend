@@ -19,9 +19,19 @@ import {
   buildPeriodActivityFacts,
   composeActivityReportMarkdown,
   factsToPromptBlock,
+  funderSnapshotFromFacts,
   looksLikeReportTemplateGuide,
   periodFactsHaveWritableEvidence,
+  riskRowsFromFacts,
 } from "@/lib/reportComposer";
+import {
+  defaultFormatForLens,
+  executiveChartGroups,
+  funderChartGroups,
+  monthlyChartGroups,
+  reportLensForKind,
+  savedBodyMatchesLens,
+} from "@/lib/reportLenses";
 import {
   getSavedReport,
   listSavedReports,
@@ -117,7 +127,7 @@ export function ProjectReportStudio({
   categories,
 }: Props) {
   const [tier, setTier] = useState<DeskTier>("clo");
-  const [kind, setKind] = useState<ReportKind>("esg");
+  const [kind, setKind] = useState<ReportKind>("monthly_activity");
   const [audience, setAudience] = useState<ReportAudience>("clients");
   const [format, setFormat] = useState<ReportFormatId>("charts_details");
   const [periodLabel, setPeriodLabel] = useState(currentMonthLabel());
@@ -190,44 +200,60 @@ export function ProjectReportStudio({
     return bars.slice(0, 10);
   }, [mappedCategories]);
 
-  /** Always-resolved details text for view / download / print (never empty placeholder). */
-  const effectiveBody = useMemo(() => {
-    if (body.trim()) return body;
-    if (!included.length) {
-      return `## ${REPORT_KIND_LABELS[kind]}\n\nNo topics are available for this desk on the selected kind.`;
+  const lens = reportLensForKind(kind);
+  const riskRows = useMemo(() => riskRowsFromFacts(facts), [facts]);
+  const funderSnapshot = useMemo(
+    () => funderSnapshotFromFacts(facts),
+    [facts],
+  );
+  const chartGroups = useMemo(() => {
+    if (lens === "executive") return executiveChartGroups(riskRows);
+    if (lens === "funder") return funderChartGroups(funderSnapshot);
+    return monthlyChartGroups(incidents, kindChartBars);
+  }, [lens, riskRows, funderSnapshot, incidents, kindChartBars]);
+
+  function composeNarrative(opts: {
+    kind: ReportKind;
+    audience: ReportAudience;
+    period: string;
+  }): string {
+    const sections = sectionsForKind(opts.kind).filter((s) =>
+      tierMeetsMinimum(tier, s.minTier),
+    );
+    if (!sections.length) {
+      return `## ${REPORT_KIND_LABELS[opts.kind]}\n\nNo topics are available for this desk on the selected kind.`;
     }
     if (!periodFactsHaveWritableEvidence(facts)) {
-      return `## ${REPORT_KIND_LABELS[kind]}\n\nNo mapped project evidence yet for **${project.name}** (${periodLabel}). Capture category packs or cases on this project, then view, download, or print again.`;
+      return `## ${REPORT_KIND_LABELS[opts.kind]}\n\nNo mapped project evidence yet for **${project.name}** (${opts.period}). Capture category packs or cases on this project, then view, download, or print again.`;
     }
     return composeActivityReportMarkdown({
-      kindLabel: REPORT_KIND_LABELS[kind],
-      audienceLabel: REPORT_AUDIENCE_LABELS[audience],
-      periodLabel,
+      kind: opts.kind,
+      kindLabel: REPORT_KIND_LABELS[opts.kind],
+      audienceLabel: REPORT_AUDIENCE_LABELS[opts.audience],
+      periodLabel: opts.period,
       authorTierLabel: DESK_TIER_LABELS[tier],
       authorName,
       projectName: project.name,
-      includedSectionIds: included.map((s) => s.id),
-      includedSectionLabels: included.map((s) => s.label),
+      includedSectionIds: sections.map((s) => s.id),
+      includedSectionLabels: sections.map((s) => s.label),
       lockedSectionLabels: [],
       facts,
       tonePreference:
-        audience === "board" || audience === "funders_investors"
+        opts.audience === "board" || opts.audience === "funders_investors"
           ? "board"
-          : audience === "regulator"
+          : opts.audience === "regulator"
             ? "formal"
             : "plain",
     }).bodyMarkdown;
-  }, [
-    body,
-    included,
-    kind,
-    facts,
-    project.name,
-    periodLabel,
-    audience,
-    tier,
-    authorName,
-  ]);
+  }
+
+  /** Always-resolved details text for view / download / print (never empty placeholder). */
+  const effectiveBody = useMemo(() => {
+    if (body.trim() && savedBodyMatchesLens(kind, body)) return body;
+    return composeNarrative({ kind, audience, period: periodLabel });
+    // composeNarrative closes over facts/tier/author.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [body, included, kind, facts, project.name, periodLabel, audience, tier, authorName]);
 
   /**
    * Details body for view / download / print — never leave an empty placeholder.
@@ -240,12 +266,10 @@ export function ProjectReportStudio({
     period?: string;
   }): string {
     const existing = (opts?.bodyMarkdown ?? body).trim();
-    if (existing) return existing;
-
     const k = opts?.kind ?? kind;
+    if (existing && savedBodyMatchesLens(k, existing)) return existing;
     const aud = opts?.audience ?? audience;
     const period = opts?.period ?? periodLabel;
-    // Same inputs as effectiveBody when opts match current state.
     if (
       k === kind &&
       aud === audience &&
@@ -254,35 +278,7 @@ export function ProjectReportStudio({
     ) {
       return effectiveBody;
     }
-    const sections = sectionsForKind(k).filter((s) =>
-      tierMeetsMinimum(tier, s.minTier),
-    );
-    if (!sections.length) {
-      return `## ${REPORT_KIND_LABELS[k]}\n\nNo topics are available for this desk on the selected kind.`;
-    }
-    if (!periodFactsHaveWritableEvidence(facts)) {
-      return `## ${REPORT_KIND_LABELS[k]}\n\nNo mapped project evidence yet for **${project.name}** (${period}). Capture category packs or cases on this project, then view, download, or print again.`;
-    }
-
-    const composed = composeActivityReportMarkdown({
-      kindLabel: REPORT_KIND_LABELS[k],
-      audienceLabel: REPORT_AUDIENCE_LABELS[aud],
-      periodLabel: period,
-      authorTierLabel: DESK_TIER_LABELS[tier],
-      authorName,
-      projectName: project.name,
-      includedSectionIds: sections.map((s) => s.id),
-      includedSectionLabels: sections.map((s) => s.label),
-      lockedSectionLabels: [],
-      facts,
-      tonePreference:
-        aud === "board" || aud === "funders_investors"
-          ? "board"
-          : aud === "regulator"
-            ? "formal"
-            : "plain",
-    });
-    return composed.bodyMarkdown;
+    return composeNarrative({ kind: k, audience: aud, period });
   }
 
   async function handleCompose() {
@@ -532,7 +528,13 @@ export function ProjectReportStudio({
           <select
             className="w-full rounded-md border border-tl-line bg-tl-surface px-3 py-2"
             value={kind}
-            onChange={(e) => setKind(e.target.value as ReportKind)}
+            onChange={(e) => {
+              const next = e.target.value as ReportKind;
+              setKind(next);
+              setBody("");
+              setSavedId(null);
+              setFormat(defaultFormatForLens(reportLensForKind(next)));
+            }}
           >
             {REPORT_KINDS.map((id) => (
               <option key={id} value={id}>
@@ -799,6 +801,12 @@ export function ProjectReportStudio({
         onDownload={() => handleDownload()}
         reportId={savedId}
         projectId={project.id}
+        lens={lens}
+        riskRows={riskRows}
+        funderSnapshot={funderSnapshot}
+        chartGroups={chartGroups}
+        trustIndex={facts.trustIndex}
+        trustLabel={facts.trustLabel}
       />
     </div>
   );

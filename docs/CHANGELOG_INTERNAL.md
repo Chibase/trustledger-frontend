@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-03 — Report packs are distinct lenses
+
+- Monthly, executive risk brief, and client/funder pack no longer share one “category signals” view plus the same narrative.
+- **Monthly** is the detailed operational pack (activity, issues, meetings, evidence). **Executive risk brief** lists identified issues with project impact, impact level, mitigation in progress, process stage, expected outcome, and what executives can expedite. **Board / client / funder** is a high-level assurance snapshot (trust, material items, asks).
+- Local `reportComposer` writes those lenses; Cloud month-end templates stay blocked. Executive pack default kind is `executive_risk`. Switching kind on the project studio clears a stale draft so View matches the selected pack.
+- ADR-028 decision 6.
+
 ## 2026-09-02 — NCGR-B seed is Thozamile only
 
 - Illustrative NCGR-B preload is **Thozamile KaDlanga** (`thozi@chibaseconsulting.co.za`, `/login/vip`, admin · VIP · trial) only. Other complimentary VIP sessions (Cloud `/login/live` guests) are Institutional and start empty.
