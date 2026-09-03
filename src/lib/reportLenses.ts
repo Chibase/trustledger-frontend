@@ -89,6 +89,33 @@ export function defaultKindForPack(packId: ReportPackId): ReportKind {
   return "monthly_activity";
 }
 
+/** Executive and funder packs use a fixed brief — topic pickers must not imply otherwise. */
+export function lensUsesFixedBrief(
+  lens: ReportLens,
+): lens is Exclude<ReportLens, "monthly"> {
+  return lens === "executive" || lens === "funder";
+}
+
+export const FIXED_BRIEF_OUTLINE: Record<
+  Exclude<ReportLens, "monthly">,
+  string[]
+> = {
+  executive: [
+    "Identified issues",
+    "Project impact",
+    "Impact level",
+    "Mitigation in progress",
+    "Mitigation process",
+    "Expected outcome",
+    "What executives can expedite",
+  ],
+  funder: [
+    "Assurance snapshot",
+    "Material items",
+    "What we are asking",
+  ],
+};
+
 /** True when saved markdown already matches this kind’s lens (skip recompose). */
 export function savedBodyMatchesLens(kind: ReportKind, body: string): boolean {
   const text = body.trim();

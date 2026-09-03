@@ -1,12 +1,16 @@
 import { mockIncidents } from "@/data/mockIncidents";
 import {
+  bodyCitesAnyCaseId,
   composeActivityReportMarkdown,
   emptyAggregatedPackFacts,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import {
+  FIXED_BRIEF_OUTLINE,
   buildExecutiveRiskRows,
   buildFunderSnapshot,
+  funderChartGroups,
+  lensUsesFixedBrief,
   reportLensForKind,
   reportLensForPack,
   savedBodyMatchesLens,
@@ -107,6 +111,13 @@ describe("report pack lenses", () => {
     expect(snap.materialItems.length).toBeLessThanOrEqual(5);
     expect(snap.asks.length).toBeGreaterThan(0);
     expect(snap.asks.length).toBeLessThanOrEqual(3);
+    const charts = funderChartGroups(snap);
+    expect(charts.map((g) => g.caption)).toEqual([
+      "Delivery position",
+      "Assurance",
+    ]);
+    expect(lensUsesFixedBrief("funder")).toBe(true);
+    expect(FIXED_BRIEF_OUTLINE.funder).toContain("What we are asking");
   });
 
   it("composes different bodies for monthly, executive, and funder", () => {
@@ -183,5 +194,13 @@ describe("report pack lenses", () => {
     });
     expect(funder.bodyMarkdown).toMatch(/\bINC-\d+/);
     expect(funder.bodyMarkdown).toMatch(/Cases cited:/);
+  });
+
+  it("treats alphanumeric case ids as citations, not only INC-1001", () => {
+    const body = "### INC-NCGR-03 — Night-haul noise\n- **Project impact:** …";
+    expect(bodyCitesAnyCaseId(body, ["INC-NCGR-03", "INC-NCGR-01"])).toBe(true);
+    expect(/\bINC-\d+/i.test(body)).toBe(false);
+    expect(bodyCitesAnyCaseId(body, ["INC-1001"])).toBe(false);
+    expect(bodyCitesAnyCaseId("no cases", [])).toBe(true);
   });
 });

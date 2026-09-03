@@ -221,14 +221,21 @@ export function FunderAssuranceLayout({
               </p>
             </div>
           </article>
-          {chartGroups[0] ? (
-            <article className="rounded-lg border border-tl-line bg-tl-surface p-6">
+          {chartGroups.map((group) => (
+            <article
+              key={group.caption}
+              className="rounded-lg border border-tl-line bg-tl-surface p-6"
+            >
               <p className="mb-3 text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
-                {chartGroups[0].caption}
+                {group.caption}
               </p>
-              <VerticalBarChart bars={chartGroups[0].bars} />
+              {group.orientation === "vertical" ? (
+                <VerticalBarChart bars={group.bars} />
+              ) : (
+                <HorizontalBarChart bars={group.bars} maxHeight={220} />
+              )}
             </article>
-          ) : null}
+          ))}
           <article className="rounded-lg border border-tl-line bg-tl-surface p-6">
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
               Material items

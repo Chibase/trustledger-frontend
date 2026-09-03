@@ -2,6 +2,7 @@ import { FRAPPE_METHODS } from "@/config/api";
 import { mockIncidents } from "@/data/mockIncidents";
 import { callFrappeMethod } from "@/lib/frappeClient";
 import {
+  bodyCitesAnyCaseId,
   composeActivityReportMarkdown,
   emptyAggregatedPackFacts,
   looksLikeReportTemplateGuide,
@@ -275,17 +276,27 @@ function mockReportBrief(input: ReportBriefRequest): ReportBriefSuggestion {
   };
 }
 
+function parsePeriodFactsJson(
+  raw: string | undefined,
+): PeriodActivityFacts | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as PeriodActivityFacts & {
+      facts?: PeriodActivityFacts;
+    };
+    if (parsed?.facts && Array.isArray(parsed.facts.attended)) {
+      return parsed.facts;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 function mockActivityReport(
   input: ActivityReportComposeRequest,
 ): ActivityReportComposeSuggestion {
-  let facts: PeriodActivityFacts | null = null;
-  if (input.factsJson) {
-    try {
-      facts = JSON.parse(input.factsJson) as PeriodActivityFacts;
-    } catch {
-      facts = null;
-    }
-  }
+  let facts: PeriodActivityFacts | null = parsePeriodFactsJson(input.factsJson);
 
   // Minimal facts so we still write a real report if JSON is missing / empty.
   // Customer workspaces must never fall back to demo INC-* seed — but may write
@@ -553,18 +564,17 @@ export const aiService = {
     if (looksLikeReportTemplateGuide(local.bodyMarkdown)) {
       throw new Error("Composer refused to return a template guide.");
     }
-    let attendedCount = 0;
-    try {
-      const parsed = input.factsJson
-        ? (JSON.parse(input.factsJson) as PeriodActivityFacts)
-        : null;
-      attendedCount = parsed?.attended?.length ?? 0;
-    } catch {
-      attendedCount = 0;
-    }
-    // Pack/dossier-only drafts will not cite INC-* — that is expected.
-    if (attendedCount > 0 && !/\bINC-\d+/i.test(local.bodyMarkdown)) {
-      throw new Error("Composer did not cite workspace case evidence (INC-*).");
+    const parsed = parsePeriodFactsJson(input.factsJson);
+    const attendedIds = (parsed?.attended || [])
+      .map((row) => row.id)
+      .filter((id): id is string => Boolean(id));
+    // Pack/dossier-only drafts have no cases to cite — that is expected.
+    // Case ids are not always INC-1001 (e.g. INC-NCGR-01).
+    if (
+      attendedIds.length > 0 &&
+      !bodyCitesAnyCaseId(local.bodyMarkdown, attendedIds)
+    ) {
+      throw new Error("Composer did not cite workspace case evidence.");
     }
     return local;
   },

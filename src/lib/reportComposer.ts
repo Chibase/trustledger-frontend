@@ -160,6 +160,16 @@ function inferReportLens(input: ComposeNarrativeInput): ReportLens {
   return "monthly";
 }
 
+/** True when the draft names at least one of the workspace case ids (INC-1001, INC-NCGR-01, …). */
+export function bodyCitesAnyCaseId(body: string, caseIds: string[]): boolean {
+  if (!caseIds.length) return true;
+  const text = body || "";
+  return caseIds.some((id) => {
+    const token = id.trim();
+    return token.length > 0 && text.includes(token);
+  });
+}
+
 /** Detect fill-in-the-blank / how-to guides from weak LLM prompts. */
 export function looksLikeReportTemplateGuide(text: string): boolean {
   if (!text || text.trim().length < 40) return true;
@@ -1157,7 +1167,9 @@ This client / funder pack is an assurance snapshot. Detailed operational activit
 /**
  * Write a finished markdown report from picked topics + evidence facts.
  * Never returns instructional placeholders.
- * Monthly = detailed activity; executive = risk brief; funder = high-level snapshot.
+ * Monthly = detailed activity (honours includedSectionIds).
+ * Executive / funder = fixed briefs (topic ids are informational; the layout
+ * is locked so packs do not collapse back into one generic dump).
  */
 export function composeActivityReportMarkdown(
   input: ComposeNarrativeInput,

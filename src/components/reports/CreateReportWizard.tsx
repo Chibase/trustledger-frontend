@@ -34,12 +34,18 @@ import {
 } from "@/lib/captureStore";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
+  bodyCitesAnyCaseId,
   buildPeriodActivityFacts,
   factsToPromptBlock,
   looksLikeReportTemplateGuide,
   periodFactsHaveWritableEvidence,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
+import {
+  FIXED_BRIEF_OUTLINE,
+  lensUsesFixedBrief,
+  reportLensForKind,
+} from "@/lib/reportLenses";
 import {
   createReportId,
   purgeTemplateGuideReports,
@@ -224,6 +230,10 @@ export function CreateReportWizard({
   const lockedSections = catalogue.filter((s) => !s.allowed);
   const project = projects.find((p) => p.id === projectId);
   const packLines = projectId ? packEvidenceSummary(projectId) : [];
+  const lens = reportLensForKind(kind);
+  const fixedOutline = lensUsesFixedBrief(lens)
+    ? FIXED_BRIEF_OUTLINE[lens]
+    : null;
 
   function selectProject(nextId: string) {
     setProjectId(nextId);
@@ -291,9 +301,15 @@ export function CreateReportWizard({
           "AI returned a template guide instead of a report. The evidence writer blocked it — try again.",
         );
       }
-      if (facts.attended.length > 0 && !/\bINC-\d+/i.test(result.bodyMarkdown)) {
+      if (
+        facts.attended.length > 0 &&
+        !bodyCitesAnyCaseId(
+          result.bodyMarkdown,
+          facts.attended.map((i) => i.id),
+        )
+      ) {
         throw new Error(
-          "Draft missing case citations (INC-*). Evidence writer did not run — hard-refresh and retry.",
+          "Draft missing case citations. Evidence writer did not run — hard-refresh and retry.",
         );
       }
       if (!String(result.model || "").includes("trustledger-evidence")) {
@@ -543,40 +559,55 @@ export function CreateReportWizard({
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-        <h2 className="text-base font-semibold">Mapped topics (automatic)</h2>
+        <h2 className="text-base font-semibold">
+          {fixedOutline ? "Fixed brief" : "Mapped topics (automatic)"}
+        </h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
           For{" "}
           <span className="font-medium text-tl-ink">
             {REPORT_KIND_LABELS[kind]}
-          </span>{" "}
-          on{" "}
-          <span className="font-medium text-tl-ink">{project.name}</span>,
-          topics are fixed by the report kind — you do not pick them. Prefer
-          the{" "}
-          <Link
-            href={`/app/projects/${encodeURIComponent(project.id)}#project-reports`}
-            className="text-tl-trust-ink underline"
-          >
-            project dashboard
-          </Link>{" "}
-          for category-mapped charts and generation.
+          </span>
+          {project ? (
+            <>
+              {" "}
+              on{" "}
+              <span className="font-medium text-tl-ink">{project.name}</span>
+            </>
+          ) : null}
+          {fixedOutline
+            ? " this pack always writes the outline below. Topics are locked so the brief does not become a monthly dump."
+            : " topics are fixed by the report kind — you do not pick them. Prefer the "}
+          {!fixedOutline && project ? (
+            <>
+              <Link
+                href={`/app/projects/${encodeURIComponent(project.id)}#project-reports`}
+                className="text-tl-trust-ink underline"
+              >
+                project dashboard
+              </Link>{" "}
+              for category-mapped charts and generation.
+            </>
+          ) : null}
           {facts
             ? ` Evidence: ${facts.attended.length} cases · ${packLines.length} pack type${packLines.length === 1 ? "" : "s"} · trust ${facts.trustIndex}/100.`
             : ""}
         </p>
         <ul className="mt-3 flex flex-wrap gap-1.5 text-xs">
-          {catalogue
-            .filter((s) => s.allowed && s.preferred)
-            .map((section) => (
-              <li
-                key={section.id}
-                className="rounded-md border border-tl-line bg-tl-paper px-2 py-1 text-tl-ink"
-              >
-                {section.label}
-              </li>
-            ))}
+          {(fixedOutline
+            ? fixedOutline
+            : catalogue
+                .filter((s) => s.allowed && s.preferred)
+                .map((s) => s.label)
+          ).map((label) => (
+            <li
+              key={label}
+              className="rounded-md border border-tl-line bg-tl-paper px-2 py-1 text-tl-ink"
+            >
+              {label}
+            </li>
+          ))}
         </ul>
-        {lockedSections.length ? (
+        {lockedSections.length && !fixedOutline ? (
           <p className="mt-2 text-xs text-tl-ink-muted">
             Above this desk:{" "}
             {lockedSections.map((s) => s.label).join(", ")}.
