@@ -1,5 +1,6 @@
 import { mockIncidents } from "@/data/mockIncidents";
 import {
+  bodyCitesAnyCaseId,
   composeActivityReportMarkdown,
   emptyAggregatedPackFacts,
   type PeriodActivityFacts,
@@ -193,5 +194,13 @@ describe("report pack lenses", () => {
     });
     expect(funder.bodyMarkdown).toMatch(/\bINC-\d+/);
     expect(funder.bodyMarkdown).toMatch(/Cases cited:/);
+  });
+
+  it("treats alphanumeric case ids as citations, not only INC-1001", () => {
+    const body = "### INC-NCGR-03 — Night-haul noise\n- **Project impact:** …";
+    expect(bodyCitesAnyCaseId(body, ["INC-NCGR-03", "INC-NCGR-01"])).toBe(true);
+    expect(/\bINC-\d+/i.test(body)).toBe(false);
+    expect(bodyCitesAnyCaseId(body, ["INC-1001"])).toBe(false);
+    expect(bodyCitesAnyCaseId("no cases", [])).toBe(true);
   });
 });

@@ -324,10 +324,7 @@ export function ProjectReportStudio({
         includedSectionLabels: included.map((s) => s.label),
         lockedSectionLabels: [],
         factsBlock,
-        factsJson: JSON.stringify({
-          facts,
-          categoryMap: mappedCategories,
-        }),
+        factsJson: JSON.stringify(facts),
         tonePreference:
           audience === "board" || audience === "funders_investors"
             ? "board"

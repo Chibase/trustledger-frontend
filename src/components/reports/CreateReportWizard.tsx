@@ -34,6 +34,7 @@ import {
 } from "@/lib/captureStore";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
+  bodyCitesAnyCaseId,
   buildPeriodActivityFacts,
   factsToPromptBlock,
   looksLikeReportTemplateGuide,
@@ -42,6 +43,7 @@ import {
 } from "@/lib/reportComposer";
 import {
   FIXED_BRIEF_OUTLINE,
+  lensUsesFixedBrief,
   reportLensForKind,
 } from "@/lib/reportLenses";
 import {
@@ -229,10 +231,9 @@ export function CreateReportWizard({
   const project = projects.find((p) => p.id === projectId);
   const packLines = projectId ? packEvidenceSummary(projectId) : [];
   const lens = reportLensForKind(kind);
-  const fixedOutline =
-    lens === "executive" || lens === "funder"
-      ? FIXED_BRIEF_OUTLINE[lens]
-      : null;
+  const fixedOutline = lensUsesFixedBrief(lens)
+    ? FIXED_BRIEF_OUTLINE[lens]
+    : null;
 
   function selectProject(nextId: string) {
     setProjectId(nextId);
@@ -300,9 +301,15 @@ export function CreateReportWizard({
           "AI returned a template guide instead of a report. The evidence writer blocked it — try again.",
         );
       }
-      if (facts.attended.length > 0 && !/\bINC-\d+/i.test(result.bodyMarkdown)) {
+      if (
+        facts.attended.length > 0 &&
+        !bodyCitesAnyCaseId(
+          result.bodyMarkdown,
+          facts.attended.map((i) => i.id),
+        )
+      ) {
         throw new Error(
-          "Draft missing case citations (INC-*). Evidence writer did not run — hard-refresh and retry.",
+          "Draft missing case citations. Evidence writer did not run — hard-refresh and retry.",
         );
       }
       if (!String(result.model || "").includes("trustledger-evidence")) {

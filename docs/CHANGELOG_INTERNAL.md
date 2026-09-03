@@ -4,6 +4,7 @@
 
 - Funder layout renders both chart groups (delivery position and assurance), not only the first.
 - Executive / funder writer shows a locked brief outline instead of catalogue topic chips that were not composed. Monthly still honours included sections.
+- Evidence writer accepts real workspace case ids (e.g. `INC-NCGR-01`), not only `INC-` plus digits. The old check blocked valid drafts with “Composer did not cite workspace case evidence (INC-*).”
 
 ## 2026-09-03 — Report packs are distinct lenses
 

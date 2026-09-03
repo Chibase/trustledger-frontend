@@ -90,7 +90,9 @@ export function defaultKindForPack(packId: ReportPackId): ReportKind {
 }
 
 /** Executive and funder packs use a fixed brief — topic pickers must not imply otherwise. */
-export function lensUsesFixedBrief(lens: ReportLens): boolean {
+export function lensUsesFixedBrief(
+  lens: ReportLens,
+): lens is Exclude<ReportLens, "monthly"> {
   return lens === "executive" || lens === "funder";
 }
 
