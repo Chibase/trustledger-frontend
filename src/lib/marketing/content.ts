@@ -70,7 +70,7 @@ function loadDir(rel: string): ContentDoc[] {
       kind: asKind(meta.kind),
       channel: asChannel(meta.channel),
       ctaLabel: meta.cta_label || "Learn more",
-      ctaUrl: meta.cta_url || "https://trustledger.co.za/",
+      ctaUrl: meta.cta_url || "https://trustledgersrm.co.za/",
       platforms: (meta.platforms || "linkedin")
         .split(/[,\s]+/)
         .map((s) => s.trim())

@@ -8,7 +8,7 @@ Emails / marketing web were never on Interserv (Webway). Only the old backend pl
 | Check | Result |
 |-------|--------|
 | Product UI | Vercel → no Interserv URL in runtime |
-| API / Desk | `https://app.trustledger.co.za` (Frappe Cloud) |
+| API / Desk | `https://app.trustledgersrm.co.za` (Frappe Cloud) |
 | Health | `/api/health` → TrustLedger Cloud **OK** |
 | API auth | `/api/frappe/auth-check` → Cloud Administrator **OK** |
 | Leads / Ops / live login | Cloud CRM + Cloud session path |
@@ -17,7 +17,7 @@ Emails / marketing web were never on Interserv (Webway). Only the old backend pl
 Smoke (re-run anytime):
 
 ```bash
-curl -sS "https://app.trustledger.co.za/api/method/frappe.ping"
+curl -sS "https://app.trustledgersrm.co.za/api/method/frappe.ping"
 curl -sS "https://trustledger-frontend-pi.vercel.app/api/health"
 curl -sS "https://trustledger-frontend-pi.vercel.app/api/frappe/auth-check"
 ```

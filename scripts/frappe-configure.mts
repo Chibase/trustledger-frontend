@@ -73,7 +73,7 @@ if (!si.ok) {
 const crm = await bootstrapCrmViews();
 console.log("crmBootstrap", JSON.stringify(crm, null, 2));
 
-const smokeEmail = `frappe-config-smoke+${Date.now()}@trustledger.co.za`;
+const smokeEmail = `frappe-config-smoke+${Date.now()}@trustledgersrm.co.za`;
 const leadRes = await submitFrappeLead({
   email: smokeEmail,
   name: "Frappe config smoke",
@@ -81,7 +81,7 @@ const leadRes = await submitFrappeLead({
   message:
     "Disposable smoke lead from scripts/frappe-configure.mts — safe to delete.",
   pageName: "agent-frappe-configure",
-  pageUri: "https://trustledger.co.za/ops",
+  pageUri: "https://trustledgersrm.co.za/ops",
   sourceTag: "Website Contact",
   crmSource: "Website Contact",
   jobTitle: "Config smoke",

@@ -5,7 +5,7 @@ brand: trustledger
 kind: saas-spotlight
 channel: social
 cta_label: Product overview
-cta_url: https://trustledger.co.za/product
+cta_url: https://trustledgersrm.co.za/product
 platforms: linkedin
 ---
 
@@ -17,4 +17,4 @@ Solo remains an honest entry grievance desk. Practitioner is the AI step-up. We 
 
 Without a registry you mainly have tickets. Without engagements you have no memory of who was in the room. Without commitments, promises evaporate.
 
-Product overview: https://trustledger.co.za/product
+Product overview: https://trustledgersrm.co.za/product

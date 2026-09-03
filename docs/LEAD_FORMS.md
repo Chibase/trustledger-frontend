@@ -13,7 +13,7 @@ Applies to `/assessment`, `/readiness/*` unlock, `/resources` downloads, `/conta
 ### Turn on reCAPTCHA (required before traffic rises)
 
 1. Create a **reCAPTCHA v3** key pair in [Google Admin](https://www.google.com/recaptcha/admin)  
-   Domains: `trustledger-frontend-pi.vercel.app`, `trustledger.co.za`, `localhost` (for local).
+   Domains: `trustledger-frontend-pi.vercel.app`, `trustledgersrm.co.za`, `localhost` (for local).
 2. Vercel → Project → Settings → Environment Variables → **Production** (and Preview if useful):
    ```bash
    NEXT_PUBLIC_RECAPTCHA_SITE_KEY=…

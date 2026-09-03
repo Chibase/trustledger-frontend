@@ -1,7 +1,7 @@
 # Chibase Consulting public site (same app as TrustLedger)
 
 **Status:** Ready to **retire WordPress** and point HTTPS at this app.  
-**Email:** MX for `chibaseconsulting.co.za` and `trustledger.co.za` **stays on Webway**. This app only serves HTTPS pages.  
+**Email:** MX for `chibaseconsulting.co.za` and `trustledgersrm.co.za` **stays on Webway**. This app only serves HTTPS pages.  
 **Do not migrate** WordPress posts, media, themes, or plugins — the old site is malware-contaminated.
 
 ## Why we retire WordPress (not “clean” it)
@@ -10,7 +10,7 @@ Webway (Brayden, 2026-08-14) confirmed malware removal, database cleanup, and fo
 
 **Locked (ADR-046):** Delete/suspend the Chibase WordPress document root and database. Point **website DNS only** at this app. Leave **mail DNS** on Webway. Import nothing from WP.
 
-`trustledger.co.za` WordPress (product marketing) is **unchanged** unless a later packet says otherwise.
+`trustledgersrm.co.za` WordPress (product marketing) is **unchanged** unless a later packet says otherwise.
 
 | Surface | Job |
 |---------|-----|
@@ -131,7 +131,7 @@ on the assumption the live site still serves casino content — it does not.
 - Fold consulting SKUs into Solo / Practitioner / Project / Institutional
 - Claim a software Rapid-Response Division (field intervention is a **people** service)
 - Move email hosting off Webway
-- Retire `trustledger.co.za` WordPress in this packet
+- Retire `trustledgersrm.co.za` WordPress in this packet
 
 ## Reply to Webway
 
@@ -152,7 +152,7 @@ Please treat this as a hosting-environment request:
    Remove any other A/AAAA/CNAME that still send the website to the WordPress server.
 4. Delete or suspend the WordPress installation for chibaseconsulting.co.za (files, plugins, themes) and destroy the WordPress database. Do not copy that content anywhere.
 
-trustledger.co.za WordPress and all email hosting stay as they are.
+trustledgersrm.co.za WordPress and all email hosting stay as they are.
 
 I will send the exact A and CNAME values as soon as the domain is added on our application host.
 

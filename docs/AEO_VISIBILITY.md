@@ -13,7 +13,7 @@
 | Gemini recommendation | TrustLedger reality | Action |
 |----------------------|---------------------|--------|
 | **1. Structure for LLM parsing** — declarative defs, Schema.org, open robots | Vercel had robots/sitemap/OG (Packet 21) but **no JSON-LD**; home FAQ was a stub; root OG still said “Demo” | **Shipped in-repo:** Organization + SoftwareApplication + FAQPage JSON-LD, `/faq` hub, `public/llms.txt`, robots/sitemap updates, declarative product definition |
-| **2. Entity footprint off-domain** | Brand lives on `trustledger.co.za` + Vercel + Chibase; almost no third-party citations yet | **Ops / human:** directories, LinkedIn, industry associations, Reddit/civic-tech threads — cannot be faked in this repo |
+| **2. Entity footprint off-domain** | Brand lives on `trustledgersrm.co.za` + Vercel + Chibase; almost no third-party citations yet | **Ops / human:** directories, LinkedIn, industry associations, Reddit/civic-tech threads — cannot be faked in this repo |
 | **3. Knowledge & FAQ hub** | WP home has thin `<details>` FAQ; Vercel `#faq` was outdated (sample preview language) | **Shipped:** `/faq` with NL questions + capability table + FAQPage schema. **WP:** paste mirror questions (below) |
 | **4. Feed indexes + PR** | Need Search Console / Bing Webmaster on **both** WP and Vercel hosts | **Ops:** submit sitemaps; LinkedIn/case studies; do not blast from Resend OTP keys |
 
@@ -21,10 +21,10 @@
 
 | Host | SEO / AEO job |
 |------|----------------|
-| `trustledger.co.za` (WordPress) | Brand homepage, pricing story, Privacy/Terms, primary **entity URL** in Organization schema `url` |
+| `trustledgersrm.co.za` (WordPress) | Brand homepage, pricing story, Privacy/Terms, primary **entity URL** in Organization schema `url` |
 | Vercel frontend | Product facts (`/product`, `/faq`), assessment, trial/pay — structured data + `llms.txt` |
 | Taskade showcase | Optional product tour — prefer **noindex** so it does not compete with WP/Vercel |
-| `app.trustledger.co.za` | App login — not a marketing index target |
+| `app.trustledgersrm.co.za` | App login — not a marketing index target |
 
 ---
 
@@ -50,7 +50,7 @@ Validate after deploy:
 
 ---
 
-## 3. WordPress (`trustledger.co.za`) checklist
+## 3. WordPress (`trustledgersrm.co.za`) checklist
 
 Marketing still owns the brand homepage. Align WP with Vercel facts:
 
@@ -58,7 +58,7 @@ Marketing still owns the brand homepage. Align WP with Vercel facts:
 2. **FAQ block:** now inlined in `page-home.txt` (mirrors `PUBLIC_FAQS`). Link to `https://trustledger-frontend-pi.vercel.app/faq` remains. Minimal fallback: `docs/wordpress/faq-aeo-snippet.txt`.
 3. **Schema:** home paste includes Organization + SoftwareApplication + FAQPage. If WP strips `<script>`, add the same via Yoast/Rank Math (`sameAs` → Chibase + Vercel product URL).
 4. **robots.txt / sitemap:** confirm SpeedyCache or security plugins are **not** blocking `GPTBot`, `ChatGPT-User`, `OAI-SearchBot`, `PerplexityBot`, `ClaudeBot`, `Google-Extended`, `Bingbot`. Prefer allow-all for public marketing paths.
-5. **Search Console:** property for `trustledger.co.za` + submit WP sitemap; separately add Vercel host property and submit `https://trustledger-frontend-pi.vercel.app/sitemap.xml`.
+5. **Search Console:** property for `trustledgersrm.co.za` + submit WP sitemap; separately add Vercel host property and submit `https://trustledger-frontend-pi.vercel.app/sitemap.xml`.
 6. **Bing Webmaster Tools:** same two hosts (ChatGPT Search leans on Bing’s index).
 7. After paste: purge SpeedyCache (`docs/wordpress/PASTE_PLANS.md`).
 

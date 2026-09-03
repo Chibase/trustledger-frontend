@@ -14,7 +14,7 @@
 | Cadence | **Fortnightly** (every 14 days) |
 | Default audience | Email Group **`TL Marketing`** (ICP) |
 | Segment sends | Use a **`TL Segment …`** group only when the body is industry-specific |
-| From mailbox | `sales@trustledger.co.za` |
+| From mailbox | `sales@trustledgersrm.co.za` |
 | Your gate | **No send without ClickUp status = Approved** (and Send Test in Desk) |
 | AI role | Draft / rewrite only — you edit and approve |
 
@@ -59,7 +59,7 @@ Setup cards (human OAuth — an agent cannot click Sign in with Google):
 | 3 | [Link Workspace Gmail (Email ClickApp)](https://app.clickup.com/t/869enz4vz) (**complete**) |
 | Parked | [TrustLedger domain — come back when Active](https://app.clickup.com/t/869epf8md) |
 
-**Live now:** Chibase Workspace user **`admin@chibaseconsulting.co.za`** is connected for Planner + 1:1 Gmail. Until Google Admin → Domains shows `trustledger.co.za` **Active**, there is no Gmail Send as `sales@trustledger.co.za` and no MX cutover. Come back on the parked card: add `sales@` as a **user email alias**, then optional Webway forward. Leave MX on Webway until send/receive is proven.
+**Live now:** Chibase Workspace user **`admin@chibaseconsulting.co.za`** is connected for Planner + 1:1 Gmail. Until Google Admin → Domains shows `trustledgersrm.co.za` **Active**, there is no Gmail Send as `sales@trustledgersrm.co.za` and no MX cutover. Come back on the parked card: add `sales@` as a **user email alias**, then optional Webway forward. Leave MX on Webway until send/receive is proven.
 
 **Admin (once):** [admin.google.com](https://admin.google.com) → Security → Access and data control → API controls → Manage third-party app access → Configure **ClickUp** as **Trusted**. Client id: `629831864745-8bkkv3u1q9bccmf6epo375h3eo2ifo1m.apps.googleusercontent.com`.
 
@@ -122,11 +122,11 @@ Copy into the recurring task description:
 ## 4. Handoff: ClickUp Approved → Frappe send
 
 1. Open approved HTML (task attachment or ClickUp Doc). Prefer starting from a pack in `docs/exports/email-marketing/` (`00-shell.html` wrapper or an existing `01`–`04` / `10`–`15` pack).  
-2. Desk → **https://app.trustledger.co.za** → **Newsletter** → New (or open draft).  
+2. Desk → **https://app.trustledgersrm.co.za** → **Newsletter** → New (or open draft).  
 3. **Email Group** = `TL Marketing` or the matching `TL Segment …`.  
-4. Paste HTML (Use HTML). Absolute CTAs to `https://trustledger.co.za/...` with  
+4. Paste HTML (Use HTML). Absolute CTAs to `https://trustledgersrm.co.za/...` with  
    `utm_source=email&utm_medium=bulk&utm_campaign=<field>`.  
-5. Sender email `sales@trustledger.co.za`; Sender name per `SEGMENT_INTROS.md` when segment.  
+5. Sender email `sales@trustledgersrm.co.za`; Sender name per `SEGMENT_INTROS.md` when segment.  
 6. **Send Test** → you → then **Send**.  
 7. ClickUp → `Sent`. Track queue/bounces in Desk **Email Queue** if needed.
 
@@ -223,7 +223,7 @@ After six cycles, reuse angles with fresh proof (a feature sharpening, a checkli
 
 - [ ] ClickUp showed `Approved` before Desk Send  
 - [ ] Audience = intended Email Group  
-- [ ] Send Test received; CTAs open trustledger.co.za with UTM  
+- [ ] Send Test received; CTAs open trustledgersrm.co.za with UTM  
 - [ ] No stack vendor names in subject/body  
 - [ ] Task = `Sent` with date + Newsletter name  
 

@@ -23,10 +23,10 @@
 
 | Layer | Lives where | Role |
 |-------|-------------|------|
-| Marketing | `trustledger.co.za` (WP CTAs) + Vercel `/`, `/product`, `/faq` | Story, pricing, AEO FAQ |
+| Marketing | `trustledgersrm.co.za` (WP CTAs) + Vercel `/`, `/product`, `/faq` | Story, pricing, AEO FAQ |
 | Product UI | Vercel `/app/*` | Roles, desk, SI, reports |
 | Acquisition CRM | Frappe **CRM Lead** (ADR-034) | Assessment / contact / quote / support tickets |
-| Product SoT | Frappe Cloud `app.trustledger.co.za` | Customer, Project, Incident, Evidence, Stakeholder, Engagement, Commitment |
+| Product SoT | Frappe Cloud `app.trustledgersrm.co.za` | Customer, Project, Incident, Evidence, Stakeholder, Engagement, Commitment |
 | Commercial | Paystack on Vercel + Ops finance | Trial → subscribe → provision |
 | Ops BI | Vercel `/ops/executive` | Platform operator only |
 | Public education | `/product`, `/faq`, optional Taskade showcase (noindex) | Not a second CRM |

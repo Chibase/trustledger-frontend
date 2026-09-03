@@ -3,7 +3,7 @@
 **Yes — clients may request a private Frappe bench / dedicated site at their cost.**  
 That is **L5 Isolation** (ADR-038 / `docs/SECURITY_TENANCY.md`). It is not the default Solo–Project shared site.
 
-Default production backend today: shared site **`https://app.trustledger.co.za`** on Frappe Cloud.  
+Default production backend today: shared site **`https://app.trustledgersrm.co.za`** on Frappe Cloud.  
 Private bench = a **separate Frappe Cloud site** (typically on a **private bench group**) whose database and apps are not co-mingled with other TrustLedger customers’ Desk data.
 
 ---
@@ -74,10 +74,10 @@ Fill before quoting:
 | Frappe Cloud plan | Per [cloud.frappe.io](https://cloud.frappe.io) private bench / site tier |
 | Region | If offered by host; else document “host default” |
 | Apps | ERPNext/CRM as needed + TrustLedger custom DocTypes / `srm_core` when ready |
-| Domains | e.g. `client.trustledger.co.za` or client-owned domain → Cloud Domains |
+| Domains | e.g. `client.trustledgersrm.co.za` or client-owned domain → Cloud Domains |
 | Who is Cloud account owner | **Prefer Chibase-owned site, client-funded** (we retain ops control) unless enterprise insists on client-owned Cloud account |
 | Frontend | Shared Vercel + `FRAPPE_BASE_URL` override **or** dedicated Vercel project |
-| Migration | Fresh empty site vs copy from shared `app.trustledger.co.za` Customer |
+| Migration | Fresh empty site vs copy from shared `app.trustledgersrm.co.za` Customer |
 
 ### Step C — Quote (Finance + Sales)
 

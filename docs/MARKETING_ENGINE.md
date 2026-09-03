@@ -46,7 +46,7 @@ Two ClickUp members today (Thozi, Thozamile). Assign **hats**, not six jobs. Fol
 
 Email blast path is still Newsletter Cadence → Frappe. Social HITL is still Marketing Review → `/ops/marketing`.
 
-**1:1 inbox + diary:** Live on `admin@chibaseconsulting.co.za` (Google Calendar + Email ClickApp). [Inbox & diary](https://app.clickup.com/90121198081/v/l/li/901220601939). `trustledger.co.za` verification stays parked until Google shows it Active. Do not blast from Gmail or ClickUp Email.
+**1:1 inbox + diary:** Live on `admin@chibaseconsulting.co.za` (Google Calendar + Email ClickApp). [Inbox & diary](https://app.clickup.com/90121198081/v/l/li/901220601939). `trustledgersrm.co.za` verification stays parked until Google shows it Active. Do not blast from Gmail or ClickUp Email.
 
 ---
 
@@ -92,7 +92,7 @@ Do **not** treat default `complete` as publish — that would fire on ordinary c
 `GET https://<this-app-host>/api/webhooks/clickup` **registers or updates** the ClickUp webhook using `CLICKUP_API_KEY` and HMAC secret `CLICKUP_WEBHOOK_SECRET` (falls back to `CRON_SECRET` if the dedicated secret is unset).
 
 - Endpoint: `https://<this-app-host>/api/webhooks/clickup`  
-  Use the **Next.js production host** (today `https://trustledger-frontend-pi.vercel.app`), not WordPress `trustledger.co.za`.
+  Use the **Next.js production host** (today `https://trustledger-frontend-pi.vercel.app`), not WordPress `trustledgersrm.co.za`.
 - Events: `taskStatusUpdated`, `taskCommentPosted`
 - Production refuses unsigned POSTs.
 

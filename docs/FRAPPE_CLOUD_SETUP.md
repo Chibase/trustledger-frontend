@@ -1,6 +1,6 @@
 # Frappe Cloud cutover — TrustLedger
 
-**Primary site URL:** `https://app.trustledger.co.za`  
+**Primary site URL:** `https://app.trustledgersrm.co.za`  
 **Cloud hostnames:** `trustledger.jh.frappe.cloud` (also active)  
 **Interserv:** retired for this product — cancel checklist in `docs/INTERSERV_CANCEL.md` (ADR-018).
 
@@ -8,7 +8,7 @@
 
 | Layer | Host | Role |
 |-------|------|------|
-| Marketing + email | Webway | `trustledger.co.za` |
+| Marketing + email | Webway | `trustledgersrm.co.za` |
 | Product UI | Vercel | demo / assessment / `/app` |
 | Backend + CRM | **Frappe Cloud** | Desk + **Frappe CRM** (install) + later Helpdesk / `srm-core` |
 
@@ -20,7 +20,7 @@ You install from the **Frappe Cloud dashboard** (not from this Vercel repo).
 1. Open [site Domains/Overview](https://cloud.frappe.io/dashboard/sites/erpnext-ruy-goy.jh.frappe.cloud) → **Apps** tab.  
 2. **Install App** → choose **CRM** (or open [Marketplace CRM](https://cloud.frappe.io/marketplace/apps/crm) → Install on this site).  
 3. Wait until status is **Installed / Active**.  
-4. Open Desk `https://app.trustledger.co.za` → you should see a **CRM** workspace.
+4. Open Desk `https://app.trustledgersrm.co.za` → you should see a **CRM** workspace.
 
 ### If the site is on a **private bench group**
 1. Bench Group → **Apps** → **Add App** → **CRM**.  
@@ -32,8 +32,8 @@ After install, tell me — we wire API keys and confirm Lead create from the dem
 Production → Settings → Environment Variables:
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=https://app.trustledger.co.za
-FRAPPE_BASE_URL=https://app.trustledger.co.za
+NEXT_PUBLIC_API_BASE_URL=https://app.trustledgersrm.co.za
+FRAPPE_BASE_URL=https://app.trustledgersrm.co.za
 ```
 
 Redeploy. Live login BFF and `/status` will hit Frappe Cloud.
@@ -85,7 +85,8 @@ If multiple origins later:
 {
   "allow_cors": [
     "https://trustledger-frontend-pi.vercel.app",
-    "https://trustledger.co.za"
+    "https://trustledgersrm.co.za",
+    "https://www.trustledgersrm.co.za"
   ]
 }
 ```
@@ -97,7 +98,7 @@ Save / reload site after change.
 Never commit API keys. Put them in gitignored `.env.local`:
 
 ```bash
-FRAPPE_BASE_URL=https://app.trustledger.co.za
+FRAPPE_BASE_URL=https://app.trustledgersrm.co.za
 FRAPPE_API_KEY=…
 FRAPPE_API_SECRET=…
 LEAD_BACKEND=frappe
@@ -124,7 +125,7 @@ Mirror the same `FRAPPE_*` + `LEAD_BACKEND=frappe` on **Vercel Production** (Set
 
 ## 3. Smoke checklist
 
-1. Open `https://app.trustledger.co.za` → login page (padlock OK).  
+1. Open `https://app.trustledgersrm.co.za` → login page (padlock OK).  
 2. Desk → **Lead** list loads (only after CRM install — Option B).  
 3. Submit assessment/contact on Vercel → Lead in Frappe CRM (HubSpot only if `LEAD_BACKEND=auto|hubspot`).  
 4. `/status` on Vercel shows Frappe check green.  
@@ -132,7 +133,7 @@ Mirror the same `FRAPPE_*` + `LEAD_BACKEND=frappe` on **Vercel Production** (Set
 
 ## 4. WordPress / marketing
 
-Keep desk links as `https://app.trustledger.co.za` (already aligned).
+Keep desk links as `https://app.trustledgersrm.co.za` (already aligned).
 
 ## 4b. Jinja render security (Public Bench)
 

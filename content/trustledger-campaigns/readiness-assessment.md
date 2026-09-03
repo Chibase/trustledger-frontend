@@ -5,7 +5,7 @@ brand: trustledger
 kind: trial-outreach
 channel: social
 cta_label: Free SRM readiness check
-cta_url: https://trustledger.co.za/assessment
+cta_url: https://trustledgersrm.co.za/assessment
 platforms: linkedin
 ---
 
@@ -21,4 +21,4 @@ Three clear starts after that:
 
 No sample workspace. Your data. Your trail.
 
-Assessment: https://trustledger.co.za/assessment
+Assessment: https://trustledgersrm.co.za/assessment
