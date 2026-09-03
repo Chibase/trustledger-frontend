@@ -21,12 +21,14 @@ type Props = {
   planId?: PlanId | null;
   vip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
 };
 
 export function PlanModuleSwitcher({
   planId = null,
   vip = false,
   mode = null,
+  email = null,
 }: Props) {
   const pathname = usePathname() || "/app/dashboard";
   const [packaging, setPackaging] = useState(() =>
@@ -34,6 +36,7 @@ export function PlanModuleSwitcher({
       planId,
       vip,
       mode,
+      email,
     }),
   );
 
@@ -43,6 +46,7 @@ export function PlanModuleSwitcher({
         planId,
         vip,
         mode,
+        email,
         measureEmpty: true,
       });
       const moduleDashboards = next.moduleDashboards.filter((row) =>
@@ -64,7 +68,7 @@ export function PlanModuleSwitcher({
       });
     }, 0);
     return () => window.clearTimeout(handle);
-  }, [planId, vip, mode]);
+  }, [planId, vip, mode, email]);
 
   const current = useMemo(() => descriptorForPath(pathname), [pathname]);
 

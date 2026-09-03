@@ -7,13 +7,19 @@ import {
 } from "@/lib/auth.constants";
 import { getActiveOrgId } from "@/lib/orgStore";
 import { applyVipShowcaseSeed } from "@/lib/vipShowcaseSeed";
+import { isVipShowcaseDefaultEmail } from "@/lib/vipShowcaseIdentity";
 
-/** Re-run VIP packaging seed for legacy showcase sessions (SEP-only → full desks). */
+/**
+ * Seed NCGR-B for Thozamile's showcase; reverse leftover theatre for everyone else.
+ */
 export function VipPackagingSync({ email }: { email: string }) {
   useEffect(() => {
-    const orgId = getActiveOrgId() || "vip-showcase";
-    document.cookie = `${TL_TRIAL_PLAN_COOKIE}=institutional; path=/; max-age=${SESSION_MAX_AGE_SECONDS * 8}; samesite=lax`;
-    applyVipShowcaseSeed({ orgId, email: email || "showcase@local" });
+    const showcase = isVipShowcaseDefaultEmail(email);
+    const orgId = getActiveOrgId() || (showcase ? "vip-showcase" : "");
+    if (showcase) {
+      document.cookie = `${TL_TRIAL_PLAN_COOKIE}=institutional; path=/; max-age=${SESSION_MAX_AGE_SECONDS * 8}; samesite=lax`;
+    }
+    applyVipShowcaseSeed({ orgId, email: email || "" });
   }, [email]);
   return null;
 }

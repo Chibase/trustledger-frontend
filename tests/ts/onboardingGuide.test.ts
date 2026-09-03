@@ -36,8 +36,12 @@ describe("VIP setup unlock", () => {
   });
 
   it("uses the Institutional spine for VIP even if a leftover cookie says Solo", () => {
-    const vip = onboardingStepsForPlan("solo", { vip: true, mode: "trial" });
-    expect(vip.map((s) => s.id)).toEqual(
+    const guest = onboardingStepsForPlan("solo", {
+      vip: true,
+      mode: "trial",
+      email: "guest@example.com",
+    });
+    expect(guest.map((s) => s.id)).toEqual(
       expect.arrayContaining([
         "welcome",
         "project",
@@ -51,14 +55,25 @@ describe("VIP setup unlock", () => {
         "done",
       ]),
     );
-    expect(vip[0]?.title).toBe("Walk the Institutional desk");
-    expect(vip.find((s) => s.id === "project")?.href).toBe(
+    expect(guest[0]?.title).toBe("Your desk starts empty");
+    expect(guest.find((s) => s.id === "project")?.href).toBe(
+      "/app/projects?new=1",
+    );
+
+    const showcase = onboardingStepsForPlan("solo", {
+      vip: true,
+      mode: "trial",
+      email: "thozi@chibaseconsulting.co.za",
+    });
+    expect(showcase[0]?.title).toBe("Walk the Institutional desk");
+    expect(showcase.find((s) => s.id === "project")?.href).toBe(
       "/app/projects/PRJ-NCGR-B",
     );
 
     const liveVip = onboardingStepsForPlan("institutional", {
       vip: true,
       mode: "live",
+      email: "thozi@chibaseconsulting.co.za",
     });
     expect(liveVip[0]?.title).toBe("Your desk starts empty");
     expect(liveVip.find((s) => s.id === "project")?.href).toBe(

@@ -1,7 +1,11 @@
 import { VIP_SHOWCASE_PACK } from "@/data/vipShowcase";
-import { applyVipShowcaseSeed } from "@/lib/vipShowcaseSeed";
+import {
+  applyVipShowcaseSeed,
+  purgeVipShowcaseSeed,
+} from "@/lib/vipShowcaseSeed";
 import { looksLikeReportTemplateGuide } from "@/lib/reportComposer";
 import { isVipShowcaseWorkspace, packageLabel } from "@/lib/planLabel";
+import { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
 import {
   allowedVipShowcaseEmails,
   DEFAULT_PREVIEW_PASSWORD,
@@ -53,10 +57,47 @@ describe("VIP showcase pack", () => {
     expect(packageLabel("institutional", { vip: true })).toBe("VIP");
   });
 
-  it("treats only trial+VIP as the illustrative showcase workspace", () => {
-    expect(isVipShowcaseWorkspace("trial", true)).toBe(true);
-    expect(isVipShowcaseWorkspace("live", true)).toBe(false);
-    expect(isVipShowcaseWorkspace("trial", false)).toBe(false);
+  it("treats only Thozamile's trial+VIP mailbox as the illustrative showcase", () => {
+    expect(
+      isVipShowcaseWorkspace("trial", true, VIP_SHOWCASE_DEFAULT_EMAIL),
+    ).toBe(true);
+    expect(isVipShowcaseWorkspace("trial", true, "guest@example.com")).toBe(
+      false,
+    );
+    expect(
+      isVipShowcaseWorkspace("live", true, VIP_SHOWCASE_DEFAULT_EMAIL),
+    ).toBe(false);
+    expect(
+      isVipShowcaseWorkspace("trial", false, VIP_SHOWCASE_DEFAULT_EMAIL),
+    ).toBe(false);
+    expect(isVipShowcaseWorkspace("trial", true)).toBe(false);
+  });
+
+  it("seeds Thozamile when the email argument is empty but the session cookie is set", () => {
+    window.localStorage.clear();
+    document.cookie = `tl-user-email=${encodeURIComponent(VIP_SHOWCASE_DEFAULT_EMAIL)}`;
+    document.cookie = "tl-mode=trial";
+    document.cookie = "tl-vip=1";
+    const result = applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: "",
+    });
+    expect(result.skipped).toBeUndefined();
+    expect(result.projectId).toBe("PRJ-NCGR-B");
+  });
+
+  it("does not seed a Cloud VIP guest when the email argument is empty", () => {
+    window.localStorage.clear();
+    document.cookie = "tl-user-email=nomcebo%40example.com";
+    document.cookie = "tl-mode=live";
+    document.cookie = "tl-vip=1";
+    const result = applyVipShowcaseSeed({
+      orgId: "org-guest",
+      email: "",
+      forceShowcase: true,
+    });
+    expect(result.skipped).toBe(true);
+    expect(result.projectId).toBe("");
   });
 
   it("does not preload demo desks unless this is the showcase workspace", () => {
@@ -66,6 +107,176 @@ describe("VIP showcase pack", () => {
     });
     expect(result.skipped).toBe(true);
     expect(result.incidents).toBe(0);
+  });
+
+  it("seeds NCGR-B for Thozamile even when forceShowcase is set", () => {
+    window.localStorage.clear();
+    const skipped = applyVipShowcaseSeed({
+      orgId: "org-guest",
+      email: "guest@example.com",
+      forceShowcase: true,
+    });
+    expect(skipped.skipped).toBe(true);
+    expect(skipped.projectId).toBe("");
+
+    const seeded = applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
+      forceShowcase: true,
+    });
+    expect(seeded.skipped).toBeUndefined();
+    expect(seeded.projectId).toBe("PRJ-NCGR-B");
+    expect(seeded.incidents).toBe(3);
+    const root = JSON.parse(
+      window.localStorage.getItem("tl-org-data") || "{}",
+    ) as Record<string, { projects?: Array<{ id: string }> }>;
+    expect(
+      root["org-thozi"]?.projects?.some((row) => row.id === "PRJ-NCGR-B"),
+    ).toBe(true);
+  });
+
+  it("does not preload or wipe a Cloud VIP guest's own records", () => {
+    window.localStorage.clear();
+    window.localStorage.setItem(
+      "tl-org-data",
+      JSON.stringify({
+        "org-guest": {
+          orgId: "org-guest",
+          projects: [{ id: "PRJ-OWN-1", name: "Guest site" }],
+          incidents: [
+            { id: "INC-OWN-1", title: "Own case", projectId: "PRJ-OWN-1" },
+          ],
+          evidence: [],
+          stakeholders: [{ id: "STK-OWN-1", name: "Own contact" }],
+          updatedAt: "2026-09-02T00:00:00.000Z",
+        },
+      }),
+    );
+    window.localStorage.setItem(
+      "tl-crm-stakeholders",
+      JSON.stringify([{ id: "STK-OWN-1", name: "Own contact" }]),
+    );
+    window.localStorage.setItem("tl-active-org-id", "org-guest");
+
+    applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
+      forceShowcase: true,
+    });
+    const guest = applyVipShowcaseSeed({
+      orgId: "org-guest",
+      email: "nomcebo@example.com",
+      forceShowcase: true,
+    });
+    expect(guest.skipped).toBe(true);
+    expect(guest.projectId).toBe("");
+
+    const root = JSON.parse(
+      window.localStorage.getItem("tl-org-data") || "{}",
+    ) as Record<
+      string,
+      {
+        projects?: Array<{ id: string }>;
+        incidents?: Array<{ id: string }>;
+        stakeholders?: Array<{ id: string }>;
+      }
+    >;
+    expect(root["org-guest"]?.projects?.some((row) => row.id === "PRJ-OWN-1")).toBe(
+      true,
+    );
+    expect(
+      root["org-guest"]?.incidents?.some((row) => row.id === "INC-OWN-1"),
+    ).toBe(true);
+    expect(
+      root["org-guest"]?.stakeholders?.some((row) => row.id === "STK-OWN-1"),
+    ).toBe(true);
+    const projects = Object.values(root).flatMap((bucket) => bucket.projects || []);
+    expect(projects.some((row) => row.id === "PRJ-NCGR-B")).toBe(false);
+
+    const crm = JSON.parse(
+      window.localStorage.getItem("tl-crm-stakeholders") || "[]",
+    ) as Array<{ id: string }>;
+    expect(crm.some((row) => row.id === "STK-OWN-1")).toBe(true);
+    expect(crm.some((row) => row.id.startsWith("STK-NCGR-"))).toBe(false);
+  });
+
+  it("reverses leftover NCGR-B for a non-showcase VIP session", () => {
+    window.localStorage.clear();
+    applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
+      forceShowcase: true,
+    });
+    const guest = applyVipShowcaseSeed({
+      orgId: "org-guest",
+      email: "nomcebo@example.com",
+    });
+    expect(guest.skipped).toBe(true);
+    expect(guest.purged).toBe(true);
+    const root = JSON.parse(
+      window.localStorage.getItem("tl-org-data") || "{}",
+    ) as Record<string, { projects?: Array<{ id: string }> }>;
+    const projects = Object.values(root).flatMap((bucket) => bucket.projects || []);
+    expect(projects.some((row) => row.id === "PRJ-NCGR-B")).toBe(false);
+    expect(window.localStorage.getItem("tl-vip-demo-bundle")).toBeNull();
+  });
+
+  it("does not purge Thozamile's showcase while she is signed in", () => {
+    window.localStorage.clear();
+    applyVipShowcaseSeed({
+      orgId: "org-thozi",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
+      forceShowcase: true,
+    });
+    const result = purgeVipShowcaseSeed(VIP_SHOWCASE_DEFAULT_EMAIL);
+    expect(result.purged).toBe(false);
+    const root = JSON.parse(
+      window.localStorage.getItem("tl-org-data") || "{}",
+    ) as Record<string, { projects?: Array<{ id: string }> }>;
+    expect(
+      root["org-thozi"]?.projects?.some((row) => row.id === "PRJ-NCGR-B"),
+    ).toBe(true);
+  });
+
+  it("keeps the signed-in org even if it still has the old showcase name", () => {
+    window.localStorage.clear();
+    const guestOrg = {
+      id: "org-legacy-guest",
+      name: "VIP Pilot — NCGR-B Showcase",
+      planId: "institutional" as const,
+      createdAt: "2026-09-01T00:00:00.000Z",
+      ownerEmail: "guest@example.com",
+      ownerName: "Guest",
+      members: [],
+      invites: [],
+    };
+    const stray = {
+      ...guestOrg,
+      id: "org-stray-test",
+      ownerEmail: "qa@example.com",
+      ownerName: "QA",
+    };
+    window.localStorage.setItem(
+      "tl-orgs",
+      JSON.stringify({
+        "org-legacy-guest": guestOrg,
+        "org-stray-test": stray,
+      }),
+    );
+    window.localStorage.setItem("tl-active-org-id", "org-legacy-guest");
+    applyVipShowcaseSeed({
+      orgId: "org-legacy-guest",
+      email: "guest@example.com",
+    });
+    const orgs = JSON.parse(window.localStorage.getItem("tl-orgs") || "{}") as Record<
+      string,
+      { id: string }
+    >;
+    expect(orgs["org-legacy-guest"]).toBeDefined();
+    expect(orgs["org-stray-test"]).toBeUndefined();
+    expect(window.localStorage.getItem("tl-active-org-id")).toBe(
+      "org-legacy-guest",
+    );
   });
 });
 

@@ -17,6 +17,7 @@ type SetupChecklistBannerProps = {
   planId?: PlanId | null;
   vip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
 };
 
 /**
@@ -27,11 +28,12 @@ export function SetupChecklistBanner({
   planId,
   vip = false,
   mode = null,
+  email = null,
 }: SetupChecklistBannerProps) {
   const [state, setState] = useState<OnboardingState | null>(null);
-  const vipShowcase = demoSeedAllowed({ vip, mode });
+  const vipShowcase = demoSeedAllowed({ vip, mode, email });
   const launchSetup = useLaunchSetupWizard();
-  const steps = onboardingStepsForPlan(planId, { vip, mode }).filter(
+  const steps = onboardingStepsForPlan(planId, { vip, mode, email }).filter(
     (s) => s.id !== "welcome" && s.id !== "done",
   );
 

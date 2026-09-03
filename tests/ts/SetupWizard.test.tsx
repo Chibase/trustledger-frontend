@@ -45,7 +45,13 @@ describe("SetupWizard VIP showcase", () => {
   it("does not auto-open, then opens from Guide/Settings launch", async () => {
     const user = userEvent.setup();
     render(
-      <SetupWizardGate planId="solo" skipAutoOpen vip mode="trial">
+      <SetupWizardGate
+        planId="solo"
+        skipAutoOpen
+        vip
+        mode="trial"
+        email="thozi@chibaseconsulting.co.za"
+      >
         <LaunchButton />
       </SetupWizardGate>,
     );
@@ -77,6 +83,7 @@ describe("SetupWizard VIP showcase", () => {
         skipAutoOpen
         vip
         mode="trial"
+        email="thozi@chibaseconsulting.co.za"
         requestedOpen
       />,
     );

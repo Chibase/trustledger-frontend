@@ -22,12 +22,14 @@ type Props = {
   planId?: PlanId | null;
   vip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
 };
 
 export function ModuleContributionBoard({
   planId = null,
   vip = false,
   mode = null,
+  email = null,
 }: Props) {
   const [aggregate, setAggregate] = useState(0);
   const [rows, setRows] = useState<PlanModuleContribution[]>(() => {
@@ -35,12 +37,13 @@ export function ModuleContributionBoard({
       planId,
       vip,
       mode,
+      email,
       measureEmpty: false,
     });
     return buildModuleContributions(packaging).contributions;
   });
   const [demoSeeded, setDemoSeeded] = useState(() =>
-    resolvePlanDashboardPackaging({ planId, vip, mode }).demoSeedAllowed,
+    resolvePlanDashboardPackaging({ planId, vip, mode, email }).demoSeedAllowed,
   );
   const [suggestedNextKey, setSuggestedNextKey] =
     useState<PlanDashboardModuleKey | null>(null);
@@ -51,6 +54,7 @@ export function ModuleContributionBoard({
         planId,
         vip,
         mode,
+        email,
         measureEmpty: true,
       });
       const next = buildModuleContributions(packaging);
@@ -65,7 +69,7 @@ export function ModuleContributionBoard({
       window.clearTimeout(handle);
       window.removeEventListener("tl-workspace-seeded", read);
     };
-  }, [planId, vip, mode]);
+  }, [planId, vip, mode, email]);
 
   if (rows.length === 0) return null;
 
@@ -86,7 +90,7 @@ export function ModuleContributionBoard({
             Each included desk contributes equally to strategy progress.{" "}
             {demoSeeded
               ? "VIP showcase desks include illustrative NCGR-B rows."
-              : "This plan starts empty — populate the desks from your own work."}
+              : "Nothing is preloaded on this plan — records here are yours."}
           </p>
         </div>
         <KpiCard

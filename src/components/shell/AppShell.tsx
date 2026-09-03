@@ -55,12 +55,12 @@ export function AppShell({
   /** Plan Owners get the first-login wizard; juniors use Guide on demand. */
   const showSetupWizard = mode === "trial" || mode === "live";
 
+  const vipShowcase = isVipShowcaseWorkspace(mode, isVip, userEmail);
+
   const shellBody = (
     <div className="min-h-full bg-tl-paper text-tl-ink">
-      {isVipShowcaseWorkspace(mode, isVip) ? <VipShowcaseBanner /> : null}
-      {isVipShowcaseWorkspace(mode, isVip) ? (
-        <VipPackagingSync email={userEmail || ""} />
-      ) : null}
+      {vipShowcase ? <VipShowcaseBanner /> : null}
+      <VipPackagingSync email={userEmail || ""} />
       {mode === "trial" && trial && !isVip ? (
         <TrialBanner trial={trial} planId={trialPlan} email={userEmail} />
       ) : null}
@@ -137,11 +137,13 @@ export function AppShell({
               planId={trialPlan}
               vip={isVip}
               mode={mode}
+              email={userEmail}
             />
             <PlanModuleEmptyBanner
               planId={trialPlan}
               vip={isVip}
               mode={mode}
+              email={userEmail}
             />
             <PlanDashboardAccessGate
               planId={trialPlan}
@@ -163,9 +165,10 @@ export function AppShell({
       {showSetupWizard ? (
         <SetupWizardGate
           planId={trialPlan}
-          skipAutoOpen={isVipShowcaseWorkspace(mode, isVip)}
+          skipAutoOpen={vipShowcase}
           vip={isVip}
           mode={mode}
+          email={userEmail}
         >
           {shellBody}
         </SetupWizardGate>

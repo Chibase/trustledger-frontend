@@ -50,10 +50,29 @@ describe("tier flow packaging", () => {
     expect(view.planId).toBe("institutional");
   });
 
-  it("allows demo seed only for trial+VIP showcase", () => {
-    expect(demoSeedAllowed({ mode: "trial", vip: true })).toBe(true);
+  it("allows demo seed only for Thozamile's trial+VIP showcase", () => {
+    expect(
+      demoSeedAllowed({
+        mode: "trial",
+        vip: true,
+        email: "thozi@chibaseconsulting.co.za",
+      }),
+    ).toBe(true);
+    expect(
+      demoSeedAllowed({
+        mode: "trial",
+        vip: true,
+        email: "guest@example.com",
+      }),
+    ).toBe(false);
     expect(demoSeedAllowed({ mode: "trial", vip: false })).toBe(false);
-    expect(demoSeedAllowed({ mode: "live", vip: true })).toBe(false);
+    expect(
+      demoSeedAllowed({
+        mode: "live",
+        vip: true,
+        email: "thozi@chibaseconsulting.co.za",
+      }),
+    ).toBe(false);
   });
 
   it("maps legacy /plans/:id/sep links onto the SEP module route", () => {
@@ -90,6 +109,7 @@ describe("tier flow packaging", () => {
       planId: "institutional",
       vip: true,
       mode: "trial",
+      email: "thozi@chibaseconsulting.co.za",
     });
     const paid = resolvePlanDashboardPackaging({
       planId: "institutional",
@@ -102,6 +122,14 @@ describe("tier flow packaging", () => {
     expect(vip.executiveDashboard.key).toBe(paid.executiveDashboard.key);
     expect(vip.demoSeedAllowed).toBe(true);
     expect(paid.demoSeedAllowed).toBe(false);
+    expect(
+      resolvePlanDashboardPackaging({
+        planId: "institutional",
+        vip: true,
+        mode: "trial",
+        email: "guest@example.com",
+      }).demoSeedAllowed,
+    ).toBe(false);
   });
 
   it("keeps cross-tier sequence differences in TIER_FLOW config", () => {
@@ -124,7 +152,7 @@ describe("tier flow packaging", () => {
     expect(isPathEntitledForPlan("/app/settings", "solo")).toBe(true);
   });
 
-  it("forces Institutional sequence for the VIP showcase even if the cookie is Solo", () => {
+  it("forces Institutional sequence for trial VIP even if the cookie is Solo", () => {
     expect(
       packagingPlanId({ planId: "solo", vip: true, mode: "trial" }),
     ).toBe("institutional");

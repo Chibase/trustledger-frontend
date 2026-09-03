@@ -6,11 +6,13 @@
 import { createHash, timingSafeEqual } from "crypto";
 import { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
 
-export { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
+export {
+  VIP_SHOWCASE_DEFAULT_EMAIL,
+  VIP_SHOWCASE_ORG_NAME,
+} from "@/lib/vipShowcaseIdentity";
 
 export const VIP_SHOWCASE_WEEKS = 8;
 export const VIP_SHOWCASE_PLAN_ID = "institutional" as const;
-export const VIP_SHOWCASE_ORG_NAME = "VIP Pilot — NCGR-B Showcase";
 export const VIP_SHOWCASE_OWNER_NAME = "Thozamile KaDlanga";
 
 /** Documented showcase password; override with VIP_SHOWCASE_PASSWORD. */

@@ -17,6 +17,7 @@ type Props = {
   planId?: PlanId | null;
   vip?: boolean;
   mode?: TlMode | null;
+  email?: string | null;
 };
 
 /** Guided empty state on module desks for plans that do not preload demo data. */
@@ -24,6 +25,7 @@ export function PlanModuleEmptyBanner({
   planId = null,
   vip = false,
   mode = null,
+  email = null,
 }: Props) {
   const pathname = usePathname() || "/app/dashboard";
   const current = descriptorForPath(pathname);
@@ -38,12 +40,13 @@ export function PlanModuleEmptyBanner({
           planId,
           vip,
           mode,
+          email,
           measureEmpty: true,
         }),
       );
     }, 0);
     return () => window.clearTimeout(handle);
-  }, [planId, vip, mode]);
+  }, [planId, vip, mode, email]);
 
   if (!current || current.key === "executive" || !packaging) return null;
   const flag = packaging.emptyStateFlags.find((row) => row.key === current.key);

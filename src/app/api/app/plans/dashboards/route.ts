@@ -20,6 +20,7 @@ export async function GET() {
     planId: user.trialPlan && isPlanId(user.trialPlan) ? user.trialPlan : null,
     vip: Boolean(user.isVip),
     mode: user.mode,
+    email: user.email,
     measureEmpty: false,
   });
   return NextResponse.json({
