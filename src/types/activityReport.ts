@@ -14,6 +14,7 @@ export const REPORT_KINDS = [
   "bbbee",
   "csi",
   "mel",
+  "executive_risk",
   "board_investor",
 ] as const;
 
@@ -29,6 +30,7 @@ export const REPORT_KIND_LABELS: Record<ReportKind, string> = {
   bbbee: "Empowerment / B-BBEE report",
   csi: "CSI report",
   mel: "MEL (monitoring & evaluation) report",
+  executive_risk: "Executive risk brief",
   board_investor: "Board / investor / funder brief",
 };
 
@@ -80,6 +82,13 @@ export const REPORT_SECTION_IDS = [
   "mel_indicators",
   "budget_spend",
   "portfolio_risk",
+  "identified_risks",
+  "project_impact",
+  "impact_level",
+  "mitigation_in_progress",
+  "mitigation_process",
+  "expected_outcome",
+  "executive_expedite",
   "board_recommendations",
   "appendix_evidence",
 ] as const;

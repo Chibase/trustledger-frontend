@@ -68,6 +68,8 @@ import type { UserRole } from "@/types/rbac";
 type CreateReportWizardProps = {
   role: UserRole;
   authorName: string;
+  initialKind?: ReportKind;
+  initialAudience?: ReportAudience;
 };
 
 function currentMonthLabel() {
@@ -107,6 +109,8 @@ function packEvidenceSummary(projectId: string): string[] {
 export function CreateReportWizard({
   role,
   authorName,
+  initialKind,
+  initialAudience,
 }: CreateReportWizardProps) {
   const { pushToast } = useToast();
   const [tier, setTier] = useState<DeskTier>("clo");
@@ -133,24 +137,27 @@ export function CreateReportWizard({
   const [purgedTemplates, setPurgedTemplates] = useState(0);
 
   useEffect(() => {
-    const desk = readDeskTier(role);
-    setTier(desk);
-    setKind(defaultKindForTier(desk));
-    setAudience(defaultAudienceForTier(desk));
-  }, [role]);
+    const frame = requestAnimationFrame(() => {
+      const desk = readDeskTier(role);
+      setTier(desk);
+      setKind(initialKind || defaultKindForTier(desk));
+      setAudience(initialAudience || defaultAudienceForTier(desk));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [role, initialKind, initialAudience]);
 
   useEffect(() => {
     let cancelled = false;
-    // Drop old Cloud LLM month-end drafts from this browser.
-    setPurgedTemplates(purgeTemplateGuideReports());
-    // Never keep a leftover Month-End paste in the editor across visits.
-    setBody("");
-    setDraft(null);
-    setStatus("idle");
-    setError(null);
-    setSavedId(null);
-
     const frame = requestAnimationFrame(() => {
+      // Drop old Cloud LLM month-end drafts from this browser.
+      setPurgedTemplates(purgeTemplateGuideReports());
+      // Never keep a leftover Month-End paste in the editor across visits.
+      setBody("");
+      setDraft(null);
+      setStatus("idle");
+      setError(null);
+      setSavedId(null);
+
       void (async () => {
         // Same project list path as Capture — Cloud/VIP + local dossier overlay.
         const seeded = await projectService.list().catch(() => [] as Project[]);
@@ -175,21 +182,24 @@ export function CreateReportWizard({
   }, []);
 
   useEffect(() => {
-    if (!projectId) {
-      setFacts(null);
-      setFactsBlock("");
-      setEvidence([]);
-      return;
-    }
-    const selectedProject = projects.find((p) => p.id === projectId);
-    const scopedFacts = buildPeriodActivityFacts(allIncidents, {
-      projectId,
-      projectName: selectedProject?.name,
-      project: selectedProject,
+    const frame = requestAnimationFrame(() => {
+      if (!projectId) {
+        setFacts(null);
+        setFactsBlock("");
+        setEvidence([]);
+        return;
+      }
+      const selectedProject = projects.find((p) => p.id === projectId);
+      const scopedFacts = buildPeriodActivityFacts(allIncidents, {
+        projectId,
+        projectName: selectedProject?.name,
+        project: selectedProject,
+      });
+      setFacts(scopedFacts);
+      setFactsBlock(factsToPromptBlock(scopedFacts));
+      setEvidence(scopedFacts.evidence);
     });
-    setFacts(scopedFacts);
-    setFactsBlock(factsToPromptBlock(scopedFacts));
-    setEvidence(scopedFacts.evidence);
+    return () => cancelAnimationFrame(frame);
   }, [allIncidents, projectId, projects]);
 
   const catalogue = useMemo(() => {
@@ -201,11 +211,14 @@ export function CreateReportWizard({
   }, [kind, tier]);
 
   useEffect(() => {
-    const next = new Set<ReportSectionId>();
-    for (const section of catalogue) {
-      if (section.allowed && section.preferred) next.add(section.id);
-    }
-    setSelected(next);
+    const frame = requestAnimationFrame(() => {
+      const next = new Set<ReportSectionId>();
+      for (const section of catalogue) {
+        if (section.allowed && section.preferred) next.add(section.id);
+      }
+      setSelected(next);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [catalogue]);
 
   const lockedSections = catalogue.filter((s) => !s.allowed);
@@ -489,7 +502,14 @@ export function CreateReportWizard({
           <select
             className="w-full rounded-md border border-tl-line px-3 py-2"
             value={kind}
-            onChange={(e) => setKind(e.target.value as ReportKind)}
+            onChange={(e) => {
+              const next = e.target.value as ReportKind;
+              setKind(next);
+              setBody("");
+              setDraft(null);
+              setSavedId(null);
+              setStatus("idle");
+            }}
           >
             {REPORT_KINDS.map((id) => (
               <option key={id} value={id}>

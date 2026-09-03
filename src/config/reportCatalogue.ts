@@ -191,7 +191,56 @@ export const REPORT_SECTIONS: ReportSectionDef[] = [
     label: "Portfolio risk overview",
     description: "Cross-project risk for seniors.",
     minTier: "delivery",
-    defaultFor: ["board_investor", "esg"],
+    defaultFor: ["board_investor", "esg", "executive_risk"],
+  },
+  {
+    id: "identified_risks",
+    label: "Identified issues",
+    description: "Open and escalated matters the executive must see.",
+    minTier: "delivery",
+    defaultFor: ["executive_risk"],
+  },
+  {
+    id: "project_impact",
+    label: "Project impact",
+    description: "How each issue affects delivery, access, or social licence.",
+    minTier: "delivery",
+    defaultFor: ["executive_risk"],
+  },
+  {
+    id: "impact_level",
+    label: "Impact level",
+    description: "Critical / high / medium with SLA and escalation.",
+    minTier: "delivery",
+    defaultFor: ["executive_risk"],
+  },
+  {
+    id: "mitigation_in_progress",
+    label: "Mitigation in progress",
+    description: "What the desk is doing now.",
+    minTier: "delivery",
+    defaultFor: ["executive_risk"],
+  },
+  {
+    id: "mitigation_process",
+    label: "Mitigation process",
+    description: "Where each issue sits on report → close.",
+    minTier: "delivery",
+    defaultFor: ["executive_risk"],
+  },
+  {
+    id: "expected_outcome",
+    label: "Expected outcome",
+    description: "What close-out should look like.",
+    minTier: "delivery",
+    defaultFor: ["executive_risk"],
+  },
+  {
+    id: "executive_expedite",
+    label: "Executive actions",
+    description: "Decisions or unblocks that would speed close-out.",
+    minTier: "delivery",
+    defaultFor: ["executive_risk"],
   },
   {
     id: "board_recommendations",
@@ -255,9 +304,9 @@ export function defaultKindForTier(tier: DeskTier): ReportKind {
     case "supervisor":
       return "grm";
     case "delivery":
-      return "board_investor";
+      return "executive_risk";
     case "executive":
-      return "esg";
+      return "executive_risk";
     case "funder":
       return "board_investor";
   }

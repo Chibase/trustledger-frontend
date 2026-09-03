@@ -14,8 +14,8 @@ import {
   sentimentLabelFromScore,
 } from "@/lib/sentimentAnalysis";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
-import type { ReportSectionId } from "@/types/activityReport";
-import { REPORT_SECTION_IDS } from "@/types/activityReport";
+import type { ReportKind, ReportSectionId } from "@/types/activityReport";
+import { REPORT_KINDS, REPORT_SECTION_IDS } from "@/types/activityReport";
 import type {
   DraftResponseRequest,
   DraftResponseSuggestion,
@@ -361,6 +361,9 @@ function mockActivityReport(
       : ids.map((id) => id.replaceAll("_", " "));
 
   const composed = composeActivityReportMarkdown({
+    kind: (REPORT_KINDS as readonly string[]).includes(input.kind)
+      ? (input.kind as ReportKind)
+      : undefined,
     kindLabel: input.kindLabel,
     audienceLabel: input.audienceLabel,
     periodLabel: input.periodLabel,

@@ -347,7 +347,8 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   3. Plan matrix: Practitioner → monthly; Project → monthly+executive; Institutional → all three (demo uses Project lens).
   4. Plan Owner grants desks per pack in Settings (`tl-report-pack-access`); cannot grant below pack `minDesk` or off-plan packs.
   5. Evidence AI writer remains local (no Cloud Month-End templates).
-- **Consequences:** Nav label “Reports”; Create report wizard nests under a chosen pack; juniors only see packs Owner enabled for their desk.
+  6. Packs are distinct lenses on the same evidence: **monthly** = detailed operational narrative; **executive** = risk brief (issue, project impact, impact level, mitigation, process stage, expected outcome, executive expedite); **board / client / funder** = high-level assurance snapshot — not the monthly dump.
+- **Consequences:** Nav label “Reports”; Create report wizard nests under a chosen pack; juniors only see packs Owner enabled for their desk. Viewing a pack must not reuse one generic “category signals” layout.
 - **Alternatives considered:** Single mega-dashboard (rejected — mixed jobs); unlock all packs on every plan (rejected — contradicts commercial seniority).
 
 ### ADR-029: Org data space before Frappe SoT (T3)
