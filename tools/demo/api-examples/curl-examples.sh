@@ -32,7 +32,7 @@ fi
 host="${BASE_URL#https://}"
 host="${host#http://}"
 host="${host%%/*}"
-if [[ "${host}" == *app.trustledgersrm.co.za* && "${TRUSTLEDGER_ALLOW_PROD_IMPORT:-}" != "YES" ]]; then
+if [[ "${host}" == *app.trustledgersrm.co.za* || "${host}" == *app.trustledger.co.za* ]] && [[ "${TRUSTLEDGER_ALLOW_PROD_IMPORT:-}" != "YES" ]]; then
   echo "Refusing production host ${host}" >&2
   exit 2
 fi

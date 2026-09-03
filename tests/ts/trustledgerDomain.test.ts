@@ -17,6 +17,7 @@ describe("TrustLedger public domain (ADR-057)", () => {
 
   it("keeps the retired apex only as a cutover fallback", () => {
     expect(TRUSTLEDGER_LEGACY_APEX_DOMAIN).toBe("trustledger.co.za");
+    expect(`app.${TRUSTLEDGER_LEGACY_APEX_DOMAIN}`).toBe("app.trustledger.co.za");
     expect(TRUSTLEDGER_LEGACY_APEX_DOMAIN).not.toBe(TRUSTLEDGER_APEX_DOMAIN);
   });
 
