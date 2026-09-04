@@ -1,6 +1,6 @@
 /**
  * Field-friendly capture extras. Optional — existing dropdowns stay as they are.
- * Does not auto-save into `tl-trust-layer`.
+ * Drafts stay local until Capture apply writes `tl-trust-layer`.
  */
 
 import { createTrustCommunityContext } from "@/lib/trust/communityContext";
@@ -173,6 +173,6 @@ export function fieldNoteToParticipationDraft(
     presenceMode: asPresenceMode(meta.presenceMode),
     responsePattern: asResponsePattern(meta.responsePattern),
     attendanceDoesNotEqualConsent: meta.attendanceDoesNotEqualConsent || undefined,
-    note: "Field capture extras — not auto-saved.",
+    note: "Field capture extras — saved on human apply.",
   });
 }
