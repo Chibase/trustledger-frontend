@@ -12,6 +12,7 @@ module.exports = {
     "<rootDir>/tests/ts/SetupWizard.test.tsx",
     "<rootDir>/tests/ts/reportLenses.test.ts",
     "<rootDir>/tests/ts/trustledgerDomain.test.ts",
+    "<rootDir>/tests/ts/trustOverlay.test.ts",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {

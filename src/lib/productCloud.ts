@@ -89,6 +89,7 @@ export function incidentToFrappeDoc(
   customer: string,
   orgId?: string,
 ): Record<string, unknown> {
+  // Explicit fields only — TE-1 `trustResponse` overlay is not a Cloud column.
   return {
     incident_code: incident.id,
     title: incident.title,
@@ -111,6 +112,7 @@ export function evidenceToFrappeDoc(
   orgId?: string,
   fileUrl?: string,
 ): Record<string, unknown> {
+  // Explicit fields only — TE-1 `trustSupport` overlay is not a Cloud column.
   return {
     evidence_code: evidence.id,
     incident: evidence.incidentId,

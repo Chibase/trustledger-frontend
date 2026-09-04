@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-04 — TE-1 trust overlay (non-breaking)
+
+- Additive frontend overlay only (`docs/TRUST_OVERLAY.md`). No new DocTypes, routes, nav, or workflow changes. Trust pulse formula (`trustIndexFromIncidents`) is unchanged and not wired to the overlay.
+- Optional `trustResponse` on incidents, engagements, and stakeholders; optional `trustSupport` on evidence. Cloud resource mappers still post explicit fields only.
+- Helpers: `composeTrustSignals` (measurement), trust-by-place / by-kind grouping, evidence claim filter, opt-in AI overlay (`includeTrustOverlay`, stripped from srm-core payloads).
+- Current AI mock output is identical unless a caller sets the flag. No UI uses the flag yet.
+
 ## 2026-09-03 — Public domain trustledgersrm.co.za
 
 - Public apex is **trustledgersrm.co.za** (was trustledger.co.za). Cloud host **app.trustledgersrm.co.za**. Mailboxes `info@` / `sales@` / `noreply@` follow the new apex. Product name stays TrustLedger. Chibase domain unchanged. MX stays Webway.
