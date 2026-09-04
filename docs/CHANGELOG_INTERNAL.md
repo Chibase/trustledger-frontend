@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-04 — TE-6 MVP packaging and readiness
+
+- Internal presentation posture for TE-1…TE-5: `docs/TRUST_MVP.md`. Completes / partial / future / do-not-promise lists are explicit. No new trust model, pack, nav, or DocType.
+- `composeTrustMvpPackage` concatenates existing proof + recommendations + context hints. Does not persist, does not call a remote model, does not change Trust pulse.
+- Cross-module tests confirm evidence-backed claims, suggestion-only recs, community hints, and unchanged monthly `reportComposer` output.
+
 ## 2026-09-04 — TE-5 Global South operating adaptations
 
 - Optional community context (history, power structure, social sensitivity, barrier tags, language, oral source) on the parallel trust layer. `docs/TRUST_GLOBAL_SOUTH.md`.
