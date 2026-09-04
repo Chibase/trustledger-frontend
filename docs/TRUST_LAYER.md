@@ -25,7 +25,8 @@ Trust pulse widget            not wired to overlay                   TE-3 option
 - TE-5 adds optional Global South context fields on the same rows (`docs/TRUST_GLOBAL_SOUTH.md`). They stay optional.
 - TE-8 **apply** of an engagement writes one participation row (upsert by engagement id) and, when a human applied an overlay, trust observations. Overlay is optional. SRM sentiment is never copied.
 - TE-9 **reads** stored participation as a quality mix (`trust` / `obligation` / `livelihood` / `mixed` / `unknown`). Mixed is not weak. Attendance is not consent. The mix is not Trust pulse.
-- TE-10 **reads** trust claims as unevidenced / evidenced / verified. Linked evidence is not verification. Attendance does not verify. Human apply writes a local stamp.
+- TE-10 **reads** trust claims as unevidenced / evidenced / verified. Linked evidence is not verification. Attendance does not verify. Human apply writes a stamp.
+- TE-11 persists those stamps on Cloud for live customer/trial workspaces. Local `tl-trust-claim-verifications` is a cache. Not a sealed ledger.
 
 ## What it can store
 
@@ -41,7 +42,7 @@ Status rules (keep explainable): scored signals map to +1 / 0 / −1; mean ≥ 0
 
 ## Cloud / API
 
-TE-7 ships Frappe DocTypes + BFF (`docs/TRUST_DOCTYPES.md`). Live customer/trial workspaces use Cloud as SoT; `tl-trust-layer` is a cache. Do not POST TE-1 overlay keys. Do not copy SRM sentiment into observations.
+TE-7 ships Frappe DocTypes + BFF (`docs/TRUST_DOCTYPES.md`). Live customer/trial workspaces use Cloud as SoT; `tl-trust-layer` is a cache. TE-11 adds claim-verification stamps to that SoT. Do not POST TE-1 overlay keys. Do not copy SRM sentiment into observations.
 
 ## Participation-quality reading (TE-9)
 
@@ -49,12 +50,12 @@ TE-7 ships Frappe DocTypes + BFF (`docs/TRUST_DOCTYPES.md`). Live customer/trial
 
 Proof, intelligence, community profiles, and the dashboard hub surface the mix. Capture stays optional. No new DocType.
 
-## Trust-claim verification (TE-10)
+## Trust-claim verification (TE-10 / TE-11)
 
-`classifyClaimVerification` reads scored proof claims. Linked `evidenceIds` → **evidenced**, not verified. **Verified** only after human apply on a matching fingerprint. Attendance, participation quality, and Trust pulse never verify. Stamps live in `tl-trust-claim-verifications` (not Cloud DocTypes, not SI overlay).
+`classifyClaimVerification` reads scored proof claims. Linked `evidenceIds` → **evidenced**, not verified. **Verified** only after human apply on a matching fingerprint. Attendance, participation quality, and Trust pulse never verify. Live SoT is `TL Trust Claim Verification` (TE-11). Local `tl-trust-claim-verifications` is a cache / demo store. Stamps are not SI overlay posts and not a sealed ledger.
 
 Proof, intelligence, and the dashboard hub surface the mix. Apply stays suggestion → human apply → save.
 
 ## Next packet (not this one)
 
-TE-10 is shipped. Further trust packets wait on the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
+TE-11 is shipped. Further trust packets wait on the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.

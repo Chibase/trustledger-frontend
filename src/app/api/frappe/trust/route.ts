@@ -10,12 +10,15 @@ import {
   operatorGateMessage,
 } from "@/lib/platformOperator";
 import { bindSessionCustomer } from "@/lib/tenantScope";
+import type { TrustClaimVerificationStamp } from "@/lib/trust/claimVerification";
 import {
+  isPersistableClaimVerificationStamp,
   listCloudTrustBucket,
   upsertCloudCommunity,
   upsertCloudObservation,
   upsertCloudParticipation,
   upsertCloudTrustBucket,
+  upsertCloudVerification,
   type TrustCloudKind,
 } from "@/lib/trustCloud";
 import type {
@@ -34,9 +37,11 @@ type Body = {
   observation?: TrustObservation;
   participation?: TrustParticipationRecord;
   community?: TrustCommunityContext;
+  verification?: TrustClaimVerificationStamp;
   observations?: TrustObservation[];
   participationRows?: TrustParticipationRecord[];
   communityRows?: TrustCommunityContext[];
+  verificationRows?: TrustClaimVerificationStamp[];
 };
 
 function parseKind(raw: string | null | undefined): TrustCloudKind | null {
@@ -44,6 +49,7 @@ function parseKind(raw: string | null | undefined): TrustCloudKind | null {
     raw === "observation" ||
     raw === "participation" ||
     raw === "community" ||
+    raw === "verification" ||
     raw === "bucket"
   ) {
     return raw;
@@ -81,6 +87,7 @@ export async function GET(request: Request) {
         observations: [],
         participation: [],
         community: [],
+        verifications: [],
       },
       { status: bound.status },
     );
@@ -117,6 +124,14 @@ export async function GET(request: Request) {
       rows: result.community,
     });
   }
+  if (kind === "verification") {
+    return NextResponse.json({
+      ok: true,
+      kind,
+      customer,
+      rows: result.verifications,
+    });
+  }
 
   return NextResponse.json({
     ok: true,
@@ -125,6 +140,7 @@ export async function GET(request: Request) {
     observations: result.observations,
     participation: result.participation,
     community: result.community,
+    verifications: result.verifications,
   });
 }
 
@@ -155,7 +171,10 @@ export async function POST(request: Request) {
   const kind = parseKind(body.kind || "bucket");
   if (!kind) {
     return NextResponse.json(
-      { error: "kind=observation|participation|community|bucket required" },
+      {
+        error:
+          "kind=observation|participation|community|verification|bucket required",
+      },
       { status: 400 },
     );
   }
@@ -222,11 +241,35 @@ export async function POST(request: Request) {
     );
   }
 
+  if (kind === "verification") {
+    if (!isPersistableClaimVerificationStamp(body.verification)) {
+      return NextResponse.json(
+        {
+          error:
+            "verification.id, dimension, fingerprint, and source=human_apply required",
+        },
+        { status: 400 },
+      );
+    }
+    const r = await upsertCloudVerification(
+      body.verification,
+      customer,
+      orgId,
+    );
+    return NextResponse.json(
+      r.ok
+        ? { ok: true, kind, name: r.name, customer }
+        : { ok: false, error: r.error },
+      { status: r.ok ? 200 : 502 },
+    );
+  }
+
   const r = await upsertCloudTrustBucket(
     {
       observations: body.observations || [],
       participation: body.participationRows || [],
       community: body.communityRows || [],
+      verifications: body.verificationRows || [],
     },
     customer,
     orgId,

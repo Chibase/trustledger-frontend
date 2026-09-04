@@ -1,7 +1,8 @@
 /**
- * TE-7 — TL Trust Observation / Participation / Community Context on Frappe.
- * Idempotent ensure via DocType resource when missing.
- * Dimension status stays computed (not a DocType).
+ * TE-7 / TE-11 — TL Trust Observation / Participation / Community Context /
+ * Claim Verification on Frappe. Idempotent ensure via DocType resource when
+ * missing. Dimension status stays computed (not a DocType). Verification
+ * stamps are human-apply only — never inferred from evidence or attendance.
  */
 
 import {
@@ -19,6 +20,7 @@ export const TRUST_DOCTYPE_NAMES = [
   "TL Trust Observation",
   "TL Trust Participation",
   "TL Trust Community Context",
+  "TL Trust Claim Verification",
 ] as const;
 
 export type TrustDocTypeName = (typeof TRUST_DOCTYPE_NAMES)[number];
@@ -193,6 +195,51 @@ function fieldsFor(name: TrustDocTypeName): FieldDef[] {
     ];
   }
 
+  if (name === "TL Trust Claim Verification") {
+    return [
+      {
+        fieldname: "verification_code",
+        label: "Verification code",
+        fieldtype: "Data",
+        reqd: 1,
+      },
+      {
+        fieldname: "customer",
+        label: "Customer",
+        fieldtype: "Link",
+        options: "Customer",
+        reqd: 1,
+      },
+      {
+        fieldname: "dimension",
+        label: "Dimension",
+        fieldtype: "Select",
+        options: DIMENSION_OPTIONS,
+        reqd: 1,
+      },
+      {
+        fieldname: "fingerprint",
+        label: "Fingerprint",
+        fieldtype: "Small Text",
+        reqd: 1,
+      },
+      {
+        fieldname: "verified_at",
+        label: "Verified at",
+        fieldtype: "Datetime",
+      },
+      {
+        fieldname: "source",
+        label: "Source",
+        fieldtype: "Select",
+        options: "human_apply",
+        default: "human_apply",
+        reqd: 1,
+      },
+      { fieldname: "tl_org_id", label: "TrustLedger org id", fieldtype: "Data" },
+    ];
+  }
+
   return [
     {
       fieldname: "community_code",
@@ -260,6 +307,7 @@ function fieldsFor(name: TrustDocTypeName): FieldDef[] {
 function autonameField(name: TrustDocTypeName): string {
   if (name === "TL Trust Observation") return "observation_code";
   if (name === "TL Trust Participation") return "participation_code";
+  if (name === "TL Trust Claim Verification") return "verification_code";
   return "community_code";
 }
 
@@ -310,7 +358,7 @@ function authHeaders(key: string, secret: string): HeadersInit {
   };
 }
 
-/** Idempotently create TE-7 trust DocTypes. */
+/** Idempotently create TE-7 / TE-11 trust DocTypes. */
 export async function ensureTrustDocTypes(options?: {
   dryRun?: boolean;
 }): Promise<DocTypeEnsureResult> {

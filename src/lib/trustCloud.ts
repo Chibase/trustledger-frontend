@@ -1,7 +1,8 @@
 /**
- * TE-7 — CRUD for TL Trust Observation / Participation / Community Context.
- * Explicit fields only. Never maps SRM sentiment_label / sentiment_score.
- * TE-1 overlay keys are not Cloud columns.
+ * TE-7 / TE-11 — CRUD for TL Trust Observation / Participation / Community
+ * Context / Claim Verification. Explicit fields only. Never maps SRM
+ * sentiment_label / sentiment_score. TE-1 overlay keys are not Cloud columns.
+ * Verification stamps persist human apply only — never inferred.
  */
 
 import {
@@ -10,7 +11,9 @@ import {
   frappeKeyPair,
 } from "@/lib/leadCapture";
 import { rowsForCustomer } from "@/lib/tenantScope";
+import type { TrustClaimVerificationStamp } from "@/lib/trust/claimVerification";
 import { normalizeTrustCommunityContext } from "@/lib/trust/communityContext";
+import { canonicalTrustDimensionId } from "@/lib/trust/dimensions";
 import { normalizeTrustObservation } from "@/lib/trust/observation";
 import { normalizeTrustParticipation } from "@/lib/trust/participation";
 import type {
@@ -24,6 +27,7 @@ export type TrustCloudKind =
   | "observation"
   | "participation"
   | "community"
+  | "verification"
   | "bucket";
 
 export function trustCloudDocType(
@@ -31,6 +35,7 @@ export function trustCloudDocType(
 ): string {
   if (kind === "observation") return "TL Trust Observation";
   if (kind === "participation") return "TL Trust Participation";
+  if (kind === "verification") return "TL Trust Claim Verification";
   return "TL Trust Community Context";
 }
 
@@ -173,6 +178,48 @@ export function communityToFrappeDoc(
     oral_source: asCheck(row.oralSource),
     tl_org_id: orgId || "",
   };
+}
+
+export function verificationToFrappeDoc(
+  row: TrustClaimVerificationStamp,
+  customer: string,
+  orgId?: string,
+): Record<string, unknown> {
+  return {
+    verification_code: row.id,
+    customer,
+    dimension: row.dimension,
+    fingerprint: row.fingerprint,
+    verified_at: row.verifiedAt || null,
+    source: "human_apply",
+    tl_org_id: orgId || "",
+  };
+}
+
+export function frappeToVerification(
+  doc: Record<string, unknown>,
+): TrustClaimVerificationStamp | null {
+  if (String(doc.source || "").trim() !== "human_apply") return null;
+  const dimension = canonicalTrustDimensionId(doc.dimension);
+  const fingerprint = String(doc.fingerprint || "").trim();
+  const id = String(doc.verification_code || doc.name || "").trim();
+  if (!dimension || !fingerprint || !id) return null;
+  return {
+    id,
+    dimension,
+    fingerprint,
+    verifiedAt: String(doc.verified_at || "") || new Date().toISOString(),
+    source: "human_apply",
+  };
+}
+
+export function isPersistableClaimVerificationStamp(
+  row: Partial<TrustClaimVerificationStamp> | null | undefined,
+): row is TrustClaimVerificationStamp {
+  if (!row || typeof row !== "object") return false;
+  if (row.source !== "human_apply") return false;
+  if (!row.id || !String(row.fingerprint || "").trim()) return false;
+  return canonicalTrustDimensionId(row.dimension) != null;
 }
 
 export function frappeToObservation(
@@ -348,6 +395,17 @@ const COMMUNITY_FIELDS = [
   "customer",
 ];
 
+const VERIFICATION_FIELDS = [
+  "name",
+  "verification_code",
+  "dimension",
+  "fingerprint",
+  "verified_at",
+  "source",
+  "tl_org_id",
+  "customer",
+];
+
 async function resourcePost(
   doctype: string,
   body: Record<string, unknown>,
@@ -455,17 +513,20 @@ export async function listCloudTrustBucket(
       observations: TrustObservation[];
       participation: TrustParticipationRecord[];
       community: TrustCommunityContext[];
+      verifications: TrustClaimVerificationStamp[];
     }
   | { ok: false; error: string }
 > {
-  const [obs, part, comm] = await Promise.all([
+  const [obs, part, comm, ver] = await Promise.all([
     listDocs("TL Trust Observation", OBSERVATION_FIELDS, customer),
     listDocs("TL Trust Participation", PARTICIPATION_FIELDS, customer),
     listDocs("TL Trust Community Context", COMMUNITY_FIELDS, customer),
+    listDocs("TL Trust Claim Verification", VERIFICATION_FIELDS, customer),
   ]);
   if (!obs.ok) return obs;
   if (!part.ok) return part;
   if (!comm.ok) return comm;
+  if (!ver.ok) return ver;
 
   return {
     ok: true,
@@ -478,6 +539,9 @@ export async function listCloudTrustBucket(
     community: rowsForCustomer(comm.data, customer)
       .map(frappeToCommunity)
       .filter((row): row is TrustCommunityContext => Boolean(row?.id)),
+    verifications: rowsForCustomer(ver.data, customer)
+      .map(frappeToVerification)
+      .filter((row): row is TrustClaimVerificationStamp => Boolean(row?.id)),
   };
 }
 
@@ -520,11 +584,30 @@ export async function upsertCloudCommunity(
   return resourcePost(doctype, body);
 }
 
+export async function upsertCloudVerification(
+  row: TrustClaimVerificationStamp,
+  customer: string,
+  orgId?: string,
+) {
+  if (!isPersistableClaimVerificationStamp(row)) {
+    return {
+      ok: false as const,
+      error: "human_apply stamp with id, dimension, and fingerprint required",
+    };
+  }
+  const doctype = "TL Trust Claim Verification";
+  const body = verificationToFrappeDoc(row, customer, orgId);
+  if (await resourceExists(doctype, row.id)) {
+    return resourcePut(doctype, row.id, body);
+  }
+  return resourcePost(doctype, body);
+}
+
 export async function upsertCloudTrustBucket(
   bucket: Pick<
     TrustLayerBucket,
     "observations" | "participation" | "community"
-  >,
+  > & { verifications?: TrustClaimVerificationStamp[] },
   customer: string,
   orgId?: string,
 ): Promise<{
@@ -562,6 +645,15 @@ export async function upsertCloudTrustBucket(
     results.push({
       id: row.id,
       kind: "community",
+      ok: r.ok,
+      error: r.ok ? undefined : r.error,
+    });
+  }
+  for (const row of bucket.verifications || []) {
+    const r = await upsertCloudVerification(row, customer, orgId);
+    results.push({
+      id: row.id,
+      kind: "verification",
       ok: r.ok,
       error: r.ok ? undefined : r.error,
     });

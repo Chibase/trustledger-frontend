@@ -2,6 +2,7 @@
  * TE-10 trust-claim verification reading.
  * Linked evidence is not approval. Attendance, participation quality, and
  * Trust pulse never verify a claim. Human apply is required to mark verified.
+ * TE-11 persists human-apply stamps on Cloud; this module does not infer them.
  */
 
 import type { TrustProofClaim } from "@/lib/trust/proofReport";

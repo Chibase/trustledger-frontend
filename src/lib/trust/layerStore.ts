@@ -3,8 +3,9 @@
  * Key `tl-trust-layer` is separate from `tl-org-data` so SRM buckets stay untouched.
  * Capture apply (TE-5b) may persist field extras here. Does not write SRM.
  *
- * TE-7: live customer/trial workspaces use Cloud DocTypes as SoT.
+ * TE-7 / TE-11: live customer/trial workspaces use Cloud DocTypes as SoT.
  * Local storage is a cache / offline queue. Demo stays local-only.
+ * Claim-verification stamps hydrate from the same bucket GET.
  */
 
 import {
@@ -15,8 +16,10 @@ import {
 } from "@/lib/trust/observation";
 import { normalizeTrustParticipation } from "@/lib/trust/participation";
 import { isLiveMode } from "@/config/api";
+import { mergeClaimVerificationStampsFromCloud } from "@/lib/trust/claimVerificationStore";
 import {
   fetchTrustLayerFromCloud,
+  pushClaimVerificationsToCloud,
   pushTrustLayerToCloud,
 } from "@/lib/trust/trustCloudClient";
 import {
@@ -227,6 +230,15 @@ export async function loadTrustLayerBucketAsync(
     extras.community.length
   ) {
     await pushTrustLayerToCloud(extras, orgId);
+  }
+
+  const stampExtras = mergeClaimVerificationStampsFromCloud(
+    orgId,
+    cloud.verifications,
+    storage,
+  );
+  if (stampExtras.length) {
+    await pushClaimVerificationsToCloud(stampExtras, orgId);
   }
   return merged;
 }

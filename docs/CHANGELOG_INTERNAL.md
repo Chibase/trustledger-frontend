@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-04 — TE-11 Cloud SoT for claim-verification stamps
+
+- Live customer/trial workspaces persist human-apply stamps on **`TL Trust Claim Verification`** (`GET|POST /api/frappe/trust` kind `verification` / bucket). Local `tl-trust-claim-verifications` is a cache.
+- Human apply is still required. Linked evidence, attendance, participation quality, and Trust pulse still do not verify. Cloud persist never infers `source` — only `human_apply`.
+- Empty Cloud stays empty (no demo bleed). Not a sealed ledger. Overlay keys and SRM sentiment are not Cloud columns.
+
 ## 2026-09-04 — TE-10 trust-claim verification
 
 - Classifies scored trust claims as **unevidenced / evidenced / verified**. Linked `evidenceIds` make a claim evidenced, not verified.
