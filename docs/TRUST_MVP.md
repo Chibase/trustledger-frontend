@@ -36,7 +36,7 @@ Constants in code: `TRUST_MVP_COMPLETE` (`src/lib/trust/mvpReadiness.ts`).
 | Item | Honest limit |
 |------|----------------|
 | Proof / recs UI | On-demand, not a monthly / executive / board pack |
-| Field extras | Preamble + drafts; **not** auto-saved to `tl-trust-layer` |
+| Field extras | Persist to `tl-trust-layer` on Capture apply; local drafts while typing. Not auto-saved |
 | Language | Structures and hints only — no product i18n |
 | Authority | Derived from existing `kind` + tags |
 | Cloud SI | Registry / engagements / commitments usable; trust layer is frontend-only |
@@ -44,7 +44,7 @@ Constants in code: `TRUST_MVP_COMPLETE` (`src/lib/trust/mvpReadiness.ts`).
 
 ### Future-only
 
-Cloud trust DocTypes, production ledger writes (`docs/KEY_MANAGEMENT.md`), live Grok for proof/recs, extra national geo packs, full UI translation, default persistence of field extras.
+Cloud trust DocTypes, production ledger writes (`docs/KEY_MANAGEMENT.md`), live Grok for proof/recs, extra national geo packs, full UI translation, auto-save of field extras without apply.
 
 ### Do not promise yet
 

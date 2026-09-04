@@ -6,10 +6,13 @@ import userEvent from "@testing-library/user-event";
 import { mockProjects } from "@/data/mockProjects";
 import { mockStakeholders } from "@/data/mock/stakeholders";
 import { CaptureFieldNoteMeta } from "@/components/capture/CaptureFieldNoteMeta";
+import { CommunityProfilesPanel } from "@/components/trust/CommunityProfilesPanel";
 import {
   attendanceIsNotConsent,
   authorityRoleFromStakeholder,
+  buildCommunityProfiles,
   collectTrustAlerts,
+  composeLanguageSupport,
   composeTrustIntelligence,
   composeTrustProofReport,
   createMemoryTrustLayerStorage,
@@ -19,6 +22,7 @@ import {
   EMPTY_FIELD_META,
   emptyTrustLayerBucket,
   emptyTrustNarrativeCapture,
+  fieldNoteHasContextExtras,
   fieldNoteMetaPreamble,
   fieldNoteToCommunityDraft,
   fieldNoteToParticipationDraft,
@@ -31,9 +35,29 @@ import {
   normalizeTrustObservation,
   normalizeTrustParticipation,
   participationLooksTrustDriven,
+  persistFieldCaptureToTrustLayer,
+  readFieldCaptureDraft,
+  saveFieldCaptureDraft,
   saveTrustLayerBucket,
   summarizeCommunityContextForIntel,
 } from "@/lib/trust";
+import { aiService } from "@/services/aiService";
+
+jest.mock("next/link", () => ({
+  __esModule: true,
+  default: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
 
 describe("TE-5 Global South — community context", () => {
   it("round-trips optional context fields without requiring a global template", () => {
@@ -350,5 +374,150 @@ describe("TE-5 Global South — observation extras", () => {
     expect(normalized?.oralSource).toBe(true);
     expect(normalized?.narrativeLanguage).toBe("isiXhosa");
     expect(normalized?.translationStatus).toBe("untranslated");
+  });
+});
+
+describe("TE-5b community profiles and language support", () => {
+  it("persists field extras onto the trust layer on apply and upserts the same place", () => {
+    const storage = createMemoryTrustLayerStorage();
+    const meta = {
+      ...EMPTY_FIELD_META,
+      place: "Ward 12",
+      historyNotes: "Previous contractor left without a close-out imbizo.",
+      powerStructureNotes: "Traditional council and ward committee both sit.",
+      spokenLanguage: "isiXhosa",
+      oralCapture: true,
+      attendanceDoesNotEqualConsent: true,
+      motivation: "mixed",
+    };
+    expect(fieldNoteHasContextExtras(meta)).toBe(true);
+    expect(
+      persistFieldCaptureToTrustLayer(
+        meta,
+        { projectId: "PRJ-1", sourceId: "CAP-1" },
+        "org-gs-apply",
+        storage,
+      ),
+    ).toBe(true);
+    persistFieldCaptureToTrustLayer(
+      {
+        ...meta,
+        historyNotes: "Updated history after the second imbizo.",
+      },
+      { projectId: "PRJ-1", sourceId: "CAP-2" },
+      "org-gs-apply",
+      storage,
+    );
+    const bucket = getTrustLayerBucket("org-gs-apply", storage);
+    expect(bucket.community).toHaveLength(1);
+    expect(bucket.community[0]?.historyNotes).toContain("Updated history");
+    expect(bucket.community[0]?.oralSource).toBe(true);
+    expect(bucket.participation).toHaveLength(2);
+    persistFieldCaptureToTrustLayer(
+      {
+        ...EMPTY_FIELD_META,
+        place: "Ward 12",
+        attendanceDoesNotEqualConsent: true,
+      },
+      { projectId: "PRJ-1", sourceId: "CAP-3" },
+      "org-gs-apply",
+      storage,
+    );
+    expect(
+      getTrustLayerBucket("org-gs-apply", storage).community[0]?.oralSource,
+    ).toBe(true);
+    expect(
+      getTrustLayerBucket("org-gs-apply", storage).community[0]?.spokenLanguage ||
+        getTrustLayerBucket("org-gs-apply", storage).community[0]
+          ?.narrativeLanguage,
+    ).toBe("isiXhosa");
+    const profiles = buildCommunityProfiles(
+      bucket.community,
+      bucket.participation,
+    );
+    expect(profiles[0]?.label).toBe("Ward 12");
+    expect(profiles[0]?.participationHints.join(" ")).toMatch(/not equal to consent/i);
+  });
+
+  it("skips derived-from-case shells in community profiles", () => {
+    const derived = createTrustCommunityContext({
+      notes: "Derived from case INC-1 — parallel context only.",
+      ward: "Ward 4",
+    });
+    expect(buildCommunityProfiles([derived])).toEqual([]);
+  });
+
+  it("scopes participation interpretation to the same project", () => {
+    const ward12 = createTrustCommunityContext({
+      id: "TRC-a",
+      projectId: "PRJ-1",
+      placeLabel: "Ward 12",
+      historyNotes: "Prior contractor left.",
+    });
+    const ward3 = createTrustCommunityContext({
+      id: "TRC-b",
+      projectId: "PRJ-2",
+      placeLabel: "Ward 3",
+      historyNotes: "Different village.",
+    });
+    const mixed = createTrustParticipation({
+      projectId: "PRJ-1",
+      source: "engagement",
+      motivation: "mixed",
+      attendanceDoesNotEqualConsent: true,
+    });
+    const profiles = buildCommunityProfiles([ward12, ward3], [mixed]);
+    expect(profiles.find((row) => row.id === "TRC-a")?.participationHints.length).toBeGreaterThan(
+      0,
+    );
+    expect(profiles.find((row) => row.id === "TRC-b")?.participationHints).toEqual(
+      [],
+    );
+  });
+
+  it("records language support without inventing a translation", async () => {
+    const unknown = composeLanguageSupport({});
+    expect(unknown.languageDetected).toBe("unknown");
+    expect(unknown.translated).toBe(false);
+
+    const xhosa = composeLanguageSupport({
+      preferredLanguage: "isiXhosa",
+      oralSource: true,
+    });
+    expect(xhosa.needsTranslation).toBe(true);
+    expect(xhosa.note).toMatch(/does not machine-translate/i);
+
+    const suggestion = await aiService.suggestTriage({
+      description: "The pipeline burst next to the clinic.",
+      preferredLanguage: "isiXhosa",
+    });
+    expect(suggestion.languageDetected).toBe("isiXhosa");
+    expect(suggestion.translatedDescription).toBeUndefined();
+    expect(suggestion.languageSupport?.translated).toBe(false);
+  });
+
+  it("round-trips a low-connectivity field draft in local storage", () => {
+    window.localStorage.clear();
+    saveFieldCaptureDraft({
+      orgId: "org-draft",
+      projectId: "PRJ-1",
+      source: "minutes",
+      title: "Ward imbizo",
+      body: "Spoken notes.",
+      meta: { ...EMPTY_FIELD_META, lowConnectivity: true, oralCapture: true },
+    });
+    const loaded = readFieldCaptureDraft("org-draft", "PRJ-1", "minutes");
+    expect(loaded?.title).toBe("Ward imbizo");
+    expect(loaded?.meta.lowConnectivity).toBe(true);
+    expect(loaded?.meta.oralCapture).toBe(true);
+  });
+
+  it("renders community profile empty state with a capture shortcut", () => {
+    window.localStorage.clear();
+    render(<CommunityProfilesPanel />);
+    expect(screen.getByText("Community profiles")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Capture field context" }),
+    ).toHaveAttribute("href", "/app/capture");
   });
 });

@@ -21,6 +21,7 @@ import {
   prepareTrustSensitiveDraft,
   prepareTrustTriageOverlay,
 } from "@/lib/trust/aiPrepare";
+import { composeLanguageSupport } from "@/lib/trust/languageSupport";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type { ReportKind, ReportSectionId } from "@/types/activityReport";
 import { REPORT_KINDS, REPORT_SECTION_IDS } from "@/types/activityReport";
@@ -141,7 +142,7 @@ function mockTriage(input: TriageRequest): IncidentTriageSuggestion {
       ? `${suggestedPriority} — escalate to senior per typical client threshold (P2+).`
       : `${suggestedPriority} — junior staff may handle under typical client policy.`,
     impactHints,
-    languageDetected: "en",
+    languageDetected: "unknown",
     translatedDescription: undefined,
     confidence: 0.78,
     model: MODEL,
@@ -478,6 +479,22 @@ function mockStakeholderExtract(
   };
 }
 
+function attachLanguageSupport(
+  base: IncidentTriageSuggestion,
+  input: Pick<TriageRequest, "preferredLanguage">,
+): IncidentTriageSuggestion {
+  const support = composeLanguageSupport({
+    preferredLanguage: input.preferredLanguage,
+  });
+  const translated = base.translatedDescription?.trim();
+  return {
+    ...base,
+    languageDetected: support.languageDetected,
+    translatedDescription: translated || undefined,
+    languageSupport: support,
+  };
+}
+
 export const aiService = {
   isMockMode(): boolean {
     return USE_MOCK;
@@ -495,8 +512,11 @@ export const aiService = {
         payload,
       );
     }
-    if (!input.includeTrustOverlay) return base;
-    return { ...base, trustTriage: prepareTrustTriageOverlay(payload) };
+    if (!input.includeTrustOverlay) return attachLanguageSupport(base, input);
+    return attachLanguageSupport(
+      { ...base, trustTriage: prepareTrustTriageOverlay(payload) },
+      input,
+    );
   },
 
   async suggestSentiment(input: SentimentRequest): Promise<SentimentSuggestion> {

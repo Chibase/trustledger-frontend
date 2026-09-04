@@ -5,6 +5,13 @@
 - Trust proof workspace now charts **period trend** (earlier vs later mean) and **all four comparison axes** (community / location / group / phase proxy), plus the six blueprint dimensions. Mean −1…+1 is mapped 0–100 for bars only — not Trust pulse.
 - Hub sits on `/app/dashboard` (above SEP) and on the desk workspace panels. Shortcuts, risk list, and proof narrative stay. Still **not** impact-trend or SLA dashboards. Frappe `stakeholder_relations_hub.json` is not in this frontend repo.
 
+## 2026-09-04 — TE-5b community profiles and language support
+
+- Field extras **persist to `tl-trust-layer` on Capture apply** (upsert by place + project). Typing still does not auto-save. Low-connectivity capture keeps a local field draft until apply.
+- `/app/intelligence` shows **Community profiles**: history, power context, language, participation interpretation (attendance ≠ consent). Empty state has a Capture shortcut.
+- Issue triage records preferred language and shows language support. `translatedDescription` is still not invented. Working language is not defaulted to English.
+- Named charter / Frappe files (`TRUSTLEDGER_PLATFORM_BLUEPRINT.md`, `geographic_area.json`, `srm_incident.py`, `ai.py`) are not in this frontend repo. Geo hierarchy and IKS-sensitive Cloud fields stay on Cloud. Full UI i18n and native offline remain future.
+
 ## 2026-09-04 — TE-3b trust proof workspace on the desk
 
 - `/app/dashboard` now shows a **Trust proof workspace**: number cards (movement, scored observations, risk flags, evidence-backed claims), a comparison bar, risk list, proof narrative, and shortcuts to reports / cases / engagements / capture.

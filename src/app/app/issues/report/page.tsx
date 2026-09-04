@@ -25,6 +25,7 @@ import {
   createTrialIncidentId,
   ensureTrialSeedProject,
 } from "@/lib/trialStore";
+import { COMMUNITY_LANGUAGE_HINTS } from "@/lib/trust/language";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import { listWorkspaceProjects } from "@/lib/workspaceData";
 import { dossierSummaryLines, mergeProjectDossier } from "@/lib/projectDossier";
@@ -65,6 +66,7 @@ export default function AppReportIssuePage() {
   const { pushToast } = useToast();
   const [phase, setPhase] = useState<FormPhase>("details");
   const [description, setDescription] = useState("");
+  const [spokenLanguage, setSpokenLanguage] = useState("");
   const [anonymous, setAnonymous] = useState(false);
   const [reporterName, setReporterName] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
@@ -245,6 +247,7 @@ export default function AppReportIssuePage() {
         description,
         ward: ctx?.wardName || label || geoLabel || undefined,
         projectId: projectId || undefined,
+        preferredLanguage: spokenLanguage.trim() || undefined,
       });
       setSuggestion(result);
       setStatus("ready");
@@ -488,6 +491,32 @@ export default function AppReportIssuePage() {
             />
           </div>
 
+          <div>
+            <label
+              htmlFor="spoken-language"
+              className="mb-1 block text-sm font-medium"
+            >
+              Spoken / preferred language (optional)
+            </label>
+            <input
+              id="spoken-language"
+              list="tl-issue-language-hints"
+              value={spokenLanguage}
+              onChange={(e) => setSpokenLanguage(e.target.value)}
+              className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+              placeholder="Leave blank if unknown — not assumed to be English"
+            />
+            <datalist id="tl-issue-language-hints">
+              {COMMUNITY_LANGUAGE_HINTS.map((lang) => (
+                <option key={lang} value={lang} />
+              ))}
+            </datalist>
+            <p className="mt-1 text-xs text-tl-ink-muted">
+              Used for language support on triage. TrustLedger does not
+              machine-translate the description.
+            </p>
+          </div>
+
           <div className="space-y-3">
             <p className="text-sm font-medium">3. Reporter</p>
             <label className="flex items-center gap-2 text-sm">
@@ -713,6 +742,21 @@ export default function AppReportIssuePage() {
                   <dt className="font-medium">Staff routing</dt>
                   <dd>{suggestion.suggestedStaffTier ?? "—"}</dd>
                 </div>
+                <div>
+                  <dt className="font-medium">Language</dt>
+                  <dd>
+                    {suggestion.languageDetected}
+                    {suggestion.translatedDescription
+                      ? ` · translated`
+                      : " · not translated"}
+                  </dd>
+                </div>
+                {suggestion.languageSupport ? (
+                  <div>
+                    <dt className="font-medium">Language support</dt>
+                    <dd>{suggestion.languageSupport.note}</dd>
+                  </div>
+                ) : null}
               </dl>
             ) : null}
           </AiSuggestionPanel>

@@ -199,6 +199,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **TE-3c** | Trust workspace surfaces | Desk + executive hub: period trend, all comparison axes, dimension bars. Not SLA/impact-trend charts. Frappe Desk JSON stays out of this repo. | **Done** |
 | **TE-4** | Trust intelligence and recommendations | Rule-based, suggestion-only next steps, alerts, and local advisory drafts on TE-3. Optional panel. No autonomous apply. `docs/TRUST_INTELLIGENCE.md` | **Done** |
 | **TE-5** | Global South operating adaptations | Optional community context, field-friendly capture, language readiness, authority mapping, participation realism. Additive; no single template. `docs/TRUST_GLOBAL_SOUTH.md` | **Done** |
+| **TE-5b** | Community profiles + language support | Persist field extras on Capture apply; community profiles on Intelligence; offline field drafts; triage language support without fake translation. | **Done** |
 | **TE-6** | MVP packaging and readiness | Gap review, proof-package path, cross-module validation, internal checklist. No new trust capability. `docs/TRUST_MVP.md` | **Done** |
 | **PP-1** | Plan-as-container packaging | TierFlow module sequence; executive roll-up; VIP-only demo seed across included desks; non-VIP empty | **Done** |
 
@@ -307,6 +308,7 @@ src/app/api/webhooks/clickup/
 | Date | Change |
 |------|--------|
 | 2026-09-04 | TE-6 — MVP packaging: gap review, proof path, cross-module checks; no new trust capability |
+| 2026-09-04 | TE-5b — community profiles, field extras persist on apply, language support without translation |
 | 2026-09-04 | TE-5 — Global South adaptations: optional community/field context, language readiness, authority + participation realism |
 | 2026-09-04 | TE-4 — trust intelligence: rule-based suggestions, alerts, local advisory drafts (not autonomous) |
 | 2026-09-04 | TE-3c — desk + executive trust workspace: period trend, all-axis comparison, dimension bars |

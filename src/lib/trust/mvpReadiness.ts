@@ -40,7 +40,7 @@ export const TRUST_MVP_COMPLETE = [
 
 export const TRUST_MVP_PARTIAL = [
   "Trust proof / recommendations UI is on-demand on /app/reports, not a monthly pack",
-  "Field extras are preamble + draft helpers; they do not auto-save to tl-trust-layer",
+  "Field extras persist to tl-trust-layer on Capture apply; they do not auto-save while typing",
   "Language structures exist; product UI is not translated",
   "Authority roles are derived from existing stakeholder kind/tags, not a new CRM kind",
   "TE-4/TE-5 ride the presentation stack; merge to master is a separate release step",
@@ -53,7 +53,7 @@ export const TRUST_MVP_FUTURE = [
   "Full TEDS / ESIP blueprint completeness",
   "National geo packs beyond the ZA baseline (ADR-040 / ADR-045)",
   "Product-wide i18n and community-checked translation workflow",
-  "Persisting field-capture extras into tl-trust-layer by default",
+  "Auto-saving field extras into tl-trust-layer without human apply",
 ] as const;
 
 export const TRUST_MVP_DO_NOT_PROMISE = [
