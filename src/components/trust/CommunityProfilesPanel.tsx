@@ -13,11 +13,9 @@ import {
  */
 export function CommunityProfilesPanel() {
   const [profiles, setProfiles] = useState<CommunityProfile[]>([]);
-  const [loaded, setLoaded] = useState(false);
 
   const load = useCallback(() => {
     setProfiles(loadWorkspaceCommunityProfiles());
-    setLoaded(true);
   }, []);
 
   useEffect(() => {
@@ -46,9 +44,7 @@ export function CommunityProfilesPanel() {
         </Link>
       </div>
 
-      {!loaded ? (
-        <p className="text-sm text-tl-ink-muted">Loading community profiles…</p>
-      ) : profiles.length === 0 ? (
+      {profiles.length === 0 ? (
         <p className="text-sm text-tl-ink-muted">
           No community profiles yet. On Capture, open Field context, add history
           or power notes, then apply stakeholders so the extras save to this
