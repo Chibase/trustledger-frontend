@@ -595,7 +595,7 @@ export async function upsertCloudVerification(
     return {
       ok: false as const,
       error:
-        "human_apply stamp with id, dimension, fingerprint, and verifiedAt required",
+        "stamp with id, dimension, fingerprint, verifiedAt, and source=human_apply required",
     };
   }
   const doctype = "TL Trust Claim Verification";
