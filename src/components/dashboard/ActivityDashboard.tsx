@@ -95,6 +95,7 @@ export function ActivityDashboard({
           </p>
         </div>
         <DashboardOverviewToolbar
+          planId={planId}
           extra={
             showSep
               ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]

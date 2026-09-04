@@ -2,10 +2,12 @@
  * @jest-environment jsdom
  */
 import { render, screen, waitFor } from "@testing-library/react";
+import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
 import { ExecutivePortfolioDashboard } from "@/components/dashboard/ExecutivePortfolioDashboard";
 import { ProjectWorkspaceDashboard } from "@/components/projects/ProjectWorkspaceDashboard";
 import { mockIncidents } from "@/data/mockIncidents";
 import { mockProjects } from "@/data/mockProjects";
+import { hasCapability } from "@/lib/entitlements";
 
 jest.mock("next/link", () => ({
   __esModule: true,
@@ -57,12 +59,15 @@ jest.mock("@/lib/deskVisibility", () => ({
 }));
 
 jest.mock("@/lib/entitlements", () => ({
-  hasCapability: () => false,
+  hasCapability: jest.fn((capability: string) => capability !== "engagements"),
 }));
 
 describe("graph-first dashboards", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    (hasCapability as jest.Mock).mockImplementation(
+      (capability: string) => capability !== "engagements",
+    );
   });
 
   it("shows executive overall KPIs and chart cards, not per-project metric tables", async () => {
@@ -114,5 +119,32 @@ describe("graph-first dashboards", () => {
       screen.getByText(/Category data, capture, and reports/),
     ).toBeInTheDocument();
     expect(screen.getByText("Cases on this project")).toBeInTheDocument();
+  });
+
+  it("does not call a completed workspace empty", async () => {
+    const parked = { ...mockProjects[0], status: "Completed" as const };
+    render(
+      <ExecutivePortfolioDashboard
+        role="admin"
+        planId="institutional"
+        seedIncidents={[]}
+        seedProjects={[parked]}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText(/completed or closed/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/No projects yet/i)).not.toBeInTheDocument();
+  });
+
+  it("hides Capture on plans without captureHub", () => {
+    (hasCapability as jest.Mock).mockImplementation(
+      (capability: string) => capability !== "captureHub",
+    );
+    render(<DashboardOverviewToolbar planId="solo" />);
+    expect(
+      screen.queryByRole("link", { name: "Capture" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Projects" })).toBeInTheDocument();
   });
 });

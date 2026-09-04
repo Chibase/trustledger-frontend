@@ -3,7 +3,8 @@
 ## 2026-09-04 — UX-1 dashboard overviews (graph-first)
 
 - Executive, project, client, activity, and desk dashboards lead with **overall graphs**: four KPIs, a chart grid (status, case funnel, priority, spend/fill), then compact module/trust charts. Operational tables, SEP, capture, and case lists sit in `<details>`.
-- Product overview chrome uses TrustLedger tokens (`OverviewChartCard`, compact toolbar). No “SaaS” copy, no purple generic dashboard skin. Trust pulse formula unchanged. Empty Cloud stays empty.
+- Product overview chrome uses TrustLedger tokens (`OverviewChartCard`, compact toolbar). Capture is plan-gated (`captureHub`). No “SaaS” copy, no purple generic dashboard skin. Trust pulse formula unchanged. Empty Cloud stays empty.
+- Budget mix is never relabelled as stakeholder share. Completed/closed workspaces keep a path to the project list (not “No projects yet”).
 - Next trust packet remains **TE-9**. UX-1 stays Active for the reports path.
 
 ## 2026-09-04 — TE-8 engagement apply → trust participation

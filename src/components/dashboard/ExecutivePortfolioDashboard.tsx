@@ -122,8 +122,8 @@ export function ExecutivePortfolioDashboard({
     .slice(0, 8);
 
   const statusBars = useMemo(
-    () => projectStatusBars(openProjects),
-    [openProjects],
+    () => projectStatusBars(projects),
+    [projects],
   );
   const priorityBars = useMemo(
     () => incidentPriorityBars(incidents),
@@ -153,6 +153,7 @@ export function ExecutivePortfolioDashboard({
           </p>
         </div>
         <DashboardOverviewToolbar
+          planId={planId}
           extra={
             showNotesPulse
               ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
@@ -162,7 +163,7 @@ export function ExecutivePortfolioDashboard({
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Projects" value={String(totals.projectCount)} />
+        <KpiCard label="Projects" value={String(projects.length)} />
         <KpiCard
           label="Empowerment achieved"
           value={pctLabel(totals.empowermentPct)}
@@ -182,7 +183,7 @@ export function ExecutivePortfolioDashboard({
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChartCard
           title="Project status"
-          hint="Active workspace mix"
+          hint="Workspace mix"
         >
           {statusBars.length ? (
             <VerticalBarChart bars={statusBars} />
@@ -282,11 +283,26 @@ export function ExecutivePortfolioDashboard({
         </div>
         {rows.length === 0 ? (
           <p className="rounded-lg border border-dashed border-tl-line bg-tl-surface px-4 py-6 text-sm text-tl-ink-muted">
-            No projects yet.{" "}
-            <Link href="/app/capture" className="text-tl-trust-ink underline">
-              Capture a project dossier
-            </Link>{" "}
-            to start the overview.
+            {projects.length === 0 ? (
+              <>
+                No projects yet.{" "}
+                <Link
+                  href="/app/projects?new=1"
+                  className="text-tl-trust-ink underline"
+                >
+                  Add a project
+                </Link>{" "}
+                to start the overview.
+              </>
+            ) : (
+              <>
+                Open delivery is empty — {projects.length} completed or closed.{" "}
+                <Link href="/app/projects" className="text-tl-trust-ink underline">
+                  Open the project list
+                </Link>{" "}
+                to reach those dashboards.
+              </>
+            )}
           </p>
         ) : (
           <ul className="grid gap-2 sm:grid-cols-2">

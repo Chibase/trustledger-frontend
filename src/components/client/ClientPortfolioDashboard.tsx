@@ -112,15 +112,24 @@ export function ClientPortfolioDashboard({
             <p className="text-sm text-tl-ink-muted">No open cases.</p>
           )}
         </OverviewChartCard>
-        <OverviewChartCard title="Budget mix" hint="Budget, spent, available">
-          {budgetBars.length ? (
+        {budgetBars.length ? (
+          <OverviewChartCard title="Budget mix" hint="Budget, spent, available">
             <HorizontalBarChart bars={budgetBars} maxHeight={160} />
-          ) : mixBars.length ? (
-            <HorizontalBarChart bars={mixBars} maxHeight={160} />
-          ) : (
-            <p className="text-sm text-tl-ink-muted">No budget figures yet.</p>
-          )}
-        </OverviewChartCard>
+          </OverviewChartCard>
+        ) : (
+          <OverviewChartCard
+            title="Stakeholder mix"
+            hint="By kind — not a budget series"
+          >
+            {mixBars.length ? (
+              <HorizontalBarChart bars={mixBars} maxHeight={160} />
+            ) : (
+              <p className="text-sm text-tl-ink-muted">
+                No budget figures or stakeholder mix yet.
+              </p>
+            )}
+          </OverviewChartCard>
+        )}
       </div>
 
       <DeskWorkspacePanels
