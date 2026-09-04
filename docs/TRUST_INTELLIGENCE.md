@@ -55,4 +55,4 @@ Collapsed **Trust recommendations (optional)** on `/app/reports`, under the TE-3
 
 ## Next packet (not this one)
 
-Global South adaptation or final MVP packaging — **paused** until the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
+TE-5 ships optional Global South field/context adaptations (`docs/TRUST_GLOBAL_SOUTH.md`). Final MVP packaging — **paused** until the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
