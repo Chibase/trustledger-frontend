@@ -11,7 +11,8 @@ import { ProcessStageActions } from "@/components/incidents/ProcessStageActions"
 import { LearnAdaptPanel } from "@/components/incidents/LearnAdaptPanel";
 import { AuditTrailPanel } from "@/components/audit/AuditTrailPanel";
 import { evidenceService } from "@/services/noteService";
-import { incidentService, mergeIncidentCache } from "@/services/incidentService";
+import { incidentService } from "@/services/incidentService";
+import { isLiveMode } from "@/config/api";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -84,11 +85,7 @@ export default function AppIncidentDetailPage({
           ? listWorkspaceIncidents().find((row) => row.id === id) ||
             listTrialIncidents().find((row) => row.id === id)
           : listDemoIncidents().find((row) => row.id === id);
-        setIncident(
-          caseRecord && localCase
-            ? mergeIncidentCache(caseRecord, localCase)
-            : (localCase ?? caseRecord),
-        );
+        setIncident(caseRecord ?? (isLiveMode() ? null : localCase));
         const localFiles = customer
           ? [...listOrgEvidence(id), ...listTrialEvidence(id)]
           : listDemoEvidence(id);
