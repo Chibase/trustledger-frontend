@@ -152,6 +152,24 @@ describe("TE-7 trust Cloud mappers", () => {
       }),
     ).toBeNull();
     expect(
+      frappeToVerification({
+        verification_code: "TCV-no-time",
+        dimension: "process",
+        fingerprint: "process|EVD-1",
+        source: "human_apply",
+        verified_at: "",
+        customer: "Acme Customer",
+      }),
+    ).toBeNull();
+    expect(
+      isPersistableClaimVerificationStamp({
+        id: "TCV-no-time",
+        dimension: "process",
+        fingerprint: "process|EVD-1",
+        source: "human_apply",
+      }),
+    ).toBe(false);
+    expect(
       isPersistableClaimVerificationStamp({
         id: "TCV-bad",
         dimension: "process",

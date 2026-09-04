@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-09-04 — TE-11 follow-up: no invented verification times
+
+- Cloud and local stamp readers drop rows with a missing `verified_at` instead of filling in “now”. Persist requires an explicit apply timestamp.
+
 ## 2026-09-04 — TE-11 Cloud SoT for claim-verification stamps
 
 - Live customer/trial workspaces persist human-apply stamps on **`TL Trust Claim Verification`** (`GET|POST /api/frappe/trust` kind `verification` / bucket). Local `tl-trust-claim-verifications` is a cache.
