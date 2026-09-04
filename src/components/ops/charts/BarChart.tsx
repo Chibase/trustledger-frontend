@@ -1,5 +1,11 @@
 type Bar = { label: string; value: number };
 
+function axisLabel(label: string, barCount: number): string {
+  const max = barCount > 6 ? 8 : barCount > 4 ? 12 : 16;
+  if (label.length <= max) return label;
+  return `${label.slice(0, Math.max(1, max - 1))}…`;
+}
+
 export function HorizontalBarChart({
   bars,
   maxHeight = 220,
@@ -63,6 +69,7 @@ export function VerticalBarChart({ bars }: { bars: Bar[] }) {
         const y = height - h;
         return (
           <g key={`${i}-${bar.label}`}>
+            <title>{bar.label}</title>
             <rect
               x={x}
               y={y}
@@ -78,7 +85,7 @@ export function VerticalBarChart({ bars }: { bars: Bar[] }) {
               fontSize="11"
               fill="var(--tl-ink-muted)"
             >
-              {bar.label}
+              {axisLabel(bar.label, bars.length)}
             </text>
             <text
               x={x + barW / 2}

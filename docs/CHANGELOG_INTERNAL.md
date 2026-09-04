@@ -2,7 +2,7 @@
 
 ## 2026-09-04 — Dashboard Copilot follow-up (chart keys + open KPI)
 
-- Bar charts key rows by index + label (duplicate names no longer collide). Overview series keep full labels; CSS truncates overflow.
+- Bar charts key rows by index + label (duplicate names no longer collide). Overview series keep full labels; horizontal overflow is CSS-truncated; vertical axis labels crop in the SVG with the full name on hover.
 - Executive headline KPI is **Open projects** (`totals.projectCount`), matching empowerment / cases / trust on that row. Status mix still includes completed/closed. Parked-only empty copy unchanged.
 
 ## 2026-09-04 — TE-8 Copilot follow-up
