@@ -143,15 +143,22 @@ function contextForPlace(
 export function mergeObservationsById(
   ...lists: TrustObservation[][]
 ): TrustObservation[] {
-  const map = new Map<string, TrustObservation>();
+  return mergeTrustRowsById(...lists).sort((a, b) =>
+    a.observedAt.localeCompare(b.observedAt),
+  );
+}
+
+/** First occurrence of each id wins. Used for participation and community rows. */
+export function mergeTrustRowsById<T extends { id: string }>(
+  ...lists: T[][]
+): T[] {
+  const map = new Map<string, T>();
   for (const list of lists) {
     for (const row of list) {
       if (!map.has(row.id)) map.set(row.id, row);
     }
   }
-  return [...map.values()].sort((a, b) =>
-    a.observedAt.localeCompare(b.observedAt),
-  );
+  return [...map.values()];
 }
 
 function bucketFromRows(
