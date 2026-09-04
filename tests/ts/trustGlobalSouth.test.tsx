@@ -516,6 +516,7 @@ describe("TE-5b community profiles and language support", () => {
     window.localStorage.clear();
     render(<CommunityProfilesPanel />);
     expect(screen.getByText("Community profiles")).toBeInTheDocument();
+    expect(screen.getByText(/mixed motive is not/i)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Capture field context" }),
     ).toHaveAttribute("href", "/app/capture");
