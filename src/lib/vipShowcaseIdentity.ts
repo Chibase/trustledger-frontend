@@ -1,6 +1,6 @@
 /**
- * Client-safe VIP showcase identity (no Node crypto).
- * Live Cloud login must not import vipShowcaseAuth.
+ * Client-safe VIP showcase identity (no Node crypto, no password).
+ * Server auth lives in vipShowcaseAuth.ts (`import "server-only"`).
  *
  * Illustrative NCGR-B preload is Thozamile KaDlanga only
  * (`thozi@chibaseconsulting.co.za`). Other complimentary VIP guests
@@ -8,7 +8,10 @@
  */
 
 export const VIP_SHOWCASE_DEFAULT_EMAIL = "thozi@chibaseconsulting.co.za";
+export const VIP_SHOWCASE_WEEKS = 8;
+export const VIP_SHOWCASE_PLAN_ID = "institutional" as const;
 export const VIP_SHOWCASE_ORG_NAME = "VIP Pilot — NCGR-B Showcase";
+export const VIP_SHOWCASE_OWNER_NAME = "Thozamile KaDlanga";
 
 export function isVipShowcaseDefaultEmail(email?: string | null): boolean {
   return (email || "").trim().toLowerCase() === VIP_SHOWCASE_DEFAULT_EMAIL;

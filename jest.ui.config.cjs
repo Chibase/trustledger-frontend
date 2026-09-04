@@ -23,6 +23,7 @@ module.exports = {
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
+    "^server-only$": "<rootDir>/tests/empty.js",
   },
   transform: {
     "^.+\\.tsx?$": [

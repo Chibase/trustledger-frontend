@@ -17,11 +17,11 @@ import {
   SESSION_MAX_AGE_SECONDS,
 } from "@/lib/auth.constants";
 import {
+  isVipShowcaseDefaultEmail,
   VIP_SHOWCASE_ORG_NAME,
   VIP_SHOWCASE_PLAN_ID,
   VIP_SHOWCASE_WEEKS,
-} from "@/lib/vipShowcaseAuth";
-import { isVipShowcaseDefaultEmail } from "@/lib/vipShowcaseIdentity";
+} from "@/lib/vipShowcaseIdentity";
 import type { PlanId } from "@/config/plans";
 import { PLAN_OWNER_DESK_TIER, type DeskTier } from "@/types/deskTier";
 import type { UserRole } from "@/types/rbac";
