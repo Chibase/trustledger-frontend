@@ -15,7 +15,7 @@ Envelope: standard Frappe `{ "message": <payload> }`
 | `getProject` | `/api/method/srm_core.api.projects.get_project` | `{ name }` | `Project \| null` |
 | `listIncidents` | `/api/method/srm_core.api.incidents.list_incidents` | filters object | `Incident[]` |
 | `getIncident` | `/api/method/srm_core.api.incidents.get_incident` | `{ name }` | `Incident \| null` |
-| `listNotes` | `/api/method/srm_core.api.engagements.list_meeting_notes` | `{ ward?, projectId? }` | `MeetingNote[]` (legacy) |
+| `listNotes` | `/api/method/srm_core.api.engagements.list_meeting_notes` | `{ ward?, projectId? }` | `MeetingNote[]` (**legacy** alias; live desk does not depend on this returning rows) |
 | `listEngagements` | `/api/method/srm_core.api.engagements.list_engagements` | `{ ward?, projectId?, query? }` | `Engagement[]` |
 | `listCommitments` | `/api/method/srm_core.api.commitments.list_commitments` | `{ projectId?, engagementId?, query? }` | `Commitment[]` |
 | `listEvidence` | `/api/method/srm_core.api.incidents.list_evidence` | `{ incident }` | `EvidenceStub[]` |
@@ -29,6 +29,14 @@ Envelope: standard Frappe `{ "message": <payload> }`
 | `listSocioIndicators` | `/api/method/srm_core.api.geo.list_indicators` | `{ placeId }` | `SocioEconomicIndicator[]` |
 | `listStakeholders` | `/api/method/srm_core.api.stakeholders.list_stakeholders` | `{ placeId?, kind? }` | `Stakeholder[]` |
 | `getStakeholder` | `/api/method/srm_core.api.stakeholders.get_stakeholder` | `{ name }` | `Stakeholder \| null` |
+
+### Live Stakeholder Intelligence (preferred)
+
+Product desk engagements, stakeholders, and commitments use the Cloud SI BFF, not the leftover `list_meeting_notes` method:
+
+`GET|POST /api/frappe/si?kind=engagement|stakeholder|commitment`
+
+`noteService` still tries `FRAPPE_METHODS.listNotes` in live mode, then falls through to `engagementService` (SI Engagement DocType). Named Python `engagements.py` is not in this frontend repo. SI-Cloud status: **shipped** (BUILD_PLAN).
 
 ### OD-2 resource path (until srm_core create methods land)
 
@@ -67,7 +75,7 @@ Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH
 2. Stakeholders list/get (packet 24b)
 3. `list_incidents` / `get_incident` (maps existing SRM Incident DocType)
 4. `list_projects` / `get_project` (or temporary stub DocType)
-5. Engagements + commitments DocTypes (24c–24d)
+5. Engagements + commitments — **SI-Cloud DocTypes shipped**; leftover `list_meeting_notes` is not the live desk path
 6. AI methods wrapping xAI with JSON schema validation
 7. Notes + evidence list endpoints
 
