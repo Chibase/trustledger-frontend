@@ -75,7 +75,7 @@ export function ModuleContributionBoard({
   if (rows.length === 0) return null;
 
   const bars = rows.map((row) => ({
-    label: row.label.slice(0, 22),
+    label: row.label,
     value: row.scorePct,
   }));
   const nextEmpty = rows.find((row) => row.key === suggestedNextKey && row.empty);

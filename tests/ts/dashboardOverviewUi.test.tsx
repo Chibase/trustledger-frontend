@@ -4,6 +4,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
 import { ExecutivePortfolioDashboard } from "@/components/dashboard/ExecutivePortfolioDashboard";
+import { HorizontalBarChart } from "@/components/ops/charts/BarChart";
 import { ProjectWorkspaceDashboard } from "@/components/projects/ProjectWorkspaceDashboard";
 import { mockIncidents } from "@/data/mockIncidents";
 import { mockProjects } from "@/data/mockProjects";
@@ -135,6 +136,44 @@ describe("graph-first dashboards", () => {
       expect(screen.getByText(/completed or closed/i)).toBeInTheDocument();
     });
     expect(screen.queryByText(/No projects yet/i)).not.toBeInTheDocument();
+  });
+
+  it("counts open projects on the headline KPI", async () => {
+    render(
+      <ExecutivePortfolioDashboard
+        role="admin"
+        planId="institutional"
+        seedIncidents={[]}
+        seedProjects={[
+          { ...mockProjects[0]!, status: "Active" },
+          {
+            ...mockProjects[0]!,
+            id: "PRJ-DONE",
+            name: "Finished site",
+            status: "Completed",
+          },
+        ]}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Open projects")).toBeInTheDocument();
+    });
+    const kpi = screen.getByText("Open projects").closest("div");
+    expect(kpi).toHaveTextContent("1");
+  });
+
+  it("renders duplicate bar labels without colliding keys", () => {
+    expect(() =>
+      render(
+        <HorizontalBarChart
+          bars={[
+            { label: "Same", value: 1 },
+            { label: "Same", value: 2 },
+          ]}
+        />,
+      ),
+    ).not.toThrow();
+    expect(screen.getAllByText("Same")).toHaveLength(2);
   });
 
   it("hides Capture on plans without captureHub", () => {
