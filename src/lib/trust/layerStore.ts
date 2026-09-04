@@ -5,8 +5,12 @@
  */
 
 import {
+  normalizeTrustCommunityContext,
+} from "@/lib/trust/communityContext";
+import {
   normalizeTrustObservation,
 } from "@/lib/trust/observation";
+import { normalizeTrustParticipation } from "@/lib/trust/participation";
 import {
   TRUST_LAYER_STORAGE_KEY,
   type TrustCommunityContext,
@@ -84,14 +88,12 @@ function normalizeBucket(
   const observations = (raw.observations || [])
     .map((row) => normalizeTrustObservation(row))
     .filter((row): row is TrustObservation => Boolean(row));
-  const participation = (raw.participation || []).filter(
-    (row): row is TrustParticipationRecord =>
-      Boolean(row) && row.layer === "trust",
-  );
-  const community = (raw.community || []).filter(
-    (row): row is TrustCommunityContext =>
-      Boolean(row) && row.layer === "trust",
-  );
+  const participation = (raw.participation || [])
+    .map((row) => normalizeTrustParticipation(row))
+    .filter((row): row is TrustParticipationRecord => Boolean(row));
+  const community = (raw.community || [])
+    .map((row) => normalizeTrustCommunityContext(row))
+    .filter((row): row is TrustCommunityContext => Boolean(row));
   return {
     orgId,
     observations,

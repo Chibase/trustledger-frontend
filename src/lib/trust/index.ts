@@ -46,6 +46,7 @@ export {
 } from "@/lib/trust/status";
 export {
   createTrustParticipation,
+  normalizeTrustParticipation,
   participationFromTrustResponse,
   participationLooksTrustDriven,
 } from "@/lib/trust/participation";
@@ -53,6 +54,8 @@ export {
   communityContextFromIncident,
   communityContextFromStakeholder,
   createTrustCommunityContext,
+  normalizeTrustCommunityContext,
+  summarizeCommunityContextForIntel,
 } from "@/lib/trust/communityContext";
 export { deriveTrustLayer } from "@/lib/trust/derive";
 export {
@@ -86,6 +89,7 @@ export {
   detectTrustRisks,
   describeTrustMovement,
   mergeObservationsById,
+  mergeTrustRowsById,
   type TrustAnalyticsBundle,
   type TrustAnalyticsSlice,
   type TrustComparisonAxis,
@@ -98,3 +102,68 @@ export {
   type TrustProofClaim,
   type TrustProofReport,
 } from "@/lib/trust/proofReport";
+export {
+  TRUST_INTELLIGENCE_RULES,
+  trustRuleSummary,
+  type TrustAlert,
+  type TrustIntelligenceRuleId,
+  type TrustRecommendation,
+  type TrustTrace,
+} from "@/lib/trust/rules";
+export {
+  collectTrustAlerts,
+  recommendTrustActions,
+} from "@/lib/trust/recommendations";
+export {
+  buildTrustIntelligenceFromSrm,
+  composeTrustAdvisoryLanguage,
+  composeTrustIntelligence,
+  composeTrustIntelligenceFromProof,
+  draftTrustSensitiveNotes,
+  type TrustAdvisoryLanguage,
+  type TrustIntelligenceBrief,
+  type TrustSensitiveDrafts,
+} from "@/lib/trust/intelligence";
+export {
+  authorityRoleFromStakeholder,
+  authorityRoleLabel,
+  listAuthorityRoles,
+} from "@/lib/trust/authority";
+export {
+  COMMUNITY_LANGUAGE_HINTS,
+  emptyTrustNarrativeCapture,
+  narrativeNeedsTranslation,
+  type TrustNarrativeCapture,
+} from "@/lib/trust/language";
+export {
+  TRUST_BARRIER_LABELS,
+  inferBarrierTagsFromNotes,
+  normalizeBarrierTags,
+} from "@/lib/trust/barriers";
+export {
+  attendanceIsNotConsent,
+  mixedMotivationDoesNotEqualTrust,
+  motivationDoesNotInflateWeakParticipation,
+  responsePatternIsNotSimpleAttendance,
+  summarizeParticipationRealismForIntel,
+} from "@/lib/trust/participationRealism";
+export {
+  EMPTY_FIELD_META,
+  fieldNoteHasParticipationExtras,
+  fieldNoteMetaPreamble,
+  fieldNoteToCommunityDraft,
+  fieldNoteToParticipationDraft,
+  type FieldNoteMeta,
+} from "@/lib/trust/fieldCapture";
+export {
+  TRUST_MVP_COMPLETE,
+  TRUST_MVP_DO_NOT_PROMISE,
+  TRUST_MVP_FUTURE,
+  TRUST_MVP_PARTIAL,
+  buildTrustMvpPackageFromSrm,
+  composeTrustMvpPackage,
+  mvpProofMatchesStandalone,
+  trustPulseUnchangedByMvpPackaging,
+  type TrustMvpPackage,
+  type TrustMvpReadinessFlags,
+} from "@/lib/trust/mvpReadiness";

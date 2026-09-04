@@ -1,4 +1,5 @@
 import { isTrustDimensionId } from "@/lib/trust/dimensions";
+import { asTrustTranslationStatus } from "@/lib/trust/language";
 import type {
   TrustObservation,
   TrustObservationSource,
@@ -70,6 +71,12 @@ export function createTrustObservation(
     stakeholderId: draft.stakeholderId ?? null,
     evidenceIds,
     note: draft.note,
+    narrativeLanguage: draft.narrativeLanguage,
+    translationStatus:
+      draft.translationStatus !== undefined
+        ? asTrustTranslationStatus(draft.translationStatus)
+        : undefined,
+    oralSource: typeof draft.oralSource === "boolean" ? draft.oralSource : undefined,
   };
 }
 
@@ -90,5 +97,8 @@ export function normalizeTrustObservation(
     stakeholderId: raw.stakeholderId,
     evidenceIds: raw.evidenceIds,
     note: raw.note,
+    narrativeLanguage: raw.narrativeLanguage,
+    translationStatus: raw.translationStatus,
+    oralSource: raw.oralSource,
   });
 }
