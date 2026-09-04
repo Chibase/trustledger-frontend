@@ -63,9 +63,9 @@ When implementing:
 /resources/[slug]     Pack preview + download gate
 /login                Sign-in chooser → live / trial (no sample demo)
 /app                  Authenticated shell (trial or live)
-/app/dashboard        Executive dashboard (active projects roll-up)
+/app/dashboard        Executive dashboard (overall graphs; project links)
 /app/projects         Project list
-/app/projects/[id]    Project dashboard (category data + capture/monitor/report)
+/app/projects/[id]    Project dashboard (overall graphs; capture/reports in details)
 /app/incidents        Incident list
 /app/incidents/[id]   Case desk + AI assist
 /app/stakeholders     Stakeholder Intelligence CRM (Cloud when live)
@@ -169,7 +169,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24d** | Commitments | Promise board; Cloud DocType + BFF | **Done (Cloud SI path)** |
 | **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (UI); Cloud stamps next** |
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** (superseded nav by UX-1) |
-| **UX-1** | Portfolio → project reports | Executive dashboard (active projects) → project dashboard with category-mapped data → kind/format/level reports | **Active** |
+| **UX-1** | Portfolio → project reports | Executive dashboard (graph-first workspace overview) → project dashboard (overall graphs; category capture/reports in details) → kind/format/level reports | **Active** |
 | **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs; tenant local community intel beside Stats SA | **Done (baseline + local upload)** |
 | **D1** | Product onboarding | `/product` replaces public `/demo` sample entry | **Done** |
 | **D2** | Kill demo mode | No guest `tl-mode=demo`; retarget CTAs; clear lingering demo sessions | **Done** |
@@ -310,6 +310,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-04 | UX-1 — dashboards present as product overviews (KPI row + overall graphs; tables in details) |
 | 2026-09-04 | TE-8 — engagement apply writes participation + optional overlay observations; sentiment not copied |
 | 2026-09-04 | TE-7 — Cloud trust DocTypes + BFF; live SoT for customer/trial; sentiment not copied |
 | 2026-09-04 | TRUST_MVP living inventory — semantic gap audit vs TE-1…TE-6; proof hub location; SI Engagement vs legacy `list_meeting_notes` |

@@ -8,8 +8,7 @@ import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
 
 /**
- * Executive portfolio — active projects with empowerment / ESG overview.
- * Open a project dashboard for capture, monitoring, and kind-based reports.
+ * Workspace overview — overall graphs, then project dashboards for capture and reports.
  */
 export default async function AppDashboardPage() {
   const user = await getCurrentUser();

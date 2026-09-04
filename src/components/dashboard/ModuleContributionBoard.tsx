@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { KpiCard } from "@/components/ui/KpiCard";
+import { HorizontalBarChart } from "@/components/ops/charts/BarChart";
+import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import {
@@ -73,81 +74,50 @@ export function ModuleContributionBoard({
 
   if (rows.length === 0) return null;
 
+  const bars = rows.map((row) => ({
+    label: row.label.slice(0, 22),
+    value: row.scorePct,
+  }));
+  const nextEmpty = rows.find((row) => row.key === suggestedNextKey && row.empty);
+
   return (
-    <section
-      aria-labelledby="module-contrib-heading"
-      className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4"
+    <OverviewChartCard
+      title="Module fill"
+      hint={
+        demoSeeded
+          ? `Aggregate ${aggregate}%. VIP showcase desks include illustrative NCGR-B rows.`
+          : `Aggregate ${aggregate}%. Records here are yours.`
+      }
     >
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h2
-            id="module-contrib-heading"
-            className="text-base font-semibold text-tl-ink"
+      <HorizontalBarChart bars={bars} maxHeight={180} />
+      {nextEmpty ? (
+        <p className="mt-3 text-xs text-tl-ink-muted">
+          Next in sequence:{" "}
+          <Link
+            href={nextEmpty.href}
+            className="text-tl-trust-ink underline"
+            onClick={() => recordEmptyStateCta(nextEmpty.key)}
           >
-            Module contribution
-          </h2>
-          <p className="mt-1 text-sm text-tl-ink-muted">
-            Each included desk contributes equally to strategy progress.{" "}
-            {demoSeeded
-              ? "VIP showcase desks include illustrative NCGR-B rows."
-              : "Nothing is preloaded on this plan — records here are yours."}
-          </p>
-        </div>
-        <KpiCard
-          label="Aggregate progress"
-          value={`${aggregate}%`}
-          hint="Mean module fill"
-          tone="trust"
-        />
-      </div>
-      <ul className="grid gap-3 sm:grid-cols-2">
-        {rows.map((row) => (
-          <li
-            key={row.key}
-            className="rounded-md border border-tl-line px-3 py-3"
-          >
-            <div className="flex items-baseline justify-between gap-2">
-              <p className="text-sm font-medium text-tl-ink">{row.label}</p>
-              <p className="text-xs tabular-nums text-tl-ink-muted">
-                {row.contributionPct}% of roll-up · {row.scorePct}% fill
-                {row.key === suggestedNextKey && row.empty
-                  ? " · next in sequence"
-                  : ""}
-              </p>
-            </div>
-            <div className="mt-2 h-2 overflow-hidden rounded-sm bg-tl-paper">
-              <div
-                className="h-full bg-tl-trust"
-                style={{ width: `${row.scorePct}%` }}
-              />
-            </div>
-            {row.empty ? (
-              <p className="mt-2 text-xs text-tl-ink-muted">
-                Empty.{" "}
-                <Link
-                  href={row.href}
-                  className="text-tl-trust-ink underline"
-                  onClick={() => recordEmptyStateCta(row.key)}
-                >
-                  Open {row.label}
-                </Link>{" "}
-                and add the first record.
-              </p>
-            ) : (
-              <p className="mt-2 text-xs text-tl-ink-muted">
-                {row.count} record{row.count === 1 ? "" : "s"}.{" "}
-                <Link
-                  href={row.href}
-                  className="text-tl-trust-ink underline"
-                  onClick={() => recordExecutiveDrill(row.key)}
-                >
-                  Show this module only
-                </Link>
-              </p>
-            )}
-          </li>
-        ))}
-      </ul>
-    </section>
+            Open {nextEmpty.label}
+          </Link>
+        </p>
+      ) : (
+        <p className="mt-3 text-xs text-tl-ink-muted">
+          {rows
+            .filter((row) => !row.empty)
+            .slice(0, 3)
+            .map((row) => (
+              <Link
+                key={row.key}
+                href={row.href}
+                className="mr-3 text-tl-trust-ink underline"
+                onClick={() => recordExecutiveDrill(row.key)}
+              >
+                {row.label}
+              </Link>
+            ))}
+        </p>
+      )}
+    </OverviewChartCard>
   );
 }

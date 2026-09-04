@@ -5,6 +5,13 @@
 - Cloud SI engagement POST strips `trustResponse` (client + BFF). Overlay is kept in a local key (`tl-engagement-trust-response`) like note sentiment, and still written to the trust layer. Local `tl-engagements` rows are stored without `trustResponse` so a cleared overlay cannot stale-read from the main payload.
 - Capture / desk apply pass `getActiveOrgId() || "local"` into `applyEngagementToTrustLayer` so drafts are not cleared without a trust-layer write.
 
+## 2026-09-04 — UX-1 dashboard overviews (graph-first)
+
+- Executive, project, client, activity, and desk dashboards lead with **overall graphs**: four KPIs, a chart grid (status, case funnel, priority, spend/fill), then compact module/trust charts. Operational tables, SEP, capture, and case lists sit in `<details>`.
+- Product overview chrome uses TrustLedger tokens (`OverviewChartCard`, compact toolbar). Capture is plan-gated (`captureHub`). No “SaaS” copy, no purple generic dashboard skin. Trust pulse formula unchanged. Empty Cloud stays empty.
+- Budget mix is never relabelled as stakeholder share. Completed/closed workspaces keep a path to the project list (not “No projects yet”).
+- Next trust packet remains **TE-9**. UX-1 stays Active for the reports path.
+
 ## 2026-09-04 — TE-8 engagement apply → trust participation
 
 - Capture apply saves the engagement first, then writes **one participation row** keyed to that engagement id (upsert). Optional field extras (motive, presence, willingness, attendance≠consent) merge onto that row. Community extras still upsert by place.
