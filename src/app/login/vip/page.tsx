@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startVipShowcaseSession } from "@/lib/orgSession";
+import { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
 import { applyVipShowcaseSeed } from "@/lib/vipShowcaseSeed";
 
 function sanitizeNext(value: string | null): string {
@@ -97,13 +98,12 @@ function VipShowcaseLoginForm() {
         VIP showcase workspace
       </h1>
       <p className="mt-2 text-sm text-tl-ink-muted">
-        Complimentary full package. Illustrative Northern Cape corridor
-        programme is preloaded only for{" "}
-        <code className="font-mono text-xs">thozi@chibaseconsulting.co.za</code>
-        {" "}
-        (Thozamile KaDlanga). Other complimentary VIP guests sign in on live
-        Cloud and start with their own empty desks — not this theatre. This is
-        not the retired public sample.
+        Complimentary full package with an illustrative Northern Cape corridor
+        programme. Sign in as{" "}
+        <code className="font-mono text-xs">{VIP_SHOWCASE_DEFAULT_EMAIL}</code>
+        — not the Platform Operator mailbox. This is not the retired public
+        sample, and it is not a paying customer desk — declare it illustrative
+        in the room.
       </p>
 
       {enabled === false ? (
@@ -126,7 +126,7 @@ function VipShowcaseLoginForm() {
               name="email"
               type="email"
               autoComplete="username"
-              defaultValue="thozi@chibaseconsulting.co.za"
+              defaultValue={VIP_SHOWCASE_DEFAULT_EMAIL}
               className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
               required
             />

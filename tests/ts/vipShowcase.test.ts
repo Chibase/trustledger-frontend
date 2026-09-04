@@ -57,7 +57,7 @@ describe("VIP showcase pack", () => {
     expect(packageLabel("institutional", { vip: true })).toBe("VIP");
   });
 
-  it("treats only Thozamile's trial+VIP mailbox as the illustrative showcase", () => {
+  it("treats only the showcase mailbox as the illustrative showcase", () => {
     expect(
       isVipShowcaseWorkspace("trial", true, VIP_SHOWCASE_DEFAULT_EMAIL),
     ).toBe(true);
@@ -73,7 +73,7 @@ describe("VIP showcase pack", () => {
     expect(isVipShowcaseWorkspace("trial", true)).toBe(false);
   });
 
-  it("seeds Thozamile when the email argument is empty but the session cookie is set", () => {
+  it("seeds the showcase when the email argument is empty but the session cookie is set", () => {
     window.localStorage.clear();
     document.cookie = `tl-user-email=${encodeURIComponent(VIP_SHOWCASE_DEFAULT_EMAIL)}`;
     document.cookie = "tl-mode=trial";
@@ -109,7 +109,7 @@ describe("VIP showcase pack", () => {
     expect(result.incidents).toBe(0);
   });
 
-  it("seeds NCGR-B for Thozamile even when forceShowcase is set", () => {
+  it("seeds NCGR-B for the showcase mailbox even when forceShowcase is set", () => {
     window.localStorage.clear();
     const skipped = applyVipShowcaseSeed({
       orgId: "org-guest",
@@ -221,7 +221,7 @@ describe("VIP showcase pack", () => {
     expect(window.localStorage.getItem("tl-vip-demo-bundle")).toBeNull();
   });
 
-  it("does not purge Thozamile's showcase while she is signed in", () => {
+  it("does not purge the showcase mailbox while it is signed in", () => {
     window.localStorage.clear();
     applyVipShowcaseSeed({
       orgId: "org-thozi",
@@ -339,33 +339,36 @@ describe("VIP showcase auth gate", () => {
     ).toBe(false);
   });
 
-  it("allowlists the showcase mailbox, not the Platform Operator master plan", () => {
+  it("allowlists the showcase mailbox, not the Platform Operator or thozi@ other-plan mailbox", () => {
     delete process.env.PLATFORM_OPERATOR_EMAILS;
     delete process.env.VIP_SHOWCASE_EMAILS;
     delete process.env.VIP_SHOWCASE_EMAIL;
     process.env.PLATFORM_OPERATOR_EMAILS = "admin@chibaseconsulting.co.za";
+    expect(VIP_SHOWCASE_DEFAULT_EMAIL).toBe("sirthoz@trustledgersrm.co.za");
+    expect(isAllowedVipShowcaseEmail(VIP_SHOWCASE_DEFAULT_EMAIL)).toBe(true);
     expect(isAllowedVipShowcaseEmail("thozi@chibaseconsulting.co.za")).toBe(
-      true,
+      false,
     );
     expect(isAllowedVipShowcaseEmail("admin@chibaseconsulting.co.za")).toBe(
       false,
     );
     expect(isAllowedVipShowcaseEmail("stranger@example.com")).toBe(false);
-    expect(allowedVipShowcaseEmails()).toContain(
-      "thozi@chibaseconsulting.co.za",
-    );
+    expect(allowedVipShowcaseEmails()).toContain(VIP_SHOWCASE_DEFAULT_EMAIL);
   });
 
   it("sends the showcase mailbox away from live Cloud login", () => {
     delete process.env.VIP_SHOWCASE_LOGIN;
-    expect(isVipShowcaseLiveLoginMailbox("thozi@chibaseconsulting.co.za")).toBe(
+    expect(isVipShowcaseLiveLoginMailbox(VIP_SHOWCASE_DEFAULT_EMAIL)).toBe(
       true,
+    );
+    expect(isVipShowcaseLiveLoginMailbox("thozi@chibaseconsulting.co.za")).toBe(
+      false,
     );
     expect(isVipShowcaseLiveLoginMailbox("admin@chibaseconsulting.co.za")).toBe(
       false,
     );
     process.env.VIP_SHOWCASE_LOGIN = "0";
-    expect(isVipShowcaseLiveLoginMailbox("thozi@chibaseconsulting.co.za")).toBe(
+    expect(isVipShowcaseLiveLoginMailbox(VIP_SHOWCASE_DEFAULT_EMAIL)).toBe(
       false,
     );
   });

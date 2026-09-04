@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-04 — VIP showcase mailbox (sirthoz@)
+
+- Default `/login/vip` allowlist is `sirthoz@trustledgersrm.co.za`. `thozi@chibaseconsulting.co.za` stays on its other plan and uses `/login/live` (not intercepted to the showcase).
+- Supersedes earlier entries below that name `thozi@` as the showcase mailbox.
+
 ## 2026-09-04 — SEC-1 organisation permissions (L2)
 
 - Plan Owner Cloud Users are stamped with a Customer User Permission on provision. Live SI / migrate / upload / projects bind the organisation from the Cloud sid — a spoofed `customer=` or email cookie does not switch workspaces (operators may break-glass). Buyer `customer=` is ignored so first-login migrate still works when the browser org label differs from the Cloud Customer name.
