@@ -1,6 +1,7 @@
 /**
  * TE-2 parallel trust-native layer — first-class trust model.
- * Coexists with SRM records and the TE-1 overlay. Not a Frappe DocType.
+ * Coexists with SRM records and the TE-1 overlay.
+ * Live SoT: Cloud DocTypes (TE-7). Browser key `tl-trust-layer` is a cache / demo store.
  * Never required on incident / engagement / commitment save paths.
  *
  * Six blueprint dimensions: project, entity, process, people, fairness,

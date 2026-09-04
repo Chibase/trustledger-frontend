@@ -64,8 +64,10 @@ export {
   createMemoryTrustLayerStorage,
   emptyTrustLayerBucket,
   getTrustLayerBucket,
+  loadTrustLayerBucketAsync,
   mergeTrustLayerRows,
   saveTrustLayerBucket,
+  saveTrustLayerBucketAsync,
 } from "@/lib/trust/layerStore";
 export {
   TRUST_AT_RISK_MEAN,
@@ -167,6 +169,7 @@ export {
 export {
   fieldNoteHasContextExtras,
   persistFieldCaptureToTrustLayer,
+  persistFieldCaptureToTrustLayerAsync,
 } from "@/lib/trust/persistFieldCapture";
 export {
   clearFieldCaptureDraft,
@@ -177,6 +180,7 @@ export {
 export {
   buildCommunityProfiles,
   loadWorkspaceCommunityProfiles,
+  loadWorkspaceCommunityProfilesAsync,
   type CommunityProfile,
 } from "@/lib/trust/communityProfiles";
 export {

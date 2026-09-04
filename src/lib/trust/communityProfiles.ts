@@ -8,7 +8,10 @@ import {
 } from "@/lib/trust/communityContext";
 import { summarizeParticipationRealismForIntel } from "@/lib/trust/participationRealism";
 import { getActiveOrgId } from "@/lib/orgStore";
-import { getTrustLayerBucket } from "@/lib/trust/layerStore";
+import {
+  getTrustLayerBucket,
+  loadTrustLayerBucketAsync,
+} from "@/lib/trust/layerStore";
 import type {
   TrustCommunityContext,
   TrustParticipationRecord,
@@ -98,5 +101,14 @@ export function loadWorkspaceCommunityProfiles(): CommunityProfile[] {
   const orgId = getActiveOrgId();
   if (!orgId) return [];
   const stored = getTrustLayerBucket(orgId);
+  return buildCommunityProfiles(stored.community, stored.participation);
+}
+
+export async function loadWorkspaceCommunityProfilesAsync(): Promise<
+  CommunityProfile[]
+> {
+  const orgId = getActiveOrgId();
+  if (!orgId) return [];
+  const stored = await loadTrustLayerBucketAsync(orgId);
   return buildCommunityProfiles(stored.community, stored.participation);
 }

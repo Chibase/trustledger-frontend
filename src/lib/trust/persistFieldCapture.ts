@@ -14,6 +14,7 @@ import { createTrustCommunityContext } from "@/lib/trust/communityContext";
 import {
   getTrustLayerBucket,
   saveTrustLayerBucket,
+  saveTrustLayerBucketAsync,
   type TrustLayerStorage,
 } from "@/lib/trust/layerStore";
 import type { TrustCommunityContext } from "@/types/trustLayer";
@@ -108,5 +109,21 @@ export function persistFieldCaptureToTrustLayer(
     bucket.participation.push(participation);
   }
   saveTrustLayerBucket(bucket, storage);
+  return true;
+}
+
+/** Capture apply: local persist then Cloud upsert when live. */
+export async function persistFieldCaptureToTrustLayerAsync(
+  meta: FieldNoteMeta,
+  extra: { projectId?: string | null; sourceId?: string } = {},
+  orgId: string | null = getActiveOrgId(),
+  storage?: TrustLayerStorage | null,
+): Promise<boolean> {
+  const ok = persistFieldCaptureToTrustLayer(meta, extra, orgId, storage);
+  if (!ok || !orgId) return ok;
+  await saveTrustLayerBucketAsync(
+    getTrustLayerBucket(orgId, storage),
+    storage,
+  );
   return true;
 }

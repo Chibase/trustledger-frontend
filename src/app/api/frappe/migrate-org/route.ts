@@ -11,9 +11,19 @@ import {
   operatorGateMessage,
 } from "@/lib/platformOperator";
 import { bindSessionCustomer } from "@/lib/tenantScope";
+import {
+  upsertCloudCommunity,
+  upsertCloudObservation,
+  upsertCloudParticipation,
+} from "@/lib/trustCloud";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type {
+  TrustCommunityContext,
+  TrustObservation,
+  TrustParticipationRecord,
+} from "@/types/trustLayer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,6 +34,9 @@ type Body = {
   projects?: Project[];
   incidents?: Incident[];
   evidence?: EvidenceStub[];
+  observations?: TrustObservation[];
+  participation?: TrustParticipationRecord[];
+  community?: TrustCommunityContext[];
 };
 
 /**
@@ -70,6 +83,9 @@ export async function POST(request: Request) {
     projects: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
     incidents: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
     evidence: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
+    observations: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
+    participation: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
+    community: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
   };
 
   for (const project of projects) {
@@ -99,11 +115,41 @@ export async function POST(request: Request) {
       error: r.ok ? undefined : r.error,
     });
   }
+  for (const row of body.observations || []) {
+    const r = await upsertCloudObservation(row, customer, body.orgId);
+    results.observations.push({
+      id: row.id,
+      ok: r.ok,
+      name: r.ok ? r.name : undefined,
+      error: r.ok ? undefined : r.error,
+    });
+  }
+  for (const row of body.participation || []) {
+    const r = await upsertCloudParticipation(row, customer, body.orgId);
+    results.participation.push({
+      id: row.id,
+      ok: r.ok,
+      name: r.ok ? r.name : undefined,
+      error: r.ok ? undefined : r.error,
+    });
+  }
+  for (const row of body.community || []) {
+    const r = await upsertCloudCommunity(row, customer, body.orgId);
+    results.community.push({
+      id: row.id,
+      ok: r.ok,
+      name: r.ok ? r.name : undefined,
+      error: r.ok ? undefined : r.error,
+    });
+  }
 
   const failed =
     results.projects.filter((x) => !x.ok).length +
     results.incidents.filter((x) => !x.ok).length +
-    results.evidence.filter((x) => !x.ok).length;
+    results.evidence.filter((x) => !x.ok).length +
+    results.observations.filter((x) => !x.ok).length +
+    results.participation.filter((x) => !x.ok).length +
+    results.community.filter((x) => !x.ok).length;
 
   return NextResponse.json({
     ok: failed === 0,
@@ -113,6 +159,9 @@ export async function POST(request: Request) {
       projects: results.projects.length,
       incidents: results.incidents.length,
       evidence: results.evidence.length,
+      observations: results.observations.length,
+      participation: results.participation.length,
+      community: results.community.length,
       failed,
     },
     results,

@@ -339,18 +339,96 @@ export function ProvisionOwnerPanel({
         }),
       });
       const comJson = (await comRes.json()) as { ok?: boolean; error?: string };
+      const obsId = `TRO-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const partId = `TRP-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const commId = `TRC-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const obsRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "observation",
+          customer,
+          observation: {
+            id: obsId,
+            layer: "trust",
+            observedAt: new Date().toISOString(),
+            dimension: "process",
+            signal: "neutral",
+            source: "derived",
+            evidenceIds: [],
+          },
+        }),
+      });
+      const obsJson = (await obsRes.json()) as { ok?: boolean; error?: string };
+      const partRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "participation",
+          customer,
+          participation: {
+            id: partId,
+            layer: "trust",
+            observedAt: new Date().toISOString(),
+            source: "engagement",
+            sourceId: engId,
+            willingnessToParticipate: "unknown",
+            willingnessToContribute: "unknown",
+            trustDriven: "unknown",
+            attendanceDoesNotEqualConsent: true,
+          },
+        }),
+      });
+      const partJson = (await partRes.json()) as { ok?: boolean; error?: string };
+      const commRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "community",
+          customer,
+          community: {
+            id: commId,
+            layer: "trust",
+            updatedAt: new Date().toISOString(),
+            placeLabel: "Smoke community",
+            historyNotes: "TE-7 smoke context",
+          },
+        }),
+      });
+      const commJson = (await commRes.json()) as { ok?: boolean; error?: string };
       const bundle = {
         stakeholder: stkJson,
         engagement: engJson,
         commitment: comJson,
+        observation: obsJson,
+        participation: partJson,
+        community: commJson,
       };
       if (!comRes.ok || !comJson.ok) {
         pushToast(comJson.error || "Commitment smoke failed", "error");
         setResult(JSON.stringify(bundle, null, 2));
         return;
       }
+      if (!obsRes.ok || !obsJson.ok) {
+        pushToast(obsJson.error || "Trust observation smoke failed", "error");
+        setResult(JSON.stringify(bundle, null, 2));
+        return;
+      }
+      if (!partRes.ok || !partJson.ok) {
+        pushToast(partJson.error || "Trust participation smoke failed", "error");
+        setResult(JSON.stringify(bundle, null, 2));
+        return;
+      }
+      if (!commRes.ok || !commJson.ok) {
+        pushToast(commJson.error || "Trust community smoke failed", "error");
+        setResult(JSON.stringify(bundle, null, 2));
+        return;
+      }
       pushToast(
-        "SI smoke OK — Stakeholder + Engagement + Commitment on Cloud",
+        "SI + trust smoke OK — Stakeholder, Engagement, Commitment, Observation, Participation, Community",
         "success",
       );
       setResult(JSON.stringify(bundle, null, 2));

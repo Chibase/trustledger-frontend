@@ -2,6 +2,9 @@
  * Optional browser store for the parallel trust layer.
  * Key `tl-trust-layer` is separate from `tl-org-data` so SRM buckets stay untouched.
  * Capture apply (TE-5b) may persist field extras here. Does not write SRM.
+ *
+ * TE-7: live customer/trial workspaces use Cloud DocTypes as SoT.
+ * Local storage is a cache / offline queue. Demo stays local-only.
  */
 
 import {
@@ -11,6 +14,11 @@ import {
   normalizeTrustObservation,
 } from "@/lib/trust/observation";
 import { normalizeTrustParticipation } from "@/lib/trust/participation";
+import { isLiveMode } from "@/config/api";
+import {
+  fetchTrustLayerFromCloud,
+  pushTrustLayerToCloud,
+} from "@/lib/trust/trustCloudClient";
 import {
   TRUST_LAYER_STORAGE_KEY,
   type TrustCommunityContext,
@@ -167,4 +175,69 @@ export function clearTrustLayerBucket(
   const root = readRoot(storage);
   delete root[orgId];
   writeRoot(storage, root);
+}
+
+export function shouldUseTrustCloud(): boolean {
+  return typeof window !== "undefined" && isLiveMode();
+}
+
+function mergeById<T extends { id: string }>(local: T[], cloud: T[]): T[] {
+  const map = new Map<string, T>();
+  for (const row of local) map.set(row.id, row);
+  for (const row of cloud) map.set(row.id, row);
+  return [...map.values()];
+}
+
+function localOnly<T extends { id: string }>(local: T[], cloud: T[]): T[] {
+  const cloudIds = new Set(cloud.map((row) => row.id));
+  return local.filter((row) => !cloudIds.has(row.id));
+}
+
+/**
+ * Live SoT is Cloud. Local cache is merged underneath; Cloud wins on id.
+ * Local-only rows are pushed so a first live login migrates the browser bucket.
+ */
+export async function loadTrustLayerBucketAsync(
+  orgId: string,
+  storage: TrustLayerStorage | null = browserStorage(),
+): Promise<TrustLayerBucket> {
+  const local = getTrustLayerBucket(orgId, storage);
+  if (!shouldUseTrustCloud()) return local;
+
+  const cloud = await fetchTrustLayerFromCloud();
+  if (!cloud) return local;
+
+  const merged = normalizeBucket(orgId, {
+    orgId,
+    observations: mergeById(local.observations, cloud.observations),
+    participation: mergeById(local.participation, cloud.participation),
+    community: mergeById(local.community, cloud.community),
+    updatedAt: new Date().toISOString(),
+  });
+  saveTrustLayerBucket(merged, storage);
+
+  const extras = {
+    observations: localOnly(local.observations, cloud.observations),
+    participation: localOnly(local.participation, cloud.participation),
+    community: localOnly(local.community, cloud.community),
+  };
+  if (
+    extras.observations.length ||
+    extras.participation.length ||
+    extras.community.length
+  ) {
+    await pushTrustLayerToCloud(extras, orgId);
+  }
+  return merged;
+}
+
+export async function saveTrustLayerBucketAsync(
+  bucket: TrustLayerBucket,
+  storage: TrustLayerStorage | null = browserStorage(),
+): Promise<TrustLayerBucket> {
+  const saved = saveTrustLayerBucket(bucket, storage);
+  if (shouldUseTrustCloud()) {
+    await pushTrustLayerToCloud(saved, saved.orgId);
+  }
+  return saved;
 }

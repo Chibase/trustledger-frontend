@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import { ensureProductDocTypes } from "@/lib/frappeProductDocTypes";
 import { ensureSiDocTypes } from "@/lib/frappeSiDocTypes";
+import { ensureTrustDocTypes } from "@/lib/frappeTrustDocTypes";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import {
   assertOpsAccess,
@@ -12,9 +13,9 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Body = { dryRun?: boolean; includeSi?: boolean };
+type Body = { dryRun?: boolean; includeSi?: boolean; includeTrust?: boolean };
 
-/** OD-2 / SI-Cloud — ensure product + SI DocTypes on Frappe. */
+/** OD-2 / SI-Cloud / TE-7 — ensure product + SI + trust DocTypes on Frappe. */
 export async function POST(request: Request) {
   if (!isFrappeOwnerIssuanceEnabled()) {
     return NextResponse.json(
@@ -42,6 +43,7 @@ export async function POST(request: Request) {
 
   const dryRun = body.dryRun !== false;
   const includeSi = body.includeSi !== false;
+  const includeTrust = body.includeTrust !== false;
   const product = await ensureProductDocTypes({ dryRun });
   const si = includeSi
     ? await ensureSiDocTypes({ dryRun })
@@ -52,9 +54,20 @@ export async function POST(request: Request) {
         missing: [],
         message: "SI DocTypes skipped (includeSi:false)",
       };
+  const trust = includeTrust
+    ? await ensureTrustDocTypes({ dryRun })
+    : {
+        ok: true,
+        dryRun,
+        results: [],
+        missing: [],
+        message: "Trust DocTypes skipped (includeTrust:false)",
+      };
 
-  const ok = product.ok && si.ok;
-  const message = [product.message, si.message].filter(Boolean).join(" · ");
+  const ok = product.ok && si.ok && trust.ok;
+  const message = [product.message, si.message, trust.message]
+    .filter(Boolean)
+    .join(" · ");
 
   return NextResponse.json(
     {
@@ -63,8 +76,9 @@ export async function POST(request: Request) {
       message,
       product,
       si,
-      results: [...product.results, ...si.results],
-      missing: [...product.missing, ...si.missing],
+      trust,
+      results: [...product.results, ...si.results, ...trust.results],
+      missing: [...product.missing, ...si.missing, ...trust.missing],
     },
     { status: ok ? 200 : 502 },
   );

@@ -8,7 +8,7 @@ import { engagementService } from "@/services/engagementService";
 import { stakeholderService } from "@/services/stakeholderService";
 import { canonicalTrustDimensionId } from "@/lib/trust/dimensions";
 import { getActiveOrgId } from "@/lib/orgStore";
-import { getTrustLayerBucket } from "@/lib/trust/layerStore";
+import { loadTrustLayerBucketAsync } from "@/lib/trust/layerStore";
 import {
   buildTrustProofFromSrm,
   type TrustProofReport,
@@ -75,7 +75,7 @@ export async function loadWorkspaceTrustProof(): Promise<TrustProofReport> {
     stakeholderService.list(),
   ]);
   const orgId = getActiveOrgId();
-  const stored = orgId ? getTrustLayerBucket(orgId) : null;
+  const stored = orgId ? await loadTrustLayerBucketAsync(orgId) : null;
   return buildTrustProofFromSrm(
     {
       incidents: listWorkspaceIncidents(),

@@ -66,7 +66,7 @@ import { getActiveOrgId } from "@/lib/orgStore";
 import {
   clearFieldCaptureDraft,
   fieldNoteHasContextExtras,
-  persistFieldCaptureToTrustLayer,
+  persistFieldCaptureToTrustLayerAsync,
   readFieldCaptureDraft,
   saveFieldCaptureDraft,
 } from "@/lib/trust";
@@ -531,8 +531,8 @@ export default function AppCapturePage() {
     return `${preamble}${body.trim()}`.trim();
   }
 
-  function applyFieldExtrasToTrustLayer(sourceId?: string) {
-    persistFieldCaptureToTrustLayer(fieldMeta, {
+  async function applyFieldExtrasToTrustLayer(sourceId?: string) {
+    await persistFieldCaptureToTrustLayerAsync(fieldMeta, {
       projectId: project?.id ?? null,
       sourceId,
     });
@@ -643,7 +643,7 @@ export default function AppCapturePage() {
           appliedStakeholderIds: ids,
         };
         saveCaptureRecord(record);
-        applyFieldExtrasToTrustLayer(captureId);
+        await applyFieldExtrasToTrustLayer(captureId);
 
         const actionFromMinutes = actionItemsFromMinutes(savedBody);
         const actionItems = (
