@@ -155,3 +155,15 @@ export {
   fieldNoteToParticipationDraft,
   type FieldNoteMeta,
 } from "@/lib/trust/fieldCapture";
+export {
+  TRUST_MVP_COMPLETE,
+  TRUST_MVP_DO_NOT_PROMISE,
+  TRUST_MVP_FUTURE,
+  TRUST_MVP_PARTIAL,
+  buildTrustMvpPackageFromSrm,
+  composeTrustMvpPackage,
+  mvpProofMatchesStandalone,
+  trustPulseUnchangedByMvpPackaging,
+  type TrustMvpPackage,
+  type TrustMvpReadinessFlags,
+} from "@/lib/trust/mvpReadiness";

@@ -51,4 +51,4 @@ Draft helpers (`fieldNoteToCommunityDraft`, `fieldNoteToParticipationDraft`) **d
 
 ## Next packet (not this one)
 
-Final MVP packaging / release-readiness — **paused** until the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
+TE-6 ships internal MVP packaging (`docs/TRUST_MVP.md`). Further product work is **paused** until the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
