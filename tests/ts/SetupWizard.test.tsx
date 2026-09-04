@@ -8,6 +8,7 @@ import {
   SetupWizardGate,
   useLaunchSetupWizard,
 } from "@/components/onboarding/SetupWizardGate";
+import { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
 
 jest.mock("next/link", () => {
   return {
@@ -50,7 +51,7 @@ describe("SetupWizard VIP showcase", () => {
         skipAutoOpen
         vip
         mode="trial"
-        email="thozi@chibaseconsulting.co.za"
+        email={VIP_SHOWCASE_DEFAULT_EMAIL}
       >
         <LaunchButton />
       </SetupWizardGate>,
@@ -83,7 +84,7 @@ describe("SetupWizard VIP showcase", () => {
         skipAutoOpen
         vip
         mode="trial"
-        email="thozi@chibaseconsulting.co.za"
+        email={VIP_SHOWCASE_DEFAULT_EMAIL}
         requestedOpen
       />,
     );

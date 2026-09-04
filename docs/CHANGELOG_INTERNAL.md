@@ -4,6 +4,7 @@
 
 - Default `/login/vip` allowlist is `sirthoz@trustledgersrm.co.za`. `thozi@chibaseconsulting.co.za` stays on its other plan and uses `/login/live` (not intercepted to the showcase).
 - Supersedes earlier entries below that name `thozi@` as the showcase mailbox.
+- Packaging / onboarding / SetupWizard tests use `VIP_SHOWCASE_DEFAULT_EMAIL` so seed and walkthrough assertions follow the dedicated mailbox.
 
 ## 2026-09-04 — SEC-1 organisation permissions (L2)
 
