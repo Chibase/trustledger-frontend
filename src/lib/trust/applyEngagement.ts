@@ -40,7 +40,10 @@ export type ApplyEngagementToTrustLayerResult = {
 function overlayFrom(
   input: ApplyEngagementToTrustLayerInput,
 ): StakeholderTrustResponse | null {
-  const staged = input.overlay || input.engagement.trustResponse;
+  const staged =
+    input.overlay !== undefined
+      ? input.overlay
+      : input.engagement.trustResponse;
   if (!staged || isTrustResponseBlank(staged)) return null;
   return normalizeTrustResponse(staged);
 }
@@ -79,7 +82,10 @@ function mergeParticipation(args: {
       fromField?.willingnessToContribute,
       existing?.willingnessToContribute,
     ),
-    trustDriven: fromOverlay?.trustDriven,
+    trustDriven:
+      fromOverlay?.trustDriven !== undefined
+        ? fromOverlay.trustDriven
+        : existing?.trustDriven,
     note: fromField?.note || fromOverlay?.note || existing?.note,
     motivation: fromField?.motivation || existing?.motivation,
     presenceMode: fromField?.presenceMode || existing?.presenceMode,
@@ -118,6 +124,7 @@ export async function applyEngagementToTrustLayer(
     );
   }
 
+  const overlayExplicit = input.overlay !== undefined;
   const overlay = overlayFrom(input);
   const derived = overlay
     ? deriveTrustLayer({
@@ -148,10 +155,17 @@ export async function applyEngagementToTrustLayer(
   );
   bucket.participation.push(participation);
 
-  for (const obs of derived.observations) {
-    const idx = bucket.observations.findIndex((row) => row.id === obs.id);
-    if (idx >= 0) bucket.observations[idx] = obs;
-    else bucket.observations.push(obs);
+  const overlayObsPrefix = `TRO-engagement-${engagement.id}-`;
+  if (overlay || overlayExplicit) {
+    bucket.observations = bucket.observations.filter(
+      (row) =>
+        !(
+          row.source === "engagement" &&
+          row.sourceId === engagement.id &&
+          row.id.startsWith(overlayObsPrefix)
+        ),
+    );
+    bucket.observations.push(...derived.observations);
   }
 
   await saveTrustLayerBucketAsync(bucket, input.storage);

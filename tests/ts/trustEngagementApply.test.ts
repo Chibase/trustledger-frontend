@@ -175,6 +175,63 @@ describe("TE-8 engagement apply → trust layer", () => {
     expect(row?.willingnessToContribute).toBe("medium");
   });
 
+  it("keeps trustDriven from a prior overlay when the next apply has no overlay", async () => {
+    const storage = createMemoryTrustLayerStorage();
+    const engagement = sampleEngagement();
+    await applyEngagementToTrustLayer({
+      engagement,
+      overlay: {
+        willingnessToParticipate: "high",
+        confidenceInProcess: "high",
+        confidenceInImplementer: "high",
+      },
+      orgId: "org-te8-driven",
+      storage,
+    });
+    expect(
+      getTrustLayerBucket("org-te8-driven", storage).participation[0]?.trustDriven,
+    ).toBe(true);
+    await applyEngagementToTrustLayer({
+      engagement,
+      fieldMeta: { ...EMPTY_FIELD_META, motivation: "mixed" },
+      orgId: "org-te8-driven",
+      storage,
+    });
+    const row = getTrustLayerBucket("org-te8-driven", storage).participation[0];
+    expect(row?.trustDriven).toBe(true);
+    expect(row?.motivation).toBe("mixed");
+  });
+
+  it("replaces overlay observations when an explicit overlay is re-applied or cleared", async () => {
+    const storage = createMemoryTrustLayerStorage();
+    const engagement = sampleEngagement();
+    await applyEngagementToTrustLayer({
+      engagement,
+      overlay: { confidenceInProcess: "high", confidenceInFairness: "low" },
+      orgId: "org-te8-obs",
+      storage,
+    });
+    expect(
+      getTrustLayerBucket("org-te8-obs", storage).observations.map((row) => row.dimension).sort(),
+    ).toEqual(["fairness", "process"]);
+    await applyEngagementToTrustLayer({
+      engagement,
+      overlay: { confidenceInProcess: "low" },
+      orgId: "org-te8-obs",
+      storage,
+    });
+    expect(
+      getTrustLayerBucket("org-te8-obs", storage).observations.map((row) => row.dimension),
+    ).toEqual(["process"]);
+    await applyEngagementToTrustLayer({
+      engagement,
+      overlay: null,
+      orgId: "org-te8-obs",
+      storage,
+    });
+    expect(getTrustLayerBucket("org-te8-obs", storage).observations).toHaveLength(0);
+  });
+
   it("does not write when orgId is missing", async () => {
     const storage = createMemoryTrustLayerStorage();
     const result = await applyEngagementToTrustLayer({

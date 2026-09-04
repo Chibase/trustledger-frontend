@@ -5,6 +5,7 @@
 - Capture apply saves the engagement first, then writes **one participation row** keyed to that engagement id (upsert). Optional field extras (motive, presence, willingness, attendance≠consent) merge onto that row. Community extras still upsert by place.
 - Engagement desk: optional **Trust overlay** (local `prepareTrustResponseHints` only). Suggest → review → apply & save writes overlay observations. **Note sentiment assist does not create trust observations.**
 - Overlay stays optional and is not posted on the SI Engagement record. Mixed motive does not invent weak participation. Attendance is not inferred as consent.
+- Re-applying an explicit overlay replaces that engagement’s overlay observations (clearing unknown dimensions). Capture apply without an overlay does not wipe prior overlay rows. `trustDriven` from an overlay is kept on later field-only upserts.
 - Next packet remains **TE-9** (participation-quality reading). Trust pulse unchanged.
 
 ## 2026-09-04 — TE-7 Cloud trust DocTypes
