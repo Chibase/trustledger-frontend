@@ -9,6 +9,7 @@ import {
   MonthlyOpsLayout,
 } from "@/components/reports/ReportLensLayout";
 import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
+import { TrustProofPanel } from "@/components/reports/TrustProofPanel";
 import { KpiCard } from "@/components/ui/KpiCard";
 import type { PlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
@@ -323,6 +324,8 @@ export function ReportsHub({
           <ReportsLibrary role={role} />
         </section>
       ) : null}
+
+      <TrustProofPanel />
     </div>
   );
 }

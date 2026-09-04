@@ -63,3 +63,38 @@ export {
   mergeTrustLayerRows,
   saveTrustLayerBucket,
 } from "@/lib/trust/layerStore";
+export {
+  TRUST_AT_RISK_MEAN,
+  TRUST_LOW_CONFIDENCE_SAMPLE,
+  TRUST_STRONG_MEAN,
+  TRUST_TREND_DELTA,
+  formatTrustMean,
+  meanTrustScores,
+  trustLevelFromMean,
+  trustMovementFromDelta,
+  trustSignalWeight,
+  trustTrendFromHalves,
+  type TrustMovement,
+} from "@/lib/trust/scoring";
+export {
+  TRUST_COMPARISON_AXES,
+  analyzeTrust,
+  classifyOverallTrustMovement,
+  compareTrustAcrossAxes,
+  compareTrustByAxis,
+  compareTrustPeriods,
+  detectTrustRisks,
+  describeTrustMovement,
+  mergeObservationsById,
+  type TrustAnalyticsBundle,
+  type TrustAnalyticsSlice,
+  type TrustComparisonAxis,
+  type TrustPeriodComparison,
+  type TrustRiskFlag,
+} from "@/lib/trust/analytics";
+export {
+  buildTrustProofFromSrm,
+  composeTrustProofReport,
+  type TrustProofClaim,
+  type TrustProofReport,
+} from "@/lib/trust/proofReport";
