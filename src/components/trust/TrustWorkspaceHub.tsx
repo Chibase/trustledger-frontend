@@ -2,19 +2,37 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { HorizontalBarChart } from "@/components/ops/charts/BarChart";
+import {
+  HorizontalBarChart,
+  VerticalBarChart,
+} from "@/components/ops/charts/BarChart";
 import { KpiCard } from "@/components/ui/KpiCard";
+import {
+  TRUST_COMPARISON_AXES,
+  type TrustComparisonAxis,
+} from "@/lib/trust/analytics";
+import { formatTrustMean } from "@/lib/trust/scoring";
 import {
   loadWorkspaceTrustProof,
   summarizeTrustWorkspace,
+  trustMeanToDisplay,
 } from "@/lib/trust/workspaceProof";
 import type { TrustProofReport } from "@/lib/trust/proofReport";
 
-const AXIS_LABEL: Record<string, string> = {
+const AXIS_LABEL: Record<TrustComparisonAxis, string> = {
   community: "Community",
   location: "Location",
   stakeholder_group: "Stakeholder group",
   project_phase: "Phase proxy",
+};
+
+const DIMENSION_SHORT: Record<string, string> = {
+  project: "Project",
+  implementing_entity: "Implementing entity",
+  process: "Process",
+  people: "People",
+  fairness: "Fairness",
+  concerns_acted_upon: "Concerns acted upon",
 };
 
 function movementTone(
@@ -26,6 +44,17 @@ function movementTone(
   return "default";
 }
 
+function displayBars(
+  rows: { label: string; mean: number | null }[],
+): { label: string; value: number }[] {
+  return rows
+    .map((row) => ({
+      label: row.label.slice(0, 28),
+      value: trustMeanToDisplay(row.mean),
+    }))
+    .filter((row): row is { label: string; value: number } => row.value != null);
+}
+
 /**
  * Workspace hub for TE-3: trend, comparison, risk, proof narrative, shortcuts.
  * Not impact-trend / SLA charts. Does not change Trust pulse or report packs.
@@ -34,6 +63,9 @@ export function TrustWorkspaceHub() {
   const [report, setReport] = useState<TrustProofReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [axisOverride, setAxisOverride] = useState<TrustComparisonAxis | null>(
+    null,
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -61,13 +93,29 @@ export function TrustWorkspaceHub() {
     [report],
   );
 
-  const comparisonBars = (summary?.comparisonSlices || [])
-    .filter((row) => row.scoredCount > 0)
-    .slice(0, 6)
-    .map((row) => ({
-      label: row.label.slice(0, 28),
-      value: row.scoredCount,
-    }));
+  const selectedAxis =
+    axisOverride ?? summary?.comparisonAxis ?? "community";
+  const comparisonSlices = (
+    summary?.comparisons[selectedAxis] || []
+  ).filter((row) => row.scoredCount > 0);
+  const comparisonBars = displayBars(
+    comparisonSlices.map((row) => ({
+      label: row.label,
+      mean: row.meanSignal,
+    })),
+  );
+  const trendBars = displayBars([
+    { label: "Earlier", mean: summary?.period.earlierMean ?? null },
+    { label: "Later", mean: summary?.period.laterMean ?? null },
+  ]);
+  const dimensionBars = displayBars(
+    (summary?.dimensions || [])
+      .filter((row) => row.mean != null)
+      .map((row) => ({
+        label: DIMENSION_SHORT[row.dimension] || row.label,
+        mean: row.mean,
+      })),
+  );
 
   return (
     <section className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4">
@@ -168,21 +216,93 @@ export function TrustWorkspaceHub() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div>
-          <h3 className="mb-2 text-sm font-semibold text-tl-ink">
-            Comparison
-            {summary?.comparisonAxis
-              ? ` · ${AXIS_LABEL[summary.comparisonAxis] || summary.comparisonAxis}`
+          <h3 className="mb-2 text-sm font-semibold text-tl-ink">Trust trend</h3>
+          <p className="mb-3 text-xs text-tl-ink-muted">
+            Earlier vs later mean on a 0–100 map of −1…+1. Not Trust pulse.
+            {summary?.period.delta != null
+              ? ` Delta ${formatTrustMean(summary.period.delta)} (${summary.period.movement.replaceAll("_", " ")}).`
               : ""}
-          </h3>
-          {comparisonBars.length ? (
-            <HorizontalBarChart bars={comparisonBars} maxHeight={180} />
+          </p>
+          {trendBars.length === 2 ? (
+            <VerticalBarChart bars={trendBars} />
           ) : (
             <p className="text-sm text-tl-ink-muted">
-              No comparison slices yet. Community, location, group, and phase
-              proxies appear when trust observations have place or source.
+              Need scored observations on both halves of the period to chart
+              movement.
             </p>
           )}
         </div>
+        <div>
+          <h3 className="mb-2 text-sm font-semibold text-tl-ink">
+            Dimensions
+          </h3>
+          <p className="mb-3 text-xs text-tl-ink-muted">
+            Six blueprint dimensions. Same −1…+1 mean, shown 0–100.
+          </p>
+          {dimensionBars.length ? (
+            <HorizontalBarChart bars={dimensionBars} maxHeight={180} />
+          ) : (
+            <p className="text-sm text-tl-ink-muted">
+              No scored dimensions yet.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-sm font-semibold text-tl-ink">Comparison</h3>
+        <div
+          role="tablist"
+          aria-label="Comparison axis"
+          className="mb-3 flex flex-wrap gap-2"
+        >
+          {TRUST_COMPARISON_AXES.map((axis) => (
+            <button
+              key={axis}
+              type="button"
+              role="tab"
+              aria-selected={selectedAxis === axis}
+              onClick={() => setAxisOverride(axis)}
+              className={
+                selectedAxis === axis
+                  ? "rounded-md bg-tl-trust px-3 py-1.5 text-sm font-medium text-white"
+                  : "rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium hover:bg-tl-paper"
+              }
+            >
+              {AXIS_LABEL[axis]}
+            </button>
+          ))}
+        </div>
+        {comparisonBars.length ? (
+          <>
+            <HorizontalBarChart bars={comparisonBars} maxHeight={180} />
+            <ul className="mt-3 divide-y divide-tl-line overflow-hidden rounded-md border border-tl-line">
+              {comparisonSlices.slice(0, 8).map((row) => (
+                <li
+                  key={`${selectedAxis}-${row.id}`}
+                  className="flex flex-wrap items-baseline justify-between gap-2 px-3 py-2 text-sm"
+                >
+                  <span className="font-medium text-tl-ink">{row.label}</span>
+                  <span className="text-xs text-tl-ink-muted">
+                    mean {formatTrustMean(row.meanSignal)} ·{" "}
+                    {row.level.replaceAll("_", " ")} ·{" "}
+                    {row.movement.replaceAll("_", " ")} · {row.scoredCount}{" "}
+                    scored
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="text-sm text-tl-ink-muted">
+            No {AXIS_LABEL[selectedAxis].toLowerCase()} slices yet. Community,
+            location, group, and phase proxies appear when trust observations
+            have place or source.
+          </p>
+        )}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
         <div>
           <h3 className="mb-2 text-sm font-semibold text-tl-ink">Trust risks</h3>
           {report?.risks.length ? (
@@ -200,16 +320,15 @@ export function TrustWorkspaceHub() {
             </p>
           )}
         </div>
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-sm font-semibold text-tl-ink">
-          Proof narrative
-        </h3>
-        <p className="text-sm text-tl-ink">
-          {report?.narrative ||
-            "No scored trust observations yet. Keep or break a promise, add evidence support, or capture overlay attitudes — then refresh. Case sentiment is not a trust observation."}
-        </p>
+        <div>
+          <h3 className="mb-2 text-sm font-semibold text-tl-ink">
+            Proof narrative
+          </h3>
+          <p className="text-sm text-tl-ink">
+            {report?.narrative ||
+              "No scored trust observations yet. Keep or break a promise, add evidence support, or capture overlay attitudes — then refresh. Case sentiment is not a trust observation."}
+          </p>
+        </div>
       </div>
     </section>
   );

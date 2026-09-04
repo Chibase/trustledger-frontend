@@ -196,6 +196,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **TE-2b** | Blueprint trust dimensions | Six dimensions (project, entity, process, people, fairness, concerns acted upon). SRM sentiment is not a trust observation. Cloud DocTypes still future. | **Done** |
 | **TE-3** | Trust analytics and proof reporting | Explainable trend / comparison / risk on the trust layer; optional proof markdown on `/app/reports`. Not a pack; Trust pulse and existing writers unchanged. `docs/TRUST_PROOF.md` | **Done** |
 | **TE-3b** | Trust workspace hub | Dashboard cards + comparison + risk + proof narrative + shortcuts. Not SLA/impact-trend charts. | **Done** |
+| **TE-3c** | Trust workspace surfaces | Desk + executive hub: period trend, all comparison axes, dimension bars. Not SLA/impact-trend charts. Frappe Desk JSON stays out of this repo. | **Done** |
 | **TE-4** | Trust intelligence and recommendations | Rule-based, suggestion-only next steps, alerts, and local advisory drafts on TE-3. Optional panel. No autonomous apply. `docs/TRUST_INTELLIGENCE.md` | **Done** |
 | **TE-5** | Global South operating adaptations | Optional community context, field-friendly capture, language readiness, authority mapping, participation realism. Additive; no single template. `docs/TRUST_GLOBAL_SOUTH.md` | **Done** |
 | **TE-5b** | Community profiles + language support | Persist field extras on Capture apply; community profiles on Intelligence; offline field drafts; triage language support without fake translation. | **Done** |
@@ -310,6 +311,7 @@ src/app/api/webhooks/clickup/
 | 2026-09-04 | TE-5b — community profiles, field extras persist on apply, language support without translation |
 | 2026-09-04 | TE-5 — Global South adaptations: optional community/field context, language readiness, authority + participation realism |
 | 2026-09-04 | TE-4 — trust intelligence: rule-based suggestions, alerts, local advisory drafts (not autonomous) |
+| 2026-09-04 | TE-3c — desk + executive trust workspace: period trend, all-axis comparison, dimension bars |
 | 2026-09-04 | TE-3b — dashboard trust workspace: movement cards, comparison, risk, proof narrative, shortcuts |
 | 2026-09-04 | TE-2b — six blueprint trust dimensions; sentiment is not a trust observation |
 | 2026-09-04 | TE-1 — frontend trust overlay library (optional fields + helpers; no UX/DocType change) |

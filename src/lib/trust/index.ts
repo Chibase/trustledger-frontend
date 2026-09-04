@@ -106,6 +106,9 @@ export {
 export {
   loadWorkspaceTrustProof,
   summarizeTrustWorkspace,
+  trustMeanToDisplay,
+  type TrustWorkspaceDimensionRow,
+  type TrustWorkspacePeriodSummary,
   type TrustWorkspaceSummary,
 } from "@/lib/trust/workspaceProof";
 export {

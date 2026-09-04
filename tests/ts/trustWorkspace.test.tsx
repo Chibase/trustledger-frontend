@@ -2,13 +2,17 @@
  * @jest-environment jsdom
  */
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { mockIncidents } from "@/data/mockIncidents";
 import { mockProjects } from "@/data/mockProjects";
 import { mockEngagements, mockEvidence } from "@/data/mockEngagements";
 import { mockCommitments } from "@/data/mockCommitments";
 import { mockStakeholders } from "@/data/mock/stakeholders";
 import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
-import { summarizeTrustWorkspace } from "@/lib/trust/workspaceProof";
+import {
+  summarizeTrustWorkspace,
+  trustMeanToDisplay,
+} from "@/lib/trust/workspaceProof";
 import { composeTrustProofReport } from "@/lib/trust";
 import { createTrustObservation } from "@/lib/trust";
 
@@ -70,6 +74,20 @@ describe("trust workspace summary", () => {
     expect(summary.scoredObservations).toBeGreaterThan(0);
     expect(summary.movement).not.toBe("insufficient");
     expect(summary.evidenceBackedClaims).toBeGreaterThan(0);
+    expect(summary.period.earlierMean).not.toBeNull();
+    expect(summary.period.laterMean).not.toBeNull();
+    expect(summary.comparisons.community).toBeDefined();
+    expect(summary.comparisons.project_phase.length).toBeGreaterThan(0);
+    expect(
+      summary.dimensions.some((row) => row.dimension === "process" && row.mean != null),
+    ).toBe(true);
+  });
+
+  it("maps −1…+1 means onto a 0–100 chart scale without becoming Trust pulse", () => {
+    expect(trustMeanToDisplay(-1)).toBe(0);
+    expect(trustMeanToDisplay(0)).toBe(50);
+    expect(trustMeanToDisplay(1)).toBe(100);
+    expect(trustMeanToDisplay(null)).toBeNull();
   });
 });
 
@@ -78,7 +96,7 @@ describe("TrustWorkspaceHub", () => {
     window.localStorage.clear();
   });
 
-  it("renders number cards, comparison/risk slots, narrative, and shortcuts", async () => {
+  it("renders number cards, trend, comparison axes, risk, narrative, and shortcuts", async () => {
     render(<TrustWorkspaceHub />);
     expect(screen.getByText("Trust proof workspace")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Full proof" })).toHaveAttribute(
@@ -101,11 +119,26 @@ describe("TrustWorkspaceHub", () => {
     expect(screen.getByText("Scored observations")).toBeInTheDocument();
     expect(screen.getByText("Risk flags")).toBeInTheDocument();
     expect(screen.getByText("Evidence-backed claims")).toBeInTheDocument();
+    expect(screen.getByText("Trust trend")).toBeInTheDocument();
+    expect(screen.getByText("Comparison")).toBeInTheDocument();
+    expect(screen.getByText("Dimensions")).toBeInTheDocument();
     expect(screen.getByText("Proof narrative")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Community" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Location" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: "Stakeholder group" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Phase proxy" })).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.queryByText("Composing trust proof…")).not.toBeInTheDocument();
     });
-    expect(screen.getByText(/not Trust pulse/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/not Trust pulse/i).length).toBeGreaterThan(0);
+
+    await userEvent.click(screen.getByRole("tab", { name: "Phase proxy" }));
+    expect(screen.getByRole("tab", { name: "Phase proxy" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
   });
 });

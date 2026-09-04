@@ -155,6 +155,8 @@ export function ExecutivePortfolioDashboard({
         email={email}
       />
 
+      <TrustWorkspaceHub />
+
       <SepDashboardPanel planId={planId} alwaysShow />
 
       {showNotesPulse ? (
@@ -163,8 +165,6 @@ export function ExecutivePortfolioDashboard({
           levelLabel="Communication notes"
         />
       ) : null}
-
-      <TrustWorkspaceHub />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(totals.projectCount)} />

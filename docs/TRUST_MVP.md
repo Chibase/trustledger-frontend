@@ -66,7 +66,7 @@ SRM records (+ optional TE-1)
 |------|------|
 | Trust proof reports | `/app/reports` → **Trust proof (optional)** or `composeTrustProofReport` |
 | Evidence-backed summaries | Proof claims / history `evidenceIds`; overlay `trustSupport.supportsTrustClaim` |
-| Trust trend views | Proof period + dimension trend (later half vs earlier half, ±0.34) |
+| Trust trend views | `/app/dashboard` + desk **Trust proof workspace**; proof period + dimension trend (later half vs earlier half, ±0.34) |
 | Community / context views | Proof `comparisons.community`; TE-5 hints when context rows exist |
 | Recommendation outputs | `/app/reports` → **Trust recommendations (optional)** or TE-4 `composeTrustIntelligence` |
 

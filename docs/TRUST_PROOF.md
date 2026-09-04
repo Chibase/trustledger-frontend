@@ -69,7 +69,7 @@ This is **not** `trustIndexFromIncidents()` (Trust pulse on the monthly pack). P
 
 Collapsed **Trust proof (optional)** on `/app/reports` (`TrustProofPanel`). Opens on demand. Copy / download markdown. Not in AppNav. Not in `REPORT_PACKS` / the evidence writer.
 
-**Trust proof workspace** on `/app/dashboard` (`TrustWorkspaceHub`): number cards (movement, scored observations, risk flags, evidence-backed claims), a comparison bar of the first axis with scores, risk list, proof narrative, and shortcuts to reports / cases / engagements / capture. Always visible (empty state still has cards + links). Does **not** add impact-trend or SLA charts.
+**Trust proof workspace** (`TrustWorkspaceHub`) on `/app/dashboard` and desk workspace panels: number cards (movement, scored observations, risk flags, evidence-backed claims), **period trend** (earlier vs later), **comparison** across community / location / stakeholder group / phase proxy, six-dimension bars, risk list, proof narrative, and shortcuts to reports / cases / engagements / capture. Chart scale is mean −1…+1 mapped 0–100 — not Trust pulse. Always visible (empty state still has cards + links). Does **not** add impact-trend or SLA charts. Frappe Desk workspace JSON is not in this repo.
 
 Customer / trial workspaces use `listWorkspaceIncidents` / `listWorkspaceEvidence` and own-data service lists — no demo `INC-*` bleed.
 

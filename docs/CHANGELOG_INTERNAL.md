@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-04 — TE-3c trust workspace trend and comparison
+
+- Trust proof workspace now charts **period trend** (earlier vs later mean) and **all four comparison axes** (community / location / group / phase proxy), plus the six blueprint dimensions. Mean −1…+1 is mapped 0–100 for bars only — not Trust pulse.
+- Hub sits on `/app/dashboard` (above SEP) and on the desk workspace panels. Shortcuts, risk list, and proof narrative stay. Still **not** impact-trend or SLA dashboards. Frappe `stakeholder_relations_hub.json` is not in this frontend repo.
+
 ## 2026-09-04 — TE-5b community profiles and language support
 
 - Field extras **persist to `tl-trust-layer` on Capture apply** (upsert by place + project). Typing still does not auto-save. Low-connectivity capture keeps a local field draft until apply.
