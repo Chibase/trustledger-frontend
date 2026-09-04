@@ -6,6 +6,7 @@
 - Cloud `processStages` win even when blank — local stamps are not revived.
 - Local org cache is written only after a successful Cloud upsert.
 - Incident Cloud tests import the `Incident` type.
+- Case detail prefers `incidentService.get` over a raw org-cache row in live mode, so blank Cloud stamps stay blank on the desk.
 
 ## 2026-09-04 — 24e-cloud grievance lifecycle stamps
 
