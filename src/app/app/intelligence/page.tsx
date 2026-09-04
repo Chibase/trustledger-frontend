@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { CommunityProfilesPanel } from "@/components/trust/CommunityProfilesPanel";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
@@ -247,6 +248,8 @@ export default function AppIntelligencePage() {
             ) : null}
           </AiSuggestionPanel>
         </section>
+
+        <CommunityProfilesPanel />
 
         <section>
           <h2 className="font-display text-base font-semibold text-tl-ink">

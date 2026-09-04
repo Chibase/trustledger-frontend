@@ -1,7 +1,7 @@
 /**
  * Optional browser store for the parallel trust layer.
  * Key `tl-trust-layer` is separate from `tl-org-data` so SRM buckets stay untouched.
- * Nothing in the app shell reads this yet — persist only when a later packet opts in.
+ * Capture apply (TE-5b) may persist field extras here. Does not write SRM.
  */
 
 import {

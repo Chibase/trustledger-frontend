@@ -162,6 +162,25 @@ export {
   type FieldNoteMeta,
 } from "@/lib/trust/fieldCapture";
 export {
+  fieldNoteHasContextExtras,
+  persistFieldCaptureToTrustLayer,
+} from "@/lib/trust/persistFieldCapture";
+export {
+  clearFieldCaptureDraft,
+  readFieldCaptureDraft,
+  saveFieldCaptureDraft,
+  type FieldCaptureDraft,
+} from "@/lib/trust/fieldDraftStore";
+export {
+  buildCommunityProfiles,
+  loadWorkspaceCommunityProfiles,
+  type CommunityProfile,
+} from "@/lib/trust/communityProfiles";
+export {
+  composeLanguageSupport,
+  type TrustLanguageSupport,
+} from "@/lib/trust/languageSupport";
+export {
   TRUST_MVP_COMPLETE,
   TRUST_MVP_DO_NOT_PROMISE,
   TRUST_MVP_FUTURE,

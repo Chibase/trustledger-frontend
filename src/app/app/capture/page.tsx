@@ -62,6 +62,14 @@ import {
   listWorkspaceIncidents,
   listWorkspaceProjects,
 } from "@/lib/workspaceData";
+import { getActiveOrgId } from "@/lib/orgStore";
+import {
+  clearFieldCaptureDraft,
+  fieldNoteHasContextExtras,
+  persistFieldCaptureToTrustLayer,
+  readFieldCaptureDraft,
+  saveFieldCaptureDraft,
+} from "@/lib/trust";
 import { aiService } from "@/services/aiService";
 import {
   createEngagementId,
@@ -276,6 +284,7 @@ export default function AppCapturePage() {
   const [packSaving, setPackSaving] = useState(false);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const deepLinkDone = useRef(false);
+  const draftHydrated = useRef("");
 
   const narrative = isNarrativeCaptureSource(source);
   const packSource = isPackCaptureSource(source) ? source : null;
@@ -333,6 +342,48 @@ export default function AppCapturePage() {
       cancelAnimationFrame(frame);
     };
   }, []);
+
+  useEffect(() => {
+    if (!narrative || !projectId) return;
+    const orgId = getActiveOrgId() || "local";
+    const key = `${orgId}::${projectId}::${source}`;
+    if (draftHydrated.current === key) return;
+    draftHydrated.current = key;
+    const draft = readFieldCaptureDraft(orgId, projectId, source);
+    if (!draft) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear stale extras for this source
+      setFieldMeta(EMPTY_FIELD_META);
+      return;
+    }
+    setFieldMeta(draft.meta);
+    if (draft.body) setBody(draft.body);
+    if (draft.title) setTitle(draft.title);
+  }, [narrative, projectId, source]);
+
+  useEffect(() => {
+    if (!narrative || !projectId) return;
+    const orgId = getActiveOrgId() || "local";
+    const handle = window.setTimeout(() => {
+      const key = `${orgId}::${projectId}::${source}`;
+      if (draftHydrated.current !== key) return;
+      if (
+        !body.trim() &&
+        !title.trim() &&
+        !fieldNoteHasContextExtras(fieldMeta)
+      ) {
+        return;
+      }
+      saveFieldCaptureDraft({
+        orgId,
+        projectId,
+        source,
+        title,
+        body,
+        meta: fieldMeta,
+      });
+    }, 400);
+    return () => window.clearTimeout(handle);
+  }, [narrative, projectId, source, title, body, fieldMeta]);
 
   // Deep-link once: ?projectId=&source=pack opens that report pack form.
   useEffect(() => {
@@ -480,6 +531,17 @@ export default function AppCapturePage() {
     return `${preamble}${body.trim()}`.trim();
   }
 
+  function applyFieldExtrasToTrustLayer(sourceId?: string) {
+    persistFieldCaptureToTrustLayer(fieldMeta, {
+      projectId: project?.id ?? null,
+      sourceId,
+    });
+    const orgId = getActiveOrgId() || "local";
+    if (projectId) {
+      clearFieldCaptureDraft(orgId, projectId, source);
+    }
+  }
+
   async function runExtract() {
     const text = composedBody();
     if (!text) {
@@ -581,6 +643,7 @@ export default function AppCapturePage() {
           appliedStakeholderIds: ids,
         };
         saveCaptureRecord(record);
+        applyFieldExtrasToTrustLayer(captureId);
 
         const actionFromMinutes = actionItemsFromMinutes(savedBody);
         const actionItems = (

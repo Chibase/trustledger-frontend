@@ -4,6 +4,7 @@
  * Frontend never calls the LLM provider directly.
  */
 
+import type { TrustLanguageSupport } from "@/lib/trust/languageSupport";
 import type {
   StakeholderTrustResponse,
   TrustDraftOverlay,
@@ -25,7 +26,13 @@ export type IncidentTriageSuggestion = {
   escalationRationale?: string;
   impactHints: string[];
   languageDetected: string;
+  /**
+   * Only set when a real translation exists. Mock and current Cloud triage
+   * leave this empty — we do not invent a translation.
+   */
   translatedDescription?: string;
+  /** Explainable language status. Never a substitute for community-checked translation. */
+  languageSupport?: TrustLanguageSupport;
   confidence: number;
   model: string;
   promptVersion: string;

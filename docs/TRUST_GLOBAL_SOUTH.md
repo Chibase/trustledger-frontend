@@ -1,7 +1,7 @@
 # TE-5 — Global South operating adaptations
 
-**Status:** Shipped as **additive, optional** field and trust-layer context. No new DocTypes. No new nav. Existing SRM workflows unchanged.  
-**Packet:** TE-5 (BUILD_PLAN).  
+**Status:** Shipped as **additive, optional** field and trust-layer context. TE-5b surfaces profiles, persists extras on apply, and adds language support without translation. No new DocTypes. No new nav. Existing SRM workflows unchanged.  
+**Packet:** TE-5 / TE-5b (BUILD_PLAN).  
 **Does not replace** TE-1 overlay, TE-2 layer, TE-3 proof, or TE-4 recommendations.
 
 Named charter files (`TRUSTLEDGER_IMPLEMENTATION_CHARTER.md` and siblings) are not in this repo yet. This packet follows `docs/BUILD_PLAN.md`, `docs/DECISIONS.md` (ADR-045), and `docs/PLATFORM_STRATEGIC_BRIEF.md`.
@@ -22,7 +22,7 @@ This packet makes those facts **capturable and readable** by later analytics —
 | Authority | `authorityRoleFromStakeholder` from existing `kind` + tags: traditional, community leader, ward structure, informal influencer, institutional | No new CRM kind |
 | Participation realism | Optional motivation, presence, response pattern, attendance≠consent. **Does not** change `participationLooksTrustDriven` | No |
 
-Draft helpers (`fieldNoteToCommunityDraft`, `fieldNoteToParticipationDraft`) **do not auto-save** into `tl-trust-layer`. Capture still writes the same SRM path; extras ride in the notes preamble when filled.
+Draft helpers (`fieldNoteToCommunityDraft`, `fieldNoteToParticipationDraft`) stay drafts until **Capture apply**. TE-5b writes those extras to `tl-trust-layer` on human apply (upsert by place + project). Typing still does not auto-save. Low-connectivity / interrupted capture keeps a local field draft (`tl-field-drafts`) until apply.
 
 ## How this supports existing trust work
 
@@ -37,7 +37,14 @@ Draft helpers (`fieldNoteToCommunityDraft`, `fieldNoteToParticipationDraft`) **d
 - Does not assume every community behaves the same, or that high influence = informal influencer.
 - Does not add `imbizo` as a required engagement kind (walkabout / meeting already exist).
 - Does not ship full UI translation.
-- Does not persist field extras until a later packet opts in.
+- Does not persist field extras while typing (apply still required).
+- Does not invent a machine translation (`translatedDescription` stays empty unless Cloud later returns one).
+
+## UI
+
+- Capture: collapsed **Field context (optional)**; extras persist to `tl-trust-layer` when stakeholders are applied.
+- Intelligence: **Community profiles** (history, power, language, participation interpretation). Empty state still has a Capture shortcut.
+- Issue report: optional spoken / preferred language on triage. Language support status is shown; no fake translation.
 
 ## Compatibility
 
