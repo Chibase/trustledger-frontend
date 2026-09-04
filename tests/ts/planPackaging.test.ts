@@ -14,6 +14,7 @@ import {
   resolvePlanDashboardPackaging,
   suggestedNextModuleKey,
 } from "@/lib/planPackaging";
+import { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
 
 describe("tier flow packaging", () => {
   it("always starts with executive and keeps SEP as a module", () => {
@@ -50,14 +51,21 @@ describe("tier flow packaging", () => {
     expect(view.planId).toBe("institutional");
   });
 
-  it("allows demo seed only for Thozamile's trial+VIP showcase", () => {
+  it("allows demo seed only for the showcase trial+VIP mailbox", () => {
+    expect(
+      demoSeedAllowed({
+        mode: "trial",
+        vip: true,
+        email: VIP_SHOWCASE_DEFAULT_EMAIL,
+      }),
+    ).toBe(true);
     expect(
       demoSeedAllowed({
         mode: "trial",
         vip: true,
         email: "thozi@chibaseconsulting.co.za",
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       demoSeedAllowed({
         mode: "trial",
@@ -70,7 +78,7 @@ describe("tier flow packaging", () => {
       demoSeedAllowed({
         mode: "live",
         vip: true,
-        email: "thozi@chibaseconsulting.co.za",
+        email: VIP_SHOWCASE_DEFAULT_EMAIL,
       }),
     ).toBe(false);
   });
@@ -109,7 +117,7 @@ describe("tier flow packaging", () => {
       planId: "institutional",
       vip: true,
       mode: "trial",
-      email: "thozi@chibaseconsulting.co.za",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
     });
     const paid = resolvePlanDashboardPackaging({
       planId: "institutional",
