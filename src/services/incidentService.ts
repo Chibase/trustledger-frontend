@@ -111,6 +111,45 @@ async function saveToCloudProduct(row: Incident): Promise<boolean> {
   }
 }
 
+export function mergeIncidentCache(cloud: Incident, local: Incident): Incident {
+  return {
+    ...local,
+    ...cloud,
+    processStages: cloud.processStages || local.processStages,
+    status: cloud.status || local.status,
+    timeline: local.timeline?.length ? local.timeline : cloud.timeline,
+    geo: local.geo || cloud.geo,
+    slaDueBy: local.slaDueBy || cloud.slaDueBy,
+    ownerName: local.ownerName || cloud.ownerName,
+    category: local.category || cloud.category,
+    nature: local.nature || cloud.nature,
+    reportedByRole: local.reportedByRole || cloud.reportedByRole,
+    reporterName: local.reporterName ?? cloud.reporterName,
+    anonymous: local.anonymous ?? cloud.anonymous,
+    filedByTier: local.filedByTier || cloud.filedByTier,
+    escalationLevel: local.escalationLevel || cloud.escalationLevel,
+    escalationPolicy: local.escalationPolicy || cloud.escalationPolicy,
+    trustResponse: local.trustResponse,
+    sentimentLabel: local.sentimentLabel ?? cloud.sentimentLabel,
+    sentimentScore: local.sentimentScore ?? cloud.sentimentScore,
+  };
+}
+
+export function mergeCloudAndLocal(cloud: Incident[], local: Incident[]): Incident[] {
+  const localById = new Map(local.map((row) => [row.id, row]));
+  const seen = new Set<string>();
+  const out: Incident[] = [];
+  for (const row of cloud) {
+    seen.add(row.id);
+    const overlay = localById.get(row.id);
+    out.push(overlay ? mergeIncidentCache(row, overlay) : row);
+  }
+  for (const row of local) {
+    if (!seen.has(row.id)) out.push(row);
+  }
+  return out;
+}
+
 async function listDemo(filters: IncidentListFilters): Promise<Incident[]> {
   const { readTrialModeFromDocument } = await import("@/lib/trial");
   if (readTrialModeFromDocument()) {
@@ -126,10 +165,7 @@ async function listLive(filters: IncidentListFilters): Promise<Incident[]> {
   const cloud = await listFromCloudProduct();
   if (cloud) {
     const local = await mergeLocalOverlays([]);
-    const byId = new Map<string, Incident>();
-    for (const row of cloud) byId.set(row.id, row);
-    for (const row of local) byId.set(row.id, row);
-    return filterIncidents([...byId.values()], filters);
+    return filterIncidents(mergeCloudAndLocal(cloud, local), filters);
   }
   if (own) {
     return filterIncidents(await mergeLocalOverlays([]), filters);
@@ -158,7 +194,17 @@ export const incidentService = {
     if (typeof window === "undefined") return incident;
     const clean = omitCloudTrustOverlay(incident);
     if (isLiveMode()) {
-      await saveToCloudProduct(clean);
+      const pushed = await saveToCloudProduct(clean);
+      const { readTrialModeFromDocument } = await import("@/lib/trial");
+      const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+      if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+        const { saveOrgIncident } = await import("@/lib/orgDataSpace");
+        saveOrgIncident(clean);
+      }
+      if (!pushed) {
+        throw new Error("Could not save on TrustLedger Cloud");
+      }
+      return delay(clean);
     }
     const { readTrialModeFromDocument } = await import("@/lib/trial");
     const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");

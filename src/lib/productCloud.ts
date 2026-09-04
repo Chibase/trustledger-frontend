@@ -195,14 +195,21 @@ export function incidentToFrappeDoc(
     tl_org_id: orgId,
   };
   if (stages) {
-    doc.reported_at = stageToCloud(stages.reportedAt || incident.reportedAt);
-    doc.resource_deployed_at = stageToCloud(stages.resourceDeployedAt);
-    doc.investigated_at = stageToCloud(stages.investigatedAt);
-    doc.resolved_at = stageToCloud(stages.resolvedAt);
-    doc.verified_at = stageToCloud(stages.verifiedAt);
-    doc.closed_at = stageToCloud(stages.closedAt);
+    const reported = stageToCloud(stages.reportedAt || incident.reportedAt);
+    const deployed = stageToCloud(stages.resourceDeployedAt);
+    const investigated = stageToCloud(stages.investigatedAt);
+    const resolved = stageToCloud(stages.resolvedAt);
+    const verified = stageToCloud(stages.verifiedAt);
+    const closed = stageToCloud(stages.closedAt);
+    if (reported) doc.reported_at = reported;
+    if (deployed) doc.resource_deployed_at = deployed;
+    if (investigated) doc.investigated_at = investigated;
+    if (resolved) doc.resolved_at = resolved;
+    if (verified) doc.verified_at = verified;
+    if (closed) doc.closed_at = closed;
   } else {
-    doc.reported_at = stageToCloud(incident.reportedAt);
+    const reported = stageToCloud(incident.reportedAt);
+    if (reported) doc.reported_at = reported;
   }
   return omitCloudTrustOverlay(doc);
 }

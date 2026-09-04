@@ -356,7 +356,17 @@ export default function AppReportIssuePage() {
           },
         ],
       };
-      await incidentService.save(incident);
+      try {
+        await incidentService.save(incident);
+      } catch {
+        pushToast(
+          isLiveMode()
+            ? "Could not save on TrustLedger Cloud"
+            : "Could not save issue",
+          "error",
+        );
+        return;
+      }
       setSubmittedId(id);
       pushToast(
         isLiveMode()

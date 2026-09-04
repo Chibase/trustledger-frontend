@@ -9,7 +9,7 @@ import {
   nonBlankCloudTime,
   processStagesFromCloud,
 } from "@/lib/productCloud";
-import type { Incident } from "@/types/incident";
+import { mergeCloudAndLocal } from "@/services/incidentService";
 
 function sampleIncident(over: Partial<Incident> = {}): Incident {
   return {
@@ -71,9 +71,9 @@ describe("24e-cloud incident stage mappers", () => {
     expect(doc.incident_code).toBe("INC-CLOUD-1");
     expect(doc.reported_at).toBe("2026-09-01 08:00:00");
     expect(doc.resource_deployed_at).toBe("2026-09-01 10:00:00");
-    expect(doc.investigated_at).toBeNull();
-    expect(doc.verified_at).toBeNull();
-    expect(doc.closed_at).toBeNull();
+    expect(doc).not.toHaveProperty("investigated_at");
+    expect(doc).not.toHaveProperty("verified_at");
+    expect(doc).not.toHaveProperty("closed_at");
     expect(doc).not.toHaveProperty("trustResponse");
     expect(doc).not.toHaveProperty("sentimentScore");
     expect(doc).not.toHaveProperty("sentiment_label");
@@ -138,5 +138,49 @@ describe("24e-cloud incident stage mappers", () => {
     expect(doc).not.toHaveProperty("verified_at");
     expect(doc).not.toHaveProperty("closed_at");
     expect(doc).not.toHaveProperty("resource_deployed_at");
+  });
+
+  it("does not send null stage fields that would clear Cloud stamps", () => {
+    const doc = incidentToFrappeDoc(
+      sampleIncident({
+        processStages: {
+          reportedAt: "2026-09-01T08:00:00.000Z",
+          resourceDeployedAt: null,
+          investigatedAt: null,
+          resolvedAt: null,
+          verifiedAt: null,
+          closedAt: null,
+        },
+      }),
+      "Acme Customer",
+    );
+    expect(doc.reported_at).toBe("2026-09-01 08:00:00");
+    expect(doc).not.toHaveProperty("verified_at");
+    expect(doc).not.toHaveProperty("closed_at");
+  });
+
+  it("lets Cloud process stamps win over a stale local cache", () => {
+    const cloud = sampleIncident({
+      status: "Closed",
+      processStages: {
+        reportedAt: "2026-09-01T08:00:00.000Z",
+        verifiedAt: "2026-09-03T15:00:00.000Z",
+        closedAt: "2026-09-03T15:00:00.000Z",
+      },
+      timeline: [],
+    });
+    const local = sampleIncident({
+      status: "Open",
+      processStages: {
+        reportedAt: "2026-09-01T08:00:00.000Z",
+      },
+      timeline: [
+        { id: "EVT-1", type: "CREATED", summary: "Logged", at: "2026-09-01T08:00:00.000Z" },
+      ],
+    });
+    const merged = mergeCloudAndLocal([cloud], [local]);
+    expect(merged[0]?.processStages?.verifiedAt).toBe("2026-09-03T15:00:00.000Z");
+    expect(merged[0]?.status).toBe("Closed");
+    expect(merged[0]?.timeline).toHaveLength(1);
   });
 });

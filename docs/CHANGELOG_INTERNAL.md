@@ -4,7 +4,8 @@
 
 - Live cases persist reported → deployed → investigated → resolved → verified → closed timestamps on **`TL Incident`**. Advance / Verify & close / intake upsert through `GET|POST /api/frappe/product?kind=incident`.
 - Blank Cloud times stay blank — the mapper does not fill in “now”. Overlay keys and SRM sentiment are not Cloud columns. Empty Cloud stays empty (no demo `INC-*`).
-- Ops ensure adds the six Datetime fields on existing DocTypes (Custom Field). Local org store is a cache; Cloud is SoT after a successful live save.
+- Ops ensure adds the six Datetime fields on existing DocTypes (Custom Field). Local org store is a cache; Cloud process stamps win on live list. Live save throws if Cloud upsert fails.
+- PUT omits blank stage fields so a partial client row cannot clear `verified_at` / `closed_at`.
 - Not a sealed ledger. Project continuous save and Cloud invitee seats stay later packets.
 
 ## 2026-09-04 — TE-12 trust-movement companion reading
