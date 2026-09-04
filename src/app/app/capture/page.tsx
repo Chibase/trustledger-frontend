@@ -355,7 +355,6 @@ export default function AppCapturePage() {
       setFieldMeta(EMPTY_FIELD_META);
       return;
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- restore offline field draft
     setFieldMeta(draft.meta);
     if (draft.body) setBody(draft.body);
     if (draft.title) setTitle(draft.title);
