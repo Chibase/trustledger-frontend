@@ -5,6 +5,7 @@ import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { useToast } from "@/components/ui/Toast";
 import { applyEngagementToTrustLayer } from "@/lib/trust/applyEngagement";
 import { prepareTrustResponseHints } from "@/lib/trust/aiPrepare";
+import { getActiveOrgId } from "@/lib/orgStore";
 import {
   emptyTrustResponse,
   isTrustResponseBlank,
@@ -108,6 +109,7 @@ export function TrustOverlayAssist({ engagement, noteText, onApplied }: Props) {
       await applyEngagementToTrustLayer({
         engagement: withOverlay,
         overlay,
+        orgId: getActiveOrgId() || "local",
       });
       onApplied(withOverlay);
       pushToast(

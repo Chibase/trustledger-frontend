@@ -536,15 +536,16 @@ export default function AppCapturePage() {
   }
 
   async function applyEngagementTrustRows(engagement: Engagement) {
+    const orgId = getActiveOrgId() || "local";
     try {
       await applyEngagementToTrustLayer({
         engagement,
         fieldMeta,
+        orgId,
       });
     } catch {
       // Engagement is already saved; trust rows may remain local-only.
     }
-    const orgId = getActiveOrgId() || "local";
     if (projectId) {
       clearFieldCaptureDraft(orgId, projectId, source);
     }

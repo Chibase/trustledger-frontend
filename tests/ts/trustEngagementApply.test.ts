@@ -232,6 +232,17 @@ describe("TE-8 engagement apply → trust layer", () => {
     expect(getTrustLayerBucket("org-te8-obs", storage).observations).toHaveLength(0);
   });
 
+  it("writes participation to the local fallback org bucket", async () => {
+    const storage = createMemoryTrustLayerStorage();
+    const result = await applyEngagementToTrustLayer({
+      engagement: sampleEngagement(),
+      orgId: "local",
+      storage,
+    });
+    expect(result.wrote).toBe(true);
+    expect(getTrustLayerBucket("local", storage).participation).toHaveLength(1);
+  });
+
   it("does not write when orgId is missing", async () => {
     const storage = createMemoryTrustLayerStorage();
     const result = await applyEngagementToTrustLayer({

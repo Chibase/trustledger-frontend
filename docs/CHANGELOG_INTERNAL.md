@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-04 — TE-8 Copilot follow-up
+
+- Cloud SI engagement POST strips `trustResponse` (client + BFF). Overlay is kept in a local key (`tl-engagement-trust-response`) like note sentiment, and still written to the trust layer.
+- Capture / desk apply pass `getActiveOrgId() || "local"` into `applyEngagementToTrustLayer` so drafts are not cleared without a trust-layer write.
+
 ## 2026-09-04 — TE-8 engagement apply → trust participation
 
 - Capture apply saves the engagement first, then writes **one participation row** keyed to that engagement id (upsert). Optional field extras (motive, presence, willingness, attendance≠consent) merge onto that row. Community extras still upsert by place.

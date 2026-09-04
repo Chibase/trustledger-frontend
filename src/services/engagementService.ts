@@ -1,13 +1,12 @@
 import { mockEngagements } from "@/data/mockEngagements";
 import { isLiveMode } from "@/config/api";
-import type {
-  Engagement,
-  EngagementKind,
-  EngagementStatus,
-} from "@/types/engagement";
+import { isTrustResponseBlank } from "@/lib/trust/response";
+import { omitCloudTrustOverlay, type StakeholderTrustResponse } from "@/types/trustOverlay";
+import type { Engagement, EngagementKind, EngagementStatus } from "@/types/engagement";
 
 const STORAGE_KEY = "tl-engagements";
 const SENTIMENT_OVERLAY_KEY = "tl-engagement-sentiment";
+const TRUST_RESPONSE_KEY = "tl-engagement-trust-response";
 
 type SentimentOverlay = Pick<
   Engagement,
@@ -54,6 +53,40 @@ function persistSentimentOverlay(row: Engagement) {
     sentimentAnalyzedAt: row.sentimentAnalyzedAt,
   };
   writeSentimentOverlay(all);
+}
+
+function readTrustResponseOverlay(): Record<string, StakeholderTrustResponse> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(TRUST_RESPONSE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, StakeholderTrustResponse>;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeTrustResponseOverlay(rows: Record<string, StakeholderTrustResponse>) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(TRUST_RESPONSE_KEY, JSON.stringify(rows));
+}
+
+function mergeTrustResponse(row: Engagement): Engagement {
+  const overlay = readTrustResponseOverlay()[row.id];
+  if (!overlay) return row;
+  return { ...row, trustResponse: overlay };
+}
+
+function persistTrustResponse(row: Engagement) {
+  if (row.trustResponse === undefined) return;
+  const all = readTrustResponseOverlay();
+  if (!row.trustResponse || isTrustResponseBlank(row.trustResponse)) {
+    delete all[row.id];
+  } else {
+    all[row.id] = row.trustResponse;
+  }
+  writeTrustResponseOverlay(all);
 }
 
 function readLocal(): Engagement[] {
@@ -154,7 +187,10 @@ async function saveToCloudSi(row: Engagement): Promise<boolean> {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({ kind: "engagement", engagement: row }),
+      body: JSON.stringify({
+        kind: "engagement",
+        engagement: omitCloudTrustOverlay(row),
+      }),
     });
     return res.ok;
   } catch {
@@ -180,6 +216,7 @@ export const engagementService = {
         return applyFilters(
           [...byId.values()]
             .map(mergeSentiment)
+            .map(mergeTrustResponse)
             .sort((a, b) => b.heldOn.localeCompare(a.heldOn)),
           filters,
         );
@@ -189,7 +226,8 @@ export const engagementService = {
           applyFilters(
             readLocal()
               .filter((r) => r.source !== "seed")
-              .map(mergeSentiment),
+              .map(mergeSentiment)
+              .map(mergeTrustResponse),
             filters,
           ),
         );
@@ -201,7 +239,8 @@ export const engagementService = {
         applyFilters(
           readLocal()
             .filter((r) => r.source !== "seed")
-            .map(mergeSentiment),
+            .map(mergeSentiment)
+            .map(mergeTrustResponse),
           filters,
         ),
       );
@@ -209,7 +248,7 @@ export const engagementService = {
 
     const local = typeof window !== "undefined" ? readLocal() : [];
     return delay(
-      applyFilters(mergeSeedAndLocal(local).map(mergeSentiment), filters),
+      applyFilters(mergeSeedAndLocal(local).map(mergeSentiment).map(mergeTrustResponse), filters),
     );
   },
 
@@ -220,17 +259,18 @@ export const engagementService = {
 
   async save(row: Engagement): Promise<Engagement> {
     persistSentimentOverlay(row);
+    persistTrustResponse(row);
     if (typeof window !== "undefined" && isLiveMode()) {
       const pushed = await saveToCloudSi(row);
       if (pushed) {
         const local = readLocal().filter((r) => r.id !== row.id);
         writeLocal(local);
-        return delay(mergeSentiment(row));
+        return delay(mergeTrustResponse(mergeSentiment(row)));
       }
     }
     const local = readLocal().filter((r) => r.id !== row.id);
     local.push(row);
     writeLocal(local);
-    return delay(mergeSentiment(row));
+    return delay(mergeTrustResponse(mergeSentiment(row)));
   },
 };

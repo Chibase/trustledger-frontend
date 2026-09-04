@@ -26,7 +26,7 @@ import {
   stakeholdersByPlace,
   trustPulseByPlace,
 } from "@/lib/trust";
-import { TRUST_OVERLAY_CLOUD_OMIT } from "@/types/trustOverlay";
+import { TRUST_OVERLAY_CLOUD_OMIT, omitCloudTrustOverlay } from "@/types/trustOverlay";
 import type { Engagement } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Stakeholder } from "@/types/stakeholder";
@@ -192,6 +192,10 @@ describe("TE-1 trust overlay — Cloud mappers omit overlay keys", () => {
     assertNoOverlayKeys(evidenceToFrappeDoc(evidence, "CUST-1", "org-1"));
     assertNoOverlayKeys(engagementToFrappeDoc(engagement, "CUST-1", "org-1"));
     assertNoOverlayKeys(stakeholderToFrappeDoc(stakeholder, "CUST-1", "org-1"));
+
+    const stripped = omitCloudTrustOverlay(engagement);
+    expect(stripped).not.toHaveProperty("trustResponse");
+    expect(omitCloudTrustOverlay(evidence)).not.toHaveProperty("trustSupport");
   });
 });
 

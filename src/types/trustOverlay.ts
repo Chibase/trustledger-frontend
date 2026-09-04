@@ -65,3 +65,16 @@ export const TRUST_OVERLAY_CLOUD_OMIT = [
   "trustResponse",
   "trustSupport",
 ] as const;
+
+/** Strip overlay keys from a Cloud SI / resource payload. Mapper still posts explicit fields only. */
+export function omitCloudTrustOverlay<T extends object>(
+  row: T,
+): Omit<T, "trustResponse" | "trustSupport"> {
+  const next = { ...row } as T & {
+    trustResponse?: unknown;
+    trustSupport?: unknown;
+  };
+  delete next.trustResponse;
+  delete next.trustSupport;
+  return next;
+}
