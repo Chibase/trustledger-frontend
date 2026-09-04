@@ -1,5 +1,25 @@
 # Internal changelog
 
+## 2026-09-04 — TE-6 MVP packaging and readiness
+
+- Internal presentation posture for TE-1…TE-5: `docs/TRUST_MVP.md`. Completes / partial / future / do-not-promise lists are explicit. No new trust model, pack, nav, or DocType.
+- `composeTrustMvpPackage` concatenates existing proof + recommendations + context hints. Does not persist, does not call a remote model, does not change Trust pulse.
+- Cross-module tests confirm evidence-backed claims, suggestion-only recs, community hints, and unchanged monthly `reportComposer` output.
+
+## 2026-09-04 — TE-5 Global South operating adaptations
+
+- Optional community context (history, power structure, social sensitivity, barrier tags, language, oral source) on the parallel trust layer. `docs/TRUST_GLOBAL_SOUTH.md`.
+- Field capture: collapsed **Field context (optional)** for rapid / oral / low-connectivity notes, spoken vs working language (not defaulted to English), and participation realism (mixed motives, presence ≠ consent). Existing dropdowns stay. Drafts do not auto-save to `tl-trust-layer`.
+- Authority roles derived from existing stakeholder `kind` + tags (traditional, ward, community leader, informal influencer, institutional). High influence is not treated as informal influence.
+- TE-1–TE-4 scoring, alerts, Trust pulse, and SRM save paths unchanged. Context can feed later analytics via `summarizeCommunityContextForIntel`.
+
+## 2026-09-04 — TE-4 trust intelligence and recommendations
+
+- Optional rule-based suggestions (repair, next engagement, follow-up, consider senior review) plus alerts for declining trust, missing evidence, weak participation, and unresolved cases. `docs/TRUST_INTELLIGENCE.md`.
+- Every item is `suggestion_only` with a published `ruleId` and trace (observations, evidence, cases). Nothing auto-applies, auto-escalates, or calls a remote model. Local advisory wording only.
+- Collapsed panel on `/app/reports` under Trust proof. Packs, writer, Trust pulse, and incident workflow unchanged.
+- `buildTrustProofFromSrm` now dedupes stored + derived participation/community rows by id so TE-4 alerts are not inflated when `tl-trust-layer` already holds derived rows.
+
 ## 2026-09-04 — TE-3 trust analytics and proof reporting
 
 - Optional, explainable trust analytics on the TE-2 layer: period movement (improving / declining / stable / mixed / insufficient), comparisons by community / location / stakeholder group / project-phase proxy, and risk flags (declining, at-risk, low confidence, insufficient evidence). `docs/TRUST_PROOF.md`.

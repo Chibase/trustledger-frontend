@@ -1,3 +1,8 @@
+import {
+  asParticipationMotivation,
+  asPresenceMode,
+  asResponsePattern,
+} from "@/lib/trust/participationRealism";
 import { normalizeTrustResponse } from "@/lib/trust/response";
 import type {
   StakeholderTrustResponse,
@@ -5,7 +10,10 @@ import type {
 } from "@/types/trustOverlay";
 import type {
   TrustObservationSource,
+  TrustParticipationMotivation,
   TrustParticipationRecord,
+  TrustPresenceMode,
+  TrustResponsePattern,
 } from "@/types/trustLayer";
 
 export function newTrustParticipationId(): string {
@@ -52,6 +60,10 @@ export function createTrustParticipation(input: {
   confidenceInProcess?: TrustAttitude;
   confidenceInImplementer?: TrustAttitude;
   note?: string;
+  motivation?: TrustParticipationMotivation;
+  presenceMode?: TrustPresenceMode;
+  attendanceDoesNotEqualConsent?: boolean;
+  responsePattern?: TrustResponsePattern;
 }): TrustParticipationRecord {
   const willingnessToParticipate = asAttitude(input.willingnessToParticipate);
   const willingnessToContribute = asAttitude(input.willingnessToContribute);
@@ -63,7 +75,7 @@ export function createTrustParticipation(input: {
           asAttitude(input.confidenceInProcess),
           asAttitude(input.confidenceInImplementer),
         );
-  return {
+  const row: TrustParticipationRecord = {
     id: input.id || newTrustParticipationId(),
     layer: "trust",
     observedAt: input.observedAt || new Date().toISOString(),
@@ -76,6 +88,40 @@ export function createTrustParticipation(input: {
     trustDriven,
     note: input.note,
   };
+  const motivation = asParticipationMotivation(input.motivation);
+  const presenceMode = asPresenceMode(input.presenceMode);
+  const responsePattern = asResponsePattern(input.responsePattern);
+  if (motivation) row.motivation = motivation;
+  if (presenceMode) row.presenceMode = presenceMode;
+  if (responsePattern) row.responsePattern = responsePattern;
+  if (typeof input.attendanceDoesNotEqualConsent === "boolean") {
+    row.attendanceDoesNotEqualConsent = input.attendanceDoesNotEqualConsent;
+  }
+  return row;
+}
+
+export function normalizeTrustParticipation(
+  raw: Partial<TrustParticipationRecord> | null | undefined,
+): TrustParticipationRecord | null {
+  if (!raw || typeof raw !== "object") return null;
+  if (raw.layer && raw.layer !== "trust") return null;
+  if (!raw.source && !raw.id) return null;
+  return createTrustParticipation({
+    id: raw.id,
+    observedAt: raw.observedAt,
+    source: raw.source || "derived",
+    sourceId: raw.sourceId,
+    projectId: raw.projectId,
+    stakeholderId: raw.stakeholderId,
+    willingnessToParticipate: raw.willingnessToParticipate,
+    willingnessToContribute: raw.willingnessToContribute,
+    trustDriven: raw.trustDriven,
+    note: raw.note,
+    motivation: raw.motivation,
+    presenceMode: raw.presenceMode,
+    attendanceDoesNotEqualConsent: raw.attendanceDoesNotEqualConsent,
+    responsePattern: raw.responsePattern,
+  });
 }
 
 /** Build a participation row from a TE-1 overlay if any attitude is present. */
