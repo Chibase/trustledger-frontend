@@ -87,11 +87,6 @@ export const PUBLIC_FAQS: FaqItem[] = [
       "Yes, as a separate consulting engagement — not as a fifth TrustLedger software column. Chibase Consulting is an independent practice (social facilitation, MEL, IKS method, short-cycle field intervention). You can request any of those packages as an add-on to Solo, Practitioner, Project, or Institutional. Pricing is Chibase’s own; the engagement does not unlock desk modules. Software checkout stays on TrustLedger; consulting packages live on the Chibase site.",
   },
   {
-    question: "Can TrustLedger turn an RFP or tender into a stakeholder engagement plan?",
-    answer:
-      "On entitled plans (Project, Institutional, or a CRM add-on), the Engagement plan module reads a briefing, tender, or RFP extract and maps a seven-phase process from inception to close-out for the sector of the work. You get a process dashboard and a client-presentable SEP document. After the assignment is approved, a human applies the suggestion so stakeholders, draft engagements, and commitments land on the SRM desk. The composer does not write the live desk alone.",
-  },
-  {
     question: "Can I buy only a grievance desk, supplier portal, or field app?",
     answer:
       "You can start on a focused desk inside TrustLedger — not as a separate product. Solo is the entry grievance resolution desk. Project includes field capture (minutes, attendance, site notes in the browser) and local procurement / B-BBEE evidence packs. Unused Stakeholder Intelligence modules stay locked until you change plan or add an add-on on the same workspace, so history is not re-typed. There is no separately licensed supplier marketplace, public WhatsApp complaints portal, or native offline companion app today.",

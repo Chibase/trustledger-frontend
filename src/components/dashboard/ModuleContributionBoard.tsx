@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
+import { useSepDesk } from "@/components/sep/SepDeskContext";
 import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import {
@@ -31,6 +32,7 @@ export function ModuleContributionBoard({
   mode = null,
   email = null,
 }: Props) {
+  const sepDesk = useSepDesk();
   const [aggregate, setAggregate] = useState(0);
   const [rows, setRows] = useState<PlanModuleContribution[]>(() => {
     const packaging = resolvePlanDashboardPackaging({
@@ -58,10 +60,24 @@ export function ModuleContributionBoard({
         measureEmpty: true,
       });
       const next = buildModuleContributions(packaging);
-      setRows(next.contributions);
-      setAggregate(next.aggregateProgressPct);
+      const visible = next.contributions.filter(
+        (row) => row.key !== "sep" || sepDesk,
+      );
+      setRows(visible);
+      setAggregate(
+        visible.length
+          ? Math.round(
+              visible.reduce((sum, row) => sum + row.scorePct, 0) /
+                visible.length,
+            )
+          : 0,
+      );
       setDemoSeeded(packaging.demoSeedAllowed);
-      setSuggestedNextKey(packaging.suggestedNextKey);
+      setSuggestedNextKey(
+        packaging.suggestedNextKey === "sep" && !sepDesk
+          ? null
+          : packaging.suggestedNextKey,
+      );
     };
     const handle = window.setTimeout(read, 0);
     window.addEventListener("tl-workspace-seeded", read);
@@ -69,7 +85,7 @@ export function ModuleContributionBoard({
       window.clearTimeout(handle);
       window.removeEventListener("tl-workspace-seeded", read);
     };
-  }, [planId, vip, mode, email]);
+  }, [planId, vip, mode, email, sepDesk]);
 
   if (rows.length === 0) return null;
 

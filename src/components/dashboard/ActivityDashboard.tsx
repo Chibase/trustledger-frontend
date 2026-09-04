@@ -5,8 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { buildProjectActivity } from "@/lib/dashboardActivity";
+import { useSepDesk } from "@/components/sep/SepDeskContext";
 import { readDeskTier } from "@/lib/deskVisibility";
-import { hasCapability } from "@/lib/entitlements";
 import { packsForDesk } from "@/lib/reportPackAccess";
 import {
   listWorkspaceIncidents,
@@ -52,17 +52,16 @@ export function ActivityDashboard({
   seedIncidents = [],
   seedProjects = [],
 }: ActivityDashboardProps) {
+  const sepDesk = useSepDesk();
   const [tier, setTier] = useState<DeskTier>("clo");
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents);
   const [projects, setProjects] = useState<Project[]>(seedProjects);
-  const [showSep, setShowSep] = useState(false);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       setTier(readDeskTier(role));
       setIncidents(listWorkspaceIncidents(seedIncidents));
       setProjects(listWorkspaceProjects(seedProjects));
-      setShowSep(hasCapability("engagements", planId));
     });
     return () => cancelAnimationFrame(frame);
   }, [role, planId, seedIncidents, seedProjects]);
@@ -103,7 +102,7 @@ export function ActivityDashboard({
         </h2>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {QUICK_LINKS.filter(
-            (link) => link.href !== "/app/engagement-plan" || showSep,
+            (link) => link.href !== "/app/engagement-plan" || sepDesk,
           ).map((link) => (
             <li key={link.href}>
               <Link

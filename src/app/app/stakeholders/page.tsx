@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { GeoCascadePicker } from "@/components/geo/GeoCascadePicker";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { SepDeskLink } from "@/components/sep/SepDeskContext";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { guideRequestsNewTask } from "@/config/onboardingSteps";
@@ -129,12 +130,9 @@ export default function AppStakeholdersPage() {
             >
               {showCreate ? "Cancel" : "Add stakeholder"}
             </button>
-            <Link
-              href="/app/engagement-plan"
-              className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
-            >
+            <SepDeskLink className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper">
               Engagement plan
-            </Link>
+            </SepDeskLink>
             <Link
               href="/app/capture"
               className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"

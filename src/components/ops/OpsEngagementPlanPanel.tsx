@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 /**
- * Operator entry to the customer Engagement plan desk.
+ * Operator entry to the Engagement plan desk (not a commercial plan module).
  * /ops/executive is the C-suite home — this card is the findable module, not TEDS row 4.
  */
 export function OpsEngagementPlanPanel() {
@@ -26,8 +26,8 @@ export function OpsEngagementPlanPanel() {
             Map an RFP, tender, or briefing from inception to close-out. Output
             is a process dashboard plus a presentable SEP. After approval, a
             human applies the suggestion to the SRM (registry, engagements,
-            commitments). Open the desk below — operators are homed here, not
-            on the customer executive roll-up.
+            commitments). This composer is **operator-desk only** until it
+            matches the product vision — it is not on commercial plans.
           </p>
         </div>
         <div className="flex flex-wrap gap-2 print:hidden">

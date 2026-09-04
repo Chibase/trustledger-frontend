@@ -70,7 +70,7 @@ export const PLAN_COMPARISON_GROUPS: ComparisonGroup[] = [
       },
       {
         id: "si",
-        label: "Stakeholder Intelligence (registry, engagements, engagement plan, commitments)",
+        label: "Stakeholder Intelligence (registry, engagements, commitments)",
         values: {
           solo: false,
           practitioner: false,

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { SepDeskLink } from "@/components/sep/SepDeskContext";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
 import { SentimentChip } from "@/components/trust/SentimentChip";
@@ -54,12 +55,9 @@ export default function AppEngagementsPage() {
           description="Meetings, consultations, and walkabouts linked to projects and stakeholders. Analyze communication notes in one click to track whether sentiment is positive, neutral, or negative."
           actions={
             <div className="flex flex-wrap gap-2">
-              <Link
-                href="/app/engagement-plan"
-                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
-              >
+              <SepDeskLink className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper">
                 Engagement plan
-              </Link>
+              </SepDeskLink>
               <Link
                 href="/app/capture"
                 className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"

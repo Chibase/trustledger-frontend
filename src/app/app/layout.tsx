@@ -7,6 +7,7 @@ import {
   assertLiveOperatorAccess,
   isPlatformOperatorOnly,
 } from "@/lib/platformOperator";
+import { canAccessSepDesk } from "@/lib/sepAccess";
 
 export default async function ProductLayout({
   children,
@@ -48,6 +49,10 @@ export default async function ProductLayout({
 
   const showOperatorBanner =
     user.mode === "live" && isPlatformOperatorOnly();
+  const sepDesk = canAccessSepDesk({
+    email: user.email,
+    isVip: user.isVip,
+  });
 
   return (
     <AppShell
@@ -59,6 +64,7 @@ export default async function ProductLayout({
       trialPlan={user.trialPlan}
       isGuest={Boolean(user.isGuest)}
       isVip={Boolean(user.isVip)}
+      sepDesk={sepDesk}
       showOperatorBanner={showOperatorBanner}
     >
       {children}

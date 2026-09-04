@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { DEMO_CAPABILITIES, PLAN_CAPABILITIES } from "@/config/entitlements";
 import { getCurrentUser } from "@/lib/auth";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
+import { canAccessSepDesk, SEP_DESK_UNAVAILABLE } from "@/lib/sepAccess";
 import { draftSepDocument, isSepDraftablePlan } from "@/lib/sepGemini";
 
 export const runtime = "nodejs";
@@ -20,14 +20,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const caps = user.trialPlan
-    ? PLAN_CAPABILITIES[user.trialPlan]
-    : DEMO_CAPABILITIES;
-  if (!caps.includes("engagements")) {
-    return NextResponse.json(
-      { error: "Engagement plans are on Project and Institutional." },
-      { status: 403 },
-    );
+  if (!canAccessSepDesk({ email: user.email, isVip: user.isVip })) {
+    return NextResponse.json({ error: SEP_DESK_UNAVAILABLE }, { status: 403 });
   }
 
   const ip = clientIp(request);

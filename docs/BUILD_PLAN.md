@@ -190,7 +190,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Done (UI modules)** |
 | **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
 | **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
-| **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase **process map** + **plan execution dashboard** (roadmap, KPIs, outcomes, mitigations, practitioner snapshot) + Gemini-drafted tender SEP; human apply seeds registry / engagements / commitments. Analysis engine (Phases A–G) | **Active** |
+| **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase **process map** + **plan execution dashboard** (roadmap, KPIs, outcomes, mitigations, practitioner snapshot) + Gemini-drafted tender SEP; human apply seeds registry / engagements / commitments. Analysis engine (Phases A–G). **Operator / VIP desk only** until product-ready — not on commercial plans. | **Active** |
 | **TE-1** | Trust overlay (non-breaking) | Optional `trustResponse` / `trustSupport` + `composeTrustSignals` + opt-in AI overlay helpers. No UX, formula, or DocType change. `docs/TRUST_OVERLAY.md` | **Done** |
 | **TE-2** | Parallel trust-native layer | Dimensions, observations, explainable status, participation, community context; derive from SRM; separate `tl-trust-layer` store. No UI/DocType. `docs/TRUST_LAYER.md` | **Done** |
 | **TE-3** | Trust analytics and proof reporting | Explainable trend / comparison / risk on the trust layer; optional proof markdown on `/app/reports`. Not a pack; Trust pulse and existing writers unchanged. `docs/TRUST_PROOF.md` | **Done** |
@@ -335,5 +335,7 @@ src/app/api/webhooks/clickup/
 | 2026-08-21 | MKT-2 — `/ops/marketing` operator desk for the engine |
 | 2026-08-21 | MKT-3 — operator briefs (topic / length / LinkedIn·Reddit·ESG·blog) |
 | 2026-08-21 | MKT-4 — marketing review inbox + archive |
+| 2026-08-26 | SI-SEP — stakeholder engagement plan from RFP/tender/briefing; sector playbooks; apply to SRM (ADR-053) |
 | 2026-08-27 | SI-SEP — academic 25-section SEP; logged Spec + Framework PDFs; project-specific sequence; implementing organisation issuer; PDF cuts at last text page |
 | 2026-08-31 | CP-2 / ADR-054 — focused SKUs on one workspace (not standalone products); `docs/MODULAR_SKUS.md` |
+| 2026-09-04 | SI-SEP — operator / VIP desk only; off commercial plans until product-ready |

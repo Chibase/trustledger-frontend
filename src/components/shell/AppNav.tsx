@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { PlanId } from "@/config/plans";
+import { useSepDesk } from "@/components/sep/SepDeskContext";
 import { includedDashboardKeys, PLAN_DASHBOARD_CATALOG } from "@/config/tierFlow";
 import { hasCapability, hasCapabilityForPlan } from "@/lib/entitlements";
 import { packagingPlanId } from "@/lib/planPackaging";
@@ -56,7 +57,6 @@ const NAV: NavItem[] = [
     href: "/app/engagement-plan",
     label: "Engagement plan",
     icon: "sep",
-    capability: "engagements",
   },
   {
     href: "/app/commitments",
@@ -263,6 +263,7 @@ export function AppNav({
   mode = null,
 }: AppNavProps) {
   const pathname = usePathname();
+  const sepDesk = useSepDesk();
   const [allowed, setAllowed] = useState(() =>
     allowedHrefMap(planId, vip, mode, false),
   );
@@ -291,9 +292,10 @@ export function AppNav({
       return ia - ib;
     })
     .filter((item) => {
-    if (item.roles && !item.roles.includes(role)) return false;
-    return allowed[item.href] !== false;
-  });
+      if (item.href === "/app/engagement-plan") return sepDesk;
+      if (item.roles && !item.roles.includes(role)) return false;
+      return allowed[item.href] !== false;
+    });
   const ink = variant === "ink";
 
   return (

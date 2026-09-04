@@ -28,16 +28,15 @@ Do **not** start with Reports. Seed in this order:
 
 ```text
 1. Project          → site / programme container
-2. Engagement plan  → RFP / briefing → process (Project plan+, optional)
-3. Stakeholders     → people & organisations (Project plan+)
-4. Engagements      → meetings & contact (Project plan+)
-5. Commitments      → promises with owners (Project plan+)
-6. Incidents        → grievances / cases
-7. Capture / files  → minutes & evidence (by plan)
-8. Reports          → compose from saved work
+2. Stakeholders     → people & organisations (Project plan+)
+3. Engagements      → meetings & contact (Project plan+)
+4. Commitments      → promises with owners (Project plan+)
+5. Incidents        → grievances / cases
+6. Capture / files  → minutes & evidence (by plan)
+7. Reports          → compose from saved work
 ```
 
-**Solo** skips Stakeholder Intelligence modules (2–5 and Capture hub). Solo still uses Project → Incidents → Issue intake → Monthly report.
+**Solo** skips Stakeholder Intelligence modules (2–4 and Capture hub). Solo still uses Project → Incidents → Issue intake → Monthly report.
 
 ---
 
@@ -45,10 +44,9 @@ Do **not** start with Reports. Seed in this order:
 
 | Nav item | Purpose |
 |----------|---------|
-| **Dashboard** | Executive portfolio — projects, empowerment, engagement plans, cases |
+| **Dashboard** | Executive portfolio — projects, empowerment, cases |
 | **Capture** | Minutes / registers with field templates → extract → apply (Project+) |
 | **Engagements** | Log meetings and consultations (Project+) |
-| **Engagement plan** | Compose a SEP from an RFP / tender / briefing; apply to SRM after approval (Project+) |
 | **Commitments** | Promise board and statuses (Project+) |
 | **Intelligence** | ESG / indicator cards (Project+) |
 | **Stakeholders** | SRM registry (Project+) |
@@ -73,10 +71,9 @@ If a module is missing, it is usually a **plan gate**, not a broken screen. Upgr
 
 ### Day 1–2 — People (Project+)
 
-1. If you have a briefing, tender, or RFP, open **Engagement plan**, paste or upload it, compose the sector process, and save the presentable document. Apply to SRM only after the assignment is approved.  
-2. Open **Stakeholders**.  
-3. Add ~5 people you already meet this week (community, contractor, client, liaison) — or review the prospect rows the plan applied.  
-4. Prefer five named humans over fifty empty rows.
+1. Open **Stakeholders**.  
+2. Add ~5 people you already meet this week (community, contractor, client, liaison).  
+3. Prefer five named humans over fifty empty rows.
 
 ### Ongoing — Contact & promises (Project+)
 
@@ -116,9 +113,11 @@ Stop batch-loading after the first seed. Put TrustLedger on the agenda of the ne
 
 ---
 
-## 5a. Stakeholder engagement plan (Project+)
+## 5a. Stakeholder engagement plan (operator desk)
 
-Use **Engagement plan** when the work starts as a briefing, tender, or RFP rather than as already-named people.
+The briefing → SEP composer is **not on commercial plans** (Solo, Practitioner, Project, Institutional, or trial) while it is being built. Customer nav, Executive dashboard, plan-module strip, and setup wizard do not show it. Operators and complimentary VIP use `/app/engagement-plan` and `/ops/executive`.
+
+Use **Engagement plan** on that desk when the work starts as a briefing, tender, or RFP rather than as already-named people.
 
 1. **With a file:** paste or upload the extract (PDF with a text layer, or .txt / .md / .csv) — RFP, tender, EIA, or scope of work.  
 2. **Without a file:** choose **Without a document**, pick a sector playbook, and enter working title, place, client, timeline, and purpose.  
@@ -127,9 +126,9 @@ Use **Engagement plan** when the work starts as a briefing, tender, or RFP rathe
 5. **Save**, then present (Print / PDF with cover, Markdown, or Word). The **Plan dashboard** is the execution view for that plan only (roadmap from submission, task graphs, success/hurdle/failure, mitigations). **Open practitioner snapshot** is the client/superior briefing. **Process map** still shows Social Licence to Build™ → shipped desks for operators.  
 6. After the client approves the assignment, **Apply to SRM**. Prospect stakeholders, draft engagements, and open commitments land on the existing desks. Duplicate names/titles are skipped. Humans apply; the composer never writes the live desk alone. The composer does not invent SMS/WhatsApp portals or write Themba into the live case desk.
 
-On the **Executive dashboard** (`/app/dashboard`), the **Plan modules** strip is the sequence for your commercial plan (executive first, then the desks that plan includes). Open a module, then **Return to executive view**. Module cards on the executive page show contribution to overall progress. Empty desks show a short prompt to add the first record — only the VIP showcase is preloaded. **Engagement plan** is one module on Project+ — not the whole product. A URL for a desk that is not on your plan shows an upgrade note instead of the module.
+On the **Executive dashboard** (`/app/dashboard`), the **Plan modules** strip is the sequence for your commercial plan (executive first, then the desks that plan includes). Open a module, then **Return to executive view**. Module cards on the executive page show contribution to overall progress. Empty desks show a short prompt to add the first record — only the VIP showcase is preloaded. **Engagement plan** is not a commercial module while it is being built. A URL for a desk that is not on your plan shows an upgrade note instead of the module.
 
-If the workspace plan does not include a module, it stays off the switcher (or shows an upgrade note on the executive SEP card). Linked plans also appear on a **project dashboard**. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
+If the workspace plan does not include a module, it stays off the switcher. Linked plans also appear on a **project dashboard** for operators. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
 
 ---
 

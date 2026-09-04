@@ -3,17 +3,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
-import {
-  hasCapability,
-  resolveClientPlanId,
-  upgradeHrefForCapability,
-  upgradeLabelForCapability,
-} from "@/lib/entitlements";
+import { useSepDesk } from "@/components/sep/SepDeskContext";
 import {
   listEngagementPlans,
   listEngagementPlansForProject,
 } from "@/lib/sepStore";
-import type { PlanId } from "@/config/plans";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
   SEP_SECTOR_LABELS,
@@ -21,29 +15,18 @@ import {
 } from "@/types/engagementPlan";
 
 type Props = {
-  planId?: PlanId | null;
   /** When set, only plans linked to this project. */
   projectId?: string;
-  /**
-   * Keep this module on the Executive dashboard even when the plan does not
-   * include engagements — show an upgrade note instead of hiding.
-   */
-  alwaysShow?: boolean;
 };
 
-export function SepDashboardPanel({
-  planId = null,
-  projectId,
-  alwaysShow = false,
-}: Props) {
+export function SepDashboardPanel({ projectId }: Props) {
+  const allowed = useSepDesk();
   const [ready, setReady] = useState(false);
-  const [allowed, setAllowed] = useState(false);
   const [rows, setRows] = useState<EngagementPlan[]>([]);
 
   useEffect(() => {
+    if (!allowed) return;
     const load = () => {
-      const resolved = resolveClientPlanId(planId);
-      setAllowed(hasCapability("engagements", resolved));
       setRows(
         projectId
           ? listEngagementPlansForProject(projectId)
@@ -57,7 +40,7 @@ export function SepDashboardPanel({
       cancelAnimationFrame(frame);
       window.removeEventListener("tl-workspace-seeded", load);
     };
-  }, [planId, projectId]);
+  }, [allowed, projectId]);
 
   const applied = useMemo(
     () => rows.filter((row) => row.status === "applied").length,
@@ -69,8 +52,9 @@ export function SepDashboardPanel({
     ? `/app/engagement-plan/new?project=${encodeURIComponent(projectId)}`
     : "/app/engagement-plan/new";
 
+  if (!allowed) return null;
+
   if (!ready) {
-    if (!alwaysShow) return null;
     return (
       <section
         id="engagement-plans"
@@ -84,36 +68,6 @@ export function SepDashboardPanel({
           Stakeholder engagement plans
         </h2>
         <p className="mt-1 text-sm text-tl-ink-muted">Loading plans…</p>
-      </section>
-    );
-  }
-
-  if (!allowed && !alwaysShow) return null;
-
-  if (!allowed) {
-    return (
-      <section
-        id="engagement-plans"
-        aria-labelledby="sep-dash-heading"
-        className="rounded-lg border border-tl-trust/30 bg-tl-paper p-4"
-      >
-        <h2
-          id="sep-dash-heading"
-          className="text-base font-semibold text-tl-ink"
-        >
-          Stakeholder engagement plans
-        </h2>
-        <p className="mt-1 text-sm text-tl-ink-muted">
-          Map an RFP, tender, or briefing from inception to close-out, then
-          apply the suggestion to the SRM after approval.{" "}
-          {upgradeLabelForCapability("engagements")}.
-        </p>
-        <Link
-          href={upgradeHrefForCapability("engagements")}
-          className="mt-3 inline-block rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-        >
-          Upgrade to include this module
-        </Link>
       </section>
     );
   }

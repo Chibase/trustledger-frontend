@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { PlanId } from "@/config/plans";
 import { PLAN_DASHBOARD_CATALOG } from "@/config/tierFlow";
 import { hasCapability } from "@/lib/entitlements";
+import { useSepDesk } from "@/components/sep/SepDeskContext";
 import {
   descriptorForPath,
   resolvePlanDashboardPackaging,
@@ -31,6 +32,7 @@ export function PlanModuleSwitcher({
   email = null,
 }: Props) {
   const pathname = usePathname() || "/app/dashboard";
+  const sepDesk = useSepDesk();
   const [packaging, setPackaging] = useState(() =>
     resolvePlanDashboardPackaging({
       planId,
@@ -51,7 +53,7 @@ export function PlanModuleSwitcher({
       });
       const moduleDashboards = next.moduleDashboards.filter((row) =>
         hasCapability(row.capability, next.planId),
-      );
+      ).filter((row) => row.key !== "sep" || sepDesk);
       const visibleKeys = moduleDashboards.map((row) => row.key);
       const suggestedNextKey =
         next.suggestedNextKey && visibleKeys.includes(next.suggestedNextKey)
@@ -68,7 +70,7 @@ export function PlanModuleSwitcher({
       });
     }, 0);
     return () => window.clearTimeout(handle);
-  }, [planId, vip, mode, email]);
+  }, [planId, vip, mode, email, sepDesk]);
 
   const current = useMemo(() => descriptorForPath(pathname), [pathname]);
 
@@ -76,7 +78,10 @@ export function PlanModuleSwitcher({
     if (current) recordModuleVisit(current.key);
   }, [current]);
 
-  const items = [packaging.executiveDashboard, ...packaging.moduleDashboards];
+  const items = [
+    packaging.executiveDashboard,
+    ...packaging.moduleDashboards.filter((row) => row.key !== "sep" || sepDesk),
+  ];
   const onModule =
     current && current.key !== "executive" ? current : null;
 

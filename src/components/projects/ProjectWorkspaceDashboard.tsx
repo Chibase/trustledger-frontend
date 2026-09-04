@@ -43,7 +43,6 @@ export function ProjectWorkspaceDashboard({
   incidents,
   role,
   authorName,
-  planId = null,
   onProjectSaved,
 }: Props) {
   const [showDossier, setShowDossier] = useState(false);
@@ -144,7 +143,7 @@ export function ProjectWorkspaceDashboard({
         />
       </div>
 
-      <SepDashboardPanel planId={planId} projectId={project.id} />
+      <SepDashboardPanel projectId={project.id} />
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">

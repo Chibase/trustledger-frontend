@@ -9,6 +9,7 @@ import {
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
+import { useSepDesk } from "@/components/sep/SepDeskContext";
 import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
 import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
 import { hasCapability } from "@/lib/entitlements";
@@ -61,6 +62,7 @@ export function ExecutivePortfolioDashboard({
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents);
   const [projects, setProjects] = useState<Project[]>(seedProjects);
   const [engagements, setEngagements] = useState<Engagement[]>([]);
+  const sepDesk = useSepDesk();
   const showNotesPulse = hasCapability("engagements", planId);
 
   useEffect(() => {
@@ -137,12 +139,12 @@ export function ExecutivePortfolioDashboard({
             module for evidence, then return here. Desk: {DESK_TIER_LABELS[tier]}.
           </p>
         </div>
-        {showNotesPulse ? (
+        {sepDesk ? (
           <Link
-            href="/app/engagement-plan"
+            href="#engagement-plans"
             className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
           >
-            Engagement plan module
+            Engagement plan
           </Link>
         ) : null}
       </header>
@@ -154,7 +156,7 @@ export function ExecutivePortfolioDashboard({
         email={email}
       />
 
-      <SepDashboardPanel planId={planId} alwaysShow />
+      {sepDesk ? <SepDashboardPanel /> : null}
 
       {showNotesPulse ? (
         <RelationshipHealthPulse

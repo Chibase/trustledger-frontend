@@ -116,7 +116,7 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     status: "partial",
     score: 72,
     availableNow:
-      "Engagements list/detail; Capture hub apply → CRM + Engagement; live BFF → TL Engagement on Cloud; trial own-data. Stakeholder engagement plan (SEP) is a sibling module — briefing → process.",
+      "Engagements list/detail; Capture hub apply → CRM + Engagement; live BFF → TL Engagement on Cloud; trial own-data.",
     stillNeeded: [
       "Structured attendance register rows",
       "Link engagements to geo place ids",
@@ -130,7 +130,7 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     status: "partial",
     score: 72,
     availableNow:
-      "Compose from RFP / tender / briefing or sector playbook; seven-phase process dashboard; presentable SEP; human apply seeds registry, draft engagements, and commitments. Customer Executive dashboard + this ops board.",
+      "Operator desk only while the composer is built (not on commercial plans). Compose from RFP / tender / briefing or sector playbook; seven-phase process dashboard; Gemini-drafted presentable SEP; human apply seeds registry, draft engagements, and commitments. Find it on this ops board and the operator /app desk — not customer Executive dashboards.",
     stillNeeded: [
       "Cloud document type for saved plans",
       "Apply to SRM via live SI BFF (today: workspace store then existing desks)",
@@ -254,7 +254,7 @@ export function buildTedsMaturityReport(): TedsMaturityReport {
     mvpProgressPct,
     headline: `TEDS MVP ≈ ${mvpProgressPct}% realised in product`,
     summary:
-      "Version 001 ships the resolution desk. Version 002 Stakeholder Intelligence now has Cloud DocTypes + live BFF for registry, engagements, and commitments, plus a briefing→SEP composer on the customer desk. Remaining gaps: geo depth, grievance Cloud stamps, Stats SA, relationship graphs.",
+      "Version 001 ships the resolution desk. Version 002 Stakeholder Intelligence now has Cloud DocTypes + live BFF for registry, engagements, and commitments. The briefing→SEP composer is operator-desk only until it matches the product vision. Remaining gaps: geo depth, grievance Cloud stamps, Stats SA, relationship graphs.",
     domains,
     priorityNext: [
       "Ops: Create product + SI DocTypes, then Smoke Stakeholder→Engagement→Commitment",
@@ -264,7 +264,7 @@ export function buildTedsMaturityReport(): TedsMaturityReport {
       "CRM relationship links + influence matrices",
     ],
     publicMessage:
-      "Version 001 is the live resolution desk. Version 002 Stakeholder Intelligence core runs on Cloud for registry, engagements, and commitments — the SRM engine — with an engagement-plan composer from RFP / tender / briefing.",
+      "Version 001 is the live resolution desk. Version 002 Stakeholder Intelligence core runs on Cloud for registry, engagements, and commitments — the SRM engine.",
   };
 }
 
