@@ -14,6 +14,13 @@ import {
   analyzeCommunicationNote,
   sentimentLabelFromScore,
 } from "@/lib/sentimentAnalysis";
+import {
+  attachTrustResponseHints,
+  omitTrustOverlayFlag,
+  prepareTrustReportSummary,
+  prepareTrustSensitiveDraft,
+  prepareTrustTriageOverlay,
+} from "@/lib/trust/aiPrepare";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type { ReportKind, ReportSectionId } from "@/types/activityReport";
 import { REPORT_KINDS, REPORT_SECTION_IDS } from "@/types/activityReport";
@@ -477,37 +484,61 @@ export const aiService = {
   },
 
   async suggestTriage(input: TriageRequest): Promise<IncidentTriageSuggestion> {
+    const payload = omitTrustOverlayFlag(input);
+    let base: IncidentTriageSuggestion;
     if (USE_MOCK) {
       await delay();
-      return mockTriage(input);
+      base = mockTriage(payload);
+    } else {
+      base = await callFrappeMethod<IncidentTriageSuggestion>(
+        FRAPPE_METHODS.suggestTriage,
+        payload,
+      );
     }
-    return callFrappeMethod(FRAPPE_METHODS.suggestTriage, { ...input });
+    if (!input.includeTrustOverlay) return base;
+    return { ...base, trustTriage: prepareTrustTriageOverlay(payload) };
   },
 
   async suggestSentiment(input: SentimentRequest): Promise<SentimentSuggestion> {
+    const payload = omitTrustOverlayFlag(input);
+    let base: SentimentSuggestion;
     if (USE_MOCK) {
       await delay();
-      return mockSentiment(input);
+      base = mockSentiment(payload);
+    } else {
+      try {
+        const raw = await callFrappeMethod<Partial<SentimentSuggestion>>(
+          FRAPPE_METHODS.suggestSentiment,
+          payload,
+        );
+        base = normalizeSentiment(raw || {}, payload);
+      } catch {
+        base = mockSentiment(payload);
+      }
     }
-    try {
-      const raw = await callFrappeMethod<Partial<SentimentSuggestion>>(
-        FRAPPE_METHODS.suggestSentiment,
-        { ...input },
-      );
-      return normalizeSentiment(raw || {}, input);
-    } catch {
-      return mockSentiment(input);
-    }
+    return attachTrustResponseHints(
+      base,
+      payload.text,
+      input.includeTrustOverlay,
+    );
   },
 
   async draftResponse(
     input: DraftResponseRequest,
   ): Promise<DraftResponseSuggestion> {
+    const payload = omitTrustOverlayFlag(input);
+    let base: DraftResponseSuggestion;
     if (USE_MOCK) {
       await delay();
-      return mockDraft(input);
+      base = mockDraft(payload);
+    } else {
+      base = await callFrappeMethod<DraftResponseSuggestion>(
+        FRAPPE_METHODS.draftResponse,
+        payload,
+      );
     }
-    return callFrappeMethod(FRAPPE_METHODS.draftResponse, { ...input });
+    if (!input.includeTrustOverlay) return base;
+    return { ...base, trustDraft: prepareTrustSensitiveDraft(payload) };
   },
 
   async generateReportBrief(
@@ -516,7 +547,7 @@ export const aiService = {
     // Never call Cloud/Frappe for briefs — srm-core/Grok returns generic
     // month-end templates with [Insert …] placeholders (no INC-* cases).
     await delay(400);
-    const local = mockReportBrief(input);
+    const local = mockReportBrief(omitTrustOverlayFlag(input));
     const blob = [
       local.title,
       local.executiveSummary,
@@ -526,7 +557,8 @@ export const aiService = {
     if (looksLikeReportTemplateGuide(blob)) {
       throw new Error("Evidence brief refused to return a template guide.");
     }
-    return local;
+    if (!input.includeTrustOverlay) return local;
+    return { ...local, trustSummary: prepareTrustReportSummary(local) };
   },
 
   async generateIndicatorBrief(

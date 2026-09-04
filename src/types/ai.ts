@@ -4,6 +4,13 @@
  * Frontend never calls the LLM provider directly.
  */
 
+import type {
+  StakeholderTrustResponse,
+  TrustDraftOverlay,
+  TrustReportSummaryOverlay,
+  TrustTriageOverlay,
+} from "@/types/trustOverlay";
+
 export type AiSuggestionStatus = "idle" | "loading" | "ready" | "error";
 
 export type IncidentTriageSuggestion = {
@@ -22,6 +29,11 @@ export type IncidentTriageSuggestion = {
   confidence: number;
   model: string;
   promptVersion: string;
+  /**
+   * TE-1 overlay — present only when the request sets `includeTrustOverlay`.
+   * Current callers omit the flag, so this key stays absent.
+   */
+  trustTriage?: TrustTriageOverlay;
 };
 
 export type SentimentLabel = "positive" | "neutral" | "negative";
@@ -35,6 +47,8 @@ export type SentimentSuggestion = {
   sourceType: "Survey" | "Interview" | "Community Meeting" | "Social Media" | "Other";
   model: string;
   promptVersion: string;
+  /** TE-1 overlay — opt-in via `includeTrustOverlay`. */
+  trustResponseHints?: StakeholderTrustResponse;
 };
 
 export type DraftResponseSuggestion = {
@@ -43,6 +57,8 @@ export type DraftResponseSuggestion = {
   language: string;
   model: string;
   promptVersion: string;
+  /** TE-1 overlay — opt-in via `includeTrustOverlay`. Never changes `draft`. */
+  trustDraft?: TrustDraftOverlay;
 };
 
 export type ReportBriefSuggestion = {
@@ -53,6 +69,8 @@ export type ReportBriefSuggestion = {
   citedIncidentIds: string[];
   model: string;
   promptVersion: string;
+  /** TE-1 overlay — opt-in via `includeTrustOverlay`. Never changes brief text. */
+  trustSummary?: TrustReportSummaryOverlay;
 };
 
 /** Packet 24g — brief over socio-economic / ESG indicator cards. */
@@ -84,6 +102,11 @@ export type TriageRequest = {
   ward?: string;
   projectId?: string;
   preferredLanguage?: string;
+  /**
+   * TE-1: attach overlay fields on the suggestion. Default omit.
+   * Stripped from Cloud method payloads so srm-core contracts stay unchanged.
+   */
+  includeTrustOverlay?: boolean;
 };
 
 export type SentimentRequest = {
@@ -91,6 +114,7 @@ export type SentimentRequest = {
   geographicArea?: string;
   linkedIncidentId?: string;
   sourceType?: SentimentSuggestion["sourceType"];
+  includeTrustOverlay?: boolean;
 };
 
 export type DraftResponseRequest = {
@@ -98,6 +122,7 @@ export type DraftResponseRequest = {
   description: string;
   audience: "community" | "client" | "internal";
   language?: string;
+  includeTrustOverlay?: boolean;
 };
 
 export type ReportBriefRequest = {
@@ -107,6 +132,7 @@ export type ReportBriefRequest = {
   /** Optional free-text source (minutes, social intel, pasted report). */
   sourceText?: string;
   sourceLabel?: string;
+  includeTrustOverlay?: boolean;
 };
 
 export type SuggestedStakeholder = {

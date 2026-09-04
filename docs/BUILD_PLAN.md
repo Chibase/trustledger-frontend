@@ -191,6 +191,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
 | **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
 | **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase **process map** + **plan execution dashboard** (roadmap, KPIs, outcomes, mitigations, practitioner snapshot) + Gemini-drafted tender SEP; human apply seeds registry / engagements / commitments. Analysis engine (Phases A–G) | **Active** |
+| **TE-1** | Trust overlay (non-breaking) | Optional `trustResponse` / `trustSupport` + `composeTrustSignals` + opt-in AI overlay helpers. No UX, formula, or DocType change. `docs/TRUST_OVERLAY.md` | **Done** |
 | **PP-1** | Plan-as-container packaging | TierFlow module sequence; executive roll-up; VIP-only demo seed across included desks; non-VIP empty | **Done** |
 
 ### HubSpot cutover (ACTIVE)
@@ -297,7 +298,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
-| 2026-07-11 | Initial Demo-first BUILD_PLAN (Packet 00) |
+| 2026-09-04 | TE-1 — frontend trust overlay library (optional fields + helpers; no UX/DocType change) |
 | 2026-07-21 | Phase 6 Version 002 core; Version 001 public label (ADR-023) |
 | 2026-07-22 | Operational delivery path (ADR-032); OD-1 active — delay paid prod until Cloud SoT |
 | 2026-07-23 | GO LIVE Done — operational-grade Cloud ops for paying customers |
