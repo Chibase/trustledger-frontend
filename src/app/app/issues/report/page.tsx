@@ -7,12 +7,7 @@ import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { GeoLocationWizard } from "@/components/geo/GeoLocationWizard";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { useToast } from "@/components/ui/Toast";
-import {
-  createDemoIncidentId,
-  createDemoProjectId,
-  saveDemoIncident,
-  saveDemoProject,
-} from "@/lib/demoStore";
+import { createDemoIncidentId, createDemoProjectId, saveDemoProject } from "@/lib/demoStore";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   COMPLAINT_NATURES,
@@ -20,13 +15,15 @@ import {
   suggestStaffTier,
   type ComplaintNatureId,
 } from "@/lib/grievanceProcess";
-import { saveOrgIncident, saveOrgProject } from "@/lib/orgDataSpace";
+import { saveOrgProject } from "@/lib/orgDataSpace";
+import { incidentService } from "@/services/incidentService";
 import {
   createTrialIncidentId,
   ensureTrialSeedProject,
 } from "@/lib/trialStore";
 import { COMMUNITY_LANGUAGE_HINTS } from "@/lib/trust/language";
 import { readTrialModeFromDocument } from "@/lib/trial";
+import { isLiveMode } from "@/config/api";
 import { listWorkspaceProjects } from "@/lib/workspaceData";
 import { dossierSummaryLines, mergeProjectDossier } from "@/lib/projectDossier";
 import { projectChipLabel, projectHasDossierBasics } from "@/types/project";
@@ -276,6 +273,7 @@ export default function AppReportIssuePage() {
       return;
     }
     requireEmailThen("save", () => {
+      void (async () => {
       let project: Project;
       try {
         project = ensureProject();
@@ -358,15 +356,27 @@ export default function AppReportIssuePage() {
           },
         ],
       };
-      if (trial) saveOrgIncident(incident);
-      else saveDemoIncident(incident);
+      try {
+        await incidentService.save(incident);
+      } catch {
+        pushToast(
+          isLiveMode()
+            ? "Could not save on TrustLedger Cloud"
+            : "Could not save issue",
+          "error",
+        );
+        return;
+      }
       setSubmittedId(id);
       pushToast(
-        trial
-          ? "Issue saved in your organisation data space"
-          : "Issue saved in this browser",
+        isLiveMode()
+          ? "Issue saved on TrustLedger Cloud"
+          : trial
+            ? "Issue saved in your organisation data space"
+            : "Issue saved in this browser",
         "success",
       );
+      })();
     });
   }
 

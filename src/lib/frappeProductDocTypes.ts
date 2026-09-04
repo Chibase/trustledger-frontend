@@ -26,6 +26,24 @@ type FieldDef = {
   default?: string;
 };
 
+/** 24e-cloud — lifecycle stamps on TL Incident. Blank Cloud times stay blank. */
+export const INCIDENT_PROCESS_STAGE_FIELDS: FieldDef[] = [
+  { fieldname: "reported_at", label: "Reported at", fieldtype: "Datetime" },
+  {
+    fieldname: "resource_deployed_at",
+    label: "Resource deployed at",
+    fieldtype: "Datetime",
+  },
+  { fieldname: "investigated_at", label: "Investigated at", fieldtype: "Datetime" },
+  { fieldname: "resolved_at", label: "Resolved at", fieldtype: "Datetime" },
+  { fieldname: "verified_at", label: "Verified at", fieldtype: "Datetime" },
+  { fieldname: "closed_at", label: "Closed at", fieldtype: "Datetime" },
+];
+
+export const INCIDENT_PROCESS_STAGE_FIELDNAMES = INCIDENT_PROCESS_STAGE_FIELDS.map(
+  (row) => row.fieldname,
+) as readonly string[];
+
 function fieldsFor(name: ProductDocTypeName): FieldDef[] {
   if (name === "TL Project") {
     return [
@@ -94,6 +112,7 @@ function fieldsFor(name: ProductDocTypeName): FieldDef[] {
       { fieldname: "reporter_name", label: "Reporter name", fieldtype: "Data" },
       { fieldname: "project_name", label: "Project name", fieldtype: "Data" },
       { fieldname: "tl_org_id", label: "TrustLedger org id", fieldtype: "Data" },
+      ...INCIDENT_PROCESS_STAGE_FIELDS,
     ];
   }
   return [
@@ -301,6 +320,14 @@ export async function ensureProductDocTypes(options?: {
     }
   }
 
+  const stages = await ensureIncidentStageFields({
+    dryRun,
+    headers,
+    base,
+  });
+  results.push(...stages.results);
+  missing.push(...stages.missing);
+
   const errors = results.filter((r) => r.status === "error");
   const created = results.filter((r) => r.status === "created").length;
   const ok = errors.length === 0;
@@ -314,12 +341,128 @@ export async function ensureProductDocTypes(options?: {
       : results.filter((r) => r.status === "error").map((r) => r.name),
     message: dryRun
       ? missing.length
-        ? `Dry-run: ${missing.length} DocType(s) missing — set dryRun:false to create.`
-        : "Dry-run: all product DocTypes already exist."
+        ? `Dry-run: ${missing.length} DocType/field(s) missing — set dryRun:false to create.`
+        : "Dry-run: all product DocTypes and incident stage fields already exist."
       : ok
         ? created
-          ? `Created ${created} DocType(s); others already present.`
-          : "All product DocTypes already exist."
+          ? `Created ${created} DocType/field(s); others already present.`
+          : "All product DocTypes and incident stage fields already exist."
         : `Finished with ${errors.length} error(s) — check API key System Manager rights.`,
   };
+}
+
+async function customFieldExists(
+  base: string,
+  headers: HeadersInit,
+  dt: string,
+  fieldname: string,
+): Promise<boolean> {
+  const filters = encodeURIComponent(
+    JSON.stringify([
+      ["dt", "=", dt],
+      ["fieldname", "=", fieldname],
+    ]),
+  );
+  const res = await fetch(
+    `${base}/api/resource/Custom%20Field?filters=${filters}&fields=${encodeURIComponent(JSON.stringify(["name", "fieldname"]))}&limit_page_length=1`,
+    { headers, cache: "no-store" },
+  );
+  if (!res.ok) return false;
+  const json = (await res.json()) as { data?: unknown[] };
+  return Array.isArray(json.data) && json.data.length > 0;
+}
+
+async function nativeDocTypeFieldExists(
+  base: string,
+  headers: HeadersInit,
+  dt: string,
+  fieldname: string,
+): Promise<boolean> {
+  const res = await fetch(
+    `${base}/api/resource/DocType/${encodeURIComponent(dt)}`,
+    { headers, cache: "no-store" },
+  );
+  if (!res.ok) return false;
+  const json = (await res.json()) as {
+    data?: { fields?: Array<{ fieldname?: string }> };
+  };
+  return (json.data?.fields || []).some((row) => row.fieldname === fieldname);
+}
+
+/**
+ * Idempotent Custom Fields for 24e-cloud stamps on existing TL Incident.
+ * Skips when the field is already native on the DocType.
+ */
+export async function ensureIncidentStageFields(options: {
+  dryRun: boolean;
+  headers: HeadersInit;
+  base: string;
+}): Promise<{
+  results: DocTypeEnsureResult["results"];
+  missing: string[];
+}> {
+  const { dryRun, headers, base } = options;
+  const results: DocTypeEnsureResult["results"] = [];
+  const missing: string[] = [];
+  const dt = "TL Incident";
+  const exists = await frappeDocTypeExists(base, headers, dt);
+  if (!exists) {
+    return { results, missing };
+  }
+
+  let insertAfter = "tl_org_id";
+  for (const spec of INCIDENT_PROCESS_STAGE_FIELDS) {
+    const name = `${dt}.${spec.fieldname}`;
+    try {
+      const present =
+        (await nativeDocTypeFieldExists(base, headers, dt, spec.fieldname)) ||
+        (await customFieldExists(base, headers, dt, spec.fieldname));
+      if (present) {
+        results.push({ name, status: "exists" });
+        insertAfter = spec.fieldname;
+        continue;
+      }
+      missing.push(name);
+      if (dryRun) {
+        results.push({
+          name,
+          status: "skipped",
+          detail: "Would create (dry-run)",
+        });
+        continue;
+      }
+      const res = await fetch(`${base}/api/resource/Custom%20Field`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          dt,
+          fieldname: spec.fieldname,
+          label: spec.label,
+          fieldtype: spec.fieldtype,
+          insert_after: insertAfter,
+        }),
+        cache: "no-store",
+      });
+      const text = await res.text();
+      if (!res.ok) {
+        if (/already exists|DuplicateName|fieldname/i.test(text)) {
+          results.push({ name, status: "exists", detail: "Already present" });
+          insertAfter = spec.fieldname;
+          continue;
+        }
+        results.push({ name, status: "error", detail: text.slice(0, 280) });
+        continue;
+      }
+      results.push({ name, status: "created" });
+      insertAfter = spec.fieldname;
+    } catch (err) {
+      results.push({
+        name,
+        status: "error",
+        detail: err instanceof Error ? err.message : "request failed",
+      });
+      if (!missing.includes(name)) missing.push(name);
+    }
+  }
+  return { results, missing };
 }

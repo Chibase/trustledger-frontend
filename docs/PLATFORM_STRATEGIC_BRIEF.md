@@ -151,6 +151,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Live login + email OTP | Resend when configured | Paying / provisioned Owners |
 | Ops provision + DocType ensure/smoke | `/ops/accounts` | Operator only |
 | Dual reports hub | Activity vs packs (ADR-028) | Pack tier by plan |
+| Grievance lifecycle stamps | Advance / Verify & close persist on Cloud `TL Incident` | All plans (core) |
 | Public `/product` onboarding | Replaces sample demo | All public agents |
 | Brand / design system | TrustLedger field ledger | All surfaces |
 | ZA baseline place intel | MDB pack + geoIntake on all plans (ADR-040) | All SA plans — client adds project data only |
@@ -161,10 +162,9 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Area | Gap | Suggested action |
 |------|-----|------------------|
 | Stale “demo” copy in product UI | Capture/projects/settings still say demo | Copy sweep — say trial/live/Cloud |
-| Project/incident continuous Cloud save | Stronger on migrate/smoke than every UI save | Wire save → productCloud / srm_core consistently |
-| `srm_core` method dependency | Live list may 404 until app installed | Prefer resource BFF pattern (as SI) or install srm-core |
+| Project continuous Cloud save | Stronger on migrate/smoke than every UI save | Wire project upsert the same way as incidents |
+| `srm_core` method dependency | Live SI/product lists use resource BFF; some methods still 404 | Prefer resource BFF pattern or install srm-core |
 | Geo depth / TC coverage | Wards national; **TC pack only ~15** (EC-weighted); lat/lng & Cloud Geo incomplete | National TC ingest; optional Cloud sync — `docs/ZA_BASELINE_INTEL.md` |
-| Grievance Cloud stamps | UI stamps exist; TL Incident lifecycle fields incomplete | Mirror process stamps on Cloud |
 | CRM relationships | No graph / merge / influence matrix | V002 deepening packet |
 | Report packs from live SI/geo | Composer uses local evidence | Bind packs to Cloud lists |
 | Ops analytics (23b–d) | Reports/accounts/support depth “Planned” | Schedule Ops packets |
@@ -393,10 +393,9 @@ Prioritise by **SRM engine strength** and **operational honesty**, not feature c
 
 1. **Buyer-verified Cloud SI** — empty CRM → create stakeholder → list from Cloud on Production.  
 2. **Copy hygiene** — remove leftover “demo” language from Capture/Projects/Settings.  
-3. **Continuous Cloud write** for projects/incidents (parity with SI BFF).  
-4. **Grievance Cloud stamps** on `TL Incident`.  
+3. **Continuous Cloud write** for projects (parity with incident / SI BFF).  
+4. **Cloud seats** for invitees (multi-device juniors).  
 5. **Doc sync** — maturity report, VERSIONING, PUBLIC_LAUNCH aligned to ADR-033 / GO LIVE.  
-6. **Cloud seats** for invitees (multi-device juniors).  
 
 ### 8.2 Mid-term (high value)
 

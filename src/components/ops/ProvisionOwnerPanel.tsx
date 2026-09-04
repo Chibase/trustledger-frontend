@@ -192,6 +192,14 @@ export function ProvisionOwnerPanel({
             impactScore: 0,
             sentimentScore: null,
             timeline: [],
+            processStages: {
+              reportedAt: new Date().toISOString(),
+              resourceDeployedAt: null,
+              investigatedAt: null,
+              resolvedAt: null,
+              verifiedAt: null,
+              closedAt: null,
+            },
           },
         }),
       });

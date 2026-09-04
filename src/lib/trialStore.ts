@@ -32,6 +32,13 @@ export function saveTrialIncident(incident: Incident) {
   writeJson(INCIDENTS_KEY, rows);
 }
 
+export function removeTrialIncident(id: string) {
+  writeJson(
+    INCIDENTS_KEY,
+    listTrialIncidents().filter((i) => i.id !== id),
+  );
+}
+
 export function listTrialEvidence(incidentId?: string): EvidenceStub[] {
   const rows = readJson<EvidenceStub[]>(EVIDENCE_KEY, []);
   if (!incidentId) return rows;

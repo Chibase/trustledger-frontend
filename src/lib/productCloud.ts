@@ -7,10 +7,13 @@ import {
   frappeBase,
   frappeKeyPair,
 } from "@/lib/leadCapture";
+import { INCIDENT_PROCESS_STAGE_FIELDNAMES } from "@/lib/frappeProductDocTypes";
 import { rowsForCustomer } from "@/lib/tenantScope";
 import type { EvidenceStub } from "@/types/engagement";
-import type { Incident } from "@/types/incident";
+import type { Incident, IncidentPriority, IncidentStatus } from "@/types/incident";
+import type { IncidentProcessStages } from "@/lib/grievanceProcess";
 import type { Project } from "@/types/project";
+import { omitCloudTrustOverlay } from "@/types/trustOverlay";
 
 /** Frappe MySQL Datetime: `YYYY-MM-DD HH:MM:SS` (no ISO `T`/`Z`). */
 export function toFrappeDatetime(isoOrDate: string | Date | null | undefined): string | null {
@@ -19,6 +22,15 @@ export function toFrappeDatetime(isoOrDate: string | Date | null | undefined): s
   if (Number.isNaN(d.getTime())) return null;
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+}
+
+/** Convert a stored Cloud datetime back to ISO. Blank stays blank — never fills in now. */
+export function fromFrappeDatetime(value: unknown): string | undefined {
+  const raw = String(value || "").trim();
+  if (!raw) return undefined;
+  const parsed = raw.includes("T") ? new Date(raw) : new Date(raw.replace(" ", "T") + "Z");
+  if (Number.isNaN(parsed.getTime())) return raw;
+  return parsed.toISOString();
 }
 
 function authHeaders(): HeadersInit | null {
@@ -85,13 +97,90 @@ export function projectToFrappeDoc(
   };
 }
 
+export const INCIDENT_STAGE_CLOUD_FIELDS = {
+  reportedAt: "reported_at",
+  resourceDeployedAt: "resource_deployed_at",
+  investigatedAt: "investigated_at",
+  resolvedAt: "resolved_at",
+  verifiedAt: "verified_at",
+  closedAt: "closed_at",
+} as const;
+
+function asIncidentStatus(value: unknown): IncidentStatus {
+  const raw = String(value || "").trim();
+  if (
+    raw === "Open" ||
+    raw === "Investigating" ||
+    raw === "Escalated" ||
+    raw === "Closed"
+  ) {
+    return raw;
+  }
+  return "Open";
+}
+
+function asIncidentPriority(value: unknown): IncidentPriority {
+  const raw = String(value || "").trim();
+  if (
+    raw === "P4-Low" ||
+    raw === "P3-Medium" ||
+    raw === "P2-High" ||
+    raw === "P1-Critical"
+  ) {
+    return raw;
+  }
+  return "P3-Medium";
+}
+
+/** Non-blank Cloud datetime only — never fills in now. */
+export function nonBlankCloudTime(value: unknown): string | undefined {
+  return fromFrappeDatetime(value);
+}
+
+function stageToCloud(
+  value: string | null | undefined,
+): string | null {
+  const raw = String(value || "").trim();
+  return raw ? toFrappeDatetime(raw) : null;
+}
+
+export function processStagesFromCloud(
+  row: Record<string, unknown>,
+): IncidentProcessStages | undefined {
+  const reportedAt = nonBlankCloudTime(row.reported_at);
+  const resourceDeployedAt = nonBlankCloudTime(row.resource_deployed_at);
+  const investigatedAt = nonBlankCloudTime(row.investigated_at);
+  const resolvedAt = nonBlankCloudTime(row.resolved_at);
+  const verifiedAt = nonBlankCloudTime(row.verified_at);
+  const closedAt = nonBlankCloudTime(row.closed_at);
+  if (
+    !reportedAt &&
+    !resourceDeployedAt &&
+    !investigatedAt &&
+    !resolvedAt &&
+    !verifiedAt &&
+    !closedAt
+  ) {
+    return undefined;
+  }
+  return {
+    reportedAt: reportedAt || "",
+    resourceDeployedAt: resourceDeployedAt ?? null,
+    investigatedAt: investigatedAt ?? null,
+    resolvedAt: resolvedAt ?? null,
+    verifiedAt: verifiedAt ?? null,
+    closedAt: closedAt ?? null,
+  };
+}
+
 export function incidentToFrappeDoc(
   incident: Incident,
   customer: string,
   orgId?: string,
 ): Record<string, unknown> {
   // Explicit fields only — TE-1 `trustResponse` overlay is not a Cloud column.
-  return {
+  const stages = incident.processStages;
+  const doc: Record<string, unknown> = {
     incident_code: incident.id,
     title: incident.title,
     description: incident.description,
@@ -104,6 +193,56 @@ export function incidentToFrappeDoc(
     priority: incident.priority,
     reporter_name: incident.reporterName || null,
     tl_org_id: orgId,
+  };
+  if (stages) {
+    const reported = stageToCloud(stages.reportedAt || incident.reportedAt);
+    const deployed = stageToCloud(stages.resourceDeployedAt);
+    const investigated = stageToCloud(stages.investigatedAt);
+    const resolved = stageToCloud(stages.resolvedAt);
+    const verified = stageToCloud(stages.verifiedAt);
+    const closed = stageToCloud(stages.closedAt);
+    if (reported) doc.reported_at = reported;
+    if (deployed) doc.resource_deployed_at = deployed;
+    if (investigated) doc.investigated_at = investigated;
+    if (resolved) doc.resolved_at = resolved;
+    if (verified) doc.verified_at = verified;
+    if (closed) doc.closed_at = closed;
+  } else {
+    const reported = stageToCloud(incident.reportedAt);
+    if (reported) doc.reported_at = reported;
+  }
+  return omitCloudTrustOverlay(doc);
+}
+
+export function frappeToIncident(
+  row: Record<string, unknown>,
+): Incident | null {
+  const id = String(row.incident_code || row.name || "").trim();
+  if (!id) return null;
+  const stages = processStagesFromCloud(row);
+  const reportedAt = stages?.reportedAt || "";
+  return {
+    id,
+    title: String(row.title || ""),
+    description: String(row.description || ""),
+    ward: String(row.ward || ""),
+    geographicArea: String(row.geographic_area || ""),
+    status: asIncidentStatus(row.status),
+    priority: asIncidentPriority(row.priority),
+    projectId: String(row.project || ""),
+    projectName: String(row.project_name || ""),
+    reportedByRole: "community",
+    reporterName: row.reporter_name ? String(row.reporter_name) : null,
+    reportedAt,
+    slaDueBy: "",
+    slaBreached: false,
+    escalationLevel: "None",
+    ownerName: "",
+    category: "",
+    impactScore: 0,
+    sentimentScore: null,
+    timeline: [],
+    processStages: stages,
   };
 }
 
@@ -287,7 +426,141 @@ export async function createCloudIncident(
   customer: string,
   orgId?: string,
 ) {
-  return resourcePost("TL Incident", incidentToFrappeDoc(incident, customer, orgId));
+  return upsertCloudIncident(incident, customer, orgId);
+}
+
+async function resourcePut(
+  doctype: string,
+  name: string,
+  body: Record<string, unknown>,
+): Promise<{ ok: true; name: string; data: unknown } | { ok: false; error: string }> {
+  const base = frappeBase();
+  const headers = authHeaders();
+  if (!base || !headers) {
+    return { ok: false, error: "Frappe API not configured" };
+  }
+  const res = await fetch(
+    `${base}/api/resource/${encodeURIComponent(doctype)}/${encodeURIComponent(name)}`,
+    {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(body),
+      cache: "no-store",
+    },
+  );
+  const text = await res.text();
+  if (!res.ok) {
+    return { ok: false, error: `${res.status}: ${text.slice(0, 280)}` };
+  }
+  try {
+    const json = JSON.parse(text) as { data?: { name?: string } };
+    return {
+      ok: true,
+      name: json.data?.name || name,
+      data: json.data,
+    };
+  } catch {
+    return { ok: true, name, data: text };
+  }
+}
+
+async function resourceExists(doctype: string, name: string): Promise<boolean> {
+  const base = frappeBase();
+  const headers = authHeaders();
+  if (!base || !headers) return false;
+  const res = await fetch(
+    `${base}/api/resource/${encodeURIComponent(doctype)}/${encodeURIComponent(name)}`,
+    { headers, cache: "no-store" },
+  );
+  return res.ok;
+}
+
+const INCIDENT_CORE_FIELDS = [
+  "name",
+  "incident_code",
+  "title",
+  "description",
+  "customer",
+  "project",
+  "project_name",
+  "ward",
+  "geographic_area",
+  "status",
+  "priority",
+  "reporter_name",
+  "tl_org_id",
+] as const;
+
+function incidentListFields(includeStages: boolean): string[] {
+  return includeStages
+    ? [...INCIDENT_CORE_FIELDS, ...INCIDENT_PROCESS_STAGE_FIELDNAMES]
+    : [...INCIDENT_CORE_FIELDS];
+}
+
+async function fetchCloudIncidents(
+  customer: string,
+  includeStages: boolean,
+): Promise<{ ok: true; rows: Record<string, unknown>[] } | { ok: false; error: string }> {
+  const base = frappeBase();
+  const headers = authHeaders();
+  if (!base || !headers) {
+    return { ok: false, error: "Frappe API not configured" };
+  }
+  const filters = encodeURIComponent(
+    JSON.stringify([["customer", "=", customer]]),
+  );
+  const fields = encodeURIComponent(
+    JSON.stringify(incidentListFields(includeStages)),
+  );
+  const res = await fetch(
+    `${base}/api/resource/TL%20Incident?filters=${filters}&fields=${fields}&limit_page_length=200`,
+    { headers, cache: "no-store" },
+  );
+  const text = await res.text();
+  if (!res.ok) {
+    return { ok: false, error: `${res.status}: ${text.slice(0, 280)}` };
+  }
+  try {
+    const json = JSON.parse(text) as { data?: Record<string, unknown>[] };
+    return { ok: true, rows: Array.isArray(json.data) ? json.data : [] };
+  } catch {
+    return { ok: false, error: "Invalid TL Incident list response" };
+  }
+}
+
+export async function listCloudIncidentsForCustomer(
+  customer: string,
+): Promise<{ ok: true; incidents: Incident[] } | { ok: false; error: string }> {
+  let listed = await fetchCloudIncidents(customer, true);
+  if (!listed.ok) {
+    listed = await fetchCloudIncidents(customer, false);
+  }
+  if (!listed.ok) return listed;
+  return {
+    ok: true,
+    incidents: rowsForCustomer(listed.rows, customer)
+      .map(frappeToIncident)
+      .filter((row): row is Incident => Boolean(row)),
+  };
+}
+
+export async function upsertCloudIncident(
+  incident: Incident,
+  customer: string,
+  orgId?: string,
+) {
+  const doctype = "TL Incident";
+  const body = incidentToFrappeDoc(incident, customer, orgId);
+  if (!incident.id || !incident.title) {
+    return {
+      ok: false as const,
+      error: "incident.id and title required",
+    };
+  }
+  if (await resourceExists(doctype, incident.id)) {
+    return resourcePut(doctype, incident.id, body);
+  }
+  return resourcePost(doctype, body);
 }
 
 export async function createCloudEvidence(

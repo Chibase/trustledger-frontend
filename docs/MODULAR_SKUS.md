@@ -101,7 +101,7 @@ North star stays **Stakeholder Intelligence deepening**. Focused-SKU work is pac
 |-------|------|------|
 | **Now (this packet)** | ADR + this runbook; public FAQ / Themba / `/product` copy; UTM aliases | **Done in CP-2 docs** |
 | **Later (persona pages)** | Optional `/product#grievance` (or similar) landing blocks with plan CTAs — still one app | After SI deepening, if campaigns need them |
-| **Later (Desk B depth)** | Vendor register + document checklist as **entitled module** on the same workspace — only with a capability id, Cloud DocTypes, and a price | Not before grievance Cloud stamps and SI CRM depth |
+| **Later (Desk B depth)** | Vendor register + document checklist as **entitled module** on the same workspace — only with a capability id, Cloud DocTypes, and a price | After SI CRM depth |
 | **Later (Desk C depth)** | PWA / offline queue — V003; never a second brand | After Capture Cloud write is solid |
 | **Never without a new ADR** | Separate Git product repos; hiding the TrustLedger name; WhatsApp as public community portal |
 

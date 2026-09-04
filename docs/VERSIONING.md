@@ -29,7 +29,7 @@
 | **Stakeholders** | Registry (people, orgs, influence, interests) | UI + **Cloud DocType/BFF** |
 | **Engagements** | Meetings, consultations, minutes/actions | UI + **Cloud DocType/BFF** |
 | **Commitments** | Promise → owner → deadline → evidence → closed | UI + **Cloud DocType/BFF** |
-| **Stronger grievance** | Fuller lifecycle on Frappe | UI stamps; Cloud stamps next |
+| **Stronger grievance** | Fuller lifecycle on Frappe | UI + **Cloud stage stamps** on `TL Incident` |
 | **Reports** | Operational + executive packs | Dual hub shipped; live SI bind next |
 | **Intelligence / ESG** | Indicators, trust/ESG depth, stronger AI | Demo indicators; live Grok deferred |
 

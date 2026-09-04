@@ -13,6 +13,7 @@ import {
   listTrialEvidence,
   listTrialIncidents,
   listTrialProjects,
+  removeTrialIncident,
   saveTrialEvidence,
   saveTrialIncident,
   saveTrialProject,
@@ -138,6 +139,16 @@ export function saveOrgIncident(incident: Incident, orgId?: string | null) {
   ];
   saveBucket(bucket);
   saveTrialIncident(stamped);
+}
+
+export function removeOrgIncident(incidentId: string, orgId?: string | null) {
+  const id = orgId || getActiveOrgId();
+  if (id) {
+    const bucket = getOrgDataBucket(id) || emptyBucket(id);
+    bucket.incidents = bucket.incidents.filter((i) => i.id !== incidentId);
+    saveBucket(bucket);
+  }
+  removeTrialIncident(incidentId);
 }
 
 export function saveOrgEvidence(file: EvidenceStub, orgId?: string | null) {

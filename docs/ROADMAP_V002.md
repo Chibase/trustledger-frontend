@@ -26,7 +26,7 @@ Geo first unlocks your existing location + socio-economic datasets as a **sellin
 | **24b** | Stakeholders | List/detail/create on Cloud | `TL Stakeholder` DocType + BFF | **Done (Cloud SI)** |
 | **24c** | Engagements | Capture hub + Cloud persistence | `TL Engagement` DocType + BFF | **Done (Cloud SI)** |
 | **24d** | Commitments | Register + status board on Cloud | `TL Commitment` DocType + BFF | **Done (Cloud SI)** |
-| **24e** | Stronger grievance | Status machine UI + verify/close | Incident workflow states on Cloud | **Done (demo; Cloud stamps next)** |
+| **24e** | Stronger grievance | Status machine UI + verify/close | Incident workflow states on Cloud | **Done (Cloud stamps)** |
 | **24f** | Reports | Activity + Reports dashboards; monthly / executive / board packs; Owner desk grants | Pack access + evidence writer | **Done** |
 | **24g** | Intelligence / ESG | Indicator cards + AI briefs on live indicators | Indicator store + Grok briefs | **Done (demo; Stats SA / Cloud next)** |
 
