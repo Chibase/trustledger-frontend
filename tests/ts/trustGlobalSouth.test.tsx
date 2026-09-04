@@ -411,7 +411,26 @@ describe("TE-5b community profiles and language support", () => {
     const bucket = getTrustLayerBucket("org-gs-apply", storage);
     expect(bucket.community).toHaveLength(1);
     expect(bucket.community[0]?.historyNotes).toContain("Updated history");
+    expect(bucket.community[0]?.oralSource).toBe(true);
     expect(bucket.participation).toHaveLength(2);
+    persistFieldCaptureToTrustLayer(
+      {
+        ...EMPTY_FIELD_META,
+        place: "Ward 12",
+        attendanceDoesNotEqualConsent: true,
+      },
+      { projectId: "PRJ-1", sourceId: "CAP-3" },
+      "org-gs-apply",
+      storage,
+    );
+    expect(
+      getTrustLayerBucket("org-gs-apply", storage).community[0]?.oralSource,
+    ).toBe(true);
+    expect(
+      getTrustLayerBucket("org-gs-apply", storage).community[0]?.spokenLanguage ||
+        getTrustLayerBucket("org-gs-apply", storage).community[0]
+          ?.narrativeLanguage,
+    ).toBe("isiXhosa");
     const profiles = buildCommunityProfiles(
       bucket.community,
       bucket.participation,
@@ -426,6 +445,34 @@ describe("TE-5b community profiles and language support", () => {
       ward: "Ward 4",
     });
     expect(buildCommunityProfiles([derived])).toEqual([]);
+  });
+
+  it("scopes participation interpretation to the same project", () => {
+    const ward12 = createTrustCommunityContext({
+      id: "TRC-a",
+      projectId: "PRJ-1",
+      placeLabel: "Ward 12",
+      historyNotes: "Prior contractor left.",
+    });
+    const ward3 = createTrustCommunityContext({
+      id: "TRC-b",
+      projectId: "PRJ-2",
+      placeLabel: "Ward 3",
+      historyNotes: "Different village.",
+    });
+    const mixed = createTrustParticipation({
+      projectId: "PRJ-1",
+      source: "engagement",
+      motivation: "mixed",
+      attendanceDoesNotEqualConsent: true,
+    });
+    const profiles = buildCommunityProfiles([ward12, ward3], [mixed]);
+    expect(profiles.find((row) => row.id === "TRC-a")?.participationHints.length).toBeGreaterThan(
+      0,
+    );
+    expect(profiles.find((row) => row.id === "TRC-b")?.participationHints).toEqual(
+      [],
+    );
   });
 
   it("records language support without inventing a translation", async () => {

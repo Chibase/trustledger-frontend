@@ -56,12 +56,22 @@ function labelFor(row: TrustCommunityContext): string {
   );
 }
 
+function participationForCommunity(
+  row: TrustCommunityContext,
+  participation: TrustParticipationRecord[],
+): TrustParticipationRecord[] {
+  return participation.filter((item) => {
+    if (row.projectId && item.projectId) {
+      return item.projectId === row.projectId;
+    }
+    return !row.projectId && !item.projectId;
+  });
+}
+
 export function buildCommunityProfiles(
   community: TrustCommunityContext[],
   participation: TrustParticipationRecord[] = [],
 ): CommunityProfile[] {
-  const participationHints =
-    summarizeParticipationRealismForIntel(participation);
   return community
     .filter((row) => !isDerivedShell(row))
     .map((row) => ({
@@ -78,7 +88,9 @@ export function buildCommunityProfiles(
       narrativeLanguage: row.narrativeLanguage,
       oralSource: row.oralSource,
       contextHints: summarizeCommunityContextForIntel([row]),
-      participationHints,
+      participationHints: summarizeParticipationRealismForIntel(
+        participationForCommunity(row, participation),
+      ),
     }));
 }
 

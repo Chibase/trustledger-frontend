@@ -45,6 +45,11 @@ function sameCommunityPlace(
   );
 }
 
+function keepText(next?: string, prev?: string): string | undefined {
+  const trimmed = (next || "").trim();
+  return trimmed ? trimmed : prev;
+}
+
 export function persistFieldCaptureToTrustLayer(
   meta: FieldNoteMeta,
   extra: { projectId?: string | null; sourceId?: string } = {},
@@ -64,16 +69,34 @@ export function persistFieldCaptureToTrustLayer(
   if (match) {
     const merged = createTrustCommunityContext({
       ...match,
-      ...draft,
       id: match.id,
-      notes: draft.notes || match.notes,
-      historyNotes: draft.historyNotes || match.historyNotes,
-      powerStructureNotes:
-        draft.powerStructureNotes || match.powerStructureNotes,
-      sensitivityNotes: draft.sensitivityNotes || match.sensitivityNotes,
-      barriers: draft.barriers || match.barriers,
-      workingLanguage: draft.workingLanguage || match.workingLanguage,
-      narrativeLanguage: draft.narrativeLanguage || match.narrativeLanguage,
+      projectId: draft.projectId ?? match.projectId,
+      placeId: draft.placeId || match.placeId,
+      placeLabel: keepText(draft.placeLabel, match.placeLabel),
+      communityRef: keepText(draft.communityRef, match.communityRef),
+      ward: keepText(draft.ward, match.ward),
+      municipality: keepText(draft.municipality, match.municipality),
+      notes: keepText(draft.notes, match.notes),
+      historyNotes: keepText(draft.historyNotes, match.historyNotes),
+      powerStructureNotes: keepText(
+        draft.powerStructureNotes,
+        match.powerStructureNotes,
+      ),
+      sensitivityNotes: keepText(draft.sensitivityNotes, match.sensitivityNotes),
+      barriers: keepText(draft.barriers, match.barriers),
+      workingLanguage: keepText(draft.workingLanguage, match.workingLanguage),
+      narrativeLanguage: keepText(
+        draft.narrativeLanguage,
+        match.narrativeLanguage,
+      ),
+      oralSource:
+        typeof draft.oralSource === "boolean"
+          ? draft.oralSource
+          : match.oralSource,
+      translationStatus: draft.translationStatus || match.translationStatus,
+      barrierTags: draft.barrierTags?.length
+        ? draft.barrierTags
+        : match.barrierTags,
     });
     bucket.community = bucket.community.map((row) =>
       row.id === match.id ? merged : row,

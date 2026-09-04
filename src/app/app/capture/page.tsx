@@ -350,7 +350,11 @@ export default function AppCapturePage() {
     if (draftHydrated.current === key) return;
     draftHydrated.current = key;
     const draft = readFieldCaptureDraft(orgId, projectId, source);
-    if (!draft) return;
+    if (!draft) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear stale extras for this source
+      setFieldMeta(EMPTY_FIELD_META);
+      return;
+    }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- restore offline field draft
     setFieldMeta(draft.meta);
     if (draft.body) setBody(draft.body);
@@ -361,6 +365,8 @@ export default function AppCapturePage() {
     if (!narrative || !projectId) return;
     const orgId = getActiveOrgId() || "local";
     const handle = window.setTimeout(() => {
+      const key = `${orgId}::${projectId}::${source}`;
+      if (draftHydrated.current !== key) return;
       if (
         !body.trim() &&
         !title.trim() &&
