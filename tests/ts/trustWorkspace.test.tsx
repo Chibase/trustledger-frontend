@@ -101,6 +101,7 @@ describe("trust workspace summary", () => {
     ).toBe(true);
     expect(summary.participationQuality.total).toBe(0);
     expect(summary.participationQuality.consentImpliedCount).toBe(0);
+    expect(summary.claimVerification.linkedEvidenceIsNotVerified).toBe(true);
   });
 
   it("maps −1…+1 means onto a 0–100 chart scale without becoming Trust pulse", () => {
@@ -174,6 +175,7 @@ describe("TrustWorkspaceHub", () => {
             observedAt: "2026-01-01T00:00:00Z",
             dimension: "process",
             signal: "neutral",
+            evidenceIds: ["EVD-q"],
             source: "engagement",
           }),
         ],
@@ -191,8 +193,11 @@ describe("TrustWorkspaceHub", () => {
     );
     render(<TrustWorkspaceHub />);
     expect(await screen.findByText("Participation quality")).toBeInTheDocument();
+    expect(screen.getByText("Trust-claim verification")).toBeInTheDocument();
+    expect(screen.getAllByText(/Linked evidence is not verification/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/mixed is not weak/i)).toBeInTheDocument();
     expect(screen.getByText(/attendance is not consent/i)).toBeInTheDocument();
     expect(screen.getByText("Mixed")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Apply verification" })).toBeInTheDocument();
   });
 });

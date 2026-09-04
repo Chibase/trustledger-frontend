@@ -176,6 +176,24 @@ export {
   type TrustParticipationQualityReading,
 } from "@/lib/trust/participationQuality";
 export {
+  TRUST_CLAIM_VERIFICATION_LABELS,
+  TRUST_CLAIM_VERIFICATION_STATUSES,
+  classifyClaimVerification,
+  formatClaimVerificationMix,
+  summarizeClaimVerification,
+  summarizeClaimVerificationForIntel,
+  type TrustClaimVerificationIndex,
+  type TrustClaimVerificationReading,
+  type TrustClaimVerificationStamp,
+  type TrustClaimVerificationStatus,
+} from "@/lib/trust/claimVerification";
+export {
+  applyClaimVerification,
+  clearClaimVerificationStamps,
+  createMemoryClaimVerificationStorage,
+  listClaimVerificationStamps,
+} from "@/lib/trust/claimVerificationStore";
+export {
   EMPTY_FIELD_META,
   fieldNoteHasParticipationExtras,
   fieldNoteMetaPreamble,

@@ -22,6 +22,13 @@ import {
   summarizeParticipationQuality,
   type TrustParticipationQualityIndex,
 } from "@/lib/trust/participationQuality";
+import {
+  classifyClaimVerification,
+  formatClaimVerificationMix,
+  summarizeClaimVerification,
+  type TrustClaimVerificationReading,
+  type TrustClaimVerificationStamp,
+} from "@/lib/trust/claimVerification";
 import { TRUST_DIMENSION_LABELS } from "@/types/trustLayer";
 import type { Stakeholder } from "@/types/stakeholder";
 import type {
@@ -45,6 +52,7 @@ export type TrustProofClaim = {
   evidenceIds: string[];
   observationIds: string[];
   supportingSignals: string[];
+  verification: TrustClaimVerificationReading;
 };
 
 export type TrustHistoryEntry = {
@@ -129,6 +137,7 @@ function summarizeParticipation(
 function claimForDimension(
   status: TrustDimensionStatus,
   observations: TrustObservation[],
+  stamps: TrustClaimVerificationStamp[] = [],
 ): TrustProofClaim {
   const rows = observations.filter((row) => row.dimension === status.dimension);
   const supportingSignals = rows
@@ -145,16 +154,21 @@ function claimForDimension(
       return `${row.observedAt.slice(0, 10)} ${row.signal} from ${row.source} (${row.id})${evidence}${note}`;
     });
   const evidenceIds = unique(rows.flatMap((row) => row.evidenceIds));
+  const observationIds = rows.map((row) => row.id);
   const claim = `${TRUST_DIMENSION_LABELS[status.dimension]} is ${status.level.replaceAll("_", " ")} (${status.trend}) from ${status.sampleSize} scored signal(s).`;
-  return {
+  const draft = {
     dimension: status.dimension,
     claim,
     level: status.level,
     trend: status.trend,
     sampleSize: status.sampleSize,
     evidenceIds,
-    observationIds: rows.map((row) => row.id),
+    observationIds,
     supportingSignals,
+  };
+  return {
+    ...draft,
+    verification: classifyClaimVerification(draft, stamps),
   };
 }
 
@@ -273,6 +287,7 @@ function renderMarkdown(report: {
         `### ${TRUST_DIMENSION_LABELS[claim.dimension]}\n` +
         `${claim.claim}\n` +
         `Evidence: ${evidence}\n` +
+        `Verification: ${claim.verification.status} (linked evidence is not verification; attendance does not verify)\n` +
         `Supporting signals:\n${signals}`
       );
     })
@@ -319,6 +334,11 @@ function renderMarkdown(report: {
     "## Claims by dimension",
     "",
     claims || "_No dimension has observations._",
+    "",
+    "## Trust-claim verification",
+    "",
+    `- Mix: ${formatClaimVerificationMix(summarizeClaimVerification(report.claims))} (linked evidence is not verification; attendance does not verify; not Trust pulse)`,
+    `- Unevidenced claims are not treated as verified. Human apply is required to mark verified.`,
     "",
     "## Trust history",
     "",
@@ -375,6 +395,7 @@ export type ComposeTrustProofInput = {
   participation?: TrustParticipationRecord[];
   community?: TrustCommunityContext[];
   stakeholders?: Pick<Stakeholder, "id" | "kind">[];
+  claimVerifications?: TrustClaimVerificationStamp[];
   generatedAt?: string;
 };
 
@@ -387,8 +408,9 @@ export function composeTrustProofReport(
     community: input.community,
     stakeholders: input.stakeholders,
   });
+  const stamps = input.claimVerifications || [];
   const claims = analytics.statuses.map((status) =>
-    claimForDimension(status, observations),
+    claimForDimension(status, observations, stamps),
   );
   const history = historyFromObservations(observations);
   const participationSummary = summarizeParticipation(participation);
@@ -422,6 +444,7 @@ export type BuildTrustProofExtra = {
   storedObservations?: TrustObservation[];
   storedParticipation?: TrustParticipationRecord[];
   storedCommunity?: TrustCommunityContext[];
+  claimVerifications?: TrustClaimVerificationStamp[];
   generatedAt?: string;
 };
 
@@ -445,6 +468,7 @@ export function buildTrustProofFromSrm(
       derived.community,
     ),
     stakeholders: input.stakeholders,
+    claimVerifications: extra.claimVerifications,
     generatedAt: extra.generatedAt,
   });
 }

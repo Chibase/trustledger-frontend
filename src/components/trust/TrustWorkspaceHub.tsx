@@ -7,10 +7,22 @@ import {
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
 import { KpiCard } from "@/components/ui/KpiCard";
+import { getActiveOrgId } from "@/lib/orgStore";
 import {
   TRUST_COMPARISON_AXES,
   type TrustComparisonAxis,
 } from "@/lib/trust/analytics";
+import {
+  TRUST_CLAIM_VERIFICATION_LABELS,
+  TRUST_CLAIM_VERIFICATION_STATUSES,
+  formatClaimVerificationMix,
+} from "@/lib/trust/claimVerification";
+import { applyClaimVerification } from "@/lib/trust/claimVerificationStore";
+import {
+  TRUST_PARTICIPATION_QUALITY_CLASSES,
+  TRUST_PARTICIPATION_QUALITY_LABELS,
+  formatParticipationQualityMix,
+} from "@/lib/trust/participationQuality";
 import { formatTrustMean } from "@/lib/trust/scoring";
 import {
   loadWorkspaceTrustProof,
@@ -18,11 +30,7 @@ import {
   trustMeanToDisplay,
 } from "@/lib/trust/workspaceProof";
 import type { TrustProofReport } from "@/lib/trust/proofReport";
-import {
-  TRUST_PARTICIPATION_QUALITY_CLASSES,
-  TRUST_PARTICIPATION_QUALITY_LABELS,
-  formatParticipationQualityMix,
-} from "@/lib/trust/participationQuality";
+import { TRUST_DIMENSION_LABELS } from "@/types/trustLayer";
 
 const AXIS_LABEL: Record<TrustComparisonAxis, string> = {
   community: "Community",
@@ -69,6 +77,9 @@ export function TrustWorkspaceHub() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [axisOverride, setAxisOverride] = useState<TrustComparisonAxis | null>(
+    null,
+  );
+  const [applyingDimension, setApplyingDimension] = useState<string | null>(
     null,
   );
 
@@ -121,6 +132,21 @@ export function TrustWorkspaceHub() {
         mean: row.mean,
       })),
   );
+  const evidencedClaims = (report?.claims || []).filter(
+    (row) => row.verification.status === "evidenced",
+  );
+
+  async function applyVerification(dimension: string) {
+    const claim = report?.claims.find((row) => row.dimension === dimension);
+    if (!claim) return;
+    setApplyingDimension(dimension);
+    applyClaimVerification({
+      orgId: getActiveOrgId() || "local",
+      claim,
+    });
+    await load();
+    setApplyingDimension(null);
+  }
 
   return (
     <section className="space-y-4 rounded-lg border border-tl-line bg-tl-surface p-4">
@@ -248,6 +274,35 @@ export function TrustWorkspaceHub() {
         </div>
       ) : null}
 
+      {summary && summary.claimVerification.total > 0 ? (
+        <div>
+          <h3 className="mb-1 text-sm font-semibold text-tl-ink">
+            Trust-claim verification
+          </h3>
+          <p className="mb-3 text-xs text-tl-ink-muted">
+            Linked evidence is not verification. Attendance does not verify.
+            Not Trust pulse.{" "}
+            {formatClaimVerificationMix(summary.claimVerification)}.
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {TRUST_CLAIM_VERIFICATION_STATUSES.map((key) => (
+              <li
+                key={key}
+                className="rounded-md border border-tl-line px-3 py-1.5 text-sm text-tl-ink"
+              >
+                <span className="font-medium">
+                  {TRUST_CLAIM_VERIFICATION_LABELS[key]}
+                </span>
+                <span className="text-tl-ink-muted">
+                  {" "}
+                  {summary.claimVerification.byStatus[key]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <div>
           <h3 className="mb-2 text-sm font-semibold text-tl-ink">Trust trend</h3>
@@ -368,6 +423,43 @@ export function TrustWorkspaceHub() {
           </p>
         </div>
       </div>
+      {evidencedClaims.length ? (
+        <div className="mt-4">
+          <h3 className="mb-2 text-sm font-semibold text-tl-ink">
+            Apply verification (suggestion only)
+          </h3>
+          <p className="mb-3 text-xs text-tl-ink-muted">
+            These claims have linked evidence. That is not verification until
+            a person applies. Does not change Trust pulse or case workflow.
+          </p>
+          <ul className="space-y-2">
+            {evidencedClaims.map((claim) => (
+              <li
+                key={claim.dimension}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-tl-line px-3 py-2"
+              >
+                <span className="text-sm text-tl-ink">
+                  {TRUST_DIMENSION_LABELS[claim.dimension]}
+                  <span className="text-tl-ink-muted">
+                    {" "}
+                    · {claim.evidenceIds.length} evidence id(s)
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void applyVerification(claim.dimension)}
+                  disabled={applyingDimension === claim.dimension}
+                  className="rounded-md bg-tl-trust px-3 py-1.5 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-60"
+                >
+                  {applyingDimension === claim.dimension
+                    ? "Applying…"
+                    : "Apply verification"}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       </details>
     </section>
   );

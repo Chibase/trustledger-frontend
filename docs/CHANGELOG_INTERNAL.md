@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-04 — TE-10 trust-claim verification
+
+- Classifies scored trust claims as **unevidenced / evidenced / verified**. Linked `evidenceIds` make a claim evidenced, not verified.
+- Attendance, participation quality, and Trust pulse never verify a claim. Verified requires **human apply** (suggest → apply → save) on a matching fingerprint.
+- Stamps stay in a local key (`tl-trust-claim-verifications`), not Cloud DocTypes and not SI overlay posts.
+- Hub, proof markdown, and intelligence notes show the mix. Empty Cloud stays empty. Trust pulse unchanged.
+
 ## 2026-09-04 — TE-9 participation-quality reading
 
 - Classifies stored participation as **trust / obligation / livelihood / mixed / unknown**. Stored motive is the class; high willingness and attendance never infer trust.

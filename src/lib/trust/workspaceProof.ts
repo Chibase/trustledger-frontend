@@ -23,6 +23,11 @@ import {
   type TrustComparisonAxis,
   type TrustPeriodComparison,
 } from "@/lib/trust/analytics";
+import { listClaimVerificationStamps } from "@/lib/trust/claimVerificationStore";
+import {
+  summarizeClaimVerification,
+  type TrustClaimVerificationIndex,
+} from "@/lib/trust/claimVerification";
 import type { TrustParticipationQualityIndex } from "@/lib/trust/participationQuality";
 import { meanTrustScores, trustSignalWeight } from "@/lib/trust/scoring";
 import {
@@ -62,6 +67,7 @@ export type TrustWorkspaceSummary = {
   period: TrustWorkspacePeriodSummary;
   dimensions: TrustWorkspaceDimensionRow[];
   participationQuality: TrustParticipationQualityIndex;
+  claimVerification: TrustClaimVerificationIndex;
 };
 
 /** Map mean −1…+1 onto 0–100 for charts. 50 = watch. Not Trust pulse. */
@@ -76,8 +82,11 @@ export async function loadWorkspaceTrustProof(): Promise<TrustProofReport> {
     commitmentService.list(),
     stakeholderService.list(),
   ]);
-  const orgId = getActiveOrgId();
-  const stored = orgId ? await loadTrustLayerBucketAsync(orgId) : null;
+  const orgId = getActiveOrgId() || "local";
+  const stored = getActiveOrgId()
+    ? await loadTrustLayerBucketAsync(orgId)
+    : null;
+  const stamps = listClaimVerificationStamps(orgId);
   return buildTrustProofFromSrm(
     {
       incidents: listWorkspaceIncidents(),
@@ -90,6 +99,7 @@ export async function loadWorkspaceTrustProof(): Promise<TrustProofReport> {
       storedObservations: stored?.observations,
       storedParticipation: stored?.participation,
       storedCommunity: stored?.community,
+      claimVerifications: stamps,
     },
   );
 }
@@ -162,5 +172,6 @@ export function summarizeTrustWorkspace(
     },
     dimensions,
     participationQuality: report.participation.quality,
+    claimVerification: summarizeClaimVerification(report.claims),
   };
 }
