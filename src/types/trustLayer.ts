@@ -34,6 +34,72 @@ export type TrustObservationSource =
   | "stakeholder"
   | "derived";
 
+export const TRUST_BARRIER_IDS = [
+  "connectivity",
+  "literacy",
+  "language",
+  "distance",
+  "time_season",
+  "customary_protocol",
+  "gender_access",
+  "distrust",
+  "other",
+] as const;
+
+export type TrustBarrierId = (typeof TRUST_BARRIER_IDS)[number];
+
+export const TRUST_TRANSLATION_STATUSES = [
+  "untranslated",
+  "working_language",
+  "partial",
+  "community_checked",
+  "unknown",
+] as const;
+
+export type TrustTranslationStatus =
+  (typeof TRUST_TRANSLATION_STATUSES)[number];
+
+export const TRUST_PARTICIPATION_MOTIVATIONS = [
+  "trust",
+  "obligation",
+  "livelihood",
+  "mixed",
+  "unknown",
+] as const;
+
+export type TrustParticipationMotivation =
+  (typeof TRUST_PARTICIPATION_MOTIVATIONS)[number];
+
+export const TRUST_PRESENCE_MODES = [
+  "in_person",
+  "proxy",
+  "household_rep",
+  "unknown",
+] as const;
+
+export type TrustPresenceMode = (typeof TRUST_PRESENCE_MODES)[number];
+
+export const TRUST_RESPONSE_PATTERNS = [
+  "vocal",
+  "quiet_presence",
+  "walkout",
+  "mixed",
+  "unknown",
+] as const;
+
+export type TrustResponsePattern = (typeof TRUST_RESPONSE_PATTERNS)[number];
+
+export const TRUST_AUTHORITY_ROLES = [
+  "traditional_authority",
+  "community_leader",
+  "ward_structure",
+  "informal_influencer",
+  "institutional_actor",
+  "unknown",
+] as const;
+
+export type TrustAuthorityRole = (typeof TRUST_AUTHORITY_ROLES)[number];
+
 /** First-class trust observation — parallel to SRM records, not a replacement. */
 export type TrustObservation = {
   id: string;
@@ -50,6 +116,10 @@ export type TrustObservation = {
   stakeholderId?: string | null;
   evidenceIds: string[];
   note?: string;
+  /** Spoken / source language of the note. Empty means unknown — not English. */
+  narrativeLanguage?: string;
+  translationStatus?: TrustTranslationStatus;
+  oralSource?: boolean;
 };
 
 export type TrustLevel = "strong" | "watch" | "at_risk" | "unknown";
@@ -81,6 +151,15 @@ export type TrustParticipationRecord = {
    */
   trustDriven: boolean | "unknown";
   note?: string;
+  /** Why people showed up — do not infer from attendance alone. */
+  motivation?: TrustParticipationMotivation;
+  presenceMode?: TrustPresenceMode;
+  /**
+   * Presence at a meeting is not the same as agreement.
+   * Optional flag; never inferred as false.
+   */
+  attendanceDoesNotEqualConsent?: boolean;
+  responsePattern?: TrustResponsePattern;
 };
 
 export type TrustCommunityContext = {
@@ -96,6 +175,15 @@ export type TrustCommunityContext = {
   sensitivityNotes?: string;
   ward?: string;
   municipality?: string;
+  historyNotes?: string;
+  powerStructureNotes?: string;
+  /** Open tag list — communities are not forced onto one template. */
+  barrierTags?: TrustBarrierId[];
+  /** Desk / working language. Empty means unknown — not English. */
+  workingLanguage?: string;
+  narrativeLanguage?: string;
+  translationStatus?: TrustTranslationStatus;
+  oralSource?: boolean;
 };
 
 export type TrustLayerBucket = {

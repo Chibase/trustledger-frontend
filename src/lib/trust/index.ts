@@ -46,6 +46,7 @@ export {
 } from "@/lib/trust/status";
 export {
   createTrustParticipation,
+  normalizeTrustParticipation,
   participationFromTrustResponse,
   participationLooksTrustDriven,
 } from "@/lib/trust/participation";
@@ -53,6 +54,8 @@ export {
   communityContextFromIncident,
   communityContextFromStakeholder,
   createTrustCommunityContext,
+  normalizeTrustCommunityContext,
+  summarizeCommunityContextForIntel,
 } from "@/lib/trust/communityContext";
 export { deriveTrustLayer } from "@/lib/trust/derive";
 export {
@@ -121,3 +124,34 @@ export {
   type TrustIntelligenceBrief,
   type TrustSensitiveDrafts,
 } from "@/lib/trust/intelligence";
+export {
+  authorityRoleFromStakeholder,
+  authorityRoleLabel,
+  listAuthorityRoles,
+} from "@/lib/trust/authority";
+export {
+  COMMUNITY_LANGUAGE_HINTS,
+  emptyTrustNarrativeCapture,
+  narrativeNeedsTranslation,
+  type TrustNarrativeCapture,
+} from "@/lib/trust/language";
+export {
+  TRUST_BARRIER_LABELS,
+  inferBarrierTagsFromNotes,
+  normalizeBarrierTags,
+} from "@/lib/trust/barriers";
+export {
+  attendanceIsNotConsent,
+  mixedMotivationDoesNotEqualTrust,
+  motivationDoesNotInflateWeakParticipation,
+  responsePatternIsNotSimpleAttendance,
+  summarizeParticipationRealismForIntel,
+} from "@/lib/trust/participationRealism";
+export {
+  EMPTY_FIELD_META,
+  fieldNoteHasParticipationExtras,
+  fieldNoteMetaPreamble,
+  fieldNoteToCommunityDraft,
+  fieldNoteToParticipationDraft,
+  type FieldNoteMeta,
+} from "@/lib/trust/fieldCapture";

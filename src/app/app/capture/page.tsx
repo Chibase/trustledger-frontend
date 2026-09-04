@@ -7,6 +7,7 @@ import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import {
   CaptureFieldNoteMeta,
+  EMPTY_FIELD_META,
   fieldNoteMetaPreamble,
   type FieldNoteMeta,
 } from "@/components/capture/CaptureFieldNoteMeta";
@@ -90,12 +91,12 @@ const NARRATIVE_SOURCES: {
   {
     id: "minutes",
     label: "Meeting minutes",
-    hint: "Paste or upload rough notes, arrange into Item / Description / Action / Date, or insert a blank form. Set Date of meeting when notes arrive later.",
+    hint: "Paste or upload rough notes, arrange into Item / Description / Action / Date, or insert a blank form. Works in field meetings and when notes arrive later over low connectivity.",
   },
   {
     id: "attendance",
     label: "Attendance register",
-    hint: "Paste or upload a rough name list, arrange into the register, or insert a blank form. Works for registers handed over after the meeting.",
+    hint: "Paste or upload a rough name list, arrange into the register, or insert a blank form. Works for registers handed over after the meeting. Presence on a register is not consent.",
   },
   {
     id: "social_intel",
@@ -108,17 +109,6 @@ const NARRATIVE_SOURCES: {
     hint: "Any narrative report — brief + stakeholders.",
   },
 ];
-
-const EMPTY_FIELD_META: FieldNoteMeta = {
-  purpose: "",
-  kind: "",
-  place: "",
-  linkedPromiseId: "",
-  concernTheme: "",
-  severity: "",
-  meetingHeldOn: "",
-  capturedAfterMeeting: false,
-};
 
 function asKind(value: string): StakeholderKind {
   const allowed: StakeholderKind[] = [
@@ -1137,7 +1127,12 @@ export default function AppCapturePage() {
                       value={body}
                       onChange={(e) => setBody(e.target.value)}
                       className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
-                      placeholder="Paste rough notes, upload .txt/.md/.csv/.pdf, or insert a blank form — then Arrange if needed…"                    />
+                      placeholder={
+                        fieldMeta.rapidCapture
+                          ? "Notes-first: paste what was said. Dropdowns and extra context can wait."
+                          : "Paste rough notes, upload .txt/.md/.csv/.pdf, or insert a blank form — then Arrange if needed…"
+                      }
+                    />
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <AiAssistButton
