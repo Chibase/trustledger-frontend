@@ -39,12 +39,13 @@ export const TRUST_MVP_COMPLETE = [
   "TE-7 Cloud trust SoT: TL Trust Observation / Participation / Community Context; SEC-1 customer bind; SRM sentiment is not copied",
   "TE-8 engagement apply writes participation (upsert by engagement id) and optional overlay observations; note sentiment is not copied",
   "TE-9 participation-quality reading: class mix (trust / obligation / livelihood / mixed / unknown) from stored motive; mixed is not weak; attendance is not consent; not Trust pulse",
+  "TE-10 trust-claim verification reading: unevidenced / evidenced / verified; linked evidence is not verification; attendance does not verify; human apply required; not Trust pulse",
 ] as const;
 
 export const TRUST_MVP_PARTIAL = [
   "Trust proof workspace hub is on /app/dashboard and the desk; optional proof/recs panels remain on /app/reports. Not a monthly / executive / board pack or community-facing summary",
   "Participation quality is a count of stored motive classes (not a composite 0–100 score or Trust pulse)",
-  "Observations and proof claims can cite evidenceIds; there is no separate trust-claim verification workflow",
+  "Trust-claim verification is unevidenced / evidenced / verified from linked evidence plus human apply; not a sealed ledger or Cloud DocType",
   "Period trend is later vs earlier mean (mixed when dimensions disagree). Not causality",
   "TE-4 recs are rule-traced from trust state and evidence ids; generic triage/sentiment/draft AI remains local heuristics",
   "Field extras persist on Capture engagement apply (local cache; Cloud upsert when live; participation sourceId is the engagement id). They do not auto-save while typing",
@@ -59,7 +60,7 @@ export const TRUST_MVP_FUTURE = [
   "National geo packs beyond the ZA baseline (ADR-040 / ADR-045)",
   "Product-wide i18n and community-checked translation workflow",
   "Auto-saving field extras into the trust layer without human apply",
-  "Trust-claim verification / approval workflow",
+  "Cloud SoT for claim-verification stamps (local human apply is TE-10)",
   "Causal analysis of trust movement",
   "Community-facing trust summaries and monthly / executive / board proof packs",
 ] as const;

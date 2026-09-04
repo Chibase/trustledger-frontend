@@ -25,6 +25,7 @@ Trust pulse widget            not wired to overlay                   TE-3 option
 - TE-5 adds optional Global South context fields on the same rows (`docs/TRUST_GLOBAL_SOUTH.md`). They stay optional.
 - TE-8 **apply** of an engagement writes one participation row (upsert by engagement id) and, when a human applied an overlay, trust observations. Overlay is optional. SRM sentiment is never copied.
 - TE-9 **reads** stored participation as a quality mix (`trust` / `obligation` / `livelihood` / `mixed` / `unknown`). Mixed is not weak. Attendance is not consent. The mix is not Trust pulse.
+- TE-10 **reads** trust claims as unevidenced / evidenced / verified. Linked evidence is not verification. Attendance does not verify. Human apply writes a local stamp.
 
 ## What it can store
 
@@ -48,6 +49,12 @@ TE-7 ships Frappe DocTypes + BFF (`docs/TRUST_DOCTYPES.md`). Live customer/trial
 
 Proof, intelligence, community profiles, and the dashboard hub surface the mix. Capture stays optional. No new DocType.
 
+## Trust-claim verification (TE-10)
+
+`classifyClaimVerification` reads scored proof claims. Linked `evidenceIds` → **evidenced**, not verified. **Verified** only after human apply on a matching fingerprint. Attendance, participation quality, and Trust pulse never verify. Stamps live in `tl-trust-claim-verifications` (not Cloud DocTypes, not SI overlay).
+
+Proof, intelligence, and the dashboard hub surface the mix. Apply stays suggestion → human apply → save.
+
 ## Next packet (not this one)
 
-TE-9 is shipped. Further trust packets wait on the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
+TE-10 is shipped. Further trust packets wait on the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.

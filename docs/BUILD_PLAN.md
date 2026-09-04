@@ -204,6 +204,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **TE-7** | Cloud trust SoT | TL Trust Observation / Participation / Community Context; SEC-1; BFF CRUD; live customer/trial SoT. Sentiment not copied. Overlay not posted. `docs/TRUST_DOCTYPES.md` | **Done** |
 | **TE-8** | Engagement apply → trust rows | Capture/desk apply writes participation (upsert by engagement id) + optional overlay observations to the trust layer / Cloud SoT. Overlay optional. Sentiment not copied. Attendance ≠ consent. Mixed motive ≠ weak. `docs/TRUST_LAYER.md` | **Done** |
 | **TE-9** | Participation-quality reading | Classify participation as trust / obligation / livelihood / mixed without treating mixed as weak or attendance as consent | **Done** |
+| **TE-10** | Trust-claim verification | Classify claims as unevidenced / evidenced / verified; linked evidence is not verification; attendance does not verify; human apply required | **Done** |
 | **PP-1** | Plan-as-container packaging | TierFlow module sequence; executive roll-up; VIP-only demo seed across included desks; non-VIP empty | **Done** |
 
 ### HubSpot cutover (ACTIVE)
@@ -310,6 +311,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-04 | TE-10 — trust-claim verification (linked evidence ≠ verified; attendance does not verify) |
 | 2026-09-04 | TE-9 — participation-quality reading (class mix; mixed ≠ weak; attendance ≠ consent) |
 | 2026-09-04 | UX-1 — dashboards present as product overviews (KPI row + overall graphs; tables in details) |
 | 2026-09-04 | TE-8 — engagement apply writes participation + optional overlay observations; sentiment not copied |
