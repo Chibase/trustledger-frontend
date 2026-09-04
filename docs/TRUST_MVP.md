@@ -12,9 +12,9 @@ Public voice stays **Trust**. UI product name stays **TrustLedger**. Do not name
 
 **Yes:** the SRM desk plus the optional trust overlay, parallel layer, proof, recommendations, and Global South context can be **shown together** as a coherent, explainable, suggestion-only stack.
 
-**No:** this is not full TEDS MVP, not production ledger, not autonomous AI, and not a promise that TE-4/TE-5 are already on `master` until those merges happen.
+**No:** this is not full TEDS MVP, not production ledger, and not autonomous AI.
 
-`origin/master` at packaging time had TE-1…TE-3. TE-4 and TE-5 live on the presentation line (`cursor/te4-trust-intelligence-b381` after #214 / #215). Treat merge-to-master as a release step, not as already done.
+This branch lands TE-4…TE-6 on `master` (TE-3 was already squash-merged as #213).
 
 ## Gap review
 
@@ -94,7 +94,7 @@ Readiness flags describe **this run** (history present, evidence ids, scored tre
 - [x] Global South fields remain optional
 - [x] Trust pulse formula unchanged
 - [x] Report AI for activity/compliance still uses `reportComposer` (not Frappe/Grok templates)
-- [ ] TE-4 / TE-5 / TE-6 merged to `master` (release step)
+- [x] TE-4 / TE-5 / TE-6 merged to `master` (this PR)
 - [ ] Ledger production signing (blocked)
 - [ ] Cloud trust DocTypes (not started)
 
@@ -102,7 +102,7 @@ Readiness flags describe **this run** (history present, evidence ids, scored tre
 
 | Risk | Handling |
 |------|----------|
-| Stacked PRs not on `master` | Do not tell buyers the live site already includes TE-4+ until merged |
+| Stacked PRs not on `master` | This PR is the release merge onto `master` |
 | Empty evidence | Proof still runs; claims are not “backed” — say so |
 | Low sample | TE-3 low-confidence flags; TE-4 follow-up suggestion |
 | Field extras not persisted | Operators must copy notes / opt in later |
