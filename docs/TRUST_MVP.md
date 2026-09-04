@@ -72,6 +72,8 @@ SRM records (+ optional TE-1)
 
 `composeTrustMvpPackage` / `buildTrustMvpPackageFromSrm` only concatenate those outputs. They **do not** change Trust pulse (`trustIndexFromIncidents`) and **do not** write `tl-org-data`.
 
+Readiness flags describe **this run** (history present, evidence ids, scored trend, community context, fired recs). An empty workspace is reported as `no` — the composer existing is not the same as having proof.
+
 ## Cross-module validation (this packet)
 
 | Check | Expected |

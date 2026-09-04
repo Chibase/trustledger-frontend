@@ -119,6 +119,22 @@ describe("TE-6 MVP packaging", () => {
     );
   });
 
+  it("does not mark empty workspaces as having proof, trends, or recs", () => {
+    const empty = composeTrustMvpPackage({
+      generatedAt: "2026-09-04T12:00:00.000Z",
+      observations: [],
+    });
+    expect(empty.readiness.proofReport).toBe(false);
+    expect(empty.readiness.evidenceBackedSummary).toBe(false);
+    expect(empty.readiness.trustTrendView).toBe(false);
+    expect(empty.readiness.communityContextView).toBe(false);
+    expect(empty.readiness.recommendationOutput).toBe(false);
+    expect(empty.readiness.recommendationsSuggestionOnly).toBe(true);
+    expect(empty.markdown).toContain("Proof report: no");
+    expect(empty.markdown).toContain("Trust trend view: no");
+    expect(empty.markdown).toContain("Recommendation output: no");
+  });
+
   it("does not mutate SRM or Trust pulse when packaging from existing modules", () => {
     const incidents: Incident[] = mockIncidents.map((row) => ({ ...row }));
     const snapshot = JSON.stringify(incidents);

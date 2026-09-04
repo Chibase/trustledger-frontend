@@ -98,12 +98,16 @@ function flagsFrom(
   const evidenceBackedSummary =
     proof.claims.some((row) => row.evidenceIds.length > 0) ||
     proof.history.some((row) => row.evidenceIds.length > 0);
+  const scoredBothHalves =
+    proof.period.earlier.count > 0 && proof.period.later.count > 0;
   const trustTrendView =
-    proof.period.earlier.count > 0 ||
-    proof.period.later.count > 0 ||
-    Boolean(proof.overallMovement);
+    scoredBothHalves ||
+    (proof.history.length > 0 &&
+      proof.overallMovement !== "insufficient");
   const communityContextView =
-    (proof.comparisons.community || []).length > 0 || communityHints.length > 0;
+    (proof.comparisons.community || []).some(
+      (row) => row.id !== "unspecified_community" && row.observationCount > 0,
+    ) || communityHints.length > 0;
   const recommendationsSuggestionOnly =
     intelligence.recommendations.length === 0 ||
     intelligence.recommendations.every(
@@ -113,11 +117,11 @@ function flagsFrom(
         row.humanApplyRequired,
     );
   return {
-    proofReport: proof.markdown.length > 0,
+    proofReport: proof.history.length > 0,
     evidenceBackedSummary,
     trustTrendView,
     communityContextView,
-    recommendationOutput: intelligence.markdown.length > 0,
+    recommendationOutput: intelligence.recommendations.length > 0,
     recommendationsSuggestionOnly,
     autonomous: false,
     trustPulseUsed: false,
