@@ -10,6 +10,7 @@ import {
   processStagesFromCloud,
 } from "@/lib/productCloud";
 import { mergeCloudAndLocal } from "@/services/incidentService";
+import type { Incident } from "@/types/incident";
 
 function sampleIncident(over: Partial<Incident> = {}): Incident {
   return {
@@ -182,5 +183,26 @@ describe("24e-cloud incident stage mappers", () => {
     expect(merged[0]?.processStages?.verifiedAt).toBe("2026-09-03T15:00:00.000Z");
     expect(merged[0]?.status).toBe("Closed");
     expect(merged[0]?.timeline).toHaveLength(1);
+  });
+
+  it("does not revive local stamps when Cloud has none", () => {
+    const cloud = sampleIncident({
+      processStages: undefined,
+      timeline: [],
+    });
+    const local = sampleIncident({
+      processStages: {
+        reportedAt: "2026-09-01T08:00:00.000Z",
+        verifiedAt: "2026-09-03T15:00:00.000Z",
+        closedAt: "2026-09-03T15:00:00.000Z",
+      },
+    });
+    const merged = mergeCloudAndLocal([cloud], [local]);
+    expect(merged[0]?.processStages).toBeUndefined();
+  });
+
+  it("does not surface local-only rows when Cloud is empty", () => {
+    const local = sampleIncident({ id: "INC-LOCAL-ONLY" });
+    expect(mergeCloudAndLocal([], [local])).toEqual([]);
   });
 });
