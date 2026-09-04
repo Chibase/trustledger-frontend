@@ -44,7 +44,7 @@ export default async function AppSettingsPage() {
         <p className="mt-1 text-sm text-tl-ink-muted">
           {isPlanOwner
             ? "Plan Owner — invite juniors, set desk privileges, and review modules on your plan."
-            : "Your organisation membership and assigned desk for this TrustLedger workspace."}
+            : "Your organisation membership and assigned desk for this TrustLedger workspace. Live access stays on this organisation — the app will not switch onto another client’s workspace."}
         </p>
       </div>
 
@@ -70,8 +70,8 @@ export default async function AppSettingsPage() {
             </h2>
             <p className="mt-1 text-sm text-tl-ink-muted">
               {isVip
-                ? "Invite CEOs, Clients, and any desk with matching access. Complimentary VIP seats are not limited by paid plan rank rules. Manage Cloud passwords below when someone loses access."
-                : "Invite lower-rank seats and control what each desk may see. Your commercial plan is fixed above — it does not change from this page. Manage Cloud passwords below when someone loses access."}
+                ? "Invite CEOs, Clients, and any desk with matching access. Complimentary VIP seats are not limited by paid plan rank rules. Live desks load your organisation from sign-in — the app will not switch onto another client’s workspace. Manage Cloud passwords below when someone loses access."
+                : "Invite lower-rank seats and control what each desk may see. Your commercial plan is fixed above — it does not change from this page. Live desks load your organisation from sign-in — the app will not switch onto another client’s workspace. Manage Cloud passwords below when someone loses access."}
             </p>
           </div>
           <TeamSeatsPanel

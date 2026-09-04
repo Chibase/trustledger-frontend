@@ -18,6 +18,7 @@ import {
 } from "@/lib/frappeSoT";
 import { PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
 import { toFrappeDatetime } from "@/lib/productCloud";
+import { ensureCustomerUserPermission } from "@/lib/userPermissionCloud";
 
 export function isFrappeAutoProvisionEnabled(): boolean {
   return (
@@ -65,6 +66,7 @@ export type ProvisionOwnerCloudResult = {
   user?: FrappeOwnerUserDraft;
   error?: string;
   detail?: string;
+  userPermission?: { ok: boolean; skipped?: boolean; error?: string };
 };
 
 function authHeaders(key: string, secret: string): HeadersInit {
@@ -308,6 +310,10 @@ export async function provisionOwnerOnCloud(
         ).catch(() => undefined);
       }
       if (hasUser) {
+        const userPermission = await ensureCustomerUserPermission(
+          ownerEmail,
+          existingCustomer,
+        );
         return {
           ok: true,
           skipped: true,
@@ -315,6 +321,7 @@ export async function provisionOwnerOnCloud(
           userEmail: ownerEmail,
           customer,
           user,
+          userPermission,
         };
       }
       // Customer exists but User missing — create User only
@@ -330,12 +337,17 @@ export async function provisionOwnerOnCloud(
           user,
         };
       }
+      const userPermission = await ensureCustomerUserPermission(
+        ownerEmail,
+        existingCustomer,
+      );
       return {
         ok: true,
         customerName: existingCustomer,
         userEmail: ownerEmail,
         customer,
         user,
+        userPermission,
       };
     }
 
@@ -391,12 +403,17 @@ export async function provisionOwnerOnCloud(
       };
     }
 
+    const userPermission = await ensureCustomerUserPermission(
+      ownerEmail,
+      customerName,
+    );
     return {
       ok: true,
       customerName,
       userEmail: ownerEmail,
       customer,
       user,
+      userPermission,
     };
   } catch (err) {
     return {

@@ -221,7 +221,7 @@ describe("VIP showcase pack", () => {
     expect(window.localStorage.getItem("tl-vip-demo-bundle")).toBeNull();
   });
 
-  it("does not purge Thozamile's showcase while she is signed in", () => {
+  it("does not purge the showcase mailbox while it is signed in", () => {
     window.localStorage.clear();
     applyVipShowcaseSeed({
       orgId: "org-thozi",
@@ -344,10 +344,8 @@ describe("VIP showcase auth gate", () => {
     delete process.env.VIP_SHOWCASE_EMAILS;
     delete process.env.VIP_SHOWCASE_EMAIL;
     process.env.PLATFORM_OPERATOR_EMAILS = "admin@chibaseconsulting.co.za";
+    expect(VIP_SHOWCASE_DEFAULT_EMAIL).toBe("sirthoz@trustledgersrm.co.za");
     expect(isAllowedVipShowcaseEmail(VIP_SHOWCASE_DEFAULT_EMAIL)).toBe(true);
-    expect(isAllowedVipShowcaseEmail("sirthoz@trustledgersrm.co.za")).toBe(
-      true,
-    );
     expect(isAllowedVipShowcaseEmail("thozi@chibaseconsulting.co.za")).toBe(
       false,
     );

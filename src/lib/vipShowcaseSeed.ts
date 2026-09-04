@@ -1,6 +1,6 @@
 /**
  * Apply or reverse the VIP NCGR-B showcase pack.
- * Seed: Thozamile KaDlanga (`thozi@…`) trial + VIP only.
+ * Seed: dedicated showcase mailbox (`sirthoz@…`) trial + VIP only.
  * Reverse: any other session that still has leftover NCGR-B rows.
  */
 

@@ -9,6 +9,7 @@ import {
   describeTrustMovement,
   formatTrustMean,
   mergeObservationsById,
+  mergeTrustRowsById,
   type TrustAnalyticsSlice,
   type TrustComparisonAxis,
   type TrustMovement,
@@ -425,11 +426,14 @@ export function buildTrustProofFromSrm(
       extra.storedObservations || [],
       derived.observations,
     ),
-    participation: [
-      ...(extra.storedParticipation || []),
-      ...derived.participation,
-    ],
-    community: [...(extra.storedCommunity || []), ...derived.community],
+    participation: mergeTrustRowsById(
+      extra.storedParticipation || [],
+      derived.participation,
+    ),
+    community: mergeTrustRowsById(
+      extra.storedCommunity || [],
+      derived.community,
+    ),
     stakeholders: input.stakeholders,
     generatedAt: extra.generatedAt,
   });

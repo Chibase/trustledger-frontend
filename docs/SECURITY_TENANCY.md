@@ -20,7 +20,7 @@ Not a magic “privacy shell.” It means, in order:
 | **L4 — Assurances** | DPA, subprocessors list, retention schedule, optional pen-test / ISO / SOC-oriented controls. |
 | **L5 — Isolation options** | Dedicated DB site / region / VPC-style hosting for Institutional (true cost step). |
 
-**Today:** Strong **L1** (Customer-scoped app filters + VIP naming). Partial **L3** (ops allowlist, OTP path, beta terms, suggest→apply AI). **L2 / L4 / L5** are the gap clients feel when they ask “are we mixed?”
+**Today:** Strong **L1** (Customer-scoped app filters + VIP naming). **L2 Plan Owner bind** shipped (SEC-1): Cloud User Permission on the Owner + BFF session bind so a client cannot switch onto another organisation. Partial **L3** (ops allowlist, OTP path, beta terms, suggest→apply AI). **Invitee Cloud seats (SEC-5)**, **L4**, and **L5** remain the gap when a buyer asks “are junior logins mixed?” or wants a DPA / private site.
 
 ---
 
@@ -30,11 +30,11 @@ Not a magic “privacy shell.” It means, in order:
 
 | Work | Type | Notes |
 |------|------|--------|
-| Frappe **User Permission** (or equivalent) per Customer on all TL / SI DocTypes | Engineering | Every list/get filtered by permission, not only BFF `customer=` |
-| API / resource calls never use a global key that can “see all” without a scoped user | Engineering | Prefer user `sid` or permissioned service roles |
+| Frappe **User Permission** (or equivalent) per Customer on all TL / SI DocTypes | Engineering | **SEC-1 Done for Plan Owners.** Invitee Cloud Users = SEC-5. |
+| API / resource calls never use a global key that can “see all” without a scoped user | Engineering | Site key remains for BFF; customer-facing CRUD **binds session Customer** and post-filters lists. Prefer user `sid` or permissioned service roles next. |
 | Entitlement + role asserts on **writes** (not UI alone) | Engineering | ACCESS_MODEL already requires this |
-| Invitees as **Cloud Users** scoped to that Customer | Engineering | Ends browser-only seats |
-| Automated tests: “User of A cannot read B” | Engineering | Regression gate |
+| Invitees as **Cloud Users** scoped to that Customer | Engineering | Ends browser-only seats (**SEC-5**) |
+| Automated tests: “User of A cannot read B” | Engineering | **SEC-1 smoke:** Owner bindings + peer-org binds on `/ops/readiness`. Sid impersonation still later. |
 
 **Cost:** Mostly **build time**, not a big monthly fee. This is the non-negotiable credibility layer for *all* paid live plans over time — not only Institutional.
 
@@ -102,7 +102,7 @@ Add these rows to pricing / WP / `/` packaging (honest current → target):
 | No demo-seed in your workspace | ✓ | ✓ | ✓ | ✓ |
 | HTTPS + operator allowlist for platform ops | ✓ | ✓ | ✓ | ✓ |
 | AI: suggest→apply; no external model **training** on your content | — / limited | ✓ | ✓ | ✓ |
-| **Hard User-Permission tenancy (L2)** | Roadmap | Roadmap | Target | Target |
+| **Hard User-Permission tenancy (L2)** | Plan Owner ✓ | Plan Owner ✓ | Plan Owner ✓ | Plan Owner ✓ |
 | **DPA + subprocessors schedule (L4)** | On request | On request | ✓ target | ✓ |
 | Audit / break-glass visibility | — | — | Light | ✓ |
 | **Dedicated site / isolation option (L5)** | — | — | Add-on* | ✓ sales |
@@ -133,10 +133,10 @@ Do **not** lock Isolation list prices until a cloud host quote is locked — sel
 **Home pricing (`HomePricing`):** Short data-protection blurb + foldable plan comparison + optional privacy extras (Trust Pack, private cloud workspace, support-access visibility). Most depth is opt-in; base workspace protections stay included.
 
 **Now (truthful):**  
-“Your organisation is a separate TrustLedger workspace. Other clients cannot open your desk. Operators who support the platform are allowlisted. We don’t sell your content or use it to train external AI models. Beta testers use mock or anonymised data; you can request deletion when access ends.”
+“Your organisation is a separate TrustLedger workspace. Live desks load that organisation from sign-in — the app will not switch onto another client’s workspace. Plan Owners are bound to their organisation on the server. Operators who support the platform are allowlisted. We don’t sell your content or use it to train external AI models. Beta testers use mock or anonymised data; you can request deletion when access ends.”
 
-**After L2 ships:**  
-“Access is enforced with per-customer permissions on the server — not only in the app screens.”
+**Do not add until SEC-5:**  
+“Every teammate login is a Cloud-permissioned seat on your organisation.” (Invitees are still browser-local.)
 
 **Institutional / Isolation:**  
 “For programmes that require it, we can run your desk on a private cloud workspace so tenancy isn’t only logical.”
@@ -147,7 +147,7 @@ Do **not** lock Isolation list prices until a cloud host quote is locked — sel
 
 ## 6. Recommended build order (packet-friendly)
 
-1. **SEC-1** — Frappe User Permissions + “A cannot read B” smoke (L2 core).  
+1. **SEC-1** — Frappe User Permissions + “A cannot read B” smoke (L2 core) — **Done** (Plan Owner bind + BFF session bind; playbook `docs/FRAPPE_USER_PERMISSIONS.md`).  
 2. **SEC-2** — Purge runbook + subprocessors page (L3/L4 lite).  
 3. **SEC-3** — DPA template for Project+ (legal).  
 4. **SEC-4** — Isolation SKU + Frappe dedicated site quote (L5 commercial).  

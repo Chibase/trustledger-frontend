@@ -16,6 +16,7 @@ import {
 } from "@/lib/accessVerification";
 import { leadBackendStatus } from "@/lib/leadCapture";
 import { marketingEngineStatus } from "@/lib/marketing/config";
+import { probeUserPermissionApi } from "@/lib/userPermissionCloud";
 import { TRUSTLEDGER_CLOUD_URL } from "@/lib/security/hosts";
 
 const FRAPPE_SITE =
@@ -47,7 +48,7 @@ async function probe(
 }
 
 export async function GET() {
-  const [app, cloud, resendAuth, inviteEmail] = await Promise.all([
+  const [app, cloud, resendAuth, inviteEmail, userPermission] = await Promise.all([
     probe(
       "TrustLedger app",
       `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://trustledger-frontend-pi.vercel.app"}/`,
@@ -58,6 +59,7 @@ export async function GET() {
     ),
     probeResendAuth(),
     inviteEmailDeliveryReady(),
+    probeUserPermissionApi(),
   ]);
 
   const checks = [app, cloud];
@@ -101,6 +103,11 @@ export async function GET() {
     leadBackendCutover: leads.cutoverComplete,
     hubspotFallbackActive: leads.hubspotFallbackActive,
     marketingEngine: marketingEngineStatus(),
+    tenancyL2: {
+      bffSessionBind: true,
+      userPermissionApi: userPermission.reachable,
+      userPermissionStatus: userPermission.status ?? null,
+    },
   };
 
   return NextResponse.json(

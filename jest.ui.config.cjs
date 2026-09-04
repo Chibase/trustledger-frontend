@@ -16,10 +16,14 @@ module.exports = {
     "<rootDir>/tests/ts/trustLayer.test.ts",
     "<rootDir>/tests/ts/trustAnalytics.test.ts",
     "<rootDir>/tests/ts/ReportsHub.test.tsx",
+    "<rootDir>/tests/ts/trustIntelligence.test.ts",
+    "<rootDir>/tests/ts/trustGlobalSouth.test.tsx",
+    "<rootDir>/tests/ts/trustMvpReadiness.test.ts",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
+    "^server-only$": "<rootDir>/tests/empty.js",
   },
   transform: {
     "^.+\\.tsx?$": [

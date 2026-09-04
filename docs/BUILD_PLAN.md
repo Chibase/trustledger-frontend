@@ -194,6 +194,9 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **TE-1** | Trust overlay (non-breaking) | Optional `trustResponse` / `trustSupport` + `composeTrustSignals` + opt-in AI overlay helpers. No UX, formula, or DocType change. `docs/TRUST_OVERLAY.md` | **Done** |
 | **TE-2** | Parallel trust-native layer | Dimensions, observations, explainable status, participation, community context; derive from SRM; separate `tl-trust-layer` store. No UI/DocType. `docs/TRUST_LAYER.md` | **Done** |
 | **TE-3** | Trust analytics and proof reporting | Explainable trend / comparison / risk on the trust layer; optional proof markdown on `/app/reports`. Not a pack; Trust pulse and existing writers unchanged. `docs/TRUST_PROOF.md` | **Done** |
+| **TE-4** | Trust intelligence and recommendations | Rule-based, suggestion-only next steps, alerts, and local advisory drafts on TE-3. Optional panel. No autonomous apply. `docs/TRUST_INTELLIGENCE.md` | **Done** |
+| **TE-5** | Global South operating adaptations | Optional community context, field-friendly capture, language readiness, authority mapping, participation realism. Additive; no single template. `docs/TRUST_GLOBAL_SOUTH.md` | **Done** |
+| **TE-6** | MVP packaging and readiness | Gap review, proof-package path, cross-module validation, internal checklist. No new trust capability. `docs/TRUST_MVP.md` | **Done** |
 | **PP-1** | Plan-as-container packaging | TierFlow module sequence; executive roll-up; VIP-only demo seed across included desks; non-VIP empty | **Done** |
 
 ### HubSpot cutover (ACTIVE)
@@ -248,7 +251,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **SEC-0** | Security ladder docs | ADR-038 + `docs/SECURITY_TENANCY.md` — L1–L5 + plan Trust/Isolation matrix; home pricing blurb + foldable comparison + optional privacy extras | **Done** |
-| **SEC-1** | Hard User Permissions | Frappe per-Customer permissions + A≠B smoke (L2) | Planned |
+| **SEC-1** | Hard User Permissions | Frappe per-Customer permissions + A≠B smoke (L2) | **Done** (Plan Owner bind + BFF session bind; invitees = SEC-5) |
 | **SEC-2** | Purge + subprocessors | Runbook + public subprocessors note (L3/L4 lite) | Planned |
 | **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | Planned |
 | **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
@@ -300,6 +303,9 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-04 | TE-6 — MVP packaging: gap review, proof path, cross-module checks; no new trust capability |
+| 2026-09-04 | TE-5 — Global South adaptations: optional community/field context, language readiness, authority + participation realism |
+| 2026-09-04 | TE-4 — trust intelligence: rule-based suggestions, alerts, local advisory drafts (not autonomous) |
 | 2026-09-04 | TE-3 — trust analytics + optional proof reporting (not a pack; Trust pulse unchanged) |
 | 2026-09-04 | TE-2 — parallel trust-native layer (observations, dimensions, status; no UI/DocType) |
 | 2026-09-04 | TE-1 — frontend trust overlay library (optional fields + helpers; no UX/DocType change) |

@@ -9,7 +9,7 @@ import {
   isFrappeOwnerIssuanceEnabled,
 } from "@/lib/frappeSoT";
 import {
-  assertLiveOperatorAccess,
+  assertOpsAccess,
   isPlatformOperatorOnly,
   operatorGateMessage,
 } from "@/lib/platformOperator";
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
   const jar = await cookies();
   const email = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  const gate = assertLiveOperatorAccess(email);
+  const gate = assertOpsAccess(email);
   if (!gate.ok) {
     return NextResponse.json(
       { error: operatorGateMessage(gate.reason) },
@@ -170,6 +170,11 @@ export async function POST(request: Request) {
     );
   }
 
+  const warning =
+    result.userPermission && !result.userPermission.ok
+      ? ` Organisation permission was not stamped (${result.userPermission.error}). Run tenancy smoke on /ops/readiness.`
+      : "";
+
   return NextResponse.json({
     dryRun: false,
     ok: true,
@@ -179,14 +184,15 @@ export async function POST(request: Request) {
     customerName: result.customerName,
     customer: result.customer,
     user: result.user,
+    userPermission: result.userPermission,
     checklist,
     loginUrl: "/login/live",
-    message: complimentaryVip
+    message: (complimentaryVip
       ? result.skipped
         ? "VIP Customer + User already on Cloud — refreshed complimentary fields (active, billing cleared)."
         : "VIP complimentary Customer + User created. Set temp password, then share /login/live."
       : result.skipped
         ? "Customer + User already on Cloud — skipped create."
-        : "Customer + User created on Frappe Cloud.",
+        : "Customer + User created on Frappe Cloud.") + warning,
   });
 }

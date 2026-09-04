@@ -22,6 +22,7 @@ Trust pulse widget            not wired to overlay                   TE-3 option
 - **TE-2** stores first-class trust rows in a **separate** browser key (`tl-trust-layer`). Saving trust rows never writes `tl-org-data`.
 - Derivation (`deriveTrustLayer`) **reads** SRM + TE-1 fields and returns new rows. It does **not** mutate SRM objects and does **not** auto-save.
 - TE-3 may **read** the store and derived rows for an optional proof panel. It still does not write SRM data.
+- TE-5 adds optional Global South context fields on the same rows (`docs/TRUST_GLOBAL_SOUTH.md`). They stay optional.
 
 ## What it can store
 
@@ -30,8 +31,8 @@ Trust pulse widget            not wired to overlay                   TE-3 option
 | Dimensions | `project`, `implementing_entity`, `process`, `people`, `intentions` |
 | Observation | signal, date, source + sourceId, project, community place, evidence ids, note |
 | Status | per-dimension `level` (strong / watch / at_risk / unknown), `trend`, sample size, rationale |
-| Participation | willingness to participate / contribute, `trustDriven` |
-| Community context | place / ward / municipality, community ref, notes, barriers, sensitivity notes |
+| Participation | willingness to participate / contribute, `trustDriven`; optional motivation / presence / response (TE-5) |
+| Community context | place / ward / municipality, community ref, notes, barriers, sensitivity; optional history, power structure, barrier tags, language, oral source (TE-5) |
 
 Status rules (keep explainable): scored signals map to +1 / 0 / −1; mean ≥ 0.34 → strong; ≤ −0.34 → at risk; else watch. Trend compares later half vs earlier half of the time-ordered scores.
 
@@ -41,4 +42,4 @@ No new srm-core methods. No new DocTypes. Do not POST TE-2 rows to Frappe until 
 
 ## Next packet (not this one)
 
-TE-3 ships optional proof analytics (`docs/TRUST_PROOF.md`) without changing Trust pulse math and without making capture mandatory. Recommendation / AI assistance is the following approved packet, not this one. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
+Later packets (TE-3 proof, TE-4 intelligence, TE-5 Global South) read this layer. They do not change Trust pulse math or make capture mandatory. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.

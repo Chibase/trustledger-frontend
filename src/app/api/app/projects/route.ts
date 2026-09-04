@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
+import { FRAPPE_SID_COOKIE } from "@/lib/auth.constants";
 import { getCustomerEntitlementByOwnerEmail } from "@/lib/entitlementCloud";
 import { isVipCustomerName } from "@/lib/planLabel";
 import {
@@ -7,6 +9,7 @@ import {
   getCloudProjectForCustomer,
   listCloudProjectsForCustomer,
 } from "@/lib/productCloud";
+import { bindSessionCustomer } from "@/lib/tenantScope";
 import type { Project, ProjectStatus } from "@/types/project";
 
 function createProjectCode(): string {
@@ -19,11 +22,20 @@ export async function GET() {
   if (!user || user.mode !== "live" || !user.email) {
     return NextResponse.json({ error: "Live sign-in required" }, { status: 401 });
   }
-  const ent = await getCustomerEntitlementByOwnerEmail(user.email);
-  if (!ent?.customerName) {
-    return NextResponse.json({ projects: [] });
+  const jar = await cookies();
+  const bound = await bindSessionCustomer(user.email, null, {
+    sid: jar.get(FRAPPE_SID_COOKIE)?.value,
+  });
+  if (!bound.ok) {
+    if (bound.status === 404) {
+      return NextResponse.json({ projects: [] });
+    }
+    return NextResponse.json(
+      { error: bound.error, code: bound.code, projects: [] },
+      { status: bound.status },
+    );
   }
-  const listed = await listCloudProjectsForCustomer(ent.customerName);
+  const listed = await listCloudProjectsForCustomer(bound.customerName);
   if (!listed.ok) {
     return NextResponse.json({ error: listed.error }, { status: 502 });
   }
@@ -65,22 +77,31 @@ export async function POST(request: Request) {
     );
   }
 
-  const ent = await getCustomerEntitlementByOwnerEmail(user.email);
-  if (!ent?.customerName) {
+  const jar = await cookies();
+  const bound = await bindSessionCustomer(user.email, null, {
+    sid: jar.get(FRAPPE_SID_COOKIE)?.value,
+  });
+  if (!bound.ok) {
     return NextResponse.json(
       {
         error:
-          "No TrustLedger Cloud Customer linked to this login. Ask Ops to provision VIP or Owner access.",
+          bound.status === 404
+            ? "No TrustLedger Cloud organisation is linked to this login. Ask Ops to provision VIP or Owner access."
+            : bound.error,
+        code: bound.code,
       },
-      { status: 400 },
+      { status: bound.status === 404 ? 400 : bound.status },
     );
   }
 
+  const ent = await getCustomerEntitlementByOwnerEmail(user.email);
+  const customerName = bound.customerName;
   const vip =
-    isVipCustomerName(ent.customerLabel) ||
-    isVipCustomerName(ent.customerName);
+    isVipCustomerName(ent?.customerLabel) ||
+    isVipCustomerName(ent?.customerName) ||
+    isVipCustomerName(customerName);
 
-  const existing = await listCloudProjectsForCustomer(ent.customerName);
+  const existing = await listCloudProjectsForCustomer(customerName);
   if (!existing.ok) {
     return NextResponse.json({ error: existing.error }, { status: 502 });
   }
@@ -88,13 +109,13 @@ export async function POST(request: Request) {
   // Do not trust client tl-vip cookie for limit bypass — Cloud Customer name only.
   if (
     !vip &&
-    ent.projectLimit != null &&
+    ent?.projectLimit != null &&
     ent.projectLimit >= 0 &&
     existing.projects.length >= ent.projectLimit
   ) {
     return NextResponse.json(
       {
-        error: `Project limit reached (${ent.projectLimit}). Upgrade plan or archive a project.`,
+        error: `Project limit reached (${ent?.projectLimit}). Upgrade plan or archive a project.`,
       },
       { status: 403 },
     );
@@ -116,18 +137,18 @@ export async function POST(request: Request) {
     publicSummary: (body.publicSummary || "").trim(),
   };
 
-  const created = await createCloudProject(project, ent.customerName);
+  const created = await createCloudProject(project, customerName);
   if (!created.ok) {
     return NextResponse.json({ error: created.error }, { status: 502 });
   }
 
   let saved: Project = project;
-  const byCode = await getCloudProjectForCustomer(ent.customerName, project.id);
+  const byCode = await getCloudProjectForCustomer(customerName, project.id);
   if (byCode.ok && byCode.project) {
     saved = byCode.project;
   } else {
     const byName = await getCloudProjectForCustomer(
-      ent.customerName,
+      customerName,
       created.name,
     );
     if (byName.ok && byName.project) saved = byName.project;

@@ -1,9 +1,36 @@
 # Internal changelog
 
-## 2026-09-02 — VIP showcase mailbox (sirthoz@)
+## 2026-09-04 — VIP showcase mailbox (sirthoz@)
 
 - Default `/login/vip` allowlist is `sirthoz@trustledgersrm.co.za`. `thozi@chibaseconsulting.co.za` stays on its other plan and uses `/login/live` (not intercepted to the showcase).
-- The older VIP entries below that name `thozi@` as the showcase mailbox are superseded by this entry.
+- Supersedes earlier entries below that name `thozi@` as the showcase mailbox.
+
+## 2026-09-04 — SEC-1 organisation permissions (L2)
+
+- Plan Owner Cloud Users are stamped with a Customer User Permission on provision. Live SI / migrate / upload / projects bind the organisation from the Cloud sid — a spoofed `customer=` or email cookie does not switch workspaces (operators may break-glass). Buyer `customer=` is ignored so first-login migrate still works when the browser org label differs from the Cloud Customer name.
+- Product and SI lists drop rows not stamped to that organisation. Ops `/ops/readiness` can check and stamp missing binds (`GET|POST /api/ops/tenancy-smoke`).
+- Cloud write tools (provision, product-smoke, ensure fields/DocTypes, ops set-password) stay allowlisted even when buyer lockdown is off.
+- Sales comparison: “Access enforced per organisation on the server.” Honest limit: junior Cloud seats remain SEC-5. Playbook: `docs/FRAPPE_USER_PERMISSIONS.md`.
+
+## 2026-09-04 — TE-6 MVP packaging and readiness
+
+- Internal presentation posture for TE-1…TE-5: `docs/TRUST_MVP.md`. Completes / partial / future / do-not-promise lists are explicit. No new trust model, pack, nav, or DocType.
+- `composeTrustMvpPackage` concatenates existing proof + recommendations + context hints. Does not persist, does not call a remote model, does not change Trust pulse.
+- Cross-module tests confirm evidence-backed claims, suggestion-only recs, community hints, and unchanged monthly `reportComposer` output.
+
+## 2026-09-04 — TE-5 Global South operating adaptations
+
+- Optional community context (history, power structure, social sensitivity, barrier tags, language, oral source) on the parallel trust layer. `docs/TRUST_GLOBAL_SOUTH.md`.
+- Field capture: collapsed **Field context (optional)** for rapid / oral / low-connectivity notes, spoken vs working language (not defaulted to English), and participation realism (mixed motives, presence ≠ consent). Existing dropdowns stay. Drafts do not auto-save to `tl-trust-layer`.
+- Authority roles derived from existing stakeholder `kind` + tags (traditional, ward, community leader, informal influencer, institutional). High influence is not treated as informal influence.
+- TE-1–TE-4 scoring, alerts, Trust pulse, and SRM save paths unchanged. Context can feed later analytics via `summarizeCommunityContextForIntel`.
+
+## 2026-09-04 — TE-4 trust intelligence and recommendations
+
+- Optional rule-based suggestions (repair, next engagement, follow-up, consider senior review) plus alerts for declining trust, missing evidence, weak participation, and unresolved cases. `docs/TRUST_INTELLIGENCE.md`.
+- Every item is `suggestion_only` with a published `ruleId` and trace (observations, evidence, cases). Nothing auto-applies, auto-escalates, or calls a remote model. Local advisory wording only.
+- Collapsed panel on `/app/reports` under Trust proof. Packs, writer, Trust pulse, and incident workflow unchanged.
+- `buildTrustProofFromSrm` now dedupes stored + derived participation/community rows by id so TE-4 alerts are not inflated when `tl-trust-layer` already holds derived rows.
 
 ## 2026-09-04 — TE-3 trust analytics and proof reporting
 
@@ -67,10 +94,11 @@
 ## 2026-09-02 — VIP showcase vs live Cloud login
 
 - `thozi@chibaseconsulting.co.za` on `/login/live` is sent to `/login/vip` (409 + client redirect). Cloud 401 was Frappe rejecting the showcase mailbox.
+- Split client-safe showcase constants (`vipShowcaseIdentity`) from server-only password/rate-limit (`vipShowcaseAuth` + `server-only`) so Node crypto and the documented password stay off the client bundle. Extra allowlist addresses: `VIP_SHOWCASE_EMAILS` or `VIP_SHOWCASE_EMAIL`.
 
 ## 2026-09-02 — VIP showcase login email
 
-- `/login/vip` allowlist default is `thozi@chibaseconsulting.co.za` so it does not share the Platform Operator / master-plan mailbox. Extra addresses stay on `VIP_SHOWCASE_EMAILS` only.
+- `/login/vip` allowlist default is `thozi@chibaseconsulting.co.za` so it does not share the Platform Operator / master-plan mailbox. Extra addresses: `VIP_SHOWCASE_EMAILS` or `VIP_SHOWCASE_EMAIL`.
 - Rate-limit IP prefers `x-vercel-forwarded-for` (else last `x-forwarded-for` hop); attempt map is pruned/capped. Showcase seed `setItem` is quota-safe. INC-NCGR-01 SLA flag matches the 48-hour acknowledge.
 - Showcase login stays on unless `VIP_SHOWCASE_LOGIN=0`, including Production, so the documented password works without a Vercel env round-trip. Operator mailboxes get a distinct 401.
 

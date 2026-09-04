@@ -114,6 +114,23 @@ export async function frappeCallWithSid<T>(
   return payload as T;
 }
 
+/** Cloud login id for a live sid. Guest / missing → null. */
+export async function getLoggedUserFromSid(
+  sid: string,
+): Promise<string | null> {
+  try {
+    const user = await frappeCallWithSid<string>(
+      sid,
+      "/api/method/frappe.auth.get_logged_user",
+    );
+    const trimmed = (user || "").trim();
+    if (!trimmed || trimmed === "Guest") return null;
+    return trimmed;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchRolesForUser(sid: string, user: string): Promise<string[]> {
   const base = getFrappeBaseUrl();
   const fields = encodeURIComponent(JSON.stringify(["role"]));
