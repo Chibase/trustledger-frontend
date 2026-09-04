@@ -141,6 +141,41 @@ describe("TE-4 trust recommendations", () => {
     );
   });
 
+  it("does not double-count stored participation that already came from derivation", () => {
+    const incident = {
+      ...mockIncidents[0]!,
+      trustResponse: {
+        willingnessToParticipate: "low" as const,
+        willingnessToContribute: "low" as const,
+        confidenceInProcess: "unknown" as const,
+        confidenceInImplementer: "unknown" as const,
+        capturedAt: "2026-04-01T00:00:00Z",
+      },
+    };
+    const once = buildTrustIntelligenceFromSrm({ incidents: [incident] });
+    const derived = once.drafts.responseSummary;
+    const twice = buildTrustIntelligenceFromSrm(
+      { incidents: [incident] },
+      {
+        storedParticipation: [
+          createTrustParticipation({
+            id: `TRP-incident-${incident.id}`,
+            source: "incident",
+            sourceId: incident.id,
+            willingnessToParticipate: "low",
+            willingnessToContribute: "low",
+          }),
+        ],
+      },
+    );
+    expect(twice.drafts.responseSummary).toBe(derived);
+    expect(
+      twice.alerts.filter((row) => row.kind === "weak_participation"),
+    ).toHaveLength(
+      once.alerts.filter((row) => row.kind === "weak_participation").length,
+    );
+  });
+
   it("does not invent recommendations when there are no scored signals", () => {
     const brief = composeTrustIntelligence({ observations: [] });
     expect(brief.recommendations).toEqual([]);

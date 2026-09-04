@@ -86,6 +86,7 @@ export {
   detectTrustRisks,
   describeTrustMovement,
   mergeObservationsById,
+  mergeTrustRowsById,
   type TrustAnalyticsBundle,
   type TrustAnalyticsSlice,
   type TrustComparisonAxis,
