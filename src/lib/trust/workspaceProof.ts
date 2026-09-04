@@ -82,8 +82,9 @@ export async function loadWorkspaceTrustProof(): Promise<TrustProofReport> {
     commitmentService.list(),
     stakeholderService.list(),
   ]);
-  const orgId = getActiveOrgId() || "local";
-  const stored = getActiveOrgId()
+  const activeOrgId = getActiveOrgId();
+  const orgId = activeOrgId || "local";
+  const stored = activeOrgId
     ? await loadTrustLayerBucketAsync(orgId)
     : null;
   const stamps = listClaimVerificationStamps(orgId);
