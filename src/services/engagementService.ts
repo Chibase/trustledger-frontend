@@ -269,7 +269,7 @@ export const engagementService = {
       }
     }
     const local = readLocal().filter((r) => r.id !== row.id);
-    local.push(row);
+    local.push(omitCloudTrustOverlay(row));
     writeLocal(local);
     return delay(mergeTrustResponse(mergeSentiment(row)));
   },
