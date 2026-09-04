@@ -452,11 +452,11 @@ export function applyVipShowcaseSeed(input: {
     isVipShowcaseDefaultEmail(mailbox) &&
     (Boolean(input.forceShowcase) || showcaseSessionOk(mailbox));
 
-  // Cloud complimentary VIP (Nomcebo and any /login/live guest) never receive
-  // NCGR-B. forceShowcase cannot override a non-Thozamile mailbox.
+  // Cloud complimentary VIP and other-plan mailboxes (including thozi@) never
+  // receive NCGR-B. forceShowcase cannot override a non-showcase mailbox.
   if (!allowSeed) {
     const purged = purgeVipShowcaseSeed(mailbox);
-    console.info("[plan-packaging] skip VIP seed (not Thozamile showcase)");
+    console.info("[plan-packaging] skip VIP seed (not showcase mailbox)");
     return skippedResult(purged);
   }
 
