@@ -1,7 +1,11 @@
 /**
- * TE-2 parallel trust-native layer.
- * Coexists with SRM DocTypes and the TE-1 overlay. Not a Frappe DocType.
+ * TE-2 parallel trust-native layer — first-class trust model.
+ * Coexists with SRM records and the TE-1 overlay. Not a Frappe DocType.
  * Never required on incident / engagement / commitment save paths.
+ *
+ * Six blueprint dimensions: project, entity, process, people, fairness,
+ * and whether concerns will be acted upon. SRM sentiment is not a
+ * trust observation.
  */
 
 import type { TrustAttitude, TrustSentimentLabel } from "@/types/trustOverlay";
@@ -11,17 +15,24 @@ export const TRUST_DIMENSIONS = [
   "implementing_entity",
   "process",
   "people",
-  "intentions",
+  "fairness",
+  "concerns_acted_upon",
 ] as const;
 
 export type TrustDimensionId = (typeof TRUST_DIMENSIONS)[number];
+
+/** Pre-blueprint `intentions` rows in `tl-trust-layer` map here. */
+export const TRUST_DIMENSION_ALIASES: Record<string, TrustDimensionId> = {
+  intentions: "concerns_acted_upon",
+};
 
 export const TRUST_DIMENSION_LABELS: Record<TrustDimensionId, string> = {
   project: "Trust in the project",
   implementing_entity: "Trust in the implementing entity",
   process: "Trust in the process",
   people: "Trust in the people",
-  intentions: "Trust in intentions",
+  fairness: "Trust in fairness",
+  concerns_acted_upon: "Trust that concerns will be acted upon",
 };
 
 export type TrustSignalKind = TrustSentimentLabel | "unknown";

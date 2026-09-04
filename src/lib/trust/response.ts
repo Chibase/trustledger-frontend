@@ -12,6 +12,8 @@ export function emptyTrustResponse(): StakeholderTrustResponse {
     willingnessToContribute: "unknown",
     confidenceInProcess: "unknown",
     confidenceInImplementer: "unknown",
+    confidenceInFairness: "unknown",
+    confidenceConcernsActedUpon: "unknown",
   };
 }
 
@@ -39,6 +41,8 @@ export function normalizeTrustResponse(
     willingnessToContribute: asAttitude(raw.willingnessToContribute),
     confidenceInProcess: asAttitude(raw.confidenceInProcess),
     confidenceInImplementer: asAttitude(raw.confidenceInImplementer),
+    confidenceInFairness: asAttitude(raw.confidenceInFairness),
+    confidenceConcernsActedUpon: asAttitude(raw.confidenceConcernsActedUpon),
     capturedAt: raw.capturedAt,
   };
 }
@@ -53,6 +57,8 @@ export function isTrustResponseBlank(
     n.willingnessToParticipate === "unknown" &&
     n.willingnessToContribute === "unknown" &&
     n.confidenceInProcess === "unknown" &&
-    n.confidenceInImplementer === "unknown"
+    n.confidenceInImplementer === "unknown" &&
+    n.confidenceInFairness === "unknown" &&
+    n.confidenceConcernsActedUpon === "unknown"
   );
 }

@@ -1,4 +1,4 @@
-import { allTrustDimensions } from "@/lib/trust/dimensions";
+import { allTrustDimensions, canonicalTrustDimensionId } from "@/lib/trust/dimensions";
 import {
   chronologicalScoredWeights,
   meanTrustScores,
@@ -24,7 +24,7 @@ export function classifyTrustDimension(
   observations: TrustObservation[],
 ): TrustDimensionStatus {
   const rows = observations
-    .filter((row) => row.dimension === dimension)
+    .filter((row) => canonicalTrustDimensionId(row.dimension) === dimension)
     .slice()
     .sort((a, b) => a.observedAt.localeCompare(b.observedAt));
   const scored = chronologicalScoredWeights(rows);

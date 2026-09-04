@@ -98,6 +98,14 @@ describe("TE-1 trust overlay — response", () => {
     expect(hints.trustSentiment).toBe("positive");
     expect(hints.willingnessToParticipate).toBe("high");
   });
+
+  it("hints fairness and acted-upon attitudes without writing SRM sentiment", () => {
+    const hints = prepareTrustResponseHints(
+      "The allocation is unfair and concerns were ignored. Nothing was done.",
+    );
+    expect(hints.confidenceInFairness).toBe("low");
+    expect(hints.confidenceConcernsActedUpon).toBe("low");
+  });
 });
 
 describe("TE-1 trust overlay — evidence", () => {

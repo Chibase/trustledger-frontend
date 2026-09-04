@@ -24,7 +24,7 @@ This branch lands TE-4…TE-6 on `master` (TE-3 was already squash-merged as #21
 |------|--------|
 | SRM modules (projects, cases, people, engagements, promises, evidence, reports) | `/app/*` |
 | Optional TE-1 overlay | `trustResponse` / `trustSupport` — omitted from Cloud mappers |
-| TE-2 parallel layer | `tl-trust-layer`; `deriveTrustLayer` is read-only |
+| TE-2 parallel layer | `tl-trust-layer`; `deriveTrustLayer` is read-only; six blueprint dimensions; SRM sentiment is not an observation |
 | TE-3 proof | `composeTrustProofReport` / `buildTrustProofFromSrm`; collapsed panel on `/app/reports` |
 | TE-4 recommendations | Published `ruleId` traces; `suggestion_only`; local advisory only |
 | TE-5 Global South extras | Optional capture + community/participation fields; no single template |

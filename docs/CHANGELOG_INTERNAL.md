@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-04 — TE-2b blueprint trust dimensions
+
+- First-class trust model now matches the six blueprint dimensions: project, implementing entity, process, people, fairness, and whether concerns will be acted upon. Stored `intentions` rows alias to `concerns_acted_upon`.
+- `deriveTrustLayer` no longer copies SRM `sentimentLabel` / `sentimentScore` into trust observations. Generic sentiment stays on the case/engagement; observations come from TE-1 overlay attitudes, evidence `trustSupport`, and kept/broken commitments.
+- Optional overlay fields `confidenceInFairness` and `confidenceConcernsActedUpon`. Cloud trust DocTypes remain future (`docs/TRUST_MVP.md`).
+
 ## 2026-09-04 — VIP showcase mailbox (sirthoz@)
 
 - Default `/login/vip` allowlist is `sirthoz@trustledgersrm.co.za`. `thozi@chibaseconsulting.co.za` stays on its other plan and uses `/login/live` (not intercepted to the showcase).

@@ -13,7 +13,7 @@ Additive TypeScript fields and helpers on top of the existing SRM desk:
 | Layer | Overlay | Canonical (unchanged) |
 |-------|---------|------------------------|
 | Measurement | `composeTrustSignals()` | `trustIndexFromIncidents()` / Trust pulse widget |
-| Response | optional `trustResponse` on incident / engagement / stakeholder | `sentimentLabel` / `sentimentScore` |
+| Response | optional `trustResponse` on incident / engagement / stakeholder (`confidenceInProcess`, `confidenceInImplementer`, `confidenceInFairness`, `confidenceConcernsActedUpon`, willingness) | `sentimentLabel` / `sentimentScore` (generic sentiment — not a trust observation) |
 | Evidence | optional `trustSupport` on `EvidenceStub` | classification, primary flag, upload workflow |
 | Segmentation | `trustPulseByPlace`, `stakeholdersByKind/Place` | `/app/geo`, cascade pickers, geo list APIs |
 | AI | opt-in `includeTrustOverlay` + `omitTrustOverlayFlag` | existing mock/Cloud suggestions |

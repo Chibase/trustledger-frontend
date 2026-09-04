@@ -32,7 +32,7 @@ import type { TrustAuthorityRole } from "@/types/trustLayer";
 export const TRUST_MVP_COMPLETE = [
   "SRM desk: projects, incidents, stakeholders, engagements, commitments, evidence, reports",
   "TE-1 optional trust overlay on existing records (not posted to Cloud mappers)",
-  "TE-2 parallel trust layer (observations, dimensions, participation, community context)",
+  "TE-2 parallel trust layer (six blueprint dimensions, observations, participation, community context; SRM sentiment is not a trust observation)",
   "TE-3 explainable proof: movement, claims, history, comparisons, risks",
   "TE-4 suggestion-only recommendations and alerts with published rule ids",
   "TE-5 optional Global South field/context (not a single community template)",

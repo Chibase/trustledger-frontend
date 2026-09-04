@@ -86,8 +86,12 @@ describe("TE-3 trust trend analysis", () => {
     const rows = [
       obs("p1", "2026-01-01T00:00:00Z", "negative", { dimension: "process" }),
       obs("p2", "2026-04-01T00:00:00Z", "positive", { dimension: "process" }),
-      obs("i1", "2026-01-01T00:00:00Z", "positive", { dimension: "intentions" }),
-      obs("i2", "2026-04-01T00:00:00Z", "negative", { dimension: "intentions" }),
+      obs("i1", "2026-01-01T00:00:00Z", "positive", {
+        dimension: "concerns_acted_upon",
+      }),
+      obs("i2", "2026-04-01T00:00:00Z", "negative", {
+        dimension: "concerns_acted_upon",
+      }),
     ];
     const bundle = analyzeTrust(rows);
     expect(bundle.overallMovement).toBe("mixed");
@@ -269,9 +273,11 @@ describe("TE-3 proof reporting", () => {
     expect(JSON.stringify(incidents)).toBe(snapshot);
     expect(trustIndexFromIncidents(incidents)).toEqual(before);
     expect(report.markdown).toContain("optional");
-    expect(deriveTrustLayer({ incidents }).observations.length).toBeGreaterThan(
-      0,
-    );
+    expect(deriveTrustLayer({ incidents }).observations).toEqual([]);
+    expect(
+      deriveTrustLayer({ incidents, commitments: mockCommitments }).observations
+        .length,
+    ).toBeGreaterThan(0);
   });
 
   it("leaves legacy activity-report composition unchanged", () => {
