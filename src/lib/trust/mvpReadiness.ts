@@ -33,17 +33,20 @@ export const TRUST_MVP_COMPLETE = [
   "SRM desk: projects, incidents, stakeholders, engagements, commitments, evidence, reports",
   "TE-1 optional trust overlay on existing records (not posted to Cloud mappers)",
   "TE-2 parallel trust layer (six blueprint dimensions, observations, participation, community context; SRM sentiment is not a trust observation)",
-  "TE-3 explainable proof: movement, claims, history, comparisons, risks",
+  "TE-3 explainable proof: movement, claims, history, comparisons, risks; workspace hub on /app/dashboard and the desk",
   "TE-4 suggestion-only recommendations and alerts with published rule ids",
-  "TE-5 optional Global South field/context (not a single community template)",
+  "TE-5 optional Global South field/context (not a single community template); TE-5b community profiles and language support",
 ] as const;
 
 export const TRUST_MVP_PARTIAL = [
-  "Trust proof / recommendations UI is on-demand on /app/reports, not a monthly pack",
+  "Trust proof workspace hub is on /app/dashboard and the desk; optional proof/recs panels remain on /app/reports. Not a monthly / executive / board pack or community-facing summary",
+  "Participation records capture willingness, motive, and attendance≠consent; there is no scored participation-quality index",
+  "Observations and proof claims can cite evidenceIds; there is no separate trust-claim verification workflow",
+  "Period trend is later vs earlier mean (mixed when dimensions disagree). Not causality",
+  "TE-4 recs are rule-traced from trust state and evidence ids; generic triage/sentiment/draft AI remains local heuristics",
   "Field extras persist to tl-trust-layer on Capture apply; they do not auto-save while typing",
   "Language structures exist; product UI is not translated",
   "Authority roles are derived from existing stakeholder kind/tags, not a new CRM kind",
-  "TE-4/TE-5 ride the presentation stack; merge to master is a separate release step",
 ] as const;
 
 export const TRUST_MVP_FUTURE = [
@@ -54,6 +57,9 @@ export const TRUST_MVP_FUTURE = [
   "National geo packs beyond the ZA baseline (ADR-040 / ADR-045)",
   "Product-wide i18n and community-checked translation workflow",
   "Auto-saving field extras into tl-trust-layer without human apply",
+  "Trust-claim verification / approval workflow",
+  "Causal analysis of trust movement",
+  "Community-facing trust summaries and monthly / executive / board proof packs",
 ] as const;
 
 export const TRUST_MVP_DO_NOT_PROMISE = [

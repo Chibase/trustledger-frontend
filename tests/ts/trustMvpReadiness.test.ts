@@ -9,8 +9,10 @@ import {
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import {
+  TRUST_MVP_COMPLETE,
   TRUST_MVP_DO_NOT_PROMISE,
   TRUST_MVP_FUTURE,
+  TRUST_MVP_PARTIAL,
   buildTrustMvpPackageFromSrm,
   composeTrustMvpPackage,
   createTrustCommunityContext,
@@ -217,5 +219,22 @@ describe("TE-6 MVP packaging", () => {
     expect(TRUST_MVP_DO_NOT_PROMISE.join(" ")).toMatch(/TEDS/i);
     expect(TRUST_MVP_FUTURE.join(" ")).toMatch(/KEY_MANAGEMENT/i);
     expect(TRUST_MVP_FUTURE.join(" ")).toMatch(/DocTypes/i);
+  });
+
+  it("does not claim proof lives only on reports or that packaging is product-complete", () => {
+    const complete = TRUST_MVP_COMPLETE.join(" ");
+    const partial = TRUST_MVP_PARTIAL.join(" ");
+    expect(complete).toMatch(/six blueprint dimensions/i);
+    expect(complete).toMatch(/sentiment is not a trust observation/i);
+    expect(complete).toMatch(/\/app\/dashboard/);
+    expect(partial).toMatch(/\/app\/dashboard/);
+    expect(partial).not.toMatch(/on-demand on \/app\/reports/);
+    expect(partial).toMatch(/not a monthly/i);
+    expect(partial).toMatch(/community-facing summary/i);
+    expect(partial).toMatch(/no scored participation-quality index/i);
+    expect(partial).toMatch(/no separate trust-claim verification/i);
+    expect(partial).toMatch(/not causality/i);
+    expect(partial).toMatch(/local heuristics/i);
+    expect(TRUST_MVP_FUTURE.join(" ")).toMatch(/Cloud DocTypes/i);
   });
 });

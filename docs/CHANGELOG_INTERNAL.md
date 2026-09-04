@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-04 — Trust semantic gap inventory
+
+- `docs/TRUST_MVP.md` is the living current-state inventory for the frontend trust stack. Semantic gaps (dimensions, participation, evidence↔claims, longitudinal proof, workspace, AI, engagements, docs, operational vs product MVP) are marked **fixed / partial / split / still true** — not TEDS-complete.
+- Corrected the stale claim that proof UI lives only on `/app/reports`. Hub is on `/app/dashboard` and the desk; optional proof/recs remain on reports. Not a monthly pack or community-facing summary.
+- `docs/FRAPPE_API_CONTRACT.md`: live SI Engagement BFF is the desk path; `list_meeting_notes` stays a **legacy** alias. Named `engagements.py` is not in this repo.
+
 ## 2026-09-04 — TE-3c trust workspace trend and comparison
 
 - Trust proof workspace now charts **period trend** (earlier vs later mean) and **all four comparison axes** (community / location / group / phase proxy), plus the six blueprint dimensions. Mean −1…+1 is mapped 0–100 for bars only — not Trust pulse.
