@@ -52,6 +52,14 @@ const STEPS: OnboardingStepDef[] = [
     tip: "Solo allows one active project. You can refine details later on the project dashboard.",
   },
   {
+    id: "sep",
+    title: "Compose an engagement plan",
+    body: "If you have an RFP, tender, or briefing, open Engagement plan, paste or upload it, and compose a sector process from inception to close-out. Save the presentable document. Apply to the SRM desk only after the assignment is approved — never auto-write the live registry.",
+    href: "/app/engagement-plan/new",
+    ctaLabel: "Go compose engagement plan",
+    tip: "No file yet? Pick a sector playbook and compose from that spine, then tighten after inception.",
+  },
+  {
     id: "stakeholders",
     title: "Register key stakeholders",
     body: "Add a short first list — community representative, contractor, client sponsor, liaison. Five named humans beat fifty empty rows. The stakeholder form opens for you.",
@@ -169,6 +177,7 @@ export function onboardingStepsForPlan(
   const resolved = stepsPlanId(planId, opts);
   const vipShowcase = isVipShowcaseSteps(opts);
   return STEPS.filter((step) => {
+    if (step.id === "sep") return Boolean(opts?.vip);
     if (!step.capability) return true;
     return hasCapabilityForPlan(step.capability, resolved);
   }).map((step) => {
