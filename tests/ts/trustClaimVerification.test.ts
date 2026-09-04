@@ -169,6 +169,20 @@ describe("TE-10 trust-claim verification", () => {
       storage,
     );
     expect(listClaimVerificationStamps("org-te11", storage)).toEqual([]);
+    replaceClaimVerificationStamps(
+      "org-te11",
+      [
+        {
+          id: "TCV-no-time",
+          dimension: "process",
+          fingerprint: "process|EVD-cloud",
+          verifiedAt: "",
+          source: "human_apply",
+        },
+      ],
+      storage,
+    );
+    expect(listClaimVerificationStamps("org-te11", storage)).toEqual([]);
     const observation = obs("TRO-cloud", { evidenceIds: ["EVD-cloud"] });
     const claim = composeTrustProofReport({
       observations: [observation],

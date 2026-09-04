@@ -203,12 +203,13 @@ export function frappeToVerification(
   const dimension = canonicalTrustDimensionId(doc.dimension);
   const fingerprint = String(doc.fingerprint || "").trim();
   const id = String(doc.verification_code || doc.name || "").trim();
-  if (!dimension || !fingerprint || !id) return null;
+  const verifiedAt = String(doc.verified_at || "").trim();
+  if (!dimension || !fingerprint || !id || !verifiedAt) return null;
   return {
     id,
     dimension,
     fingerprint,
-    verifiedAt: String(doc.verified_at || "") || new Date().toISOString(),
+    verifiedAt,
     source: "human_apply",
   };
 }
@@ -219,6 +220,7 @@ export function isPersistableClaimVerificationStamp(
   if (!row || typeof row !== "object") return false;
   if (row.source !== "human_apply") return false;
   if (!row.id || !String(row.fingerprint || "").trim()) return false;
+  if (!String(row.verifiedAt || "").trim()) return false;
   return canonicalTrustDimensionId(row.dimension) != null;
 }
 

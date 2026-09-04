@@ -74,11 +74,13 @@ function normalizeStamp(
   if (!raw || typeof raw !== "object") return null;
   if (raw.source !== "human_apply") return null;
   if (!isTrustDimensionId(raw.dimension) || !raw.fingerprint) return null;
+  const verifiedAt = String(raw.verifiedAt || "").trim();
+  if (!verifiedAt) return null;
   return {
     id: raw.id || `TCV-${raw.fingerprint}`,
     dimension: raw.dimension,
     fingerprint: raw.fingerprint,
-    verifiedAt: raw.verifiedAt || new Date().toISOString(),
+    verifiedAt,
     source: "human_apply",
   };
 }
