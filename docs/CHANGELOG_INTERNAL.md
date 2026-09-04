@@ -1,17 +1,15 @@
 # Internal changelog
 
-<<<<<<< HEAD
 ## 2026-09-04 — SEP operator desk only (SI-SEP)
 
 - Stakeholder engagement plan is **off commercial plans** until the composer matches the product vision. Customer Solo / Practitioner / Project / Institutional (and demo Project lens) no longer see nav, Executive/project dashboards, plan-module strip, onboarding, SI shortcuts, or draft/PDF APIs.
 - Access is the Platform Operator allowlist (`PLATFORM_OPERATOR_EMAILS`) and complimentary VIP (`isVip`). `/ops/executive` stays the operator home. No new entitlement SKU; `engagements` still gates Engagements, not SEP.
 - Public product, plan comparison, Themba, and AEO FAQ no longer sell a Project+ SEP module. ADR-053.
-=======
+
 ## 2026-09-04 — VIP showcase mailbox (sirthoz@)
 
 - Default `/login/vip` allowlist is `sirthoz@trustledgersrm.co.za`. `thozi@chibaseconsulting.co.za` stays on its other plan and uses `/login/live` (not intercepted to the showcase).
 - Supersedes earlier entries below that name `thozi@` as the showcase mailbox.
->>>>>>> origin/master
 
 ## 2026-09-04 — SEC-1 organisation permissions (L2)
 
