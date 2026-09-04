@@ -66,6 +66,7 @@ export function stakeholderToFrappeDoc(
   customer: string,
   orgId?: string,
 ): Record<string, unknown> {
+  // Explicit fields only — TE-1 `trustResponse` overlay is not a Cloud column.
   return {
     stakeholder_code: row.id,
     stakeholder_name: row.name,
@@ -99,6 +100,7 @@ export function engagementToFrappeDoc(
   orgId?: string,
   options?: { includeSentiment?: boolean },
 ): Record<string, unknown> {
+  // Explicit fields only — TE-1 `trustResponse` overlay is not a Cloud column.
   const body: Record<string, unknown> = {
     engagement_code: row.id,
     title: row.title,

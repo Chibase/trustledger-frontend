@@ -1,3 +1,8 @@
+import type {
+  EvidenceTrustSupport,
+  StakeholderTrustResponse,
+} from "@/types/trustOverlay";
+
 export type EngagementKind =
   | "meeting"
   | "consultation"
@@ -37,6 +42,11 @@ export type Engagement = {
   sentimentScore?: number | null;
   sentimentRationale?: string;
   sentimentAnalyzedAt?: string;
+  /**
+   * TE-1 overlay — later trust attitudes. Optional; omitted on Cloud writes.
+   * Does not replace `sentimentLabel` / `sentimentScore`.
+   */
+  trustResponse?: StakeholderTrustResponse;
 };
 
 export const ENGAGEMENT_KIND_LABELS: Record<EngagementKind, string> = {
@@ -77,6 +87,11 @@ export type EvidenceStub = {
   uploadedBy: string;
   uploadedAt: string;
   isPrimary: boolean;
+  /**
+   * TE-1 overlay — whether this file can support a later trust claim.
+   * Optional; omitted on Cloud writes. Does not change classification or workflow.
+   */
+  trustSupport?: EvidenceTrustSupport;
 };
 
 export function engagementToMeetingNote(row: Engagement): MeetingNote {

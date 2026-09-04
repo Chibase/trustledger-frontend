@@ -6,6 +6,9 @@ import { incidentService } from "@/services/incidentService";
 import { listDemoIncidents } from "@/lib/demoStore";
 import { listTrialIncidents } from "@/lib/trialStore";
 import { readTrialModeFromDocument } from "@/lib/trial";
+import { TL_VIP_COOKIE } from "@/lib/auth.constants";
+import { isVipShowcaseWorkspace } from "@/lib/planLabel";
+import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import type { Incident, IncidentStatus } from "@/types/incident";
 
 const STATUSES: Array<IncidentStatus | "All"> = [
@@ -22,9 +25,22 @@ export default function AppIncidentsPage() {
   const [status, setStatus] = useState<(typeof STATUSES)[number]>("All");
   const [breachedOnly, setBreachedOnly] = useState(false);
   const [query, setQuery] = useState("");
+  const [deskKind, setDeskKind] = useState<"sample" | "own" | "vip">("sample");
 
   useEffect(() => {
     let cancelled = false;
+    const handle = window.setTimeout(() => {
+      if (cancelled) return;
+      const vip = isVipShowcaseWorkspace(
+        readTrialModeFromDocument() ? "trial" : null,
+        new RegExp(`(?:^|;\\s*)${TL_VIP_COOKIE}=1(?:;|$)`).test(
+          document.cookie,
+        ),
+      );
+      if (vip) setDeskKind("vip");
+      else if (isCustomerWorkspaceClient()) setDeskKind("own");
+      else setDeskKind("sample");
+    }, 0);
     incidentService.list().then((rows) => {
       if (cancelled) return;
       const local = readTrialModeFromDocument()
@@ -39,6 +55,7 @@ export default function AppIncidentsPage() {
     });
     return () => {
       cancelled = true;
+      window.clearTimeout(handle);
     };
   }, []);
 
@@ -60,7 +77,11 @@ export default function AppIncidentsPage() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Incidents</h1>
         <p className="mt-1 text-sm text-tl-ink-muted">
-          Filter sample SRM cases by status, SLA, or search.
+          {deskKind === "vip"
+            ? "Illustrative NCGR-B cases for this showcase. Filter by status, SLA, or search."
+            : deskKind === "own"
+              ? "Grievances and site incidents for this workspace. Nothing is preloaded — log a case when one arrives."
+              : "Filter sample SRM cases by status, SLA, or search."}
         </p>
       </div>
 
@@ -151,7 +172,12 @@ export default function AppIncidentsPage() {
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-3 py-6 text-tl-ink-muted">
-                    No incidents match these filters.
+                    {deskKind === "own" &&
+                    status === "All" &&
+                    !breachedOnly &&
+                    !query.trim()
+                      ? "No incidents yet. Log a grievance or site incident when one arrives."
+                      : "No incidents match these filters."}
                   </td>
                 </tr>
               ) : null}

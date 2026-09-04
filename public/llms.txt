@@ -5,8 +5,8 @@
 Promise: Resolution you can audit.
 Operated by: Chibase Consulting (https://chibaseconsulting.co.za)
 Product UI: https://trustledger-frontend-pi.vercel.app
-Marketing: https://trustledger.co.za
-TrustLedger Cloud: https://app.trustledger.co.za
+Marketing: https://trustledgersrm.co.za
+TrustLedger Cloud: https://app.trustledgersrm.co.za
 
 ## Product
 
@@ -28,7 +28,7 @@ TrustLedger Cloud: https://app.trustledger.co.za
 - [Subscribe](https://trustledger-frontend-pi.vercel.app/pay)
 - [Contact](https://trustledger-frontend-pi.vercel.app/contact)
 - [Quote](https://trustledger-frontend-pi.vercel.app/quote)
-- [Marketing home](https://trustledger.co.za)
+- [Marketing home](https://trustledgersrm.co.za)
 
 ## Plans (ZAR / month, excl. VAT)
 

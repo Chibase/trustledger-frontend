@@ -28,7 +28,7 @@ Keep keys out of chat and git. Store only in Frappe Desk / password manager.
 
 ### B1. Put the site on a private bench (required)
 
-1. [https://cloud.frappe.io](https://cloud.frappe.io) → open site `app.trustledger.co.za`.
+1. [https://cloud.frappe.io](https://cloud.frappe.io) → open site `app.trustledgersrm.co.za`.
 2. If you see **Upgrade Plan** / private-bench banner: upgrade to a plan that allows private benches (**USD 25+/month** class — confirm on FC pricing).
 3. Then use **Move to Private Bench** (or create a private **Bench Group**, add apps, migrate site).  
    Docs: [Move site from shared to private bench](https://docs.frappe.io/cloud/site/site-migrations/move-site-from-shared-to-private-bench).
@@ -39,13 +39,13 @@ Keep keys out of chat and git. Store only in Frappe Desk / password manager.
 2. Choose **Frappe Paystack** from Marketplace, or GitHub `https://github.com/mymi14s/frappe_paystack` (Version **15**).
 3. **Update Available** → deploy/update including this site.
 4. Site → **Apps** → **Install App** → **Frappe Paystack**.
-5. Wait for migrate; open Desk `https://app.trustledger.co.za` and hard-refresh.
+5. Wait for migrate; open Desk `https://app.trustledgersrm.co.za` and hard-refresh.
 
 Also confirm **ERPNext** is installed on the site (Sales Invoice / Mode of Payment). CRM-only sites cannot complete the Paystack invoice flow.
 
 ### B3. If still blocked
 
-Open a Frappe Cloud support ticket: ask them to add `frappe_paystack` to your private bench / site `app.trustledger.co.za`.  
+Open a Frappe Cloud support ticket: ask them to add `frappe_paystack` to your private bench / site `app.trustledgersrm.co.za`.  
 App page: [Marketplace — Frappe Paystack](https://cloud.frappe.io/marketplace/apps/frappe_paystack).
 
 ---
@@ -80,7 +80,7 @@ Save.
 In Paystack Dashboard → **Settings → API Keys & Webhooks**:
 
 - URL (typical for this app; confirm on the app’s README after install):  
-  `https://app.trustledger.co.za/api/method/frappe_paystack.api.webhook`  
+  `https://app.trustledgersrm.co.za/api/method/frappe_paystack.api.webhook`  
   If Desk/app docs show a different path, **use that path**.
 - Events: at least `charge.success` (and refunds if offered).
 
@@ -149,7 +149,7 @@ PAYSTACK_AMOUNT_PROJECT_CENTS=1499900
 # PAYSTACK_TRIAL_VERIFY_CENTS=100
 # Optional welcome email (temp password). If unset, credentials show on success page only.
 # RESEND_API_KEY=re_…
-# RESEND_FROM_EMAIL=TrustLedger <noreply@trustledger.co.za>
+# RESEND_FROM_EMAIL=TrustLedger <noreply@trustledgersrm.co.za>
 # See docs/RESEND_PRODUCTION.md — domain must be verified in Resend first.
 # Optional stronger signing for activation tokens (falls back to Paystack secret)
 # TRIAL_TOKEN_SECRET=…

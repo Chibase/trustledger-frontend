@@ -2,12 +2,18 @@
  * Canonical facts for AEO / LLM parsers (keep aligned with PLATFORM_STRATEGIC_BRIEF §6).
  */
 
+import {
+  TRUSTLEDGER_CLOUD_HOST,
+  TRUSTLEDGER_INFO_EMAIL,
+  TRUSTLEDGER_MARKETING_URL,
+} from "@/lib/security/hosts";
+
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ??
   "https://trustledger-frontend-pi.vercel.app"
 ).replace(/\/$/, "");
 
-export const MARKETING_SITE_URL = "https://trustledger.co.za";
+export const MARKETING_SITE_URL = TRUSTLEDGER_MARKETING_URL;
 
 export const PRODUCT_NAME = "TrustLedger";
 
@@ -23,7 +29,7 @@ export const OPERATOR_ORG = {
   url: (
     process.env.NEXT_PUBLIC_CHIBASE_SITE_URL || `${SITE_URL}/firm`
   ).replace(/\/$/, ""),
-  email: "info@trustledger.co.za",
+  email: TRUSTLEDGER_INFO_EMAIL,
 } as const;
 
 export type FaqItem = {
@@ -93,7 +99,7 @@ export const PUBLIC_FAQS: FaqItem[] = [
   {
     question: "Where does TrustLedger store live customer data?",
     answer:
-      "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. You use the TrustLedger product app for day-to-day work; marketing content lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",
+      `Live customer workspaces run on TrustLedger Cloud at ${TRUSTLEDGER_CLOUD_HOST}. You use the TrustLedger product app for day-to-day work; marketing content lives on ${MARKETING_SITE_URL.replace("https://", "")}. Paying and trial workspaces never show fictional sample incidents.`,
   },
   {
     question: "What is the best way to assess SRM readiness before buying?",

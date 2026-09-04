@@ -13,8 +13,8 @@
 | Official name | **TrustLedger** |
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
-| Backend | **Frappe Cloud** `app.trustledger.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
-| Marketing | TrustLedger WP `trustledger.co.za` on Webway (CTAs). **Chibase Consulting** brochure on this app (`/firm`; DNS after WP cleanup). MX for both domains stays Webway. |
+| Backend | **Frappe Cloud** `app.trustledgersrm.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
+| Marketing | TrustLedger WP `trustledgersrm.co.za` on Webway (CTAs). **Chibase Consulting** brochure on this app (`/firm`; DNS after WP cleanup). MX for both domains stays Webway. |
 | Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
 **Current phase:** Phase 6 — **Version 002** core (ADR-023). Product label in market: **Version 001**. Demo/mock remains default until Frappe DocTypes land.
@@ -125,7 +125,7 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| 15 | WordPress CTA guide | Paste-ready buttons/UTM for trustledger.co.za | **Done** |
+| 15 | WordPress CTA guide | Paste-ready buttons/UTM for trustledgersrm.co.za | **Done** |
 | 16 | Evidence upload stub | Demo local evidence add on incident desk | **Done** |
 | 17 | Demo issue persistence | localStorage intake → appears in incident list | **Done** |
 | 18 | Toast feedback | Light success/error toasts on key actions | **Done** |
@@ -191,6 +191,10 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
 | **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
 | **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase **process map** + **plan execution dashboard** (roadmap, KPIs, outcomes, mitigations, practitioner snapshot) + Gemini-drafted tender SEP; human apply seeds registry / engagements / commitments. Analysis engine (Phases A–G) | **Active** |
+| **TE-1** | Trust overlay (non-breaking) | Optional `trustResponse` / `trustSupport` + `composeTrustSignals` + opt-in AI overlay helpers. No UX, formula, or DocType change. `docs/TRUST_OVERLAY.md` | **Done** |
+| **TE-2** | Parallel trust-native layer | Dimensions, observations, explainable status, participation, community context; derive from SRM; separate `tl-trust-layer` store. No UI/DocType. `docs/TRUST_LAYER.md` | **Done** |
+| **TE-3** | Trust analytics and proof reporting | Explainable trend / comparison / risk on the trust layer; optional proof markdown on `/app/reports`. Not a pack; Trust pulse and existing writers unchanged. `docs/TRUST_PROOF.md` | **Done** |
+| **PP-1** | Plan-as-container packaging | TierFlow module sequence; executive roll-up; VIP-only demo seed across included desks; non-VIP empty | **Done** |
 
 ### HubSpot cutover (ACTIVE)
 
@@ -296,7 +300,9 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
-| 2026-07-11 | Initial Demo-first BUILD_PLAN (Packet 00) |
+| 2026-09-04 | TE-3 — trust analytics + optional proof reporting (not a pack; Trust pulse unchanged) |
+| 2026-09-04 | TE-2 — parallel trust-native layer (observations, dimensions, status; no UI/DocType) |
+| 2026-09-04 | TE-1 — frontend trust overlay library (optional fields + helpers; no UX/DocType change) |
 | 2026-07-21 | Phase 6 Version 002 core; Version 001 public label (ADR-023) |
 | 2026-07-22 | Operational delivery path (ADR-032); OD-1 active — delay paid prod until Cloud SoT |
 | 2026-07-23 | GO LIVE Done — operational-grade Cloud ops for paying customers |

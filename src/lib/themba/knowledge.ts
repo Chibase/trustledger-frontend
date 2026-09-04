@@ -8,6 +8,10 @@ import {
   PRODUCT_TAGLINE,
   PUBLIC_FAQS,
 } from "@/lib/aeo/siteFacts";
+import {
+  TRUSTLEDGER_APEX_DOMAIN,
+  TRUSTLEDGER_CLOUD_HOST,
+} from "@/lib/security/hosts";
 import { thembaDocumentSources } from "@/lib/themba/sources";
 import { THEMBA_SOURCE_TITLES } from "@/lib/themba/sources/types";
 import type { ThembaKnowledgeItem } from "@/lib/themba/types";
@@ -302,7 +306,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "data",
     question: "Where does TrustLedger store live customer data?",
     answer:
-      "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. Day-to-day work happens in the TrustLedger product app; marketing lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",
+      `Live customer workspaces run on TrustLedger Cloud at ${TRUSTLEDGER_CLOUD_HOST}. Day-to-day work happens in the TrustLedger product app; marketing lives on ${TRUSTLEDGER_APEX_DOMAIN}. Paying and trial workspaces never show fictional sample incidents.`,
     keywords: ["data", "store", "cloud", "host", "security", "where"],
     links: [
       { href: "/contact", label: "Contact" },

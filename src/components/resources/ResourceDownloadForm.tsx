@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ResourcePack } from "@/data/resources";
 import { HoneypotField, RecaptchaLegalNote, useRecaptcha } from "@/components/forms/FormGuards";
 import { isWorkEmail } from "@/data/assessment";
+import { TRUSTLEDGER_MARKETING_URL } from "@/lib/security/hosts";
 
 type Props = {
   pack: ResourcePack;
@@ -126,7 +127,7 @@ export function ResourceDownloadForm({ pack, onClose }: Props) {
               We may follow up with TrustLedger guidance related to this
               resource. See our{" "}
               <a
-                href="https://trustledger.co.za/privacy/"
+                href={`${TRUSTLEDGER_MARKETING_URL}/privacy/`}
                 className="underline"
                 target="_blank"
                 rel="noopener noreferrer"

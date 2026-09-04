@@ -41,7 +41,7 @@ export function SepDashboardPanel({
   const [rows, setRows] = useState<EngagementPlan[]>([]);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
+    const load = () => {
       const resolved = resolveClientPlanId(planId);
       setAllowed(hasCapability("engagements", resolved));
       setRows(
@@ -50,8 +50,13 @@ export function SepDashboardPanel({
           : listEngagementPlans(),
       );
       setReady(true);
-    });
-    return () => cancelAnimationFrame(frame);
+    };
+    const frame = requestAnimationFrame(load);
+    window.addEventListener("tl-workspace-seeded", load);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("tl-workspace-seeded", load);
+    };
   }, [planId, projectId]);
 
   const applied = useMemo(

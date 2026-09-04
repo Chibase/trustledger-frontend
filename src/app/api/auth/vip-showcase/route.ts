@@ -13,6 +13,7 @@ import {
   VIP_SHOWCASE_PLAN_ID,
   VIP_SHOWCASE_WEEKS,
 } from "@/lib/vipShowcaseAuth";
+import { isVipShowcaseDefaultEmail } from "@/lib/vipShowcaseIdentity";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -89,12 +90,15 @@ export async function POST(request: Request) {
   const until = new Date();
   until.setUTCDate(until.getUTCDate() + VIP_SHOWCASE_WEEKS * 7);
 
+  const name = displayNameForVipEmail(email);
   return NextResponse.json({
     ok: true,
     email,
-    name: displayNameForVipEmail(email),
+    name,
     planId: VIP_SHOWCASE_PLAN_ID,
-    organization: VIP_SHOWCASE_ORG_NAME,
+    organization: isVipShowcaseDefaultEmail(email)
+      ? VIP_SHOWCASE_ORG_NAME
+      : `VIP Pilot — ${name}`,
     weeks: VIP_SHOWCASE_WEEKS,
     accessUntil: until.toISOString().slice(0, 10),
   });

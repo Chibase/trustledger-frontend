@@ -21,6 +21,7 @@ import {
   VIP_SHOWCASE_PLAN_ID,
   VIP_SHOWCASE_WEEKS,
 } from "@/lib/vipShowcaseAuth";
+import { isVipShowcaseDefaultEmail } from "@/lib/vipShowcaseIdentity";
 import type { PlanId } from "@/config/plans";
 import { PLAN_OWNER_DESK_TIER, type DeskTier } from "@/types/deskTier";
 import type { UserRole } from "@/types/rbac";
@@ -150,7 +151,9 @@ export function startVipShowcaseSession(input: {
     email: input.email,
     name: input.name,
     planId: VIP_SHOWCASE_PLAN_ID,
-    organization: VIP_SHOWCASE_ORG_NAME,
+    organization: isVipShowcaseDefaultEmail(input.email)
+      ? VIP_SHOWCASE_ORG_NAME
+      : `VIP Pilot — ${input.name.trim() || "Guest"}`,
     mode: "trial",
     maxAge,
     complimentaryVip: true,

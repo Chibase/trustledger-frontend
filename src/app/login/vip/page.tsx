@@ -77,7 +77,11 @@ function VipShowcaseLoginForm() {
         name: payload.name || payload.email,
         weeks: payload.weeks,
       });
-      applyVipShowcaseSeed({ orgId: org.id, email: payload.email });
+      applyVipShowcaseSeed({
+        orgId: org.id,
+        email: payload.email,
+        forceShowcase: true,
+      });
       router.replace(next);
       router.refresh();
     } catch (err) {

@@ -60,3 +60,14 @@ export function saveIndicatorBrief(input: {
   writeAll([row, ...readAll()]);
   return row;
 }
+
+/** Idempotent write used by VIP packaging seed only. */
+export function ensureSavedIndicatorBrief(
+  row: SavedIndicatorBrief,
+): SavedIndicatorBrief {
+  const existing = readAll();
+  const found = existing.find((item) => item.id === row.id);
+  if (found) return found;
+  writeAll([row, ...existing]);
+  return row;
+}

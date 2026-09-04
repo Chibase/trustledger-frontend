@@ -1,7 +1,7 @@
 # TrustLedger SRM — Live Showcase Demo Plan
 
 **Audience:** Legal / consortium partners (e.g. Inlexso) evaluating TrustLedger for DFI-linked infrastructure bids (e.g. DBSA NILF / RFP-style packages).  
-**Product:** [trustledger.co.za](https://trustledger.co.za) · **Cloud SoT:** TrustLedger Cloud  
+**Product:** [trustledgersrm.co.za](https://trustledgersrm.co.za) · **Cloud SoT:** TrustLedger Cloud  
 **Purpose:** Prove the platform **in action** — not slides. Show that engagement, grievance, commitments, and reports form one defensible trail.  
 **Voice:** Trust, auditability, Social Licence to Build™ (ADR-039). Do not name stack vendors in the room.
 

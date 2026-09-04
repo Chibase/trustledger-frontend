@@ -5,5 +5,12 @@ export default async function AppGuidePage() {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  return <OnboardingGuidePanel planId={user.trialPlan} />;
+  return (
+    <OnboardingGuidePanel
+      planId={user.trialPlan}
+      vip={Boolean(user.isVip)}
+      mode={user.mode}
+      email={user.email}
+    />
+  );
 }
