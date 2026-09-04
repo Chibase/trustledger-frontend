@@ -51,6 +51,20 @@ describe("TE-12 trust-movement companion reading", () => {
     expect(summary.causality.attendanceUsedAsCause).toBe(false);
   });
 
+  it("keeps tied timestamps on the same later-half id split as the period chart", () => {
+    const report = composeTrustProofReport({
+      observations: [
+        obs("TRO-tie-a", "2026-03-01T00:00:00Z", "positive"),
+        obs("TRO-tie-b", "2026-03-01T00:00:00Z", "negative"),
+      ],
+    });
+    const laterNegative = report.causality.companions.find(
+      (row) => row.kind === "later_negative",
+    );
+    expect(laterNegative?.observationIds).toEqual(["TRO-tie-b"]);
+    expect(laterNegative?.observationIds).not.toContain("TRO-tie-a");
+  });
+
   it("does not treat mixed motive or attendance as a cause", () => {
     const report = composeTrustProofReport({
       observations: [

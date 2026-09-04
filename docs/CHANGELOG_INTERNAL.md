@@ -4,6 +4,7 @@
 
 - Lists **later-half companions** that co-occur with trust movement (later signals, improving/declining dimensions, explicit low willingness). They are **not causes**.
 - Not statistical causality. Attendance, mixed motive, SRM sentiment, verification stamps, and Trust pulse are never used as causes.
+- Later-half membership uses the same chronological id split as the period chart (tied timestamps cannot leak earlier-half rows).
 - Proof markdown, intelligence notes, and the dashboard hub surface the mix. Empty Cloud stays empty. Trust pulse unchanged.
 
 ## 2026-09-04 — TE-11 follow-up: no invented verification times

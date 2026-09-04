@@ -94,19 +94,17 @@ function evidenceFrom(rows: TrustObservation[]): string[] {
 }
 
 /**
- * Same later-half split as `compareTrustPeriods` (splitAt, else chronological mid).
+ * Same later half as default `compareTrustPeriods` (chronological mid of
+ * scored rows). Membership is by observation id, not `observedAt >= splitAt`,
+ * so tied timestamps cannot leak earlier-half rows into companions.
  */
 export function laterHalfObservations(
   observations: TrustObservation[],
-  splitAt: string | null,
 ): TrustObservation[] {
   const scored = chronologicalScoredWeights(observations);
   if (!scored.length) return [];
-  const laterIds = new Set(
-    splitAt
-      ? scored.filter((row) => row.at >= splitAt).map((row) => row.id)
-      : scored.slice(Math.floor(scored.length / 2)).map((row) => row.id),
-  );
+  const mid = Math.floor(scored.length / 2);
+  const laterIds = new Set(scored.slice(mid).map((row) => row.id));
   return observations.filter((row) => laterIds.has(row.id));
 }
 
@@ -200,10 +198,7 @@ export function summarizeTrustCausality(input: {
     };
   }
 
-  const later = laterHalfObservations(
-    input.observations,
-    input.period.splitAt,
-  );
+  const later = laterHalfObservations(input.observations);
   const laterNegative = companionForSignal("later_negative", "negative", later);
   const laterPositive = companionForSignal("later_positive", "positive", later);
   const laterNeutral = companionForSignal("later_neutral", "neutral", later);
