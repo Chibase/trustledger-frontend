@@ -22,7 +22,7 @@ This packet makes those facts **capturable and readable** by later analytics —
 | Authority | `authorityRoleFromStakeholder` from existing `kind` + tags: traditional, community leader, ward structure, informal influencer, institutional | No new CRM kind |
 | Participation realism | Optional motivation, presence, response pattern, attendance≠consent. **Does not** change `participationLooksTrustDriven` | No |
 
-Draft helpers (`fieldNoteToCommunityDraft`, `fieldNoteToParticipationDraft`) stay drafts until **Capture apply**. TE-5b writes those extras to `tl-trust-layer` on human apply (upsert by place + project). Typing still does not auto-save. Low-connectivity / interrupted capture keeps a local field draft (`tl-field-drafts`) until apply.
+Draft helpers (`fieldNoteToCommunityDraft`, `fieldNoteToParticipationDraft`) stay drafts until **human apply**. TE-5b writes community extras to `tl-trust-layer` on apply (upsert by place + project). **TE-8** keys the participation row to the saved engagement id (upsert). Typing still does not auto-save. Low-connectivity / interrupted capture keeps a local field draft (`tl-field-drafts`) until apply.
 
 ## How this supports existing trust work
 
@@ -42,9 +42,10 @@ Draft helpers (`fieldNoteToCommunityDraft`, `fieldNoteToParticipationDraft`) sta
 
 ## UI
 
-- Capture: collapsed **Field context (optional)**; extras persist to `tl-trust-layer` when stakeholders are applied.
+- Capture: collapsed **Field context (optional)**; extras persist to the trust layer when stakeholders are applied (participation `sourceId` = engagement id). Optional willingness dropdowns.
 - Intelligence: **Community profiles** (history, power, language, participation interpretation). Empty state still has a Capture shortcut.
 - Issue report: optional spoken / preferred language on triage. Language support status is shown; no fake translation.
+- Engagement desk: optional trust overlay (local hints). Note sentiment is not a trust observation.
 
 ## Compatibility
 

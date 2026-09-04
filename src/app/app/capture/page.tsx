@@ -64,9 +64,9 @@ import {
 } from "@/lib/workspaceData";
 import { getActiveOrgId } from "@/lib/orgStore";
 import {
+  applyEngagementToTrustLayer,
   clearFieldCaptureDraft,
   fieldNoteHasContextExtras,
-  persistFieldCaptureToTrustLayerAsync,
   readFieldCaptureDraft,
   saveFieldCaptureDraft,
 } from "@/lib/trust";
@@ -82,7 +82,11 @@ import type {
   ReportBriefSuggestion,
   StakeholderExtractSuggestion,
 } from "@/types/ai";
-import type { EngagementKind, EngagementSource } from "@/types/engagement";
+import type {
+  Engagement,
+  EngagementKind,
+  EngagementSource,
+} from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Project, ProjectStatus } from "@/types/project";
 import {
@@ -531,11 +535,15 @@ export default function AppCapturePage() {
     return `${preamble}${body.trim()}`.trim();
   }
 
-  async function applyFieldExtrasToTrustLayer(sourceId?: string) {
-    await persistFieldCaptureToTrustLayerAsync(fieldMeta, {
-      projectId: project?.id ?? null,
-      sourceId,
-    });
+  async function applyEngagementTrustRows(engagement: Engagement) {
+    try {
+      await applyEngagementToTrustLayer({
+        engagement,
+        fieldMeta,
+      });
+    } catch {
+      // Engagement is already saved; trust rows may remain local-only.
+    }
     const orgId = getActiveOrgId() || "local";
     if (projectId) {
       clearFieldCaptureDraft(orgId, projectId, source);
@@ -643,7 +651,6 @@ export default function AppCapturePage() {
           appliedStakeholderIds: ids,
         };
         saveCaptureRecord(record);
-        await applyFieldExtrasToTrustLayer(captureId);
 
         const actionFromMinutes = actionItemsFromMinutes(savedBody);
         const actionItems = (
@@ -679,7 +686,7 @@ export default function AppCapturePage() {
             ? "Captured after the meeting (handover notes)."
             : null,
         ].filter(Boolean);
-        await engagementService.save({
+        const savedEngagement = await engagementService.save({
           id: createEngagementId(),
           title: record.title,
           kind,
@@ -698,6 +705,7 @@ export default function AppCapturePage() {
           source: engagementSource,
           createdAt: new Date().toISOString(),
         });
+        await applyEngagementTrustRows(savedEngagement);
 
         if (source === "social_intel") {
           const localRows = parseLocalCommunityIntel(savedBody);

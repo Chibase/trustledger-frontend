@@ -397,6 +397,44 @@ export function CaptureFieldNoteMeta({ project, meta, onChange }: Props) {
                 <option value="unknown">Unknown</option>
               </select>
             </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium" htmlFor="fn-will-part">
+                Willingness to participate
+              </label>
+              <select
+                id="fn-will-part"
+                className={inputClass}
+                value={meta.willingnessToParticipate}
+                onChange={(e) =>
+                  patch({ willingnessToParticipate: e.target.value })
+                }
+              >
+                <option value="">Unknown / not captured</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium" htmlFor="fn-will-contrib">
+                Willingness to contribute
+              </label>
+              <select
+                id="fn-will-contrib"
+                className={inputClass}
+                value={meta.willingnessToContribute}
+                onChange={(e) =>
+                  patch({ willingnessToContribute: e.target.value })
+                }
+              >
+                <option value="">Unknown / not captured</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
           </div>
           <label className="mt-3 flex items-start gap-2 text-sm text-tl-ink">
             <input

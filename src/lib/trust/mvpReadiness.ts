@@ -37,6 +37,7 @@ export const TRUST_MVP_COMPLETE = [
   "TE-4 suggestion-only recommendations and alerts with published rule ids",
   "TE-5 optional Global South field/context (not a single community template); TE-5b community profiles and language support",
   "TE-7 Cloud trust SoT: TL Trust Observation / Participation / Community Context; SEC-1 customer bind; SRM sentiment is not copied",
+  "TE-8 engagement apply writes participation (upsert by engagement id) and optional overlay observations; note sentiment is not copied",
 ] as const;
 
 export const TRUST_MVP_PARTIAL = [
@@ -45,7 +46,7 @@ export const TRUST_MVP_PARTIAL = [
   "Observations and proof claims can cite evidenceIds; there is no separate trust-claim verification workflow",
   "Period trend is later vs earlier mean (mixed when dimensions disagree). Not causality",
   "TE-4 recs are rule-traced from trust state and evidence ids; generic triage/sentiment/draft AI remains local heuristics",
-  "Field extras persist on Capture apply (local cache; Cloud upsert when live). They do not auto-save while typing",
+  "Field extras persist on Capture engagement apply (local cache; Cloud upsert when live; participation sourceId is the engagement id). They do not auto-save while typing",
   "Language structures exist; product UI is not translated",
   "Authority roles are derived from existing stakeholder kind/tags, not a new CRM kind",
 ] as const;
