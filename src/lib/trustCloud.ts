@@ -594,7 +594,8 @@ export async function upsertCloudVerification(
   if (!isPersistableClaimVerificationStamp(row)) {
     return {
       ok: false as const,
-      error: "human_apply stamp with id, dimension, and fingerprint required",
+      error:
+        "stamp with id, dimension, fingerprint, verifiedAt, and source=human_apply required",
     };
   }
   const doctype = "TL Trust Claim Verification";

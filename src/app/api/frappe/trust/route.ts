@@ -246,7 +246,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "verification.id, dimension, fingerprint, and source=human_apply required",
+            "verification.id, dimension, fingerprint, verifiedAt, and source=human_apply required",
         },
         { status: 400 },
       );
