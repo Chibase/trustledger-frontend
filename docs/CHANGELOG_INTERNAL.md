@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-04 — TE-8 Copilot follow-up
+
+- Cloud SI engagement POST strips `trustResponse` (client + BFF). Overlay is kept in a local key (`tl-engagement-trust-response`) like note sentiment, and still written to the trust layer. Local `tl-engagements` rows are stored without `trustResponse` so a cleared overlay cannot stale-read from the main payload.
+- Capture / desk apply pass `getActiveOrgId() || "local"` into `applyEngagementToTrustLayer` so drafts are not cleared without a trust-layer write.
+
 ## 2026-09-04 — UX-1 dashboard overviews (graph-first)
 
 - Executive, project, client, activity, and desk dashboards lead with **overall graphs**: four KPIs, a chart grid (status, case funnel, priority, spend/fill), then compact module/trust charts. Operational tables, SEP, capture, and case lists sit in `<details>`.

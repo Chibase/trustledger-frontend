@@ -17,6 +17,7 @@ import {
   upsertCloudStakeholder,
   type SiKind,
 } from "@/lib/siCloud";
+import { omitCloudTrustOverlay } from "@/types/trustOverlay";
 import type { Commitment } from "@/types/commitment";
 import type { Engagement } from "@/types/engagement";
 import type { Stakeholder } from "@/types/stakeholder";
@@ -159,7 +160,11 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const r = await upsertCloudEngagement(body.engagement, customer, orgId);
+    const r = await upsertCloudEngagement(
+      omitCloudTrustOverlay(body.engagement),
+      customer,
+      orgId,
+    );
     return NextResponse.json(
       r.ok
         ? { ok: true, kind, name: r.name, customer }
