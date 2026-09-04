@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-04 — TE-3c trust workspace trend and comparison
+
+- Trust proof workspace now charts **period trend** (earlier vs later mean) and **all four comparison axes** (community / location / group / phase proxy), plus the six blueprint dimensions. Mean −1…+1 is mapped 0–100 for bars only — not Trust pulse.
+- Hub sits on `/app/dashboard` (above SEP) and on the desk workspace panels. Shortcuts, risk list, and proof narrative stay. Still **not** impact-trend or SLA dashboards. Frappe `stakeholder_relations_hub.json` is not in this frontend repo.
+
 ## 2026-09-04 — TE-3b trust proof workspace on the desk
 
 - `/app/dashboard` now shows a **Trust proof workspace**: number cards (movement, scored observations, risk flags, evidence-backed claims), a comparison bar, risk list, proof narrative, and shortcuts to reports / cases / engagements / capture.

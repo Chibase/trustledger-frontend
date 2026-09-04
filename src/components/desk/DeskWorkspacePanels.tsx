@@ -8,6 +8,7 @@ import {
 } from "@/components/ops/charts/BarChart";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { TrustPulse } from "@/components/trust/TrustPulse";
+import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
 import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
 import { listDemoIncidents, listDemoProjects } from "@/lib/demoStore";
 import {
@@ -157,6 +158,8 @@ export function DeskWorkspacePanels({
           Change in Settings
         </Link>
       </p>
+
+      <TrustWorkspaceHub />
 
       {canSee("trustPulse", tier, matrix) &&
       hasCapability("trustPulse", planId) ? (
