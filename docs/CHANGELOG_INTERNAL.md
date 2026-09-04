@@ -2,7 +2,8 @@
 
 ## 2026-09-04 — TE-11 follow-up: no invented verification times
 
-- Cloud and local stamp readers drop rows with a missing `verified_at` instead of filling in “now”. Persist requires an explicit apply timestamp.
+- Cloud rows drop a missing `verified_at`; local cache drops a missing `verifiedAt`. Neither fills in “now”. Persist requires an explicit apply timestamp.
+- BFF and Cloud upsert errors now list `verifiedAt` with id, dimension, fingerprint, and `source=human_apply`.
 
 ## 2026-09-04 — TE-11 Cloud SoT for claim-verification stamps
 
