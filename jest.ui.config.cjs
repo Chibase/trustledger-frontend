@@ -28,6 +28,7 @@ module.exports = {
     "<rootDir>/tests/ts/trustCausality.test.ts",
     "<rootDir>/tests/ts/dashboardOverview.test.ts",
     "<rootDir>/tests/ts/dashboardOverviewUi.test.tsx",
+    "<rootDir>/tests/ts/incidentCloud.test.ts",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {

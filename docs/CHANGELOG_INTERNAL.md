@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-04 — 24e-cloud grievance lifecycle stamps
+
+- Live cases persist reported → deployed → investigated → resolved → verified → closed timestamps on **`TL Incident`**. Advance / Verify & close / intake upsert through `GET|POST /api/frappe/product?kind=incident`.
+- Blank Cloud times stay blank — the mapper does not fill in “now”. Overlay keys and SRM sentiment are not Cloud columns. Empty Cloud stays empty (no demo `INC-*`).
+- Ops ensure adds the six Datetime fields on existing DocTypes (Custom Field). Local org store is a cache; Cloud is SoT after a successful live save.
+- Not a sealed ledger. Project continuous save and Cloud invitee seats stay later packets.
+
 ## 2026-09-04 — TE-12 trust-movement companion reading
 
 - Lists **later-half companions** that co-occur with trust movement (later signals, improving/declining dimensions, explicit low willingness). They are **not causes**.

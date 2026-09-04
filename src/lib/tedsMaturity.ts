@@ -142,11 +142,10 @@ export const TEDS_DOMAIN_MATURITY: TedsDomainMaturity[] = [
     tedsName: "Issue & Grievance Management",
     tedsChapter: "TEDS Ch.9 Domain 5",
     status: "partial",
-    score: 78,
+    score: 85,
     availableNow:
-      "Case desk Advance / Verify & close stamps (reported→deploy→investigate→resolve→verify→close); local persistence; geo intake; natures; TAT targets; AI suggest→apply; trust pulse.",
+      "Case desk Advance / Verify & close stamps (reported→deploy→investigate→resolve→verify→close); live Cloud persistence on TL Incident; geo intake; natures; TAT targets; AI suggest→apply; trust pulse.",
     stillNeeded: [
-      "Mirror lifecycle stamps on Frappe TL Incident",
       "Client policy admin UI for thresholds and TAT defaults",
       "Live escalation queues by staff tier",
     ],
@@ -254,12 +253,12 @@ export function buildTedsMaturityReport(): TedsMaturityReport {
     mvpProgressPct,
     headline: `TEDS MVP ≈ ${mvpProgressPct}% realised in product`,
     summary:
-      "Version 001 ships the resolution desk. Version 002 Stakeholder Intelligence now has Cloud DocTypes + live BFF for registry, engagements, and commitments, plus a briefing→SEP composer on the customer desk. Remaining gaps: geo depth, grievance Cloud stamps, Stats SA, relationship graphs.",
+      "Version 001 ships the resolution desk. Version 002 Stakeholder Intelligence now has Cloud DocTypes + live BFF for registry, engagements, and commitments, plus a briefing→SEP composer on the customer desk. Remaining gaps: geo depth, Stats SA, relationship graphs.",
     domains,
     priorityNext: [
       "Ops: Create product + SI DocTypes, then Smoke Stakeholder→Engagement→Commitment",
       "Buyer live smoke: empty Cloud CRM → add stakeholder → list on Cloud",
-      "Stronger grievance lifecycle stamps on Frappe TL Incident",
+      "Continuous Cloud write for projects",
       "Stats SA socio-economic indicators on geo pack",
       "CRM relationship links + influence matrices",
     ],

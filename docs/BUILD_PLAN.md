@@ -167,7 +167,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24b** | Stakeholders registry | List/detail/create; Cloud DocType + BFF | **Done (Cloud SI path)** |
 | **24c** | Engagements | Meetings / consultations; Cloud DocType + BFF | **Done (Cloud SI path)** |
 | **24d** | Commitments | Promise board; Cloud DocType + BFF | **Done (Cloud SI path)** |
-| **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (UI); Cloud stamps next** |
+| **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (Cloud stamps)** |
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** (superseded nav by UX-1) |
 | **UX-1** | Portfolio → project reports | Executive dashboard (graph-first workspace overview) → project dashboard (overall graphs; category capture/reports in details) → kind/format/level reports | **Active** |
 | **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs; tenant local community intel beside Stats SA | **Done (baseline + local upload)** |
@@ -313,6 +313,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-04 | 24e-cloud — grievance lifecycle stamps on TL Incident (live upsert; blank times stay blank) |
 | 2026-09-04 | TE-12 — trust-movement companion reading (later-half co-occurrence; not statistical causality) |
 | 2026-09-04 | TE-11 — Cloud SoT for claim-verification stamps (human apply still required; not a sealed ledger) |
 | 2026-09-04 | TE-10 — trust-claim verification (linked evidence ≠ verified; attendance does not verify) |

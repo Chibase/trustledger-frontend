@@ -1,6 +1,6 @@
 import { mockIncidents } from "@/data/mockIncidents";
-import { FRAPPE_METHODS, isLiveMode } from "@/config/api";
-import { callFrappeMethod } from "@/lib/frappeClient";
+import { isLiveMode } from "@/config/api";
+import { omitCloudTrustOverlay } from "@/types/trustOverlay";
 import type {
   Incident,
   IncidentPriority,
@@ -42,6 +42,13 @@ function filterIncidents(
   return next;
 }
 
+async function isOwnDataWorkspace(): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+  return readTrialModeFromDocument() || isCustomerWorkspaceClient();
+}
+
 async function mergeLocalOverlays(seed: Incident[]): Promise<Incident[]> {
   if (typeof window === "undefined") return seed;
   const { readTrialModeFromDocument } = await import("@/lib/trial");
@@ -65,6 +72,45 @@ async function mergeLocalOverlays(seed: Incident[]): Promise<Incident[]> {
   return [...byId.values()];
 }
 
+async function listFromCloudProduct(): Promise<Incident[] | null> {
+  if (typeof window === "undefined") return null;
+  try {
+    const res = await fetch("/api/frappe/product?kind=incident", {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (res.status === 401 || res.status === 403) return null;
+    if (res.status === 404) return [];
+    if (!res.ok) return null;
+    const json = (await res.json()) as { rows?: Incident[] };
+    return Array.isArray(json.rows) ? json.rows : [];
+  } catch {
+    return null;
+  }
+}
+
+async function saveToCloudProduct(row: Incident): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  try {
+    const res = await fetch("/api/frappe/product", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        kind: "incident",
+        incident: omitCloudTrustOverlay(row),
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 async function listDemo(filters: IncidentListFilters): Promise<Incident[]> {
   const { readTrialModeFromDocument } = await import("@/lib/trial");
   if (readTrialModeFromDocument()) {
@@ -76,24 +122,19 @@ async function listDemo(filters: IncidentListFilters): Promise<Incident[]> {
 }
 
 async function listLive(filters: IncidentListFilters): Promise<Incident[]> {
-  try {
-    const rows = await callFrappeMethod<Incident[]>(
-      FRAPPE_METHODS.listIncidents,
-      { ...filters },
-    );
-    // Empty Cloud list must stay empty — never substitute demo INC-*.
-    const base = Array.isArray(rows) ? rows : [];
-    const merged = await mergeLocalOverlays(base);
-    return filterIncidents(merged, filters);
-  } catch {
-    const { readTrialModeFromDocument } = await import("@/lib/trial");
-    const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
-    if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
-      return filterIncidents(await mergeLocalOverlays([]), filters);
-    }
-    // Demo / exploratory live only — ADR-010 mock fallback.
-    return listDemo(filters);
+  const own = await isOwnDataWorkspace();
+  const cloud = await listFromCloudProduct();
+  if (cloud) {
+    const local = await mergeLocalOverlays([]);
+    const byId = new Map<string, Incident>();
+    for (const row of cloud) byId.set(row.id, row);
+    for (const row of local) byId.set(row.id, row);
+    return filterIncidents([...byId.values()], filters);
   }
+  if (own) {
+    return filterIncidents(await mergeLocalOverlays([]), filters);
+  }
+  return listDemo(filters);
 }
 
 export const incidentService = {
@@ -105,38 +146,30 @@ export const incidentService = {
     const rows = await this.list();
     const local = rows.find((i) => i.id === id);
     if (local) return local;
-
     if (isLiveMode()) {
-      try {
-        const row = await callFrappeMethod<Incident | null>(
-          FRAPPE_METHODS.getIncident,
-          { name: id },
-        );
-        return row ?? null;
-      } catch {
-        const { readTrialModeFromDocument } = await import("@/lib/trial");
-        const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
-        if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
-          return null;
-        }
-        return delay(mockIncidents.find((i) => i.id === id) ?? null);
-      }
+      const own = await isOwnDataWorkspace();
+      if (own) return null;
+      return delay(mockIncidents.find((i) => i.id === id) ?? null);
     }
     return delay(mockIncidents.find((i) => i.id === id) ?? null);
   },
 
   async save(incident: Incident): Promise<Incident> {
     if (typeof window === "undefined") return incident;
+    const clean = omitCloudTrustOverlay(incident);
+    if (isLiveMode()) {
+      await saveToCloudProduct(clean);
+    }
     const { readTrialModeFromDocument } = await import("@/lib/trial");
     const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
     if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
       const { saveOrgIncident } = await import("@/lib/orgDataSpace");
-      saveOrgIncident(incident);
+      saveOrgIncident(clean);
     } else {
       const { saveDemoIncident } = await import("@/lib/demoStore");
-      saveDemoIncident(incident);
+      saveDemoIncident(clean);
     }
-    return delay(incident);
+    return delay(clean);
   },
 
   async intakeQueue(): Promise<Incident[]> {

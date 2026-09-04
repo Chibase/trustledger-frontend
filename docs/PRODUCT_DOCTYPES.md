@@ -5,14 +5,15 @@
 | DocType | Autoname | Customer link | Frontend type |
 |---------|----------|---------------|---------------|
 | `TL Project` | `project_code` | Yes | `src/types/project.ts` |
-| `TL Incident` | `incident_code` | Yes | `src/types/incident.ts` |
+| `TL Incident` | `incident_code` | Yes | `src/types/incident.ts` — plus Datetime stamps `reported_at` … `closed_at` |
 | `TL Evidence` | `evidence_code` | Yes | `EvidenceStub` + Attach `file` |
 
 ## APIs (this repo)
 
 | Route | Purpose |
 |-------|---------|
-| `POST /api/frappe/ensure-product-doctypes` | Idempotent DocType create (`dryRun` default true) |
+| `POST /api/frappe/ensure-product-doctypes` | Idempotent DocType create + incident stage Custom Fields (`dryRun` default true) |
+| `GET\|POST /api/frappe/product?kind=incident` | Live list/upsert including process-stage stamps |
 | `POST /api/frappe/product-smoke` | Create one project / incident / evidence under a Customer |
 | `POST /api/frappe/upload-file` | Proxy to Frappe `upload_file` (session or API key) |
 

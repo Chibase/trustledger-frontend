@@ -40,7 +40,11 @@ Trust observations, participation, and community context use:
 
 `GET|POST /api/frappe/trust` (`kind=observation|participation|community|verification|bucket`)
 
-`noteService` still tries `FRAPPE_METHODS.listNotes` in live mode, then falls through to `engagementService` (SI Engagement DocType). Named Python `engagements.py` is not in this frontend repo. SI-Cloud status: **shipped**. TE-7 / TE-11 trust DocTypes: **shipped** (BUILD_PLAN).
+Live incidents (including process-stage stamps) use the product BFF, not `srm_core` `list_incidents`:
+
+`GET|POST /api/frappe/product?kind=incident`
+
+`noteService` still tries `FRAPPE_METHODS.listNotes` in live mode, then falls through to `engagementService` (SI Engagement DocType). Named Python `engagements.py` is not in this frontend repo. SI-Cloud status: **shipped**. TE-7 / TE-11 trust DocTypes: **shipped**. 24e-cloud incident stamps: **shipped**.
 
 ### OD-2 resource path (until srm_core create methods land)
 
@@ -48,7 +52,8 @@ Prefer Frappe **resource** DocTypes created by Ops ensure:
 
 | Action | Path | Notes |
 |--------|------|-------|
-| Ensure DocTypes | `POST /api/frappe/ensure-product-doctypes` | `TL Project`, `TL Incident`, `TL Evidence`, SI, **TE-7 / TE-11 trust** |
+| Ensure DocTypes | `POST /api/frappe/ensure-product-doctypes` | `TL Project`, `TL Incident` (+ stage Datetimes), `TL Evidence`, SI, **TE-7 / TE-11 trust** |
+| Live incident list/upsert | `GET\|POST /api/frappe/product?kind=incident` | Process-stage stamps; empty Cloud stays empty |
 | Smoke create | `POST /api/frappe/product-smoke` | `{ kind, customer, project\|incident\|evidence\|…\|observation\|participation\|community\|verification }` |
 | Upload file | `POST /api/frappe/upload-file` | multipart → Frappe `upload_file` |
 
