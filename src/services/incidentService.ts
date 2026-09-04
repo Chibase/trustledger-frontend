@@ -115,8 +115,8 @@ export function mergeIncidentCache(cloud: Incident, local: Incident): Incident {
   return {
     ...local,
     ...cloud,
-    processStages: cloud.processStages || local.processStages,
-    status: cloud.status || local.status,
+    processStages: cloud.processStages,
+    status: cloud.status,
     timeline: local.timeline?.length ? local.timeline : cloud.timeline,
     geo: local.geo || cloud.geo,
     slaDueBy: local.slaDueBy || cloud.slaDueBy,
@@ -137,17 +137,10 @@ export function mergeIncidentCache(cloud: Incident, local: Incident): Incident {
 
 export function mergeCloudAndLocal(cloud: Incident[], local: Incident[]): Incident[] {
   const localById = new Map(local.map((row) => [row.id, row]));
-  const seen = new Set<string>();
-  const out: Incident[] = [];
-  for (const row of cloud) {
-    seen.add(row.id);
+  return cloud.map((row) => {
     const overlay = localById.get(row.id);
-    out.push(overlay ? mergeIncidentCache(row, overlay) : row);
-  }
-  for (const row of local) {
-    if (!seen.has(row.id)) out.push(row);
-  }
-  return out;
+    return overlay ? mergeIncidentCache(row, overlay) : row;
+  });
 }
 
 async function listDemo(filters: IncidentListFilters): Promise<Incident[]> {
@@ -195,14 +188,14 @@ export const incidentService = {
     const clean = omitCloudTrustOverlay(incident);
     if (isLiveMode()) {
       const pushed = await saveToCloudProduct(clean);
+      if (!pushed) {
+        throw new Error("Could not save on TrustLedger Cloud");
+      }
       const { readTrialModeFromDocument } = await import("@/lib/trial");
       const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
       if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
         const { saveOrgIncident } = await import("@/lib/orgDataSpace");
         saveOrgIncident(clean);
-      }
-      if (!pushed) {
-        throw new Error("Could not save on TrustLedger Cloud");
       }
       return delay(clean);
     }
