@@ -98,3 +98,25 @@ export {
   type TrustProofClaim,
   type TrustProofReport,
 } from "@/lib/trust/proofReport";
+export {
+  TRUST_INTELLIGENCE_RULES,
+  trustRuleSummary,
+  type TrustAlert,
+  type TrustIntelligenceRuleId,
+  type TrustRecommendation,
+  type TrustTrace,
+} from "@/lib/trust/rules";
+export {
+  collectTrustAlerts,
+  recommendTrustActions,
+} from "@/lib/trust/recommendations";
+export {
+  buildTrustIntelligenceFromSrm,
+  composeTrustAdvisoryLanguage,
+  composeTrustIntelligence,
+  composeTrustIntelligenceFromProof,
+  draftTrustSensitiveNotes,
+  type TrustAdvisoryLanguage,
+  type TrustIntelligenceBrief,
+  type TrustSensitiveDrafts,
+} from "@/lib/trust/intelligence";

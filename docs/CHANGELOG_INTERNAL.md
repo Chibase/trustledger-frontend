@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-04 — TE-4 trust intelligence and recommendations
+
+- Optional rule-based suggestions (repair, next engagement, follow-up, consider senior review) plus alerts for declining trust, missing evidence, weak participation, and unresolved cases. `docs/TRUST_INTELLIGENCE.md`.
+- Every item is `suggestion_only` with a published `ruleId` and trace (observations, evidence, cases). Nothing auto-applies, auto-escalates, or calls a remote model. Local advisory wording only.
+- Collapsed panel on `/app/reports` under Trust proof. Packs, writer, Trust pulse, and incident workflow unchanged.
+
 ## 2026-09-04 — TE-3 trust analytics and proof reporting
 
 - Optional, explainable trust analytics on the TE-2 layer: period movement (improving / declining / stable / mixed / insufficient), comparisons by community / location / stakeholder group / project-phase proxy, and risk flags (declining, at-risk, low confidence, insufficient evidence). `docs/TRUST_PROOF.md`.

@@ -83,4 +83,4 @@ Customer / trial workspaces use `listWorkspaceIncidents` / `listWorkspaceEvidenc
 
 ## Next packet (not this one)
 
-Recommendation or AI assistance on top of these proof outputs — **paused** until the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
+TE-4 ships optional, suggestion-only recommendations (`docs/TRUST_INTELLIGENCE.md`) on top of these proof outputs. Global South adaptation / MVP packaging is the following approved packet, not this one. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.

@@ -10,6 +10,7 @@ import {
 } from "@/components/reports/ReportLensLayout";
 import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import { TrustProofPanel } from "@/components/reports/TrustProofPanel";
+import { TrustIntelligencePanel } from "@/components/reports/TrustIntelligencePanel";
 import { KpiCard } from "@/components/ui/KpiCard";
 import type { PlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
@@ -326,6 +327,7 @@ export function ReportsHub({
       ) : null}
 
       <TrustProofPanel />
+      <TrustIntelligencePanel />
     </div>
   );
 }
