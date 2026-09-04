@@ -42,7 +42,7 @@ export const TRUST_INTELLIGENCE_RULES = {
   "TR-ALERT-WEAK-PARTICIPATION": {
     kind: "alert" as const,
     summary:
-      "Flag weak participation / willingness signals. Informational — does not create engagements.",
+      "Flag weak participation from explicit low willingness only. Mixed, obligation, or livelihood motive does not invent this alert. Informational — does not create engagements.",
   },
   "TR-ALERT-UNRESOLVED-CONCERN": {
     kind: "alert" as const,

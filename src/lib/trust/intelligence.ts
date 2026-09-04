@@ -5,7 +5,7 @@
 
 import { recommendTrustActions, collectTrustAlerts } from "@/lib/trust/recommendations";
 import { summarizeCommunityContextForIntel } from "@/lib/trust/communityContext";
-import { summarizeParticipationRealismForIntel } from "@/lib/trust/participationRealism";
+import { summarizeParticipationQualityForIntel } from "@/lib/trust/participationQuality";
 import { buildTrustProofFromSrm, composeTrustProofReport } from "@/lib/trust/proofReport";
 import type {
   BuildTrustProofExtra,
@@ -66,7 +66,7 @@ function attachGlobalSouthContextHints(
 ): TrustIntelligenceBrief {
   const hints = [
     ...summarizeCommunityContextForIntel(input.community || []),
-    ...summarizeParticipationRealismForIntel(input.participation || []),
+    ...summarizeParticipationQualityForIntel(input.participation || []),
   ];
   if (!hints.length) return brief;
   brief.advisory.supportNotes = [...brief.advisory.supportNotes, ...hints];

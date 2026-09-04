@@ -1,5 +1,13 @@
 # Internal changelog
 
+## 2026-09-04 — TE-9 participation-quality reading
+
+- Classifies stored participation as **trust / obligation / livelihood / mixed / unknown**. Stored motive is the class; high willingness and attendance never infer trust.
+- Mixed, obligation, and livelihood are **not** treated as weak. Weak-participation alerts use explicit low willingness only (`notTrustDriven` no longer invents the alert).
+- Attendance / presence is never read as consent. Quality mix is a **count of classes**, not Trust pulse and not a 0–100 score.
+- Proof markdown, intelligence notes, community profiles, and the dashboard hub show the mix. Capture stays optional. No new DocType.
+- Trust pulse unchanged. Empty Cloud stays empty.
+
 ## 2026-09-04 — Dashboard Copilot follow-up (chart keys + open KPI)
 
 - Bar charts key rows by index + label (duplicate names no longer collide). Overview series keep full labels; horizontal overflow is CSS-truncated; vertical axis labels crop in the SVG with the full name on hover.

@@ -27,7 +27,7 @@ Draft helpers (`fieldNoteToCommunityDraft`, `fieldNoteToParticipationDraft`) sta
 ## How this supports existing trust work
 
 - TE-3 comparisons still group by place / kind. Extra context is available on the same community rows.
-- TE-4 alerts and recommendation **rules are unchanged**. Mixed motivation and unknown willingness do not invent a weak-participation alert.
+- TE-4 alerts and recommendation **rules are unchanged in id**. Mixed motivation and unknown willingness do not invent a weak-participation alert (TE-9 reads quality from stored motive; only explicit low willingness is weak).
 - When optional context *is* present, TE-4 advisory `supportNotes` may include local-context hints (history, barriers, oral source, mixed motives). Suggestion only. Nothing is sent or applied.
 - Cloud mappers still post explicit SRM fields only. New keys stay on the parallel trust layer / capture preamble.
 

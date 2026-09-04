@@ -17,6 +17,11 @@ import {
   type TrustRiskFlag,
 } from "@/lib/trust/analytics";
 import { deriveTrustLayer, type DeriveTrustLayerInput } from "@/lib/trust/derive";
+import {
+  formatParticipationQualityMix,
+  summarizeParticipationQuality,
+  type TrustParticipationQualityIndex,
+} from "@/lib/trust/participationQuality";
 import { TRUST_DIMENSION_LABELS } from "@/types/trustLayer";
 import type { Stakeholder } from "@/types/stakeholder";
 import type {
@@ -62,6 +67,7 @@ export type TrustParticipationSummary = {
   contributeLow: number;
   trustDriven: number;
   notTrustDriven: number;
+  quality: TrustParticipationQualityIndex;
   notes: string[];
 };
 
@@ -99,6 +105,7 @@ function summarizeParticipation(
   const notes = unique(
     rows.map((row) => row.note || "").filter((note) => note.length > 0),
   );
+  const quality = summarizeParticipationQuality(rows);
   return {
     total: rows.length,
     participateHigh: rows.filter((row) => row.willingnessToParticipate === "high")
@@ -114,7 +121,8 @@ function summarizeParticipation(
       .length,
     trustDriven: rows.filter((row) => row.trustDriven === true).length,
     notTrustDriven: rows.filter((row) => row.trustDriven === false).length,
-    notes,
+    quality,
+    notes: unique([...notes, ...quality.notes]),
   };
 }
 
@@ -319,6 +327,8 @@ function renderMarkdown(report: {
     "## Participation and willingness",
     "",
     `- Records: ${part.total}`,
+    `- Quality mix: ${formatParticipationQualityMix(part.quality)} (stored motive; mixed is not weak; attendance is not consent; not Trust pulse)`,
+    `- Consent implied from attendance: ${part.quality.consentImpliedCount}`,
     `- Willingness to participate: high ${part.participateHigh}, medium ${part.participateMedium}, low ${part.participateLow}`,
     `- Willingness to contribute: high ${part.contributeHigh}, low ${part.contributeLow}`,
     `- Looks trust-driven: ${part.trustDriven}; not trust-driven: ${part.notTrustDriven}`,

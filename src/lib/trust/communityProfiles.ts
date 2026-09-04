@@ -6,7 +6,7 @@
 import {
   summarizeCommunityContextForIntel,
 } from "@/lib/trust/communityContext";
-import { summarizeParticipationRealismForIntel } from "@/lib/trust/participationRealism";
+import { summarizeParticipationQualityForIntel } from "@/lib/trust/participationQuality";
 import { getActiveOrgId } from "@/lib/orgStore";
 import {
   getTrustLayerBucket,
@@ -32,6 +32,7 @@ export type CommunityProfile = {
   oralSource?: boolean;
   contextHints: string[];
   participationHints: string[];
+  qualityMix?: string;
 };
 
 function isDerivedShell(row: TrustCommunityContext): boolean {
@@ -77,24 +78,30 @@ export function buildCommunityProfiles(
 ): CommunityProfile[] {
   return community
     .filter((row) => !isDerivedShell(row))
-    .map((row) => ({
-      id: row.id,
-      label: labelFor(row),
-      municipality: row.municipality,
-      ward: row.ward,
-      historyNotes: row.historyNotes,
-      powerStructureNotes: row.powerStructureNotes,
-      sensitivityNotes: row.sensitivityNotes,
-      barriers: row.barriers,
-      barrierTags: row.barrierTags,
-      workingLanguage: row.workingLanguage,
-      narrativeLanguage: row.narrativeLanguage,
-      oralSource: row.oralSource,
-      contextHints: summarizeCommunityContextForIntel([row]),
-      participationHints: summarizeParticipationRealismForIntel(
-        participationForCommunity(row, participation),
-      ),
-    }));
+    .map((row) => {
+      const scoped = participationForCommunity(row, participation);
+      const qualityHints = summarizeParticipationQualityForIntel(scoped);
+      const mixLine = qualityHints.find((line) =>
+        line.startsWith("Participation quality:"),
+      );
+      return {
+        id: row.id,
+        label: labelFor(row),
+        municipality: row.municipality,
+        ward: row.ward,
+        historyNotes: row.historyNotes,
+        powerStructureNotes: row.powerStructureNotes,
+        sensitivityNotes: row.sensitivityNotes,
+        barriers: row.barriers,
+        barrierTags: row.barrierTags,
+        workingLanguage: row.workingLanguage,
+        narrativeLanguage: row.narrativeLanguage,
+        oralSource: row.oralSource,
+        contextHints: summarizeCommunityContextForIntel([row]),
+        participationHints: qualityHints,
+        qualityMix: mixLine,
+      };
+    });
 }
 
 export function loadWorkspaceCommunityProfiles(): CommunityProfile[] {

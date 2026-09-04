@@ -81,6 +81,8 @@ describe("trust workspace summary", () => {
     expect(
       summary.dimensions.some((row) => row.dimension === "process" && row.mean != null),
     ).toBe(true);
+    expect(summary.participationQuality.total).toBe(0);
+    expect(summary.participationQuality.consentImpliedCount).toBe(0);
   });
 
   it("maps −1…+1 means onto a 0–100 chart scale without becoming Trust pulse", () => {

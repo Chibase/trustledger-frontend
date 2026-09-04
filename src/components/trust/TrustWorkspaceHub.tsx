@@ -18,6 +18,11 @@ import {
   trustMeanToDisplay,
 } from "@/lib/trust/workspaceProof";
 import type { TrustProofReport } from "@/lib/trust/proofReport";
+import {
+  TRUST_PARTICIPATION_QUALITY_CLASSES,
+  TRUST_PARTICIPATION_QUALITY_LABELS,
+  formatParticipationQualityMix,
+} from "@/lib/trust/participationQuality";
 
 const AXIS_LABEL: Record<TrustComparisonAxis, string> = {
   community: "Community",
@@ -213,6 +218,35 @@ export function TrustWorkspaceHub() {
           }
         />
       </div>
+
+      {summary && summary.participationQuality.total > 0 ? (
+        <div>
+          <h3 className="mb-1 text-sm font-semibold text-tl-ink">
+            Participation quality
+          </h3>
+          <p className="mb-3 text-xs text-tl-ink-muted">
+            Stored motive mix — mixed is not weak, attendance is not consent,
+            not Trust pulse.{" "}
+            {formatParticipationQualityMix(summary.participationQuality)}.
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {TRUST_PARTICIPATION_QUALITY_CLASSES.map((key) => (
+              <li
+                key={key}
+                className="rounded-md border border-tl-line px-3 py-1.5 text-sm text-tl-ink"
+              >
+                <span className="font-medium">
+                  {TRUST_PARTICIPATION_QUALITY_LABELS[key]}
+                </span>
+                <span className="text-tl-ink-muted">
+                  {" "}
+                  {summary.participationQuality.byClass[key]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div>

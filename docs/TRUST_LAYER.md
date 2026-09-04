@@ -24,6 +24,7 @@ Trust pulse widget            not wired to overlay                   TE-3 option
 - TE-3 may **read** the store and derived rows for an optional proof panel. It still does not write SRM data.
 - TE-5 adds optional Global South context fields on the same rows (`docs/TRUST_GLOBAL_SOUTH.md`). They stay optional.
 - TE-8 **apply** of an engagement writes one participation row (upsert by engagement id) and, when a human applied an overlay, trust observations. Overlay is optional. SRM sentiment is never copied.
+- TE-9 **reads** stored participation as a quality mix (`trust` / `obligation` / `livelihood` / `mixed` / `unknown`). Mixed is not weak. Attendance is not consent. The mix is not Trust pulse.
 
 ## What it can store
 
@@ -41,6 +42,12 @@ Status rules (keep explainable): scored signals map to +1 / 0 / −1; mean ≥ 0
 
 TE-7 ships Frappe DocTypes + BFF (`docs/TRUST_DOCTYPES.md`). Live customer/trial workspaces use Cloud as SoT; `tl-trust-layer` is a cache. Do not POST TE-1 overlay keys. Do not copy SRM sentiment into observations.
 
+## Participation-quality reading (TE-9)
+
+`classifyParticipationQuality` / `summarizeParticipationQuality` read stored `motivation` as the class. They do **not** infer trust from attendance, presence, or high willingness. Mixed / obligation / livelihood is **not** weak. Consent is never implied from presence (in-person, proxy, or household). The index is **counts by class**, not a composite score and not Trust pulse.
+
+Proof, intelligence, community profiles, and the dashboard hub surface the mix. Capture stays optional. No new DocType.
+
 ## Next packet (not this one)
 
-TE-8 is shipped: human apply writes participation + optional overlay observations. **TE-9** is participation-quality reading. They do not change Trust pulse math or make capture mandatory. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
+TE-9 is shipped. Further trust packets wait on the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.

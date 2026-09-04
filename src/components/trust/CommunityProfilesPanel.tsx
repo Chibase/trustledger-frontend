@@ -38,8 +38,8 @@ export function CommunityProfilesPanel() {
           </h2>
           <p className="mt-1 text-sm text-tl-ink-muted">
             History, power context, language, and participation interpretation
-            from field capture. Attendance is not consent. English is not the
-            default working language.
+            from field capture. Attendance is not consent. Mixed motive is not
+            weak. English is not the default working language.
           </p>
         </div>
         <Link
@@ -99,9 +99,19 @@ export function CommunityProfilesPanel() {
                   {row.barrierTags?.join(", ") || row.barriers}
                 </p>
               ) : null}
-              {row.participationHints.length ? (
+              {row.qualityMix ? (
+                <p className="mt-2 text-sm text-tl-ink">
+                  <span className="font-medium">Quality mix. </span>
+                  {row.qualityMix.replace(/^Participation quality:\s*/, "")}
+                </p>
+              ) : null}
+              {row.participationHints.filter(
+                (hint) => !hint.startsWith("Participation quality:"),
+              ).length ? (
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-tl-ink-muted">
-                  {row.participationHints.map((hint) => (
+                  {row.participationHints
+                    .filter((hint) => !hint.startsWith("Participation quality:"))
+                    .map((hint) => (
                     <li key={hint}>{hint}</li>
                   ))}
                 </ul>

@@ -15,7 +15,7 @@ import {
   composeTrustIntelligence,
   type TrustIntelligenceBrief,
 } from "@/lib/trust/intelligence";
-import { summarizeParticipationRealismForIntel } from "@/lib/trust/participationRealism";
+import { summarizeParticipationQualityForIntel } from "@/lib/trust/participationQuality";
 import {
   buildTrustProofFromSrm,
   composeTrustProofReport,
@@ -38,11 +38,12 @@ export const TRUST_MVP_COMPLETE = [
   "TE-5 optional Global South field/context (not a single community template); TE-5b community profiles and language support",
   "TE-7 Cloud trust SoT: TL Trust Observation / Participation / Community Context; SEC-1 customer bind; SRM sentiment is not copied",
   "TE-8 engagement apply writes participation (upsert by engagement id) and optional overlay observations; note sentiment is not copied",
+  "TE-9 participation-quality reading: class mix (trust / obligation / livelihood / mixed / unknown) from stored motive; mixed is not weak; attendance is not consent; not Trust pulse",
 ] as const;
 
 export const TRUST_MVP_PARTIAL = [
   "Trust proof workspace hub is on /app/dashboard and the desk; optional proof/recs panels remain on /app/reports. Not a monthly / executive / board pack or community-facing summary",
-  "Participation records capture willingness, motive, and attendance≠consent; there is no scored participation-quality index",
+  "Participation quality is a count of stored motive classes (not a composite 0–100 score or Trust pulse)",
   "Observations and proof claims can cite evidenceIds; there is no separate trust-claim verification workflow",
   "Period trend is later vs earlier mean (mixed when dimensions disagree). Not causality",
   "TE-4 recs are rule-traced from trust state and evidence ids; generic triage/sentiment/draft AI remains local heuristics",
@@ -222,7 +223,7 @@ export function composeTrustMvpPackage(
   });
   const communityHints = [
     ...summarizeCommunityContextForIntel(input.community || []),
-    ...summarizeParticipationRealismForIntel(input.participation || []),
+    ...summarizeParticipationQualityForIntel(input.participation || []),
   ];
   const authorityRoles = listAuthorityRoles(input.stakeholders || []);
   const generatedAt = input.generatedAt || proof.generatedAt;
