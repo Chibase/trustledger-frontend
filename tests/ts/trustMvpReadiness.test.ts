@@ -16,6 +16,7 @@ import {
   createTrustCommunityContext,
   createTrustObservation,
   createTrustParticipation,
+  demoteMarkdownHeadings,
   mvpProofMatchesStandalone,
   trustPulseUnchangedByMvpPackaging,
 } from "@/lib/trust";
@@ -113,10 +114,28 @@ describe("TE-6 MVP packaging", () => {
     );
     expect(pkg.markdown).toContain("TrustLedger MVP package");
     expect(pkg.markdown).toContain("suggestion only");
+    expect(pkg.markdown.match(/^# .+$/gm)).toEqual([
+      "# TrustLedger MVP package (optional, internal)",
+    ]);
+    expect(pkg.markdown).toContain("### Trust proof summary");
+    expect(pkg.markdown).toContain("### Trust intelligence (optional)");
+    expect(pkg.markdown).toContain("#### Overall movement");
     expect(pkg.markdown).not.toContain("Frappe");
     expect(pkg.ruleCatalog).toEqual(
       expect.arrayContaining(["TR-REPAIR-DECLINING", "TR-FOLLOWUP-MISSING-EVIDENCE"]),
     );
+  });
+
+  it("does not rewrite headings inside fenced code when demoting", () => {
+    const nested = demoteMarkdownHeadings(
+      ["# Title", "", "```", "# not a heading", "```", "", "## Section"].join(
+        "\n",
+      ),
+      2,
+    );
+    expect(nested).toContain("### Title");
+    expect(nested).toContain("# not a heading");
+    expect(nested).toContain("#### Section");
   });
 
   it("does not mark empty workspaces as having proof, trends, or recs", () => {

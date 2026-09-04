@@ -162,6 +162,7 @@ export {
   TRUST_MVP_PARTIAL,
   buildTrustMvpPackageFromSrm,
   composeTrustMvpPackage,
+  demoteMarkdownHeadings,
   mvpProofMatchesStandalone,
   trustPulseUnchangedByMvpPackaging,
   type TrustMvpPackage,
