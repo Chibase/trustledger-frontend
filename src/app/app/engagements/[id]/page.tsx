@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { NoteSentimentAssist } from "@/components/ai/NoteSentimentAssist";
+import { TrustOverlayAssist } from "@/components/engagements/TrustOverlayAssist";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { communicationNoteText } from "@/lib/sentimentAnalysis";
@@ -167,6 +168,16 @@ export default function AppEngagementDetailPage() {
                 const saved = await engagementService.save(next);
                 setRow(saved);
               }}
+            />
+
+            <TrustOverlayAssist
+              engagement={row}
+              noteText={communicationNoteText({
+                title: row.title,
+                summary: row.summary,
+                actionItems: row.actionItems,
+              })}
+              onApplied={(next) => setRow(next)}
             />
 
             <section>

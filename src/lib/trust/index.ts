@@ -60,6 +60,11 @@ export {
 } from "@/lib/trust/communityContext";
 export { deriveTrustLayer } from "@/lib/trust/derive";
 export {
+  applyEngagementToTrustLayer,
+  type ApplyEngagementToTrustLayerInput,
+  type ApplyEngagementToTrustLayerResult,
+} from "@/lib/trust/applyEngagement";
+export {
   clearTrustLayerBucket,
   createMemoryTrustLayerStorage,
   emptyTrustLayerBucket,

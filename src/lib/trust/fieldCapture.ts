@@ -39,6 +39,9 @@ export type FieldNoteMeta = {
   presenceMode: string;
   responsePattern: string;
   attendanceDoesNotEqualConsent: boolean;
+  /** Optional TE-8 — not inferred from attendance. */
+  willingnessToParticipate: string;
+  willingnessToContribute: string;
 };
 
 export const EMPTY_FIELD_META: FieldNoteMeta = {
@@ -64,6 +67,8 @@ export const EMPTY_FIELD_META: FieldNoteMeta = {
   presenceMode: "",
   responsePattern: "",
   attendanceDoesNotEqualConsent: false,
+  willingnessToParticipate: "",
+  willingnessToContribute: "",
 };
 
 function placeLabel(meta: FieldNoteMeta): string | undefined {
@@ -112,6 +117,12 @@ export function fieldNoteMetaPreamble(meta: FieldNoteMeta): string {
     meta.motivation ? `Participation motivation: ${meta.motivation}` : null,
     meta.presenceMode ? `Presence: ${meta.presenceMode}` : null,
     meta.responsePattern ? `Response pattern: ${meta.responsePattern}` : null,
+    meta.willingnessToParticipate && meta.willingnessToParticipate !== "unknown"
+      ? `Willingness to participate: ${meta.willingnessToParticipate}`
+      : null,
+    meta.willingnessToContribute && meta.willingnessToContribute !== "unknown"
+      ? `Willingness to contribute: ${meta.willingnessToContribute}`
+      : null,
     meta.attendanceDoesNotEqualConsent
       ? "Attendance does not equal consent"
       : null,
@@ -145,12 +156,18 @@ export function fieldNoteToCommunityDraft(
   });
 }
 
+function capturedWillingness(value: string): boolean {
+  return Boolean(value) && value !== "unknown";
+}
+
 export function fieldNoteHasParticipationExtras(meta: FieldNoteMeta): boolean {
   return Boolean(
     meta.motivation ||
       meta.presenceMode ||
       meta.responsePattern ||
-      meta.attendanceDoesNotEqualConsent,
+      meta.attendanceDoesNotEqualConsent ||
+      capturedWillingness(meta.willingnessToParticipate) ||
+      capturedWillingness(meta.willingnessToContribute),
   );
 }
 
@@ -173,6 +190,12 @@ export function fieldNoteToParticipationDraft(
     presenceMode: asPresenceMode(meta.presenceMode),
     responsePattern: asResponsePattern(meta.responsePattern),
     attendanceDoesNotEqualConsent: meta.attendanceDoesNotEqualConsent || undefined,
+    willingnessToParticipate: capturedWillingness(meta.willingnessToParticipate)
+      ? (meta.willingnessToParticipate as "high" | "medium" | "low")
+      : undefined,
+    willingnessToContribute: capturedWillingness(meta.willingnessToContribute)
+      ? (meta.willingnessToContribute as "high" | "medium" | "low")
+      : undefined,
     note: "Field capture extras — saved on human apply.",
   });
 }

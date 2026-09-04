@@ -23,6 +23,7 @@ Trust pulse widget            not wired to overlay                   TE-3 option
 - Derivation (`deriveTrustLayer`) **reads** optional TE-1 overlay fields, evidence `trustSupport`, and commitment kept/broken. It does **not** mutate SRM objects, does **not** auto-save, and does **not** treat generic SRM sentiment as a trust observation.
 - TE-3 may **read** the store and derived rows for an optional proof panel. It still does not write SRM data.
 - TE-5 adds optional Global South context fields on the same rows (`docs/TRUST_GLOBAL_SOUTH.md`). They stay optional.
+- TE-8 **apply** of an engagement writes one participation row (upsert by engagement id) and, when a human applied an overlay, trust observations. Overlay is optional. SRM sentiment is never copied.
 
 ## What it can store
 
@@ -42,4 +43,4 @@ TE-7 ships Frappe DocTypes + BFF (`docs/TRUST_DOCTYPES.md`). Live customer/trial
 
 ## Next packet (not this one)
 
-TE-8+ (participation quality, claims, packs) read this Cloud layer. They do not change Trust pulse math or make capture mandatory. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
+TE-8 is shipped: human apply writes participation + optional overlay observations. **TE-9** is participation-quality reading. They do not change Trust pulse math or make capture mandatory. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
