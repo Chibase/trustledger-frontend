@@ -137,6 +137,11 @@ export type EngagementPlan = {
   budgetHint?: string;
   /** Tender / RFP / bid number if the briefing labeled one. */
   tenderRefHint?: string;
+  /**
+   * Organisation implementing the plan (workspace / appointed entity).
+   * Not a vendor brand. TBC if the briefing does not name one.
+   */
+  implementingEntityHint?: string;
   createdAt: string;
   updatedAt: string;
   sourceExcerpt: string;

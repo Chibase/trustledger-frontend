@@ -13,8 +13,8 @@
 | Official name | **TrustLedger** |
 | App host | **Vercel** |
 | Demo URL target | `/demo` (and role dashboards under `/app/...`) |
-| Backend | **Frappe Cloud** `app.trustledger.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
-| Marketing | TrustLedger WP `trustledger.co.za` on Webway (CTAs). **Chibase Consulting** brochure on this app (`/firm`; DNS after WP cleanup). MX for both domains stays Webway. |
+| Backend | **Frappe Cloud** `app.trustledgersrm.co.za` (CRM/auth/payments now; `srm-core` later on Cloud) |
+| Marketing | TrustLedger WP `trustledgersrm.co.za` on Webway (CTAs). **Chibase Consulting** brochure on this app (`/firm`; DNS after WP cleanup). MX for both domains stays Webway. |
 | Runtime AI | Grok via `srm-core` on Cloud only — never from browser |
 
 **Current phase:** Phase 6 — **Version 002** core (ADR-023). Product label in market: **Version 001**. Demo/mock remains default until Frappe DocTypes land.
@@ -125,7 +125,7 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| 15 | WordPress CTA guide | Paste-ready buttons/UTM for trustledger.co.za | **Done** |
+| 15 | WordPress CTA guide | Paste-ready buttons/UTM for trustledgersrm.co.za | **Done** |
 | 16 | Evidence upload stub | Demo local evidence add on incident desk | **Done** |
 | 17 | Demo issue persistence | localStorage intake → appears in incident list | **Done** |
 | 18 | Toast feedback | Light success/error toasts on key actions | **Done** |
@@ -190,7 +190,14 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **OD-5** | V002 depth | Engagements → commitments → grievance → ESG (24c–24g) | **Done (UI modules)** |
 | **GO LIVE** | Operational grade | Env gates + lockdown-off; paying-customer Cloud ops | **Done** |
 | **SI-Cloud** | Stakeholder Intelligence on Cloud | TL Stakeholder / Engagement / Commitment DocTypes + live BFF CRUD | **Shipped (Ops ensure + smoke; buyer live usable)** |
-| **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase dashboard + Gemini-drafted tender SEP (template fallback; PDF/MD/Word); human apply seeds registry / engagements / commitments. **Operator / VIP desk only** until product-ready — not on commercial plans. | **Active** |
+| **SI-SEP** | Stakeholder engagement plan | RFP/tender/briefing **or facts pack (no file)** → extract metadata → seven-phase **process map** + **plan execution dashboard** (roadmap, KPIs, outcomes, mitigations, practitioner snapshot) + Gemini-drafted tender SEP; human apply seeds registry / engagements / commitments. Analysis engine (Phases A–G). **Operator / VIP desk only** until product-ready — not on commercial plans. | **Active** |
+| **TE-1** | Trust overlay (non-breaking) | Optional `trustResponse` / `trustSupport` + `composeTrustSignals` + opt-in AI overlay helpers. No UX, formula, or DocType change. `docs/TRUST_OVERLAY.md` | **Done** |
+| **TE-2** | Parallel trust-native layer | Dimensions, observations, explainable status, participation, community context; derive from SRM; separate `tl-trust-layer` store. No UI/DocType. `docs/TRUST_LAYER.md` | **Done** |
+| **TE-3** | Trust analytics and proof reporting | Explainable trend / comparison / risk on the trust layer; optional proof markdown on `/app/reports`. Not a pack; Trust pulse and existing writers unchanged. `docs/TRUST_PROOF.md` | **Done** |
+| **TE-4** | Trust intelligence and recommendations | Rule-based, suggestion-only next steps, alerts, and local advisory drafts on TE-3. Optional panel. No autonomous apply. `docs/TRUST_INTELLIGENCE.md` | **Done** |
+| **TE-5** | Global South operating adaptations | Optional community context, field-friendly capture, language readiness, authority mapping, participation realism. Additive; no single template. `docs/TRUST_GLOBAL_SOUTH.md` | **Done** |
+| **TE-6** | MVP packaging and readiness | Gap review, proof-package path, cross-module validation, internal checklist. No new trust capability. `docs/TRUST_MVP.md` | **Done** |
+| **PP-1** | Plan-as-container packaging | TierFlow module sequence; executive roll-up; VIP-only demo seed across included desks; non-VIP empty | **Done** |
 
 ### HubSpot cutover (ACTIVE)
 
@@ -230,6 +237,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **CP-1** | Solo entry plan | ADR-035 — `solo` R1,999 / 1 seat / essentials; wire Paystack + entitlements + seats + docs (`docs/SOLO_PLAN.md`) | **Done** |
+| **CP-2** | Focused SKUs (land-and-expand) | ADR-054 — persona desks on **one** TrustLedger workspace (grievance / local-spend evidence / field capture). No standalone product repos or per-SKU Cloud sites. Runbook `docs/MODULAR_SKUS.md` | **Done (decision + public copy)** |
 
 ### User enablement
 
@@ -243,7 +251,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **SEC-0** | Security ladder docs | ADR-038 + `docs/SECURITY_TENANCY.md` — L1–L5 + plan Trust/Isolation matrix; home pricing blurb + foldable comparison + optional privacy extras | **Done** |
-| **SEC-1** | Hard User Permissions | Frappe per-Customer permissions + A≠B smoke (L2) | Planned |
+| **SEC-1** | Hard User Permissions | Frappe per-Customer permissions + A≠B smoke (L2) | **Done** (Plan Owner bind + BFF session bind; invitees = SEC-5) |
 | **SEC-2** | Purge + subprocessors | Runbook + public subprocessors note (L3/L4 lite) | Planned |
 | **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | Planned |
 | **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
@@ -295,7 +303,12 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
-| 2026-07-11 | Initial Demo-first BUILD_PLAN (Packet 00) |
+| 2026-09-04 | TE-6 — MVP packaging: gap review, proof path, cross-module checks; no new trust capability |
+| 2026-09-04 | TE-5 — Global South adaptations: optional community/field context, language readiness, authority + participation realism |
+| 2026-09-04 | TE-4 — trust intelligence: rule-based suggestions, alerts, local advisory drafts (not autonomous) |
+| 2026-09-04 | TE-3 — trust analytics + optional proof reporting (not a pack; Trust pulse unchanged) |
+| 2026-09-04 | TE-2 — parallel trust-native layer (observations, dimensions, status; no UI/DocType) |
+| 2026-09-04 | TE-1 — frontend trust overlay library (optional fields + helpers; no UX/DocType change) |
 | 2026-07-21 | Phase 6 Version 002 core; Version 001 public label (ADR-023) |
 | 2026-07-22 | Operational delivery path (ADR-032); OD-1 active — delay paid prod until Cloud SoT |
 | 2026-07-23 | GO LIVE Done — operational-grade Cloud ops for paying customers |
@@ -323,4 +336,6 @@ src/app/api/webhooks/clickup/
 | 2026-08-21 | MKT-3 — operator briefs (topic / length / LinkedIn·Reddit·ESG·blog) |
 | 2026-08-21 | MKT-4 — marketing review inbox + archive |
 | 2026-08-26 | SI-SEP — stakeholder engagement plan from RFP/tender/briefing; sector playbooks; apply to SRM (ADR-053) |
-| 2026-08-27 | SI-SEP — operator / VIP desk only; off commercial plans until product-ready |
+| 2026-08-27 | SI-SEP — academic 25-section SEP; logged Spec + Framework PDFs; project-specific sequence; implementing organisation issuer; PDF cuts at last text page |
+| 2026-08-31 | CP-2 / ADR-054 — focused SKUs on one workspace (not standalone products); `docs/MODULAR_SKUS.md` |
+| 2026-09-04 | SI-SEP — operator / VIP desk only; off commercial plans until product-ready |

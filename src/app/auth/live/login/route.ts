@@ -25,6 +25,7 @@ import {
   getCustomerEntitlementByOwnerEmail,
 } from "@/lib/entitlementCloud";
 import { isVipCustomerName } from "@/lib/planLabel";
+import { isVipShowcaseLiveLoginMailbox } from "@/lib/vipShowcaseAuth";
 import { isPlanId } from "@/config/plans";
 import { PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
 import {
@@ -72,6 +73,17 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "usr and pwd are required" },
       { status: 400 },
+    );
+  }
+
+  if (isVipShowcaseLiveLoginMailbox(usr)) {
+    return NextResponse.json(
+      {
+        error:
+          "That mailbox is for the VIP showcase workspace, not TrustLedger Cloud. Use /login/vip.",
+        redirectTo: "/login/vip",
+      },
+      { status: 409 },
     );
   }
 
@@ -228,7 +240,7 @@ export async function POST(request: Request) {
     response.cookies.set(
       TL_USER_EMAIL_COOKIE,
       cookieSafeValue(email, 120),
-      cookieBase,
+      { ...cookieBase, httpOnly: true },
     );
     if (treatAsPlanOwner) {
       response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);

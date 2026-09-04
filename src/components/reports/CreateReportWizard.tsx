@@ -34,12 +34,18 @@ import {
 } from "@/lib/captureStore";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
+  bodyCitesAnyCaseId,
   buildPeriodActivityFacts,
   factsToPromptBlock,
   looksLikeReportTemplateGuide,
   periodFactsHaveWritableEvidence,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
+import {
+  FIXED_BRIEF_OUTLINE,
+  lensUsesFixedBrief,
+  reportLensForKind,
+} from "@/lib/reportLenses";
 import {
   createReportId,
   purgeTemplateGuideReports,
@@ -68,6 +74,8 @@ import type { UserRole } from "@/types/rbac";
 type CreateReportWizardProps = {
   role: UserRole;
   authorName: string;
+  initialKind?: ReportKind;
+  initialAudience?: ReportAudience;
 };
 
 function currentMonthLabel() {
@@ -107,6 +115,8 @@ function packEvidenceSummary(projectId: string): string[] {
 export function CreateReportWizard({
   role,
   authorName,
+  initialKind,
+  initialAudience,
 }: CreateReportWizardProps) {
   const { pushToast } = useToast();
   const [tier, setTier] = useState<DeskTier>("clo");
@@ -133,24 +143,27 @@ export function CreateReportWizard({
   const [purgedTemplates, setPurgedTemplates] = useState(0);
 
   useEffect(() => {
-    const desk = readDeskTier(role);
-    setTier(desk);
-    setKind(defaultKindForTier(desk));
-    setAudience(defaultAudienceForTier(desk));
-  }, [role]);
+    const frame = requestAnimationFrame(() => {
+      const desk = readDeskTier(role);
+      setTier(desk);
+      setKind(initialKind || defaultKindForTier(desk));
+      setAudience(initialAudience || defaultAudienceForTier(desk));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [role, initialKind, initialAudience]);
 
   useEffect(() => {
     let cancelled = false;
-    // Drop old Cloud LLM month-end drafts from this browser.
-    setPurgedTemplates(purgeTemplateGuideReports());
-    // Never keep a leftover Month-End paste in the editor across visits.
-    setBody("");
-    setDraft(null);
-    setStatus("idle");
-    setError(null);
-    setSavedId(null);
-
     const frame = requestAnimationFrame(() => {
+      // Drop old Cloud LLM month-end drafts from this browser.
+      setPurgedTemplates(purgeTemplateGuideReports());
+      // Never keep a leftover Month-End paste in the editor across visits.
+      setBody("");
+      setDraft(null);
+      setStatus("idle");
+      setError(null);
+      setSavedId(null);
+
       void (async () => {
         // Same project list path as Capture — Cloud/VIP + local dossier overlay.
         const seeded = await projectService.list().catch(() => [] as Project[]);
@@ -175,21 +188,24 @@ export function CreateReportWizard({
   }, []);
 
   useEffect(() => {
-    if (!projectId) {
-      setFacts(null);
-      setFactsBlock("");
-      setEvidence([]);
-      return;
-    }
-    const selectedProject = projects.find((p) => p.id === projectId);
-    const scopedFacts = buildPeriodActivityFacts(allIncidents, {
-      projectId,
-      projectName: selectedProject?.name,
-      project: selectedProject,
+    const frame = requestAnimationFrame(() => {
+      if (!projectId) {
+        setFacts(null);
+        setFactsBlock("");
+        setEvidence([]);
+        return;
+      }
+      const selectedProject = projects.find((p) => p.id === projectId);
+      const scopedFacts = buildPeriodActivityFacts(allIncidents, {
+        projectId,
+        projectName: selectedProject?.name,
+        project: selectedProject,
+      });
+      setFacts(scopedFacts);
+      setFactsBlock(factsToPromptBlock(scopedFacts));
+      setEvidence(scopedFacts.evidence);
     });
-    setFacts(scopedFacts);
-    setFactsBlock(factsToPromptBlock(scopedFacts));
-    setEvidence(scopedFacts.evidence);
+    return () => cancelAnimationFrame(frame);
   }, [allIncidents, projectId, projects]);
 
   const catalogue = useMemo(() => {
@@ -201,16 +217,23 @@ export function CreateReportWizard({
   }, [kind, tier]);
 
   useEffect(() => {
-    const next = new Set<ReportSectionId>();
-    for (const section of catalogue) {
-      if (section.allowed && section.preferred) next.add(section.id);
-    }
-    setSelected(next);
+    const frame = requestAnimationFrame(() => {
+      const next = new Set<ReportSectionId>();
+      for (const section of catalogue) {
+        if (section.allowed && section.preferred) next.add(section.id);
+      }
+      setSelected(next);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [catalogue]);
 
   const lockedSections = catalogue.filter((s) => !s.allowed);
   const project = projects.find((p) => p.id === projectId);
   const packLines = projectId ? packEvidenceSummary(projectId) : [];
+  const lens = reportLensForKind(kind);
+  const fixedOutline = lensUsesFixedBrief(lens)
+    ? FIXED_BRIEF_OUTLINE[lens]
+    : null;
 
   function selectProject(nextId: string) {
     setProjectId(nextId);
@@ -278,9 +301,15 @@ export function CreateReportWizard({
           "AI returned a template guide instead of a report. The evidence writer blocked it — try again.",
         );
       }
-      if (facts.attended.length > 0 && !/\bINC-\d+/i.test(result.bodyMarkdown)) {
+      if (
+        facts.attended.length > 0 &&
+        !bodyCitesAnyCaseId(
+          result.bodyMarkdown,
+          facts.attended.map((i) => i.id),
+        )
+      ) {
         throw new Error(
-          "Draft missing case citations (INC-*). Evidence writer did not run — hard-refresh and retry.",
+          "Draft missing case citations. Evidence writer did not run — hard-refresh and retry.",
         );
       }
       if (!String(result.model || "").includes("trustledger-evidence")) {
@@ -489,7 +518,14 @@ export function CreateReportWizard({
           <select
             className="w-full rounded-md border border-tl-line px-3 py-2"
             value={kind}
-            onChange={(e) => setKind(e.target.value as ReportKind)}
+            onChange={(e) => {
+              const next = e.target.value as ReportKind;
+              setKind(next);
+              setBody("");
+              setDraft(null);
+              setSavedId(null);
+              setStatus("idle");
+            }}
           >
             {REPORT_KINDS.map((id) => (
               <option key={id} value={id}>
@@ -523,40 +559,55 @@ export function CreateReportWizard({
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-        <h2 className="text-base font-semibold">Mapped topics (automatic)</h2>
+        <h2 className="text-base font-semibold">
+          {fixedOutline ? "Fixed brief" : "Mapped topics (automatic)"}
+        </h2>
         <p className="mt-1 text-xs text-tl-ink-muted">
           For{" "}
           <span className="font-medium text-tl-ink">
             {REPORT_KIND_LABELS[kind]}
-          </span>{" "}
-          on{" "}
-          <span className="font-medium text-tl-ink">{project.name}</span>,
-          topics are fixed by the report kind — you do not pick them. Prefer
-          the{" "}
-          <Link
-            href={`/app/projects/${encodeURIComponent(project.id)}#project-reports`}
-            className="text-tl-trust-ink underline"
-          >
-            project dashboard
-          </Link>{" "}
-          for category-mapped charts and generation.
+          </span>
+          {project ? (
+            <>
+              {" "}
+              on{" "}
+              <span className="font-medium text-tl-ink">{project.name}</span>
+            </>
+          ) : null}
+          {fixedOutline
+            ? " this pack always writes the outline below. Topics are locked so the brief does not become a monthly dump."
+            : " topics are fixed by the report kind — you do not pick them. Prefer the "}
+          {!fixedOutline && project ? (
+            <>
+              <Link
+                href={`/app/projects/${encodeURIComponent(project.id)}#project-reports`}
+                className="text-tl-trust-ink underline"
+              >
+                project dashboard
+              </Link>{" "}
+              for category-mapped charts and generation.
+            </>
+          ) : null}
           {facts
             ? ` Evidence: ${facts.attended.length} cases · ${packLines.length} pack type${packLines.length === 1 ? "" : "s"} · trust ${facts.trustIndex}/100.`
             : ""}
         </p>
         <ul className="mt-3 flex flex-wrap gap-1.5 text-xs">
-          {catalogue
-            .filter((s) => s.allowed && s.preferred)
-            .map((section) => (
-              <li
-                key={section.id}
-                className="rounded-md border border-tl-line bg-tl-paper px-2 py-1 text-tl-ink"
-              >
-                {section.label}
-              </li>
-            ))}
+          {(fixedOutline
+            ? fixedOutline
+            : catalogue
+                .filter((s) => s.allowed && s.preferred)
+                .map((s) => s.label)
+          ).map((label) => (
+            <li
+              key={label}
+              className="rounded-md border border-tl-line bg-tl-paper px-2 py-1 text-tl-ink"
+            >
+              {label}
+            </li>
+          ))}
         </ul>
-        {lockedSections.length ? (
+        {lockedSections.length && !fixedOutline ? (
           <p className="mt-2 text-xs text-tl-ink-muted">
             Above this desk:{" "}
             {lockedSections.map((s) => s.label).join(", ")}.

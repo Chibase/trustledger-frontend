@@ -147,7 +147,7 @@ export function buildProjectCategoryMap(args: {
       id: "overview",
       label: "Project overview",
       description: "Dossier, place, funder, and programme status.",
-      reportKinds: ["monthly_activity", "mel", "board_investor"],
+      reportKinds: ["monthly_activity", "mel", "board_investor", "executive_risk"],
       captureHref: capture("project_profile"),
       moduleHref: `/app/projects/${id}`,
       hasData: Boolean(
@@ -185,6 +185,7 @@ export function buildProjectCategoryMap(args: {
         "monthly_activity",
         "mel",
         "health_safety",
+        "executive_risk",
       ],
       captureHref: capture("grm_period"),
       moduleHref: `/app/incidents?project=${id}`,
@@ -227,7 +228,7 @@ export function buildProjectCategoryMap(args: {
       id: "issue_log",
       label: "Issue log pathway",
       description: "Report → follow-ups → escalate → resolve → close.",
-      reportKinds: ["issue_handling", "grm", "monthly_activity", "mel"],
+      reportKinds: ["issue_handling", "grm", "monthly_activity", "mel", "executive_risk"],
       captureHref: capture("issue_log"),
       hasData: Boolean(
         (issueLog?.entries || []).some((e) => e.title?.trim()) ||
@@ -386,7 +387,7 @@ export function buildProjectCategoryMap(args: {
       id: "stakeholders",
       label: "Stakeholders",
       description: "People and organisations linked to this project.",
-      reportKinds: ["monthly_activity", "csi", "mel", "board_investor", "grm"],
+      reportKinds: ["monthly_activity", "csi", "mel", "board_investor", "grm", "executive_risk"],
       moduleHref: "/app/stakeholders",
       hasData: stakeholders.length > 0,
       facts: [

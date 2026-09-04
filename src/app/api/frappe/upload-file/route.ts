@@ -8,8 +8,10 @@ import {
 } from "@/lib/leadCapture";
 import {
   assertLiveOperatorAccess,
+  isPlatformOperatorIdentity,
   operatorGateMessage,
 } from "@/lib/platformOperator";
+import { bindSessionCustomer } from "@/lib/tenantScope";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,8 +54,32 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "file required" }, { status: 400 });
   }
 
+  const operator = isPlatformOperatorIdentity(email);
+  if (!sid && !operator) {
+    return NextResponse.json(
+      { error: "Live sign-in required to upload files" },
+      { status: 401 },
+    );
+  }
+
+  const claimedCustomer =
+    typeof form.get("customer") === "string"
+      ? String(form.get("customer"))
+      : undefined;
+  const bound = await bindSessionCustomer(email, claimedCustomer, {
+    operatorUnscoped: operator,
+    sid,
+  });
+  if (!bound.ok) {
+    return NextResponse.json(
+      { error: bound.error, code: bound.code },
+      { status: bound.status },
+    );
+  }
+
   const outbound = new FormData();
   for (const [key, value] of form.entries()) {
+    if (key === "customer") continue;
     outbound.append(key, value);
   }
 

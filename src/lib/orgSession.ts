@@ -13,8 +13,15 @@ import {
   TL_TRIAL_STARTED_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
+  TL_VIP_COOKIE,
   SESSION_MAX_AGE_SECONDS,
 } from "@/lib/auth.constants";
+import {
+  isVipShowcaseDefaultEmail,
+  VIP_SHOWCASE_ORG_NAME,
+  VIP_SHOWCASE_PLAN_ID,
+  VIP_SHOWCASE_WEEKS,
+} from "@/lib/vipShowcaseIdentity";
 import type { PlanId } from "@/config/plans";
 import { PLAN_OWNER_DESK_TIER, type DeskTier } from "@/types/deskTier";
 import type { UserRole } from "@/types/rbac";
@@ -125,6 +132,39 @@ export function bootstrapPlanOwnerOrg(input: {
     startedAt: input.startedAt,
     maxAge: input.maxAge,
   });
+  return org;
+}
+
+/**
+ * Complimentary VIP Institutional showcase (browser own-data).
+ * Uses trial mode so operator emails are not redirected to /ops, stamps
+ * tl-vip, and skips the 14-day trial clock (8-week cookie).
+ */
+export function startVipShowcaseSession(input: {
+  email: string;
+  name: string;
+  weeks?: number;
+}) {
+  const weeks = input.weeks ?? VIP_SHOWCASE_WEEKS;
+  const maxAge = weeks * 7 * 24 * 60 * 60;
+  const org = bootstrapPlanOwnerOrg({
+    email: input.email,
+    name: input.name,
+    planId: VIP_SHOWCASE_PLAN_ID,
+    organization: isVipShowcaseDefaultEmail(input.email)
+      ? VIP_SHOWCASE_ORG_NAME
+      : `VIP Pilot — ${input.name.trim() || "Guest"}`,
+    mode: "trial",
+    maxAge,
+    complimentaryVip: true,
+  });
+  setCookie(TL_VIP_COOKIE, "1", maxAge);
+  setCookie(TL_TRIAL_PLAN_COOKIE, VIP_SHOWCASE_PLAN_ID, maxAge);
+  setCookie(TL_DESK_TIER_COOKIE, PLAN_OWNER_DESK_TIER[VIP_SHOWCASE_PLAN_ID], maxAge);
+  setCookie(TL_DESK_TIER_LOCKED_COOKIE, "0", maxAge);
+  setCookie(TL_ORG_OWNER_COOKIE, "1", maxAge);
+  // Showcase is not a 14-day billed trial — drop any leftover clock cookie.
+  setCookie(TL_TRIAL_STARTED_COOKIE, "", 0);
   return org;
 }
 

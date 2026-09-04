@@ -17,7 +17,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 
 - **Date:** 2026-07-11
 - **Status:** Accepted
-- **Context:** AccordBridge was preferred but unavailable; domain trustledger.co.za is in use.
+- **Context:** AccordBridge was preferred but unavailable; public apex is **trustledgersrm.co.za** (ADR-057; previously trustledger.co.za).
 - **Decision:** All UI copy, metadata, and docs use **TrustLedger** only.
 - **Consequences:** No dual branding in the app.
 - **Alternatives considered:** Keep AccordBridge as marketing alias (rejected for clarity).
@@ -116,6 +116,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   5. Sales language must match shipped controls; VIP beta continues mock/anonymised data (TOU v2).
   6. **Client-facing copy** names **TrustLedger** only; hosting is “cloud” / “private cloud workspace” (no Frappe/Vercel on marketing). Privacy depth beyond baseline is **optional extras** with a short protection blurb and foldable plan comparison on home pricing.
 - **Consequences:** Pricing pages and ACCESS_MODEL gain explicit Trust & tenancy rows. SEC-1…SEC-5 packets schedule the climb. Isolation prices stay sales-scoped until host quotes lock.
+- **Deepened 2026-08-25 (SEC-1):** Plan Owner Cloud Users are stamped with a Customer User Permission (`apply_to_all_doctypes`). Live SI / migrate / upload / project BFF bind Customer from the **Cloud sid**, not a client-supplied name or a forgeable email cookie (Platform Operators may break-glass). Buyer `customer=` is ignored so first-login migrate still works when the browser org label differs from the Cloud Customer name. Invitee Cloud seats remain **SEC-5**. Sales copy may say server-side organisation enforcement for Plan Owners; do not claim every junior seat is Cloud-permissioned.
 - **Alternatives considered:** Charge all plans for dedicated sites (rejected — kills Solo/Practitioner); claim SOC2 before starting (rejected); stay silent on security in packaging (rejected — loses trust-sensitive buyers).
 
 ### ADR-036: In-app setup wizard + user manual (UG-1)
@@ -165,7 +166,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   - Production: set `LEAD_BACKEND=frappe` (or leave unset when Frappe keys exist — HS-1 defaults to frappe-only).
   - HubSpot is **not required**. Optional emergency only via explicit `LEAD_BACKEND=auto` or `hubspot` until HS-4 deletes the client.
   - WordPress cutover: `docs/WEBWAY_CUTOVER.md`. Full phases: `docs/HS_CUTOVER.md`.
-- **Consequences:** No new HubSpot form embeds or sequences for product intake; Ops readiness + `/api/health` gate lead cutover; follow-ups via Frappe notifications or Webway mailbox (`info@trustledger.co.za`) using Lead comments; commitment still provisions Customer/Owner on Frappe (Paystack / Ops / VIP).
+- **Consequences:** No new HubSpot form embeds or sequences for product intake; Ops readiness + `/api/health` gate lead cutover; follow-ups via Frappe notifications or Webway mailbox (`info@trustledgersrm.co.za`) using Lead comments; commitment still provisions Customer/Owner on Frappe (Paystack / Ops / VIP).
 - **Alternatives considered:** Keep ADR-011 HubSpot-first forever (rejected); hard-delete HubSpot code before Production smoke (rejected — phased HS-2→HS-4).
 
 ### ADR-012: Plan Owner admin + Owner-confirmed lower seats
@@ -182,7 +183,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 - **Date:** 2026-07-14
 - **Status:** Accepted
 - **Context:** Soft launch needs ZAR collection on TrustLedger Cloud. Stripe not usable for this entity path; Peach Payments closed new merchant intake. Frappe stock **Payments** app has no native SA PSP; Marketplace **Frappe Paystack** supports ZAR and ERPNext Sales Invoice links.
-- **Decision:** Use **Paystack** (test → live) with **Frappe Paystack** on `app.trustledger.co.za`. Soft launch may collect via invoice payment links and **manual** Plan Owner provisioning per ADR-012. See `docs/PAYMENTS_SETUP.md`.
+- **Decision:** Use **Paystack** (test → live) with **Frappe Paystack** on `app.trustledgersrm.co.za`. Soft launch may collect via invoice payment links and **manual** Plan Owner provisioning per ADR-012. See `docs/PAYMENTS_SETUP.md`.
 - **Consequences:** Peach references in older docs are superseded for gateway choice; entitlement webhook automation remains a later `srm-core` packet.
 - **Alternatives considered:** PayFast/Ozow direct custom apps (more build); wait for Peach (blocked); Stripe (unavailable).
 
@@ -217,8 +218,8 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
 
 - **Date:** 2026-07-15
 - **Status:** Accepted
-- **Context:** Backend previously planned/hosted via Interserv. Marketing email and web were always on Webway. Product UI is on Vercel. Owner needs to cancel Interserv before the next deduction; runtime already points at `app.trustledger.co.za`.
-- **Decision:** **Frappe Cloud** (`https://app.trustledger.co.za`) is the sole TrustLedger backend host. Interserv is retired for this product. Future `srm-core` work installs on Cloud only. See `docs/INTERSERV_CANCEL.md` and `docs/FRAPPE_CLOUD_SETUP.md`.
+- **Context:** Backend previously planned/hosted via Interserv. Marketing email and web were always on Webway. Product UI is on Vercel. Owner needs to cancel Interserv before the next deduction; runtime already points at `app.trustledgersrm.co.za`.
+- **Decision:** **Frappe Cloud** (`https://app.trustledgersrm.co.za`) is the sole TrustLedger backend host. Interserv is retired for this product. Future `srm-core` work installs on Cloud only. See `docs/INTERSERV_CANCEL.md` and `docs/FRAPPE_CLOUD_SETUP.md`.
 - **Consequences:** Docs/config must not require Interserv; cancel checklist is owner-facing; no dual-host support.
 - **Alternatives considered:** Keep Interserv until `srm-core` lands (rejected — Cloud already serves CRM/auth/payments; `srm-core` can be built on Cloud).
 
@@ -347,7 +348,8 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   3. Plan matrix: Practitioner → monthly; Project → monthly+executive; Institutional → all three (demo uses Project lens).
   4. Plan Owner grants desks per pack in Settings (`tl-report-pack-access`); cannot grant below pack `minDesk` or off-plan packs.
   5. Evidence AI writer remains local (no Cloud Month-End templates).
-- **Consequences:** Nav label “Reports”; Create report wizard nests under a chosen pack; juniors only see packs Owner enabled for their desk.
+  6. Packs are distinct lenses on the same evidence: **monthly** = detailed operational narrative; **executive** = risk brief (issue, project impact, impact level, mitigation, process stage, expected outcome, executive expedite); **board / client / funder** = high-level assurance snapshot — not the monthly dump.
+- **Consequences:** Nav label “Reports”; Create report wizard nests under a chosen pack; juniors only see packs Owner enabled for their desk. Viewing a pack must not reuse one generic “category signals” layout.
 - **Alternatives considered:** Single mega-dashboard (rejected — mixed jobs); unlock all packs on every plan (rejected — contradicts commercial seniority).
 
 ### ADR-029: Org data space before Frappe SoT (T3)
@@ -516,7 +518,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   1. **Chibase Consulting public site** is rebuilt in this repo under `/firm`, same visual language as TrustLedger, **separate public identity** (ADR-039). Complement, do not merge brands. No TrustLedger `/pay` or Themba on the firm host. Consulting package checkout may live on the firm host (ADR-048).
   2. **Host routing:** After DNS cutover, `chibaseconsulting.co.za` (and www) serve the firm pages. Product paths (`/app`, `/pay`, `/trial`, …) 302 to the TrustLedger URL with `utm_source=chibase`. Until cutover, preview at `/firm` is **noindex**.
   3. **Retire WordPress; do not clean it.** Webway declined malware/forensic cleanup (out of hosting scope). Do **not** hire a WP specialist to disinfect the brochure. Delete/suspend the Chibase WP document root and database. **Do not import** posts, media, themes, or plugins. Point **website DNS only** (apex A + www CNAME) at this app. Set `NEXT_PUBLIC_CHIBASE_SITE_URL` only after this app is the public hostname.
-  4. **Email:** MX for `chibaseconsulting.co.za` and `trustledger.co.za` **stays on Webway**. Do not change nameservers. `trustledger.co.za` WordPress is unchanged in this packet.
+  4. **Email:** MX for `chibaseconsulting.co.za` and `trustledgersrm.co.za` **stays on Webway**. Do not change nameservers. `trustledgersrm.co.za` WordPress is unchanged in this packet.
   5. **Security (both origins):** CSP + HSTS + probe block (no PHP/WordPress surface), form honeypot/reCAPTCHA/rate-limit with event log, CSP violation reports. Honest limit: this **hardens and detects**; it does not make either site unhackable (tenant ladder remains ADR-038). Request proxy lives in `src/proxy.ts` (Next.js 16; `middleware.ts` is deprecated).
   6. **Contact:** Short form only (name, work email, note). CRM Lead source **Chibase Consulting**. No CAPEX questionnaire. Rapid-response remains **human field intervention**, not a software division.
   7. Packet: **SEC-SITE**. Runbook: `docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`.
@@ -624,5 +626,61 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   6. When the brief is a **physical or economic move** (relocation / RAP / PS5 / cut-off / host community **together with** a move of households), overlay a relocation programme. Bare “host community”, “project-affected”, or utility “relocation” do not trigger it. The presentable document is the operating plan for that move (census → entitlements → host → move → restoration). It is **not** a product-architecture essay about Social Licence to Build™ pillars. Counts, sites, and package values are not invented.
 - **Consequences:** Capture after award is shorter because the plan already named classes, methods, and standing promises. Packet **SI-SEP**. Relocation assignments no longer export a municipal LED consultation pack with SLB three-anchor copy.
 - **Alternatives considered:** New paid capability (rejected — same SI seat); Cloud Grok for activity reports (rejected — reportComposer / ADR-006); auto-write on compose (rejected — governance). Gemini for the **client SEP document only** is accepted because the operator already uses it for marketing drafts and the user directed that Gemini write this document.
+
+### ADR-054: Focused SKUs on one TrustLedger workspace (not standalone products)
+
+- **Date:** 2026-08-31
+- **Status:** Accepted
+- **Context:** Smaller civil firms, Tier-2 contractors, municipalities, and independent CLOs often need one compliance headache solved (grievance logging, local ED/B-BBEE evidence, field registers) before they will buy full Stakeholder Relationship Management. A land-and-expand funnel and persona marketing are commercially sound. Splitting the platform into separately licensed SaaS products (Grievance Logger, Supplier Portal, Field Companion) with their own Git repos, Frappe apps, and Cloud sites would fork tenancy, billing, security, and the TrustLedger brand — and would promise WhatsApp portals and native offline apps that are explicitly later (`docs/VERSIONING.md` V003+).
+- **Decision:**
+  1. **One product, focused desks.** TrustLedger remains the only customer-facing software brand (ADR-002 / ADR-039). Grievance, local-spend evidence, and field capture are **entry stories** on the existing plan ladder and entitlement switchboard (ADR-024 / ADR-035) — not independent products.
+  2. **Do not** create standalone Git repositories, a “core + plugin” Frappe install set for customers, or per-SKU Cloud sites as the default. Dedicated sites stay **L5 Isolation** (ADR-038). A future `srm-core` module split is engineering, not a catalogue.
+  3. **Upgrade = entitlement change** on the same Customer. Do not build migration scripts as if standalone databases will later merge into SRM. Trial → live `tl-org-data` migrate remains the durable path (OD-3).
+  4. **Honest mapping** (runbook `docs/MODULAR_SKUS.md`): Desk A grievance = Solo/Practitioner (WhatsApp/public portal **not** shipped). Desk B local procurement = Capture / Intelligence **evidence** on Project+ (not a vendor marketplace). Desk C field companion = Capture hub + templates in the **browser** (no native offline app).
+  5. Public agents, FAQ, and `/product` may market personas and focused desks. They must not name separate SKU brands, promise a supplier self-registration portal, or promise offline-first mobile.
+  6. Packet: **CP-2**. Candidate future capability (vendor register) waits for a new `CapabilityId` / price — do not add `AddonId` until DocTypes exist.
+- **Consequences:** Land-and-expand is the Solo → Practitioner → Project ladder plus add-ons. Persona UTM (`grievance_desk`, `local_procurement`, `field_companion`) maps onto existing Paystack plans. North star stays Stakeholder Intelligence deepening — this ADR is packaging, not a new product line.
+- **Alternatives considered:** Three separately licensed Frappe apps (rejected — ops, tenancy, and brand cost; `srm-core` is not even the live SoT for every desk); hide TrustLedger on standalone sites (rejected — ADR-002); build WhatsApp intake / native offline now to make the SKUs “complete” (rejected — V003+; over-claim).
+
+### ADR-055: Plan-centric SEP execution dashboard
+
+- **Date:** 2026-09-02
+- **Status:** Accepted
+- **Context:** The SEP process dashboard mixed SLB product mapping with the assignment. Clients need a single-plan execution view from submission, with tasks, hurdles, mitigations, and an on-demand snapshot.
+- **Decision:**
+  1. Default tab is **Plan dashboard** (`SepExecutionDashboard`), scoped to `EngagementPlan.id`.
+  2. Overlay lives in the browser (`tl-sep-execution`) until a Cloud DocType exists — same as the composer (ADR-053).
+  3. Practitioner / Plan Owner edit outcomes and interventions. Client / Board / CEO get snapshot + charts read-only.
+  4. Operator **Process map** (SLB → desks) stays on a separate tab.
+- **Consequences:** No new Paystack SKU. No SQL. Cloud persistence is a later packet.
+- **Alternatives considered:** Frappe DocType in this packet (rejected — not on Cloud yet); cross-plan programme roll-up (rejected — user asked plan-only).
+
+### ADR-056: Plan-as-container module packaging
+
+- **Date:** 2026-09-02
+- **Status:** Accepted
+- **Context:** VIP must not be “SEP-only.” A commercial plan is a container of module dashboards. SEP is one module. Only the VIP illustrative showcase is preloaded; other plans expose the same flow empty.
+- **Decision:**
+  1. `TIER_FLOW` defines allowed modules, sequence, and advisory gates per `PlanId`. VIP complimentary uses the Institutional sequence.
+  2. Executive dashboard (`/app/dashboard`) is the plan landing; the module switcher is always visible. Module ↔ executive is two clicks. Entitled modules stay reachable (gates never hide a desk so non-VIP can populate immediately). Unauthorized module URLs show the plan upsell.
+  3. Demo seed (`applyVipShowcaseSeed`) runs only for Thozamile KaDlanga’s trial+VIP showcase mailbox (`thozi@chibaseconsulting.co.za`). Live Cloud VIP, other complimentary VIP guests, and paying/trial workspaces are never seeded with NCGR-B; leftover theatre is purged.
+  4. No SQL / no new Cloud DocType. `GET /api/app/plans/dashboards` (and `GET /api/plans/:id/dashboards`) returns the packaging contract. Legacy `/plans/:id/sep` redirects to `/app/engagement-plan`.
+- **Consequences:** Nav order follows `TIER_FLOW`. Owner capability toggles can still hide a module. Place-pack baseline intel (ADR-040) is not treated as VIP demo seed.
+- **Alternatives considered:** `/plans/:id/modules/:key` as canonical IA (rejected — existing `/app/...` desks stay canonical); seed all trials (rejected — ADR-033).
+
+### ADR-057: Public domain is trustledgersrm.co.za
+
+- **Date:** 2026-09-03
+- **Status:** Accepted
+- **Context:** The public TrustLedger domain moved from `trustledger.co.za` to `trustledgersrm.co.za`. Product name stays **TrustLedger**. Chibase (`chibaseconsulting.co.za`) is unchanged. MX stays on Webway.
+- **Decision:**
+  1. **Marketing apex:** `https://trustledgersrm.co.za` (and www). WordPress paste packs, Themba, AEO facts, footer, privacy links, and `public/llms.txt` use this host.
+  2. **TrustLedger Cloud:** `https://app.trustledgersrm.co.za` is the documented Frappe Cloud site URL (env `FRAPPE_BASE_URL` / `NEXT_PUBLIC_API_BASE_URL`). Interserv stays retired (ADR-018).
+  3. **Mail:** `info@`, `sales@`, `noreply@`, and `mail.` follow the new apex. Resend prefers the new domain, then the retired apex if it is still verified.
+  4. **Cutover allowlist:** CSP `frame-ancestors` still allows the retired apex so the assessment iframe does not break while DNS/WP catch up.
+  5. **Constants:** `src/lib/security/hosts.ts` is the single source (`TRUSTLEDGER_APEX_DOMAIN`, `TRUSTLEDGER_CLOUD_HOST`, `TRUSTLEDGER_INFO_EMAIL`).
+  6. **Ops (outside this repo):** point Webway DNS + WP, Frappe Cloud custom domain, Vercel env, Resend domain, reCAPTCHA hostnames, and Frappe `allow_cors` at the new names. Paste `docs/wordpress/page-home.txt` and `page-assessment.txt` on Webway. 301 the old apex when it still resolves.
+- **Consequences:** Agents must not write `trustledger.co.za` as the current public host. Historical changelog and captured CRM CSV emails stay as recorded.
+- **Alternatives considered:** Keep the old apex in public copy until DNS is proven (rejected — user asked every instance including website); move MX off Webway (rejected — ADR-046).
 
 

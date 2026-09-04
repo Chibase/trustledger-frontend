@@ -1,13 +1,15 @@
 # Webway cutover checklist (HubSpot out)
 
 **Locked:** ADR-034 — Frappe-only acquisition CRM.  
-**Marketing host:** WordPress on Webway (`https://trustledger.co.za`).  
+**Marketing host:** WordPress on Webway (`https://trustledgersrm.co.za`).  
 **Product/forms host:** Vercel (`https://trustledger-frontend-pi.vercel.app`).  
-**CRM host:** Frappe Cloud (`https://app.trustledger.co.za`).
+**CRM host:** Frappe Cloud (`https://app.trustledgersrm.co.za`).
 
 WordPress is **brochure + buttons only**. It must not host HubSpot forms, HubSpot tracking that owns leads, or relative `/contact` links.
 
 Full phases: `docs/HS_CUTOVER.md`. CTA URLs: `docs/WORDPRESS_CTA.md`. Paste packs: `docs/wordpress/PASTE_PLANS.md`.
+
+**Domain (ADR-057):** marketing host is `https://trustledgersrm.co.za`. Re-paste home + assessment after DNS. 301 the retired `trustledger.co.za` apex when it still resolves.
 
 ---
 
@@ -47,12 +49,12 @@ Full phases: `docs/HS_CUTOVER.md`. CTA URLs: `docs/WORDPRESS_CTA.md`. Paste pack
 
 4. **Footer / nav Contact**
    - [ ] No relative `/contact` (404 on WP).
-   - [ ] **Never label a `mailto:` link “Contact”** — on many PCs that opens Gmail/Google. Use absolute Vercel `/contact` for the Contact label; keep `mailto:info@trustledger.co.za` as the email address text only.
+   - [ ] **Never label a `mailto:` link “Contact”** — on many PCs that opens Gmail/Google. Use absolute Vercel `/contact` for the Contact label; keep `mailto:info@trustledgersrm.co.za` as the email address text only.
    - [ ] Prefer Vercel Contact over `mailto:` for “Contact” nav.
 
 5. **Cache**
    - [ ] Purge SpeedyCache (or host cache).
-   - [ ] Hard-refresh `https://trustledger.co.za/` and click each primary CTA once.
+   - [ ] Hard-refresh `https://trustledgersrm.co.za/` and click each primary CTA once.
 
 ---
 

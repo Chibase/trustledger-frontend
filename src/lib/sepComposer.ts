@@ -222,6 +222,20 @@ function extractBudget(text: string): string {
   return "";
 }
 
+function extractImplementingEntity(text: string): string {
+  const labeled = extractLabeled(text, [
+    "implementing organisation",
+    "implementing organization",
+    "implementing entity",
+    "appointed consultant",
+    "service provider",
+    "bidder",
+  ]);
+  if (!labeled) return "";
+  if (/chibase/i.test(labeled)) return "";
+  return labeled;
+}
+
 function extractClient(text: string): string {
   const labeled = extractLabeled(text, [
     "client",
@@ -384,6 +398,8 @@ export type ComposeSepInput = {
   instrumentIds?: string[];
   /** Operator-named PAP / I&AP organisations (not invented by the composer). */
   namedParties?: string[];
+  /** Organisation implementing the SEP (workspace / appointed entity). Never invented. */
+  implementingEntityHint?: string;
 };
 
 export type SepExtractPreview = {
@@ -492,6 +508,9 @@ export function composeEngagementPlan(input: ComposeSepInput): EngagementPlan {
     budgetHint:
       input.budgetHint?.trim() || (usedPlaybookOnly ? "" : extractBudget(text)),
     tenderRefHint: usedPlaybookOnly ? "" : extractTenderRef(text),
+    implementingEntityHint:
+      input.implementingEntityHint?.trim() ||
+      (usedPlaybookOnly ? "" : extractImplementingEntity(text)),
     createdAt: now,
     updatedAt: now,
     sourceExcerpt: usedPlaybookOnly

@@ -26,15 +26,20 @@ export function SepDashboardPanel({ projectId }: Props) {
 
   useEffect(() => {
     if (!allowed) return;
-    const frame = requestAnimationFrame(() => {
+    const load = () => {
       setRows(
         projectId
           ? listEngagementPlansForProject(projectId)
           : listEngagementPlans(),
       );
       setReady(true);
-    });
-    return () => cancelAnimationFrame(frame);
+    };
+    const frame = requestAnimationFrame(load);
+    window.addEventListener("tl-workspace-seeded", load);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("tl-workspace-seeded", load);
+    };
   }, [allowed, projectId]);
 
   const applied = useMemo(

@@ -8,6 +8,10 @@ import {
   PRODUCT_TAGLINE,
   PUBLIC_FAQS,
 } from "@/lib/aeo/siteFacts";
+import {
+  TRUSTLEDGER_APEX_DOMAIN,
+  TRUSTLEDGER_CLOUD_HOST,
+} from "@/lib/security/hosts";
 import { thembaDocumentSources } from "@/lib/themba/sources";
 import { THEMBA_SOURCE_TITLES } from "@/lib/themba/sources/types";
 import type { ThembaKnowledgeItem } from "@/lib/themba/types";
@@ -215,6 +219,36 @@ const CORE: ThembaKnowledgeItem[] = [
     ],
   },
   {
+    id: "focused-desks",
+    question: "Can I buy only a grievance desk, supplier portal, or field app?",
+    sourceId: "product",
+    sourceTitle: PRODUCT_SRC,
+    answer:
+      "You can **start on a focused desk inside TrustLedger** — not as a separate product.\n\n- **Grievance resolution** — Solo is the entry desk for logging and closing public complaints (one seat, no AI Assist). Practitioner adds AI Assist on the same workspace.\n- **Field capture** — minutes, attendance, and site notes live on the Capture hub (Project and Institutional) and as free templates on /resources. It works in the **mobile browser**. There is no separate App Store companion and no offline-first sync yet.\n- **Local procurement / ED / B-BBEE** — Capture and Intelligence hold **evidence** of local spend and empowerment KPIs the client already named. TrustLedger is not a vendor marketplace and does not run supplier self-registration today.\n\nUnused Stakeholder Intelligence modules stay locked until you change plan or add an add-on. **Upgrade is a plan change on the same workspace** — you do not re-type history. Public WhatsApp or SMS community portals are not available.",
+    keywords: [
+      "standalone",
+      "separate",
+      "grievance logger",
+      "supplier portal",
+      "field companion",
+      "procurement",
+      "b-bbee",
+      "bbbee",
+      "ed portal",
+      "whatsapp",
+      "offline",
+      "module",
+      "sku",
+      "only need",
+      "just the desk",
+    ],
+    links: [
+      { href: "/product", label: "Product overview" },
+      { href: "/pay?plan=solo", label: "Solo — grievance desk" },
+      { href: "/pay?plan=project", label: "Project — capture and evidence" },
+    ],
+  },
+  {
     id: "chibase-consulting",
     question: "Can I add Chibase Consulting to a TrustLedger plan?",
     sourceId: "product",
@@ -272,7 +306,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "data",
     question: "Where does TrustLedger store live customer data?",
     answer:
-      "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. Day-to-day work happens in the TrustLedger product app; marketing lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",
+      `Live customer workspaces run on TrustLedger Cloud at ${TRUSTLEDGER_CLOUD_HOST}. Day-to-day work happens in the TrustLedger product app; marketing lives on ${TRUSTLEDGER_APEX_DOMAIN}. Paying and trial workspaces never show fictional sample incidents.`,
     keywords: ["data", "store", "cloud", "host", "security", "where"],
     links: [
       { href: "/contact", label: "Contact" },
@@ -283,7 +317,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "mobile",
     question: "Is there a mobile app?",
     answer:
-      "TrustLedger is a responsive web app in the browser. There is no separate App Store or Play Store app yet.",
+      "TrustLedger is a responsive web app in the browser. There is no separate App Store or Play Store app yet, and no offline-first field companion. Field templates and Capture hub work on a phone browser when you have a connection.",
     keywords: ["mobile", "app", "iphone", "android", "phone", "offline"],
     links: [{ href: "/product", label: "Product overview" }],
   },

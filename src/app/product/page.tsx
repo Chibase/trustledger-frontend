@@ -56,6 +56,30 @@ const FEATURES = [
   },
 ] as const;
 
+const FOCUSED_DESKS = [
+  {
+    title: "Grievance resolution desk",
+    buyer: "Municipalities, mines, and contractors who must log public complaints",
+    body: "Audit-ready intake, ownership, and close on one case trail. Start on Solo if that is the only headache; add Stakeholder Intelligence later on the same workspace.",
+    href: "/trial?plan=solo&utm_source=product&utm_medium=focused_desk&utm_campaign=grievance_desk",
+    cta: "Start on Solo",
+  },
+  {
+    title: "Field capture",
+    buyer: "CLOs, facilitators, and consultants who keep meeting registers and site notes",
+    body: "Minutes, attendance, and field notes in Capture hub — in the mobile browser, not a separate app. Bundled on Project and Institutional; templates also free on /resources.",
+    href: "/trial?plan=project&utm_source=product&utm_medium=focused_desk&utm_campaign=field_companion",
+    cta: "Start a Project trial",
+  },
+  {
+    title: "Local spend evidence",
+    buyer: "Main contractors proving ED, B-BBEE, and preferential procurement",
+    body: "Capture labour, training, and local procurement (people and ZAR) beside the project — an evidence trail, not a vendor marketplace or supplier self-registration portal.",
+    href: "/trial?plan=project&utm_source=product&utm_medium=focused_desk&utm_campaign=local_procurement",
+    cta: "Start a Project trial",
+  },
+] as const;
+
 const STEPS = [
   {
     n: "1",
@@ -209,6 +233,44 @@ export default async function ProductPage({ searchParams }: PageProps) {
                   <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
                     {feature.body}
                   </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section
+          id="focused-desks"
+          className="border-t border-tl-line/80"
+        >
+          <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+            <h2 className="font-display text-2xl font-semibold text-tl-ink">
+              Start where the headache is
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-tl-ink-muted sm:text-base">
+              TrustLedger is one platform. Smaller teams often begin with a
+              focused desk — then add Stakeholder Intelligence as the programme
+              grows. Upgrade is a plan change on the same workspace, not a new
+              product and not a data re-entry.
+            </p>
+            <ul className="mt-10 grid gap-8 sm:grid-cols-3">
+              {FOCUSED_DESKS.map((desk) => (
+                <li key={desk.title} className="max-w-md">
+                  <h3 className="font-display text-lg font-semibold text-tl-ink">
+                    {desk.title}
+                  </h3>
+                  <p className="mt-2 text-sm font-medium text-tl-trust">
+                    {desk.buyer}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-tl-ink-muted">
+                    {desk.body}
+                  </p>
+                  <Link
+                    href={desk.href}
+                    className="mt-3 inline-block text-sm font-semibold text-tl-trust-ink underline underline-offset-2"
+                  >
+                    {desk.cta}
+                  </Link>
                 </li>
               ))}
             </ul>

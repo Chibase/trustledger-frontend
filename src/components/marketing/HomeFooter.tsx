@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { trackMarketingEvent } from "@/lib/marketingAnalytics";
+import {
+  TRUSTLEDGER_INFO_EMAIL,
+  TRUSTLEDGER_MARKETING_URL,
+} from "@/lib/security/hosts";
 
 const COLS = [
   {
@@ -20,8 +24,8 @@ const COLS = [
     links: [
       { href: "/firm", label: "Chibase Consulting" },
       { href: "/contact?utm_source=home&utm_medium=footer&utm_campaign=contact", label: "Contact" },
-      { href: "https://trustledger.co.za/privacy/", label: "Privacy", external: true },
-      { href: "https://trustledger.co.za/terms/", label: "Terms", external: true },
+      { href: `${TRUSTLEDGER_MARKETING_URL}/privacy/`, label: "Privacy", external: true },
+      { href: `${TRUSTLEDGER_MARKETING_URL}/terms/`, label: "Terms", external: true },
     ],
   },
   {
@@ -63,10 +67,10 @@ export function HomeFooter() {
               </Link>
               {" · "}
               <a
-                href="mailto:info@trustledger.co.za"
+                href={`mailto:${TRUSTLEDGER_INFO_EMAIL}`}
                 className="underline underline-offset-2 hover:text-white"
               >
-                info@trustledger.co.za
+                {TRUSTLEDGER_INFO_EMAIL}
               </a>
             </p>
           </div>

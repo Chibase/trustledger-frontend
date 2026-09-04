@@ -1,0 +1,204 @@
+{
+  "info": {
+    "_postman_id": "c0ffee00-tl-srm-core-api-examples",
+    "name": "TrustLedger srm-core API examples",
+    "description": "Staging examples for plan create, entity create, evidence upload, and ledger.\n\nCollection variables:\n- BASE_URL — staging host, no trailing slash (placeholder https://YOUR-STAGING-HOST)\n- API_KEY — Frappe token pair `key:secret` (placeholder only; never production)\n\nAuth header: `Authorization: token {{API_KEY}}` (Frappe API key). Human must confirm method names and auth before a real import. Defaults follow docs/FRAPPE_API_CONTRACT.md and docs/LEDGER_API.md.\n\nDo not save real secrets in this file. Do not run against production without explicit human approval.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "BASE_URL", "value": "https://YOUR-STAGING-HOST" },
+    { "key": "API_KEY", "value": "frappe_api_key:frappe_api_secret" }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "value", "value": "token {{API_KEY}}", "type": "string" },
+      { "key": "key", "value": "Authorization", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Create Plan",
+      "description": "Proposed: POST /api/method/srm_core.api.plans.create — not in the live list/get contract yet. Confirm with Cloud before calling.",
+      "item": [
+        {
+          "name": "Create plan (proposed)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_code\": \"project\",\n  \"name\": \"Project\",\n  \"org_id\": \"ORG-0001\",\n  \"status\": \"active\",\n  \"notes\": \"Illustrative workspace plan. Confirm srm_core.api.plans.create before staging.\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.plans.create",
+            "description": "If Cloud does not expose plans.create, skip this folder. Do not invent Paystack plan SKUs here."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create entity",
+      "description": "Create methods from the demo-import contract (docs/FRAPPE_API_CONTRACT.md). Confirm names before a real import.",
+      "item": [
+        {
+          "name": "Create organization",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"org_id\": \"ORG-0001\",\n  \"name\": \"Sundays River Valley Local Municipality\",\n  \"org_type\": \"client\",\n  \"province\": \"Eastern Cape\",\n  \"municipality\": \"Sundays River Valley\",\n  \"contact_email\": \"srm.org0001@example.test\",\n  \"status\": \"active\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.organizations.create_organization"
+          }
+        },
+        {
+          "name": "Create site",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"site_id\": \"SITE-0001\",\n  \"org_id\": \"ORG-0001\",\n  \"name\": \"Corridor access km 11.1\",\n  \"project_code\": \"NCGR-B\",\n  \"ward\": \"Ward 2\",\n  \"municipality\": \"Sundays River Valley\",\n  \"gps_lat\": \"-33.4000\",\n  \"gps_lon\": \"25.4400\",\n  \"status\": \"active\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.sites.create_site"
+          }
+        },
+        {
+          "name": "Create asset",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_id\": \"ASSET-0001\",\n  \"site_id\": \"SITE-0001\",\n  \"org_id\": \"ORG-0001\",\n  \"name\": \"culvert 001\",\n  \"asset_type\": \"culvert\",\n  \"status\": \"in_service\",\n  \"installed_at\": \"2024-01-15\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.assets.create_asset"
+          }
+        },
+        {
+          "name": "Create inspection",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inspection_id\": \"INSP-0001\",\n  \"site_id\": \"SITE-0001\",\n  \"asset_id\": \"ASSET-0001\",\n  \"org_id\": \"ORG-0001\",\n  \"inspector_id\": \"USER-0001\",\n  \"date_time\": \"2026-06-01T11:00:00Z\",\n  \"score\": 61,\n  \"status\": \"Completed\",\n  \"notes\": \"Guard rail and culvert walkabout\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.inspections.create_inspection"
+          }
+        },
+        {
+          "name": "Create incident",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"incident_id\": \"INC-0001\",\n  \"org_id\": \"ORG-0001\",\n  \"site_id\": \"SITE-0001\",\n  \"title\": \"Access road dust affecting livestock\",\n  \"description\": \"Illustrative grievance for API examples. Not a live matter.\",\n  \"status\": \"Open\",\n  \"priority\": \"P4-Low\",\n  \"reported_by\": \"USER-0001\",\n  \"reported_at\": \"2026-07-02T09:00:00Z\",\n  \"ward\": \"Ward 2\",\n  \"category\": \"grievance\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.incidents.create_incident"
+          }
+        },
+        {
+          "name": "Create work order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"work_order_id\": \"WO-0001\",\n  \"org_id\": \"ORG-0001\",\n  \"site_id\": \"SITE-0001\",\n  \"asset_id\": \"ASSET-0001\",\n  \"incident_id\": \"INC-0001\",\n  \"inspection_id\": \"INSP-0001\",\n  \"title\": \"Remediate culvert at corridor access km 11.1\",\n  \"status\": \"open\",\n  \"assigned_to\": \"USER-0001\",\n  \"due_date\": \"2026-09-16\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.work_orders.create_work_order"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Evidence upload",
+      "description": "multipart/form-data with gps_lat, gps_lon, timestamp, checksum. Point `file` at a local JPEG (e.g. tools/demo/srm-import/images/field_01.jpg when that pack is present).",
+      "item": [
+        {
+          "name": "Upload evidence (multipart)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "evidence_id", "value": "EVID-0001", "type": "text" },
+                { "key": "org_id", "value": "ORG-0001", "type": "text" },
+                { "key": "parent_type", "value": "inspection", "type": "text" },
+                { "key": "parent_id", "value": "INSP-0001", "type": "text" },
+                { "key": "gps_lat", "value": "-33.4000", "type": "text" },
+                { "key": "gps_lon", "value": "25.4400", "type": "text" },
+                { "key": "timestamp", "value": "2026-06-01T11:00:00Z", "type": "text" },
+                { "key": "checksum", "value": "<sha256 hex of the file bytes>", "type": "text" },
+                { "key": "uploader_id", "value": "USER-0001", "type": "text" },
+                { "key": "classification", "value": "photo", "type": "text" },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "field_01.jpg",
+                  "description": "Select a local JPEG. Do not commit production media."
+                }
+              ]
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.evidence.upload_evidence"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ledger",
+      "description": "docs/LEDGER_API.md. create_entry omits signature so Cloud can sign. verify_entry uses ledger_id. TEST-ONLY public key in spec vectors is not a secret.",
+      "item": [
+        {
+          "name": "Create ledger entry",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entity_type\": \"evidence\",\n  \"entity_id\": \"EVID-0099\",\n  \"action\": \"create\",\n  \"timestamp\": \"2026-08-01T09:17:30Z\",\n  \"actor_id\": \"USER-INS-01\",\n  \"canonical_entity\": {\n    \"filename\": \"culvert_block_20260801.jpg\",\n    \"gps_lat\": -33.0002,\n    \"gps_lon\": 25.7001,\n    \"id\": \"EVID-0099\",\n    \"parent_id\": \"INSP-1001\",\n    \"parent_type\": \"inspection\",\n    \"timestamp\": \"2026-08-01T09:17:00Z\",\n    \"uploader_id\": \"USER-INS-01\"\n  },\n  \"prev_hash\": null,\n  \"signature\": null\n}"
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.ledger.create_entry",
+            "description": "signature null → server signs with the active Cloud key. Do not paste production private keys."
+          }
+        },
+        {
+          "name": "Verify ledger entry",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ledger_id\": \"LGR-5001\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/method/srm_core.api.ledger.verify_entry"
+          }
+        },
+        {
+          "name": "Get ledger chain",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{BASE_URL}}/api/method/srm_core.api.ledger.get_chain?entity_id=EVID-0099"
+          }
+        },
+        {
+          "name": "Get ledger public key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{BASE_URL}}/api/method/srm_core.api.ledger.public_key",
+            "description": "Public key only. Never a seed or PEM private key."
+          }
+        }
+      ]
+    }
+  ]
+}

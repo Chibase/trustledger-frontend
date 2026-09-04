@@ -23,10 +23,10 @@
 
 | Layer | Lives where | Role |
 |-------|-------------|------|
-| Marketing | `trustledger.co.za` (WP CTAs) + Vercel `/`, `/product`, `/faq` | Story, pricing, AEO FAQ |
+| Marketing | `trustledgersrm.co.za` (WP CTAs) + Vercel `/`, `/product`, `/faq` | Story, pricing, AEO FAQ |
 | Product UI | Vercel `/app/*` | Roles, desk, SI, reports |
 | Acquisition CRM | Frappe **CRM Lead** (ADR-034) | Assessment / contact / quote / support tickets |
-| Product SoT | Frappe Cloud `app.trustledger.co.za` | Customer, Project, Incident, Evidence, Stakeholder, Engagement, Commitment |
+| Product SoT | Frappe Cloud `app.trustledgersrm.co.za` | Customer, Project, Incident, Evidence, Stakeholder, Engagement, Commitment |
 | Commercial | Paystack on Vercel + Ops finance | Trial → subscribe → provision |
 | Ops BI | Vercel `/ops/executive` | Platform operator only |
 | Public education | `/product`, `/faq`, optional Taskade showcase (noindex) | Not a second CRM |
@@ -137,5 +137,7 @@ If three answers are “no,” do not ship in the current plan box.
 | 2 | SUPPORT Phase C | Helpdesk for **paid** support only; wire from in-app Support drawer |
 | 3 | Ops-only Insights | Internal dashboards; no customer marketing claim |
 | Later | V003 portal | Only after desk + SI maturity and honest packaging |
+| Never | Standalone Grievance / Supplier / Field products | ADR-054 — focused SKUs on one workspace (`docs/MODULAR_SKUS.md`) |
 
 Do **not** start with Typebot + Gemini embed + Helpdesk-as-grievance + Insights-in-`/app` as one project — that fights the ADRs and inflates cost.
+Do **not** split TrustLedger into separately licensed Frappe apps to chase smaller buyers — use Solo + entitlements.

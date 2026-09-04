@@ -4,7 +4,7 @@ import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import { ensureTrustLedgerCustomFields } from "@/lib/frappeCustomFields";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import {
-  assertLiveOperatorAccess,
+  assertOpsAccess,
   operatorGateMessage,
 } from "@/lib/platformOperator";
 
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
   const jar = await cookies();
   const email = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  const gate = assertLiveOperatorAccess(email);
+  const gate = assertOpsAccess(email);
   if (!gate.ok) {
     return NextResponse.json(
       { error: operatorGateMessage(gate.reason) },

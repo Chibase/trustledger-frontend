@@ -8,6 +8,7 @@ import type {
   IncidentProcessStages,
 } from "@/lib/grievanceProcess";
 import type { DeskTier } from "@/types/deskTier";
+import type { StakeholderTrustResponse } from "@/types/trustOverlay";
 
 export type IncidentStatus =
   | "Open"
@@ -70,10 +71,17 @@ export interface Incident {
   nature?: ComplaintNatureId | string;
   impactScore: number;
   sentimentScore: number | null;
+  /** Applied label when sentiment was captured from the case note. */
+  sentimentLabel?: "positive" | "neutral" | "negative" | null;
   timeline: IncidentTimelineEvent[];
   geo?: IncidentGeoContext;
   processStages?: IncidentProcessStages;
   escalationPolicy?: EscalationPolicy;
   /** Professional desk that filed the case (CLO / site / …). */
   filedByTier?: DeskTier;
+  /**
+   * TE-1 overlay — later trust attitudes. Optional; omitted on Cloud writes.
+   * Does not replace `sentimentLabel` / `sentimentScore`.
+   */
+  trustResponse?: StakeholderTrustResponse;
 }

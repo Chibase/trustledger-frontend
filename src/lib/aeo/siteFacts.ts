@@ -2,12 +2,18 @@
  * Canonical facts for AEO / LLM parsers (keep aligned with PLATFORM_STRATEGIC_BRIEF §6).
  */
 
+import {
+  TRUSTLEDGER_CLOUD_HOST,
+  TRUSTLEDGER_INFO_EMAIL,
+  TRUSTLEDGER_MARKETING_URL,
+} from "@/lib/security/hosts";
+
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ??
   "https://trustledger-frontend-pi.vercel.app"
 ).replace(/\/$/, "");
 
-export const MARKETING_SITE_URL = "https://trustledger.co.za";
+export const MARKETING_SITE_URL = TRUSTLEDGER_MARKETING_URL;
 
 export const PRODUCT_NAME = "TrustLedger";
 
@@ -23,7 +29,7 @@ export const OPERATOR_ORG = {
   url: (
     process.env.NEXT_PUBLIC_CHIBASE_SITE_URL || `${SITE_URL}/firm`
   ).replace(/\/$/, ""),
-  email: "info@trustledger.co.za",
+  email: TRUSTLEDGER_INFO_EMAIL,
 } as const;
 
 export type FaqItem = {
@@ -81,9 +87,14 @@ export const PUBLIC_FAQS: FaqItem[] = [
       "Yes, as a separate consulting engagement — not as a fifth TrustLedger software column. Chibase Consulting is an independent practice (social facilitation, MEL, IKS method, short-cycle field intervention). You can request any of those packages as an add-on to Solo, Practitioner, Project, or Institutional. Pricing is Chibase’s own; the engagement does not unlock desk modules. Software checkout stays on TrustLedger; consulting packages live on the Chibase site.",
   },
   {
+    question: "Can I buy only a grievance desk, supplier portal, or field app?",
+    answer:
+      "You can start on a focused desk inside TrustLedger — not as a separate product. Solo is the entry grievance resolution desk. Project includes field capture (minutes, attendance, site notes in the browser) and local procurement / B-BBEE evidence packs. Unused Stakeholder Intelligence modules stay locked until you change plan or add an add-on on the same workspace, so history is not re-typed. There is no separately licensed supplier marketplace, public WhatsApp complaints portal, or native offline companion app today.",
+  },
+  {
     question: "Where does TrustLedger store live customer data?",
     answer:
-      "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. You use the TrustLedger product app for day-to-day work; marketing content lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",
+      `Live customer workspaces run on TrustLedger Cloud at ${TRUSTLEDGER_CLOUD_HOST}. You use the TrustLedger product app for day-to-day work; marketing content lives on ${MARKETING_SITE_URL.replace("https://", "")}. Paying and trial workspaces never show fictional sample incidents.`,
   },
   {
     question: "What is the best way to assess SRM readiness before buying?",

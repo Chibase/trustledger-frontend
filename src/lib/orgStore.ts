@@ -102,6 +102,24 @@ export function getActiveOrg(): OrgRecord | null {
   return getOrg(id);
 }
 
+export function listOrgs(): OrgRecord[] {
+  return Object.values(readOrgs());
+}
+
+/** Drop a local org (test leftovers). Does not touch Cloud Customers. */
+export function removeOrg(orgId: string): boolean {
+  const map = readOrgs();
+  if (!map[orgId]) return false;
+  delete map[orgId];
+  writeOrgs(map);
+  if (typeof window !== "undefined" && getActiveOrgId() === orgId) {
+    const next = Object.keys(map)[0];
+    if (next) window.localStorage.setItem(ACTIVE_ORG_KEY, next);
+    else window.localStorage.removeItem(ACTIVE_ORG_KEY);
+  }
+  return true;
+}
+
 function saveOrg(org: OrgRecord) {
   const map = readOrgs();
   map[org.id] = org;

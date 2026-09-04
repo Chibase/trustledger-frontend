@@ -78,8 +78,9 @@ If a module is missing, it is usually a **plan gate**, not a broken screen. Upgr
 ### Ongoing — Contact & promises (Project+)
 
 1. After each meeting, log an **Engagement** linked to project + stakeholders. Prefer the **Meeting minutes** or **Attendance register** template (Capture hub, or `/resources`) so names and actions map on first paste.  
-2. Promote promises to **Commitments** with an owner and status.  
-3. Update commitment status as fieldwork moves — do not wait for month-end.
+2. Open the engagement and click **Analyze sentiment**. Review the positive / neutral / negative label, then **Apply & save** so leadership can see relationship health on the Engagements list and dashboard.  
+3. Promote promises to **Commitments** with an owner and status.  
+4. Update commitment status as fieldwork moves — do not wait for month-end.
 
 ### When harm or a complaint arrives
 
@@ -114,13 +115,27 @@ Stop batch-loading after the first seed. Put TrustLedger on the agenda of the ne
 
 ## 5a. Stakeholder engagement plan (operator desk)
 
-The briefing → SEP composer is **not on commercial plans** (Solo, Practitioner, Project, Institutional, or trial) while it is being built. Customer nav, Executive dashboard, and setup wizard do not show it. Operators and complimentary VIP use `/app/engagement-plan` and `/ops/executive`.
+The briefing → SEP composer is **not on commercial plans** (Solo, Practitioner, Project, Institutional, or trial) while it is being built. Customer nav, Executive dashboard, plan-module strip, and setup wizard do not show it. Operators and complimentary VIP use `/app/engagement-plan` and `/ops/executive`.
+
+Use **Engagement plan** on that desk when the work starts as a briefing, tender, or RFP rather than as already-named people.
+
+1. **With a file:** paste or upload the extract (PDF with a text layer, or .txt / .md / .csv) — RFP, tender, EIA, or scope of work.  
+2. **Without a file:** choose **Without a document**, pick a sector playbook, and enter working title, place, client, timeline, and purpose.  
+3. Confirm or override the **sector playbook**.  
+4. **Compose suggestion** — seven-phase process, power–interest classes, methods, grievance architecture, and a tender-grade document with a TrustLedger execution protocol on each section. Edit title and purpose.  
+5. **Save**, then present (Print / PDF with cover, Markdown, or Word). The **Plan dashboard** is the execution view for that plan only (roadmap from submission, task graphs, success/hurdle/failure, mitigations). **Open practitioner snapshot** is the client/superior briefing. **Process map** still shows Social Licence to Build™ → shipped desks for operators.  
+6. After the client approves the assignment, **Apply to SRM**. Prospect stakeholders, draft engagements, and open commitments land on the existing desks. Duplicate names/titles are skipped. Humans apply; the composer never writes the live desk alone. The composer does not invent SMS/WhatsApp portals or write Themba into the live case desk.
+
+On the **Executive dashboard** (`/app/dashboard`), the **Plan modules** strip is the sequence for your commercial plan (executive first, then the desks that plan includes). Open a module, then **Return to executive view**. Module cards on the executive page show contribution to overall progress. Empty desks show a short prompt to add the first record — only the VIP showcase is preloaded. **Engagement plan** is not a commercial module while it is being built. A URL for a desk that is not on your plan shows an upgrade note instead of the module.
+
+If the workspace plan does not include a module, it stays off the switcher. Linked plans also appear on a **project dashboard** for operators. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
 
 ---
 
 ## 6. AI Assist rules
 
 - Pattern: **suggest → human apply → save**  
+- Communication notes: one-click sentiment (positive / neutral / negative) on Engagements and incident descriptions; apply to feed the relationship-health pulse  
 - Never claim or expect autonomous grievance closure  
 - Solo has **no** AI Assist — upgrade to Practitioner for that step-up  
 

@@ -11,7 +11,7 @@ Use this for **bulk campaigns to contacts**. Keep **Resend on Vercel** for trans
 ```text
 Contacts (CRM Lead / Contact / Email Group)
         ↓
-Frappe Email Account (SPF/DKIM on trustledger.co.za)
+Frappe Email Account (SPF/DKIM on trustledgersrm.co.za)
         ↓
 Email Template / Newsletter body (TrustLedger HTML)
         ↓
@@ -26,7 +26,7 @@ CTAs → Vercel /trial /contact /quote /assessment /pay
 |---------|--------|
 | Product name | **TrustLedger** only (no AccordBridge / HubSpot chrome) |
 | From name | `TrustLedger` for general; **segment intros** use `TrustLedger Construction`, `TrustLedger Municipal`, `TrustLedger for Architects`, `TrustLedger Engineering`, `TrustLedger Community Practice`, `TrustLedger Practice` (`docs/exports/email-marketing/SEGMENT_INTROS.md`) |
-| From address | Verified domain mailbox — Production uses `sales@trustledger.co.za` (aliases optional later) |
+| From address | Verified domain mailbox — Production uses `sales@trustledgersrm.co.za` (aliases optional later) |
 | Reply-To | Same mailbox unless a Webway alias forwards into `sales@` |
 | Accent | `#0e7c66` buttons; header `#12202a` |
 | CTAs | Absolute `https://trustledger-frontend-pi.vercel.app/...` with `utm_source=email&utm_medium=bulk&utm_campaign=…` |
@@ -38,9 +38,9 @@ CTAs → Vercel /trial /contact /quote /assessment /pay
 
 ## 2. Desk setup (Frappe Cloud)
 
-Do this once on `https://app.trustledger.co.za` (System Manager / Email Manager).
+Do this once on `https://app.trustledgersrm.co.za` (System Manager / Email Manager).
 
-### A. Sending identity — `sales@trustledger.co.za`
+### A. Sending identity — `sales@trustledgersrm.co.za`
 
 **Do not paste the mailbox password into GitHub, chat, or this repo.** Enter it only in Frappe Desk.
 
@@ -52,7 +52,7 @@ If Desk shows:
 
 Frappe Cloud’s **Email Delivery Service** overrides custom SMTP (including Webway `sales@`). Uninstall it to use your own mailbox:
 
-1. [Frappe Cloud](https://frappecloud.com) → site **`app.trustledger.co.za`** → **Apps**.
+1. [Frappe Cloud](https://frappecloud.com) → site **`app.trustledgersrm.co.za`** → **Apps**.
 2. **Email Delivery Service** → ⋯ → **Uninstall**.
 3. Wait for the job → reload Desk → retry **Send Test** on the Email Account.
 
@@ -65,16 +65,16 @@ If Apps/Uninstall is missing, open a ticket at [support.frappe.io](https://suppo
 
 | Field | Value |
 |-------|--------|
-| Email / Username | `sales@trustledger.co.za` |
-| IMAP | `mail.trustledger.co.za` · **993** SSL |
-| SMTP | `mail.trustledger.co.za` · **465** SSL |
+| Email / Username | `sales@trustledgersrm.co.za` |
+| IMAP | `mail.trustledgersrm.co.za` · **993** SSL |
+| SMTP | `mail.trustledgersrm.co.za` · **465** SSL |
 | Password | Mailbox password (Desk only) |
 
 1. Desk → **Email Account** → New (or edit `sales@…`).
 2. Enable **Outgoing** + **Default Outgoing**; SMTP 465 SSL; login as above.
 3. Optional: **Incoming** IMAP 993 SSL for reply tracking.
 4. **Send Test** to yourself. Until it arrives, do not send bulk.
-5. Ensure **Email Domain** `trustledger.co.za` exists (SPF/DKIM/DMARC on Webway DNS).
+5. Ensure **Email Domain** `trustledgersrm.co.za` exists (SPF/DKIM/DMARC on Webway DNS).
 
 Operator checklist: `docs/exports/email-marketing/DESK_EMAIL_ACCOUNT_SALES.md`.
 
@@ -91,7 +91,7 @@ Brand chrome in every HTML pack:
 | Header | Ink `#12202a` bar, wordmark **Trust**Ledger (teal `#7dcfbf` on Ledger), promise *Resolution you can audit* |
 | Accent | 4px trust teal `#0e7c66` stripe under header |
 | CTA | Teal filled button, white label; secondary = line border |
-| Footer | TrustLedger wordmark + Chibase legal only + trustledger.co.za |
+| Footer | TrustLedger wordmark + Chibase legal only + trustledgersrm.co.za |
 | Voice | Trust outcomes — no HubSpot / Paystack / Frappe / Vercel names in body |
 
 Source files in `docs/exports/email-marketing/`:

@@ -2,6 +2,7 @@ import { FRAPPE_METHODS } from "@/config/api";
 import { mockIncidents } from "@/data/mockIncidents";
 import { callFrappeMethod } from "@/lib/frappeClient";
 import {
+  bodyCitesAnyCaseId,
   composeActivityReportMarkdown,
   emptyAggregatedPackFacts,
   looksLikeReportTemplateGuide,
@@ -9,9 +10,20 @@ import {
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import { parseLabeledStakeholders, parseLabeledTitle } from "@/lib/parseFieldTemplate";
+import {
+  analyzeCommunicationNote,
+  sentimentLabelFromScore,
+} from "@/lib/sentimentAnalysis";
+import {
+  attachTrustResponseHints,
+  omitTrustOverlayFlag,
+  prepareTrustReportSummary,
+  prepareTrustSensitiveDraft,
+  prepareTrustTriageOverlay,
+} from "@/lib/trust/aiPrepare";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
-import type { ReportSectionId } from "@/types/activityReport";
-import { REPORT_SECTION_IDS } from "@/types/activityReport";
+import type { ReportKind, ReportSectionId } from "@/types/activityReport";
+import { REPORT_KINDS, REPORT_SECTION_IDS } from "@/types/activityReport";
 import type {
   DraftResponseRequest,
   DraftResponseSuggestion,
@@ -138,20 +150,37 @@ function mockTriage(input: TriageRequest): IncidentTriageSuggestion {
 }
 
 function mockSentiment(input: SentimentRequest): SentimentSuggestion {
-  const text = input.text.toLowerCase();
-  let sentimentScore = -20;
-  if (/angry|furious|threat|protest|unsafe/.test(text)) sentimentScore = -75;
-  else if (/concern|worried|delay|broken/.test(text)) sentimentScore = -45;
-  else if (/thank|appreciate|resolved|good/.test(text)) sentimentScore = 55;
-
+  const analyzed = analyzeCommunicationNote(input.text);
   return {
-    sentimentScore,
-    confidenceScore: 0.72,
-    rationale:
-      "Demo intensity estimate from wording cues. Live mode uses TrustLedger Cloud AI.",
-    sourceType: input.sourceType ?? "Other",
+    sentimentScore: analyzed.score,
+    sentimentLabel: analyzed.label,
+    confidenceScore: analyzed.confidence,
+    rationale: analyzed.rationale,
+    sourceType: input.sourceType ?? "Community Meeting",
     model: MODEL,
     promptVersion: PROMPT_VERSION,
+  };
+}
+
+function normalizeSentiment(
+  raw: Partial<SentimentSuggestion>,
+  input: SentimentRequest,
+): SentimentSuggestion {
+  const analyzed = analyzeCommunicationNote(input.text);
+  const score =
+    typeof raw.sentimentScore === "number" ? raw.sentimentScore : analyzed.score;
+  const label = raw.sentimentLabel ?? sentimentLabelFromScore(score);
+  return {
+    sentimentScore: score,
+    sentimentLabel: label,
+    confidenceScore:
+      typeof raw.confidenceScore === "number"
+        ? raw.confidenceScore
+        : analyzed.confidence,
+    rationale: raw.rationale?.trim() || analyzed.rationale,
+    sourceType: raw.sourceType ?? input.sourceType ?? "Community Meeting",
+    model: raw.model || MODEL,
+    promptVersion: raw.promptVersion || PROMPT_VERSION,
   };
 }
 
@@ -254,17 +283,27 @@ function mockReportBrief(input: ReportBriefRequest): ReportBriefSuggestion {
   };
 }
 
+function parsePeriodFactsJson(
+  raw: string | undefined,
+): PeriodActivityFacts | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as PeriodActivityFacts & {
+      facts?: PeriodActivityFacts;
+    };
+    if (parsed?.facts && Array.isArray(parsed.facts.attended)) {
+      return parsed.facts;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 function mockActivityReport(
   input: ActivityReportComposeRequest,
 ): ActivityReportComposeSuggestion {
-  let facts: PeriodActivityFacts | null = null;
-  if (input.factsJson) {
-    try {
-      facts = JSON.parse(input.factsJson) as PeriodActivityFacts;
-    } catch {
-      facts = null;
-    }
-  }
+  let facts: PeriodActivityFacts | null = parsePeriodFactsJson(input.factsJson);
 
   // Minimal facts so we still write a real report if JSON is missing / empty.
   // Customer workspaces must never fall back to demo INC-* seed — but may write
@@ -340,6 +379,9 @@ function mockActivityReport(
       : ids.map((id) => id.replaceAll("_", " "));
 
   const composed = composeActivityReportMarkdown({
+    kind: (REPORT_KINDS as readonly string[]).includes(input.kind)
+      ? (input.kind as ReportKind)
+      : undefined,
     kindLabel: input.kindLabel,
     audienceLabel: input.audienceLabel,
     periodLabel: input.periodLabel,
@@ -442,29 +484,61 @@ export const aiService = {
   },
 
   async suggestTriage(input: TriageRequest): Promise<IncidentTriageSuggestion> {
+    const payload = omitTrustOverlayFlag(input);
+    let base: IncidentTriageSuggestion;
     if (USE_MOCK) {
       await delay();
-      return mockTriage(input);
+      base = mockTriage(payload);
+    } else {
+      base = await callFrappeMethod<IncidentTriageSuggestion>(
+        FRAPPE_METHODS.suggestTriage,
+        payload,
+      );
     }
-    return callFrappeMethod(FRAPPE_METHODS.suggestTriage, { ...input });
+    if (!input.includeTrustOverlay) return base;
+    return { ...base, trustTriage: prepareTrustTriageOverlay(payload) };
   },
 
   async suggestSentiment(input: SentimentRequest): Promise<SentimentSuggestion> {
+    const payload = omitTrustOverlayFlag(input);
+    let base: SentimentSuggestion;
     if (USE_MOCK) {
       await delay();
-      return mockSentiment(input);
+      base = mockSentiment(payload);
+    } else {
+      try {
+        const raw = await callFrappeMethod<Partial<SentimentSuggestion>>(
+          FRAPPE_METHODS.suggestSentiment,
+          payload,
+        );
+        base = normalizeSentiment(raw || {}, payload);
+      } catch {
+        base = mockSentiment(payload);
+      }
     }
-    return callFrappeMethod(FRAPPE_METHODS.suggestSentiment, { ...input });
+    return attachTrustResponseHints(
+      base,
+      payload.text,
+      input.includeTrustOverlay,
+    );
   },
 
   async draftResponse(
     input: DraftResponseRequest,
   ): Promise<DraftResponseSuggestion> {
+    const payload = omitTrustOverlayFlag(input);
+    let base: DraftResponseSuggestion;
     if (USE_MOCK) {
       await delay();
-      return mockDraft(input);
+      base = mockDraft(payload);
+    } else {
+      base = await callFrappeMethod<DraftResponseSuggestion>(
+        FRAPPE_METHODS.draftResponse,
+        payload,
+      );
     }
-    return callFrappeMethod(FRAPPE_METHODS.draftResponse, { ...input });
+    if (!input.includeTrustOverlay) return base;
+    return { ...base, trustDraft: prepareTrustSensitiveDraft(payload) };
   },
 
   async generateReportBrief(
@@ -473,7 +547,7 @@ export const aiService = {
     // Never call Cloud/Frappe for briefs — srm-core/Grok returns generic
     // month-end templates with [Insert …] placeholders (no INC-* cases).
     await delay(400);
-    const local = mockReportBrief(input);
+    const local = mockReportBrief(omitTrustOverlayFlag(input));
     const blob = [
       local.title,
       local.executiveSummary,
@@ -483,7 +557,8 @@ export const aiService = {
     if (looksLikeReportTemplateGuide(blob)) {
       throw new Error("Evidence brief refused to return a template guide.");
     }
-    return local;
+    if (!input.includeTrustOverlay) return local;
+    return { ...local, trustSummary: prepareTrustReportSummary(local) };
   },
 
   async generateIndicatorBrief(
@@ -521,18 +596,17 @@ export const aiService = {
     if (looksLikeReportTemplateGuide(local.bodyMarkdown)) {
       throw new Error("Composer refused to return a template guide.");
     }
-    let attendedCount = 0;
-    try {
-      const parsed = input.factsJson
-        ? (JSON.parse(input.factsJson) as PeriodActivityFacts)
-        : null;
-      attendedCount = parsed?.attended?.length ?? 0;
-    } catch {
-      attendedCount = 0;
-    }
-    // Pack/dossier-only drafts will not cite INC-* — that is expected.
-    if (attendedCount > 0 && !/\bINC-\d+/i.test(local.bodyMarkdown)) {
-      throw new Error("Composer did not cite workspace case evidence (INC-*).");
+    const parsed = parsePeriodFactsJson(input.factsJson);
+    const attendedIds = (parsed?.attended || [])
+      .map((row) => row.id)
+      .filter((id): id is string => Boolean(id));
+    // Pack/dossier-only drafts have no cases to cite — that is expected.
+    // Case ids are not always INC-1001 (e.g. INC-NCGR-01).
+    if (
+      attendedIds.length > 0 &&
+      !bodyCitesAnyCaseId(local.bodyMarkdown, attendedIds)
+    ) {
+      throw new Error("Composer did not cite workspace case evidence.");
     }
     return local;
   },

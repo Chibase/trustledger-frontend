@@ -3,7 +3,8 @@
 **Status:** Living document (authoritative for plan packaging, agent training, and ongoing evaluation)  
 **As of:** 2026-07-23  
 **Deploy truth (Production):** `https://trustledger-frontend-pi.vercel.app` · `deploySha` tracked on `/api/health`  
-**Cloud SoT:** `https://app.trustledger.co.za` (Frappe Cloud only — Interserv retired)  
+**Cloud SoT:** `https://app.trustledgersrm.co.za` (Frappe Cloud only — Interserv retired)  
+**Public marketing:** `https://trustledgersrm.co.za` (ADR-057; was trustledger.co.za)  
 **Product name in UI:** TrustLedger only  
 **Pre–paying-client hosting risk:** `docs/HOSTING_CONTINGENCY.md` (uptime watches, Resend, $0 Node standby — not Frappe UI failover)  
 
@@ -141,7 +142,8 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Grievance / incident desk | Live UI + TL Incident path; verify/close stamps in UI | All plans (core) |
 | Projects (light) | List/detail; Cloud DocType exists | All plans |
 | Stakeholder registry | Create/list; Cloud SI BFF | Project + Institutional (+ addon_crm) |
-| Engagements | List/detail/capture apply; Cloud SI | Project + Institutional (+ addon_commitments pack) |
+| Engagements | List/detail/capture apply; Cloud SI; one-click note sentiment | Project + Institutional (+ addon_commitments pack) |
+| Communication-note sentiment | Analyze → apply → save; relationship-health pulse on dashboard & Engagements | Practitioner+ AI; notes live on Project+ engagements |
 | Commitments board | Promote from engagements; Cloud SI | Project + Institutional |
 | Capture hub | Minutes → AI extract → apply | Project + Institutional |
 | Trial own-data | `/trial` empty workspace | Acquisition |
@@ -180,6 +182,8 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Public community portal | V003+ | Not available |
 | Native mobile apps | None — responsive web only | “Works in mobile browser” |
 | Offline-first field sync | Not shipped | Do not promise |
+| Vendor self-registration / procurement marketplace | Not shipped | Local spend **evidence** only (ADR-054) |
+| Standalone Grievance / Supplier / Field products | Rejected (ADR-054) | Same workspace, focused desks |
 | Client co-branding exports | Future Institutional | Sales only if roadmap-dated |
 | Ops CSV reports / wellbeing telemetry | Scaffold | Internal only |
 
@@ -188,7 +192,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Item | Decision | Reason |
 |------|----------|--------|
 | Public sample `/demo` guest desk | **Discontinued** (ADR-033) | Bleed risk; confuses trial; weakens SRM story |
-| Interserv / alternate Frappe hosts | **Discontinued** | Single SoT: `app.trustledger.co.za` |
+| Interserv / alternate Frappe hosts | **Discontinued** | Single SoT: `app.trustledgersrm.co.za` |
 | AccordBridge dual branding | **Discontinued** | TrustLedger only |
 | Auto-enter fictional INC-* for buyers | **Discontinued** | ADR-029 / launch hardening |
 | Marketing Version 002 as “fully available” before domain is end-to-end | **Forbidden** | VERSIONING honesty rules |
@@ -196,6 +200,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Autonomous AI write without Apply | **Forbidden** | Trust & audit posture |
 | Auto-publish social without ClickUp Approved / `/tl-publish` | **Forbidden** | ADR-052 human gate |
 | Third-party social dashboard as brand SoT | **Forbidden** | Own the loop in this repo (Zernio is API-only) |
+| Separate licensed SaaS products for grievance / supplier / field | **Forbidden** as default (ADR-054) | Land-and-expand via plans + entitlements on one Cloud site |
 
 ---
 
@@ -267,6 +272,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 6. Multi-tenant security ladder (L1–L5): `docs/SECURITY_TENANCY.md` (ADR-038). Do not claim SOC2 / dedicated shells until shipped.
 7. Revisit prices only with evidence from Ops Finance + win/loss — matrix above is the feature switchboard.
 8. **SA baseline intel (ADR-040):** every SA plan includes platform ZA place data (municipalities, wards, TCs where packed). Client adds projects/stakeholders/cases only — never rebuild the country map. Detail: `docs/ZA_BASELINE_INTEL.md`.
+9. **Focused SKUs (ADR-054):** land-and-expand is this ladder plus add-ons — **not** separately licensed Grievance / Supplier / Field apps. Persona marketing maps onto Solo (grievance desk) and Project (capture / local-spend evidence). Runbook: `docs/MODULAR_SKUS.md`. Do not provision a second Cloud site per desk; do not promise WhatsApp portals or native offline as those SKUs.
 
 ### 5.4 What each plan should *not* include in the box (yet)
 
@@ -275,6 +281,9 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 - Native offline app  
 - Unlimited Cloud storage (quotas exist for a reason — upgrade signal)  
 - Sample demo data as “your workspace”
+- A separately licensed Grievance Logger, Supplier Portal, or Field Companion (ADR-054 — those are focused desks on this platform)
+- Vendor self-registration / procurement marketplace
+- Public WhatsApp or SMS community intake portal
 
 ---
 
@@ -298,7 +307,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 | How to start | Start a **14-day trial** (`/trial`) with your own data, or **Subscribe** (`/pay`). Learn features on `/product`. |
 | Live access | After provision, sign in at `/login/live` (email OTP when access email is on). |
 | AI | Suggestions only — a human **applies** before anything is saved. |
-| Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. |
+| Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. Live desks load the organisation from sign-in — the app will not switch onto another client’s workspace. Plan Owners are bound to that organisation on the server. Do not claim every junior seat is Cloud-permissioned. |
 | Audiences | Funders, engineers, PMs, **MEL / M&E**, **social facilitators**, **community members / traditional authorities**, and **local government** — Global South, not one job title. |
 | Geography | South Africa **and** the Global South. ZA place packs are included baseline for SA plans. Do not invent unshipped national maps. |
 | Grounding | Cite operating procedures (seeding spine / daily loop), the SRM blueprint (six dimensions), and engagement practice. Be descriptive — not two vague sentences. |
@@ -313,6 +322,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 - Dual product names (AccordBridge); Interserv as product host.  
 - **Vendor brands in public copy:** Frappe, Vercel, HubSpot (or similar) in FAQ, hero, emails, or public agents.  
 - **Internal version labels:** Version 001, Version 002, V001, V002, TEDS, or “full TEDS blueprint” in marketing, FAQ, Themba, or the customer app. Speak in modules and plans.  
+- **Standalone product brands:** Grievance Logger, Supplier Portal, Field Companion as separately licensed apps (ADR-054). Speak in focused desks on TrustLedger.
 - Promising multi-device durable ops for unpaid browser-only trial without Cloud provision.
 - Inventing IKS paper citations or finished geo packs for every Global South country.
 
@@ -324,7 +334,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 | “Can I try without paying?” | Yes — `/trial` for 14 days with your own projects; or assessment for readiness scoring. |
 | “Where is the demo?” | Sample preview retired. Use `/product` for feature purpose, then trial or live. |
 | “Mobile?” | Responsive web in the browser; no separate App Store app yet. |
-| “Is GO LIVE done?” | Yes for operational grade (2026-07-23). Continuous improvement continues on SI depth and data feeds. |
+| “Can I buy just the grievance app / supplier portal?” | Yes in **packaging**, no as a second product. Start on **Solo** for the grievance desk, or **Project** for field capture and local-spend evidence. The unused SRM modules stay locked. When you need the full trail, we change the plan on the **same** workspace — you do not re-type history. There is no separate supplier marketplace or native offline companion today. |
 
 ### 6.5 Internal agents (coding / ops)
 
@@ -404,6 +414,8 @@ Prioritise by **SRM engine strength** and **operational honesty**, not feature c
 - Full GIS editing  
 - Marketplace / multi-tenant ISV channel  
 - Client co-branding as default Institutional export  
+- Standalone licensed products (separate Grievance / Supplier / Field apps or Git repos) — ADR-054  
+- Public WhatsApp / SMS community portal as a sellable SKU  
 
 ### 8.4 Decision test for any new feature
 
@@ -454,6 +466,7 @@ If three or more answers are “no,” do not ship in the current plan box.
 | `docs/AEO_VISIBILITY.md` | AI search / AEO playbook (schema, FAQ, off-domain entity) |
 | `docs/ARCHITECTURE_EXTRAS_MAP.md` | Agents / Helpdesk / Insights extras vs locked TrustLedger paths |
 | `docs/ZA_BASELINE_INTEL.md` | SA plan packaging: platform place pack vs client situation data (ADR-040) |
+| `docs/MODULAR_SKUS.md` | Land-and-expand focused desks (ADR-054) — not standalone products |
 | `src/lib/aeo/siteFacts.ts` | Canonical product definition + public FAQ corpus |
 | `AGENTS.md` | Coding agent rules |
 

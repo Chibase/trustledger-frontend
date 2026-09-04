@@ -7,9 +7,53 @@ import type {
 } from "@/types/engagement";
 
 const STORAGE_KEY = "tl-engagements";
+const SENTIMENT_OVERLAY_KEY = "tl-engagement-sentiment";
+
+type SentimentOverlay = Pick<
+  Engagement,
+  | "sentimentLabel"
+  | "sentimentScore"
+  | "sentimentRationale"
+  | "sentimentAnalyzedAt"
+>;
 
 function delay<T>(value: T, ms = 60): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(value), ms));
+}
+
+function readSentimentOverlay(): Record<string, SentimentOverlay> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(SENTIMENT_OVERLAY_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, SentimentOverlay>;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeSentimentOverlay(rows: Record<string, SentimentOverlay>) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(SENTIMENT_OVERLAY_KEY, JSON.stringify(rows));
+}
+
+function mergeSentiment(row: Engagement): Engagement {
+  const overlay = readSentimentOverlay()[row.id];
+  if (!overlay) return row;
+  return { ...row, ...overlay };
+}
+
+function persistSentimentOverlay(row: Engagement) {
+  if (!row.sentimentLabel && row.sentimentScore == null) return;
+  const all = readSentimentOverlay();
+  all[row.id] = {
+    sentimentLabel: row.sentimentLabel ?? null,
+    sentimentScore: row.sentimentScore ?? null,
+    sentimentRationale: row.sentimentRationale,
+    sentimentAnalyzedAt: row.sentimentAnalyzedAt,
+  };
+  writeSentimentOverlay(all);
 }
 
 function readLocal(): Engagement[] {
@@ -134,14 +178,18 @@ export const engagementService = {
         for (const row of cloud) byId.set(row.id, row);
         for (const row of local) byId.set(row.id, row);
         return applyFilters(
-          [...byId.values()].sort((a, b) => b.heldOn.localeCompare(a.heldOn)),
+          [...byId.values()]
+            .map(mergeSentiment)
+            .sort((a, b) => b.heldOn.localeCompare(a.heldOn)),
           filters,
         );
       }
       if (own) {
         return delay(
           applyFilters(
-            readLocal().filter((r) => r.source !== "seed"),
+            readLocal()
+              .filter((r) => r.source !== "seed")
+              .map(mergeSentiment),
             filters,
           ),
         );
@@ -150,12 +198,19 @@ export const engagementService = {
 
     if (own) {
       return delay(
-        applyFilters(readLocal().filter((r) => r.source !== "seed"), filters),
+        applyFilters(
+          readLocal()
+            .filter((r) => r.source !== "seed")
+            .map(mergeSentiment),
+          filters,
+        ),
       );
     }
 
     const local = typeof window !== "undefined" ? readLocal() : [];
-    return delay(applyFilters(mergeSeedAndLocal(local), filters));
+    return delay(
+      applyFilters(mergeSeedAndLocal(local).map(mergeSentiment), filters),
+    );
   },
 
   async get(id: string): Promise<Engagement | null> {
@@ -164,17 +219,18 @@ export const engagementService = {
   },
 
   async save(row: Engagement): Promise<Engagement> {
+    persistSentimentOverlay(row);
     if (typeof window !== "undefined" && isLiveMode()) {
       const pushed = await saveToCloudSi(row);
       if (pushed) {
         const local = readLocal().filter((r) => r.id !== row.id);
         writeLocal(local);
-        return delay(row);
+        return delay(mergeSentiment(row));
       }
     }
     const local = readLocal().filter((r) => r.id !== row.id);
     local.push(row);
     writeLocal(local);
-    return delay(row);
+    return delay(mergeSentiment(row));
   },
 };

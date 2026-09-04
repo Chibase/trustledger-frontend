@@ -1,7 +1,7 @@
 # TrustLedger SRM — Live Showcase Demo Plan
 
 **Audience:** Legal / consortium partners (e.g. Inlexso) evaluating TrustLedger for DFI-linked infrastructure bids (e.g. DBSA NILF / RFP-style packages).  
-**Product:** [trustledger.co.za](https://trustledger.co.za) · **Cloud SoT:** TrustLedger Cloud  
+**Product:** [trustledgersrm.co.za](https://trustledgersrm.co.za) · **Cloud SoT:** TrustLedger Cloud  
 **Purpose:** Prove the platform **in action** — not slides. Show that engagement, grievance, commitments, and reports form one defensible trail.  
 **Voice:** Trust, auditability, Social Licence to Build™ (ADR-039). Do not name stack vendors in the room.
 
@@ -13,7 +13,8 @@
 
 | Step | Where | What |
 |------|--------|------|
-| 1 | `/trial` or live Owner login | Open a **Project** or **Institutional** workspace |
+| 0 | `/login/vip` | Operator **VIP Institutional showcase** — seeded NCGR-B illustrative programme. Off only with `VIP_SHOWCASE_LOGIN=0`. See `docs/VIP_ACCESS.md`. |
+| 1 | `/trial` or live Owner login | Or open a **Project** or **Institutional** workspace and seed by hand |
 | 2 | `/app/projects` | Create project `NCGR-B Corridor & Access` (or rename fixture below) |
 | 3 | `/app/stakeholders` | Seed registry (table below) |
 | 4 | `/app/engagements` | Seed 4–6 meetings linked to the project |

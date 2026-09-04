@@ -7,6 +7,7 @@ import { ShellSignOut } from "@/components/shell/ShellSignOut";
 import { FeedbackDrawer } from "@/components/shell/FeedbackDrawer";
 import { SupportDrawer } from "@/components/shell/SupportDrawer";
 import type { PlanId } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
 import type { UserRole } from "@/types/rbac";
 
 type MobileNavProps = {
@@ -15,6 +16,8 @@ type MobileNavProps = {
   mode: "demo" | "live";
   isGuest?: boolean;
   planId?: PlanId | null;
+  vip?: boolean;
+  appMode?: TlMode | null;
 };
 
 export function MobileNav({
@@ -23,6 +26,8 @@ export function MobileNav({
   mode,
   isGuest = false,
   planId,
+  vip = false,
+  appMode = null,
 }: MobileNavProps) {
   const [open, setOpen] = useState(false);
 
@@ -52,7 +57,7 @@ export function MobileNav({
       </div>
       {open ? (
         <div id="mobile-nav-panel" className="space-y-3 px-2 pb-4">
-          <AppNav role={role} planId={planId} />
+          <AppNav role={role} planId={planId} vip={vip} mode={appMode} />
           <div className="space-y-2 px-2">
             <FeedbackDrawer variant="light" />
             <SupportDrawer

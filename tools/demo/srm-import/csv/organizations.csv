@@ -1,0 +1,6 @@
+org_id,name,org_type,province,municipality,contact_email,status
+ORG-0001,Sundays River Valley Local Municipality,client,Eastern Cape,Sundays River Valley,srm.org0001@example.test,active
+ORG-0002,NCGR-B Corridor Contractor JV,contractor,Eastern Cape,Sundays River Valley,srm.org0002@example.test,active
+ORG-0003,Sundays Community Trust,community,Eastern Cape,Sundays River Valley,srm.org0003@example.test,active
+ORG-0004,Sarah Baartman District Municipality,client,Eastern Cape,Sarah Baartman,srm.org0004@example.test,active
+ORG-0005,Independent Social Monitor NPC,monitor,Eastern Cape,Nelson Mandela Bay,srm.org0005@example.test,active

@@ -5,7 +5,7 @@ brand: trustledger
 kind: saas-spotlight
 channel: social
 cta_label: See the platform
-cta_url: https://trustledger.co.za/product
+cta_url: https://trustledgersrm.co.za/product
 platforms: linkedin
 ---
 
@@ -17,4 +17,4 @@ TrustLedger puts community concerns on a durable desk: intake → ownership → 
 
 That is the heart of the live product. AI Assist, where entitled, only suggests. A human applies. Then it saves.
 
-Learn the platform: https://trustledger.co.za/product
+Learn the platform: https://trustledgersrm.co.za/product

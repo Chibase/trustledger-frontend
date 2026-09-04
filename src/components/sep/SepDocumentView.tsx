@@ -1,5 +1,5 @@
 import { SepRichText } from "@/components/sep/SepRichText";
-import { SEP_ISSUER_LINE, sepCoverFields } from "@/lib/sepDocument";
+import { sepCoverFields, sepPreparedBy } from "@/lib/sepDocument";
 import type { EngagementPlan, SepDocumentTable } from "@/types/engagementPlan";
 
 type Props = {
@@ -16,10 +16,7 @@ export function SepDocumentView({ plan }: Props) {
     >
       <header className="sep-cover border-b border-tl-line pb-10">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tl-ink-muted">
-          Chibase Consulting
-        </p>
-        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-tl-trust">
-          TrustLedger
+          TrustLedger · Social Engagement &amp; Participation
         </p>
         <h2 className="mt-6 font-display text-3xl font-semibold tracking-tight text-tl-ink sm:text-4xl">
           Stakeholder Engagement Plan
@@ -58,7 +55,7 @@ export function SepDocumentView({ plan }: Props) {
       </div>
 
       <footer className="mt-10 border-t border-tl-line pt-4 text-xs text-tl-ink-muted">
-        {SEP_ISSUER_LINE} Not legal advice. Not a substitute for statutory
+        {sepPreparedBy(plan)} Not legal advice. Not a substitute for statutory
         processes named in the briefing.
       </footer>
     </article>

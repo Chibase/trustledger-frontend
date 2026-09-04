@@ -116,6 +116,17 @@ export const PLAN_COMPARISON_GROUPS: ComparisonGroup[] = [
         },
       },
       {
+        id: "server_tenancy",
+        label: "Access enforced per organisation on the server",
+        hint: "Live desks load your organisation from sign-in. The app will not switch onto another client’s workspace. Plan Owners are bound to that organisation in TrustLedger Cloud.",
+        values: {
+          solo: true,
+          practitioner: true,
+          project: true,
+          institutional: true,
+        },
+      },
+      {
         id: "https",
         label: "Encrypted connection to TrustLedger",
         values: {
@@ -231,7 +242,7 @@ export const PRIVACY_EXTRAS: PrivacyExtra[] = [
 ];
 
 export const DATA_PROTECTION_BLURB =
-  "Each organisation runs in its own TrustLedger workspace. Connections are encrypted, support access is allowlisted, and your content is not used to train external AI models. Optional layers — Trust Pack, private cloud workspace, and support-access visibility — add contract and isolation depth when procurement needs them.";
+  "Each organisation runs in its own TrustLedger workspace. Live access is enforced per organisation on the server, connections are encrypted, support access is allowlisted, and your content is not used to train external AI models. Optional layers — Trust Pack, private cloud workspace, and support-access visibility — add contract and isolation depth when procurement needs them.";
 
 export function formatExtraFrom(zar: number | null): string {
   if (zar === null) return "Talk to sales";

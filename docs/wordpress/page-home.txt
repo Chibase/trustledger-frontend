@@ -11,8 +11,8 @@
 <header class="site-header is-scrolled" role="banner">
   <div class="container">
     <div class="site-header__inner">
-      <a href="https://trustledger.co.za/" class="site-header__logo" aria-label="TrustLedger home">
-        <img src="https://trustledger.co.za/wp-content/uploads/2026/07/TrustLedger-Logo-1-1.png" alt="TrustLedger" width="168" height="44" />
+      <a href="https://trustledgersrm.co.za/" class="site-header__logo" aria-label="TrustLedger home">
+        <img src="https://trustledgersrm.co.za/wp-content/uploads/2026/07/TrustLedger-Logo-1-1.png" alt="TrustLedger" width="168" height="44" />
       </a>
       <nav aria-label="Main navigation">
         <ul class="nav-links">
@@ -375,7 +375,7 @@
       <article class="card">
         <h3 class="card__title">Readiness assessment</h3>
         <p class="card__desc">SRM maturity diagnostic when you want scored results.</p>
-        <p class="mt-4"><a class="btn btn--link" href="https://trustledger.co.za/assessment/">Go to assessment</a></p>
+        <p class="mt-4"><a class="btn btn--link" href="https://trustledgersrm.co.za/assessment/">Go to assessment</a></p>
       </article>
       <article class="card">
         <h3 class="card__title">Product overview</h3>
@@ -432,7 +432,7 @@
     </details>
     <details class="faq__item">
       <summary class="faq__button">Where does TrustLedger store live customer data?</summary>
-      <div class="faq__panel">Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. You use the TrustLedger product app for day-to-day work; marketing content lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.</div>
+      <div class="faq__panel">Live customer workspaces run on TrustLedger Cloud at app.trustledgersrm.co.za. You use the TrustLedger product app for day-to-day work; marketing content lives on trustledgersrm.co.za. Paying and trial workspaces never show fictional sample incidents.</div>
     </details>
     <details class="faq__item">
       <summary class="faq__button">What is Admin login?</summary>
@@ -458,8 +458,8 @@
       "@type": "Organization",
       "name": "TrustLedger",
       "legalName": "Chibase Consulting",
-      "url": "https://trustledger.co.za",
-      "email": "info@trustledger.co.za",
+      "url": "https://trustledgersrm.co.za",
+      "email": "info@trustledgersrm.co.za",
       "description": "TrustLedger is a Stakeholder Relationship Management (SRM) software platform designed for grievance resolution, community engagement, Stakeholder Intelligence, and audit-ready reporting on infrastructure and community-trust projects in South Africa and the Global South.",
       "sameAs": [
         "https://chibaseconsulting.co.za",
@@ -544,7 +544,7 @@
       <div>
         <p class="site-footer__brand">TrustLedger</p>
         <p class="site-footer__parent">A Chibase Consulting product</p>
-        <p class="site-footer__contact"><a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a> · <a href="mailto:info@trustledger.co.za">info@trustledger.co.za</a></p>
+        <p class="site-footer__contact"><a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a> · <a href="mailto:info@trustledgersrm.co.za">info@trustledgersrm.co.za</a></p>
       </div>
       <div>
         <p class="site-footer__heading">Product</p>
@@ -561,8 +561,8 @@
         <p class="site-footer__heading">Company</p>
         <ul class="site-footer__links">
           <li><a href="https://chibaseconsulting.co.za" target="_blank" rel="noopener noreferrer">Chibase Consulting</a></li>
-          <li><a href="https://trustledger.co.za/privacy/">Privacy</a></li>
-          <li><a href="https://trustledger.co.za/terms/">Terms</a></li>
+          <li><a href="https://trustledgersrm.co.za/privacy/">Privacy</a></li>
+          <li><a href="https://trustledgersrm.co.za/terms/">Terms</a></li>
           <li><a href="https://trustledger-frontend-pi.vercel.app/contact?utm_source=wordpress&amp;utm_medium=footer&amp;utm_campaign=contact" target="_blank" rel="noopener noreferrer">Contact</a></li>
         </ul>
       </div>
