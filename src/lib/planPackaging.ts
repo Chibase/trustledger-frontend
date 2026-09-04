@@ -1,6 +1,6 @@
 /**
  * Resolve plan-as-container dashboards. No SQL — commercial PlanId + cookies.
- * Demo seed is Thozamile's VIP showcase only. Other VIP / live Cloud keep own data.
+ * Demo seed is the dedicated VIP showcase mailbox only. Other VIP / live Cloud keep own data.
  */
 
 import {
@@ -44,7 +44,7 @@ function readLocalArray<T extends { id: string }>(key: string): T[] {
   }
 }
 
-/** VIP illustrative seed — Thozamile's trial+VIP mailbox only. */
+/** VIP illustrative seed — dedicated showcase trial+VIP mailbox only. */
 export function demoSeedAllowed(input: {
   mode?: TlMode | null;
   vip?: boolean;
