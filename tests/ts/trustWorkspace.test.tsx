@@ -102,6 +102,8 @@ describe("trust workspace summary", () => {
     expect(summary.participationQuality.total).toBe(0);
     expect(summary.participationQuality.consentImpliedCount).toBe(0);
     expect(summary.claimVerification.linkedEvidenceIsNotVerified).toBe(true);
+    expect(summary.causality.causalProof).toBe(false);
+    expect(summary.causality.statisticalCausality).toBe(false);
   });
 
   it("maps −1…+1 means onto a 0–100 chart scale without becoming Trust pulse", () => {

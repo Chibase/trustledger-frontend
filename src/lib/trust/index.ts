@@ -188,6 +188,20 @@ export {
   type TrustClaimVerificationStatus,
 } from "@/lib/trust/claimVerification";
 export {
+  TRUST_CAUSALITY_COMPANION_KINDS,
+  TRUST_CAUSALITY_COMPANION_LABELS,
+  TRUST_CAUSALITY_STATUSES,
+  TRUST_CAUSALITY_STATUS_LABELS,
+  formatCausalityMix,
+  laterHalfObservations,
+  summarizeTrustCausality,
+  summarizeTrustCausalityForIntel,
+  type TrustCausalityCompanion,
+  type TrustCausalityCompanionKind,
+  type TrustCausalityReading,
+  type TrustCausalityStatus,
+} from "@/lib/trust/causality";
+export {
   applyClaimVerification,
   applyClaimVerificationAsync,
   clearClaimVerificationStamps,

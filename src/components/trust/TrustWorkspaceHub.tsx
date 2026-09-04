@@ -19,6 +19,10 @@ import {
 } from "@/lib/trust/claimVerification";
 import { applyClaimVerificationAsync } from "@/lib/trust/claimVerificationStore";
 import {
+  TRUST_CAUSALITY_COMPANION_LABELS,
+  formatCausalityMix,
+} from "@/lib/trust/causality";
+import {
   TRUST_PARTICIPATION_QUALITY_CLASSES,
   TRUST_PARTICIPATION_QUALITY_LABELS,
   formatParticipationQualityMix,
@@ -303,6 +307,39 @@ export function TrustWorkspaceHub() {
               </li>
             ))}
           </ul>
+        </div>
+      ) : null}
+
+      {summary && summary.causality.status !== "insufficient" ? (
+        <div>
+          <h3 className="mb-1 text-sm font-semibold text-tl-ink">
+            Trust-movement companions
+          </h3>
+          <p className="mb-3 text-xs text-tl-ink-muted">
+            Later-half co-occurrence, not causal proof, not Trust pulse.{" "}
+            {formatCausalityMix(summary.causality)}.
+          </p>
+          {summary.causality.companions.length ? (
+            <ul className="flex flex-wrap gap-2">
+              {summary.causality.companions.map((row) => (
+                <li
+                  key={`${row.kind}-${row.dimension || row.label}`}
+                  className="rounded-md border border-tl-line px-3 py-1.5 text-sm text-tl-ink"
+                >
+                  <span className="font-medium">
+                    {row.dimension
+                      ? row.label
+                      : TRUST_CAUSALITY_COMPANION_LABELS[row.kind]}
+                  </span>
+                  <span className="text-tl-ink-muted"> {row.count}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-tl-ink-muted">
+              Period is readable, but no later-half companions were listed.
+            </p>
+          )}
         </div>
       ) : null}
 

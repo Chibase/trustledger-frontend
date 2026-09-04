@@ -41,13 +41,14 @@ export const TRUST_MVP_COMPLETE = [
   "TE-9 participation-quality reading: class mix (trust / obligation / livelihood / mixed / unknown) from stored motive; mixed is not weak; attendance is not consent; not Trust pulse",
   "TE-10 trust-claim verification reading: unevidenced / evidenced / verified; linked evidence is not verification; attendance does not verify; human apply required; not Trust pulse",
   "TE-11 Cloud SoT for claim-verification stamps: TL Trust Claim Verification; human apply still required; not a sealed ledger",
+  "TE-12 trust-movement companion reading: later-half co-occurrence, not statistical causality; attendance and mixed motive are not causes; not Trust pulse",
 ] as const;
 
 export const TRUST_MVP_PARTIAL = [
   "Trust proof workspace hub is on /app/dashboard and the desk; optional proof/recs panels remain on /app/reports. Not a monthly / executive / board pack or community-facing summary",
   "Participation quality is a count of stored motive classes (not a composite 0–100 score or Trust pulse)",
   "Trust-claim verification is unevidenced / evidenced / verified from linked evidence plus human apply; Cloud SoT for stamps on live workspaces; not a sealed ledger",
-  "Period trend is later vs earlier mean (mixed when dimensions disagree). Not causality",
+  "Period trend is later vs earlier mean (mixed when dimensions disagree). TE-12 lists later-half companions; not statistical causality",
   "TE-4 recs are rule-traced from trust state and evidence ids; generic triage/sentiment/draft AI remains local heuristics",
   "Field extras persist on Capture engagement apply (local cache; Cloud upsert when live; participation sourceId is the engagement id). They do not auto-save while typing",
   "Language structures exist; product UI is not translated",
@@ -61,7 +62,6 @@ export const TRUST_MVP_FUTURE = [
   "National geo packs beyond the ZA baseline (ADR-040 / ADR-045)",
   "Product-wide i18n and community-checked translation workflow",
   "Auto-saving field extras into the trust layer without human apply",
-  "Causal analysis of trust movement",
   "Community-facing trust summaries and monthly / executive / board proof packs",
 ] as const;
 

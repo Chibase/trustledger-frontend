@@ -206,6 +206,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **TE-9** | Participation-quality reading | Classify participation as trust / obligation / livelihood / mixed without treating mixed as weak or attendance as consent | **Done** |
 | **TE-10** | Trust-claim verification | Classify claims as unevidenced / evidenced / verified; linked evidence is not verification; attendance does not verify; human apply required | **Done** |
 | **TE-11** | Cloud SoT for claim-verification stamps | `TL Trust Claim Verification` DocType + BFF; live customer/trial SoT; human apply still required; not a sealed ledger | **Done** |
+| **TE-12** | Trust-movement companion reading | Later-half co-occurrence with movement; not statistical causality; attendance and mixed motive are not causes | **Done** |
 | **PP-1** | Plan-as-container packaging | TierFlow module sequence; executive roll-up; VIP-only demo seed across included desks; non-VIP empty | **Done** |
 
 ### HubSpot cutover (ACTIVE)
@@ -312,6 +313,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-04 | TE-12 — trust-movement companion reading (later-half co-occurrence; not statistical causality) |
 | 2026-09-04 | TE-11 — Cloud SoT for claim-verification stamps (human apply still required; not a sealed ledger) |
 | 2026-09-04 | TE-10 — trust-claim verification (linked evidence ≠ verified; attendance does not verify) |
 | 2026-09-04 | TE-9 — participation-quality reading (class mix; mixed ≠ weak; attendance ≠ consent) |

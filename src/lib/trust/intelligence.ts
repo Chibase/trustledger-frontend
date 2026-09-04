@@ -7,6 +7,7 @@ import { recommendTrustActions, collectTrustAlerts } from "@/lib/trust/recommend
 import { summarizeCommunityContextForIntel } from "@/lib/trust/communityContext";
 import { summarizeParticipationQualityForIntel } from "@/lib/trust/participationQuality";
 import { summarizeClaimVerificationForIntel } from "@/lib/trust/claimVerification";
+import { summarizeTrustCausalityForIntel } from "@/lib/trust/causality";
 import { buildTrustProofFromSrm, composeTrustProofReport } from "@/lib/trust/proofReport";
 import type {
   BuildTrustProofExtra,
@@ -280,10 +281,12 @@ export function composeTrustIntelligenceFromProof(
     proofMovement: proof.overallMovement,
   };
   const verificationHints = summarizeClaimVerificationForIntel(proof.claims);
-  if (verificationHints.length) {
+  const causalityHints = summarizeTrustCausalityForIntel(proof.causality);
+  if (verificationHints.length || causalityHints.length) {
     brief.advisory.supportNotes = [
       ...brief.advisory.supportNotes,
       ...verificationHints,
+      ...causalityHints,
     ];
   }
   brief.markdown = renderIntelligenceMarkdown(brief);
