@@ -36,7 +36,8 @@ export type MigrateOrgResult = {
 
 /**
  * One-shot migrate of browser org projects/incidents/evidence to Cloud.
- * `customer` must match Frappe Customer name (usually org display name).
+ * Server binds Customer from the live sign-in. `customer` is optional and
+ * ignored for non-operators (browser org name often differs from Cloud name).
  */
 export async function migrateActiveOrgToCloud(options?: {
   customer?: string;

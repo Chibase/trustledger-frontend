@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import { setCloudUserPassword } from "@/lib/cloudUserPassword";
 import {
-  assertLiveOperatorAccess,
+  assertOpsAccess,
   operatorGateMessage,
 } from "@/lib/platformOperator";
 import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
   const jar = await cookies();
   const operatorEmail = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  const gate = assertLiveOperatorAccess(operatorEmail);
+  const gate = assertOpsAccess(operatorEmail);
   if (!gate.ok) {
     return NextResponse.json(
       { error: operatorGateMessage(gate.reason) },

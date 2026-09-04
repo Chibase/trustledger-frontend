@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
-import { getCustomerEntitlementByOwnerEmail } from "@/lib/entitlementCloud";
+import { FRAPPE_SID_COOKIE } from "@/lib/auth.constants";
 import { getCloudProjectForCustomer } from "@/lib/productCloud";
+import { bindSessionCustomer } from "@/lib/tenantScope";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -20,12 +22,18 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Project id required" }, { status: 400 });
   }
 
-  const ent = await getCustomerEntitlementByOwnerEmail(user.email);
-  if (!ent?.customerName) {
-    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  const jar = await cookies();
+  const bound = await bindSessionCustomer(user.email, null, {
+    sid: jar.get(FRAPPE_SID_COOKIE)?.value,
+  });
+  if (!bound.ok) {
+    return NextResponse.json(
+      { error: bound.status === 404 ? "Project not found" : bound.error },
+      { status: bound.status === 404 ? 404 : bound.status },
+    );
   }
 
-  const found = await getCloudProjectForCustomer(ent.customerName, id);
+  const found = await getCloudProjectForCustomer(bound.customerName, id);
   if (!found.ok) {
     return NextResponse.json({ error: found.error }, { status: 502 });
   }

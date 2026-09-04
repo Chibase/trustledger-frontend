@@ -116,6 +116,7 @@ Record significant decisions here. Agents must treat **Accepted** entries as loc
   5. Sales language must match shipped controls; VIP beta continues mock/anonymised data (TOU v2).
   6. **Client-facing copy** names **TrustLedger** only; hosting is “cloud” / “private cloud workspace” (no Frappe/Vercel on marketing). Privacy depth beyond baseline is **optional extras** with a short protection blurb and foldable plan comparison on home pricing.
 - **Consequences:** Pricing pages and ACCESS_MODEL gain explicit Trust & tenancy rows. SEC-1…SEC-5 packets schedule the climb. Isolation prices stay sales-scoped until host quotes lock.
+- **Deepened 2026-08-25 (SEC-1):** Plan Owner Cloud Users are stamped with a Customer User Permission (`apply_to_all_doctypes`). Live SI / migrate / upload / project BFF bind Customer from the **Cloud sid**, not a client-supplied name or a forgeable email cookie (Platform Operators may break-glass). Buyer `customer=` is ignored so first-login migrate still works when the browser org label differs from the Cloud Customer name. Invitee Cloud seats remain **SEC-5**. Sales copy may say server-side organisation enforcement for Plan Owners; do not claim every junior seat is Cloud-permissioned.
 - **Alternatives considered:** Charge all plans for dedicated sites (rejected — kills Solo/Practitioner); claim SOC2 before starting (rejected); stay silent on security in packaging (rejected — loses trust-sensitive buyers).
 
 ### ADR-036: In-app setup wizard + user manual (UG-1)
