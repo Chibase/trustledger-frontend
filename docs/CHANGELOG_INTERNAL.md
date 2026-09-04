@@ -5,6 +5,7 @@
 - Optional rule-based suggestions (repair, next engagement, follow-up, consider senior review) plus alerts for declining trust, missing evidence, weak participation, and unresolved cases. `docs/TRUST_INTELLIGENCE.md`.
 - Every item is `suggestion_only` with a published `ruleId` and trace (observations, evidence, cases). Nothing auto-applies, auto-escalates, or calls a remote model. Local advisory wording only.
 - Collapsed panel on `/app/reports` under Trust proof. Packs, writer, Trust pulse, and incident workflow unchanged.
+- `buildTrustProofFromSrm` now dedupes stored + derived participation/community rows by id so TE-4 alerts are not inflated when `tl-trust-layer` already holds derived rows.
 
 ## 2026-09-04 — TE-3 trust analytics and proof reporting
 
