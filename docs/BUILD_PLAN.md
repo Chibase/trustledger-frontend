@@ -201,6 +201,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **TE-5** | Global South operating adaptations | Optional community context, field-friendly capture, language readiness, authority mapping, participation realism. Additive; no single template. `docs/TRUST_GLOBAL_SOUTH.md` | **Done** |
 | **TE-5b** | Community profiles + language support | Persist field extras on Capture apply; community profiles on Intelligence; offline field drafts; triage language support without fake translation. | **Done** |
 | **TE-6** | MVP packaging and readiness | Gap review, proof-package path, cross-module validation, internal checklist. No new trust capability. Living inventory: `docs/TRUST_MVP.md` | **Done** |
+| **TE-7** | Cloud trust SoT | TL Trust Observation / Participation / Community Context; SEC-1; BFF CRUD; live customer/trial SoT. Sentiment not copied. Overlay not posted. `docs/TRUST_DOCTYPES.md` | **Done** |
 | **PP-1** | Plan-as-container packaging | TierFlow module sequence; executive roll-up; VIP-only demo seed across included desks; non-VIP empty | **Done** |
 
 ### HubSpot cutover (ACTIVE)
@@ -307,6 +308,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-04 | TE-7 — Cloud trust DocTypes + BFF; live SoT for customer/trial; sentiment not copied |
 | 2026-09-04 | TRUST_MVP living inventory — semantic gap audit vs TE-1…TE-6; proof hub location; SI Engagement vs legacy `list_meeting_notes` |
 | 2026-09-04 | TE-6 — MVP packaging: gap review, proof path, cross-module checks; no new trust capability |
 | 2026-09-04 | TE-5b — community profiles, field extras persist on apply, language support without translation |

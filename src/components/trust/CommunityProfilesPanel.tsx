@@ -1,27 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   loadWorkspaceCommunityProfiles,
+  loadWorkspaceCommunityProfilesAsync,
   type CommunityProfile,
 } from "@/lib/trust/communityProfiles";
+import { shouldUseTrustCloud } from "@/lib/trust/layerStore";
 
 /**
  * Community profiles, history, power context, language, and participation
  * interpretation from the parallel trust layer. Not Stats SA packs.
  */
 export function CommunityProfilesPanel() {
-  const [profiles, setProfiles] = useState<CommunityProfile[]>([]);
-
-  const load = useCallback(() => {
-    setProfiles(loadWorkspaceCommunityProfiles());
-  }, []);
+  const [profiles, setProfiles] = useState<CommunityProfile[]>(() =>
+    loadWorkspaceCommunityProfiles(),
+  );
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- read local trust layer
-    load();
-  }, [load]);
+    if (!shouldUseTrustCloud()) return;
+    let cancelled = false;
+    void loadWorkspaceCommunityProfilesAsync().then((rows) => {
+      if (!cancelled) setProfiles(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section className="space-y-3">

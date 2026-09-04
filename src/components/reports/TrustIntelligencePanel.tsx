@@ -7,7 +7,7 @@ import { stakeholderService } from "@/services/stakeholderService";
 import { getActiveOrgId } from "@/lib/orgStore";
 import {
   buildTrustIntelligenceFromSrm,
-  getTrustLayerBucket,
+  loadTrustLayerBucketAsync,
   type TrustIntelligenceBrief,
 } from "@/lib/trust";
 import {
@@ -37,7 +37,7 @@ export function TrustIntelligencePanel() {
         stakeholderService.list(),
       ]);
       const orgId = getActiveOrgId();
-      const stored = orgId ? getTrustLayerBucket(orgId) : null;
+      const stored = orgId ? await loadTrustLayerBucketAsync(orgId) : null;
       const next = buildTrustIntelligenceFromSrm(
         {
           incidents,

@@ -1,21 +1,39 @@
-# Trust layer Cloud DocTypes (future)
+# Trust layer Cloud DocTypes (TE-7)
 
-**Status:** Contract only. Not ensured on Cloud. Not buyer CRUD.  
-**First-class model today:** TypeScript types + `tl-trust-layer` (`docs/TRUST_LAYER.md`).
+**Status:** Shipped as Cloud SoT for live customer/trial workspaces. Ops ensure + BFF CRUD.  
+**Frontend types:** `src/types/trustLayer.ts`  
+**Local cache:** `tl-trust-layer` (offline / demo). Live SoT is Frappe.
 
-TE-2b completes the **frontend** trust model so SRM sentiment is not used as a stand-in. Frappe DocTypes (`TL Trust Observation`, dimension status, participation, community context) stay **future** until an approved packet wires `ensure` + BFF + SEC-1, same as TE-6 `TRUST_MVP_FUTURE`.
+Dimension status stays **computed** (TE-2/TE-3 ±0.34 rules). Not a DocType.
 
-## Proposed names (do not create yet)
+## Names
 
-| DocType (working name) | Maps to |
-|------------------------|---------|
-| TL Trust Observation | `TrustObservation` |
-| TL Trust Dimension Status | `TrustDimensionStatus` (derived, may stay computed) |
-| TL Trust Participation | `TrustParticipationRecord` |
-| TL Trust Community Context | `TrustCommunityContext` |
+| DocType | Maps to | Autoname |
+|---------|---------|----------|
+| `TL Trust Observation` | `TrustObservation` | `observation_code` |
+| `TL Trust Participation` | `TrustParticipationRecord` | `participation_code` |
+| `TL Trust Community Context` | `TrustCommunityContext` | `community_code` |
 
-Each would need `customer` (Link Customer) for SEC-1. Do not POST TE-2 rows to Frappe until that packet exists.
+Each has required `customer` (Link Customer) for SEC-1. Buyer role: read/write/create, no delete.
 
 ## Sentiment
 
-`srm_sentiment_capture` / case `sentiment_label` / `sentiment_score` remain **generic sentiment**. They are not these DocTypes and must not be copied into trust observations.
+`srm_sentiment_capture` / case `sentiment_label` / `sentiment_score` remain **generic sentiment**. They are not these DocTypes and must not be copied into trust observations. Observation `signal` / `signal_score` are trust-layer fields only.
+
+TE-1 `trustResponse` / `trustSupport` overlay keys are **not** Cloud columns.
+
+## APIs (this repo)
+
+| Route | Purpose |
+|-------|---------|
+| `POST /api/frappe/ensure-product-doctypes` | Idempotent create (includeTrust default true) |
+| `GET /api/frappe/trust` | List observation + participation + community for the bound Customer |
+| `POST /api/frappe/trust` | Upsert `kind=observation\|participation\|community\|bucket` |
+| `POST /api/frappe/product-smoke` | Ops smoke for those kinds |
+| `POST /api/frappe/migrate-org` | First live login also pushes local trust rows |
+
+Empty Cloud stays empty (no demo `INC-*` bleed).
+
+## Client behaviour
+
+Live mode: load/save go through the BFF; local storage is a cache. Capture apply still requires human apply (no auto-save while typing). Overlay is still omitted from incident/engagement/stakeholder Cloud mappers.

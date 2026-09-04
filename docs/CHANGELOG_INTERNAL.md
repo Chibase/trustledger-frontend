@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-04 — TE-7 Cloud trust DocTypes
+
+- Live customer/trial workspaces use **TL Trust Observation**, **TL Trust Participation**, and **TL Trust Community Context** as the trust source of record (`docs/TRUST_DOCTYPES.md`). `customer` is required (SEC-1). Dimension status stays computed.
+- BFF: `GET|POST /api/frappe/trust`. Ops ensure is on `ensure-product-doctypes` (includeTrust). Product smoke and live-login migrate push trust rows. Local `tl-trust-layer` is a cache / demo store.
+- SRM `sentiment_label` / `sentiment_score` are not copied. TE-1 overlay keys are not Cloud columns. Empty Cloud stays empty.
+
 ## 2026-09-04 — Trust semantic gap inventory
 
 - `docs/TRUST_MVP.md` is the living current-state inventory for the frontend trust stack. Semantic gaps (dimensions, participation, evidence↔claims, longitudinal proof, workspace, AI, engagements, docs, operational vs product MVP) are marked **fixed / partial / split / still true** — not TEDS-complete.

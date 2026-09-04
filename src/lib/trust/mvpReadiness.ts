@@ -36,6 +36,7 @@ export const TRUST_MVP_COMPLETE = [
   "TE-3 explainable proof: movement, claims, history, comparisons, risks; workspace hub on /app/dashboard and the desk",
   "TE-4 suggestion-only recommendations and alerts with published rule ids",
   "TE-5 optional Global South field/context (not a single community template); TE-5b community profiles and language support",
+  "TE-7 Cloud trust SoT: TL Trust Observation / Participation / Community Context; SEC-1 customer bind; SRM sentiment is not copied",
 ] as const;
 
 export const TRUST_MVP_PARTIAL = [
@@ -44,19 +45,18 @@ export const TRUST_MVP_PARTIAL = [
   "Observations and proof claims can cite evidenceIds; there is no separate trust-claim verification workflow",
   "Period trend is later vs earlier mean (mixed when dimensions disagree). Not causality",
   "TE-4 recs are rule-traced from trust state and evidence ids; generic triage/sentiment/draft AI remains local heuristics",
-  "Field extras persist to tl-trust-layer on Capture apply; they do not auto-save while typing",
+  "Field extras persist on Capture apply (local cache; Cloud upsert when live). They do not auto-save while typing",
   "Language structures exist; product UI is not translated",
   "Authority roles are derived from existing stakeholder kind/tags, not a new CRM kind",
 ] as const;
 
 export const TRUST_MVP_FUTURE = [
-  "Cloud DocTypes / srm-core methods for the trust layer",
   "Production ledger writes (blocked on KEY_MANAGEMENT.md)",
   "Live Grok/Cloud for trust proof or recommendations",
   "Full TEDS / ESIP blueprint completeness",
   "National geo packs beyond the ZA baseline (ADR-040 / ADR-045)",
   "Product-wide i18n and community-checked translation workflow",
-  "Auto-saving field extras into tl-trust-layer without human apply",
+  "Auto-saving field extras into the trust layer without human apply",
   "Trust-claim verification / approval workflow",
   "Causal analysis of trust movement",
   "Community-facing trust summaries and monthly / executive / board proof packs",

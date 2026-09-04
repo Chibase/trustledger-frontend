@@ -11,6 +11,11 @@ import {
   createCloudEngagement,
   createCloudStakeholder,
 } from "@/lib/siCloud";
+import {
+  upsertCloudCommunity,
+  upsertCloudObservation,
+  upsertCloudParticipation,
+} from "@/lib/trustCloud";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import {
   assertOpsAccess,
@@ -21,6 +26,11 @@ import type { Engagement, EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
 import type { Stakeholder } from "@/types/stakeholder";
+import type {
+  TrustCommunityContext,
+  TrustObservation,
+  TrustParticipationRecord,
+} from "@/types/trustLayer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +42,10 @@ type Body = {
     | "evidence"
     | "stakeholder"
     | "engagement"
-    | "commitment";
+    | "commitment"
+    | "observation"
+    | "participation"
+    | "community";
   customer?: string;
   orgId?: string;
   project?: Project;
@@ -41,6 +54,9 @@ type Body = {
   stakeholder?: Stakeholder;
   engagement?: Engagement;
   commitment?: Commitment;
+  observation?: TrustObservation;
+  participation?: TrustParticipationRecord;
+  community?: TrustCommunityContext;
   fileUrl?: string;
 };
 
@@ -119,11 +135,35 @@ export async function POST(request: Request) {
     );
     return NextResponse.json(result, { status: result.ok ? 200 : 502 });
   }
+  if (body.kind === "observation" && body.observation) {
+    const result = await upsertCloudObservation(
+      body.observation,
+      customer,
+      body.orgId,
+    );
+    return NextResponse.json(result, { status: result.ok ? 200 : 502 });
+  }
+  if (body.kind === "participation" && body.participation) {
+    const result = await upsertCloudParticipation(
+      body.participation,
+      customer,
+      body.orgId,
+    );
+    return NextResponse.json(result, { status: result.ok ? 200 : 502 });
+  }
+  if (body.kind === "community" && body.community) {
+    const result = await upsertCloudCommunity(
+      body.community,
+      customer,
+      body.orgId,
+    );
+    return NextResponse.json(result, { status: result.ok ? 200 : 502 });
+  }
 
   return NextResponse.json(
     {
       error:
-        "kind + matching payload required (project|incident|evidence|stakeholder|engagement|commitment)",
+        "kind + matching payload required (project|incident|evidence|stakeholder|engagement|commitment|observation|participation|community)",
     },
     { status: 400 },
   );

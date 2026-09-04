@@ -4,6 +4,7 @@
 
 import { getOrgDataBucket } from "@/lib/orgDataSpace";
 import { getActiveOrg, getActiveOrgId } from "@/lib/orgStore";
+import { getTrustLayerBucket } from "@/lib/trust/layerStore";
 
 const FLAG_PREFIX = "tl-org-migrated:";
 
@@ -30,6 +31,9 @@ export type MigrateOrgResult = {
     projects: number;
     incidents: number;
     evidence: number;
+    observations?: number;
+    participation?: number;
+    community?: number;
     failed: number;
   };
 };
@@ -61,10 +65,14 @@ export async function migrateActiveOrgToCloud(options?: {
     return { ok: true, skipped: true, message: "No org data bucket" };
   }
 
+  const trust = getTrustLayerBucket(orgId);
   const hasRows =
     bucket.projects.length > 0 ||
     bucket.incidents.length > 0 ||
-    bucket.evidence.length > 0;
+    bucket.evidence.length > 0 ||
+    trust.observations.length > 0 ||
+    trust.participation.length > 0 ||
+    trust.community.length > 0;
   if (!hasRows) {
     markOrgMigrated(orgId);
     return { ok: true, skipped: true, message: "Empty org — nothing to migrate" };
@@ -86,6 +94,9 @@ export async function migrateActiveOrgToCloud(options?: {
         projects: bucket.projects,
         incidents: bucket.incidents,
         evidence: bucket.evidence,
+        observations: trust.observations,
+        participation: trust.participation,
+        community: trust.community,
       }),
     });
     const json = (await res.json()) as MigrateOrgResult & { error?: string };
