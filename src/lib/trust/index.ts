@@ -104,6 +104,11 @@ export {
   type TrustProofReport,
 } from "@/lib/trust/proofReport";
 export {
+  loadWorkspaceTrustProof,
+  summarizeTrustWorkspace,
+  type TrustWorkspaceSummary,
+} from "@/lib/trust/workspaceProof";
+export {
   TRUST_INTELLIGENCE_RULES,
   trustRuleSummary,
   type TrustAlert,

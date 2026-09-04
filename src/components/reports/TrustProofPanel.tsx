@@ -1,19 +1,8 @@
 "use client";
 
 import { useCallback, useState, type SyntheticEvent } from "react";
-import { commitmentService } from "@/services/commitmentService";
-import { engagementService } from "@/services/engagementService";
-import { stakeholderService } from "@/services/stakeholderService";
-import { getActiveOrgId } from "@/lib/orgStore";
-import {
-  buildTrustProofFromSrm,
-  getTrustLayerBucket,
-  type TrustProofReport,
-} from "@/lib/trust";
-import {
-  listWorkspaceEvidence,
-  listWorkspaceIncidents,
-} from "@/lib/workspaceData";
+import { loadWorkspaceTrustProof } from "@/lib/trust/workspaceProof";
+import type { TrustProofReport } from "@/lib/trust";
 
 /**
  * Optional trust proof on the reports hub.
@@ -29,28 +18,7 @@ export function TrustProofPanel() {
     setLoading(true);
     setError(null);
     try {
-      const [engagements, commitments, stakeholders] = await Promise.all([
-        engagementService.list(),
-        commitmentService.list(),
-        stakeholderService.list(),
-      ]);
-      const orgId = getActiveOrgId();
-      const stored = orgId ? getTrustLayerBucket(orgId) : null;
-      const next = buildTrustProofFromSrm(
-        {
-          incidents: listWorkspaceIncidents(),
-          engagements,
-          commitments,
-          evidence: listWorkspaceEvidence(),
-          stakeholders,
-        },
-        {
-          storedObservations: stored?.observations,
-          storedParticipation: stored?.participation,
-          storedCommunity: stored?.community,
-        },
-      );
-      setReport(next);
+      setReport(await loadWorkspaceTrustProof());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not compose trust proof.");
       setReport(null);

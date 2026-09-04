@@ -11,6 +11,7 @@ import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
 import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
 import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
+import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
 import { hasCapability } from "@/lib/entitlements";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
@@ -162,6 +163,8 @@ export function ExecutivePortfolioDashboard({
           levelLabel="Communication notes"
         />
       ) : null}
+
+      <TrustWorkspaceHub />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(totals.projectCount)} />

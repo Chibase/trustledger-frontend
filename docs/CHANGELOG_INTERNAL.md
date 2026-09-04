@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-04 — TE-3b trust proof workspace on the desk
+
+- `/app/dashboard` now shows a **Trust proof workspace**: number cards (movement, scored observations, risk flags, evidence-backed claims), a comparison bar, risk list, proof narrative, and shortcuts to reports / cases / engagements / capture.
+- Uses the existing TE-3 engine (`buildTrustProofFromSrm`). Not impact-trend or SLA dashboards (still deferred). Trust pulse and monthly packs unchanged. Frappe Desk workspace JSON is not in this repo.
+
 ## 2026-09-04 — TE-2b blueprint trust dimensions
 
 - First-class trust model now matches the six blueprint dimensions: project, implementing entity, process, people, fairness, and whether concerns will be acted upon. Stored `intentions` rows alias to `concerns_acted_upon`.
