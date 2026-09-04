@@ -1,4 +1,5 @@
 ﻿import { API_BASE_URL, getDataMode } from "@/config/api";
+import { TRUSTLEDGER_CLOUD_URL } from "@/lib/security/hosts";
 import { PasswordAccessPanel } from "@/components/settings/PasswordAccessPanel";
 import { TeamSeatsPanel } from "@/components/org/TeamSeatsPanel";
 import { DeskSettingsPanel } from "@/components/settings/DeskSettingsPanel";
@@ -55,7 +56,11 @@ export default async function AppSettingsPage() {
         isVip={isVip}
       />
 
-      <OnboardingSettingsControls />
+      <OnboardingSettingsControls
+        isVip={isVip}
+        mode={user.mode}
+        email={user.email}
+      />
 
       {isPlanOwner ? (
         <section className="space-y-4">
@@ -219,7 +224,7 @@ export default async function AppSettingsPage() {
             : user.mode === "trial"
               ? "Trial mode stores workspace data in this browser until you convert to live."
               : "Sample preview uses fictional data. Start a trial or live login for your own package."}{" "}
-          Cloud host: <code>https://app.trustledger.co.za</code>.
+          Cloud host: <code>{TRUSTLEDGER_CLOUD_URL}</code>.
         </p>
       </section>
     </div>

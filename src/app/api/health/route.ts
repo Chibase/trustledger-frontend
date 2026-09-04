@@ -17,11 +17,12 @@ import {
 import { leadBackendStatus } from "@/lib/leadCapture";
 import { marketingEngineStatus } from "@/lib/marketing/config";
 import { probeUserPermissionApi } from "@/lib/userPermissionCloud";
+import { TRUSTLEDGER_CLOUD_URL } from "@/lib/security/hosts";
 
 const FRAPPE_SITE =
   process.env.FRAPPE_BASE_URL ||
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://app.trustledger.co.za";
+  TRUSTLEDGER_CLOUD_URL;
 
 async function probe(
   label: string,

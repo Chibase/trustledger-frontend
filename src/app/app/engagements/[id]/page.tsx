@@ -4,8 +4,11 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { NoteSentimentAssist } from "@/components/ai/NoteSentimentAssist";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
+import { communicationNoteText } from "@/lib/sentimentAnalysis";
+import { readSessionPlanId } from "@/lib/discussionStore";
 import {
   createCommitmentId,
   commitmentService,
@@ -27,6 +30,7 @@ export default function AppEngagementDetailPage() {
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [loading, setLoading] = useState(true);
   const [promoting, setPromoting] = useState<string | null>(null);
+  const planId = readSessionPlanId();
 
   useEffect(() => {
     let cancelled = false;
@@ -136,6 +140,34 @@ export default function AppEngagementDetailPage() {
                 Attendees: {row.attendeesLabel}
               </p>
             </section>
+
+            <NoteSentimentAssist
+              noteText={communicationNoteText({
+                title: row.title,
+                summary: row.summary,
+                actionItems: row.actionItems,
+              })}
+              geographicArea={row.ward}
+              sourceType="Community Meeting"
+              planId={planId}
+              saved={{
+                label: row.sentimentLabel,
+                score: row.sentimentScore,
+                rationale: row.sentimentRationale,
+                analyzedAt: row.sentimentAnalyzedAt,
+              }}
+              onApply={async (suggestion) => {
+                const next = {
+                  ...row,
+                  sentimentLabel: suggestion.sentimentLabel,
+                  sentimentScore: suggestion.sentimentScore,
+                  sentimentRationale: suggestion.rationale,
+                  sentimentAnalyzedAt: new Date().toISOString(),
+                };
+                const saved = await engagementService.save(next);
+                setRow(saved);
+              }}
+            />
 
             <section>
               <h2 className="font-display text-base font-semibold text-tl-ink">

@@ -1,16 +1,24 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import {
-  HorizontalBarChart,
-  VerticalBarChart,
-} from "@/components/ops/charts/BarChart";
 import { DiscussionSpace } from "@/components/discussion/DiscussionSpace";
+import {
+  ExecutiveRiskLayout,
+  FunderAssuranceLayout,
+  MonthlyOpsLayout,
+} from "@/components/reports/ReportLensLayout";
 import {
   draftReportDiscussionSubjectId,
   readSessionAuthor,
   readSessionPlanId,
 } from "@/lib/discussionStore";
+import {
+  reportLensForKind,
+  type ExecutiveRiskRow,
+  type FunderSnapshot,
+  type LensChartGroup,
+  type ReportLens,
+} from "@/lib/reportLenses";
 import {
   REPORT_AUDIENCE_LABELS,
   REPORT_KIND_LABELS,
@@ -38,6 +46,12 @@ type Props = {
   /** Saved report id — enables stable discussion threads when set. */
   reportId?: string | null;
   projectId?: string | null;
+  lens?: ReportLens;
+  riskRows?: ExecutiveRiskRow[];
+  funderSnapshot?: FunderSnapshot;
+  chartGroups?: LensChartGroup[];
+  trustIndex?: number;
+  trustLabel?: string;
 };
 
 const FORMAT_OPTIONS: Array<{ id: ReportFormatId; label: string }> = [
@@ -66,10 +80,37 @@ export function ReportPresentationView({
   onDownload,
   reportId = null,
   projectId = null,
+  lens,
+  riskRows = [],
+  funderSnapshot,
+  chartGroups,
+  trustIndex = 0,
+  trustLabel,
 }: Props) {
   const titleId = useId();
   const showCharts = format === "charts" || format === "charts_details";
   const showDetails = format === "details" || format === "charts_details";
+  const resolvedLens = lens ?? reportLensForKind(kind);
+  const monthlyGroups: LensChartGroup[] =
+    chartGroups && chartGroups.length
+      ? chartGroups
+      : chartBars.length
+        ? [
+            {
+              caption: "Category signals",
+              orientation: "horizontal",
+              bars: chartBars,
+            },
+            {
+              caption: "Top measures",
+              orientation: "vertical",
+              bars: chartBars.slice(0, 6).map((b) => ({
+                label: b.label.slice(0, 14),
+                value: b.value,
+              })),
+            },
+          ]
+        : [];
   const [discussionOpen, setDiscussionOpen] = useState(false);
   const [author, setAuthor] = useState<{ name: string; role?: string }>({
     name: "Viewer",
@@ -194,55 +235,43 @@ export function ReportPresentationView({
             </p>
           </header>
 
-          {showCharts ? (
-            <section className="space-y-4">
-              <h3 className="text-base font-semibold text-tl-ink">
-                Charts — {REPORT_KIND_LABELS[kind]}
-              </h3>
-              {chartBars.length ? (
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <figure className="rounded-lg border border-tl-line bg-tl-surface p-4 print:break-inside-avoid">
-                    <figcaption className="mb-3 text-sm font-medium text-tl-ink-muted">
-                      Category signals
-                    </figcaption>
-                    <HorizontalBarChart bars={chartBars} maxHeight={220} />
-                  </figure>
-                  <figure className="rounded-lg border border-tl-line bg-tl-surface p-4 print:break-inside-avoid">
-                    <figcaption className="mb-3 text-sm font-medium text-tl-ink-muted">
-                      Top measures
-                    </figcaption>
-                    <VerticalBarChart
-                      bars={chartBars.slice(0, 6).map((b) => ({
-                        label: b.label.slice(0, 14),
-                        value: b.value,
-                      }))}
-                    />
-                  </figure>
-                </div>
-              ) : (
-                <p className="text-sm text-tl-ink-muted">
-                  No chart values for this format yet — capture category data on
-                  the project, then reopen.
-                </p>
-              )}
-            </section>
-          ) : null}
-
-          {showDetails ? (
-            <section className="space-y-3">
-              <h3 className="text-base font-semibold text-tl-ink">Details</h3>
-              {bodyMarkdown.trim() ? (
-                <article className="prose prose-sm max-w-none whitespace-pre-wrap text-base leading-relaxed text-tl-ink sm:prose-base">
-                  {bodyMarkdown}
-                </article>
-              ) : (
-                <p className="text-sm text-tl-ink-muted">
-                  Details could not be composed — capture category data on this
-                  project, or switch format to Charts only.
-                </p>
-              )}
-            </section>
-          ) : null}
+          {resolvedLens === "executive" ? (
+            <ExecutiveRiskLayout
+              rows={riskRows}
+              trustIndex={trustIndex}
+              trustLabel={trustLabel}
+              chartGroups={chartGroups ?? []}
+              showCharts={showCharts}
+              showDetails={showDetails}
+              bodyMarkdown={bodyMarkdown}
+            />
+          ) : resolvedLens === "funder" ? (
+            <FunderAssuranceLayout
+              snapshot={
+                funderSnapshot ?? {
+                  trustIndex,
+                  trustLabel: trustLabel || "Watch",
+                  openCount: 0,
+                  closedCount: 0,
+                  highRiskCount: 0,
+                  slaBreachedCount: 0,
+                  materialItems: [],
+                  asks: ["No material asks this period — continue routine assurance."],
+                }
+              }
+              chartGroups={chartGroups ?? []}
+              showCharts={showCharts}
+              showDetails={showDetails}
+              bodyMarkdown={bodyMarkdown}
+            />
+          ) : (
+            <MonthlyOpsLayout
+              chartGroups={monthlyGroups}
+              showCharts={showCharts}
+              showDetails={showDetails}
+              bodyMarkdown={bodyMarkdown}
+            />
+          )}
 
           {discussionOpen ? (
             <DiscussionSpace

@@ -14,6 +14,7 @@ export default async function AppProjectDetailPage({ params }: PageProps) {
       params={params}
       role={user.role}
       authorName={user.name}
+      planId={user.trialPlan}
     />
   );
 }

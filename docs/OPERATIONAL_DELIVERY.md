@@ -21,7 +21,7 @@ GO LIVE  Operational grade                                      DONE
 
 ## Step 1 — Frappe SoT ready **(DONE — 2026-07-22)**
 
-Customer + Owner User smoke passed (`nonunu@trustledger.co.za`).
+Customer + Owner User smoke passed (`nonunu@trustledgersrm.co.za`).
 
 ---
 

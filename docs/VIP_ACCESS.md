@@ -79,3 +79,23 @@ Response includes `temporaryPassword`. Share `/login/live` + email + password wi
 - `src/components/ops/VipAccessPanel.tsx`
 - `src/lib/orgSeats.ts` — `vip` seat/desk invite bypass (paid plans keep gates)
 - Charge-due: `src/lib/entitlementCloud.ts` (trial + authorization only)
+
+## VIP illustrative showcase (operator / preview)
+
+A packaged **VIP Institutional** workspace with the NCGR-B illustrative programme from `docs/DEMO_PLAN_SRM_SHOWCASE.md`. This is **not** the retired public `/demo` and **not** Cloud Owner provision.
+
+| Item | Value |
+| --- | --- |
+| Sign-in | `/login/vip` |
+| Plan | Institutional + `tl-vip` (complimentary) |
+| Data | Browser own-data (`PRJ-NCGR-B`, `INC-NCGR-*`) — never `INC-1001` sample ids |
+| Production / preview / local | Enabled unless `VIP_SHOWCASE_LOGIN=0`. Password is `VIP_SHOWCASE_PASSWORD` or the documented default in `src/lib/vipShowcaseAuth.ts` (`DEFAULT_PREVIEW_PASSWORD`) |
+| Allowlist | `thozi@chibaseconsulting.co.za` (not the Platform Operator mailbox) plus `VIP_SHOWCASE_EMAILS` or `VIP_SHOWCASE_EMAIL` |
+
+Do **not** link `/login/vip` from marketing. If that mailbox is typed on `/login/live`, TrustLedger sends it to the showcase form instead of Cloud. Declare the programme **illustrative** in the room. Paying guests still use Ops **Create VIP access + temp password** + `/login/live`.
+
+The showcase is an **Institutional** plan container: executive roll-up plus every included module dashboard (projects, incidents, capture, stakeholders, engagements, SEP, commitments, intelligence/ESG, reports). Seed bundle v2 adds SEP-NCGR-B and ESG-NCGR-B for workspaces that previously only had desk rows. **Setup / Guide stays unlocked** — seed does not dismiss the wizard; the modal does not auto-open over the preloaded desk, but Dashboard, Guide, and Settings can launch it.
+
+**Who is preloaded:** only **Thozamile KaDlanga** (`thozi@chibaseconsulting.co.za`). Cloud complimentary VIP guests (Ops provision + `/login/live`) are **never** preloaded — they load their own data. Extra `VIP_SHOWCASE_EMAILS` may still open `/login/vip` but get an empty VIP desk (no NCGR-B). Leftover NCGR-B pack ids in that browser are reversed without deleting the guest’s own records or resetting setup. Ops **C-Suite** (`/ops/executive`) is not a customer plan and is not seeded.
+
+Related: `src/data/vipShowcase.ts`, `src/lib/vipShowcaseSeed.ts`, `POST /api/auth/vip-showcase`, `docs/DECISIONS.md` ADR-056.

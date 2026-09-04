@@ -8,6 +8,10 @@ import {
 } from "@/components/ops/charts/BarChart";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
+import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
+import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
+import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
+import { hasCapability } from "@/lib/entitlements";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   buildPortfolioOverview,
@@ -23,12 +27,18 @@ import type { PlanId } from "@/config/plans";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { Engagement } from "@/types/engagement";
+import type { TlMode } from "@/lib/auth.constants";
 import type { UserRole } from "@/types/rbac";
+import { engagementService } from "@/services/engagementService";
 
 type Props = {
   role: UserRole;
   planId?: PlanId | null;
   isPlanOwner?: boolean;
+  isVip?: boolean;
+  mode?: TlMode | null;
+  email?: string | null;
   seedIncidents?: Incident[];
   seedProjects?: Project[];
 };
@@ -39,22 +49,44 @@ type Props = {
  */
 export function ExecutivePortfolioDashboard({
   role,
+  planId = null,
   isPlanOwner = false,
+  isVip = false,
+  mode = null,
+  email = null,
   seedIncidents = [],
   seedProjects = [],
 }: Props) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents);
   const [projects, setProjects] = useState<Project[]>(seedProjects);
+  const [engagements, setEngagements] = useState<Engagement[]>([]);
+  const showNotesPulse = hasCapability("engagements", planId);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
+    const refresh = () => {
       setTier(readDeskTier(role));
       setIncidents(listWorkspaceIncidents(seedIncidents));
       setProjects(listWorkspaceProjects(seedProjects));
-    });
-    return () => cancelAnimationFrame(frame);
+    };
+    const frame = requestAnimationFrame(refresh);
+    window.addEventListener("tl-workspace-seeded", refresh);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("tl-workspace-seeded", refresh);
+    };
   }, [role, seedIncidents, seedProjects]);
+
+  useEffect(() => {
+    if (!hasCapability("engagements", planId)) return;
+    let cancelled = false;
+    void engagementService.list().then((rows) => {
+      if (!cancelled) setEngagements(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [planId]);
 
   const openProjects = useMemo(
     () => projects.filter(isExecutiveDashboardProject),
@@ -91,20 +123,45 @@ export function ExecutivePortfolioDashboard({
 
   return (
     <div className="space-y-7">
-      <header className="space-y-2">
-        <p className="text-sm font-medium text-tl-trust">Executive dashboard</p>
-        <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
-          {isPlanOwner
-            ? "Projects overview"
-            : "Projects you work on"}
-        </h1>
-        <p className="max-w-2xl text-sm text-tl-ink-muted">
-          Roll-up of empowerment budgets, targets, and progress across your
-          projects (including Draft). Open a project dashboard to capture,
-          monitor, edit, and generate reports — that data feeds this view.
-          Desk: {DESK_TIER_LABELS[tier]}.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-tl-trust">Executive dashboard</p>
+          <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
+            {isPlanOwner
+              ? "Plan executive view"
+              : "Projects you work on"}
+          </h1>
+          <p className="max-w-2xl text-sm text-tl-ink-muted">
+            This plan is a container of module dashboards. The roll-up below
+            shows each included desk’s contribution to overall progress. Open a
+            module for evidence, then return here. Desk: {DESK_TIER_LABELS[tier]}.
+          </p>
+        </div>
+        {showNotesPulse ? (
+          <Link
+            href="/app/engagement-plan"
+            className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+          >
+            Engagement plan module
+          </Link>
+        ) : null}
       </header>
+
+      <ModuleContributionBoard
+        planId={planId}
+        vip={isVip}
+        mode={mode}
+        email={email}
+      />
+
+      <SepDashboardPanel planId={planId} alwaysShow />
+
+      {showNotesPulse ? (
+        <RelationshipHealthPulse
+          engagements={engagements}
+          levelLabel="Communication notes"
+        />
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(totals.projectCount)} />

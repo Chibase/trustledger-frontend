@@ -7,7 +7,7 @@
 3. Env (Demo-safe):
    - `NEXT_PUBLIC_DATA_MODE=demo`
    - `NEXT_PUBLIC_AI_MOCK=true`
-   - `NEXT_PUBLIC_API_BASE_URL=https://app.trustledger.co.za` (harmless in demo)
+   - `NEXT_PUBLIC_API_BASE_URL=https://app.trustledgersrm.co.za` (harmless in demo)
    - `NEXT_PUBLIC_SITE_URL=https://trustledger-frontend-pi.vercel.app`
 4. Production URL should serve `/` and `/demo`
 
@@ -17,8 +17,8 @@ In **Vercel → Project → Settings → Environment Variables** (Production):
 
 | Name | Value |
 |------|-------|
-| `NEXT_PUBLIC_API_BASE_URL` | `https://app.trustledger.co.za` |
-| `FRAPPE_BASE_URL` | `https://app.trustledger.co.za` |
+| `NEXT_PUBLIC_API_BASE_URL` | `https://app.trustledgersrm.co.za` |
+| `FRAPPE_BASE_URL` | `https://app.trustledgersrm.co.za` |
 | `NEXT_PUBLIC_DATA_MODE` | `live` |
 | `NEXT_PUBLIC_AI_MOCK` | `false` |
 | `NEXT_PUBLIC_SITE_URL` | `https://trustledger-frontend-pi.vercel.app` |

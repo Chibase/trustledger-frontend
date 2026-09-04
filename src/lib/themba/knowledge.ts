@@ -8,6 +8,10 @@ import {
   PRODUCT_TAGLINE,
   PUBLIC_FAQS,
 } from "@/lib/aeo/siteFacts";
+import {
+  TRUSTLEDGER_APEX_DOMAIN,
+  TRUSTLEDGER_CLOUD_HOST,
+} from "@/lib/security/hosts";
 import { thembaDocumentSources } from "@/lib/themba/sources";
 import { THEMBA_SOURCE_TITLES } from "@/lib/themba/sources/types";
 import type { ThembaKnowledgeItem } from "@/lib/themba/types";
@@ -33,7 +37,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "features",
     question: "What are the features of this product?",
     answer:
-      "TrustLedger is open to explore before you sign up. It is SRM software for infrastructure and community-trust programmes in **South Africa and the Global South** — not a South Africa-only municipal product.\n\n**Core capabilities:**\n\n1. **Grievance / case desk** — intake, named owners, stages, and evidence so community issues have an auditable path to close.\n2. **Stakeholder registry** — people and institutions around a project (community members, traditional authorities, local government, contractors, civil society) with influence and place.\n3. **Engagements** — meetings and consultations with notes and actions.\n4. **Commitments** — promises with owners and due dates.\n5. **Reports** — activity and executive packs built from the case and engagement trail (MEL evidence, not memory).\n6. **Place context** — South African municipalities, wards, and traditional councils where packed ship as **included baseline for SA plans**. Other Global South countries use the same place model: you add the project and situation; we do not invent unshipped national maps.\n7. **AI Assist** on entitled plans — suggestions only; a human applies before save.\n\nHow it helps: one trust trail from host community to board instead of spreadsheets and lost WhatsApps. Browse /product now; when ready, take the free readiness check or start a 14-day own-data trial.",
+      "TrustLedger is open to explore before you sign up. It is SRM software for infrastructure and community-trust programmes in **South Africa and the Global South** — not a South Africa-only municipal product.\n\n**Core capabilities:**\n\n1. **Grievance / case desk** — intake, named owners, stages, and evidence so community issues have an auditable path to close.\n2. **Stakeholder registry** — people and institutions around a project (community members, traditional authorities, local government, contractors, civil society) with influence and place.\n3. **Engagements** — meetings and consultations with notes and actions.\n4. **Stakeholder engagement plan** — paste or upload an RFP, tender, or briefing; map a seven-phase process from inception to close-out; present the document; apply to the SRM desk after approval (suggest → human apply → save).\n5. **Commitments** — promises with owners and due dates.\n6. **Reports** — activity and executive packs built from the case and engagement trail (MEL evidence, not memory).\n7. **Place context** — South African municipalities, wards, and traditional councils where packed ship as **included baseline for SA plans**. Other Global South countries use the same place model: you add the project and situation; we do not invent unshipped national maps.\n8. **AI Assist** on entitled plans — suggestions only; a human applies before save.\n\nHow it helps: one trust trail from host community to board instead of spreadsheets and lost WhatsApps. Browse /product now; when ready, take the free readiness check or start a 14-day own-data trial.",
     keywords: [
       "feature",
       "features",
@@ -56,6 +60,30 @@ const CORE: ThembaKnowledgeItem[] = [
     links: [
       { href: "/product", label: "Product overview" },
       { href: "/assessment", label: "Free readiness check" },
+      { href: "/trial", label: "Start 14-day trial" },
+    ],
+  },
+  {
+    id: "engagement-plan",
+    question: "Can TrustLedger turn an RFP or tender into a stakeholder engagement plan?",
+    sourceId: "product",
+    sourceTitle: PRODUCT_SRC,
+    answer:
+      "Yes, on entitled plans (Project, Institutional, or a CRM add-on). Paste or upload a briefing, tender, or RFP. TrustLedger maps a **seven-phase process** from inception to close-out using a sector playbook (infrastructure, housing, mining, energy, water, education, health, agriculture, municipal, conservation, logistics, or a generic spine).\n\nYou get:\n\n- A **process dashboard** for the desk (who, when, which module).\n- A **presentable Stakeholder Engagement Plan** document for the client or proposal pack.\n- An **Apply to SRM** step after approval — prospect stakeholders, draft engagements, and open commitments land on the existing desks. Humans apply; the composer never writes the live desk alone.\n\nThis is a suggestion from the extract plus the playbook — not legal advice and not a substitute for statutory processes named in the briefing. Browse /product, or start a 14-day trial and open Engagement plan after sign-in.",
+    keywords: [
+      "engagement plan",
+      "sep",
+      "rfp",
+      "tender",
+      "briefing",
+      "proposal",
+      "inception",
+      "consultation",
+      "playbook",
+      "sector",
+    ],
+    links: [
+      { href: "/product", label: "Product overview" },
       { href: "/trial", label: "Start 14-day trial" },
     ],
   },
@@ -191,6 +219,36 @@ const CORE: ThembaKnowledgeItem[] = [
     ],
   },
   {
+    id: "focused-desks",
+    question: "Can I buy only a grievance desk, supplier portal, or field app?",
+    sourceId: "product",
+    sourceTitle: PRODUCT_SRC,
+    answer:
+      "You can **start on a focused desk inside TrustLedger** — not as a separate product.\n\n- **Grievance resolution** — Solo is the entry desk for logging and closing public complaints (one seat, no AI Assist). Practitioner adds AI Assist on the same workspace.\n- **Field capture** — minutes, attendance, and site notes live on the Capture hub (Project and Institutional) and as free templates on /resources. It works in the **mobile browser**. There is no separate App Store companion and no offline-first sync yet.\n- **Local procurement / ED / B-BBEE** — Capture and Intelligence hold **evidence** of local spend and empowerment KPIs the client already named. TrustLedger is not a vendor marketplace and does not run supplier self-registration today.\n\nUnused Stakeholder Intelligence modules stay locked until you change plan or add an add-on. **Upgrade is a plan change on the same workspace** — you do not re-type history. Public WhatsApp or SMS community portals are not available.",
+    keywords: [
+      "standalone",
+      "separate",
+      "grievance logger",
+      "supplier portal",
+      "field companion",
+      "procurement",
+      "b-bbee",
+      "bbbee",
+      "ed portal",
+      "whatsapp",
+      "offline",
+      "module",
+      "sku",
+      "only need",
+      "just the desk",
+    ],
+    links: [
+      { href: "/product", label: "Product overview" },
+      { href: "/pay?plan=solo", label: "Solo — grievance desk" },
+      { href: "/pay?plan=project", label: "Project — capture and evidence" },
+    ],
+  },
+  {
     id: "chibase-consulting",
     question: "Can I add Chibase Consulting to a TrustLedger plan?",
     sourceId: "product",
@@ -248,7 +306,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "data",
     question: "Where does TrustLedger store live customer data?",
     answer:
-      "Live customer workspaces run on TrustLedger Cloud at app.trustledger.co.za. Day-to-day work happens in the TrustLedger product app; marketing lives on trustledger.co.za. Paying and trial workspaces never show fictional sample incidents.",
+      `Live customer workspaces run on TrustLedger Cloud at ${TRUSTLEDGER_CLOUD_HOST}. Day-to-day work happens in the TrustLedger product app; marketing lives on ${TRUSTLEDGER_APEX_DOMAIN}. Paying and trial workspaces never show fictional sample incidents.`,
     keywords: ["data", "store", "cloud", "host", "security", "where"],
     links: [
       { href: "/contact", label: "Contact" },
@@ -259,7 +317,7 @@ const CORE: ThembaKnowledgeItem[] = [
     id: "mobile",
     question: "Is there a mobile app?",
     answer:
-      "TrustLedger is a responsive web app in the browser. There is no separate App Store or Play Store app yet.",
+      "TrustLedger is a responsive web app in the browser. There is no separate App Store or Play Store app yet, and no offline-first field companion. Field templates and Capture hub work on a phone browser when you have a connection.",
     keywords: ["mobile", "app", "iphone", "android", "phone", "offline"],
     links: [{ href: "/product", label: "Product overview" }],
   },

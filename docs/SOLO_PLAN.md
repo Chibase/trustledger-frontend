@@ -39,6 +39,8 @@ Solo (R1,999) → Practitioner (R5,399) → Project (R14,999) → Institutional 
 
 Sell Solo as **survive and professionalise**; Practitioner as **earn with AI + light governance**; Project when they win a multi-party site team.
 
+**Land-and-expand (ADR-054):** Solo **is** the grievance-desk focused SKU for lone consultants, small contractors, and municipalities that only need an audit-ready complaints trail. It is not a separately branded “Grievance Logger.” Upsell stays on this workspace (plan change + add-ons). WhatsApp/public community portal is **not** in this box. See `docs/MODULAR_SKUS.md`.
+
 ## Packaging rules
 
 1. Do **not** promise Stakeholder Intelligence registry on Solo.  

@@ -7,6 +7,8 @@ import { ProjectDossierForm } from "@/components/projects/ProjectDossierForm";
 import { ProjectReportStudio } from "@/components/reports/ProjectReportStudio";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
+import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
+import type { PlanId } from "@/config/plans";
 import {
   buildProjectCategoryMap,
   type ProjectDataCategory,
@@ -28,6 +30,7 @@ type Props = {
   incidents: Incident[];
   role: UserRole;
   authorName: string;
+  planId?: PlanId | null;
   onProjectSaved: (next: Project) => void;
 };
 
@@ -40,6 +43,7 @@ export function ProjectWorkspaceDashboard({
   incidents,
   role,
   authorName,
+  planId = null,
   onProjectSaved,
 }: Props) {
   const [showDossier, setShowDossier] = useState(false);
@@ -139,6 +143,8 @@ export function ProjectWorkspaceDashboard({
           }
         />
       </div>
+
+      <SepDashboardPanel planId={planId} projectId={project.id} />
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">

@@ -41,9 +41,22 @@ export default function AppIntelligencePage() {
   const [brief, setBrief] = useState<IndicatorBriefSuggestion | null>(null);
   const [saved, setSaved] = useState<SavedIndicatorBrief[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const placeOptions = useMemo(() => {
+    const extra = saved
+      .filter(
+        (row) =>
+          !FEATURED_INDICATOR_PLACES.some((place) => place.id === row.placeId),
+      )
+      .map((row) => ({
+        id: row.placeId,
+        name: row.placeName,
+        level: "saved",
+      }));
+    return [...FEATURED_INDICATOR_PLACES, ...extra];
+  }, [saved]);
 
   const placeName =
-    FEATURED_INDICATOR_PLACES.find((p) => p.id === placeId)?.name ?? placeId;
+    placeOptions.find((p) => p.id === placeId)?.name ?? placeId;
 
   const indicators: SocioEconomicIndicator[] = useMemo(
     () => mockIndicators.filter((i) => i.placeId === placeId),
@@ -71,7 +84,16 @@ export default function AppIntelligencePage() {
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
-      setSaved(listIndicatorBriefs(placeId));
+      const forPlace = listIndicatorBriefs(placeId);
+      const all = listIndicatorBriefs();
+      if (forPlace.length) {
+        setSaved(forPlace);
+      } else if (all.length && placeId === FEATURED_INDICATOR_PLACES[0].id) {
+        setPlaceId(all[0].placeId);
+        setSaved(all.filter((row) => row.placeId === all[0].placeId));
+      } else {
+        setSaved(forPlace);
+      }
       setBrief(null);
       setStatus("idle");
       setError(null);
@@ -145,7 +167,7 @@ export default function AppIntelligencePage() {
             onChange={(e) => setPlaceId(e.target.value)}
             className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
           >
-            {FEATURED_INDICATOR_PLACES.map((p) => (
+            {placeOptions.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name} ({p.level})
               </option>

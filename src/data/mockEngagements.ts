@@ -11,7 +11,7 @@ export const mockEngagements: Engagement[] = [
     projectId: "PRJ-001",
     heldOn: "2026-07-05",
     summary:
-      "Residents raised clinic access flooding and night-work noise. Contractor committed to temporary pumps and revised night schedule.",
+      "Residents were angry about clinic access flooding and night-work noise. Several threatened a protest if pumps are delayed. Contractor committed to temporary pumps and a revised night schedule.",
     attendeesLabel: "Ward committee, Thari Civils, SRM desk",
     actionItems: [
       "Install temporary pumps within 48 hours",
@@ -31,7 +31,7 @@ export const mockEngagements: Engagement[] = [
     projectId: "PRJ-002",
     heldOn: "2026-07-03",
     summary:
-      "Households reported pressure drops after tie-in. Utility engineer to verify valve settings.",
+      "Households reported pressure drops after the tie-in and are worried about delayed SMS updates. Utility engineer to verify valve settings.",
     attendeesLabel: "Community reps, Amanzi Works, Water Board",
     actionItems: ["Pressure test by Friday", "SMS update to affected streets"],
     stakeholderIds: [],
@@ -48,12 +48,29 @@ export const mockEngagements: Engagement[] = [
     projectId: "PRJ-004",
     heldOn: "2026-06-28",
     summary:
-      "Project on hold pending LED Fund tranche. Traders informed of revised start window.",
+      "Traders were informed of a revised start window. Project on hold pending LED Fund tranche. Minutes noted; no further questions recorded.",
     attendeesLabel: "Trader association, LED office",
     actionItems: ["Post hold notice at market entrance"],
     stakeholderIds: [],
     source: "seed",
     createdAt: "2026-06-28T14:00:00+02:00",
+  },
+  {
+    id: "ENG-04",
+    title: "N2 corridor youth employment imbizo",
+    kind: "consultation",
+    status: "held",
+    ward: "Ward 12",
+    placeLabel: "Community hall",
+    projectId: "PRJ-001",
+    heldOn: "2026-07-11",
+    summary:
+      "Youth forum thanked the contractor for local hire progress. The session was constructive; attendees supported the revised skills pipeline and appreciated the published roster.",
+    attendeesLabel: "Youth forum, Thari Civils, SRM desk",
+    actionItems: ["Share the next intake dates on notice boards"],
+    stakeholderIds: [],
+    source: "seed",
+    createdAt: "2026-07-11T15:00:00+02:00",
   },
 ];
 

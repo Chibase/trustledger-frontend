@@ -44,6 +44,16 @@ function toJsonField(value: string[] | undefined): string {
   return JSON.stringify(value || []);
 }
 
+function parseSentimentLabel(
+  value: unknown,
+): Engagement["sentimentLabel"] {
+  const raw = String(value || "").trim().toLowerCase();
+  if (raw === "positive" || raw === "neutral" || raw === "negative") {
+    return raw;
+  }
+  return null;
+}
+
 export type SiKind = "stakeholder" | "engagement" | "commitment";
 
 export function siDocType(kind: SiKind): string {
@@ -57,6 +67,7 @@ export function stakeholderToFrappeDoc(
   customer: string,
   orgId?: string,
 ): Record<string, unknown> {
+  // Explicit fields only — TE-1 `trustResponse` overlay is not a Cloud column.
   return {
     stakeholder_code: row.id,
     stakeholder_name: row.name,
@@ -88,8 +99,10 @@ export function engagementToFrappeDoc(
   row: Engagement,
   customer: string,
   orgId?: string,
+  options?: { includeSentiment?: boolean },
 ): Record<string, unknown> {
-  return {
+  // Explicit fields only — TE-1 `trustResponse` overlay is not a Cloud column.
+  const body: Record<string, unknown> = {
     engagement_code: row.id,
     title: row.title,
     customer,
@@ -107,6 +120,14 @@ export function engagementToFrappeDoc(
     source: row.source,
     tl_org_id: orgId || "",
   };
+  if (options?.includeSentiment !== false) {
+    body.sentiment_label = row.sentimentLabel || "";
+    body.sentiment_score =
+      typeof row.sentimentScore === "number" ? row.sentimentScore : "";
+    body.sentiment_rationale = row.sentimentRationale || "";
+    body.sentiment_analyzed_at = row.sentimentAnalyzedAt || "";
+  }
+  return body;
 }
 
 export function commitmentToFrappeDoc(
@@ -184,6 +205,19 @@ export function frappeToEngagement(doc: Record<string, unknown>): Engagement {
     captureId: doc.capture_id ? String(doc.capture_id) : undefined,
     source: (doc.source as Engagement["source"]) || "minutes",
     createdAt: String(doc.creation || new Date().toISOString()),
+    sentimentLabel: parseSentimentLabel(doc.sentiment_label),
+    sentimentScore:
+      typeof doc.sentiment_score === "number"
+        ? doc.sentiment_score
+        : doc.sentiment_score
+          ? Number(doc.sentiment_score) || null
+          : null,
+    sentimentRationale: doc.sentiment_rationale
+      ? String(doc.sentiment_rationale)
+      : undefined,
+    sentimentAnalyzedAt: doc.sentiment_analyzed_at
+      ? String(doc.sentiment_analyzed_at)
+      : undefined,
   };
 }
 
@@ -301,6 +335,10 @@ const ENGAGEMENT_FIELDS = [
   "stakeholder_ids",
   "capture_id",
   "source",
+  "sentiment_label",
+  "sentiment_score",
+  "sentiment_rationale",
+  "sentiment_analyzed_at",
   "tl_org_id",
   "customer",
   "creation",
@@ -414,11 +452,19 @@ export async function upsertCloudEngagement(
   orgId?: string,
 ) {
   const doctype = "TL Engagement";
-  const body = engagementToFrappeDoc(row, customer, orgId);
-  if (await resourceExists(doctype, row.id)) {
-    return resourcePut(doctype, row.id, body);
+  const withSentiment = engagementToFrappeDoc(row, customer, orgId);
+  const exists = await resourceExists(doctype, row.id);
+  const first = exists
+    ? await resourcePut(doctype, row.id, withSentiment)
+    : await resourcePost(doctype, withSentiment);
+  if (first.ok) return first;
+  const withoutSentiment = engagementToFrappeDoc(row, customer, orgId, {
+    includeSentiment: false,
+  });
+  if (exists) {
+    return resourcePut(doctype, row.id, withoutSentiment);
   }
-  return resourcePost(doctype, body);
+  return resourcePost(doctype, withoutSentiment);
 }
 
 export async function upsertCloudCommitment(

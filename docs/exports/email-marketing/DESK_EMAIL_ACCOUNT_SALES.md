@@ -1,8 +1,8 @@
-# Desk checklist — Email Account `sales@trustledger.co.za`
+# Desk checklist — Email Account `sales@trustledgersrm.co.za`
 
 ## Segment Newsletter From names
 
-Keep **Email / Username** = `sales@trustledger.co.za`.  
+Keep **Email / Username** = `sales@trustledgersrm.co.za`.  
 On each segment Newsletter, set **Sender Name** only (does not require new mailboxes):
 
 | Newsletter audience | Sender Name |
@@ -29,9 +29,9 @@ If Desk says Email Delivery Service is installed and blocks this account:
 
 | | |
 |--|--|
-| Username | `sales@trustledger.co.za` |
-| IMAP | `mail.trustledger.co.za:993` SSL |
-| SMTP | `mail.trustledger.co.za:465` SSL |
+| Username | `sales@trustledgersrm.co.za` |
+| IMAP | `mail.trustledgersrm.co.za:993` SSL |
+| SMTP | `mail.trustledgersrm.co.za:465` SSL |
 | Password | Mailbox password (Desk field only) |
 
 ## Steps

@@ -27,7 +27,7 @@ Never put Paystack secret/public keys in WordPress.
 4. **Update / Publish**.
 5. Repeat for **Assessment** using `docs/wordpress/page-assessment.txt` if that page is live.
 6. Purge **SpeedyCache** (or host cache).
-7. Smoke-test on `https://trustledger.co.za/#pricing`:
+7. Smoke-test on `https://trustledgersrm.co.za/#pricing`:
    - Solo Subscribe → Paystack checkout for Solo (R1,999)
    - Practitioner Subscribe → Paystack checkout for Practitioner
    - Project Subscribe → Paystack checkout for Project
@@ -36,13 +36,13 @@ Never put Paystack secret/public keys in WordPress.
    - Foldable Compare plans sections expand
    - Privacy layer CTAs → Contact with `extras=` prefill
    - **Product** in top nav → Vercel `/product`
-8. Smoke-test AEO on `https://trustledger.co.za/#faq`:
+8. Smoke-test AEO on `https://trustledgersrm.co.za/#faq`:
    - Hero states TrustLedger is SRM software (declarative definition)
    - How it works / final CTA say **own-data trial** (no “sample data / no login”)
    - FAQ answers What is TrustLedger / SRM / AI Assist / municipalities
    - Links to Vercel `/faq`, `/product`, `/trial`
    - View source: JSON-LD `@graph` present, **or** schema added in Yoast/Rank Math
-9. Search Console: submit WP sitemap; Bing Webmaster for `trustledger.co.za`
+9. Search Console: submit WP sitemap; Bing Webmaster for `trustledgersrm.co.za`
 
 ## Source files
 

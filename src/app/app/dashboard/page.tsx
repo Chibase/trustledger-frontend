@@ -3,6 +3,7 @@ import { SetupChecklistBanner } from "@/components/onboarding/SetupChecklistBann
 import { PlanOwnerMasterPanel } from "@/components/org/PlanOwnerMasterPanel";
 import { getCurrentUser } from "@/lib/auth";
 import { isCustomerWorkspaceUser } from "@/lib/workspaceMode";
+import { isVipShowcaseWorkspace } from "@/lib/planLabel";
 import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
 
@@ -23,17 +24,29 @@ export default async function AppDashboardPage() {
     user.isPlanOwner === true ||
     (user.role === "admin" && (user.mode === "trial" || Boolean(user.orgId)));
 
+  const vipShowcase = isVipShowcaseWorkspace(user.mode, user.isVip, user.email);
+
   return (
     <div className="space-y-7">
-      {isPlanOwner ? <SetupChecklistBanner planId={user.trialPlan} /> : null}
-      {isPlanOwner ? <PlanOwnerMasterPanel /> : null}
+      {isPlanOwner || vipShowcase ? (
+        <SetupChecklistBanner
+          planId={user.trialPlan}
+          vip={Boolean(user.isVip)}
+          mode={user.mode}
+          email={user.email}
+        />
+      ) : null}
       <ExecutivePortfolioDashboard
         role={user.role}
         planId={user.trialPlan}
         isPlanOwner={isPlanOwner}
+        isVip={Boolean(user.isVip)}
+        mode={user.mode}
+        email={user.email}
         seedIncidents={incidents}
         seedProjects={projects}
       />
+      {isPlanOwner ? <PlanOwnerMasterPanel /> : null}
     </div>
   );
 }

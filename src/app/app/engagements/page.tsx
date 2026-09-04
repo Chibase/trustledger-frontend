@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
+import { SentimentChip } from "@/components/trust/SentimentChip";
 import { engagementService } from "@/services/engagementService";
 import {
   ENGAGEMENT_KIND_LABELS,
@@ -49,14 +51,22 @@ export default function AppEngagementsPage() {
         <PageHeader
           eyebrow="Stakeholder Intelligence"
           title="Engagements"
-          description="Meetings, consultations, and walkabouts linked to projects and stakeholders. Capture hub applies create records here."
+          description="Meetings, consultations, and walkabouts linked to projects and stakeholders. Analyze communication notes in one click to track whether sentiment is positive, neutral, or negative."
           actions={
-            <Link
-              href="/app/capture"
-              className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-            >
-              Capture engagement
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/app/engagement-plan"
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+              >
+                Engagement plan
+              </Link>
+              <Link
+                href="/app/capture"
+                className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+              >
+                Capture engagement
+              </Link>
+            </div>
           }
         />
 
@@ -117,32 +127,42 @@ export default function AppEngagementsPage() {
             in Capture, fill labeled fields, then apply suggestions.
           </p>
         ) : (
-          <ul className="divide-y divide-tl-line rounded-lg border border-tl-line bg-tl-surface">
-            {rows.map((row) => (
-              <li key={row.id}>
-                <Link
-                  href={`/app/engagements/${row.id}`}
-                  className="flex flex-col gap-1 px-4 py-3 hover:bg-tl-paper sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div>
-                    <p className="font-medium text-tl-ink">{row.title}</p>
-                    <p className="text-xs text-tl-ink-muted">
-                      {row.heldOn} · {row.ward}
-                      {row.placeLabel ? ` · ${row.placeLabel}` : ""}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded border border-tl-line px-2 py-0.5">
-                      {ENGAGEMENT_KIND_LABELS[row.kind]}
-                    </span>
-                    <span className="rounded border border-tl-line px-2 py-0.5">
-                      {ENGAGEMENT_STATUS_LABELS[row.status]}
-                    </span>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <>
+            <RelationshipHealthPulse
+              engagements={rows}
+              levelLabel="Communication notes"
+            />
+            <ul className="divide-y divide-tl-line rounded-lg border border-tl-line bg-tl-surface">
+              {rows.map((row) => (
+                <li key={row.id}>
+                  <Link
+                    href={`/app/engagements/${row.id}`}
+                    className="flex flex-col gap-1 px-4 py-3 hover:bg-tl-paper sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <p className="font-medium text-tl-ink">{row.title}</p>
+                      <p className="text-xs text-tl-ink-muted">
+                        {row.heldOn} · {row.ward}
+                        {row.placeLabel ? ` · ${row.placeLabel}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <SentimentChip
+                        label={row.sentimentLabel}
+                        score={row.sentimentScore}
+                      />
+                      <span className="rounded border border-tl-line px-2 py-0.5">
+                        {ENGAGEMENT_KIND_LABELS[row.kind]}
+                      </span>
+                      <span className="rounded border border-tl-line px-2 py-0.5">
+                        {ENGAGEMENT_STATUS_LABELS[row.status]}
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </div>
     </FeatureGate>

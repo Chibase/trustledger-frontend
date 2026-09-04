@@ -138,6 +138,11 @@ export function retrieveKnowledge(question: string): RetrieveResult {
       qLower,
     ) && !/\b(features?|capabilities)\b/i.test(qLower);
 
+  const wantsSep =
+    /\b(engagement plan|stakeholder engagement plan|\bsep\b|rfp|request for proposal|tender document|terms of reference)\b/i.test(
+      qLower,
+    );
+
   const wantsFramework =
     /\b(social licence|social license|licence to build|framework|advisory architecture)\b/i.test(
       qLower,
@@ -227,6 +232,9 @@ export function retrieveKnowledge(question: string): RetrieveResult {
       }
       if (wantsCrm && (item.id === "crm-real" || item.id === "versions")) {
         s += 0.55;
+      }
+      if (wantsSep && item.id === "engagement-plan") {
+        s += 0.7;
       }
       if (wantsFramework && item.id === "social-licence-framework") {
         s += 0.6;

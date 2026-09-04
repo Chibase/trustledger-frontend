@@ -3,23 +3,46 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { DiscussionSpace } from "@/components/discussion/DiscussionSpace";
-import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import {
-  REPORT_AUDIENCE_LABELS,
-  REPORT_KIND_LABELS,
-  type SavedReport,
-} from "@/types/activityReport";
-import { DESK_TIER_RANK } from "@/config/reportCatalogue";
+  ExecutiveRiskLayout,
+  FunderAssuranceLayout,
+  MonthlyOpsLayout,
+} from "@/components/reports/ReportLensLayout";
+import { DESK_TIER_RANK, sectionsForKind } from "@/config/reportCatalogue";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   readSessionAuthor,
   readSessionPlanId,
 } from "@/lib/discussionStore";
 import {
+  buildPeriodActivityFacts,
+  composeActivityReportMarkdown,
+  funderSnapshotFromFacts,
+  riskRowsFromFacts,
+} from "@/lib/reportComposer";
+import {
+  citedIncidentIds,
+  executiveChartGroups,
+  funderChartGroups,
+  monthlyChartGroups,
+  reportLensForKind,
+  savedBodyMatchesLens,
+} from "@/lib/reportLenses";
+import {
   clearAllSavedReports,
   listSavedReports,
   purgeTemplateGuideReports,
 } from "@/lib/reportStore";
+import {
+  listWorkspaceIncidents,
+  listWorkspaceProjects,
+} from "@/lib/workspaceData";
+import {
+  REPORT_AUDIENCE_LABELS,
+  REPORT_KIND_LABELS,
+  type SavedReport,
+} from "@/types/activityReport";
+import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import type { UserRole } from "@/types/rbac";
 
 type ReportsLibraryProps = {
@@ -154,9 +177,9 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
                     {active.purposeTags.join(", ")}
                   </p>
                 </header>
-                <pre className="mt-4 max-h-[28rem] overflow-auto whitespace-pre-wrap font-sans text-sm text-tl-ink">
-                  {active.bodyMarkdown}
-                </pre>
+                <div className="mt-4">
+                  <SavedReportLensBody report={active} />
+                </div>
                 {active.evidence.length ? (
                   <div className="mt-4 border-t border-tl-line pt-3">
                     <p className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
@@ -188,5 +211,91 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
         </div>
       )}
     </section>
+  );
+}
+
+function SavedReportLensBody({ report }: { report: SavedReport }) {
+  const project = report.projectId
+    ? listWorkspaceProjects().find((p) => p.id === report.projectId)
+    : undefined;
+  const workspaceIncidents = listWorkspaceIncidents().filter(
+    (i) => !report.projectId || i.projectId === report.projectId,
+  );
+  const cited = citedIncidentIds(report.bodyMarkdown);
+  const incidents =
+    cited.length > 0
+      ? workspaceIncidents.filter((i) =>
+          cited.some((id) => id.toUpperCase() === i.id.toUpperCase()),
+        )
+      : workspaceIncidents;
+  const facts = buildPeriodActivityFacts(incidents, {
+    projectId: report.projectId,
+    projectName: report.projectName,
+    project,
+  });
+  const lens = reportLensForKind(report.kind);
+  const riskRows = riskRowsFromFacts(facts);
+  const funderSnapshot = funderSnapshotFromFacts(facts);
+  const sections = sectionsForKind(report.kind);
+  const body =
+    report.bodyMarkdown.trim() &&
+    savedBodyMatchesLens(report.kind, report.bodyMarkdown)
+      ? report.bodyMarkdown
+      : composeActivityReportMarkdown({
+          kind: report.kind,
+          kindLabel: REPORT_KIND_LABELS[report.kind],
+          audienceLabel: REPORT_AUDIENCE_LABELS[report.audience],
+          periodLabel: report.periodLabel,
+          authorTierLabel: DESK_TIER_LABELS[report.authorTier],
+          authorName: report.authorName,
+          projectName: report.projectName,
+          includedSectionIds: sections.map((s) => s.id),
+          includedSectionLabels: sections.map((s) => s.label),
+          lockedSectionLabels: [],
+          facts,
+          tonePreference:
+            report.audience === "board" ||
+            report.audience === "funders_investors"
+              ? "board"
+              : "plain",
+        }).bodyMarkdown;
+
+  if (lens === "executive") {
+    return (
+      <ExecutiveRiskLayout
+        rows={riskRows}
+        trustIndex={facts.trustIndex}
+        trustLabel={facts.trustLabel}
+        chartGroups={executiveChartGroups(riskRows)}
+        showCharts
+        showDetails
+        bodyMarkdown={body}
+      />
+    );
+  }
+  if (lens === "funder") {
+    return (
+      <FunderAssuranceLayout
+        snapshot={funderSnapshot}
+        chartGroups={funderChartGroups(funderSnapshot)}
+        showCharts
+        showDetails
+        bodyMarkdown={body}
+      />
+    );
+  }
+  return (
+    <MonthlyOpsLayout
+      chartGroups={monthlyChartGroups(
+        [
+          ...facts.attended,
+          ...facts.resolved,
+        ],
+        [],
+      )}
+      showCharts
+      showDetails
+      bodyMarkdown={body}
+    />
   );
 }

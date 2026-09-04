@@ -128,7 +128,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       {
         trialPlan,
         trial,
-        isVip: mode === "live" ? isVip : undefined,
+        isVip: isVip || undefined,
         isGuest: mode === "demo" && !orgId,
         orgId,
         isPlanOwner:

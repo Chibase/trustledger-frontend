@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
 
-const NAV_EXEC = [{ href: "/ops/executive", label: "Executive Board" }];
+const NAV_EXEC = [
+  { href: "/ops/executive", label: "Executive Board" },
+  { href: "/ops/executive#engagement-plans", label: "Engagement plan" },
+];
+
+const NAV_PRODUCT = [
+  { href: "/app/engagement-plan", label: "Engagement plan desk" },
+  { href: "/app/engagement-plan/new", label: "New from briefing" },
+];
 
 const NAV_CONTROL = [
   { href: "/ops/finance", label: "Finance" },
@@ -52,6 +60,7 @@ export function OpsShell({
       <div className="mx-auto flex max-w-6xl gap-8 px-4 py-6 md:px-8 print:max-w-none print:px-0 print:py-0">
         <aside className="hidden w-52 shrink-0 md:block print:hidden">
           <NavGroup title="C-suite" items={NAV_EXEC} emphasize />
+          <NavGroup title="Product desk" items={NAV_PRODUCT} />
           <NavGroup title="Command control" items={NAV_CONTROL} />
           <NavGroup title="Day-to-day ops" items={NAV_OPS} />
           <div className="mt-6 border-t border-tl-line pt-4">

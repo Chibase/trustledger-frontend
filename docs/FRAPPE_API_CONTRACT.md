@@ -3,7 +3,7 @@
 The Vercel app calls these whitelisted methods when `NEXT_PUBLIC_DATA_MODE=live`.
 Until they exist, services fall back to Demo mocks.
 
-Base URL: `NEXT_PUBLIC_API_BASE_URL` (Frappe Cloud — `https://app.trustledger.co.za`)  
+Base URL: `NEXT_PUBLIC_API_BASE_URL` (Frappe Cloud — `https://app.trustledgersrm.co.za`)  
 Transport: `POST` JSON, `credentials: include`  
 Envelope: standard Frappe `{ "message": <payload> }`
 
@@ -20,7 +20,7 @@ Envelope: standard Frappe `{ "message": <payload> }`
 | `listCommitments` | `/api/method/srm_core.api.commitments.list_commitments` | `{ projectId?, engagementId?, query? }` | `Commitment[]` |
 | `listEvidence` | `/api/method/srm_core.api.incidents.list_evidence` | `{ incident }` | `EvidenceStub[]` |
 | `suggestTriage` | `/api/method/srm_core.api.ai.suggest_triage` | triage request | triage suggestion |
-| `suggestSentiment` | `/api/method/srm_core.api.ai.suggest_sentiment` | sentiment request | sentiment suggestion |
+| `suggestSentiment` | `/api/method/srm_core.api.ai.suggest_sentiment` | `{ text, geographicArea?, linkedIncidentId?, sourceType? }` | `{ sentimentScore, sentimentLabel: positive\|neutral\|negative, confidenceScore, rationale, sourceType, model, promptVersion }` |
 | `draftResponse` | `/api/method/srm_core.api.ai.draft_response` | draft request | draft suggestion |
 | `generateReportBrief` | `/api/method/srm_core.api.ai.generate_report_brief` | brief request | brief suggestion |
 | `getSession` | `/api/method/srm_core.api.auth.get_session` | (session cookie) | `{ user, fullName, roles, trustLedgerRole }` |
@@ -70,3 +70,26 @@ Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH
 5. Engagements + commitments DocTypes (24c–24d)
 6. AI methods wrapping xAI with JSON schema validation
 7. Notes + evidence list endpoints
+
+## Write methods (staging / import — confirm before live use)
+
+List/get paths above are what the Vercel app calls today. **Create** paths below are the defaults used by `tools/demo/api-examples/` (Postman + curl) and `tools/demo/srm-import/import_script.py`. Human must confirm names and `Authorization: token key:secret` vs session cookie before a real import. They may 404 until srm-core implements them.
+
+Offline pack: `tools/demo/srm-import/` (zip `tools/demo/trustledger-srm-demo.zip`). Do not import to production without a human-scoped key.
+
+| Action | Path | Notes |
+|--------|------|-------|
+| Create plan | `/api/method/srm_core.api.plans.create` | **Proposed.** Skip if Cloud does not expose it. |
+| Create organisation | `/api/method/srm_core.api.organizations.create_organization` | Demo import |
+| Create site | `/api/method/srm_core.api.sites.create_site` | Demo import |
+| Create asset | `/api/method/srm_core.api.assets.create_asset` | Demo import |
+| Create inspection | `/api/method/srm_core.api.inspections.create_inspection` | Demo import |
+| Create incident | `/api/method/srm_core.api.incidents.create_incident` | Demo import |
+| Create work order | `/api/method/srm_core.api.work_orders.create_work_order` | Demo import |
+| Upload evidence | `/api/method/srm_core.api.evidence.upload_evidence` | multipart: `gps_lat`, `gps_lon`, `timestamp`, `checksum`, `file` |
+| Create ledger entry | `/api/method/srm_core.api.ledger.create_entry` | `docs/LEDGER_API.md` |
+| Verify ledger entry | `/api/method/srm_core.api.ledger.verify_entry` | `docs/LEDGER_API.md` |
+| Get ledger chain | `/api/method/srm_core.api.ledger.get_chain` | GET `entity_id` |
+| Ledger public key | `/api/method/srm_core.api.ledger.public_key` | Public key only |
+
+Postman: `tools/demo/api-examples/TrustLedger_srm_core.postman_collection.json` (`BASE_URL`, `API_KEY` placeholders). Curl: `tools/demo/api-examples/README.md`.

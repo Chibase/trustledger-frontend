@@ -34,7 +34,7 @@ export function isPlanId(value: string): value is PlanId {
   return PLAN_IDS.includes(value as PlanId);
 }
 
-/** Legacy UTM aliases (Starter/Growth) map onto Paystack plan ids. */
+/** Legacy UTM aliases (Starter/Growth) plus ADR-054 focused-SKU campaigns map onto Paystack plan ids. */
 export function planFromUtmCampaign(
   campaign: string | null | undefined,
 ): PlanId {
@@ -57,11 +57,23 @@ export function planFromUtmCampaign(
   if (c.includes("practitioner") || c.includes("ai_assist")) {
     return "practitioner";
   }
+  // ADR-054 focused-SKU persona campaigns (same Paystack plans, not new products).
+  if (
+    c.includes("local_procurement") ||
+    c.includes("ed_portal") ||
+    c.includes("bbbee") ||
+    c.includes("field_companion") ||
+    c.includes("capture_hub")
+  ) {
+    return "project";
+  }
   if (
     c.includes("solo") ||
     c.includes("starter") ||
     c.includes("entry") ||
-    c.includes("lone")
+    c.includes("lone") ||
+    c.includes("grievance_desk") ||
+    c.includes("grm")
   ) {
     return "solo";
   }

@@ -1,7 +1,7 @@
 # HubSpot cutover — Frappe-only acquisition (ADR-034)
 
 **Goal:** Marketing + CRM on **Vercel + Frappe only**. HubSpot is optional baggage, not a required link.  
-**Acquisition SoT:** Frappe Cloud **CRM Lead** on `app.trustledger.co.za`.  
+**Acquisition SoT:** Frappe Cloud **CRM Lead** on `app.trustledgersrm.co.za`.  
 **Webway checklist:** `docs/WEBWAY_CUTOVER.md`.
 
 ```text

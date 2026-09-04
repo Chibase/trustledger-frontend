@@ -32,7 +32,7 @@ FRAPPE_AUTO_PROVISION=0
 # Existing CRM / API keys (never commit)
 FRAPPE_API_KEY=…
 FRAPPE_API_SECRET=…
-FRAPPE_BASE_URL=https://app.trustledger.co.za
+FRAPPE_BASE_URL=https://app.trustledgersrm.co.za
 ```
 
 ## API (this repo)
