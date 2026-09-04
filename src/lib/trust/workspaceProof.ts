@@ -28,6 +28,7 @@ import {
   summarizeClaimVerification,
   type TrustClaimVerificationIndex,
 } from "@/lib/trust/claimVerification";
+import type { TrustCausalityReading } from "@/lib/trust/causality";
 import type { TrustParticipationQualityIndex } from "@/lib/trust/participationQuality";
 import { meanTrustScores, trustSignalWeight } from "@/lib/trust/scoring";
 import {
@@ -68,6 +69,7 @@ export type TrustWorkspaceSummary = {
   dimensions: TrustWorkspaceDimensionRow[];
   participationQuality: TrustParticipationQualityIndex;
   claimVerification: TrustClaimVerificationIndex;
+  causality: TrustCausalityReading;
 };
 
 /** Map mean −1…+1 onto 0–100 for charts. 50 = watch. Not Trust pulse. */
@@ -174,5 +176,6 @@ export function summarizeTrustWorkspace(
     dimensions,
     participationQuality: report.participation.quality,
     claimVerification: summarizeClaimVerification(report.claims),
+    causality: report.causality,
   };
 }

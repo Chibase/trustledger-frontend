@@ -29,6 +29,11 @@ import {
   type TrustClaimVerificationReading,
   type TrustClaimVerificationStamp,
 } from "@/lib/trust/claimVerification";
+import {
+  formatCausalityMix,
+  summarizeTrustCausality,
+  type TrustCausalityReading,
+} from "@/lib/trust/causality";
 import { TRUST_DIMENSION_LABELS } from "@/types/trustLayer";
 import type { Stakeholder } from "@/types/stakeholder";
 import type {
@@ -97,6 +102,7 @@ export type TrustProofReport = {
   comparisons: Record<TrustComparisonAxis, TrustAnalyticsSlice[]>;
   period: TrustPeriodComparison;
   statuses: TrustDimensionStatus[];
+  causality: TrustCausalityReading;
   markdown: string;
   sources: TrustProofSources;
 };
@@ -268,6 +274,7 @@ function renderMarkdown(report: {
   risks: TrustRiskFlag[];
   comparisons: Record<TrustComparisonAxis, TrustAnalyticsSlice[]>;
   period: TrustPeriodComparison;
+  causality: TrustCausalityReading;
   sources: TrustProofSources;
 }): string {
   const history = report.history.slice(0, HISTORY_CAP);
@@ -330,6 +337,25 @@ function renderMarkdown(report: {
     analyticsRuleSummary(),
     "",
     `Period split at ${report.period.splitAt || "median observation time"} — ${report.period.rule}`,
+    "",
+    "## Trust-movement companions (not causal proof)",
+    "",
+    `- Mix: ${formatCausalityMix(report.causality)} (later-half co-occurrence; not statistical causality; not Trust pulse)`,
+    `- Causal proof: no`,
+    report.causality.companions.length
+      ? report.causality.companions
+          .map(
+            (row) =>
+              `- ${row.label}: ${row.count}` +
+              (row.evidenceIds.length
+                ? `; evidence ${row.evidenceIds.join(", ")}`
+                : ""),
+          )
+          .join("\n")
+      : "- No later-half companions listed.",
+    report.causality.notes.length
+      ? report.causality.notes.map((line) => `- ${line}`).join("\n")
+      : "",
     "",
     "## Claims by dimension",
     "",
@@ -422,6 +448,13 @@ export function composeTrustProofReport(
     claims,
     analytics.risks,
   );
+  const causality = summarizeTrustCausality({
+    observations,
+    period: analytics.period,
+    claims,
+    participation,
+    overallMovement: analytics.overallMovement,
+  });
   const report: TrustProofReport = {
     generatedAt,
     overallMovement: analytics.overallMovement,
@@ -433,6 +466,7 @@ export function composeTrustProofReport(
     comparisons: analytics.comparisons,
     period: analytics.period,
     statuses: analytics.statuses,
+    causality,
     markdown: "",
     sources,
   };

@@ -27,6 +27,7 @@ Trust pulse widget            not wired to overlay                   TE-3 option
 - TE-9 **reads** stored participation as a quality mix (`trust` / `obligation` / `livelihood` / `mixed` / `unknown`). Mixed is not weak. Attendance is not consent. The mix is not Trust pulse.
 - TE-10 **reads** trust claims as unevidenced / evidenced / verified. Linked evidence is not verification. Attendance does not verify. Human apply writes a stamp.
 - TE-11 persists those stamps on Cloud for live customer/trial workspaces. Local `tl-trust-claim-verifications` is a cache. Not a sealed ledger.
+- TE-12 **reads** later-half companions that co-occur with movement. They are not causes. Attendance and mixed motive are not causes. This is not statistical causality and not Trust pulse.
 
 ## What it can store
 
@@ -56,6 +57,12 @@ Proof, intelligence, community profiles, and the dashboard hub surface the mix. 
 
 Proof, intelligence, and the dashboard hub surface the mix. Apply stays suggestion → human apply → save.
 
+## Trust-movement companions (TE-12)
+
+`summarizeTrustCausality` reads later-half scored observations, improving/declining dimension trends, and explicit low willingness. Companions **co-occur**; they are not causes. Mixed motive and attendance are never treated as causes. SRM sentiment, verification stamps, and Trust pulse are not used. This is **not** statistical causality.
+
+Proof, intelligence, and the dashboard hub surface the mix. No new DocType or nav item.
+
 ## Next packet (not this one)
 
-TE-11 is shipped. Further trust packets wait on the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
+TE-12 is shipped. Further trust packets wait on the next approved prompt. Ledger writes stay blocked on `docs/KEY_MANAGEMENT.md`.
