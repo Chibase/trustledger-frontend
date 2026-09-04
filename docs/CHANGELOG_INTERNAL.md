@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-09-04 — VIP showcase tests use sirthoz@
+
+- Setup wizard, onboarding spine, and plan-packaging Jest cases seed `VIP_SHOWCASE_DEFAULT_EMAIL` (`sirthoz@trustledgersrm.co.za`). `thozi@` remains the other-plan mailbox in `vipShowcase.test.ts`.
+
 ## 2026-09-04 — VIP showcase mailbox (sirthoz@)
 
 - Default `/login/vip` allowlist is `sirthoz@trustledgersrm.co.za`. `thozi@chibaseconsulting.co.za` stays on its other plan and uses `/login/live` (not intercepted to the showcase).

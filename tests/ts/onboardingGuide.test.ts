@@ -6,6 +6,7 @@ import {
   restoreVipShowcaseSetupIfSeedDismissed,
   shouldAutoOpenWizard,
 } from "@/lib/onboardingGuide";
+import { VIP_SHOWCASE_DEFAULT_EMAIL } from "@/lib/vipShowcaseIdentity";
 
 describe("VIP setup unlock", () => {
   beforeEach(() => {
@@ -63,7 +64,7 @@ describe("VIP setup unlock", () => {
     const showcase = onboardingStepsForPlan("solo", {
       vip: true,
       mode: "trial",
-      email: "thozi@chibaseconsulting.co.za",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
     });
     expect(showcase[0]?.title).toBe("Walk the Institutional desk");
     expect(showcase.find((s) => s.id === "project")?.href).toBe(
@@ -73,7 +74,7 @@ describe("VIP setup unlock", () => {
     const liveVip = onboardingStepsForPlan("institutional", {
       vip: true,
       mode: "live",
-      email: "thozi@chibaseconsulting.co.za",
+      email: VIP_SHOWCASE_DEFAULT_EMAIL,
     });
     expect(liveVip[0]?.title).toBe("Your desk starts empty");
     expect(liveVip.find((s) => s.id === "project")?.href).toBe(
