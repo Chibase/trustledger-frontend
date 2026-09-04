@@ -129,6 +129,27 @@ function flagsFrom(
   };
 }
 
+/** Nest ATX headings so a document can sit under an existing section. */
+export function demoteMarkdownHeadings(markdown: string, levels: number): string {
+  const step = Math.max(0, levels);
+  if (!step) return markdown;
+  let inFence = false;
+  return markdown
+    .split("\n")
+    .map((line) => {
+      if (/^```/.test(line)) {
+        inFence = !inFence;
+        return line;
+      }
+      if (inFence) return line;
+      const match = /^(#{1,6})(\s+)/.exec(line);
+      if (!match) return line;
+      const next = Math.min(6, match[1].length + step);
+      return `${"#".repeat(next)}${match[2]}${line.slice(match[0].length)}`;
+    })
+    .join("\n");
+}
+
 function renderMvpMarkdown(pkg: {
   generatedAt: string;
   proof: TrustProofReport;
@@ -175,11 +196,11 @@ function renderMvpMarkdown(pkg: {
     "",
     "## Proof",
     "",
-    pkg.proof.markdown,
+    demoteMarkdownHeadings(pkg.proof.markdown, 2),
     "",
-    "## Recommendations",
+    "## Intelligence",
     "",
-    pkg.intelligence.markdown,
+    demoteMarkdownHeadings(pkg.intelligence.markdown, 2),
     "",
   ].join("\n");
 }
