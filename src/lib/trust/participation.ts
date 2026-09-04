@@ -142,8 +142,10 @@ export function participationFromTrustResponse(
     n.willingnessToParticipate === "unknown" &&
     n.willingnessToContribute === "unknown" &&
     n.confidenceInProcess === "unknown" &&
-    n.confidenceInImplementer === "unknown";
-  if (blank && n.trustSentiment == null) return null;
+    n.confidenceInImplementer === "unknown" &&
+    n.confidenceInFairness === "unknown" &&
+    n.confidenceConcernsActedUpon === "unknown";
+  if (blank) return null;
   return createTrustParticipation({
     id: meta.id,
     ...meta,

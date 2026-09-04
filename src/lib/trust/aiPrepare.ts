@@ -85,6 +85,16 @@ export function prepareTrustResponseHints(text: string): StakeholderTrustRespons
       /\b(trust (?:the |you |the contractor|the implementer)|good faith)\b/i,
       /\b(do not trust (?:you|them|the contractor|the implementer)|no faith in)\b/i,
     ),
+    confidenceInFairness: attitudeFromCues(
+      body,
+      /\b(treated fairly|fair (?:share|treatment|allocation)|allocation is fair)\b/i,
+      /\b(unfair|not fair|favouritism|favoritism|biased allocation)\b/i,
+    ),
+    confidenceConcernsActedUpon: attitudeFromCues(
+      body,
+      /\b(followed through|acted on (?:our |the )?concerns?|concerns? (?:were|will be) (?:acted on|addressed))\b/i,
+      /\b(nothing (?:happens|was done)|never acted|no follow[- ]through|concerns? (?:were )?ignored)\b/i,
+    ),
   };
 }
 

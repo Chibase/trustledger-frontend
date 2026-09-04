@@ -19,6 +19,10 @@ export type StakeholderTrustResponse = {
   willingnessToContribute?: TrustAttitude;
   confidenceInProcess?: TrustAttitude;
   confidenceInImplementer?: TrustAttitude;
+  /** Blueprint: trust in fairness of treatment / allocation. */
+  confidenceInFairness?: TrustAttitude;
+  /** Blueprint: trust that concerns will be acted upon. */
+  confidenceConcernsActedUpon?: TrustAttitude;
   capturedAt?: string;
 };
 

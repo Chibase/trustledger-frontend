@@ -1,4 +1,4 @@
-import { isTrustDimensionId } from "@/lib/trust/dimensions";
+import { canonicalTrustDimensionId } from "@/lib/trust/dimensions";
 import { asTrustTranslationStatus } from "@/lib/trust/language";
 import type {
   TrustObservation,
@@ -40,17 +40,19 @@ function asSource(value: unknown): TrustObservationSource {
 
 export type TrustObservationDraft = Omit<
   TrustObservation,
-  "id" | "layer" | "evidenceIds" | "observedAt"
+  "id" | "layer" | "evidenceIds" | "observedAt" | "dimension"
 > & {
   id?: string;
   observedAt?: string;
   evidenceIds?: string[];
+  dimension: string;
 };
 
 export function createTrustObservation(
   draft: TrustObservationDraft,
 ): TrustObservation {
-  if (!isTrustDimensionId(draft.dimension)) {
+  const dimension = canonicalTrustDimensionId(draft.dimension);
+  if (!dimension) {
     throw new Error("createTrustObservation: unknown trust dimension");
   }
   const evidenceIds = Array.isArray(draft.evidenceIds)
@@ -60,7 +62,7 @@ export function createTrustObservation(
     id: draft.id || newTrustObservationId(),
     layer: "trust",
     observedAt: draft.observedAt || new Date().toISOString(),
-    dimension: draft.dimension,
+    dimension,
     signal: asSignal(draft.signal),
     signalScore:
       typeof draft.signalScore === "number" ? draft.signalScore : null,
@@ -83,11 +85,13 @@ export function createTrustObservation(
 export function normalizeTrustObservation(
   raw: Partial<TrustObservation> | null | undefined,
 ): TrustObservation | null {
-  if (!raw || !isTrustDimensionId(raw.dimension)) return null;
+  if (!raw) return null;
+  const dimension = canonicalTrustDimensionId(raw.dimension);
+  if (!dimension) return null;
   return createTrustObservation({
     id: raw.id,
     observedAt: raw.observedAt,
-    dimension: raw.dimension,
+    dimension,
     signal: raw.signal ?? "unknown",
     signalScore: raw.signalScore,
     source: raw.source ?? "derived",

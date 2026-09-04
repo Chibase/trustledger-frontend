@@ -7,16 +7,20 @@
 import { communityContextFromIncident } from "@/lib/trust/communityContext";
 import { createTrustObservation } from "@/lib/trust/observation";
 import { participationFromTrustResponse } from "@/lib/trust/participation";
-import { sentimentLabelFromScore } from "@/lib/sentimentAnalysis";
 import type { Commitment } from "@/types/commitment";
 import type { Engagement, EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Stakeholder } from "@/types/stakeholder";
-import type { TrustAttitude, TrustClaimKind } from "@/types/trustOverlay";
+import type {
+  StakeholderTrustResponse,
+  TrustAttitude,
+  TrustClaimKind,
+} from "@/types/trustOverlay";
 import type {
   TrustCommunityContext,
   TrustDimensionId,
   TrustObservation,
+  TrustObservationSource,
   TrustParticipationRecord,
   TrustSignalKind,
 } from "@/types/trustLayer";
@@ -47,7 +51,7 @@ function claimToObservation(
 ): { dimension: TrustDimensionId; signal: TrustSignalKind } | null {
   if (claim === "promise_kept") return { dimension: "project", signal: "positive" };
   if (claim === "promise_broken") {
-    return { dimension: "intentions", signal: "negative" };
+    return { dimension: "concerns_acted_upon", signal: "negative" };
   }
   if (claim === "repair_complete") {
     return { dimension: "process", signal: "positive" };
@@ -56,6 +60,81 @@ function claimToObservation(
     return { dimension: "people", signal: "positive" };
   }
   return null;
+}
+
+/**
+ * Overlay attitudes become trust observations. SRM `sentimentLabel` /
+ * `sentimentScore` never do — those stay generic sentiment records.
+ */
+function observationsFromTrustResponse(
+  response: StakeholderTrustResponse | null | undefined,
+  meta: {
+    idPrefix: string;
+    source: TrustObservationSource;
+    sourceId: string;
+    projectId?: string | null;
+    stakeholderId?: string;
+    fallbackAt: string;
+  },
+): TrustObservation[] {
+  if (!response) return [];
+  const at = response.capturedAt || meta.fallbackAt;
+  const pairs: Array<{
+    suffix: string;
+    dimension: TrustDimensionId;
+    attitude: TrustAttitude | undefined;
+    note: string;
+  }> = [
+    {
+      suffix: "process",
+      dimension: "process",
+      attitude: response.confidenceInProcess,
+      note: "Derived from optional trustResponse.confidenceInProcess.",
+    },
+    {
+      suffix: "entity",
+      dimension: "implementing_entity",
+      attitude: response.confidenceInImplementer,
+      note: "Derived from optional trustResponse.confidenceInImplementer.",
+    },
+    {
+      suffix: "fairness",
+      dimension: "fairness",
+      attitude: response.confidenceInFairness,
+      note: "Derived from optional trustResponse.confidenceInFairness.",
+    },
+    {
+      suffix: "acted-upon",
+      dimension: "concerns_acted_upon",
+      attitude: response.confidenceConcernsActedUpon,
+      note: "Derived from optional trustResponse.confidenceConcernsActedUpon.",
+    },
+    {
+      suffix: "people",
+      dimension: "people",
+      attitude: response.willingnessToParticipate,
+      note: "Derived from optional trustResponse.willingnessToParticipate.",
+    },
+  ];
+  const out: TrustObservation[] = [];
+  for (const row of pairs) {
+    const signal = attitudeToSignal(row.attitude);
+    if (!signal) continue;
+    out.push(
+      createTrustObservation({
+        id: `${meta.idPrefix}-${row.suffix}`,
+        observedAt: at,
+        dimension: row.dimension,
+        signal,
+        source: meta.source,
+        sourceId: meta.sourceId,
+        projectId: meta.projectId,
+        stakeholderId: meta.stakeholderId,
+        note: row.note,
+      }),
+    );
+  }
+  return out;
 }
 
 function fromIncidents(incidents: Incident[]): {
@@ -68,61 +147,17 @@ function fromIncidents(incidents: Incident[]): {
   const community: TrustCommunityContext[] = [];
 
   for (const incident of incidents) {
-    const label =
-      incident.sentimentLabel ||
-      (typeof incident.sentimentScore === "number"
-        ? sentimentLabelFromScore(incident.sentimentScore)
-        : null);
-    if (label) {
-      observations.push(
-        createTrustObservation({
-          id: `TRO-incident-${incident.id}-process-sentiment`,
-          observedAt: incident.reportedAt,
-          dimension: "process",
-          signal: label,
-          signalScore: incident.sentimentScore,
-          source: "incident",
-          sourceId: incident.id,
-          projectId: incident.projectId,
-          communityPlaceId: incident.geo?.placeId || incident.geo?.wardId,
-          note: "Derived from case sentiment — SRM record unchanged.",
-        }),
-      );
-    }
+    observations.push(
+      ...observationsFromTrustResponse(incident.trustResponse, {
+        idPrefix: `TRO-incident-${incident.id}`,
+        source: "incident",
+        sourceId: incident.id,
+        projectId: incident.projectId,
+        fallbackAt: incident.reportedAt,
+      }),
+    );
 
-    const response = incident.trustResponse;
-    const processSignal = attitudeToSignal(response?.confidenceInProcess);
-    if (processSignal) {
-      observations.push(
-        createTrustObservation({
-          id: `TRO-incident-${incident.id}-process-response`,
-          observedAt: response?.capturedAt || incident.reportedAt,
-          dimension: "process",
-          signal: processSignal,
-          source: "incident",
-          sourceId: incident.id,
-          projectId: incident.projectId,
-          note: "Derived from optional trustResponse.confidenceInProcess.",
-        }),
-      );
-    }
-    const entitySignal = attitudeToSignal(response?.confidenceInImplementer);
-    if (entitySignal) {
-      observations.push(
-        createTrustObservation({
-          id: `TRO-incident-${incident.id}-entity-response`,
-          observedAt: response?.capturedAt || incident.reportedAt,
-          dimension: "implementing_entity",
-          signal: entitySignal,
-          source: "incident",
-          sourceId: incident.id,
-          projectId: incident.projectId,
-          note: "Derived from optional trustResponse.confidenceInImplementer.",
-        }),
-      );
-    }
-
-    const part = participationFromTrustResponse(response, {
+    const part = participationFromTrustResponse(incident.trustResponse, {
       id: `TRP-incident-${incident.id}`,
       source: "incident",
       sourceId: incident.id,
@@ -146,43 +181,16 @@ function fromEngagements(rows: Engagement[]): {
   const observations: TrustObservation[] = [];
   const participation: TrustParticipationRecord[] = [];
   for (const row of rows) {
-    const label =
-      row.sentimentLabel ||
-      (typeof row.sentimentScore === "number"
-        ? sentimentLabelFromScore(row.sentimentScore)
-        : null);
-    if (label) {
-      observations.push(
-        createTrustObservation({
-          id: `TRO-engagement-${row.id}-people-sentiment`,
-          observedAt: row.heldOn || row.createdAt,
-          dimension: "people",
-          signal: label,
-          signalScore: row.sentimentScore,
-          source: "engagement",
-          sourceId: row.id,
-          projectId: row.projectId,
-          note: "Derived from engagement note sentiment — SRM record unchanged.",
-        }),
-      );
-    }
-    const peopleSignal = attitudeToSignal(
-      row.trustResponse?.willingnessToParticipate,
+    observations.push(
+      ...observationsFromTrustResponse(row.trustResponse, {
+        idPrefix: `TRO-engagement-${row.id}`,
+        source: "engagement",
+        sourceId: row.id,
+        projectId: row.projectId,
+        stakeholderId: row.stakeholderIds[0],
+        fallbackAt: row.heldOn || row.createdAt,
+      }),
     );
-    if (peopleSignal) {
-      observations.push(
-        createTrustObservation({
-          id: `TRO-engagement-${row.id}-people-response`,
-          observedAt: row.trustResponse?.capturedAt || row.heldOn || row.createdAt,
-          dimension: "people",
-          signal: peopleSignal,
-          source: "engagement",
-          sourceId: row.id,
-          projectId: row.projectId,
-          stakeholderId: row.stakeholderIds[0],
-        }),
-      );
-    }
     const part = participationFromTrustResponse(row.trustResponse, {
       id: `TRP-engagement-${row.id}`,
       source: "engagement",
@@ -215,14 +223,14 @@ function fromCommitments(rows: Commitment[]): TrustObservation[] {
     } else if (row.status === "broken") {
       observations.push(
         createTrustObservation({
-          id: `TRO-commitment-${row.id}-intentions`,
+          id: `TRO-commitment-${row.id}-acted-upon`,
           observedAt: row.createdAt,
-          dimension: "intentions",
+          dimension: "concerns_acted_upon",
           signal: "negative",
           source: "commitment",
           sourceId: row.id,
           projectId: row.projectId,
-          note: "Derived from broken commitment.",
+          note: "Derived from broken commitment (concerns not acted upon).",
         }),
       );
     }

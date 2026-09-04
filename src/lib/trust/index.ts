@@ -33,6 +33,7 @@ export {
 } from "@/lib/trust/aiPrepare";
 export {
   allTrustDimensions,
+  canonicalTrustDimensionId,
   isTrustDimensionId,
   trustDimensionLabel,
 } from "@/lib/trust/dimensions";
