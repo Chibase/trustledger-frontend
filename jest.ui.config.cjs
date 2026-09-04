@@ -22,6 +22,7 @@ module.exports = {
     "<rootDir>/tests/ts/trustWorkspace.test.tsx",
     "<rootDir>/tests/ts/trustCloud.test.ts",
     "<rootDir>/tests/ts/trustEngagementApply.test.ts",
+    "<rootDir>/tests/ts/dashboardOverview.test.ts",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {

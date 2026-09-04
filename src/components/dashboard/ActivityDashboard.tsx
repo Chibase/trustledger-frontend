@@ -3,8 +3,15 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
+import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
+import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
+import { VerticalBarChart } from "@/components/ops/charts/BarChart";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { buildProjectActivity } from "@/lib/dashboardActivity";
+import {
+  incidentPriorityBars,
+  projectStatusBars,
+} from "@/lib/dashboardOverview";
 import { readDeskTier } from "@/lib/deskVisibility";
 import { hasCapability } from "@/lib/entitlements";
 import { packsForDesk } from "@/lib/reportPackAccess";
@@ -27,22 +34,8 @@ type ActivityDashboardProps = {
   seedProjects?: Project[];
 };
 
-const QUICK_LINKS: Array<{
-  href: string;
-  label: string;
-  hint: string;
-}> = [
-  { href: "/app/projects", label: "Projects", hint: "Sites & delivery" },
-  { href: "/app/incidents", label: "Incidents", hint: "Open cases" },
-  { href: "/app/capture", label: "Capture", hint: "Minutes & registers" },
-  { href: "/app/stakeholders", label: "Stakeholders", hint: "CRM registry" },
-  { href: "/app/engagement-plan", label: "Engagement plan", hint: "SEP from briefing" },
-  { href: "/app/reports", label: "Reports", hint: "Packs & write" },
-  { href: "/app/issues/report", label: "Report issue", hint: "New intake" },
-];
-
 /**
- * Primary Activity dashboard — overall navigation + project activity pulse.
+ * Activity overview — overall graphs for the workspace.
  * Companion to the Reports dashboard (`/app/reports`).
  */
 export function ActivityDashboard({
@@ -78,47 +71,37 @@ export function ActivityDashboard({
   );
   const breached = open.filter((i) => i.slaBreached);
   const availablePacks = packsForDesk(tier, planId);
+  const statusBars = useMemo(() => projectStatusBars(projects), [projects]);
+  const priorityBars = useMemo(
+    () => incidentPriorityBars(incidents),
+    [incidents],
+  );
 
   return (
     <div className="space-y-7">
-      <header className="space-y-2">
-        <p className="text-sm font-medium text-tl-trust">Activity dashboard</p>
-        <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
-          {isPlanOwner ? "Plan Owner command" : "Workspace activity"}
-        </h1>
-        <p className="max-w-2xl text-sm text-tl-ink-muted">
-          Navigate the desk and scan project activity. Reporting packs live on
-          the companion{" "}
-          <Link href="/app/reports" className="text-tl-trust-ink underline">
-            Reports dashboard
-          </Link>
-          . Desk: {DESK_TIER_LABELS[tier]}
-          {isPlanOwner ? " · you control pack access in Settings" : ""}.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-tl-trust">Overview</p>
+          <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
+            Workspace health
+          </h1>
+          <p className="max-w-2xl text-sm text-tl-ink-muted">
+            Overall graphs for this workspace. Reporting packs live on the{" "}
+            <Link href="/app/reports" className="text-tl-trust-ink underline">
+              Reports
+            </Link>{" "}
+            desk. Desk: {DESK_TIER_LABELS[tier]}
+            {isPlanOwner ? " · you control pack access in Settings" : ""}.
+          </p>
+        </div>
+        <DashboardOverviewToolbar
+          extra={
+            showSep
+              ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
+              : []
+          }
+        />
       </header>
-
-      <section>
-        <h2 className="mb-3 text-base font-semibold text-tl-ink">
-          Overall navigation
-        </h2>
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {QUICK_LINKS.filter(
-            (link) => link.href !== "/app/engagement-plan" || showSep,
-          ).map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className="flex flex-col rounded-lg border border-tl-line bg-tl-surface px-4 py-3 transition hover:border-tl-trust/40 hover:bg-tl-paper"
-              >
-                <span className="font-medium text-tl-ink">{link.label}</span>
-                <span className="mt-0.5 text-xs text-tl-ink-muted">
-                  {link.hint}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Projects" value={String(projects.length)} />
@@ -135,18 +118,27 @@ export function ActivityDashboard({
         />
       </div>
 
-      <section className="space-y-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-base font-semibold text-tl-ink">
-            Project activity
-          </h2>
-          <Link
-            href="/app/projects"
-            className="text-xs font-medium text-tl-trust-ink hover:underline"
-          >
-            All projects
-          </Link>
-        </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <OverviewChartCard title="Project status" hint="Workspace mix">
+          {statusBars.length ? (
+            <VerticalBarChart bars={statusBars} />
+          ) : (
+            <p className="text-sm text-tl-ink-muted">No projects yet.</p>
+          )}
+        </OverviewChartCard>
+        <OverviewChartCard title="Open cases by priority" hint="P1–P4">
+          {priorityBars.length ? (
+            <VerticalBarChart bars={priorityBars} />
+          ) : (
+            <p className="text-sm text-tl-ink-muted">No open cases.</p>
+          )}
+        </OverviewChartCard>
+      </div>
+
+      <details className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
+          Project activity
+        </summary>
         {activity.length === 0 ? (
           <p className="rounded-lg border border-dashed border-tl-line bg-tl-surface px-4 py-6 text-sm text-tl-ink-muted">
             No projects in this workspace yet.
@@ -184,13 +176,13 @@ export function ActivityDashboard({
             ))}
           </ul>
         )}
-      </section>
+      </details>
 
-      <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-        <h2 className="text-base font-semibold text-tl-ink">
+      <details className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
           Reports available to this desk
-        </h2>
-        <p className="mt-1 text-xs text-tl-ink-muted">
+        </summary>
+        <p className="mt-2 text-xs text-tl-ink-muted">
           Pack availability follows plan seniority and Plan Owner grants.
         </p>
         {availablePacks.length === 0 ? (
@@ -218,7 +210,7 @@ export function ActivityDashboard({
         >
           Open Reports dashboard
         </Link>
-      </section>
+      </details>
     </div>
   );
 }

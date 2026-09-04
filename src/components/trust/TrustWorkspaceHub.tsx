@@ -274,25 +274,7 @@ export function TrustWorkspaceHub() {
           ))}
         </div>
         {comparisonBars.length ? (
-          <>
-            <HorizontalBarChart bars={comparisonBars} maxHeight={180} />
-            <ul className="mt-3 divide-y divide-tl-line overflow-hidden rounded-md border border-tl-line">
-              {comparisonSlices.slice(0, 8).map((row) => (
-                <li
-                  key={`${selectedAxis}-${row.id}`}
-                  className="flex flex-wrap items-baseline justify-between gap-2 px-3 py-2 text-sm"
-                >
-                  <span className="font-medium text-tl-ink">{row.label}</span>
-                  <span className="text-xs text-tl-ink-muted">
-                    mean {formatTrustMean(row.meanSignal)} ·{" "}
-                    {row.level.replaceAll("_", " ")} ·{" "}
-                    {row.movement.replaceAll("_", " ")} · {row.scoredCount}{" "}
-                    scored
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </>
+          <HorizontalBarChart bars={comparisonBars} maxHeight={180} />
         ) : (
           <p className="text-sm text-tl-ink-muted">
             No {AXIS_LABEL[selectedAxis].toLowerCase()} slices yet. Community,
@@ -302,9 +284,31 @@ export function TrustWorkspaceHub() {
         )}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div>
-          <h3 className="mb-2 text-sm font-semibold text-tl-ink">Trust risks</h3>
+      <details className="rounded-md border border-tl-line p-3">
+        <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
+          Comparison detail, risks, and proof narrative
+        </summary>
+        {comparisonBars.length ? (
+          <ul className="mt-3 divide-y divide-tl-line overflow-hidden rounded-md border border-tl-line">
+            {comparisonSlices.slice(0, 8).map((row) => (
+              <li
+                key={`${selectedAxis}-${row.id}`}
+                className="flex flex-wrap items-baseline justify-between gap-2 px-3 py-2 text-sm"
+              >
+                <span className="font-medium text-tl-ink">{row.label}</span>
+                <span className="text-xs text-tl-ink-muted">
+                  mean {formatTrustMean(row.meanSignal)} ·{" "}
+                  {row.level.replaceAll("_", " ")} ·{" "}
+                  {row.movement.replaceAll("_", " ")} · {row.scoredCount}{" "}
+                  scored
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <h3 className="mb-2 text-sm font-semibold text-tl-ink">Trust risks</h3>
           {report?.risks.length ? (
             <ul className="list-disc space-y-1 pl-5 text-sm text-tl-ink">
               {report.risks.slice(0, 6).map((flag) => (
@@ -330,6 +334,7 @@ export function TrustWorkspaceHub() {
           </p>
         </div>
       </div>
+      </details>
     </section>
   );
 }

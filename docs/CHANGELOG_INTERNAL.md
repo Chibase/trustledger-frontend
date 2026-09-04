@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-04 — UX-1 dashboard overviews (graph-first)
+
+- Executive, project, client, activity, and desk dashboards lead with **overall graphs**: four KPIs, a chart grid (status, case funnel, priority, spend/fill), then compact module/trust charts. Operational tables, SEP, capture, and case lists sit in `<details>`.
+- Product overview chrome uses TrustLedger tokens (`OverviewChartCard`, compact toolbar). No “SaaS” copy, no purple generic dashboard skin. Trust pulse formula unchanged. Empty Cloud stays empty.
+- Next trust packet remains **TE-9**. UX-1 stays Active for the reports path.
+
 ## 2026-09-04 — TE-8 engagement apply → trust participation
 
 - Capture apply saves the engagement first, then writes **one participation row** keyed to that engagement id (upsert). Optional field extras (motive, presence, willingness, attendance≠consent) merge onto that row. Community extras still upsert by place.

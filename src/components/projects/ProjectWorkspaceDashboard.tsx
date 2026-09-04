@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { HorizontalBarChart } from "@/components/ops/charts/BarChart";
+import { HorizontalBarChart, VerticalBarChart } from "@/components/ops/charts/BarChart";
+import { FunnelChart } from "@/components/ops/charts/FunnelChart";
+import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { ProjectDossierForm } from "@/components/projects/ProjectDossierForm";
 import { ProjectReportStudio } from "@/components/reports/ProjectReportStudio";
 import { KpiCard } from "@/components/ui/KpiCard";
@@ -18,6 +20,11 @@ import {
   pctLabel,
   zar,
 } from "@/lib/portfolioMetrics";
+import {
+  budgetMixBars,
+  incidentPriorityBars,
+  incidentStatusFunnel,
+} from "@/lib/dashboardOverview";
 import { dossierSummaryLines } from "@/lib/projectDossier";
 import { stakeholderService } from "@/services/stakeholderService";
 import type { Incident } from "@/types/incident";
@@ -76,6 +83,28 @@ export function ProjectWorkspaceDashboard({
   );
   const summary = dossierSummaryLines(project);
   const filledCount = categories.filter((c) => c.hasData).length;
+  const budgetBars = useMemo(
+    () =>
+      budgetMixBars({
+        budget: row.empowermentBudget,
+        spent: row.empowermentSpent,
+        available: row.empowermentAvailable,
+      }),
+    [row],
+  );
+  const priorityBars = useMemo(
+    () => incidentPriorityBars(incidents),
+    [incidents],
+  );
+  const funnel = useMemo(() => incidentStatusFunnel(incidents), [incidents]);
+  const categoryBars = useMemo(
+    () =>
+      categories.map((cat) => ({
+        label: cat.label.slice(0, 22),
+        value: cat.hasData ? 1 : 0,
+      })),
+    [categories],
+  );
 
   return (
     <div className="space-y-7">
@@ -96,12 +125,10 @@ export function ProjectWorkspaceDashboard({
           <ProjectStatusChip status={project.status} />
         </div>
         <p className="max-w-2xl text-sm text-tl-ink-muted">
-          Capture, monitor, and edit this project here. Categories below map
-          straight into report templates — generate with kind, format, and
-          level, then view full-screen, download, or print in that format.
-          Feeds the{" "}
+          Overall graphs for this project. Capture, categories, and reports stay
+          below. Feeds the{" "}
           <Link href="/app/dashboard" className="text-tl-trust-ink underline">
-            Executive dashboard
+            workspace overview
           </Link>
           .
         </p>
@@ -113,7 +140,6 @@ export function ProjectWorkspaceDashboard({
           value={zar(row.empowermentBudget)}
         />
         <KpiCard label="Spent" value={zar(row.empowermentSpent)} />
-        <KpiCard label="Available" value={zar(row.empowermentAvailable)} />
         <KpiCard
           label="Achieved"
           value={pctLabel(row.empowermentPct)}
@@ -123,29 +149,60 @@ export function ProjectWorkspaceDashboard({
               : "default"
           }
         />
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Open cases" value={String(row.openCases)} />
         <KpiCard
           label="Trust pulse"
           value={`${row.trustIndex}/100`}
         />
-        <KpiCard
-          label="Categories with data"
-          value={`${filledCount} / ${categories.length}`}
-        />
-        <KpiCard
-          label="B-BBEE / hire"
-          value={
-            row.bbbeeLevelTarget ||
-            (row.localHirePct != null ? pctLabel(row.localHirePct) : "—")
-          }
-        />
       </div>
 
-      <SepDashboardPanel planId={planId} projectId={project.id} />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <OverviewChartCard title="Budget mix" hint="Budget, spent, available">
+          {budgetBars.length ? (
+            <HorizontalBarChart bars={budgetBars} maxHeight={160} />
+          ) : (
+            <p className="text-sm text-tl-ink-muted">No budget figures yet.</p>
+          )}
+        </OverviewChartCard>
+        <OverviewChartCard
+          title="Open cases by priority"
+          hint="This project only"
+        >
+          {priorityBars.length ? (
+            <VerticalBarChart bars={priorityBars} />
+          ) : (
+            <p className="text-sm text-tl-ink-muted">No open cases.</p>
+          )}
+        </OverviewChartCard>
+        <OverviewChartCard
+          title="Category fill"
+          hint="Report categories with data on file"
+        >
+          <HorizontalBarChart bars={categoryBars} maxHeight={180} />
+        </OverviewChartCard>
+        <OverviewChartCard title="Case pipeline" hint="This project">
+          {incidents.length ? (
+            <FunnelChart steps={funnel} />
+          ) : (
+            <p className="text-sm text-tl-ink-muted">No cases yet.</p>
+          )}
+        </OverviewChartCard>
+      </div>
 
+      <details className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
+          Engagement plans
+        </summary>
+        <div className="mt-4">
+          <SepDashboardPanel planId={planId} projectId={project.id} />
+        </div>
+      </details>
+
+      <details className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
+          Category data, capture, and reports ({filledCount}/{categories.length}{" "}
+          filled)
+        </summary>
+        <div className="mt-4 space-y-6">
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -207,10 +264,14 @@ export function ProjectWorkspaceDashboard({
           categories={categories}
         />
       </section>
+        </div>
+      </details>
 
-      <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold text-tl-ink">Cases on this project</h2>
+      <details className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
+        <summary className="cursor-pointer font-semibold text-tl-ink">
+          Cases on this project
+        </summary>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <Link
             href={`/app/issues/report?projectId=${encodeURIComponent(project.id)}`}
             className="text-sm font-medium text-tl-trust-ink underline"
@@ -219,11 +280,11 @@ export function ProjectWorkspaceDashboard({
           </Link>
         </div>
         {incidents.length === 0 ? (
-          <p className="text-tl-ink-muted">
+          <p className="mt-3 text-tl-ink-muted">
             No incidents yet — log issues or capture an Issue log pathway.
           </p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="mt-3 space-y-2">
             {incidents.slice(0, 12).map((incident) => (
               <li key={incident.id}>
                 <Link
@@ -237,7 +298,7 @@ export function ProjectWorkspaceDashboard({
             ))}
           </ul>
         )}
-      </section>
+      </details>
     </div>
   );
 }

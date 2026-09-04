@@ -6,18 +6,25 @@ import {
   HorizontalBarChart,
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
+import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
 import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
-import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
+import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
+import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
 import { hasCapability } from "@/lib/entitlements";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
+  engagementSentimentBars,
+  incidentPriorityBars,
+  incidentStatusFunnel,
+  projectStatusBars,
+} from "@/lib/dashboardOverview";
+import {
   buildPortfolioOverview,
   pctLabel,
-  zar,
 } from "@/lib/portfolioMetrics";
 import { isExecutiveDashboardProject } from "@/lib/projectCategoryMap";
 import {
@@ -45,8 +52,7 @@ type Props = {
 };
 
 /**
- * Executive portfolio dashboard — overview of every project, then drill into
- * a project workspace for inputs and reports.
+ * Executive portfolio dashboard — overall graphs for the workspace.
  */
 export function ExecutivePortfolioDashboard({
   role,
@@ -93,13 +99,6 @@ export function ExecutivePortfolioDashboard({
     () => projects.filter(isExecutiveDashboardProject),
     [projects],
   );
-  const parked = useMemo(
-    () =>
-      projects.filter(
-        (p) => p.status === "Completed" || p.status === "Closed",
-      ),
-    [projects],
-  );
   const overview = useMemo(
     () => buildPortfolioOverview(openProjects, incidents),
     [openProjects, incidents],
@@ -122,31 +121,136 @@ export function ExecutivePortfolioDashboard({
     }))
     .slice(0, 8);
 
+  const statusBars = useMemo(
+    () => projectStatusBars(openProjects),
+    [openProjects],
+  );
+  const priorityBars = useMemo(
+    () => incidentPriorityBars(incidents),
+    [incidents],
+  );
+  const funnel = useMemo(
+    () => incidentStatusFunnel(incidents),
+    [incidents],
+  );
+  const sentimentBars = useMemo(
+    () => engagementSentimentBars(engagements),
+    [engagements],
+  );
+
   return (
-    <div className="space-y-7">
+    <div className="space-y-8">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
-          <p className="text-sm font-medium text-tl-trust">Executive dashboard</p>
+          <p className="text-sm font-medium text-tl-trust">Overview</p>
           <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
-            {isPlanOwner
-              ? "Plan executive view"
-              : "Projects you work on"}
+            Workspace health
           </h1>
           <p className="max-w-2xl text-sm text-tl-ink-muted">
-            This plan is a container of module dashboards. The roll-up below
-            shows each included desk’s contribution to overall progress. Open a
-            module for evidence, then return here. Desk: {DESK_TIER_LABELS[tier]}.
+            Overall graphs for this workspace. Open a module for records and
+            evidence. Desk: {DESK_TIER_LABELS[tier]}
+            {isPlanOwner ? " · Plan Owner" : ""}.
           </p>
         </div>
-        {showNotesPulse ? (
-          <Link
-            href="/app/engagement-plan"
-            className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-          >
-            Engagement plan module
-          </Link>
-        ) : null}
+        <DashboardOverviewToolbar
+          extra={
+            showNotesPulse
+              ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
+              : []
+          }
+        />
       </header>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Projects" value={String(totals.projectCount)} />
+        <KpiCard
+          label="Empowerment achieved"
+          value={pctLabel(totals.empowermentPct)}
+          tone={
+            totals.empowermentPct != null && totals.empowermentPct >= 80
+              ? "default"
+              : "attention"
+          }
+        />
+        <KpiCard label="Open cases" value={String(totals.openCases)} />
+        <KpiCard
+          label="Avg trust pulse"
+          value={totals.avgTrust != null ? `${totals.avgTrust}/100` : "—"}
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <OverviewChartCard
+          title="Project status"
+          hint="Active workspace mix"
+        >
+          {statusBars.length ? (
+            <VerticalBarChart bars={statusBars} />
+          ) : (
+            <p className="text-sm text-tl-ink-muted">No projects yet.</p>
+          )}
+        </OverviewChartCard>
+        <OverviewChartCard
+          title="Case pipeline"
+          hint="Open through closed"
+        >
+          {incidents.length ? (
+            <FunnelChart steps={funnel} />
+          ) : (
+            <p className="text-sm text-tl-ink-muted">No cases yet.</p>
+          )}
+        </OverviewChartCard>
+        <OverviewChartCard
+          title="Open cases by priority"
+          hint="P1–P4 across the workspace"
+        >
+          {priorityBars.length ? (
+            <VerticalBarChart bars={priorityBars} />
+          ) : (
+            <p className="text-sm text-tl-ink-muted">No open cases.</p>
+          )}
+        </OverviewChartCard>
+        {spendBars.length > 0 ? (
+          <OverviewChartCard
+            title="Empowerment spend"
+            hint="Achieved % by project"
+          >
+            <HorizontalBarChart bars={spendBars} maxHeight={200} />
+          </OverviewChartCard>
+        ) : hireBars.length > 0 ? (
+          <OverviewChartCard
+            title="Local hire vs target"
+            hint="Achieved % by project"
+          >
+            <VerticalBarChart bars={hireBars} />
+          </OverviewChartCard>
+        ) : showNotesPulse && sentimentBars.length > 0 ? (
+          <OverviewChartCard
+            title="Note sentiment mix"
+            hint="Applied note sentiment — not a trust observation"
+          >
+            <VerticalBarChart bars={sentimentBars} />
+          </OverviewChartCard>
+        ) : (
+          <OverviewChartCard
+            title="Empowerment spend"
+            hint="Capture employment or B-BBEE packs to chart spend"
+          >
+            <p className="text-sm text-tl-ink-muted">
+              No empowerment figures on file yet.
+            </p>
+          </OverviewChartCard>
+        )}
+      </div>
+
+      {hireBars.length > 0 && spendBars.length > 0 ? (
+        <OverviewChartCard
+          title="Local hire vs target"
+          hint="Achieved % by project"
+        >
+          <VerticalBarChart bars={hireBars} />
+        </OverviewChartCard>
+      ) : null}
 
       <ModuleContributionBoard
         planId={planId}
@@ -157,85 +261,23 @@ export function ExecutivePortfolioDashboard({
 
       <TrustWorkspaceHub />
 
-      <SepDashboardPanel planId={planId} alwaysShow />
-
-      {showNotesPulse ? (
-        <RelationshipHealthPulse
-          engagements={engagements}
-          levelLabel="Communication notes"
-        />
-      ) : null}
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Projects" value={String(totals.projectCount)} />
-        <KpiCard
-          label="Empowerment budget"
-          value={zar(totals.empowermentBudget)}
-        />
-        <KpiCard
-          label="Empowerment spent"
-          value={zar(totals.empowermentSpent)}
-        />
-        <KpiCard
-          label="Available"
-          value={zar(totals.empowermentAvailable)}
-        />
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          label="Empowerment achieved"
-          value={pctLabel(totals.empowermentPct)}
-          tone={
-            totals.empowermentPct != null && totals.empowermentPct >= 80
-              ? "default"
-              : "attention"
-          }
-        />
-        <KpiCard
-          label="Local hire vs target"
-          value={pctLabel(totals.localHirePct)}
-        />
-        <KpiCard label="Open cases" value={String(totals.openCases)} />
-        <KpiCard
-          label="Avg trust pulse"
-          value={
-            totals.avgTrust != null ? `${totals.avgTrust}/100` : "—"
-          }
-        />
-      </div>
-
-      {(spendBars.length > 0 || hireBars.length > 0) && (
-        <section className="grid gap-4 lg:grid-cols-2">
-          {spendBars.length > 0 ? (
-            <div className="rounded-lg border border-tl-line bg-tl-surface p-4">
-              <h2 className="mb-3 text-base font-semibold text-tl-ink">
-                Empowerment spend by project (%)
-              </h2>
-              <HorizontalBarChart bars={spendBars} maxHeight={200} />
-            </div>
-          ) : null}
-          {hireBars.length > 0 ? (
-            <div className="rounded-lg border border-tl-line bg-tl-surface p-4">
-              <h2 className="mb-3 text-base font-semibold text-tl-ink">
-                Local hire vs target (%)
-              </h2>
-              <VerticalBarChart bars={hireBars} />
-            </div>
-          ) : null}
-        </section>
-      )}
+      <details className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
+          Engagement plans
+        </summary>
+        <div className="mt-4">
+          <SepDashboardPanel planId={planId} alwaysShow />
+        </div>
+      </details>
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-base font-semibold text-tl-ink">
-            Your projects
-          </h2>
+          <h2 className="text-sm font-semibold text-tl-ink">Projects</h2>
           <Link
             href="/app/projects"
             className="text-xs font-medium text-tl-trust-ink hover:underline"
           >
-            Manage projects
+            Open project dashboards
           </Link>
         </div>
         {rows.length === 0 ? (
@@ -244,110 +286,26 @@ export function ExecutivePortfolioDashboard({
             <Link href="/app/capture" className="text-tl-trust-ink underline">
               Capture a project dossier
             </Link>{" "}
-            to start the executive view.
+            to start the overview.
           </p>
         ) : (
-          <ul className="divide-y divide-tl-line overflow-hidden rounded-lg border border-tl-line bg-tl-surface">
-            {rows.map((row) => (
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {rows.slice(0, 6).map((row) => (
               <li key={row.project.id}>
                 <Link
                   href={`/app/projects/${encodeURIComponent(row.project.id)}`}
-                  className="flex flex-wrap items-start justify-between gap-3 px-4 py-3.5 text-sm transition hover:bg-tl-paper"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-tl-line bg-tl-surface px-4 py-3 text-sm hover:bg-tl-paper"
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium text-tl-ink">
-                        {row.project.name}
-                      </span>
-                      <ProjectStatusChip status={row.project.status} />
-                    </div>
-                    <p className="mt-1 text-xs text-tl-ink-muted">
-                      {row.project.clientFunder || "No funder"} ·{" "}
-                      {row.project.ward || row.project.municipality || "Place TBD"}
-                    </p>
-                    <dl className="mt-2 grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
-                      <div>
-                        <dt className="text-tl-ink-muted">Empowerment budget</dt>
-                        <dd className="font-medium tabular-nums">
-                          {zar(row.empowermentBudget)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-tl-ink-muted">Spent / available</dt>
-                        <dd className="font-medium tabular-nums">
-                          {zar(row.empowermentSpent)} ·{" "}
-                          {zar(row.empowermentAvailable)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-tl-ink-muted">Achieved</dt>
-                        <dd className="font-medium tabular-nums">
-                          {pctLabel(row.empowermentPct)}
-                          {row.localHirePct != null
-                            ? ` · hire ${pctLabel(row.localHirePct)}`
-                            : ""}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-tl-ink-muted">B-BBEE target</dt>
-                        <dd>{row.bbbeeLevelTarget || "—"}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-tl-ink-muted">Cases / trust</dt>
-                        <dd>
-                          {row.openCases} open · {row.trustIndex}/100 (
-                          {row.trustLabel})
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-tl-ink-muted">Packs on file</dt>
-                        <dd>
-                          {[
-                            row.hasEmploymentPack && "Employment",
-                            row.hasBbbeePack && "B-BBEE",
-                            row.hasEsgPack && "ESG",
-                            row.hasGrmPack && "GRM",
-                            row.hasIssueLogPack && "Issue log",
-                          ]
-                            .filter(Boolean)
-                            .join(" · ") || "None yet — capture to fill charts"}
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-                  <span className="shrink-0 text-xs font-medium text-tl-trust-ink">
-                    Open project dashboard →
+                  <span className="min-w-0 truncate font-medium text-tl-ink">
+                    {row.project.name}
                   </span>
+                  <ProjectStatusChip status={row.project.status} />
                 </Link>
               </li>
             ))}
           </ul>
         )}
       </section>
-
-      {parked.length > 0 ? (
-        <section className="space-y-2">
-          <h2 className="text-sm font-semibold text-tl-ink-muted">
-            Completed / closed ({parked.length})
-          </h2>
-          <ul className="divide-y divide-tl-line overflow-hidden rounded-lg border border-dashed border-tl-line bg-tl-surface text-sm">
-            {parked.map((project) => (
-              <li key={project.id}>
-                <Link
-                  href={`/app/projects/${encodeURIComponent(project.id)}`}
-                  className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 hover:bg-tl-paper"
-                >
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium text-tl-ink">{project.name}</span>
-                    <ProjectStatusChip status={project.status} />
-                  </span>
-                  <span className="text-xs text-tl-trust-ink">Open →</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
     </div>
   );
 }

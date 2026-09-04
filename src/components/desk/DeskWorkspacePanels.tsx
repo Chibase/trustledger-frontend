@@ -6,6 +6,7 @@ import {
   HorizontalBarChart,
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
+import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { IncidentTable } from "@/components/ui/IncidentTable";
 import { TrustPulse } from "@/components/trust/TrustPulse";
 import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
@@ -66,6 +67,8 @@ type DeskWorkspacePanelsProps = {
   seedIncidents?: Incident[];
   seedProjects?: Project[];
   showProjectList?: boolean;
+  /** Overall desk graphs. Hide when the parent page already charts the same mix. */
+  showGraphs?: boolean;
   planId?: import("@/config/plans").PlanId | null;
 };
 
@@ -77,6 +80,7 @@ export function DeskWorkspacePanels({
   seedIncidents = [],
   seedProjects = [],
   showProjectList = true,
+  showGraphs = true,
   planId = null,
 }: DeskWorkspacePanelsProps) {
   const [tier, setTier] = useState<DeskTier>("clo");
@@ -172,68 +176,65 @@ export function DeskWorkspacePanels({
       ) : null}
 
       {hasCapability("engagements", planId) ? (
-        <RelationshipHealthPulse
-          engagements={engagements}
-          levelLabel="Communication notes"
-        />
+        <details className="rounded-lg border border-tl-line bg-tl-surface p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
+            Note sentiment
+          </summary>
+          <div className="mt-3">
+            <RelationshipHealthPulse
+              engagements={engagements}
+              levelLabel="Communication notes"
+            />
+          </div>
+        </details>
       ) : null}
 
       {canSee("supervisorQueue", tier, matrix) &&
       hasCapability("supervisorQueue", planId) ? (
-        <section className="space-y-3">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-base font-semibold text-tl-ink">
-              Ranked filings (CLO / site → supervisor)
-            </h2>
-            <Link
-              href="/app/incidents"
-              className="text-xs font-medium text-tl-trust-ink hover:underline"
-            >
-              All incidents
-            </Link>
-          </div>
-          <p className="text-xs text-tl-ink-muted">
+        <details className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
+            Ranked filings (CLO / site → supervisor)
+          </summary>
+          <p className="mt-2 text-xs text-tl-ink-muted">
             Sorted by urgency, SLA pressure, then sentiment (lower = hotter).
           </p>
           <IncidentTable
             incidents={ranked.slice(0, 10)}
             emptyLabel="No open junior filings in the queue."
           />
-        </section>
+        </details>
       ) : null}
 
-      {canSee("graphs", tier, matrix) &&
+      {showGraphs &&
+      canSee("graphs", tier, matrix) &&
       hasCapability("deskGraphs", planId) ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-            <h2 className="text-base font-semibold text-tl-ink">
-              Open by priority
-            </h2>
-            <div className="mt-4">
-              <VerticalBarChart bars={byPriority} />
-            </div>
-          </section>
-          <section className="rounded-lg border border-tl-line bg-tl-surface p-4">
-            <h2 className="text-base font-semibold text-tl-ink">
-              {canSee("esgSignals", tier, matrix)
+        <div className="grid gap-4 lg:grid-cols-2">
+          <OverviewChartCard title="Open by priority" hint="Overall open cases">
+            <VerticalBarChart bars={byPriority} />
+          </OverviewChartCard>
+          <OverviewChartCard
+            title={
+              canSee("esgSignals", tier, matrix)
                 ? "Nature / ESG mix"
-                : "Open vs turnaround pressure"}
-            </h2>
-            <div className="mt-4">
-              {canSee("esgSignals", tier, matrix) ? (
-                <HorizontalBarChart bars={byNature} />
-              ) : (
-                <HorizontalBarChart bars={tatBars} />
-              )}
-            </div>
-          </section>
+                : "Open vs turnaround pressure"
+            }
+            hint="Workspace totals"
+          >
+            {canSee("esgSignals", tier, matrix) ? (
+              <HorizontalBarChart bars={byNature} />
+            ) : (
+              <HorizontalBarChart bars={tatBars} />
+            )}
+          </OverviewChartCard>
         </div>
       ) : null}
 
       {showProjectList ? (
-        <section className="space-y-3">
-          <div className="flex items-baseline justify-between gap-2">
-            <h2 className="text-base font-semibold text-tl-ink">Projects</h2>
+        <details className="space-y-3 rounded-lg border border-tl-line bg-tl-surface p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
+            Projects
+          </summary>
+          <div className="mt-3 flex items-baseline justify-between gap-2">
             <Link
               href="/app/projects"
               className="text-xs font-medium text-tl-trust-ink hover:underline"
@@ -270,7 +271,7 @@ export function DeskWorkspacePanels({
               </li>
             ) : null}
           </ul>
-        </section>
+        </details>
       ) : null}
     </div>
   );
