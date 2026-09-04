@@ -7,6 +7,7 @@ import { stakeholderService } from "@/services/stakeholderService";
 import { getActiveOrgId } from "@/lib/orgStore";
 import {
   buildTrustIntelligenceFromSrm,
+  listClaimVerificationStamps,
   loadTrustLayerBucketAsync,
   type TrustIntelligenceBrief,
 } from "@/lib/trust";
@@ -36,8 +37,10 @@ export function TrustIntelligencePanel() {
         commitmentService.list(),
         stakeholderService.list(),
       ]);
-      const orgId = getActiveOrgId();
-      const stored = orgId ? await loadTrustLayerBucketAsync(orgId) : null;
+      const orgId = getActiveOrgId() || "local";
+      const stored = getActiveOrgId()
+        ? await loadTrustLayerBucketAsync(orgId)
+        : null;
       const next = buildTrustIntelligenceFromSrm(
         {
           incidents,
@@ -50,6 +53,7 @@ export function TrustIntelligencePanel() {
           storedObservations: stored?.observations,
           storedParticipation: stored?.participation,
           storedCommunity: stored?.community,
+          claimVerifications: listClaimVerificationStamps(orgId),
         },
       );
       setBrief(next);

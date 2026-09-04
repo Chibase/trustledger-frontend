@@ -130,4 +130,24 @@ describe("TE-10 trust-claim verification", () => {
     });
     expect(JSON.stringify(trustIndexFromIncidents(incidents))).toBe(before);
   });
+
+  it("feeds human-apply stamps into intelligence and the local org fallback", () => {
+    const storage = createMemoryClaimVerificationStorage();
+    const observation = obs("TRO-intel", { evidenceIds: ["EVD-intel"] });
+    const claim = composeTrustProofReport({
+      observations: [observation],
+    }).claims.find((row) => row.dimension === "process")!;
+    applyClaimVerification(
+      { orgId: "local", claim, verifiedAt: "2026-09-04T12:00:00.000Z" },
+      storage,
+    );
+    const stamps = listClaimVerificationStamps("local", storage);
+    expect(stamps).toHaveLength(1);
+    const brief = composeTrustIntelligence({
+      observations: [observation],
+      claimVerifications: stamps,
+    });
+    expect(brief.advisory.supportNotes.join(" ")).toMatch(/verified 1/i);
+    expect(brief.markdown).toMatch(/verified 1/i);
+  });
 });
