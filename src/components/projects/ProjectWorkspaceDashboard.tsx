@@ -100,7 +100,7 @@ export function ProjectWorkspaceDashboard({
   const categoryBars = useMemo(
     () =>
       categories.map((cat) => ({
-        label: cat.label.slice(0, 22),
+        label: cat.label,
         value: cat.hasData ? 1 : 0,
       })),
     [categories],

@@ -18,12 +18,12 @@ export function HorizontalBarChart({
 
   return (
     <ul className="space-y-3" style={{ minHeight: maxHeight / 2 }}>
-      {bars.map((bar) => {
+      {bars.map((bar, index) => {
         const pct = Math.round((bar.value / max) * 100);
         return (
-          <li key={bar.label}>
+          <li key={`${index}-${bar.label}`}>
             <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
-              <span>{bar.label}</span>
+              <span className="min-w-0 truncate">{bar.label}</span>
               <span className="font-medium tabular-nums">{bar.value}</span>
             </div>
             <div className="h-2.5 overflow-hidden rounded-sm bg-tl-paper">
@@ -62,7 +62,7 @@ export function VerticalBarChart({ bars }: { bars: Bar[] }) {
         const x = padX + i * (barW + gap);
         const y = height - h;
         return (
-          <g key={bar.label}>
+          <g key={`${i}-${bar.label}`}>
             <rect
               x={x}
               y={y}

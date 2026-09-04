@@ -49,7 +49,7 @@ function displayBars(
 ): { label: string; value: number }[] {
   return rows
     .map((row) => ({
-      label: row.label.slice(0, 28),
+      label: row.label,
       value: trustMeanToDisplay(row.mean),
     }))
     .filter((row): row is { label: string; value: number } => row.value != null);

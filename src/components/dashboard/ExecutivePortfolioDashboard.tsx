@@ -108,7 +108,7 @@ export function ExecutivePortfolioDashboard({
   const spendBars = rows
     .filter((r) => r.empowermentBudget > 0)
     .map((r) => ({
-      label: r.project.name.split("—")[0]?.trim().slice(0, 22) || r.project.id,
+      label: r.project.name.split("—")[0]?.trim() || r.project.id,
       value: r.empowermentPct ?? 0,
     }))
     .slice(0, 8);
@@ -116,7 +116,7 @@ export function ExecutivePortfolioDashboard({
   const hireBars = rows
     .filter((r) => r.localHirePct != null)
     .map((r) => ({
-      label: r.project.name.split("—")[0]?.trim().slice(0, 22) || r.project.id,
+      label: r.project.name.split("—")[0]?.trim() || r.project.id,
       value: r.localHirePct ?? 0,
     }))
     .slice(0, 8);
@@ -163,7 +163,7 @@ export function ExecutivePortfolioDashboard({
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Projects" value={String(projects.length)} />
+        <KpiCard label="Open projects" value={String(totals.projectCount)} />
         <KpiCard
           label="Empowerment achieved"
           value={pctLabel(totals.empowermentPct)}
