@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-04 — TE-5 Global South operating adaptations
+
+- Optional community context (history, power structure, social sensitivity, barrier tags, language, oral source) on the parallel trust layer. `docs/TRUST_GLOBAL_SOUTH.md`.
+- Field capture: collapsed **Field context (optional)** for rapid / oral / low-connectivity notes, spoken vs working language (not defaulted to English), and participation realism (mixed motives, presence ≠ consent). Existing dropdowns stay. Drafts do not auto-save to `tl-trust-layer`.
+- Authority roles derived from existing stakeholder `kind` + tags (traditional, ward, community leader, informal influencer, institutional). High influence is not treated as informal influence.
+- TE-1–TE-4 scoring, alerts, Trust pulse, and SRM save paths unchanged. Context can feed later analytics via `summarizeCommunityContextForIntel`.
+
 ## 2026-09-04 — TE-4 trust intelligence and recommendations
 
 - Optional rule-based suggestions (repair, next engagement, follow-up, consider senior review) plus alerts for declining trust, missing evidence, weak participation, and unresolved cases. `docs/TRUST_INTELLIGENCE.md`.

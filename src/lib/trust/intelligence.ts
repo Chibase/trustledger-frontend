@@ -4,6 +4,8 @@
  */
 
 import { recommendTrustActions, collectTrustAlerts } from "@/lib/trust/recommendations";
+import { summarizeCommunityContextForIntel } from "@/lib/trust/communityContext";
+import { summarizeParticipationRealismForIntel } from "@/lib/trust/participationRealism";
 import { buildTrustProofFromSrm, composeTrustProofReport } from "@/lib/trust/proofReport";
 import type {
   BuildTrustProofExtra,
@@ -13,6 +15,10 @@ import type {
 import type { DeriveTrustLayerInput } from "@/lib/trust/derive";
 import type { Incident } from "@/types/incident";
 import type { TrustAlert, TrustRecommendation } from "@/lib/trust/rules";
+import type {
+  TrustCommunityContext,
+  TrustParticipationRecord,
+} from "@/types/trustLayer";
 
 export type TrustSensitiveDrafts = {
   responseSummary: string;
@@ -49,6 +55,23 @@ const ADVISORY_BANNER =
 
 function recLine(row: TrustRecommendation): string {
   return `${row.trace.ruleId}: ${row.action}`;
+}
+
+function attachGlobalSouthContextHints(
+  brief: TrustIntelligenceBrief,
+  input: {
+    community?: TrustCommunityContext[];
+    participation?: TrustParticipationRecord[];
+  },
+): TrustIntelligenceBrief {
+  const hints = [
+    ...summarizeCommunityContextForIntel(input.community || []),
+    ...summarizeParticipationRealismForIntel(input.participation || []),
+  ];
+  if (!hints.length) return brief;
+  brief.advisory.supportNotes = [...brief.advisory.supportNotes, ...hints];
+  brief.markdown = renderIntelligenceMarkdown(brief);
+  return brief;
 }
 
 export function draftTrustSensitiveNotes(input: {
@@ -263,7 +286,11 @@ export function composeTrustIntelligence(
   input: ComposeTrustIntelligenceInput,
 ): TrustIntelligenceBrief {
   const proof = composeTrustProofReport(input);
-  const brief = composeTrustIntelligenceFromProof(proof, input.incidents);
+  let brief = composeTrustIntelligenceFromProof(proof, input.incidents);
+  brief = attachGlobalSouthContextHints(brief, {
+    community: input.community,
+    participation: input.participation,
+  });
   if (input.generatedAt) {
     brief.generatedAt = input.generatedAt;
     brief.markdown = renderIntelligenceMarkdown(brief);
@@ -277,7 +304,11 @@ export function buildTrustIntelligenceFromSrm(
   extra: BuildTrustProofExtra = {},
 ): TrustIntelligenceBrief {
   const proof = buildTrustProofFromSrm(input, extra);
-  const brief = composeTrustIntelligenceFromProof(proof, input.incidents);
+  let brief = composeTrustIntelligenceFromProof(proof, input.incidents);
+  brief = attachGlobalSouthContextHints(brief, {
+    community: extra.storedCommunity,
+    participation: extra.storedParticipation,
+  });
   if (extra.generatedAt) {
     brief.generatedAt = extra.generatedAt;
     brief.markdown = renderIntelligenceMarkdown(brief);
