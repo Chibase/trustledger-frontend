@@ -29,3 +29,5 @@ Additive TypeScript fields and helpers on top of the existing SRM desk:
 ## Next packet (not this one)
 
 TE-2 may *display* overlay hints (product-owner sign-off) still without new DocTypes or formula changes. Ledger `create_entry` and KMS signing stay out until `docs/KEY_MANAGEMENT.md` is approved.
+
+**Shipped next:** TE-2 parallel trust-native layer — `docs/TRUST_LAYER.md`.

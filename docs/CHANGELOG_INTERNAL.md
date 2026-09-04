@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-04 — TE-2 parallel trust-native layer
+
+- New first-class trust models (dimensions, observations, explainable status, participation, community context) live **beside** SRM — `docs/TRUST_LAYER.md`.
+- `deriveTrustLayer` reads incidents / engagements / commitments / evidence / stakeholders and does not mutate them. Persist only via `tl-trust-layer` (not `tl-org-data`).
+- No new screens, nav, mandatory forms, DocTypes, or analytics dashboards. Trust pulse formula unchanged.
+
 ## 2026-09-04 — TE-1 trust overlay (non-breaking)
 
 - Additive frontend overlay only (`docs/TRUST_OVERLAY.md`). No new DocTypes, routes, nav, or workflow changes. Trust pulse formula (`trustIndexFromIncidents`) is unchanged and not wired to the overlay.
