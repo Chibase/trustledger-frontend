@@ -3,17 +3,40 @@
  */
 
 import { PLANS, type PlanId } from "@/config/plans";
-import type { TlMode } from "@/lib/auth.constants";
+import { TL_USER_EMAIL_COOKIE, type TlMode } from "@/lib/auth.constants";
+import { isVipShowcaseDefaultEmail } from "@/lib/vipShowcaseIdentity";
 
 export function isVipCustomerName(name: string | null | undefined): boolean {
   return Boolean(name && /^VIP Pilot\b/i.test(name.trim()));
 }
 
-/** Complimentary VIP illustrative showcase (browser) vs live Cloud VIP. */
+function readDocumentEmail(): string {
+  if (typeof document === "undefined") return "";
+  const row = document.cookie
+    .split("; ")
+    .find((part) => part.startsWith(`${TL_USER_EMAIL_COOKIE}=`));
+  if (!row) return "";
+  return decodeURIComponent(row.split("=").slice(1).join("="))
+    .trim()
+    .toLowerCase();
+}
+
+/** Session mailbox: explicit argument, else the browser cookie. */
+export function resolveVipShowcaseEmail(email?: string | null): string {
+  if (email && email.includes("@")) return email.trim().toLowerCase();
+  return readDocumentEmail();
+}
+
+/**
+ * Illustrative NCGR-B workspace: Thozamile's trial + VIP mailbox only.
+ * Other complimentary VIP (Cloud guests) are Institutional, not the showcase.
+ */
 export function isVipShowcaseWorkspace(
   mode?: TlMode | null,
   isVip?: boolean,
+  email?: string | null,
 ): boolean {
+  if (!isVipShowcaseDefaultEmail(resolveVipShowcaseEmail(email))) return false;
   return mode === "trial" && Boolean(isVip);
 }
 

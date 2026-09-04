@@ -3,6 +3,8 @@
  * Demo seed + trial localStorage; Frappe DocTypes later.
  */
 
+import type { StakeholderTrustResponse } from "@/types/trustOverlay";
+
 export type StakeholderKind =
   | "individual"
   | "organisation"
@@ -50,6 +52,11 @@ export type Stakeholder = {
   source?: "seed" | "trial" | "live";
   createdAt?: string;
   updatedAt?: string;
+  /**
+   * TE-1 overlay — later person/group trust attitudes.
+   * Optional; omitted on Cloud writes. Does not replace kind / influence.
+   */
+  trustResponse?: StakeholderTrustResponse;
 };
 
 export const STAKEHOLDER_KIND_LABELS: Record<StakeholderKind, string> = {

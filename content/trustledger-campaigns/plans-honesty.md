@@ -5,7 +5,7 @@ brand: trustledger
 kind: saas-spotlight
 channel: social
 cta_label: See plans
-cta_url: https://trustledger.co.za/
+cta_url: https://trustledgersrm.co.za/
 platforms: linkedin
 ---
 
@@ -20,4 +20,4 @@ Stakeholder CRM, engagements, and commitments sit on Project and Institutional (
 
 Our public voice is Trust. Not vendor names. Not auto-magic.
 
-Resolution you can audit. https://trustledger.co.za/
+Resolution you can audit. https://trustledgersrm.co.za/

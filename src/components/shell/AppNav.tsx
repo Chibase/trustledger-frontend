@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { PlanId } from "@/config/plans";
-import { hasCapability, resolveClientPlanId } from "@/lib/entitlements";
+import { includedDashboardKeys, PLAN_DASHBOARD_CATALOG } from "@/config/tierFlow";
+import { hasCapability, hasCapabilityForPlan } from "@/lib/entitlements";
+import { packagingPlanId } from "@/lib/planPackaging";
+import type { TlMode } from "@/lib/auth.constants";
 import type { CapabilityId } from "@/types/entitlements";
 import type { UserRole } from "@/types/rbac";
 
@@ -216,30 +219,79 @@ type AppNavProps = {
   role: UserRole;
   variant?: "light" | "ink";
   planId?: PlanId | null;
+  vip?: boolean;
+  mode?: TlMode | null;
 };
 
-export function AppNav({ role, variant = "light", planId }: AppNavProps) {
+function allowedHrefMap(
+  planId: PlanId | null | undefined,
+  vip: boolean,
+  mode: TlMode | null | undefined,
+  ownerToggles: boolean,
+): Record<string, boolean> {
+  const resolved = packagingPlanId({ planId, vip, mode });
+  const flowHrefs = new Set(
+    includedDashboardKeys(resolved).map(
+      (key) => PLAN_DASHBOARD_CATALOG[key].href,
+    ),
+  );
+  const capOk = (capability?: CapabilityId) => {
+    if (!capability) return true;
+    return ownerToggles
+      ? hasCapability(capability, resolved)
+      : hasCapabilityForPlan(capability, resolved);
+  };
+  const map: Record<string, boolean> = {};
+  for (const item of NAV) {
+    const isPackaged = Object.values(PLAN_DASHBOARD_CATALOG).some(
+      (row) => row.href === item.href,
+    );
+    if (isPackaged) {
+      map[item.href] = flowHrefs.has(item.href) && capOk(item.capability);
+    } else {
+      map[item.href] = capOk(item.capability);
+    }
+  }
+  return map;
+}
+
+export function AppNav({
+  role,
+  variant = "light",
+  planId,
+  vip = false,
+  mode = null,
+}: AppNavProps) {
   const pathname = usePathname();
-  const [capsReady, setCapsReady] = useState(false);
-  const [allowed, setAllowed] = useState<Record<string, boolean>>({});
+  const [allowed, setAllowed] = useState(() =>
+    allowedHrefMap(planId, vip, mode, false),
+  );
 
   useEffect(() => {
-    const map: Record<string, boolean> = {};
-    for (const item of NAV) {
-      map[item.href] = item.capability
-        ? hasCapability(item.capability, resolveClientPlanId(planId))
-        : true;
-    }
     const handle = window.setTimeout(() => {
-      setAllowed(map);
-      setCapsReady(true);
+      setAllowed(allowedHrefMap(planId, vip, mode, true));
     }, 0);
     return () => window.clearTimeout(handle);
-  }, [planId]);
+  }, [planId, vip, mode]);
 
-  const items = NAV.filter((item) => {
+  const catalogOrder = includedDashboardKeys(
+    packagingPlanId({ planId, vip, mode }),
+  );
+  const items = [...NAV]
+    .sort((a, b) => {
+      const ia = catalogOrder.findIndex(
+        (key) => PLAN_DASHBOARD_CATALOG[key].href === a.href,
+      );
+      const ib = catalogOrder.findIndex(
+        (key) => PLAN_DASHBOARD_CATALOG[key].href === b.href,
+      );
+      if (ia === -1 && ib === -1) return 0;
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    })
+    .filter((item) => {
     if (item.roles && !item.roles.includes(role)) return false;
-    if (!capsReady) return !item.capability || item.capability === "dashboard";
     return allowed[item.href] !== false;
   });
   const ink = variant === "ink";

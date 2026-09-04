@@ -3,6 +3,20 @@
  * Email MX stays on Webway; these hosts only serve HTTPS sites.
  */
 
+/** Public marketing apex (ADR-057). Product UI stays on Vercel. */
+export const TRUSTLEDGER_APEX_DOMAIN = "trustledgersrm.co.za";
+
+/** Retired public apex — CSP + mail fallback only during DNS cutover. */
+export const TRUSTLEDGER_LEGACY_APEX_DOMAIN = "trustledger.co.za";
+
+export const TRUSTLEDGER_CLOUD_HOST = `app.${TRUSTLEDGER_APEX_DOMAIN}`;
+export const TRUSTLEDGER_CLOUD_URL = `https://${TRUSTLEDGER_CLOUD_HOST}`;
+export const TRUSTLEDGER_MARKETING_URL = `https://${TRUSTLEDGER_APEX_DOMAIN}`;
+export const TRUSTLEDGER_WWW_URL = `https://www.${TRUSTLEDGER_APEX_DOMAIN}`;
+export const TRUSTLEDGER_INFO_EMAIL = `info@${TRUSTLEDGER_APEX_DOMAIN}`;
+export const TRUSTLEDGER_SALES_EMAIL = `sales@${TRUSTLEDGER_APEX_DOMAIN}`;
+export const TRUSTLEDGER_NOREPLY_EMAIL = `noreply@${TRUSTLEDGER_APEX_DOMAIN}`;
+
 export const CHIBASE_CANONICAL_HOST = "chibaseconsulting.co.za";
 
 export const TRUSTLEDGER_PRODUCT_URL = (

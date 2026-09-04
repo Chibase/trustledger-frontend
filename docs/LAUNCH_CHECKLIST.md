@@ -4,7 +4,7 @@
 
 - Demo soft-gate leads → HubSpot (`POST /api/demo/lead`)
 - Assessment lead fails closed in production if HubSpot unset
-- Contact email unified to `info@trustledger.co.za`
+- Contact email unified to `info@trustledgersrm.co.za`
 - Privacy Policy links on assessment + demo lead forms
 - Login copy no longer says “Dev”
 - `NEXT_PUBLIC_DEV_ROLE` ignored in Vercel production
@@ -31,7 +31,7 @@ Follow **`docs/PUBLIC_LAUNCH.md`** end-to-end. Short form:
 8. **Cursor Bugbot** — enable on this GitHub repo; PRs use `.cursor/BUGBOT.md`.
 9. **Security Agents** (Team) — run before/after live key cutover.
 10. **HubSpot** — confirm Trial Authorize / Opt-Out / demo leads.
-11. **Legal** — Privacy + Terms on `trustledger.co.za` (real entity details).
+11. **Legal** — Privacy + Terms on `trustledgersrm.co.za` (real entity details).
 12. **WordPress CTAs** — point Subscribe at `/pay`, explore at `/trial` (`docs/WORDPRESS_CTA.md`).
 
 ## Recommended launch mode

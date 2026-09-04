@@ -29,6 +29,7 @@ export type ReportPackDef = {
   defaultKind:
     | "monthly_activity"
     | "board_investor"
+    | "executive_risk"
     | "esg"
     | "grm";
   defaultAudience:
@@ -56,11 +57,11 @@ export const REPORT_PACKS: Record<ReportPackId, ReportPackDef> = {
     label: "Executive risk brief",
     shortLabel: "Executive",
     description:
-      "Strategic issues and high-risk hotspots, mainly in graphs — for CEO / MD and delivery leadership.",
-    composition: "Graphs · strategic & high risk",
+      "Identified issues, project impact, mitigation stage, expected outcome, and what executives can expedite.",
+    composition: "Risk register · impact & mitigation",
     minPlan: "project",
     minDesk: "delivery",
-    defaultKind: "esg",
+    defaultKind: "executive_risk",
     defaultAudience: "board",
   },
   board_presentation: {
@@ -68,8 +69,8 @@ export const REPORT_PACKS: Record<ReportPackId, ReportPackDef> = {
     label: "Board / client / funder pack",
     shortLabel: "Board pack",
     description:
-      "Presentation-ready assurance slides: portfolio trust, escalations, and asks for clients, board, and funders.",
-    composition: "Presentation · board & funders",
+      "High-level assurance for clients, board, and funders — snapshot, material items, and asks. Not the monthly activity dump.",
+    composition: "High-level · board & funders",
     minPlan: "institutional",
     minDesk: "executive",
     defaultKind: "board_investor",

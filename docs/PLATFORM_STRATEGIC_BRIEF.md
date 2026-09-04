@@ -3,7 +3,8 @@
 **Status:** Living document (authoritative for plan packaging, agent training, and ongoing evaluation)  
 **As of:** 2026-07-23  
 **Deploy truth (Production):** `https://trustledger-frontend-pi.vercel.app` · `deploySha` tracked on `/api/health`  
-**Cloud SoT:** `https://app.trustledger.co.za` (Frappe Cloud only — Interserv retired)  
+**Cloud SoT:** `https://app.trustledgersrm.co.za` (Frappe Cloud only — Interserv retired)  
+**Public marketing:** `https://trustledgersrm.co.za` (ADR-057; was trustledger.co.za)  
 **Product name in UI:** TrustLedger only  
 **Pre–paying-client hosting risk:** `docs/HOSTING_CONTINGENCY.md` (uptime watches, Resend, $0 Node standby — not Frappe UI failover)  
 
@@ -191,7 +192,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Item | Decision | Reason |
 |------|----------|--------|
 | Public sample `/demo` guest desk | **Discontinued** (ADR-033) | Bleed risk; confuses trial; weakens SRM story |
-| Interserv / alternate Frappe hosts | **Discontinued** | Single SoT: `app.trustledger.co.za` |
+| Interserv / alternate Frappe hosts | **Discontinued** | Single SoT: `app.trustledgersrm.co.za` |
 | AccordBridge dual branding | **Discontinued** | TrustLedger only |
 | Auto-enter fictional INC-* for buyers | **Discontinued** | ADR-029 / launch hardening |
 | Marketing Version 002 as “fully available” before domain is end-to-end | **Forbidden** | VERSIONING honesty rules |

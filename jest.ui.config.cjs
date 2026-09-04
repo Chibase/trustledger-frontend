@@ -5,6 +5,17 @@ module.exports = {
   testMatch: [
     "<rootDir>/tests/ts/AuditTrailViewer.test.tsx",
     "<rootDir>/tests/ts/vipShowcase.test.ts",
+    "<rootDir>/tests/ts/sepExecution.test.ts",
+    "<rootDir>/tests/ts/sepExecutionDashboard.test.tsx",
+    "<rootDir>/tests/ts/planPackaging.test.ts",
+    "<rootDir>/tests/ts/onboardingGuide.test.ts",
+    "<rootDir>/tests/ts/SetupWizard.test.tsx",
+    "<rootDir>/tests/ts/reportLenses.test.ts",
+    "<rootDir>/tests/ts/trustledgerDomain.test.ts",
+    "<rootDir>/tests/ts/trustOverlay.test.ts",
+    "<rootDir>/tests/ts/trustLayer.test.ts",
+    "<rootDir>/tests/ts/trustAnalytics.test.ts",
+    "<rootDir>/tests/ts/ReportsHub.test.tsx",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {

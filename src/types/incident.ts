@@ -8,6 +8,7 @@ import type {
   IncidentProcessStages,
 } from "@/lib/grievanceProcess";
 import type { DeskTier } from "@/types/deskTier";
+import type { StakeholderTrustResponse } from "@/types/trustOverlay";
 
 export type IncidentStatus =
   | "Open"
@@ -78,4 +79,9 @@ export interface Incident {
   escalationPolicy?: EscalationPolicy;
   /** Professional desk that filed the case (CLO / site / …). */
   filedByTier?: DeskTier;
+  /**
+   * TE-1 overlay — later trust attitudes. Optional; omitted on Cloud writes.
+   * Does not replace `sentimentLabel` / `sentimentScore`.
+   */
+  trustResponse?: StakeholderTrustResponse;
 }

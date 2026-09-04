@@ -2,6 +2,11 @@ import {
   cleanSecret,
   byteStringHeaderErrorMessage,
 } from "@/lib/leadCapture";
+import {
+  TRUSTLEDGER_APEX_DOMAIN,
+  TRUSTLEDGER_LEGACY_APEX_DOMAIN,
+  TRUSTLEDGER_NOREPLY_EMAIL,
+} from "@/lib/security/hosts";
 
 export type TrialWelcomeEmailInput = {
   to: string;
@@ -215,10 +220,12 @@ export async function resolveResendFromAddress(): Promise<{
   const verified = listed.domains
     .filter((d) => isSendCapableResendDomainStatus(d.status) && d.name)
     .map((d) => d.name!.toLowerCase());
-  // Prefer trustledger.co.za when present among verified domains.
+  // Prefer the current marketing apex, then the retired apex during DNS cutover.
   const preferred =
-    verified.find((n) => n === "trustledger.co.za") ||
-    verified.find((n) => n.endsWith(".trustledger.co.za")) ||
+    verified.find((n) => n === TRUSTLEDGER_APEX_DOMAIN) ||
+    verified.find((n) => n.endsWith(`.${TRUSTLEDGER_APEX_DOMAIN}`)) ||
+    verified.find((n) => n === TRUSTLEDGER_LEGACY_APEX_DOMAIN) ||
+    verified.find((n) => n.endsWith(`.${TRUSTLEDGER_LEGACY_APEX_DOMAIN}`)) ||
     verified[0] ||
     null;
   const autoFrom = preferred
@@ -278,7 +285,7 @@ export async function inviteEmailDeliveryReady(): Promise<{
       source: resolved.source,
       verifiedDomains: resolved.verifiedDomains,
       reason:
-        "From address is still onboarding@resend.dev (Resend test sender). Verify trustledger.co.za in Resend and set RESEND_FROM_EMAIL to TrustLedger <noreply@trustledger.co.za>, then Redeploy — or add a verified domain so the app can auto-use noreply@that-domain.",
+        `From address is still onboarding@resend.dev (Resend test sender). Verify ${TRUSTLEDGER_APEX_DOMAIN} in Resend and set RESEND_FROM_EMAIL to TrustLedger <${TRUSTLEDGER_NOREPLY_EMAIL}>, then Redeploy — or add a verified domain so the app can auto-use noreply@that-domain.`,
     };
   }
   return {
@@ -396,10 +403,9 @@ function explainResendFailure(
     return (
       "Resend cannot deliver to that inbox yet: the From address is still on the test sender " +
       "(onboarding@resend.dev) or the domain is not verified. " +
-      "In Resend, verify trustledger.co.za (or your mail domain), then set " +
-      "RESEND_FROM_EMAIL to TrustLedger <noreply@trustledger.co.za> (or another verified address) and Redeploy. " +
-      "Until then, Resend only delivers test mail to the Resend account owner. " +
-      `(${hint}) Detail: ${snippet}`
+      `In Resend, verify ${TRUSTLEDGER_APEX_DOMAIN} (or your mail domain), then set ` +
+      `RESEND_FROM_EMAIL to TrustLedger <${TRUSTLEDGER_NOREPLY_EMAIL}> (or another verified address) and Redeploy. ` +
+      `Until then, Resend only delivers test mail to the Resend account owner. (${hint}) Detail: ${snippet}`
     );
   }
   return `Resend HTTP ${status}: ${snippet} (${hint})`;

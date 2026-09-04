@@ -8,7 +8,7 @@
 - FAQ: https://trustledger-frontend-pi.vercel.app/faq  
 - Assessment: https://trustledger-frontend-pi.vercel.app/assessment  
 - Trial: https://trustledger-frontend-pi.vercel.app/trial  
-- Marketing: https://trustledger.co.za  
+- Marketing: https://trustledgersrm.co.za  
 
 **Cadence:** 2–3 posts/week. Prefer carousel or single image of product UI (dashboard / desk / SI) — no fake INC-* as “your live cases.”  
 **Hashtags (rotate 3–5):** #TrustLedger #SRM #StakeholderEngagement #CommunityTrust #GrievanceManagement #ESG #Infrastructure #SouthAfrica #SocialLicence  

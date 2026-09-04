@@ -6,7 +6,7 @@ Live pilots sign in with Frappe credentials without breaking `/demo`.
 
 ## Approach (BFF)
 
-Vercel (`*.vercel.app`) and Frappe (`app.trustledger.co.za`) are different sites,
+Vercel (`*.vercel.app`) and Frappe (`app.trustledgersrm.co.za`) are different sites,
 so the browser cannot share Frappe’s `sid` cookie reliably.
 
 1. Keep `/demo` on cookie role + mock data (`tl-mode=demo`).
@@ -37,8 +37,8 @@ so the browser cannot share Frappe’s `sid` cookie reliably.
 ## Env
 
 ```
-NEXT_PUBLIC_API_BASE_URL=https://app.trustledger.co.za
-FRAPPE_BASE_URL=https://app.trustledger.co.za   # optional server override
+NEXT_PUBLIC_API_BASE_URL=https://app.trustledgersrm.co.za
+FRAPPE_BASE_URL=https://app.trustledgersrm.co.za   # optional server override
 NEXT_PUBLIC_DATA_MODE=live                      # Step 4
 NEXT_PUBLIC_AI_MOCK=false                       # when AI methods ready
 ```

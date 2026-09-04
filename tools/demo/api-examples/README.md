@@ -4,7 +4,7 @@ Postman collection and curl samples for **staging**. Defaults follow `docs/FRAPP
 
 **Human must confirm actual method names and auth headers before a real import.** Create methods (including `plans.create`) may 404 until Cloud implements them.
 
-Do not put production secrets in this folder. Do not call `app.trustledger.co.za` without explicit human approval.
+Do not put production secrets in this folder. Do not call `app.trustledgersrm.co.za` or the retired `app.trustledger.co.za` host without explicit human approval.
 
 ## Placeholders
 

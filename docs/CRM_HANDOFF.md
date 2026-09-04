@@ -1,7 +1,7 @@
 # CRM handoff: Vercel forms → Frappe (HubSpot out)
 
 **Locked operating model (ADR-034):**  
-**Frappe Cloud** `app.trustledger.co.za` = acquisition **and** relationship system of record.  
+**Frappe Cloud** `app.trustledgersrm.co.za` = acquisition **and** relationship system of record.  
 WordPress = CTAs only. HubSpot = **not required** (emergency fallback only until HS-4).  
 See `docs/HS_CUTOVER.md` and `docs/WEBWAY_CUTOVER.md`.
 

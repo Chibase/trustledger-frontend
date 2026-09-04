@@ -17,6 +17,7 @@ import {
   SESSION_MAX_AGE_SECONDS,
 } from "@/lib/auth.constants";
 import {
+  isVipShowcaseDefaultEmail,
   VIP_SHOWCASE_ORG_NAME,
   VIP_SHOWCASE_PLAN_ID,
   VIP_SHOWCASE_WEEKS,
@@ -150,7 +151,9 @@ export function startVipShowcaseSession(input: {
     email: input.email,
     name: input.name,
     planId: VIP_SHOWCASE_PLAN_ID,
-    organization: VIP_SHOWCASE_ORG_NAME,
+    organization: isVipShowcaseDefaultEmail(input.email)
+      ? VIP_SHOWCASE_ORG_NAME
+      : `VIP Pilot — ${input.name.trim() || "Guest"}`,
     mode: "trial",
     maxAge,
     complimentaryVip: true,

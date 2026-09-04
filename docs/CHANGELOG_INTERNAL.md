@@ -1,5 +1,64 @@
 # Internal changelog
 
+## 2026-09-04 — TE-3 trust analytics and proof reporting
+
+- Optional, explainable trust analytics on the TE-2 layer: period movement (improving / declining / stable / mixed / insufficient), comparisons by community / location / stakeholder group / project-phase proxy, and risk flags (declining, at-risk, low confidence, insufficient evidence). `docs/TRUST_PROOF.md`.
+- Proof summaries (`composeTrustProofReport` / `buildTrustProofFromSrm`) cite claims, evidence ids, history, and participation. No LLM. Does not persist. Does not change monthly / executive / board packs or `trustIndexFromIncidents`.
+- Opt-in collapsed panel on `/app/reports` only — not a pack, not in nav, not required. Customer/trial lists stay own-data (no demo INC-* bleed).
+
+## 2026-09-04 — TE-2 parallel trust-native layer
+
+- New first-class trust models (dimensions, observations, explainable status, participation, community context) live **beside** SRM — `docs/TRUST_LAYER.md`.
+- `deriveTrustLayer` reads incidents / engagements / commitments / evidence / stakeholders and does not mutate them. Persist only via `tl-trust-layer` (not `tl-org-data`).
+- No new screens, nav, mandatory forms, DocTypes, or analytics dashboards. Trust pulse formula unchanged.
+
+## 2026-09-04 — TE-1 trust overlay (non-breaking)
+
+- Additive frontend overlay only (`docs/TRUST_OVERLAY.md`). No new DocTypes, routes, nav, or workflow changes. Trust pulse formula (`trustIndexFromIncidents`) is unchanged and not wired to the overlay.
+- Optional `trustResponse` on incidents, engagements, and stakeholders; optional `trustSupport` on evidence. Cloud resource mappers still post explicit fields only.
+- Helpers: `composeTrustSignals` (measurement), trust-by-place / by-kind grouping, evidence claim filter, opt-in AI overlay (`includeTrustOverlay`, stripped from srm-core payloads).
+- Current AI mock output is identical unless a caller sets the flag. No UI uses the flag yet.
+
+## 2026-09-03 — Public domain trustledgersrm.co.za
+
+- Public apex is **trustledgersrm.co.za** (was trustledger.co.za). Cloud host **app.trustledgersrm.co.za**. Mailboxes `info@` / `sales@` / `noreply@` follow the new apex. Product name stays TrustLedger. Chibase domain unchanged. MX stays Webway.
+- Runtime constants in `src/lib/security/hosts.ts` (marketing CTA fallbacks and Themba copy included). Footer, AEO FAQ, login/settings Cloud host, Resend preference, WordPress paste packs, `public/llms.txt`, and operational docs updated. CSP still allows the retired apex during cutover. Demo import tools still refuse both Cloud hostnames.
+- Historical changelog lines and captured CRM contact CSVs were left as recorded. Ops must still set Webway DNS, Frappe Cloud custom domain, Vercel `FRAPPE_BASE_URL` / `NEXT_PUBLIC_API_BASE_URL` / `RESEND_FROM_EMAIL`, Resend + reCAPTCHA hostnames, and paste the WP packs. ADR-057.
+
+## 2026-09-03 — Report pack Copilot nits
+
+- Funder layout renders both chart groups (delivery position and assurance), not only the first.
+- Executive / funder writer shows a locked brief outline instead of catalogue topic chips that were not composed. Monthly still honours included sections.
+- Evidence writer accepts real workspace case ids (e.g. `INC-NCGR-01`), not only `INC-` plus digits. The old check blocked valid drafts with “Composer did not cite workspace case evidence (INC-*).”
+
+## 2026-09-03 — Report packs are distinct lenses
+
+- Monthly, executive risk brief, and client/funder pack no longer share one “category signals” view plus the same narrative.
+- **Monthly** is the detailed operational pack (activity, issues, meetings, evidence). **Executive risk brief** lists identified issues with project impact, impact level, mitigation in progress, process stage, expected outcome, and what executives can expedite. **Board / client / funder** is a high-level assurance snapshot (trust, material items, asks).
+- Local `reportComposer` writes those lenses; Cloud month-end templates stay blocked. Executive pack default kind is `executive_risk`. Switching kind on the project studio **or** the pack writer clears a stale draft so View matches the selected pack. Funder briefs still cite `INC-*` when every case is closed. Saved monthly narratives are kept; executive/funder library cards prefer cases cited in the saved body.
+- ADR-028 decision 6.
+
+## 2026-09-02 — NCGR-B seed is Thozamile only
+
+- Illustrative NCGR-B preload is **Thozamile KaDlanga** (`thozi@chibaseconsulting.co.za`, `/login/vip`, admin · VIP · trial) only. Other complimentary VIP sessions (Cloud `/login/live` guests) are Institutional and start empty.
+- Seed/purge resolve one mailbox (`email` argument or session cookie) so an empty early render still seeds Thozamile and never seeds a Cloud guest. Showcase pack ids are built once.
+- Ops **C-Suite** board (`/ops/executive`) is unchanged. Cloud VIP Customer rows cannot be cancelled from this environment (no Frappe keys here) — keep the Nomcebo guest; cancel leftover test VIP Pilot Customers in Desk if any remain.
+
+## 2026-09-02 — VIP setup wizard unlocked
+
+- VIP showcase no longer disables the UG-1 setup wizard or hides the executive checklist. Seed does not mark onboarding complete; a one-time restore reopens Guide/Settings launch after older sessions that had been auto-dismissed. The modal still skips auto-open so NCGR-B stays visible. Institutional walkthrough copy (not “desk starts empty”). Leftover Solo cookies still resolve Institutional steps via `packagingPlanId`.
+
+## 2026-09-02 — Plan-as-container dashboards (VIP demo only)
+
+- Commercial plan packages **module dashboards** in a fixed tier sequence (`TIER_FLOW` + advisory gates). SEP is a module, not the plan. Executive landing shows per-module contribution and aggregate progress. Persistent **Plan modules** switcher (executive ↔ module in two clicks). Unauthorized module URLs show the plan upsell. Empty module desks show a guided banner (no preload).
+- VIP illustrative showcase seeds all included desks (including SEP-NCGR-B and ESG-NCGR-B) on login / session sync. Non-VIP and live Cloud VIP stay unseeded. Incidents desk copy does not tell the showcase that nothing is preloaded. `GET /api/app/plans/dashboards` and `GET /api/plans/:id/dashboards`. Legacy `/plans/:id/sep` → `/app/engagement-plan`. ADR-056.
+- Packaging review: `planId` is always a commercial SKU (no `"demo"` sentinel); switcher recomputes suggested-next after owner toggles; SEP list has no dead loading flag; indicator brief upsert returns the stored row.
+
+## 2026-09-02 — SEP plan execution dashboard
+
+- `/app/engagement-plan/[id]` **Plan dashboard** is scoped to that plan: snapshot KPIs, roadmap from submission, task/activity charts, success/hurdle/failure log, mitigations, practitioner snapshot for client/superior. Process map moved to its own tab.
+- Overlay `tl-sep-execution` backfills from the composed plan. Linked SRM rows (applied ids / project) normalise to success/hurdle/failure/mitigated. Runbook: `docs/SEP_EXECUTION.md`.
+
 ## 2026-09-02 — VIP showcase vs live Cloud login
 
 - `thozi@chibaseconsulting.co.za` on `/login/live` is sent to `/login/vip` (409 + client redirect). Cloud 401 was Frappe rejecting the showcase mailbox.

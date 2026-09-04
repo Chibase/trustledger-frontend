@@ -14,6 +14,7 @@ import {
   scrubPublicCopy,
   withUtm,
 } from "@/lib/marketing/voice";
+import { TRUSTLEDGER_MARKETING_URL } from "@/lib/security/hosts";
 
 type GeminiGenerateResponse = {
   candidates?: Array<{
@@ -285,7 +286,7 @@ export async function synthesizeBrief(
     source?.ctaUrl ||
     (brief.brand === "chibase"
       ? "https://chibaseconsulting.co.za/practice"
-      : "https://trustledger.co.za/");
+      : `${TRUSTLEDGER_MARKETING_URL}/`);
   const ctaUrl = withUtm(
     rawCta,
     slugifyBrief(brief.topic),
