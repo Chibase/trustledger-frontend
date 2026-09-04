@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-04 — TE-3 trust analytics and proof reporting
+
+- Optional, explainable trust analytics on the TE-2 layer: period movement (improving / declining / stable / mixed / insufficient), comparisons by community / location / stakeholder group / project-phase proxy, and risk flags (declining, at-risk, low confidence, insufficient evidence). `docs/TRUST_PROOF.md`.
+- Proof summaries (`composeTrustProofReport` / `buildTrustProofFromSrm`) cite claims, evidence ids, history, and participation. No LLM. Does not persist. Does not change monthly / executive / board packs or `trustIndexFromIncidents`.
+- Opt-in collapsed panel on `/app/reports` only — not a pack, not in nav, not required. Customer/trial lists stay own-data (no demo INC-* bleed).
+
 ## 2026-09-04 — TE-2 parallel trust-native layer
 
 - New first-class trust models (dimensions, observations, explainable status, participation, community context) live **beside** SRM — `docs/TRUST_LAYER.md`.

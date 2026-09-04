@@ -14,6 +14,7 @@ module.exports = {
     "<rootDir>/tests/ts/trustledgerDomain.test.ts",
     "<rootDir>/tests/ts/trustOverlay.test.ts",
     "<rootDir>/tests/ts/trustLayer.test.ts",
+    "<rootDir>/tests/ts/trustAnalytics.test.ts",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {
