@@ -8,6 +8,8 @@ import {
   createTrustObservation,
   createTrustParticipation,
   listClaimVerificationStamps,
+  mergeClaimVerificationStampsFromCloud,
+  replaceClaimVerificationStamps,
   summarizeClaimVerification,
 } from "@/lib/trust";
 import { summarizeTrustWorkspace } from "@/lib/trust/workspaceProof";
@@ -149,5 +151,58 @@ describe("TE-10 trust-claim verification", () => {
     });
     expect(brief.advisory.supportNotes.join(" ")).toMatch(/verified 1/i);
     expect(brief.markdown).toMatch(/verified 1/i);
+  });
+
+  it("does not verify from Cloud rows that are not human_apply", () => {
+    const storage = createMemoryClaimVerificationStorage();
+    replaceClaimVerificationStamps(
+      "org-te11",
+      [
+        {
+          id: "TCV-inferred",
+          dimension: "process",
+          fingerprint: "process|EVD-cloud",
+          verifiedAt: "2026-09-04T12:00:00.000Z",
+          source: "inferred" as never,
+        },
+      ],
+      storage,
+    );
+    expect(listClaimVerificationStamps("org-te11", storage)).toEqual([]);
+    const observation = obs("TRO-cloud", { evidenceIds: ["EVD-cloud"] });
+    const claim = composeTrustProofReport({
+      observations: [observation],
+    }).claims.find((row) => row.dimension === "process")!;
+    const extras = mergeClaimVerificationStampsFromCloud(
+      "org-te11",
+      [
+        {
+          id: "TCV-human",
+          dimension: "process",
+          fingerprint: claim.verification.fingerprint,
+          verifiedAt: "2026-09-04T12:00:00.000Z",
+          source: "human_apply",
+        },
+      ],
+      storage,
+    );
+    expect(extras).toEqual([]);
+    expect(listClaimVerificationStamps("org-te11", storage)).toHaveLength(1);
+    const after = composeTrustProofReport({
+      observations: [observation],
+      claimVerifications: listClaimVerificationStamps("org-te11", storage),
+    });
+    expect(
+      after.claims.find((row) => row.dimension === "process")?.verification
+        .status,
+    ).toBe("verified");
+    const unevidenced = composeTrustProofReport({
+      observations: [obs("TRO-cloud")],
+      claimVerifications: listClaimVerificationStamps("org-te11", storage),
+    });
+    expect(
+      unevidenced.claims.find((row) => row.dimension === "process")
+        ?.verification.status,
+    ).toBe("unevidenced");
   });
 });

@@ -17,7 +17,7 @@ import {
   TRUST_CLAIM_VERIFICATION_STATUSES,
   formatClaimVerificationMix,
 } from "@/lib/trust/claimVerification";
-import { applyClaimVerification } from "@/lib/trust/claimVerificationStore";
+import { applyClaimVerificationAsync } from "@/lib/trust/claimVerificationStore";
 import {
   TRUST_PARTICIPATION_QUALITY_CLASSES,
   TRUST_PARTICIPATION_QUALITY_LABELS,
@@ -140,12 +140,15 @@ export function TrustWorkspaceHub() {
     const claim = report?.claims.find((row) => row.dimension === dimension);
     if (!claim) return;
     setApplyingDimension(dimension);
-    applyClaimVerification({
-      orgId: getActiveOrgId() || "local",
-      claim,
-    });
-    await load();
-    setApplyingDimension(null);
+    try {
+      await applyClaimVerificationAsync({
+        orgId: getActiveOrgId() || "local",
+        claim,
+      });
+      await load();
+    } finally {
+      setApplyingDimension(null);
+    }
   }
 
   return (

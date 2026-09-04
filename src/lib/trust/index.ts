@@ -189,9 +189,13 @@ export {
 } from "@/lib/trust/claimVerification";
 export {
   applyClaimVerification,
+  applyClaimVerificationAsync,
   clearClaimVerificationStamps,
   createMemoryClaimVerificationStorage,
   listClaimVerificationStamps,
+  loadClaimVerificationStampsAsync,
+  mergeClaimVerificationStampsFromCloud,
+  replaceClaimVerificationStamps,
 } from "@/lib/trust/claimVerificationStore";
 export {
   EMPTY_FIELD_META,

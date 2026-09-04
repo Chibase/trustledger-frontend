@@ -222,6 +222,7 @@ describe("TE-6 MVP packaging", () => {
     expect(TRUST_MVP_COMPLETE.join(" ")).toMatch(/TE-8/i);
     expect(TRUST_MVP_COMPLETE.join(" ")).toMatch(/TE-9/i);
     expect(TRUST_MVP_COMPLETE.join(" ")).toMatch(/TE-10/i);
+    expect(TRUST_MVP_COMPLETE.join(" ")).toMatch(/TE-11/i);
     expect(TRUST_MVP_COMPLETE.join(" ")).toMatch(/TL Trust Observation/i);
   });
 
@@ -245,5 +246,6 @@ describe("TE-6 MVP packaging", () => {
     expect(complete).toMatch(/TE-8/i);
     expect(complete).toMatch(/TE-9/i);
     expect(complete).toMatch(/TE-10/i);
+    expect(complete).toMatch(/TE-11/i);
   });
 });

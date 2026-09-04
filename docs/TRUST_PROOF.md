@@ -59,7 +59,7 @@ This is **not** `trustIndexFromIncidents()` (Trust pulse on the monthly pack). P
 2. Claims by dimension (level, trend, evidence ids, supporting signals)
 3. Trust history (chronological observations)
 4. Participation / willingness counts **and TE-9 quality mix** (stored motive; mixed ≠ weak; attendance ≠ consent)
-5. TE-10 trust-claim verification mix (unevidenced / evidenced / verified; linked evidence is not verification)
+5. TE-10 / TE-11 trust-claim verification mix (unevidenced / evidenced / verified; linked evidence is not verification; Cloud SoT for stamps; not a sealed ledger)
 6. Comparison slices
 7. Risk flags
 8. Sources (SRM modules, whether TE-1 overlay notes were present, trust pulse **not** used)
@@ -70,7 +70,7 @@ This is **not** `trustIndexFromIncidents()` (Trust pulse on the monthly pack). P
 
 Collapsed **Trust proof (optional)** on `/app/reports` (`TrustProofPanel`). Opens on demand. Copy / download markdown. Not in AppNav. Not in `REPORT_PACKS` / the evidence writer.
 
-**Trust proof workspace** (`TrustWorkspaceHub`) on `/app/dashboard` and desk workspace panels: number cards (movement, scored observations, risk flags, evidence-backed claims), **period trend** (earlier vs later), **comparison** across community / location / stakeholder group / phase proxy, six-dimension bars, **participation-quality mix** when rows exist (stored motive counts; mixed ≠ weak; attendance ≠ consent; not Trust pulse), **trust-claim verification mix** when scored claims exist (linked evidence is not verification; apply is suggestion only), risk list, proof narrative, and shortcuts to reports / cases / engagements / capture. Chart scale is mean −1…+1 mapped 0–100 — not Trust pulse. Always visible (empty state still has cards + links). Does **not** add impact-trend or SLA charts. Frappe Desk workspace JSON is not in this repo.
+**Trust proof workspace** (`TrustWorkspaceHub`) on `/app/dashboard` and desk workspace panels: number cards (movement, scored observations, risk flags, evidence-backed claims), **period trend** (earlier vs later), **comparison** across community / location / stakeholder group / phase proxy, six-dimension bars, **participation-quality mix** when rows exist (stored motive counts; mixed ≠ weak; attendance ≠ consent; not Trust pulse), **trust-claim verification mix** when scored claims exist (linked evidence is not verification; apply is suggestion only; live stamps are Cloud SoT), risk list, proof narrative, and shortcuts to reports / cases / engagements / capture. Chart scale is mean −1…+1 mapped 0–100 — not Trust pulse. Always visible (empty state still has cards + links). Does **not** add impact-trend or SLA charts. Frappe Desk workspace JSON is not in this repo.
 
 Customer / trial workspaces use `listWorkspaceIncidents` / `listWorkspaceEvidence` and own-data service lists — no demo `INC-*` bleed.
 

@@ -1,14 +1,22 @@
 /**
- * TE-10 local stamps for human-applied trust-claim verification.
- * Separate from `tl-trust-layer` and Cloud DocTypes. Overlay-like: not posted
- * to SI. Linked evidence is still not verification until apply.
+ * TE-10 / TE-11 stamps for human-applied trust-claim verification.
+ * Live customer/trial SoT is Cloud (`TL Trust Claim Verification`).
+ * Local key `tl-trust-claim-verifications` is a cache / demo store.
+ * Overlay-like keys are not posted to SI. Linked evidence is still not
+ * verification until human apply.
  */
 
+import { isLiveMode } from "@/config/api";
 import {
   stampFromClaim,
   type TrustClaimVerificationStamp,
 } from "@/lib/trust/claimVerification";
 import { isTrustDimensionId } from "@/lib/trust/dimensions";
+import {
+  fetchTrustLayerFromCloud,
+  pushClaimVerificationToCloud,
+  pushClaimVerificationsToCloud,
+} from "@/lib/trust/trustCloudClient";
 import type { TrustProofClaim } from "@/lib/trust/proofReport";
 
 export const CLAIM_VERIFICATION_STORAGE_KEY = "tl-trust-claim-verifications";
@@ -75,6 +83,28 @@ function normalizeStamp(
   };
 }
 
+function mergeById(
+  local: TrustClaimVerificationStamp[],
+  cloud: TrustClaimVerificationStamp[],
+): TrustClaimVerificationStamp[] {
+  const map = new Map<string, TrustClaimVerificationStamp>();
+  for (const row of local) map.set(row.id, row);
+  for (const row of cloud) map.set(row.id, row);
+  return [...map.values()];
+}
+
+function localOnly(
+  local: TrustClaimVerificationStamp[],
+  cloud: TrustClaimVerificationStamp[],
+): TrustClaimVerificationStamp[] {
+  const cloudIds = new Set(cloud.map((row) => row.id));
+  return local.filter((row) => !cloudIds.has(row.id));
+}
+
+function shouldUseTrustCloud(): boolean {
+  return typeof window !== "undefined" && isLiveMode();
+}
+
 export function listClaimVerificationStamps(
   orgId: string,
   storage: ClaimVerificationStorage | null = browserStorage(),
@@ -86,9 +116,45 @@ export function listClaimVerificationStamps(
     .filter((row): row is TrustClaimVerificationStamp => Boolean(row));
 }
 
+export function replaceClaimVerificationStamps(
+  orgId: string,
+  stamps: TrustClaimVerificationStamp[],
+  storage: ClaimVerificationStorage | null = browserStorage(),
+): TrustClaimVerificationStamp[] {
+  if (!orgId) return [];
+  const next = stamps
+    .map((row) => normalizeStamp(row))
+    .filter((row): row is TrustClaimVerificationStamp => Boolean(row));
+  const root = readRoot(storage);
+  root[orgId] = next;
+  writeRoot(storage, root);
+  return next;
+}
+
+/**
+ * Cloud wins on id. Returns local-only rows so a first live login can migrate.
+ */
+export function mergeClaimVerificationStampsFromCloud(
+  orgId: string,
+  cloud: TrustClaimVerificationStamp[],
+  storage: ClaimVerificationStorage | null = browserStorage(),
+): TrustClaimVerificationStamp[] {
+  const local = listClaimVerificationStamps(orgId, storage);
+  const cloudRows = cloud
+    .map((row) => normalizeStamp(row))
+    .filter((row): row is TrustClaimVerificationStamp => Boolean(row));
+  replaceClaimVerificationStamps(
+    orgId,
+    mergeById(local, cloudRows),
+    storage,
+  );
+  return localOnly(local, cloudRows);
+}
+
 /**
  * Human apply of verification. Suggestion only until this runs.
- * Does not write SRM, Cloud trust DocTypes, or Trust pulse.
+ * Writes the local cache. Does not write SRM or Trust pulse.
+ * Live workspaces should call `applyClaimVerificationAsync` so Cloud is SoT.
  */
 export function applyClaimVerification(
   input: {
@@ -110,6 +176,42 @@ export function applyClaimVerification(
   root[orgId] = current;
   writeRoot(storage, root);
   return stamp;
+}
+
+export async function applyClaimVerificationAsync(
+  input: {
+    orgId: string;
+    claim: Pick<TrustProofClaim, "dimension" | "evidenceIds" | "observationIds">;
+    verifiedAt?: string;
+  },
+  storage: ClaimVerificationStorage | null = browserStorage(),
+): Promise<TrustClaimVerificationStamp | null> {
+  const stamp = applyClaimVerification(input, storage);
+  if (stamp && shouldUseTrustCloud()) {
+    await pushClaimVerificationToCloud(stamp, input.orgId || "local");
+  }
+  return stamp;
+}
+
+export async function loadClaimVerificationStampsAsync(
+  orgId: string,
+  storage: ClaimVerificationStorage | null = browserStorage(),
+): Promise<TrustClaimVerificationStamp[]> {
+  const local = listClaimVerificationStamps(orgId, storage);
+  if (!shouldUseTrustCloud()) return local;
+
+  const cloud = await fetchTrustLayerFromCloud();
+  if (!cloud) return local;
+
+  const extras = mergeClaimVerificationStampsFromCloud(
+    orgId,
+    cloud.verifications,
+    storage,
+  );
+  if (extras.length) {
+    await pushClaimVerificationsToCloud(extras, orgId);
+  }
+  return listClaimVerificationStamps(orgId, storage);
 }
 
 export function clearClaimVerificationStamps(

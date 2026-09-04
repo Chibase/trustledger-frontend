@@ -7,9 +7,13 @@ import {
   frappeToCommunity,
   frappeToObservation,
   frappeToParticipation,
+  frappeToVerification,
+  isPersistableClaimVerificationStamp,
   observationToFrappeDoc,
   participationToFrappeDoc,
+  verificationToFrappeDoc,
 } from "@/lib/trustCloud";
+import type { TrustClaimVerificationStamp } from "@/lib/trust/claimVerification";
 
 describe("TE-7 trust Cloud mappers", () => {
   it("does not copy SRM sentiment fields onto observations", () => {
@@ -92,6 +96,7 @@ describe("TE-7 trust Cloud mappers", () => {
       "TL Trust Observation",
       "TL Trust Participation",
       "TL Trust Community Context",
+      "TL Trust Claim Verification",
     ]);
     for (const name of TRUST_DOCTYPE_NAMES) {
       const payload = trustDocTypePayload(name);
@@ -101,6 +106,72 @@ describe("TE-7 trust Cloud mappers", () => {
       );
       expect(fields.some((f) => f.fieldname === "sentiment_label")).toBe(false);
       expect(fields.some((f) => f.fieldname === "sentiment_score")).toBe(false);
+      expect(fields.some((f) => f.fieldname === "trustResponse")).toBe(false);
     }
+  });
+
+  it("round-trips a human-apply verification stamp without inferring from evidence", () => {
+    const stamp: TrustClaimVerificationStamp = {
+      id: "TCV-1",
+      dimension: "process",
+      fingerprint: "process|EVD-1|TRO-1",
+      verifiedAt: "2026-09-04T12:00:00.000Z",
+      source: "human_apply",
+    };
+    const doc = verificationToFrappeDoc(stamp, "Acme Customer", "org-1");
+    expect(doc.customer).toBe("Acme Customer");
+    expect(doc.verification_code).toBe("TCV-1");
+    expect(doc.fingerprint).toBe("process|EVD-1|TRO-1");
+    expect(doc.source).toBe("human_apply");
+    expect(doc).not.toHaveProperty("sentiment_label");
+    expect(doc).not.toHaveProperty("sentiment_score");
+    expect(doc).not.toHaveProperty("trustResponse");
+    expect(doc).not.toHaveProperty("signal");
+    const back = frappeToVerification(doc);
+    expect(back).toEqual(stamp);
+    expect(isPersistableClaimVerificationStamp(back)).toBe(true);
+  });
+
+  it("does not treat inferred or empty Cloud verification rows as stamps", () => {
+    expect(
+      frappeToVerification({
+        verification_code: "TCV-inferred",
+        dimension: "process",
+        fingerprint: "process|EVD-1",
+        source: "inferred",
+        customer: "Acme Customer",
+      }),
+    ).toBeNull();
+    expect(
+      frappeToVerification({
+        verification_code: "TCV-empty",
+        dimension: "process",
+        fingerprint: "",
+        source: "human_apply",
+        customer: "Acme Customer",
+      }),
+    ).toBeNull();
+    expect(
+      isPersistableClaimVerificationStamp({
+        id: "TCV-bad",
+        dimension: "process",
+        fingerprint: "process|EVD-1",
+        verifiedAt: "2026-09-04T12:00:00.000Z",
+        source: "inferred" as TrustClaimVerificationStamp["source"],
+      }),
+    ).toBe(false);
+  });
+
+  it("limits claim-verification source options to human_apply", () => {
+    const payload = trustDocTypePayload("TL Trust Claim Verification");
+    const fields = payload.fields as Array<{
+      fieldname: string;
+      options?: string;
+      reqd?: number;
+    }>;
+    const source = fields.find((f) => f.fieldname === "source");
+    expect(source?.options).toBe("human_apply");
+    expect(source?.reqd).toBe(1);
+    expect(payload.autoname).toBe("field:verification_code");
   });
 });

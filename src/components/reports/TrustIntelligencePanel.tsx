@@ -37,8 +37,9 @@ export function TrustIntelligencePanel() {
         commitmentService.list(),
         stakeholderService.list(),
       ]);
-      const orgId = getActiveOrgId() || "local";
-      const stored = getActiveOrgId()
+      const activeOrgId = getActiveOrgId();
+      const orgId = activeOrgId || "local";
+      const stored = activeOrgId
         ? await loadTrustLayerBucketAsync(orgId)
         : null;
       const next = buildTrustIntelligenceFromSrm(

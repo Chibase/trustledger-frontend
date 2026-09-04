@@ -15,6 +15,7 @@ import {
   upsertCloudCommunity,
   upsertCloudObservation,
   upsertCloudParticipation,
+  upsertCloudVerification,
 } from "@/lib/trustCloud";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
 import {
@@ -26,6 +27,7 @@ import type { Engagement, EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
 import type { Stakeholder } from "@/types/stakeholder";
+import type { TrustClaimVerificationStamp } from "@/lib/trust/claimVerification";
 import type {
   TrustCommunityContext,
   TrustObservation,
@@ -45,7 +47,8 @@ type Body = {
     | "commitment"
     | "observation"
     | "participation"
-    | "community";
+    | "community"
+    | "verification";
   customer?: string;
   orgId?: string;
   project?: Project;
@@ -57,6 +60,7 @@ type Body = {
   observation?: TrustObservation;
   participation?: TrustParticipationRecord;
   community?: TrustCommunityContext;
+  verification?: TrustClaimVerificationStamp;
   fileUrl?: string;
 };
 
@@ -159,11 +163,19 @@ export async function POST(request: Request) {
     );
     return NextResponse.json(result, { status: result.ok ? 200 : 502 });
   }
+  if (body.kind === "verification" && body.verification) {
+    const result = await upsertCloudVerification(
+      body.verification,
+      customer,
+      body.orgId,
+    );
+    return NextResponse.json(result, { status: result.ok ? 200 : 502 });
+  }
 
   return NextResponse.json(
     {
       error:
-        "kind + matching payload required (project|incident|evidence|stakeholder|engagement|commitment|observation|participation|community)",
+        "kind + matching payload required (project|incident|evidence|stakeholder|engagement|commitment|observation|participation|community|verification)",
     },
     { status: 400 },
   );

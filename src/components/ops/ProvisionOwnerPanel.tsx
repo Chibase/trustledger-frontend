@@ -342,6 +342,8 @@ export function ProvisionOwnerPanel({
       const obsId = `TRO-SMOKE-${Date.now().toString(36).slice(-6)}`;
       const partId = `TRP-SMOKE-${Date.now().toString(36).slice(-6)}`;
       const commId = `TRC-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const verId = `TCV-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const smokeEvidenceId = `EVD-SMOKE-${Date.now().toString(36).slice(-6)}`;
       const obsRes = await fetch("/api/frappe/product-smoke", {
         method: "POST",
         credentials: "include",
@@ -399,6 +401,23 @@ export function ProvisionOwnerPanel({
         }),
       });
       const commJson = (await commRes.json()) as { ok?: boolean; error?: string };
+      const verRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "verification",
+          customer,
+          verification: {
+            id: verId,
+            dimension: "process",
+            fingerprint: `process|${smokeEvidenceId}`,
+            verifiedAt: new Date().toISOString(),
+            source: "human_apply",
+          },
+        }),
+      });
+      const verJson = (await verRes.json()) as { ok?: boolean; error?: string };
       const bundle = {
         stakeholder: stkJson,
         engagement: engJson,
@@ -406,6 +425,7 @@ export function ProvisionOwnerPanel({
         observation: obsJson,
         participation: partJson,
         community: commJson,
+        verification: verJson,
       };
       if (!comRes.ok || !comJson.ok) {
         pushToast(comJson.error || "Commitment smoke failed", "error");
@@ -427,8 +447,13 @@ export function ProvisionOwnerPanel({
         setResult(JSON.stringify(bundle, null, 2));
         return;
       }
+      if (!verRes.ok || !verJson.ok) {
+        pushToast(verJson.error || "Trust claim verification smoke failed", "error");
+        setResult(JSON.stringify(bundle, null, 2));
+        return;
+      }
       pushToast(
-        "SI + trust smoke OK — Stakeholder, Engagement, Commitment, Observation, Participation, Community",
+        "SI + trust smoke OK — Stakeholder, Engagement, Commitment, Observation, Participation, Community, Verification",
         "success",
       );
       setResult(JSON.stringify(bundle, null, 2));

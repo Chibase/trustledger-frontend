@@ -15,10 +15,12 @@ import {
   upsertCloudCommunity,
   upsertCloudObservation,
   upsertCloudParticipation,
+  upsertCloudVerification,
 } from "@/lib/trustCloud";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { TrustClaimVerificationStamp } from "@/lib/trust/claimVerification";
 import type {
   TrustCommunityContext,
   TrustObservation,
@@ -37,6 +39,7 @@ type Body = {
   observations?: TrustObservation[];
   participation?: TrustParticipationRecord[];
   community?: TrustCommunityContext[];
+  verifications?: TrustClaimVerificationStamp[];
 };
 
 /**
@@ -86,6 +89,7 @@ export async function POST(request: Request) {
     observations: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
     participation: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
     community: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
+    verifications: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
   };
 
   for (const project of projects) {
@@ -142,6 +146,15 @@ export async function POST(request: Request) {
       error: r.ok ? undefined : r.error,
     });
   }
+  for (const row of body.verifications || []) {
+    const r = await upsertCloudVerification(row, customer, body.orgId);
+    results.verifications.push({
+      id: row.id,
+      ok: r.ok,
+      name: r.ok ? r.name : undefined,
+      error: r.ok ? undefined : r.error,
+    });
+  }
 
   const failed =
     results.projects.filter((x) => !x.ok).length +
@@ -149,7 +162,8 @@ export async function POST(request: Request) {
     results.evidence.filter((x) => !x.ok).length +
     results.observations.filter((x) => !x.ok).length +
     results.participation.filter((x) => !x.ok).length +
-    results.community.filter((x) => !x.ok).length;
+    results.community.filter((x) => !x.ok).length +
+    results.verifications.filter((x) => !x.ok).length;
 
   return NextResponse.json({
     ok: failed === 0,
@@ -162,6 +176,7 @@ export async function POST(request: Request) {
       observations: results.observations.length,
       participation: results.participation.length,
       community: results.community.length,
+      verifications: results.verifications.length,
       failed,
     },
     results,
