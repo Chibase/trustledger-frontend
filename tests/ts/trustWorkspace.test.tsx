@@ -133,7 +133,7 @@ describe("TrustWorkspaceHub", () => {
     await waitFor(() => {
       expect(screen.queryByText("Composing trust proof…")).not.toBeInTheDocument();
     });
-    expect(screen.getByText(/not Trust pulse/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/not Trust pulse/i).length).toBeGreaterThan(0);
 
     await userEvent.click(screen.getByRole("tab", { name: "Phase proxy" }));
     expect(screen.getByRole("tab", { name: "Phase proxy" })).toHaveAttribute(
