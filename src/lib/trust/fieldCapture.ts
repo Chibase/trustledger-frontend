@@ -82,6 +82,7 @@ function joinedNotes(meta: FieldNoteMeta): string | undefined {
 }
 
 export function fieldNoteMetaPreamble(meta: FieldNoteMeta): string {
+  const place = placeLabel(meta);
   const lines = [
     meta.meetingHeldOn ? `Date of meeting: ${meta.meetingHeldOn}` : null,
     meta.capturedAfterMeeting
@@ -90,7 +91,7 @@ export function fieldNoteMetaPreamble(meta: FieldNoteMeta): string {
     meta.rapidCapture ? "Capture mode: rapid / notes-first" : null,
     meta.oralCapture ? "Source: oral (spoken account)" : null,
     meta.lowConnectivity ? "Setting: low connectivity" : null,
-    meta.place ? `Place / ward: ${meta.place}` : null,
+    place ? `Place / ward: ${place}` : null,
     meta.purpose ? `Purpose: ${meta.purpose}` : null,
     meta.kind ? `Kind: ${meta.kind}` : null,
     meta.concernTheme ? `Concern theme: ${meta.concernTheme}` : null,

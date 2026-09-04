@@ -26,6 +26,7 @@ import {
   mixedMotivationDoesNotEqualTrust,
   motivationDoesNotInflateWeakParticipation,
   narrativeNeedsTranslation,
+  normalizeBarrierTags,
   normalizeTrustCommunityContext,
   normalizeTrustObservation,
   normalizeTrustParticipation,
@@ -44,12 +45,15 @@ describe("TE-5 Global South — community context", () => {
       powerStructureNotes: "Traditional council and ward committee both sit.",
       sensitivityNotes: "Do not name households in public minutes.",
       barriers: "Airtime and distance from the hall.",
-      barrierTags: ["connectivity", "distance", "not-a-real-tag" as never],
+      barrierTags: ["connectivity", "distance"],
       workingLanguage: "isiXhosa",
       narrativeLanguage: "isiXhosa",
       oralSource: true,
     });
     expect(created.barrierTags).toEqual(["connectivity", "distance"]);
+    expect(
+      normalizeBarrierTags(["connectivity", "distance", "not-a-real-tag"]),
+    ).toEqual(["connectivity", "distance"]);
     expect(created.workingLanguage).toBe("isiXhosa");
     const normalized = normalizeTrustCommunityContext(created);
     expect(normalized?.historyNotes).toBe(created.historyNotes);
@@ -271,6 +275,17 @@ describe("TE-5 Global South — field capture", () => {
     expect(preamble).toBe(
       "Date of meeting: 2026-09-01\nPlace / ward: Ward 12\n\n",
     );
+  });
+
+  it("does not leak the Other-place sentinel into captured notes", () => {
+    const preamble = fieldNoteMetaPreamble({
+      ...EMPTY_FIELD_META,
+      place: "__other",
+      localContextNotes: "Clinic hall, unnamed village.",
+    });
+    expect(preamble).not.toContain("__other");
+    expect(preamble).toContain("Local context: Clinic hall, unnamed village.");
+    expect(preamble).not.toContain("Place / ward:");
   });
 
   it("builds a community draft without writing the trust-layer store", () => {
