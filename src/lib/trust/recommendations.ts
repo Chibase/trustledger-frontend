@@ -115,17 +115,18 @@ export function collectTrustAlerts(input: RecommendTrustInput): TrustAlert[] {
     });
   }
 
+  const quality = part.quality;
+  const weakByWillingness = quality?.weakByWillingnessOnly ?? part.participateLow;
   const weakParticipation =
     part.total > 0 &&
-    (part.participateLow > part.participateHigh ||
-      (part.participateHigh === 0 && part.participateLow > 0) ||
-      (part.notTrustDriven > part.trustDriven && part.participateHigh === 0));
+    (weakByWillingness > part.participateHigh ||
+      (part.participateHigh === 0 && weakByWillingness > 0));
   if (weakParticipation) {
     alerts.push({
       id: "alert:weak_participation",
       kind: "weak_participation",
       title: "Weak participation signals",
-      detail: `Willingness to participate is low (${part.participateLow}) more than high (${part.participateHigh}); trust-driven rows ${part.trustDriven}.`,
+      detail: `Willingness to participate is low (${part.participateLow}) more than high (${part.participateHigh}); quality mix ${quality?.byClass.trust ?? 0} trust / ${quality?.byClass.mixed ?? 0} mixed / ${quality?.byClass.obligation ?? 0} obligation / ${quality?.byClass.livelihood ?? 0} livelihood. Mixed motive is not treated as weak.`,
       severity: "watch",
       decision: "suggestion_only",
       trace: trace("TR-ALERT-WEAK-PARTICIPATION"),

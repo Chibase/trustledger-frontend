@@ -23,6 +23,7 @@ import {
   type TrustComparisonAxis,
   type TrustPeriodComparison,
 } from "@/lib/trust/analytics";
+import type { TrustParticipationQualityIndex } from "@/lib/trust/participationQuality";
 import { meanTrustScores, trustSignalWeight } from "@/lib/trust/scoring";
 import {
   TRUST_DIMENSION_LABELS,
@@ -60,6 +61,7 @@ export type TrustWorkspaceSummary = {
   comparisons: Record<TrustComparisonAxis, TrustAnalyticsSlice[]>;
   period: TrustWorkspacePeriodSummary;
   dimensions: TrustWorkspaceDimensionRow[];
+  participationQuality: TrustParticipationQualityIndex;
 };
 
 /** Map mean −1…+1 onto 0–100 for charts. 50 = watch. Not Trust pulse. */
@@ -159,5 +161,6 @@ export function summarizeTrustWorkspace(
       delta: report.period.delta,
     },
     dimensions,
+    participationQuality: report.participation.quality,
   };
 }

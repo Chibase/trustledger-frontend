@@ -164,6 +164,18 @@ export {
   summarizeParticipationRealismForIntel,
 } from "@/lib/trust/participationRealism";
 export {
+  TRUST_PARTICIPATION_QUALITY_CLASSES,
+  TRUST_PARTICIPATION_QUALITY_LABELS,
+  classifyParticipationQuality,
+  formatParticipationQualityMix,
+  participationQualityLooksWeak,
+  summarizeParticipationQuality,
+  summarizeParticipationQualityForIntel,
+  type TrustParticipationQualityClass,
+  type TrustParticipationQualityIndex,
+  type TrustParticipationQualityReading,
+} from "@/lib/trust/participationQuality";
+export {
   EMPTY_FIELD_META,
   fieldNoteHasParticipationExtras,
   fieldNoteMetaPreamble,

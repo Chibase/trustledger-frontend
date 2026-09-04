@@ -12,9 +12,13 @@ import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
 import {
   summarizeTrustWorkspace,
   trustMeanToDisplay,
+  loadWorkspaceTrustProof,
 } from "@/lib/trust/workspaceProof";
-import { composeTrustProofReport } from "@/lib/trust";
-import { createTrustObservation } from "@/lib/trust";
+import {
+  composeTrustProofReport,
+  createTrustObservation,
+  createTrustParticipation,
+} from "@/lib/trust";
 
 jest.mock("next/link", () => ({
   __esModule: true,
@@ -47,6 +51,20 @@ jest.mock("@/services/commitmentService", () => ({
 jest.mock("@/services/stakeholderService", () => ({
   stakeholderService: { list: jest.fn(async () => mockStakeholders) },
 }));
+
+jest.mock("@/lib/trust/workspaceProof", () => {
+  const actual = jest.requireActual(
+    "@/lib/trust/workspaceProof",
+  ) as typeof import("@/lib/trust/workspaceProof");
+  return {
+    ...actual,
+    loadWorkspaceTrustProof: jest.fn((...args: unknown[]) =>
+      actual.loadWorkspaceTrustProof(
+        ...(args as Parameters<typeof actual.loadWorkspaceTrustProof>),
+      ),
+    ),
+  };
+});
 
 describe("trust workspace summary", () => {
   it("counts scored history, risks, and evidence-backed claims", () => {
@@ -81,6 +99,8 @@ describe("trust workspace summary", () => {
     expect(
       summary.dimensions.some((row) => row.dimension === "process" && row.mean != null),
     ).toBe(true);
+    expect(summary.participationQuality.total).toBe(0);
+    expect(summary.participationQuality.consentImpliedCount).toBe(0);
   });
 
   it("maps −1…+1 means onto a 0–100 chart scale without becoming Trust pulse", () => {
@@ -140,5 +160,39 @@ describe("TrustWorkspaceHub", () => {
       "aria-selected",
       "true",
     );
+  });
+
+  it("shows the participation-quality mix when rows exist and does not imply consent", async () => {
+    const loadMock = loadWorkspaceTrustProof as jest.MockedFunction<
+      typeof loadWorkspaceTrustProof
+    >;
+    loadMock.mockResolvedValueOnce(
+      composeTrustProofReport({
+        observations: [
+          createTrustObservation({
+            id: "TRO-q",
+            observedAt: "2026-01-01T00:00:00Z",
+            dimension: "process",
+            signal: "neutral",
+            source: "engagement",
+          }),
+        ],
+        participation: [
+          createTrustParticipation({
+            id: "TRP-q",
+            source: "engagement",
+            motivation: "mixed",
+            presenceMode: "in_person",
+            willingnessToParticipate: "high",
+            attendanceDoesNotEqualConsent: true,
+          }),
+        ],
+      }),
+    );
+    render(<TrustWorkspaceHub />);
+    expect(await screen.findByText("Participation quality")).toBeInTheDocument();
+    expect(screen.getByText(/mixed is not weak/i)).toBeInTheDocument();
+    expect(screen.getByText(/attendance is not consent/i)).toBeInTheDocument();
+    expect(screen.getByText("Mixed")).toBeInTheDocument();
   });
 });

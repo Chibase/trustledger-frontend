@@ -23,6 +23,7 @@ module.exports = {
     "<rootDir>/tests/ts/trustWorkspace.test.tsx",
     "<rootDir>/tests/ts/trustCloud.test.ts",
     "<rootDir>/tests/ts/trustEngagementApply.test.ts",
+    "<rootDir>/tests/ts/trustParticipationQuality.test.ts",
     "<rootDir>/tests/ts/dashboardOverview.test.ts",
     "<rootDir>/tests/ts/dashboardOverviewUi.test.tsx",
   ],

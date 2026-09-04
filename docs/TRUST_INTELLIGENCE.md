@@ -30,7 +30,7 @@ Every recommendation and alert carries a `trace` (`ruleId`, rule summary, observ
 | `TR-FOLLOWUP-LOW-CONFIDENCE` | Scored sample &lt; 3 | Collect more observations |
 | `TR-FOLLOWUP-MISSING-EVIDENCE` | Declining / at-risk with no evidence ids | Attach evidence before using the claim in a pack |
 | `TR-ESCALATE-OPEN-DECLINE` | Declining/at-risk **and** open P1/P2, SLA-breached, or escalated cases | Consider senior review — **does not change case status** |
-| `TR-ALERT-WEAK-PARTICIPATION` | Weak willingness / not trust-driven | Informational alert |
+| `TR-ALERT-WEAK-PARTICIPATION` | Explicit low willingness more than high (mixed / obligation / livelihood do not invent this) | Informational alert |
 | `TR-ALERT-UNRESOLVED-CONCERN` | Material open cases | Informational alert |
 
 No predictive scores. No causal claims. No auto-escalate. No auto-send.

@@ -220,6 +220,7 @@ describe("TE-6 MVP packaging", () => {
     expect(TRUST_MVP_FUTURE.join(" ")).toMatch(/KEY_MANAGEMENT/i);
     expect(TRUST_MVP_COMPLETE.join(" ")).toMatch(/TE-7/i);
     expect(TRUST_MVP_COMPLETE.join(" ")).toMatch(/TE-8/i);
+    expect(TRUST_MVP_COMPLETE.join(" ")).toMatch(/TE-9/i);
     expect(TRUST_MVP_COMPLETE.join(" ")).toMatch(/TL Trust Observation/i);
   });
 
@@ -233,11 +234,13 @@ describe("TE-6 MVP packaging", () => {
     expect(partial).not.toMatch(/on-demand on \/app\/reports/);
     expect(partial).toMatch(/not a monthly/i);
     expect(partial).toMatch(/community-facing summary/i);
-    expect(partial).toMatch(/no scored participation-quality index/i);
+    expect(partial).toMatch(/count of stored motive classes/i);
+    expect(partial).not.toMatch(/no scored participation-quality index/i);
     expect(partial).toMatch(/no separate trust-claim verification/i);
     expect(partial).toMatch(/not causality/i);
     expect(partial).toMatch(/local heuristics/i);
     expect(complete).toMatch(/TE-7/i);
     expect(complete).toMatch(/TE-8/i);
+    expect(complete).toMatch(/TE-9/i);
   });
 });
