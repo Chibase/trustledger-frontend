@@ -5,6 +5,7 @@ import {
   composeTrustProofReport,
   createTrustObservation,
   createTrustParticipation,
+  laterHalfObservations,
   summarizeTrustCausality,
   summarizeTrustWorkspace,
 } from "@/lib/trust";
@@ -65,6 +66,15 @@ describe("TE-12 trust-movement companion reading", () => {
     expect(laterNegative?.observationIds).not.toContain("TRO-tie-a");
   });
 
+  it("returns later-half observations in chronological scored order", () => {
+    const later = laterHalfObservations([
+      obs("TRO-late", "2026-06-01T00:00:00Z", "negative"),
+      obs("TRO-early", "2026-01-01T00:00:00Z", "positive"),
+      obs("TRO-mid", "2026-03-01T00:00:00Z", "neutral"),
+    ]);
+    expect(later.map((row) => row.id)).toEqual(["TRO-mid", "TRO-late"]);
+  });
+
   it("does not treat mixed motive or attendance as a cause", () => {
     const report = composeTrustProofReport({
       observations: [
@@ -116,6 +126,9 @@ describe("TE-12 trust-movement companion reading", () => {
     expect(reading.companions.some((row) => row.kind === "low_willingness")).toBe(
       true,
     );
+    const low = reading.companions.find((row) => row.kind === "low_willingness");
+    expect(low?.participationIds).toEqual(["TRP-low"]);
+    expect(low?.observationIds).toEqual([]);
     expect(reading.attendanceUsedAsCause).toBe(false);
   });
 

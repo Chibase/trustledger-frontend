@@ -64,6 +64,7 @@ export type TrustCausalityCompanion = {
   count: number;
   dimension?: TrustDimensionId;
   observationIds: string[];
+  participationIds: string[];
   evidenceIds: string[];
   notes: string[];
 };
@@ -97,6 +98,7 @@ function evidenceFrom(rows: TrustObservation[]): string[] {
  * Same later half as default `compareTrustPeriods` (chronological mid of
  * scored rows). Membership is by observation id, not `observedAt >= splitAt`,
  * so tied timestamps cannot leak earlier-half rows into companions.
+ * Returned rows stay in chronological scored order.
  */
 export function laterHalfObservations(
   observations: TrustObservation[],
@@ -104,8 +106,11 @@ export function laterHalfObservations(
   const scored = chronologicalScoredWeights(observations);
   if (!scored.length) return [];
   const mid = Math.floor(scored.length / 2);
-  const laterIds = new Set(scored.slice(mid).map((row) => row.id));
-  return observations.filter((row) => laterIds.has(row.id));
+  const byId = new Map(observations.map((row) => [row.id, row]));
+  return scored
+    .slice(mid)
+    .map((row) => byId.get(row.id))
+    .filter((row): row is TrustObservation => Boolean(row));
 }
 
 function companionForSignal(
@@ -123,6 +128,7 @@ function companionForSignal(
     label: TRUST_CAUSALITY_COMPANION_LABELS[kind],
     count: rows.length,
     observationIds: uniqueIds(rows.map((row) => row.id)),
+    participationIds: [],
     evidenceIds: evidenceFrom(rows),
     notes: [
       "Later-half scored observations co-occur with the period. They are not causes.",
@@ -148,6 +154,7 @@ function dimensionCompanion(
     count: 1,
     dimension: claim.dimension,
     observationIds: uniqueIds(claim.observationIds),
+    participationIds: [],
     evidenceIds: uniqueIds(claim.evidenceIds),
     notes: [
       `Dimension trend is ${trend} under the ±0.34 later-vs-earlier rule. That trend is not a proven cause.`,
@@ -225,7 +232,8 @@ export function summarizeTrustCausality(input: {
       kind: "low_willingness",
       label: TRUST_CAUSALITY_COMPANION_LABELS.low_willingness,
       count: lowWillingness.length,
-      observationIds: uniqueIds(lowWillingness.map((row) => row.id)),
+      observationIds: [],
+      participationIds: uniqueIds(lowWillingness.map((row) => row.id)),
       evidenceIds: [],
       notes: [
         "Explicit low willingness is listed as a companion. Mixed motive and attendance are not.",
