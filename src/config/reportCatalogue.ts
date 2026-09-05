@@ -180,6 +180,27 @@ export const REPORT_SECTIONS: ReportSectionDef[] = [
     defaultFor: ["mel", "board_investor"],
   },
   {
+    id: "what_worked",
+    label: "What worked",
+    description: "On-track expected vs actual, closed cases, done Learn & Adapt records.",
+    minTier: "clo",
+    defaultFor: ["mel_retrospective"],
+  },
+  {
+    id: "what_did_not",
+    label: "What did not",
+    description: "Shortfall watches, open tagged cases, open Learn & Adapt records.",
+    minTier: "clo",
+    defaultFor: ["mel_retrospective"],
+  },
+  {
+    id: "what_will_change",
+    label: "What we will change",
+    description: "Open Adapt actions on file — never invented.",
+    minTier: "clo",
+    defaultFor: ["mel_retrospective"],
+  },
+  {
     id: "budget_spend",
     label: "Budget vs spend",
     description: "Financial portfolio figures.",
@@ -268,6 +289,14 @@ export const REPORT_SECTIONS: ReportSectionDef[] = [
 ];
 
 export function sectionsForKind(kind: ReportKind): ReportSectionDef[] {
+  if (kind === "mel_retrospective") {
+    return REPORT_SECTIONS.filter(
+      (s) =>
+        s.id === "what_worked" ||
+        s.id === "what_did_not" ||
+        s.id === "what_will_change",
+    );
+  }
   return REPORT_SECTIONS.filter(
     (s) => s.defaultFor.includes(kind) || s.id === "appendix_evidence",
   );

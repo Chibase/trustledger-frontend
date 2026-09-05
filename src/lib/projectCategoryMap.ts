@@ -147,7 +147,7 @@ export function buildProjectCategoryMap(args: {
       id: "overview",
       label: "Project overview",
       description: "Dossier, place, funder, and programme status.",
-      reportKinds: ["monthly_activity", "mel", "board_investor", "executive_risk"],
+      reportKinds: ["monthly_activity", "mel", "mel_retrospective", "board_investor", "executive_risk"],
       captureHref: capture("project_profile"),
       moduleHref: `/app/projects/${id}`,
       hasData: Boolean(
@@ -184,6 +184,7 @@ export function buildProjectCategoryMap(args: {
         "grm",
         "monthly_activity",
         "mel",
+        "mel_retrospective",
         "health_safety",
         "executive_risk",
       ],
@@ -228,7 +229,7 @@ export function buildProjectCategoryMap(args: {
       id: "issue_log",
       label: "Issue log pathway",
       description: "Report → follow-ups → escalate → resolve → close.",
-      reportKinds: ["issue_handling", "grm", "monthly_activity", "mel", "executive_risk"],
+      reportKinds: ["issue_handling", "grm", "monthly_activity", "mel", "mel_retrospective", "executive_risk"],
       captureHref: capture("issue_log"),
       hasData: Boolean(
         (issueLog?.entries || []).some((e) => e.title?.trim()) ||

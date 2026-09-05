@@ -41,9 +41,22 @@ import {
   planIncludesPack,
   type ReportPackId,
 } from "@/types/reportPacks";
+import {
+  REPORT_KINDS,
+  type ReportKind,
+} from "@/types/activityReport";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
 import type { UserRole } from "@/types/rbac";
+
+function readInitialKind(): ReportKind | null {
+  if (typeof window === "undefined") return null;
+  const raw = new URLSearchParams(window.location.search).get("kind");
+  if (raw && (REPORT_KINDS as readonly string[]).includes(raw)) {
+    return raw as ReportKind;
+  }
+  return null;
+}
 
 function readInitialPack(): ReportPackId | null {
   if (typeof window === "undefined") return null;
@@ -75,7 +88,8 @@ export function ReportsHub({
 }: ReportsHubProps) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [pack, setPack] = useState<ReportPackId | null>(null);
-  const [writeMode, setWriteMode] = useState(false);
+  const [writeMode, setWriteMode] = useState(() => Boolean(readInitialKind()));
+  const [urlKind] = useState<ReportKind | null>(() => readInitialKind());
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
 
@@ -319,10 +333,10 @@ export function ReportsHub({
                 templates are blocked.
               </p>
               <CreateReportWizard
-                key={active.id}
+                key={`${active.id}-${urlKind || "pack"}`}
                 role={role}
                 authorName={authorName}
-                initialKind={active.defaultKind}
+                initialKind={urlKind || active.defaultKind}
                 initialAudience={active.defaultAudience}
               />
             </div>

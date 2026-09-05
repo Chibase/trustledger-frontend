@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-05 — MEL-4 Learn & Adapt retrospective
+
+- Reports kind **Learn & Adapt retrospective** drafts three locked sections from workspace evidence: What worked / What did not / What we will change. Local `reportComposer` only (`trustledger-evidence`). Suggest → apply → save. The draft does not close or advance a grievance.
+- What worked uses on-track expected vs actual, closed cases, and done Learn & Adapt records. What did not uses MEL-1 shortfall watches, open tagged cases, and open records. What we will change lists open Adapt actions and does not invent a change when none are on file.
+- Case desk Learn & Adapt links to `/app/reports?kind=mel_retrospective`. Not a fourth pack SKU and not `addon_mel`. `docs/MEL_RETROSPECTIVE.md`.
+
 ## 2026-09-05 — MEL-3 Learn & Adapt records
 
 - Case desk adds Monitor → Analyse → Adapt corrective-action records on the grievance. Marking a record done requires an Adapt action and does **not** close or advance reported → deploy → investigate → resolve → verify → close.

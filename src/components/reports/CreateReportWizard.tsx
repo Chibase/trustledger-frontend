@@ -262,7 +262,9 @@ export function CreateReportWizard({
     }
     if (!periodFactsHaveWritableEvidence(facts)) {
       setError(
-        isCustomerWorkspaceClient()
+        kind === "mel_retrospective"
+          ? "No Learn & Adapt evidence yet. Add expected vs actual, a root-cause tag, a Learn & Adapt record, or a case before writing this retrospective."
+          : isCustomerWorkspaceClient()
           ? "No project evidence yet. Complete project details under Capture (dossier / report packs), or log a case, before writing a report."
           : "No workspace evidence yet. Log a case or complete project details under Capture.",
       );
@@ -317,7 +319,9 @@ export function CreateReportWizard({
       setBody(result.bodyMarkdown);
       setStatus("ready");
       pushToast(
-        facts.attended.length
+        kind === "mel_retrospective"
+          ? "Retrospective written from workspace evidence — review, apply, then save"
+          : facts.attended.length
           ? `Report written from ${facts.attended.length} cases (e.g. ${facts.attended[0]?.id}) — review then save`
           : "Report written from project dossier / Capture packs — review then save",
         "success",
@@ -571,7 +575,9 @@ export function CreateReportWizard({
             </>
           ) : null}
           {fixedOutline
-            ? " this pack always writes the outline below. Topics are locked so the brief does not become a monthly dump."
+            ? lens === "retrospective"
+              ? " this retrospective always writes What worked / What did not / What we will change. The draft is a suggestion — apply it, then save. It does not close a grievance."
+              : " this pack always writes the outline below. Topics are locked so the brief does not become a monthly dump."
             : " topics are fixed by the report kind — you do not pick them. Prefer the "}
           {!fixedOutline && project ? (
             <>
