@@ -4,6 +4,7 @@ import {
   frappeToEngagementPlan,
   frappeToSepOverlay,
   sanitizePlanForCloud,
+  sepShouldWriteExecution,
 } from "@/lib/sepCloud";
 import { overlayLocalPlansOntoCloud } from "@/lib/sepPersist";
 import type { EngagementPlan } from "@/types/engagementPlan";
@@ -117,6 +118,20 @@ describe("SI-SEP Cloud persist", () => {
       includeExecution: false,
     });
     expect(omitted).not.toHaveProperty("execution_json");
+  });
+
+  it("does not treat overlay:null as an execution wipe", () => {
+    expect(
+      sepShouldWriteExecution({ overlay: null, includeExecution: true }),
+    ).toBe(false);
+    expect(sepShouldWriteExecution({ overlay: undefined })).toBe(false);
+    expect(
+      sepShouldWriteExecution({
+        overlay: sampleOverlay(),
+        includeExecution: false,
+      }),
+    ).toBe(false);
+    expect(sepShouldWriteExecution({ overlay: sampleOverlay() })).toBe(true);
   });
 
   it("does not invent now when created and updated times are blank", () => {

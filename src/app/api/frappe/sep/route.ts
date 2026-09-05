@@ -14,6 +14,7 @@ import {
   deleteCloudEngagementPlan,
   getCloudEngagementPlan,
   listCloudEngagementPlans,
+  sepShouldWriteExecution,
   upsertCloudEngagementPlan,
 } from "@/lib/sepCloud";
 import type { EngagementPlan } from "@/types/engagementPlan";
@@ -129,11 +130,13 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const includeExecution =
-      body.includeExecution === true || body.overlay !== undefined;
+    const includeExecution = sepShouldWriteExecution({
+      overlay: body.overlay,
+      includeExecution: body.includeExecution,
+    });
     const r = await upsertCloudEngagementPlan(body.plan, customer, {
       orgId,
-      overlay: body.overlay ?? null,
+      overlay: includeExecution ? body.overlay : null,
       includeExecution,
     });
     return NextResponse.json(

@@ -169,11 +169,16 @@ export async function saveEngagementPlanLive(
 ): Promise<EngagementPlan> {
   const overlay = getSepExecution(plan.id);
   if (typeof window !== "undefined" && isLiveMode()) {
-    const pushed = await postCloud({
-      plan,
-      overlay: overlay || null,
-      includeExecution: overlay != null,
-    });
+    const body: {
+      plan: EngagementPlan;
+      overlay?: SepExecutionOverlay;
+      includeExecution?: boolean;
+    } = { plan };
+    if (overlay) {
+      body.overlay = overlay;
+      body.includeExecution = true;
+    }
+    const pushed = await postCloud(body);
     if (!pushed) {
       throw new Error("Could not save on TrustLedger Cloud");
     }

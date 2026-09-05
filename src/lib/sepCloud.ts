@@ -27,6 +27,19 @@ export type SepCloudUpsertOptions = {
   orgId?: string;
 };
 
+export type SepWriteBody = {
+  overlay?: SepExecutionOverlay | null;
+  includeExecution?: boolean;
+};
+
+/** Overlay JSON is written only when the client sent a real overlay object. */
+export function sepShouldWriteExecution(body: SepWriteBody): boolean {
+  const overlay = body.overlay;
+  if (!overlay || typeof overlay !== "object") return false;
+  if (!overlay.planId) return false;
+  return body.includeExecution !== false;
+}
+
 function authHeaders(): HeadersInit | null {
   const pair = frappeKeyPair();
   if (!pair) return null;
