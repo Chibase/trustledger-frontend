@@ -262,11 +262,11 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **SEC-0** | Security ladder docs | ADR-038 + `docs/SECURITY_TENANCY.md` — L1–L5 + plan Trust/Isolation matrix; home pricing blurb + foldable comparison + optional privacy extras | **Done** |
-| **SEC-1** | Hard User Permissions | Frappe per-Customer permissions + A≠B smoke (L2) | **Done** (Plan Owner bind + BFF session bind; invitees = SEC-5) |
+| **SEC-1** | Hard User Permissions | Frappe per-Customer permissions + A≠B smoke (L2) | **Done** (Plan Owner bind + BFF session bind; invitees = SEC-5 **Done**) |
 | **SEC-2** | Purge + subprocessors | Runbook + public subprocessors note (L3/L4 lite) | Planned |
 | **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | Planned |
 | **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
-| **SEC-5** | Cloud invitee seats | Replace browser-only junior seats; Owner password issue already covers Cloud Users on the Customer | Planned |
+| **SEC-5** | Cloud invitee seats | Replace browser-only junior seats; Owner password issue already covers Cloud Users on the Customer | **Done** |
 | **SEC-SITE** | Dual-origin public hardening + Chibase site | ADR-046 — `/firm` brochure; retire Chibase WP; website DNS to this app; MX stays Webway; **SEO: 410 for retired WP spam + firm sitemap** (`docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`) | **Done** (SEO deepen 2026-08-17) |
 | **CHIBASE-PREVIEW** | Hero preview desk | ADR-047 — local mock cases/people/promises on Chibase home; not a workspace; CTA to own-data trial | **Done** |
 | **CHIBASE-PACK** | Consulting packages | ADR-048 — independent Chibase catalogue + optional Paystack; add-on request from any TrustLedger plan; no software entitlements | **Done** |

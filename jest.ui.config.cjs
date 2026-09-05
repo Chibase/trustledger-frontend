@@ -30,6 +30,7 @@ module.exports = {
     "<rootDir>/tests/ts/dashboardOverviewUi.test.tsx",
     "<rootDir>/tests/ts/incidentCloud.test.ts",
     "<rootDir>/tests/ts/projectCloud.test.ts",
+    "<rootDir>/tests/ts/inviteeCloud.test.ts",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {

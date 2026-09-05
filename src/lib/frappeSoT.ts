@@ -5,6 +5,7 @@
 
 import type { PlanId } from "@/config/plans";
 import type { DeskTier } from "@/types/deskTier";
+import type { InviteableRole } from "@/types/org";
 
 /** Env flag — must be explicitly "1" to allow operator dry-run / issuance helpers. */
 export function isFrappeOwnerIssuanceEnabled(): boolean {
@@ -37,6 +38,18 @@ export type FrappeOwnerUserDraft = {
   /** Desk tier for TrustLedger session after login */
   tl_desk_tier: DeskTier;
   tl_plan_owner: 1;
+  customer: string;
+};
+
+export type FrappeInviteeUserDraft = {
+  email: string;
+  first_name: string;
+  last_name?: string;
+  send_welcome_email: boolean;
+  roles: Array<"Customer">;
+  tl_desk_tier: DeskTier;
+  tl_plan_owner: 0;
+  tl_app_role: InviteableRole;
   customer: string;
 };
 
@@ -97,6 +110,29 @@ export function buildOwnerUserDraft(input: {
     roles: ["Customer"],
     tl_desk_tier: input.deskTier,
     tl_plan_owner: 1,
+    customer: input.customerName,
+  };
+}
+
+export function buildInviteeUserDraft(input: {
+  email: string;
+  fullName: string;
+  customerName: string;
+  deskTier: DeskTier;
+  appRole: InviteableRole;
+}): FrappeInviteeUserDraft {
+  const parts = input.fullName.trim().split(/\s+/);
+  const first = parts[0] || "Colleague";
+  const last = parts.slice(1).join(" ") || undefined;
+  return {
+    email: input.email.trim().toLowerCase(),
+    first_name: first,
+    last_name: last,
+    send_welcome_email: false,
+    roles: ["Customer"],
+    tl_desk_tier: input.deskTier,
+    tl_plan_owner: 0,
+    tl_app_role: input.appRole,
     customer: input.customerName,
   };
 }

@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/config/api";
+import { isUserRole, type UserRole } from "@/types/rbac";
 import { mapFrappeRolesToTrustLedger } from "@/lib/roleMap";
 import { normalizeDeskTier } from "@/types/deskTier";
 
@@ -11,6 +12,8 @@ export type FrappeSessionContext = {
   isPlanOwner?: boolean;
   /** From User.custom_tl_desk_tier when a known DeskTier. */
   deskTier?: string;
+  /** Invitee app role (never admin). */
+  appRole?: UserRole;
 };
 
 function parseSetCookieSid(setCookieHeaders: string[]): string | null {
@@ -155,6 +158,69 @@ async function fetchRolesForUser(sid: string, user: string): Promise<string[]> {
     .filter((role): role is string => Boolean(role));
 }
 
+type UserTrustFlags = {
+  planOwner: boolean;
+  deskTier?: string;
+  appRole?: UserRole;
+};
+
+function parseUserTrustFlags(doc: {
+  custom_tl_plan_owner?: number | boolean | string;
+  custom_tl_desk_tier?: string;
+  custom_tl_app_role?: string;
+}): UserTrustFlags {
+  const flag = doc.custom_tl_plan_owner;
+  const appRoleRaw = (doc.custom_tl_app_role || "").trim();
+  return {
+    planOwner: flag === 1 || flag === true || flag === "1",
+    deskTier: normalizeDeskTier(doc.custom_tl_desk_tier) || undefined,
+    appRole:
+      isUserRole(appRoleRaw) && appRoleRaw !== "admin" ? appRoleRaw : undefined,
+  };
+}
+
+/** Honor User custom flags over Frappe role mapping (invitees never become Plan Owner). */
+export function applyTrustLedgerUserFlags(
+  base: { trustLedgerRole: string; deskTier?: string },
+  flags: UserTrustFlags,
+): Pick<
+  FrappeSessionContext,
+  "trustLedgerRole" | "isPlanOwner" | "deskTier" | "appRole"
+> {
+  let trustLedgerRole = base.trustLedgerRole;
+  if (flags.planOwner && trustLedgerRole === "community") {
+    trustLedgerRole = "admin";
+  } else if (!flags.planOwner && flags.appRole) {
+    trustLedgerRole = flags.appRole;
+  }
+  return {
+    trustLedgerRole,
+    isPlanOwner: flags.planOwner || undefined,
+    deskTier: flags.deskTier || base.deskTier,
+    appRole: flags.appRole,
+  };
+}
+
+async function readUserTrustFlags(
+  sid: string,
+  user: string,
+): Promise<{ fullName?: string; flags: UserTrustFlags }> {
+  const doc = await frappeCallWithSid<{
+    full_name?: string;
+    first_name?: string;
+    custom_tl_plan_owner?: number | boolean | string;
+    custom_tl_desk_tier?: string;
+    custom_tl_app_role?: string;
+  }>(sid, "/api/method/frappe.client.get", {
+    doctype: "User",
+    name: user,
+  });
+  return {
+    fullName: doc.full_name || doc.first_name || undefined,
+    flags: parseUserTrustFlags(doc),
+  };
+}
+
 /** Session without srm-core — works on stock TrustLedger Cloud (Administrator, etc.). */
 async function fetchSessionContextFallback(
   sid: string,
@@ -168,23 +234,11 @@ async function fetchSessionContextFallback(
   }
 
   let fullName = user;
-  /** Plan Owners provisioned as Website Users may lack Frappe desk roles. */
-  let planOwner = false;
-  let deskTier: string | undefined;
+  let flags: UserTrustFlags = { planOwner: false };
   try {
-    const doc = await frappeCallWithSid<{
-      full_name?: string;
-      first_name?: string;
-      custom_tl_plan_owner?: number | boolean | string;
-      custom_tl_desk_tier?: string;
-    }>(sid, "/api/method/frappe.client.get", {
-      doctype: "User",
-      name: user,
-    });
-    fullName = doc.full_name || doc.first_name || user;
-    const flag = doc.custom_tl_plan_owner;
-    planOwner = flag === 1 || flag === true || flag === "1";
-    deskTier = normalizeDeskTier(doc.custom_tl_desk_tier) || undefined;
+    const overlay = await readUserTrustFlags(sid, user);
+    fullName = overlay.fullName || user;
+    flags = overlay.flags;
   } catch {
     /* keep login id */
   }
@@ -194,20 +248,16 @@ async function fetchSessionContextFallback(
     roles = [...roles, "System Manager"];
   }
 
-  let trustLedgerRole = mapFrappeRolesToTrustLedger(roles);
-  // VIP / Owner issuance often cannot assign Frappe roles via API — honor
-  // TrustLedger Plan Owner flag so live login is not stuck on "community".
-  if (planOwner && trustLedgerRole === "community") {
-    trustLedgerRole = "admin";
-  }
+  const applied = applyTrustLedgerUserFlags(
+    { trustLedgerRole: mapFrappeRolesToTrustLedger(roles) },
+    flags,
+  );
 
   return {
     user,
     fullName,
     roles,
-    trustLedgerRole,
-    isPlanOwner: planOwner || undefined,
-    deskTier,
+    ...applied,
   };
 }
 
@@ -220,7 +270,16 @@ export async function fetchSessionContext(
       "/api/method/srm_core.api.auth.get_session",
     );
     if (session?.user && session.trustLedgerRole) {
-      return session;
+      try {
+        const overlay = await readUserTrustFlags(sid, session.user);
+        return {
+          ...session,
+          fullName: overlay.fullName || session.fullName,
+          ...applyTrustLedgerUserFlags(session, overlay.flags),
+        };
+      } catch {
+        return session;
+      }
     }
   } catch {
     /* srm-core not installed yet — use Cloud fallback */

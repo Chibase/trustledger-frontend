@@ -375,7 +375,9 @@ export function TeamSeatsPanel({
               Owner). Creating an invite emails Accept / Decline links
               automatically.
             </>
-          )}
+          )}{" "}
+          Accepted colleagues get their own Cloud login on this organisation —
+          not the Plan Owner login. They sign in at /login/live.
         </p>
         <p className="mt-2 text-xs text-tl-ink-muted">
           Seats:{" "}

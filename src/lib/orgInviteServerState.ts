@@ -1,6 +1,6 @@
 /**
  * Process-local invite revoke / notify dedupe for portable email invites.
- * Not multi-instance durable — Cloud SoT (SEC-5) replaces this.
+ * Not multi-instance durable. SEC-5 provisions Cloud Users; this revoke list stays in-process.
  */
 
 const revokedInviteIds = new Map<string, number>(); // id → expiresAt ms

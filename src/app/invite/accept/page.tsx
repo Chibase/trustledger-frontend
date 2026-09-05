@@ -136,6 +136,7 @@ function AcceptInviteForm() {
     }
     setBusy(true);
     setError(null);
+    let cloudSeat = false;
     try {
       if (portableRaw) {
         const peek = await fetch("/api/invite/peek", {
@@ -148,6 +149,26 @@ function AcceptInviteForm() {
           setError(peeked.error || "Invite link is invalid or revoked.");
           return;
         }
+      }
+      if (portableRaw) {
+        const seatRes = await fetch("/api/invite/accept-seat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            invite: portableRaw,
+            password: password.trim(),
+            fullName: fullName.trim() || found.invite.name,
+          }),
+        });
+        const seatJson = (await seatRes.json()) as {
+          error?: string;
+          cloud?: boolean;
+        };
+        if (!seatRes.ok) {
+          setError(seatJson.error || "Could not create your Cloud seat.");
+          return;
+        }
+        cloudSeat = Boolean(seatJson.cloud);
       }
       const accepted = acceptOrgInvite({
         token: localToken,
@@ -165,7 +186,7 @@ function AcceptInviteForm() {
         role: accepted.member.role,
         deskTier: accepted.member.deskTier,
         planId: accepted.org.planId,
-        mode: "trial",
+        mode: cloudSeat ? "live" : "trial",
       });
       if (portableRaw) {
         void fetch("/api/invite/respond", {
@@ -301,8 +322,8 @@ function AcceptInviteForm() {
           className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
         />
         <span className="mt-1 block text-xs text-tl-ink-muted">
-          Workspace is browser-local until your Owner issues Cloud seats —
-          password is not synced to TrustLedger Cloud yet.
+          If this organisation is on TrustLedger Cloud, this password is your
+          Cloud login at /login/live. Trial workspaces stay in this browser.
         </span>
       </label>
       {error ? (

@@ -98,11 +98,11 @@ Session / get_session returns { role, customer, plan, entitlements }
 
 ## Live organisation boundary (SEC-1)
 
-Live desks resolve the organisation from the **Cloud sid** (Plan Owner `Customer.custom_owner_email`). A client-supplied Customer name is **ignored** unless the caller is a Platform Operator (break-glass). A live email cookie that does not match the sid is rejected.
+Live desks resolve the organisation from the **Cloud sid** (Plan Owner `Customer.custom_owner_email`, else invitee `User.custom_tl_customer`). A client-supplied Customer name is **ignored** unless the caller is a Platform Operator (break-glass). A live email cookie that does not match the sid is rejected.
 
 - **Plan Owner Cloud User** is stamped with a Customer User Permission (`apply_to_all_doctypes`). Desk + sid calls only see that organisation.
 - **BFF lists/writes** (SI, migrate, uploads, project list) bind that Customer and drop rows not stamped to it.
-- **Junior seats** remain browser-local until **SEC-5**. Do not tell buyers every teammate login is Cloud-permissioned.
+- **Junior seats:** on a live organisation (Cloud Customer present), accepting a portable invite provisions a Cloud User bound to that Customer. Trial orgs without a Cloud Customer still accept in the browser. Do not tell buyers that trial/browser-only invites are Cloud Users.
 
 Playbook: `docs/FRAPPE_USER_PERMISSIONS.md`. Ladder: `docs/SECURITY_TENANCY.md`.
 
@@ -131,7 +131,7 @@ Owner login still works; limits are enforced as soon as API/UI checks read those
 2. Enters name + work email + **suggested role** (`client` \| `contractor` \| `community`).  
 3. Owner **confirms** role (cannot pick `admin` for invitees on Practitioner/Project without sales exception).  
 4. System emails the invitee **Accept** and **Decline** links (`/invite/accept?invite=…` / `/invite/reject?invite=…`). Links are signed (14-day TTL) so they work on any device. Requires Resend (`RESEND_API_KEY`) and a **verified** From address (`RESEND_FROM_EMAIL`, or auto `noreply@` a verified Resend domain — not only `onboarding@resend.dev`, which can only reach the Resend account owner). `/api/health` → `launch.inviteEmailReady`; Owners see a Team / Seats banner when mail cannot reach colleagues. If mail is unset or blocked, the Owner still gets a portable share link.  
-5. Invitee accepts (sets password) or declines; Plan Owner is emailed the decision. Until Cloud seats (SEC-5), acceptance is browser-local.  
+5. Invitee accepts (sets password) or declines; Plan Owner is emailed the decision. If the Owner has a Cloud Customer, accept provisions a Cloud User on that organisation and signs the invitee in at `/login/live`. Trial without a Cloud Customer stays browser-local.  
 6. **Passwords (live Plan Owner):** Settings → Passwords — change own Cloud password, or issue a temporary Cloud password for the Owner / Users linked to their Customer (lost-password recovery). Guest Forgot password remains on `/login/live`.  
 7. Seat counts against plan entitlement; over-limit → block invite + upgrade CTA.
 

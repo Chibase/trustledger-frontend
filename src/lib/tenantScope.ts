@@ -1,5 +1,6 @@
-import { getCustomerEntitlementByOwnerEmail } from "@/lib/entitlementCloud";
+import { getCustomerEntitlementByName, getCustomerEntitlementByOwnerEmail } from "@/lib/entitlementCloud";
 import { getLoggedUserFromSid } from "@/lib/frappeServer";
+import { getInviteeCustomerName } from "@/lib/inviteeCloud";
 import {
   isPlatformOperatorIdentity,
   normalizeIdentity,
@@ -15,6 +16,8 @@ export type SessionTenant = {
 
 /**
  * Resolve the signed-in user's organisation from Cloud entitlement.
+ * Plan Owners match Customer.custom_owner_email.
+ * Invitees match User.custom_tl_customer (SEC-5).
  * Never trust a client-supplied Customer name for this lookup.
  */
 export async function resolveSessionCustomer(
@@ -22,11 +25,22 @@ export async function resolveSessionCustomer(
 ): Promise<SessionTenant | null> {
   const trimmed = (email || "").trim();
   if (!trimmed) return null;
-  const ent = await getCustomerEntitlementByOwnerEmail(trimmed);
-  if (!ent?.customerName) return null;
+  const owner = await getCustomerEntitlementByOwnerEmail(trimmed);
+  if (owner?.customerName) {
+    return {
+      customerName: owner.customerName,
+      customerLabel: owner.customerLabel || undefined,
+    };
+  }
+  const inviteeCustomer = await getInviteeCustomerName(trimmed);
+  if (!inviteeCustomer) return null;
+  const invitee = await getCustomerEntitlementByName(inviteeCustomer);
+  if (!invitee?.customerName) {
+    return { customerName: inviteeCustomer };
+  }
   return {
-    customerName: ent.customerName,
-    customerLabel: ent.customerLabel || undefined,
+    customerName: invitee.customerName,
+    customerLabel: invitee.customerLabel || undefined,
   };
 }
 

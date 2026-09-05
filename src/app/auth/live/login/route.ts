@@ -1,34 +1,6 @@
 import { NextResponse } from "next/server";
 import { isUserRole } from "@/types/rbac";
 import {
-  FRAPPE_SID_COOKIE,
-  SESSION_MAX_AGE_SECONDS,
-  SESSION_ROLE_COOKIE,
-  TL_DESK_TIER_COOKIE,
-  TL_DESK_TIER_LOCKED_COOKIE,
-  TL_MODE_COOKIE,
-  TL_ORG_OWNER_COOKIE,
-  TL_TRIAL_PLAN_COOKIE,
-  TL_USER_EMAIL_COOKIE,
-  TL_USER_NAME_COOKIE,
-  TL_VIP_COOKIE,
-} from "@/lib/auth.constants";
-import { fetchSessionContext, frappeLogin } from "@/lib/frappeServer";
-import {
-  assertLiveOperatorAccess,
-  assertOpsAccess,
-  normalizeIdentity,
-  operatorGateMessage,
-} from "@/lib/platformOperator";
-import {
-  entitlementAllowsLiveAccess,
-  getCustomerEntitlementByOwnerEmail,
-} from "@/lib/entitlementCloud";
-import { isVipCustomerName } from "@/lib/planLabel";
-import { isVipShowcaseLiveLoginMailbox } from "@/lib/vipShowcaseAuth";
-import { isPlanId } from "@/config/plans";
-import { PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
-import {
   TL_AUTH_PENDING_COOKIE,
   accessEmailVerificationEnabled,
   accessVerificationReady,
@@ -37,11 +9,26 @@ import {
   pendingAuthMaxAgeSeconds,
   signPendingLiveAuth,
 } from "@/lib/accessVerification";
-import { sendLoginOtpEmail } from "@/lib/transactionalEmail";
 import {
-  byteStringHeaderErrorMessage,
-  cookieSafeValue,
-} from "@/lib/leadCapture";
+  entitlementAllowsLiveAccess,
+  getCustomerEntitlementByName,
+  getCustomerEntitlementByOwnerEmail,
+} from "@/lib/entitlementCloud";
+import { fetchSessionContext, frappeLogin } from "@/lib/frappeServer";
+import { decideLiveSeatKind, getInviteeCustomerName } from "@/lib/inviteeCloud";
+import { applyLiveSessionCookies } from "@/lib/liveSessionCookies";
+import { isVipCustomerName } from "@/lib/planLabel";
+import { isVipShowcaseLiveLoginMailbox } from "@/lib/vipShowcaseAuth";
+import { isPlanId } from "@/config/plans";
+import { PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
+import {
+  assertLiveOperatorAccess,
+  assertOpsAccess,
+  normalizeIdentity,
+  operatorGateMessage,
+} from "@/lib/platformOperator";
+import { sendLoginOtpEmail } from "@/lib/transactionalEmail";
+import { byteStringHeaderErrorMessage } from "@/lib/leadCapture";
 
 /** Strip paste junk that often lands in password managers / truncated copies. */
 function sanitizeLoginCredentials(usr: string, pwd: string): {
@@ -109,20 +96,40 @@ export async function POST(request: Request) {
     // Operators home to Executive Board — never the customer desk.
     const opsGate = assertOpsAccess(usr, session.user, email);
 
-    const ent = await getCustomerEntitlementByOwnerEmail(email);
+    const ownerEnt = await getCustomerEntitlementByOwnerEmail(email);
+    const inviteeCustomer = ownerEnt?.customerName
+      ? null
+      : await getInviteeCustomerName(email);
+    const seatKind = decideLiveSeatKind({
+      sessionPlanOwner: Boolean(session.isPlanOwner),
+      ownerCustomerName: ownerEnt?.customerName,
+      inviteeCustomerName: inviteeCustomer,
+    });
+    const treatAsPlanOwner = seatKind === "owner";
+
+    let ent = ownerEnt?.customerName ? ownerEnt : null;
+    if (!ent?.customerName && inviteeCustomer) {
+      ent = await getCustomerEntitlementByName(inviteeCustomer);
+    }
+
     const vip =
       isVipCustomerName(ent?.customerLabel) ||
       isVipCustomerName(ent?.customerName);
     const planId =
       (ent?.planId && isPlanId(ent.planId) ? ent.planId : null) ||
       (vip ? "institutional" : null);
-    /** Customer.custom_owner_email match = Plan Owner; invitees do not match. */
-    const isCustomerOwner = Boolean(ent?.customerName);
-    const treatAsPlanOwner =
-      Boolean(session.isPlanOwner) || isCustomerOwner;
 
     // OD-4 — when lockdown is off, buyers still need trial/active entitlement.
     if (!opsGate.ok) {
+      if (seatKind === "unbound") {
+        return NextResponse.json(
+          {
+            error:
+              "No TrustLedger Cloud organisation is linked to this login. Ask your Plan Owner to send a team invite, or sign in as Plan Owner.",
+          },
+          { status: 403 },
+        );
+      }
       if (ent?.status && !entitlementAllowsLiveAccess(ent.status)) {
         return NextResponse.json(
           {
@@ -137,7 +144,11 @@ export async function POST(request: Request) {
     const home = opsGate.ok ? "/ops/executive" : "/app/dashboard";
     const deskTier =
       session.deskTier ||
-      (planId ? PLAN_OWNER_DESK_TIER[planId] : undefined);
+      (treatAsPlanOwner && planId ? PLAN_OWNER_DESK_TIER[planId] : undefined);
+    const sessionRole =
+      treatAsPlanOwner
+        ? session.trustLedgerRole
+        : session.appRole || session.trustLedgerRole;
 
     // Email OTP step-up when verification is on.
     if (accessEmailVerificationEnabled()) {
@@ -157,7 +168,7 @@ export async function POST(request: Request) {
       const pendingToken = signPendingLiveAuth({
         email,
         sid,
-        role: session.trustLedgerRole,
+        role: sessionRole,
         fullName: session.fullName,
         home,
         platformOperator: opsGate.ok,
@@ -213,52 +224,22 @@ export async function POST(request: Request) {
       ok: true,
       user: session.user,
       fullName: session.fullName,
-      role: session.trustLedgerRole,
+      role: sessionRole,
       roles: session.roles,
       platformOperator: opsGate.ok,
       home,
     });
 
-    const cookieBase = {
-      path: "/",
-      maxAge: SESSION_MAX_AGE_SECONDS,
-      sameSite: "lax" as const,
-      secure: process.env.NODE_ENV === "production",
-    };
-
-    response.cookies.set(FRAPPE_SID_COOKIE, sid, {
-      ...cookieBase,
-      httpOnly: true,
+    applyLiveSessionCookies(response, {
+      sid,
+      role: sessionRole,
+      email,
+      fullName: session.fullName,
+      isPlanOwner: treatAsPlanOwner,
+      deskTier,
+      planId: planId || undefined,
+      vip: vip || undefined,
     });
-    response.cookies.set(SESSION_ROLE_COOKIE, session.trustLedgerRole, cookieBase);
-    response.cookies.set(TL_MODE_COOKIE, "live", cookieBase);
-    response.cookies.set(
-      TL_USER_NAME_COOKIE,
-      cookieSafeValue(session.fullName, 80),
-      cookieBase,
-    );
-    response.cookies.set(
-      TL_USER_EMAIL_COOKIE,
-      cookieSafeValue(email, 120),
-      { ...cookieBase, httpOnly: true },
-    );
-    if (treatAsPlanOwner) {
-      response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);
-    } else {
-      response.cookies.set(TL_ORG_OWNER_COOKIE, "", { ...cookieBase, maxAge: 0 });
-    }
-    if (deskTier) {
-      response.cookies.set(TL_DESK_TIER_COOKIE, deskTier, cookieBase);
-      response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "0", cookieBase);
-    }
-    if (planId) {
-      response.cookies.set(TL_TRIAL_PLAN_COOKIE, planId, cookieBase);
-    }
-    if (vip) {
-      response.cookies.set(TL_VIP_COOKIE, "1", cookieBase);
-    } else {
-      response.cookies.set(TL_VIP_COOKIE, "", { ...cookieBase, maxAge: 0 });
-    }
 
     return response;
   } catch (error) {

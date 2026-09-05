@@ -107,6 +107,14 @@ export const TRUSTLEDGER_CUSTOM_FIELDS: CustomFieldSpec[] = [
     options: "Customer",
     insert_after: "custom_tl_plan_owner",
   },
+  {
+    dt: "User",
+    fieldname: "custom_tl_app_role",
+    label: "App role",
+    fieldtype: "Select",
+    options: "community\ncontractor\nclient",
+    insert_after: "custom_tl_customer",
+  },
 ];
 
 export type FieldEnsureStatus = "created" | "exists" | "error" | "skipped";
