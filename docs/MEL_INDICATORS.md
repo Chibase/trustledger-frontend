@@ -1,7 +1,7 @@
 # MEL-1 — expected vs actual on projects and commitments
 
 **Packet:** MEL-1. **Not** a standalone product (ADR-054). **Not** `addon_mel`.  
-**Not in this packet:** Root-cause tags: `docs/MEL_ROOT_CAUSE.md` (MEL-2). Learn & Adapt: `docs/MEL_LEARN_ADAPT.md` (MEL-3). Retrospectives: `docs/MEL_RETROSPECTIVE.md` (MEL-4).
+**Not in this packet:** Root-cause tags: `docs/MEL_ROOT_CAUSE.md` (MEL-2). Learn & Adapt: `docs/MEL_LEARN_ADAPT.md` (MEL-3). Retrospectives: `docs/MEL_RETROSPECTIVE.md` (MEL-4). Cycle close: `docs/MEL_CYCLE.md` (MEL-5).
 
 ## What it is
 

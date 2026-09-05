@@ -7,7 +7,7 @@ import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { ProjectDossierForm } from "@/components/projects/ProjectDossierForm";
 import { ProjectMelPanel } from "@/components/projects/ProjectMelPanel";
-import { MelAdaptWatch } from "@/components/dashboard/MelAdaptWatch";
+import { MelCyclePanel } from "@/components/dashboard/MelCyclePanel";
 import { ProjectReportStudio } from "@/components/reports/ProjectReportStudio";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
@@ -44,6 +44,7 @@ type Props = {
   authorName: string;
   planId?: PlanId | null;
   onProjectSaved: (next: Project) => void;
+  onIncidentSaved?: (next: Incident) => void;
 };
 
 /**
@@ -57,6 +58,7 @@ export function ProjectWorkspaceDashboard({
   authorName,
   planId = null,
   onProjectSaved,
+  onIncidentSaved,
 }: Props) {
   const [showDossier, setShowDossier] = useState(false);
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
@@ -214,7 +216,11 @@ export function ProjectWorkspaceDashboard({
         </div>
       </details>
 
-      <MelAdaptWatch incidents={incidents} />
+      <MelCyclePanel
+        projects={[project]}
+        incidents={incidents}
+        onIncidentSaved={onIncidentSaved}
+      />
 
       <details className="rounded-lg border border-tl-line bg-tl-surface p-4">
         <summary className="cursor-pointer text-sm font-semibold text-tl-ink">

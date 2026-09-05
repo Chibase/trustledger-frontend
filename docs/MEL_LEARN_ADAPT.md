@@ -1,7 +1,7 @@
 # MEL-3 — Learn & Adapt records
 
 **Packet:** MEL-3. **Not** a standalone product (ADR-054). **Not** `addon_mel`.  
-**Not in this packet:** Expected vs actual: `docs/MEL_INDICATORS.md`. Root-cause tags: `docs/MEL_ROOT_CAUSE.md`. Retrospectives: `docs/MEL_RETROSPECTIVE.md` (MEL-4).
+**Not in this packet:** Expected vs actual: `docs/MEL_INDICATORS.md`. Root-cause tags: `docs/MEL_ROOT_CAUSE.md`. Retrospectives: `docs/MEL_RETROSPECTIVE.md` (MEL-4). Cycle close: `docs/MEL_CYCLE.md` (MEL-5).
 
 ## What it is
 
