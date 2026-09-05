@@ -60,7 +60,7 @@ import { readTrialModeFromDocument } from "@/lib/trial";
 import { ensureTrialSeedProject } from "@/lib/trialStore";
 import {
   listWorkspaceIncidents,
-  listWorkspaceProjects,
+  preferCloudProjectList,
 } from "@/lib/workspaceData";
 import { getActiveOrgId } from "@/lib/orgStore";
 import {
@@ -314,8 +314,7 @@ export default function AppCapturePage() {
         if (readTrialModeFromDocument()) ensureTrialSeedProject();
         const seeded = await projectService.list();
         if (cancelled) return;
-        // listWorkspaceProjects merges dossiers; customer workspaces never get demo seed.
-        const rows = listWorkspaceProjects(seeded);
+        const rows = preferCloudProjectList(seeded);
         setProjects(rows);
         setIncidents(listWorkspaceIncidents());
         const params =
@@ -721,19 +720,29 @@ export default function AppCapturePage() {
               dossier.empowermentTargets,
               localRows,
             );
-            const next = persistProjectWithDossier({
-              ...project,
-              dossier: {
-                ...dossier,
-                communityIntel,
-                ...(empowermentTargets
-                  ? { empowermentTargets }
-                  : {}),
-              },
-            });
-            setProjects((prev) =>
-              prev.map((p) => (p.id === next.id ? next : p)),
-            );
+            try {
+              const next = await persistProjectWithDossier({
+                ...project,
+                dossier: {
+                  ...dossier,
+                  communityIntel,
+                  ...(empowermentTargets
+                    ? { empowermentTargets }
+                    : {}),
+                },
+              });
+              setProjects((prev) =>
+                prev.map((p) => (p.id === next.id ? next : p)),
+              );
+            } catch (e) {
+              pushToast(
+                e instanceof Error
+                  ? e.message
+                  : "Could not save project on TrustLedger Cloud",
+                "error",
+              );
+              return;
+            }
             const impact = localRows.filter(
               (r) => r.domain === "project_impact",
             ).length;
@@ -755,12 +764,12 @@ export default function AppCapturePage() {
     });
   }
 
-  function syncProjectFromProfile(structured: CaptureStructured) {
+  async function syncProjectFromProfile(structured: CaptureStructured) {
     if (structured.pack !== "project_profile" || !project) return;
     const d = structured.data;
     const status = asProjectStatus(d.status);
     const baseDossier = hydrateDossierFromProject(project);
-    const next = persistProjectWithDossier({
+    const next = await persistProjectWithDossier({
       ...project,
       clientFunder: d.clientFunder?.trim() || project.clientFunder,
       contractorName: d.contractorName?.trim() || project.contractorName,
@@ -822,7 +831,7 @@ export default function AppCapturePage() {
   }
 
   /** Roll training + B-BBEE empowerment line items into Project.budgetSpent. */
-  function syncEmpowermentSpent(saved: CaptureStructured) {
+  async function syncEmpowermentSpent(saved: CaptureStructured) {
     if (!project) return;
     if (
       saved.pack !== "employment" &&
@@ -861,7 +870,7 @@ export default function AppCapturePage() {
 
     if (spent == null) return;
 
-    const next = persistProjectWithDossier(
+    const next = await persistProjectWithDossier(
       withEmpowermentSpend(project, spent),
     );
     setProjects((rows) => rows.map((p) => (p.id === next.id ? next : p)));
@@ -896,8 +905,9 @@ export default function AppCapturePage() {
     }
     requireEmailThen("save", () => {
       setPackSaving(true);
-      try {
-        let structured: CaptureStructured = packData;
+      void (async () => {
+        try {
+          let structured: CaptureStructured = packData;
         if (packData.pack === "issue_log") {
           const entries = Array.isArray(packData.data.entries)
             ? packData.data.entries
@@ -944,8 +954,18 @@ export default function AppCapturePage() {
           structured,
         };
         saveCaptureRecord(record);
-        syncProjectFromProfile(structured);
-        syncEmpowermentSpent(structured);
+        try {
+          await syncProjectFromProfile(structured);
+          await syncEmpowermentSpent(structured);
+        } catch (e) {
+          pushToast(
+            e instanceof Error
+              ? e.message
+              : "Could not save project on TrustLedger Cloud",
+            "error",
+          );
+          return;
+        }
         setRecent(listCaptureRecords());
         setTitle(record.title);
         const spentNote =
@@ -959,6 +979,7 @@ export default function AppCapturePage() {
       } finally {
         setPackSaving(false);
       }
+      })();
     });
   }
 

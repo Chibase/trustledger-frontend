@@ -1,6 +1,7 @@
 import { mockProjects } from "@/data/mockProjects";
 import { FRAPPE_METHODS, isLiveMode } from "@/config/api";
 import { callFrappeMethod } from "@/lib/frappeClient";
+import { mergeProjectDossier } from "@/lib/projectDossier";
 import type { Project, ProjectStatus } from "@/types/project";
 
 function delay<T>(value: T, ms = 120): Promise<T> {
@@ -26,6 +27,45 @@ function filterProjects(
   return next;
 }
 
+/** Overlay local extras onto Cloud ids only. Empty Cloud stays empty. */
+export function overlayLocalProjectsOntoCloud(
+  cloud: Project[],
+  local: Project[],
+): Project[] {
+  const localById = new Map(local.map((row) => [row.id, row]));
+  return cloud.map((row) => {
+    const overlay = localById.get(row.id);
+    if (!overlay) return row;
+    return {
+      ...overlay,
+      ...row,
+      startDate: row.startDate,
+      targetEndDate: row.targetEndDate,
+      dossier: overlay.dossier ?? row.dossier,
+    };
+  });
+}
+
+async function localProjectOverlays(): Promise<Project[]> {
+  if (typeof window === "undefined") return [];
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+  if (readTrialModeFromDocument()) {
+    const { listTrialProjects } = await import("@/lib/trialStore");
+    return listTrialProjects();
+  }
+  if (isCustomerWorkspaceClient()) {
+    const { listOrgProjects } = await import("@/lib/orgDataSpace");
+    return listOrgProjects();
+  }
+  return [];
+}
+
+function withDossierOverlay(rows: Project[]): Project[] {
+  if (typeof window === "undefined") return rows;
+  return rows.map(mergeProjectDossier);
+}
+
 async function listDemo(filters: ProjectListFilters): Promise<Project[]> {
   const { readTrialModeFromDocument } = await import("@/lib/trial");
   if (readTrialModeFromDocument()) {
@@ -34,31 +74,72 @@ async function listDemo(filters: ProjectListFilters): Promise<Project[]> {
   return delay(filterProjects(mockProjects, filters));
 }
 
+async function listFromCloudBff(): Promise<Project[] | null> {
+  if (typeof window === "undefined") return null;
+  try {
+    const res = await fetch("/api/app/projects", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (res.status === 401 || res.status === 403) return null;
+    if (res.status === 404) return [];
+    if (!res.ok) return null;
+    const json = (await res.json()) as { projects?: Project[] };
+    return Array.isArray(json.projects) ? json.projects : [];
+  } catch {
+    return null;
+  }
+}
+
+async function saveToCloudBff(project: Project): Promise<Project | null> {
+  if (typeof window === "undefined") return null;
+  try {
+    const res = await fetch(
+      `/api/app/projects/${encodeURIComponent(project.id)}`,
+      {
+        method: "PUT",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ project }),
+      },
+    );
+    if (!res.ok) return null;
+    const json = (await res.json()) as { project?: Project };
+    const saved = json.project
+      ? { ...project, ...json.project, dossier: project.dossier }
+      : project;
+    return saved;
+  } catch {
+    return null;
+  }
+}
+
 async function listLive(filters: ProjectListFilters): Promise<Project[]> {
   try {
     const rows = await callFrappeMethod<Project[]>(FRAPPE_METHODS.listProjects, {
       ...filters,
     });
     if (Array.isArray(rows) && rows.length > 0) {
-      return filterProjects(rows, filters);
+      const local = await localProjectOverlays();
+      return filterProjects(
+        withDossierOverlay(overlayLocalProjectsOntoCloud(rows, local)),
+        filters,
+      );
     }
   } catch {
     /* fall through to resource API / empty */
   }
 
-  try {
-    const res = await fetch("/api/app/projects", {
-      credentials: "same-origin",
-      cache: "no-store",
-    });
-    if (res.ok) {
-      const json = (await res.json()) as { projects?: Project[] };
-      if (Array.isArray(json.projects)) {
-        return filterProjects(json.projects, filters);
-      }
-    }
-  } catch {
-    /* ignore */
+  const cloud = await listFromCloudBff();
+  if (cloud) {
+    const local = await localProjectOverlays();
+    return filterProjects(
+      withDossierOverlay(overlayLocalProjectsOntoCloud(cloud, local)),
+      filters,
+    );
   }
 
   const { readTrialModeFromDocument } = await import("@/lib/trial");
@@ -75,7 +156,11 @@ async function getLive(id: string): Promise<Project | null> {
       FRAPPE_METHODS.getProject,
       { name: id },
     );
-    if (row) return row;
+    if (row) {
+      const local = await localProjectOverlays();
+      const merged = overlayLocalProjectsOntoCloud([row], local)[0] || row;
+      return withDossierOverlay([merged])[0] || merged;
+    }
   } catch {
     /* fall through to Cloud resource API */
   }
@@ -87,7 +172,13 @@ async function getLive(id: string): Promise<Project | null> {
     });
     if (res.ok) {
       const json = (await res.json()) as { project?: Project };
-      if (json.project) return json.project;
+      if (json.project) {
+        const local = await localProjectOverlays();
+        const merged =
+          overlayLocalProjectsOntoCloud([json.project], local)[0] ||
+          json.project;
+        return withDossierOverlay([merged])[0] || merged;
+      }
     }
   } catch {
     /* ignore */
@@ -99,6 +190,15 @@ async function getLive(id: string): Promise<Project | null> {
     return null;
   }
   return delay(mockProjects.find((p) => p.id === id) ?? null);
+}
+
+async function cacheAfterCloudSave(project: Project) {
+  const { readTrialModeFromDocument } = await import("@/lib/trial");
+  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+  if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+    const { saveOrgProject } = await import("@/lib/orgDataSpace");
+    saveOrgProject(project);
+  }
 }
 
 export const projectService = {
@@ -115,6 +215,31 @@ export const projectService = {
       return delay(null);
     }
     return delay(mockProjects.find((p) => p.id === id) ?? null);
+  },
+
+  async save(project: Project): Promise<Project> {
+    if (typeof window === "undefined") return project;
+    if (isLiveMode()) {
+      const pushed = await saveToCloudBff(project);
+      if (!pushed) {
+        throw new Error("Could not save on TrustLedger Cloud");
+      }
+      await cacheAfterCloudSave(pushed);
+      return delay(pushed);
+    }
+    const { readTrialModeFromDocument } = await import("@/lib/trial");
+    const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
+    if (readTrialModeFromDocument()) {
+      const { saveTrialProject } = await import("@/lib/trialStore");
+      saveTrialProject(project);
+    } else if (isCustomerWorkspaceClient()) {
+      const { saveOrgProject } = await import("@/lib/orgDataSpace");
+      saveOrgProject(project);
+    } else {
+      const { saveDemoProject } = await import("@/lib/demoStore");
+      saveDemoProject(project);
+    }
+    return delay(project);
   },
 
   async portfolioTotals(): Promise<{

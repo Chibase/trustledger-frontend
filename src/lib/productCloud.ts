@@ -79,7 +79,8 @@ export function projectToFrappeDoc(
   customer: string,
   orgId?: string,
 ): Record<string, unknown> {
-  return {
+  // Explicit fields only — dossier / geo pack is a local overlay, not a Cloud column.
+  const doc: Record<string, unknown> = {
     project_code: project.id,
     project_title: project.name,
     customer,
@@ -90,11 +91,15 @@ export function projectToFrappeDoc(
     municipality: project.municipality,
     status: project.status,
     contractor_name: project.contractorName,
-    start_date: project.startDate || null,
-    target_end_date: project.targetEndDate || null,
     public_summary: project.publicSummary,
     tl_org_id: orgId,
   };
+  const start = String(project.startDate || "").trim();
+  const end = String(project.targetEndDate || "").trim();
+  // Blank dates stay blank — do not invent “today”, and omit keys so PUT cannot wipe Cloud dates.
+  if (start) doc.start_date = start;
+  if (end) doc.target_end_date = end;
+  return doc;
 }
 
 export const INCIDENT_STAGE_CLOUD_FIELDS = {
@@ -267,14 +272,6 @@ export function evidenceToFrappeDoc(
   };
 }
 
-export async function createCloudProject(
-  project: Project,
-  customer: string,
-  orgId?: string,
-) {
-  return resourcePost("TL Project", projectToFrappeDoc(project, customer, orgId));
-}
-
 function mapFrappeProjectRow(row: Record<string, unknown>): Project {
   return {
     id: String(row.project_code || row.name || ""),
@@ -419,6 +416,33 @@ export async function getCloudProjectForCustomer(
   }
 
   return { ok: true, project: null };
+}
+
+export async function upsertCloudProject(
+  project: Project,
+  customer: string,
+  orgId?: string,
+) {
+  const doctype = "TL Project";
+  if (!project.id || !project.name) {
+    return {
+      ok: false as const,
+      error: "project.id and name required",
+    };
+  }
+  const body = projectToFrappeDoc(project, customer, orgId);
+  if (await resourceExists(doctype, project.id)) {
+    return resourcePut(doctype, project.id, body);
+  }
+  return resourcePost(doctype, body);
+}
+
+export async function createCloudProject(
+  project: Project,
+  customer: string,
+  orgId?: string,
+) {
+  return upsertCloudProject(project, customer, orgId);
 }
 
 export async function createCloudIncident(

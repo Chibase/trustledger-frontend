@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-05 — P0b Project Cloud save
+
+- Live project edits upsert **`TL Project`** through `PUT /api/app/projects/[id]` (any live session bound to the Customer). Create stays Plan Owner-only on `POST /api/app/projects`.
+- `createCloudProject` aliases upsert so migrate/smoke re-runs do not fail when the row already exists. Mapper omits `dossier` (not a Cloud column). Blank `start_date` / `target_end_date` stay blank — updates do not invent “today”.
+- Live list/detail prefer the projects BFF. Empty Cloud stays empty (no local-only append). Dossier extras overlay onto Cloud ids only. Local org cache is written after a successful Cloud upsert.
+- Honest limit: programme dossier / geo pack stays a local overlay, not a Cloud DocType.
+
 ## 2026-09-04 — 24e-cloud grievance lifecycle stamps
 
 - Live cases persist reported → deployed → investigated → resolved → verified → closed timestamps on **`TL Incident`**. Advance / Verify & close / intake upsert through `GET|POST /api/frappe/product?kind=incident`.

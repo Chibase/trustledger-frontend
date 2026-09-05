@@ -53,6 +53,7 @@ jest.mock("@/services/engagementService", () => ({
 jest.mock("@/lib/workspaceData", () => ({
   listWorkspaceIncidents: (seed: unknown[]) => seed,
   listWorkspaceProjects: (seed: unknown[]) => seed,
+  preferCloudProjectList: (seed: unknown[]) => seed,
 }));
 
 jest.mock("@/lib/deskVisibility", () => ({

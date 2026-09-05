@@ -129,22 +129,38 @@ export function applyDossierToProject(
   };
 }
 
-export function persistProjectWithDossier(project: Project): Project {
+export function persistProjectWithDossier(project: Project): Promise<Project> {
   const dossier = project.dossier || hydrateDossierFromProject(project);
   const next = applyDossierToProject(project, {
     ...dossier,
     updatedAt: new Date().toISOString(),
   });
+
+  return persistPreparedProject(next);
+}
+
+async function persistPreparedProject(next: Project): Promise<Project> {
+  const trial = readTrialModeFromDocument();
+  const customer = isCustomerWorkspaceClient();
+
+  if (!trial && customer) {
+    const { isLiveMode } = await import("@/config/api");
+    if (isLiveMode()) {
+      const { projectService } = await import("@/services/projectService");
+      const saved = await projectService.save(next);
+      const map = readMap();
+      map[saved.id] = saved.dossier || next.dossier || {};
+      writeMap(map);
+      return mergeProjectDossier(saved);
+    }
+  }
+
   const map = readMap();
   map[next.id] = next.dossier || {};
   writeMap(map);
-
-  const trial = readTrialModeFromDocument();
-  const customer = isCustomerWorkspaceClient();
   if (trial) saveTrialProject(next);
   else if (customer) saveOrgProject(next);
   else saveDemoProject(next);
-
   return next;
 }
 

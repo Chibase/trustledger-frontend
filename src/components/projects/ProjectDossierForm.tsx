@@ -74,6 +74,7 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
   const [contractorName, setContractorName] = useState(project.contractorName);
   const [status, setStatus] = useState(project.status);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [promiseText, setPromiseText] = useState("");
   const [promiseOwner, setPromiseOwner] = useState("");
   const [promiseDue, setPromiseDue] = useState("");
@@ -226,16 +227,21 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
   const canLoadCascadeBaseline =
     indicatorPlaceCandidates(dossier.geo).length > 0;
 
-  function save() {
+  async function save() {
     setSaving(true);
+    setSaveError(null);
     try {
-      const next = persistProjectWithDossier({
+      const next = await persistProjectWithDossier({
         ...project,
         contractorName: contractorName.trim(),
         status: status || project.status,
         dossier,
       });
       onSaved(next);
+    } catch (e) {
+      setSaveError(
+        e instanceof Error ? e.message : "Could not save on TrustLedger Cloud",
+      );
     } finally {
       setSaving(false);
     }
@@ -1070,9 +1076,11 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
         />
       </Field>
 
+      {saveError ? <p className="text-sm text-red-700">{saveError}</p> : null}
+
       <button
         type="button"
-        onClick={save}
+        onClick={() => void save()}
         disabled={saving}
         className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink disabled:opacity-50"
       >
