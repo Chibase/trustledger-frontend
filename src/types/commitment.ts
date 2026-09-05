@@ -19,6 +19,10 @@ export type Commitment = {
   sourceActionItem?: string;
   evidenceNote?: string;
   createdAt: string;
+  /** MEL-1 expected vs actual on this promise. Undefined = omit on Cloud PUT. */
+  expected?: number | null;
+  actual?: number | null;
+  melUnit?: string;
 };
 
 export const COMMITMENT_STATUS_LABELS: Record<CommitmentStatus, string> = {

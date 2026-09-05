@@ -9,6 +9,8 @@ import {
   frappeKeyPair,
 } from "@/lib/leadCapture";
 import {
+  COMMITMENT_MEL_FIELDS,
+  ensureCustomFieldsOnDocType,
   frappeDocTypeExists,
   type DocTypeEnsureResult,
   type DocTypeEnsureStatus,
@@ -246,6 +248,9 @@ function fieldsFor(name: SiDocTypeName): FieldDef[] {
       label: "Evidence note",
       fieldtype: "Small Text",
     },
+    { fieldname: "expected_value", label: "Expected value", fieldtype: "Float" },
+    { fieldname: "actual_value", label: "Actual value", fieldtype: "Float" },
+    { fieldname: "mel_unit", label: "MEL unit", fieldtype: "Data" },
     { fieldname: "tl_org_id", label: "TrustLedger org id", fieldtype: "Data" },
   ];
 }
@@ -367,6 +372,17 @@ export async function ensureSiDocTypes(options?: {
     }
   }
 
+  const mel = await ensureCustomFieldsOnDocType({
+    dryRun,
+    headers,
+    base,
+    dt: "TL Commitment",
+    fields: COMMITMENT_MEL_FIELDS,
+    insertAfter: "evidence_note",
+  });
+  results.push(...mel.results);
+  missing.push(...mel.missing);
+
   const errors = results.filter((r) => r.status === "error");
   const created = results.filter((r) => r.status === "created").length;
   const ok = errors.length === 0;
@@ -381,11 +397,11 @@ export async function ensureSiDocTypes(options?: {
     message: dryRun
       ? missing.length
         ? `Dry-run: ${missing.length} SI DocType(s) missing — set dryRun:false to create.`
-        : "Dry-run: all SI DocTypes already exist."
+        : "Dry-run: all SI DocTypes and commitment MEL fields already exist."
       : ok
         ? created
-          ? `Created ${created} SI DocType(s); others already present.`
-          : "All SI DocTypes already exist."
+          ? `Created ${created} SI DocType/field(s); others already present.`
+          : "All SI DocTypes and commitment MEL fields already exist."
         : `Finished with ${errors.length} error(s) — check API key System Manager rights.`,
   };
 }

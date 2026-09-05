@@ -42,6 +42,10 @@ export function overlayLocalProjectsOntoCloud(
       startDate: row.startDate,
       targetEndDate: row.targetEndDate,
       dossier: overlay.dossier ?? row.dossier,
+      melIndicators:
+        row.melIndicators !== undefined
+          ? row.melIndicators
+          : overlay.melIndicators,
     };
   });
 }

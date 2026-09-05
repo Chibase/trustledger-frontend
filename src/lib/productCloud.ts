@@ -13,6 +13,10 @@ import type { EvidenceStub } from "@/types/engagement";
 import type { Incident, IncidentPriority, IncidentStatus } from "@/types/incident";
 import type { IncidentProcessStages } from "@/lib/grievanceProcess";
 import type { Project } from "@/types/project";
+import {
+  readProjectMelIndicators,
+  serializeMelIndicators,
+} from "@/lib/melIndicators";
 import { omitCloudTrustOverlay } from "@/types/trustOverlay";
 
 /** Frappe MySQL Datetime: `YYYY-MM-DD HH:MM:SS` (no ISO `T`/`Z`). */
@@ -99,6 +103,10 @@ export function projectToFrappeDoc(
   // Blank dates stay blank — do not invent “today”, and omit keys so PUT cannot wipe Cloud dates.
   if (start) doc.start_date = start;
   if (end) doc.target_end_date = end;
+  // Omit mel_json unless the client sent indicators (including []) so PUT cannot wipe.
+  if (project.melIndicators !== undefined) {
+    doc.mel_json = serializeMelIndicators(project.melIndicators);
+  }
   return doc;
 }
 
@@ -273,6 +281,7 @@ export function evidenceToFrappeDoc(
 }
 
 function mapFrappeProjectRow(row: Record<string, unknown>): Project {
+  const melIndicators = readProjectMelIndicators(row);
   return {
     id: String(row.project_code || row.name || ""),
     name: String(row.project_title || row.name || "Untitled project"),
@@ -286,8 +295,27 @@ function mapFrappeProjectRow(row: Record<string, unknown>): Project {
     startDate: String(row.start_date || ""),
     targetEndDate: String(row.target_end_date || ""),
     publicSummary: String(row.public_summary || ""),
+    ...(melIndicators !== undefined ? { melIndicators } : {}),
   };
 }
+
+const PROJECT_FIELDS = [
+  "name",
+  "project_code",
+  "project_title",
+  "client_funder",
+  "budget_total",
+  "budget_spent",
+  "ward",
+  "municipality",
+  "status",
+  "contractor_name",
+  "start_date",
+  "target_end_date",
+  "public_summary",
+  "customer",
+  "mel_json",
+] as const;
 
 /** List TL Project rows for a Customer via resource API (VIP / live fallback). */
 export async function listCloudProjectsForCustomer(
@@ -302,22 +330,7 @@ export async function listCloudProjectsForCustomer(
     JSON.stringify([["customer", "=", customer]]),
   );
   const fields = encodeURIComponent(
-    JSON.stringify([
-      "name",
-      "project_code",
-      "project_title",
-      "client_funder",
-      "budget_total",
-      "budget_spent",
-      "ward",
-      "municipality",
-      "status",
-      "contractor_name",
-      "start_date",
-      "target_end_date",
-      "public_summary",
-      "customer",
-    ]),
+    JSON.stringify([...PROJECT_FIELDS]),
   );
   const res = await fetch(
     `${base}/api/resource/TL%20Project?filters=${filters}&fields=${fields}&limit_page_length=200`,
@@ -340,23 +353,6 @@ export async function listCloudProjectsForCustomer(
     return { ok: false, error: "Invalid TL Project list response" };
   }
 }
-
-const PROJECT_FIELDS = [
-  "name",
-  "project_code",
-  "project_title",
-  "client_funder",
-  "budget_total",
-  "budget_spent",
-  "ward",
-  "municipality",
-  "status",
-  "contractor_name",
-  "start_date",
-  "target_end_date",
-  "public_summary",
-  "customer",
-] as const;
 
 async function fetchCloudProjects(
   filters: unknown[][],

@@ -9,6 +9,7 @@ import {
 } from "@/lib/leadCapture";
 import { rowsForCustomer } from "@/lib/tenantScope";
 import type { Commitment } from "@/types/commitment";
+import { parseOptionalMelNumber } from "@/lib/melIndicators";
 import type { Engagement } from "@/types/engagement";
 import type { Stakeholder } from "@/types/stakeholder";
 
@@ -135,7 +136,7 @@ export function commitmentToFrappeDoc(
   customer: string,
   orgId?: string,
 ): Record<string, unknown> {
-  return {
+  const body: Record<string, unknown> = {
     commitment_code: row.id,
     title: row.title,
     customer,
@@ -149,6 +150,16 @@ export function commitmentToFrappeDoc(
     evidence_note: row.evidenceNote || "",
     tl_org_id: orgId || "",
   };
+  if (row.expected !== undefined) {
+    body.expected_value = row.expected;
+  }
+  if (row.actual !== undefined) {
+    body.actual_value = row.actual;
+  }
+  if (row.melUnit !== undefined) {
+    body.mel_unit = row.melUnit || "";
+  }
+  return body;
 }
 
 export function frappeToStakeholder(
@@ -222,6 +233,8 @@ export function frappeToEngagement(doc: Record<string, unknown>): Engagement {
 }
 
 export function frappeToCommitment(doc: Record<string, unknown>): Commitment {
+  const expected = parseOptionalMelNumber(doc.expected_value);
+  const actual = parseOptionalMelNumber(doc.actual_value);
   return {
     id: String(doc.commitment_code || doc.name || ""),
     title: String(doc.title || ""),
@@ -236,6 +249,11 @@ export function frappeToCommitment(doc: Record<string, unknown>): Commitment {
       : undefined,
     evidenceNote: doc.evidence_note ? String(doc.evidence_note) : undefined,
     createdAt: String(doc.creation || new Date().toISOString()),
+    ...(expected !== undefined ? { expected } : {}),
+    ...(actual !== undefined ? { actual } : {}),
+    ...("mel_unit" in doc
+      ? { melUnit: String(doc.mel_unit || "").trim() || undefined }
+      : {}),
   };
 }
 
@@ -356,6 +374,9 @@ const COMMITMENT_FIELDS = [
   "stakeholder_ids",
   "source_action_item",
   "evidence_note",
+  "expected_value",
+  "actual_value",
+  "mel_unit",
   "tl_org_id",
   "customer",
   "creation",

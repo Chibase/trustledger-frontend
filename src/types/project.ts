@@ -1,7 +1,4 @@
-/**
- * Durable programme facts for a project — captured once, reused by
- * field notes, issue intake, and report generation.
- */
+import type { MelIndicator } from "@/types/mel";
 
 export type ProjectStatus =
   | "Draft"
@@ -127,6 +124,11 @@ export interface Project {
   publicSummary: string;
   /** Durable programme pack — empowerment, geo, community intel, promises. */
   dossier?: ProjectDossier;
+  /**
+   * MEL-1 expected vs actual rows. Cloud SoT on `mel_json`.
+   * Undefined = not loaded / omit on PUT. Empty array is explicit empty.
+   */
+  melIndicators?: MelIndicator[];
 }
 
 export const PROJECT_STATUS_OPTIONS: ProjectStatus[] = [

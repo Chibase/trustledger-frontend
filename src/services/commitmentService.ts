@@ -32,6 +32,25 @@ function mergeSeedAndLocal(local: Commitment[]): Commitment[] {
   return [...byId.values()].sort((a, b) => a.dueOn.localeCompare(b.dueOn));
 }
 
+/** Overlay local extras onto Cloud ids only. Empty Cloud stays empty. */
+export function overlayLocalCommitmentsOntoCloud(
+  cloud: Commitment[],
+  local: Commitment[],
+): Commitment[] {
+  const localById = new Map(local.map((row) => [row.id, row]));
+  return cloud.map((row) => {
+    const overlay = localById.get(row.id);
+    if (!overlay) return row;
+    return {
+      ...overlay,
+      ...row,
+      expected: row.expected !== undefined ? row.expected : overlay.expected,
+      actual: row.actual !== undefined ? row.actual : overlay.actual,
+      melUnit: row.melUnit !== undefined ? row.melUnit : overlay.melUnit,
+    };
+  });
+}
+
 export type CommitmentListFilters = {
   status?: CommitmentStatus | "all";
   projectId?: string;
@@ -119,12 +138,10 @@ export const commitmentService = {
     if (typeof window !== "undefined" && isLiveMode()) {
       const cloud = await listFromCloudSi();
       if (cloud) {
-        const local = readLocal();
-        const byId = new Map<string, Commitment>();
-        for (const row of cloud) byId.set(row.id, row);
-        for (const row of local) byId.set(row.id, row);
         return applyFilters(
-          [...byId.values()].sort((a, b) => a.dueOn.localeCompare(b.dueOn)),
+          overlayLocalCommitmentsOntoCloud(cloud, readLocal()).sort((a, b) =>
+            a.dueOn.localeCompare(b.dueOn),
+          ),
           filters,
         );
       }
