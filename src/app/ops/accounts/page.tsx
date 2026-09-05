@@ -23,9 +23,10 @@ export default async function OpsAccountsPage() {
         <p className="text-sm font-medium text-tl-trust">Command centre</p>
         <h1 className="mt-1 font-display text-3xl font-semibold">Accounts</h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
-          Control client accounts and Step 1 Plan Owner provision. Buyers stay
-          on trial/browser tenancy while ADR-013 lockdown is on. Track the full
-          ladder on{" "}
+          Control client accounts. Plan status and seats stay on TrustLedger
+          Cloud Desk (system of record). This page provisions Plan Owners and
+          VIP access. Buyers stay on trial/browser tenancy while ADR-013
+          lockdown is on. Track the full ladder on{" "}
           <Link
             href="/ops/readiness"
             className="font-medium text-tl-trust-ink underline"

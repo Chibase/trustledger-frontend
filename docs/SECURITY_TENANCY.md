@@ -20,7 +20,7 @@ Not a magic “privacy shell.” It means, in order:
 | **L4 — Assurances** | DPA, subprocessors list, retention schedule, optional pen-test / ISO / SOC-oriented controls. |
 | **L5 — Isolation options** | Dedicated DB site / region / VPC-style hosting for Institutional (true cost step). |
 
-**Today:** Strong **L1** (Customer-scoped app filters + VIP naming). **L2 Plan Owner + invitee bind** shipped (SEC-1 / SEC-5): Cloud User Permission on the Owner and on accepted teammates, plus BFF session bind so a client cannot switch onto another organisation. Partial **L3** (ops allowlist, OTP path, beta terms, suggest→apply AI). **L4** and **L5** remain the gap when a buyer wants a DPA / private site. Trial/browser-only invites (no Cloud Customer) are still device-local.
+**Today:** Strong **L1**. **L2 Plan Owner + invitee bind** shipped (SEC-1 / SEC-5). **L3** now includes the purge runbook (`docs/PURGE_RUNBOOK.md`) plus ops allowlist, OTP, beta terms, suggest→apply AI. **L4 lite:** public subprocessors (`/legal/subprocessors`) and a **template** DPA (`/legal/dpa`) — not executed until countersigned; not SOC 2 / ISO. **L5** Isolation remains playbook-only until Cloud price is locked. Trial/browser-only invites (no Cloud Customer) are still device-local.
 
 ---
 
@@ -148,9 +148,9 @@ Do **not** lock Isolation list prices until a cloud host quote is locked — sel
 
 1. **SEC-1** — Frappe User Permissions + “A cannot read B” smoke (L2 core) — **Done** (Plan Owner bind + BFF session bind; playbook `docs/FRAPPE_USER_PERMISSIONS.md`).  
 2. **SEC-5** — Cloud User seats for invitees — **Done** (live Customer; trial without Cloud stays browser-local).  
-3. **SEC-2** — Purge runbook + subprocessors page (L3/L4 lite).  
-4. **SEC-3** — DPA template for Project+ (legal).  
-5. **SEC-4** — Isolation SKU + dedicated site quote (L5 commercial).
+3. **SEC-2** — Purge runbook + subprocessors page (L3/L4 lite) — **Done**.  
+4. **SEC-3** — DPA template for Project+ (legal) — **Done (template; not executed until countersigned)**.  
+5. **SEC-4** — Isolation SKU + dedicated site quote (L5 commercial) — **Playbook only until Cloud price locked**.
 
 Sales can **talk** Trust Pack / Isolation **now** as roadmap with dates only when SEC packets are scheduled — otherwise say “available on Institutional scoping.”
 

@@ -26,6 +26,8 @@ const COLS = [
       { href: "/contact?utm_source=home&utm_medium=footer&utm_campaign=contact", label: "Contact" },
       { href: `${TRUSTLEDGER_MARKETING_URL}/privacy/`, label: "Privacy", external: true },
       { href: `${TRUSTLEDGER_MARKETING_URL}/terms/`, label: "Terms", external: true },
+      { href: "/legal/subprocessors", label: "Subprocessors" },
+      { href: "/legal/dpa", label: "DPA template" },
     ],
   },
   {

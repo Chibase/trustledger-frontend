@@ -9,7 +9,7 @@ import {
   nonBlankCloudTime,
   processStagesFromCloud,
 } from "@/lib/productCloud";
-import { mergeCloudAndLocal } from "@/services/incidentService";
+import { mergeCloudAndLocal, overlayLocalIncidentsOntoCloud } from "@/services/incidentService";
 
 function sampleIncident(over: Partial<Incident> = {}): Incident {
   return {
@@ -182,5 +182,13 @@ describe("24e-cloud incident stage mappers", () => {
     expect(merged[0]?.processStages?.verifiedAt).toBe("2026-09-03T15:00:00.000Z");
     expect(merged[0]?.status).toBe("Closed");
     expect(merged[0]?.timeline).toHaveLength(1);
+  });
+
+  it("does not append local-only rows onto an empty Cloud list", () => {
+    const local = sampleIncident({ id: "INC-LOCAL-ONLY" });
+    const overlaid = overlayLocalIncidentsOntoCloud([], [local]);
+    expect(overlaid).toEqual([]);
+    const merged = mergeCloudAndLocal([], [local]);
+    expect(merged.map((row) => row.id)).toEqual(["INC-LOCAL-ONLY"]);
   });
 });

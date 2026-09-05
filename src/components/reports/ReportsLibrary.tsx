@@ -34,26 +34,30 @@ import {
   purgeTemplateGuideReports,
 } from "@/lib/reportStore";
 import {
-  listWorkspaceIncidents,
-  listWorkspaceProjects,
-} from "@/lib/workspaceData";
-import {
   REPORT_AUDIENCE_LABELS,
   REPORT_KIND_LABELS,
   type SavedReport,
 } from "@/types/activityReport";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
+import type { Incident } from "@/types/incident";
+import type { Project } from "@/types/project";
 import type { UserRole } from "@/types/rbac";
 
 type ReportsLibraryProps = {
   role: UserRole;
+  projects?: Project[];
+  incidents?: Incident[];
 };
 
 /**
  * Level-aware report library for dashboards — viewers see packs at or below
  * their desk grade, plus anything addressed to their audience band.
  */
-export function ReportsLibrary({ role }: ReportsLibraryProps) {
+export function ReportsLibrary({
+  role,
+  projects = [],
+  incidents = [],
+}: ReportsLibraryProps) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [rows, setRows] = useState<SavedReport[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -178,7 +182,11 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
                   </p>
                 </header>
                 <div className="mt-4">
-                  <SavedReportLensBody report={active} />
+                  <SavedReportLensBody
+                    report={active}
+                    projects={projects}
+                    incidents={incidents}
+                  />
                 </div>
                 {active.evidence.length ? (
                   <div className="mt-4 border-t border-tl-line pt-3">
@@ -214,20 +222,28 @@ export function ReportsLibrary({ role }: ReportsLibraryProps) {
   );
 }
 
-function SavedReportLensBody({ report }: { report: SavedReport }) {
+function SavedReportLensBody({
+  report,
+  projects,
+  incidents: workspaceIncidents,
+}: {
+  report: SavedReport;
+  projects: Project[];
+  incidents: Incident[];
+}) {
   const project = report.projectId
-    ? listWorkspaceProjects().find((p) => p.id === report.projectId)
+    ? projects.find((p) => p.id === report.projectId)
     : undefined;
-  const workspaceIncidents = listWorkspaceIncidents().filter(
+  const scoped = workspaceIncidents.filter(
     (i) => !report.projectId || i.projectId === report.projectId,
   );
   const cited = citedIncidentIds(report.bodyMarkdown);
   const incidents =
     cited.length > 0
-      ? workspaceIncidents.filter((i) =>
+      ? scoped.filter((i) =>
           cited.some((id) => id.toUpperCase() === i.id.toUpperCase()),
         )
-      : workspaceIncidents;
+      : scoped;
   const facts = buildPeriodActivityFacts(incidents, {
     projectId: report.projectId,
     projectName: report.projectName,

@@ -124,6 +124,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.3,
     },
+    {
+      url: `${siteUrl}/legal/subprocessors`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: `${siteUrl}/legal/dpa`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
     ...chibaseCrossSitemap(now),
   ];
 }

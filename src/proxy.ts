@@ -68,6 +68,7 @@ const PRODUCT_ON_FIRM = [
   "/privacy",
   "/terms",
   "/cookies",
+  "/legal",
   "/invite",
   "/auth",
   "/dashboard",

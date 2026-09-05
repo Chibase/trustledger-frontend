@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-05 — Later leftover (UX-1 live lists + 23b–d lite + SEC-2/3)
+
+- Report packs on `/app/reports` (hub, writer, library, optional intelligence) bind to live Cloud project and incident lists. Empty Cloud stays empty — local-only cases are not appended. Project studio keeps an empty seed empty.
+- Ops `/ops/reports` is a real filter + CSV export (`GET /api/ops/reports.csv`, operators only). Support slice covers 23d. Accounts stay Desk SoT (provision + VIP already on the page).
+- SEC-2: `docs/PURGE_RUNBOOK.md` + public `/legal/subprocessors`. SEC-3: DPA template `/legal/dpa` (not executed until countersigned; not SOC 2). SEC-4 Isolation price, ledger signing, live Grok proof, and community monthly packs stay blocked.
+
 ## 2026-09-05 — P3 acquisition / ops track (HS-2 in-repo + EM-1 ops surface)
 
 - Canonical Vercel form → CRM Lead inventory (`src/lib/leadFormInventory.ts`) stays in lockstep with `resolveCrmSource`. Ops `/ops/readiness` shows the HS-2 checklist and writes one smoke CRM Lead (`hs2-smoke@trustledgersrm.co.za`, job title **HS-2 smoke**) via `GET|POST /api/ops/lead-smoke` (operators only).

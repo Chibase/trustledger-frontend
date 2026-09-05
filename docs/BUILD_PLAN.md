@@ -150,9 +150,9 @@ WordPress CTA copy lives in `docs/WORDPRESS_CTA.md` for paste into Webway.
 | 23h | Trial → pay funnel | `/trial` capture then demo or subscribe; banner/WP CTAs | **Done** |
 | 23i | Quote + EFT bridge | `/quote` CRM Lead; Ops Confirm EFT paid; trial/WP CTAs | **Done** |
 | 23j | Open trial explore | No-login `/demo`→`/app`; email on print/save; plan catalogue docs | **Done** |
-| 23b | Ops reports | Filterable intake/feedback/assessment reports + CSV | Planned |
-| 23c | Ops accounts | Customer plan/status/seat controls | Planned |
-| 23d | Ops support packs | Per-person/org context for support | Planned |
+| 23b | Ops reports | Filterable intake/feedback/assessment reports + CSV | **Done** |
+| 23c | Ops accounts | Customer plan/status/seat controls | **Done (lite)** — provision + VIP; Desk remains SoT for plan/status |
+| 23d | Ops support packs | Per-person/org context for support | **Done (slice)** — support filter + CSV on `/ops/reports` |
 
 See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 
@@ -169,7 +169,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24d** | Commitments | Promise board; Cloud DocType + BFF | **Done (Cloud SI path)** |
 | **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (Cloud stamps)** |
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** (superseded nav by UX-1) |
-| **UX-1** | Portfolio → project reports | Executive dashboard (graph-first workspace overview) → project dashboard (overall graphs; category capture/reports in details) → kind/format/level reports | **Active** |
+| **UX-1** | Portfolio → project reports | Executive dashboard (graph-first workspace overview) → project dashboard (overall graphs; category capture/reports in details) → kind/format/level reports | **Done** — packs bind to live Cloud lists; empty Cloud stays empty |
 | **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs; tenant local community intel beside Stats SA | **Done (baseline + local upload)** |
 | **D1** | Product onboarding | `/product` replaces public `/demo` sample entry | **Done** |
 | **D2** | Kill demo mode | No guest `tl-mode=demo`; retarget CTAs; clear lingering demo sessions | **Done** |
@@ -264,8 +264,8 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 |--------|------|-------|--------|
 | **SEC-0** | Security ladder docs | ADR-038 + `docs/SECURITY_TENANCY.md` — L1–L5 + plan Trust/Isolation matrix; home pricing blurb + foldable comparison + optional privacy extras | **Done** |
 | **SEC-1** | Hard User Permissions | Frappe per-Customer permissions + A≠B smoke (L2) | **Done** (Plan Owner bind + BFF session bind; invitees = SEC-5 **Done**) |
-| **SEC-2** | Purge + subprocessors | Runbook + public subprocessors note (L3/L4 lite) | Planned |
-| **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | Planned |
+| **SEC-2** | Purge + subprocessors | Runbook + public subprocessors note (L3/L4 lite) | **Done** (`docs/PURGE_RUNBOOK.md`, `/legal/subprocessors`) |
+| **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | **Done (template)** — `/legal/dpa`; not executed until countersigned |
 | **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
 | **SEC-5** | Cloud invitee seats | Replace browser-only junior seats; Owner password issue already covers Cloud Users on the Customer | **Done** |
 | **SEC-SITE** | Dual-origin public hardening + Chibase site | ADR-046 — `/firm` brochure; retire Chibase WP; website DNS to this app; MX stays Webway; **SEO: 410 for retired WP spam + firm sitemap** (`docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`) | **Done** (SEO deepen 2026-08-17) |
@@ -315,6 +315,8 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-05 | Later leftover — UX-1 packs bind to live Cloud lists; ops 23b CSV; SEC-2/3 paper; ledger/Grok/community/SEC-4 still blocked |
+| 2026-09-05 | P3 — HS-2 in-repo inventory + ops smoke; EM-1 Desk remaining on `/ops/readiness`; HS-3/4 deferred |
 | 2026-09-05 | P0b — Project Cloud save: live edits upsert `TL Project`; dossier stays local overlay; empty Cloud stays empty |
 | 2026-09-04 | 24e-cloud — grievance lifecycle stamps on TL Incident (live upsert; blank times stay blank) |
 | 2026-09-04 | TE-12 — trust-movement companion reading (later-half co-occurrence; not statistical causality) |
