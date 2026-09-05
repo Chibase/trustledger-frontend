@@ -55,7 +55,7 @@ export type TrialProvisionResult = {
  */
 export async function provisionAfterPaystackVerify(
   verified: VerifiedPaystackTransaction,
-  options: { mintCredentials?: boolean } = {},
+  options: { mintCredentials?: boolean; sendWelcomeEmail?: boolean } = {},
 ): Promise<TrialProvisionResult | null> {
   if (!verified.ok || !verified.email) return null;
 
@@ -64,6 +64,10 @@ export async function provisionAfterPaystackVerify(
   }
 
   const mintCredentials = options.mintCredentials !== false;
+  const sendWelcomeEmail =
+    options.sendWelcomeEmail !== undefined
+      ? options.sendWelcomeEmail
+      : mintCredentials;
 
   const email = verified.email.trim().toLowerCase();
   const name =
@@ -218,25 +222,29 @@ export async function provisionAfterPaystackVerify(
 
   let emailSent = false;
   let emailDetail: string | undefined;
-  const base = siteBaseUrl();
-  const mail = await sendTrialWelcomeEmail({
-    to: email,
-    name,
-    tempPassword,
-    planLabel: planLabel || planId,
-    trialEndsAt: new Date(billAt).toLocaleString("en-ZA", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }),
-    loginUrl: `${base}/login/trial`,
-    workspaceUrl: `${base}/pay/activate?token=${encodeURIComponent(activationToken)}`,
-    requireEmailVerification: accessEmailVerificationEnabled(),
-  });
-  emailSent = mail.sent;
-  emailDetail = mail.detail;
-  if (!mail.sent && !transactionalEmailConfigured()) {
-    emailDetail =
-      "Email provider not configured — credentials shown on success page only";
+  if (sendWelcomeEmail) {
+    const base = siteBaseUrl();
+    const mail = await sendTrialWelcomeEmail({
+      to: email,
+      name,
+      tempPassword,
+      planLabel: planLabel || planId,
+      trialEndsAt: new Date(billAt).toLocaleString("en-ZA", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }),
+      loginUrl: `${base}/login/trial`,
+      workspaceUrl: `${base}/pay/activate?token=${encodeURIComponent(activationToken)}`,
+      requireEmailVerification: accessEmailVerificationEnabled(),
+    });
+    emailSent = mail.sent;
+    emailDetail = mail.detail;
+    if (!mail.sent && !transactionalEmailConfigured()) {
+      emailDetail =
+        "Email provider not configured — credentials shown on success page only";
+    }
+  } else {
+    emailDetail = "Credentials already shown on the success page";
   }
 
   let cloudProvision: TrialProvisionResult["cloudProvision"];

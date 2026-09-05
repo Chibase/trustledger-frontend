@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import { runTenancyAbSmoke } from "@/lib/tenancySmoke";
-import {
-  assertOpsAccess,
-  operatorGateMessage,
-} from "@/lib/platformOperator";
+import { opsDenied, requireOpsLiveSession } from "@/lib/opsSession";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,29 +10,15 @@ export const dynamic = "force-dynamic";
  * POST { applyMissing: true } stamps missing User Permissions.
  */
 export async function GET() {
-  const jar = await cookies();
-  const email = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  const gate = assertOpsAccess(email);
-  if (!gate.ok) {
-    return NextResponse.json(
-      { error: operatorGateMessage(gate.reason) },
-      { status: 403 },
-    );
-  }
+  const session = await requireOpsLiveSession();
+  if (!session.ok) return opsDenied(session);
   const smoke = await runTenancyAbSmoke();
   return NextResponse.json({ ok: smoke.ok, smoke });
 }
 
 export async function POST(request: Request) {
-  const jar = await cookies();
-  const email = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  const gate = assertOpsAccess(email);
-  if (!gate.ok) {
-    return NextResponse.json(
-      { error: operatorGateMessage(gate.reason) },
-      { status: 403 },
-    );
-  }
+  const session = await requireOpsLiveSession();
+  if (!session.ok) return opsDenied(session);
   let applyMissing = false;
   try {
     const body = (await request.json()) as { applyMissing?: boolean };

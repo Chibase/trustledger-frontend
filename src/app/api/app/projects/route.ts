@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { FRAPPE_SID_COOKIE } from "@/lib/auth.constants";
 import { getCustomerEntitlementByOwnerEmail } from "@/lib/entitlementCloud";
 import { isVipCustomerName } from "@/lib/planLabel";
+import { liveOwnerDenied, requireLivePlanOwner } from "@/lib/planOwnerAccess";
 import {
   createCloudProject,
   getCloudProjectForCustomer,
@@ -48,12 +49,8 @@ export async function POST(request: Request) {
   if (!user || user.mode !== "live" || !user.email) {
     return NextResponse.json({ error: "Live sign-in required" }, { status: 401 });
   }
-  if (user.isPlanOwner === false) {
-    return NextResponse.json(
-      { error: "Only the Plan Owner can create projects." },
-      { status: 403 },
-    );
-  }
+  const owner = await requireLivePlanOwner();
+  if (!owner.ok) return liveOwnerDenied(owner);
 
   let body: {
     name?: string;
@@ -78,8 +75,8 @@ export async function POST(request: Request) {
   }
 
   const jar = await cookies();
-  const bound = await bindSessionCustomer(user.email, null, {
-    sid: jar.get(FRAPPE_SID_COOKIE)?.value,
+  const bound = await bindSessionCustomer(owner.email, null, {
+    sid: owner.sid || jar.get(FRAPPE_SID_COOKIE)?.value,
   });
   if (!bound.ok) {
     return NextResponse.json(
@@ -94,7 +91,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const ent = await getCustomerEntitlementByOwnerEmail(user.email);
+  const ent = await getCustomerEntitlementByOwnerEmail(owner.email);
   const customerName = bound.customerName;
   const vip =
     isVipCustomerName(ent?.customerLabel) ||

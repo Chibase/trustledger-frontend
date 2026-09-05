@@ -42,13 +42,6 @@ function filterIncidents(
   return next;
 }
 
-async function isOwnDataWorkspace(): Promise<boolean> {
-  if (typeof window === "undefined") return false;
-  const { readTrialModeFromDocument } = await import("@/lib/trial");
-  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
-  return readTrialModeFromDocument() || isCustomerWorkspaceClient();
-}
-
 async function mergeLocalOverlays(seed: Incident[]): Promise<Incident[]> {
   if (typeof window === "undefined") return seed;
   const { readTrialModeFromDocument } = await import("@/lib/trial");
@@ -173,19 +166,12 @@ async function listDemo(filters: IncidentListFilters): Promise<Incident[]> {
 }
 
 async function listLive(filters: IncidentListFilters): Promise<Incident[]> {
-  const own = await isOwnDataWorkspace();
   const cloud = await listFromCloudProduct();
+  const local = await mergeLocalOverlays([]);
   if (cloud) {
-    const local = await mergeLocalOverlays([]);
-    const rows = own
-      ? overlayLocalIncidentsOntoCloud(cloud, local)
-      : mergeCloudAndLocal(cloud, local);
-    return filterIncidents(rows, filters);
+    return filterIncidents(overlayLocalIncidentsOntoCloud(cloud, local), filters);
   }
-  if (own) {
-    return filterIncidents(await mergeLocalOverlays([]), filters);
-  }
-  return listDemo(filters);
+  return filterIncidents(local, filters);
 }
 
 export const incidentService = {
@@ -198,9 +184,7 @@ export const incidentService = {
     const local = rows.find((i) => i.id === id);
     if (local) return local;
     if (isLiveMode()) {
-      const own = await isOwnDataWorkspace();
-      if (own) return null;
-      return delay(mockIncidents.find((i) => i.id === id) ?? null);
+      return null;
     }
     return delay(mockIncidents.find((i) => i.id === id) ?? null);
   },

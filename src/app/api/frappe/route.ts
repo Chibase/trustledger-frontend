@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { FRAPPE_SID_COOKIE, TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
+import { isAllowedFrappeProxyMethod } from "@/lib/frappeProxyAllowlist";
 import { frappeCallWithSid } from "@/lib/frappeServer";
 import {
   assertLiveOperatorAccess,
   operatorGateMessage,
 } from "@/lib/platformOperator";
+import { canonicalLiveEmail } from "@/lib/tenantScope";
 
 /**
  * Same-origin proxy so the browser never needs the Frappe sid cookie.
  * POST body: { method: "/api/method/...", ...args }
+ * Methods are tightly allowlisted. Identity comes from the live sid.
  */
 export async function POST(request: Request) {
   const jar = await cookies();
@@ -18,8 +21,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not logged in to live session" }, { status: 401 });
   }
 
-  const email = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  const gate = assertLiveOperatorAccess(email);
+  const cookieEmail = jar.get(TL_USER_EMAIL_COOKIE)?.value;
+  const canonical = await canonicalLiveEmail({ sid, cookieEmail });
+  if (!canonical.ok) {
+    return NextResponse.json(
+      { error: canonical.error, code: canonical.code },
+      { status: canonical.status },
+    );
+  }
+
+  const gate = assertLiveOperatorAccess(canonical.email);
   if (!gate.ok) {
     return NextResponse.json(
       { error: operatorGateMessage(gate.reason) },
@@ -35,32 +46,20 @@ export async function POST(request: Request) {
   }
 
   const method = body.method;
-  if (typeof method !== "string" || !method.includes("/api/method/")) {
-    return NextResponse.json(
-      { error: "body.method must be a /api/method/... path" },
-      { status: 400 },
-    );
-  }
-
-  // Hard block Cloud LLM report methods — Grok returns Month-End / [Insert …]
-  // fill-in guides. TrustLedger composes reports locally (reportComposer).
-  const blockedAi = [
-    "srm_core.api.ai.compose_activity_report",
-    "srm_core.api.ai.generate_report_brief",
-  ];
-  if (blockedAi.some((m) => method.includes(m))) {
+  if (typeof method !== "string" || !isAllowedFrappeProxyMethod(method)) {
     return NextResponse.json(
       {
         error:
-          "Report AI is local-only on TrustLedger. Use Create report → evidence writer (never Cloud compose/brief).",
+          "That TrustLedger Cloud method is not available through this proxy.",
       },
       { status: 403 },
     );
   }
 
-  const { method: _method, ...args } = body;
+  const args = { ...body };
+  delete args.method;
   try {
-    const message = await frappeCallWithSid(sid, method, args);
+    const message = await frappeCallWithSid(sid, method.trim(), args);
     return NextResponse.json({ message });
   } catch (error) {
     const text = error instanceof Error ? error.message : "Proxy failed";

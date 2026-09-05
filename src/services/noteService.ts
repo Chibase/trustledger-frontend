@@ -54,7 +54,7 @@ export const evidenceService = {
         );
         return Array.isArray(rows) ? rows : [];
       } catch {
-        /* fall through */
+        return [];
       }
     }
     return delay(mockEvidence.filter((e) => e.incidentId === incidentId));

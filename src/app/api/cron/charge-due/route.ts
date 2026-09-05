@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import { ensureTrustLedgerCustomFields } from "@/lib/frappeCustomFields";
 import {
   listDueTrialCustomers,
   setCustomerEntitlement,
 } from "@/lib/entitlementCloud";
-import { assertOpsAccess } from "@/lib/platformOperator";
+import { opsDenied, requireOpsLiveSession } from "@/lib/opsSession";
 import { recordPaystackPayment } from "@/lib/paymentIntel";
 import {
   chargePaystackAuthorization,
@@ -54,12 +52,8 @@ async function runChargeDue(
 
   const cronOk = authorizeCron(request);
   if (!cronOk) {
-    const jar = await cookies();
-    const operator = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-    const gate = assertOpsAccess(operator);
-    if (!gate.ok) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const session = await requireOpsLiveSession();
+    if (!session.ok) return opsDenied(session);
   }
 
   await ensureTrustLedgerCustomFields({ dryRun: false }).catch(() => undefined);

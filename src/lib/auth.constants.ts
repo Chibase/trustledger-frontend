@@ -11,6 +11,8 @@ export const TL_TRIAL_STARTED_COOKIE = "tl-trial-started";
 /** Demo org tenancy (Plan Owner / invitees) */
 export const TL_ORG_ID_COOKIE = "tl-org-id";
 export const TL_ORG_OWNER_COOKIE = "tl-org-owner";
+/** Readable UI hint only — mutating APIs ignore this and the httpOnly owner cookie. */
+export const TL_ORG_OWNER_UI_COOKIE = "tl-org-owner-ui";
 export const TL_DESK_TIER_COOKIE = "tl-desk-tier";
 export const TL_DESK_TIER_LOCKED_COOKIE = "tl-desk-tier-locked";
 

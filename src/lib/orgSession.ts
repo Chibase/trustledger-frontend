@@ -170,7 +170,7 @@ export function startVipShowcaseSession(input: {
 
 export function readOrgOwnerCookie(): boolean {
   if (typeof document === "undefined") return false;
-  return /(?:^|;\s*)tl-org-owner=1(?:;|$)/.test(document.cookie);
+  return /(?:^|;\s*)tl-org-owner(?:-ui)?=1(?:;|$)/.test(document.cookie);
 }
 
 export function readDeskTierLockedCookie(): boolean {

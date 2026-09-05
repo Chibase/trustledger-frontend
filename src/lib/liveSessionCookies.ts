@@ -11,6 +11,7 @@ import {
   TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
   TL_ORG_OWNER_COOKIE,
+  TL_ORG_OWNER_UI_COOKIE,
   TL_TRIAL_PLAN_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
@@ -29,7 +30,10 @@ export type LiveSessionCookieInput = {
   vip?: boolean;
 };
 
-/** Live Plan Owner is the owner cookie only — never a client-writable session-role. */
+/** Live Plan Owner is the owner cookie only — never a client-writable session-role.
+ *  The cookie is httpOnly on live login. Mutating APIs still ignore it and
+ *  require Customer.custom_owner_email (requireLivePlanOwner).
+ */
 export function livePlanOwnerFromCookies(ownerCookie: boolean): boolean {
   return ownerCookie;
 }
@@ -62,9 +66,21 @@ export function applyLiveSessionCookies(
     { ...cookieBase, httpOnly: true },
   );
   if (input.isPlanOwner) {
-    response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);
+    response.cookies.set(TL_ORG_OWNER_COOKIE, "1", {
+      ...cookieBase,
+      httpOnly: true,
+    });
+    response.cookies.set(TL_ORG_OWNER_UI_COOKIE, "1", cookieBase);
   } else {
-    response.cookies.set(TL_ORG_OWNER_COOKIE, "", { ...cookieBase, maxAge: 0 });
+    response.cookies.set(TL_ORG_OWNER_COOKIE, "", {
+      ...cookieBase,
+      httpOnly: true,
+      maxAge: 0,
+    });
+    response.cookies.set(TL_ORG_OWNER_UI_COOKIE, "", {
+      ...cookieBase,
+      maxAge: 0,
+    });
   }
   if (input.deskTier) {
     response.cookies.set(TL_DESK_TIER_COOKIE, input.deskTier, cookieBase);

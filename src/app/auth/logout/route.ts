@@ -8,6 +8,7 @@ import {
   TL_MODE_COOKIE,
   TL_ORG_ID_COOKIE,
   TL_ORG_OWNER_COOKIE,
+  TL_ORG_OWNER_UI_COOKIE,
   TL_TRIAL_PLAN_COOKIE,
   TL_TRIAL_STARTED_COOKIE,
   TL_USER_EMAIL_COOKIE,
@@ -34,6 +35,8 @@ export async function POST() {
   response.cookies.set(TL_TRIAL_STARTED_COOKIE, "", clear);
   response.cookies.set(TL_VIP_COOKIE, "", clear);
   response.cookies.set(TL_ORG_OWNER_COOKIE, "", clear);
+  response.cookies.set(TL_ORG_OWNER_COOKIE, "", { ...clear, httpOnly: true });
+  response.cookies.set(TL_ORG_OWNER_UI_COOKIE, "", clear);
   response.cookies.set(TL_ORG_ID_COOKIE, "", clear);
   response.cookies.set(TL_DESK_TIER_COOKIE, "", clear);
   response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "", clear);

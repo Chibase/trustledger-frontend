@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { extractText, getDocumentProxy } from "unpdf";
 import {
+  FRAPPE_SID_COOKIE,
   TL_MODE_COOKIE,
-  TL_ORG_OWNER_COOKIE,
   TL_USER_EMAIL_COOKIE,
 } from "@/lib/auth.constants";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
@@ -14,12 +14,11 @@ const MAX_BYTES = 4 * 1024 * 1024; // 4 MB
 
 function hasCaptureSession(jar: Awaited<ReturnType<typeof cookies>>): boolean {
   const mode = jar.get(TL_MODE_COOKIE)?.value?.trim();
-  return Boolean(
-    jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim() ||
-      mode === "trial" ||
-      mode === "live" ||
-      jar.get(TL_ORG_OWNER_COOKIE)?.value === "1",
-  );
+  const email = jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim();
+  const sid = jar.get(FRAPPE_SID_COOKIE)?.value?.trim();
+  if (email) return true;
+  if (mode === "trial") return true;
+  return mode === "live" && Boolean(sid);
 }
 
 /** Extract text from an uploaded PDF for Capture minutes/attendance. */

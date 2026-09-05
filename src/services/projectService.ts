@@ -142,12 +142,7 @@ async function listLive(filters: ProjectListFilters): Promise<Project[]> {
     );
   }
 
-  const { readTrialModeFromDocument } = await import("@/lib/trial");
-  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
-  if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
-    return [];
-  }
-  return listDemo(filters);
+  return [];
 }
 
 async function getLive(id: string): Promise<Project | null> {
@@ -184,12 +179,7 @@ async function getLive(id: string): Promise<Project | null> {
     /* ignore */
   }
 
-  const { readTrialModeFromDocument } = await import("@/lib/trial");
-  const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
-  if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
-    return null;
-  }
-  return delay(mockProjects.find((p) => p.id === id) ?? null);
+  return null;
 }
 
 async function cacheAfterCloudSave(project: Project) {

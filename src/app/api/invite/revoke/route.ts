@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import {
+  FRAPPE_SID_COOKIE,
   TL_ORG_ID_COOKIE,
   TL_ORG_OWNER_COOKIE,
+  TL_USER_EMAIL_COOKIE,
 } from "@/lib/auth.constants";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
 import { markInviteRevokedServer } from "@/lib/orgInviteServerState";
+import { liveOwnerDenied, requireLivePlanOwner } from "@/lib/planOwnerAccess";
 
 type RevokeBody = { inviteId: string; orgId: string };
 
@@ -26,13 +29,23 @@ export async function POST(request: Request) {
   }
 
   const jar = await cookies();
-  const isOwner = jar.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+  const sid = jar.get(FRAPPE_SID_COOKIE)?.value;
   const sessionOrgId = jar.get(TL_ORG_ID_COOKIE)?.value?.trim() || "";
-  if (!isOwner || !sessionOrgId) {
-    return NextResponse.json(
-      { error: "Only the Plan Owner session can revoke invites." },
-      { status: 401 },
-    );
+  let ownerEmail =
+    jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim().toLowerCase() || "";
+
+  if (sid) {
+    const owner = await requireLivePlanOwner();
+    if (!owner.ok) return liveOwnerDenied(owner);
+    ownerEmail = owner.email;
+  } else {
+    const isOwner = jar.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+    if (!isOwner || !sessionOrgId || !ownerEmail.includes("@")) {
+      return NextResponse.json(
+        { error: "Only the Plan Owner session can revoke invites." },
+        { status: 401 },
+      );
+    }
   }
 
   let body: unknown;
@@ -44,13 +57,19 @@ export async function POST(request: Request) {
   if (!isValid(body)) {
     return NextResponse.json({ error: "Missing inviteId" }, { status: 400 });
   }
-  if (body.orgId !== sessionOrgId) {
+  if (sessionOrgId && body.orgId !== sessionOrgId) {
     return NextResponse.json(
       { error: "Invite org does not match your Plan Owner session." },
       { status: 403 },
     );
   }
+  if (!ownerEmail.includes("@")) {
+    return NextResponse.json(
+      { error: "Plan Owner email is required to revoke invites." },
+      { status: 401 },
+    );
+  }
 
-  markInviteRevokedServer(body.inviteId);
+  markInviteRevokedServer(body.inviteId, ownerEmail);
   return NextResponse.json({ ok: true });
 }

@@ -31,7 +31,7 @@ Not a magic “privacy shell.” It means, in order:
 | Work | Type | Notes |
 |------|------|--------|
 | Frappe **User Permission** (or equivalent) per Customer on all TL / SI DocTypes | Engineering | **SEC-1 Done for Plan Owners. SEC-5 Done for accepted Cloud invitees.** |
-| API / resource calls never use a global key that can “see all” without a scoped user | Engineering | Site key remains for BFF; customer-facing CRUD **binds session Customer** and post-filters lists. Prefer user `sid` or permissioned service roles next. |
+| API / resource calls never use a global key that can “see all” without a scoped user | Engineering | Site key remains for BFF; customer-facing CRUD **binds session Customer** and post-filters lists. Generic method proxy is **allowlisted**. Ops APIs require a live sid (not an email cookie). Prefer user `sid` or permissioned service roles next. |
 | Entitlement + role asserts on **writes** (not UI alone) | Engineering | ACCESS_MODEL already requires this |
 | Invitees as **Cloud Users** scoped to that Customer | Engineering | **SEC-5 Done** for live orgs with a Cloud Customer. Trial without a Customer stays browser-local. |
 | Automated tests: “User of A cannot read B” | Engineering | **SEC-1 smoke:** Owner bindings + peer-org binds on `/ops/readiness`. Sid impersonation still later. |
@@ -148,9 +148,10 @@ Do **not** lock Isolation list prices until a cloud host quote is locked — sel
 
 1. **SEC-1** — Frappe User Permissions + “A cannot read B” smoke (L2 core) — **Done** (Plan Owner bind + BFF session bind; playbook `docs/FRAPPE_USER_PERMISSIONS.md`).  
 2. **SEC-5** — Cloud User seats for invitees — **Done** (live Customer; trial without Cloud stays browser-local).  
-3. **SEC-2** — Purge runbook + subprocessors page (L3/L4 lite) — **Done**.  
-4. **SEC-3** — DPA template for Project+ (legal) — **Done (template; not executed until countersigned)**.  
-5. **SEC-4** — Isolation SKU + dedicated site quote (L5 commercial) — **Playbook only until Cloud price locked**.
+3. **SEC-BFF** — BFF session hardening — **Done** (ops sid, Cloud Plan Owner, Paystack verify one-shot, Frappe proxy allowlist, no live demo seed).  
+4. **SEC-2** — Purge runbook + subprocessors page (L3/L4 lite) — **Done**.  
+5. **SEC-3** — DPA template for Project+ (legal) — **Done (template; not executed until countersigned)**.  
+6. **SEC-4** — Isolation SKU + dedicated site quote (L5 commercial) — **Playbook only until Cloud price locked**.
 
 Sales can **talk** Trust Pack / Isolation **now** as roadmap with dates only when SEC packets are scheduled — otherwise say “available on Institutional scoping.”
 

@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const blocked = inviteBlockedReason(payload.inviteId);
+  const blocked = inviteBlockedReason(payload.inviteId, payload.ownerEmail);
   if (blocked === "revoked") {
     return NextResponse.json(
       { ok: false, error: "This invite was revoked by the Plan Owner." },
