@@ -56,7 +56,7 @@ Accepted teammates on a **live** organisation get their own Cloud User on that C
 | Provision on accept | `provisionInviteeOnCloud` from `POST /api/invite/accept-seat` | Portable signed invite only. One-shot — existing Cloud User is not a password reset. Owner email cannot accept as invitee. Desk rank uses the live Customer plan. |
 | Same Customer User Permission | `ensureCustomerUserPermission` | `allow=Customer`, `for_value=<Customer>`, `apply_to_all_doctypes=1` |
 | Tighter role | `User.custom_tl_app_role` + locked desk | `community\|contractor\|client`. Never `custom_tl_plan_owner=1`. |
-| Live bind | `resolveSessionCustomer` then `bindSessionCustomer` | Owner email first; else invitee `custom_tl_customer`. Claimed `customer=` still ignored. |
+| Live bind | `resolveSessionCustomer` then `bindSessionCustomer` | Owner email first; else invitee `custom_tl_customer`. Claimed `customer=` still ignored. Live Plan Owner APIs use Cloud sid `custom_tl_plan_owner`, not `tl-org-owner`. |
 | Login | `/login/live` | Invitee without a Customer stamp: 403 (operators exempt). Desk cookie locked. |
 
 Trial orgs without a Cloud Customer still accept in the browser (`cloud: false`). Plan Owner password issue for existing Cloud Users was already shipped.

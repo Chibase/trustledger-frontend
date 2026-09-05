@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import {
-  TL_ORG_ID_COOKIE,
-  TL_ORG_OWNER_COOKIE,
-} from "@/lib/auth.constants";
+import { TL_ORG_ID_COOKIE } from "@/lib/auth.constants";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
+import { requirePlanOwnerSession } from "@/lib/livePlanOwner";
 import { markInviteRevokedServer } from "@/lib/orgInviteServerState";
 
 type RevokeBody = { inviteId: string; orgId: string };
@@ -26,12 +24,12 @@ export async function POST(request: Request) {
   }
 
   const jar = await cookies();
-  const isOwner = jar.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+  const ownerGate = await requirePlanOwnerSession();
   const sessionOrgId = jar.get(TL_ORG_ID_COOKIE)?.value?.trim() || "";
-  if (!isOwner || !sessionOrgId) {
+  if (!ownerGate.ok || !sessionOrgId) {
     return NextResponse.json(
       { error: "Only the Plan Owner session can revoke invites." },
-      { status: 401 },
+      { status: ownerGate.ok ? 401 : ownerGate.status },
     );
   }
 

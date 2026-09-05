@@ -14,7 +14,7 @@ import {
   TL_VIP_COOKIE,
   type TlMode,
 } from "@/lib/auth.constants";
-import { livePlanOwnerFromCookies } from "@/lib/liveSessionCookies";
+import { resolveLivePlanOwnerFromSid } from "@/lib/livePlanOwner";
 import { isPlanId, type PlanId } from "@/config/plans";
 import { isUserRole, type UserRole } from "@/types/rbac";
 import {
@@ -108,7 +108,10 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       ? computeTrialSnapshot(started, trialPlan ?? "practitioner")
       : undefined;
   const orgId = cookieStore.get(TL_ORG_ID_COOKIE)?.value || undefined;
-  const isPlanOwner = cookieStore.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+  const cookiePlanOwner = cookieStore.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+  const sid = cookieStore.get(FRAPPE_SID_COOKIE)?.value;
+  const livePlanOwner =
+    mode === "live" ? await resolveLivePlanOwnerFromSid(sid) : false;
   const deskTierRaw = cookieStore.get(TL_DESK_TIER_COOKIE)?.value;
   const deskTier = normalizeDeskTier(
     deskTierRaw ? decodeURIComponent(deskTierRaw) : undefined,
@@ -134,9 +137,9 @@ export async function getCurrentUser(): Promise<AppUser | null> {
         orgId,
         isPlanOwner:
           mode === "live"
-            ? livePlanOwnerFromCookies(isPlanOwner)
+            ? livePlanOwner
             : orgId
-              ? isPlanOwner || sessionRole === "admin"
+              ? cookiePlanOwner || sessionRole === "admin"
               : undefined,
         deskTier,
         deskTierLocked: orgId ? deskTierLocked : undefined,

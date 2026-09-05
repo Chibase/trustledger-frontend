@@ -4,11 +4,11 @@ import { isPlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
 import {
   TL_ORG_ID_COOKIE,
-  TL_ORG_OWNER_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_VIP_COOKIE,
 } from "@/lib/auth.constants";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
+import { requirePlanOwnerSession } from "@/lib/livePlanOwner";
 import { siteBaseUrl } from "@/lib/hubspot";
 import { canInviteDeskTier } from "@/lib/orgSeats";
 import { signPortableOrgInvite } from "@/lib/orgInviteToken";
@@ -66,17 +66,19 @@ export async function POST(request: Request) {
   }
 
   const jar = await cookies();
-  const isOwner = jar.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+  const ownerGate = await requirePlanOwnerSession();
   const sessionOrgId = jar.get(TL_ORG_ID_COOKIE)?.value?.trim() || "";
   const sessionEmail =
-    jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim().toLowerCase() || "";
-  if (!isOwner) {
+    (ownerGate.ok ? ownerGate.email : "").trim().toLowerCase() ||
+    jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim().toLowerCase() ||
+    "";
+  if (!ownerGate.ok) {
     return NextResponse.json(
       {
         error:
           "Only the Plan Owner can send invite emails. Sign in as Plan Owner, then open Settings → Team / Seats.",
       },
-      { status: 401 },
+      { status: ownerGate.status },
     );
   }
 
