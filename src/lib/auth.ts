@@ -14,6 +14,7 @@ import {
   TL_VIP_COOKIE,
   type TlMode,
 } from "@/lib/auth.constants";
+import { livePlanOwnerFromCookies } from "@/lib/liveSessionCookies";
 import { isPlanId, type PlanId } from "@/config/plans";
 import { isUserRole, type UserRole } from "@/types/rbac";
 import {
@@ -133,7 +134,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
         orgId,
         isPlanOwner:
           mode === "live"
-            ? isPlanOwner || sessionRole === "admin"
+            ? livePlanOwnerFromCookies(isPlanOwner)
             : orgId
               ? isPlanOwner || sessionRole === "admin"
               : undefined,

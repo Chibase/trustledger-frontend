@@ -2,8 +2,8 @@
 
 ## 2026-09-05 — SEC-5 Cloud invitee seats
 
-- Portable email invites provision a **Cloud User on the Owner’s Customer** when the invitee accepts (`POST /api/invite/accept-seat`). Same Customer User Permission as SEC-1. `custom_tl_plan_owner` stays `0`. Desk + `custom_tl_app_role` (`community|contractor|client`) are stamped from the invite. Password is the one chosen on accept, then `/login/live` (OTP still applies on later logins; first accept skips OTP because the signed invite is proof).
-- Live BFF `resolveSessionCustomer` binds invitees from `User.custom_tl_customer` after Owner `custom_owner_email`. Matching an invitee Customer does not set Plan Owner. Unbound invitees get 403 (operators exempt). Desk cookie is locked for non-owners.
+- Portable email invites provision a **Cloud User on the Owner’s Customer** when the invitee accepts (`POST /api/invite/accept-seat`). Same Customer User Permission as SEC-1. `custom_tl_plan_owner` stays `0`. Desk + `custom_tl_app_role` (`community|contractor|client`) are stamped from the invite. Password is the one chosen on accept, then `/login/live` (OTP still applies on later logins; first accept skips OTP because the signed invite is proof). Accept is **one-shot**: an existing Cloud User is not a password-reset path. Desk rank is re-checked against the live Customer plan, not only the signed token.
+- Live BFF `resolveSessionCustomer` binds invitees from `User.custom_tl_customer` after Owner `custom_owner_email`. Matching an invitee Customer does not set Plan Owner. Unbound invitees get 403 (operators exempt). Desk cookie is locked for non-owners. Live `isPlanOwner` ignores a client-writable `session-role=admin`.
 - Trial orgs without a Cloud Customer keep today’s browser-local accept (`cloud: false`). Empty Cloud stays empty. Do not claim SOC 2, dedicated isolation, or that trial/browser-only invites are Cloud Users.
 
 ## 2026-09-05 — P0b Project Cloud save

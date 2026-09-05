@@ -163,12 +163,13 @@ function AcceptInviteForm() {
         const seatJson = (await seatRes.json()) as {
           error?: string;
           cloud?: boolean;
+          signedIn?: boolean;
         };
         if (!seatRes.ok) {
           setError(seatJson.error || "Could not create your Cloud seat.");
           return;
         }
-        cloudSeat = Boolean(seatJson.cloud);
+        cloudSeat = Boolean(seatJson.cloud) && seatJson.signedIn !== false;
       }
       const accepted = acceptOrgInvite({
         token: localToken,

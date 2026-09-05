@@ -66,6 +66,43 @@ export function isInviteableAppRole(value: string): value is InviteableRole {
   return (INVITEABLE_ROLES as readonly string[]).includes(value);
 }
 
+export type InviteeExistingDecision =
+  | { action: "create" }
+  | { action: "reject"; status: 409; error: string };
+
+/**
+ * Portable accept is one-shot. An existing Cloud User is never a password-reset
+ * path — replay of the invite URL must not take over the seat.
+ */
+export function decideInviteeExistingUser(input: {
+  exists: boolean;
+  planOwner?: boolean;
+  customer?: string;
+  targetCustomer: string;
+}): InviteeExistingDecision {
+  if (!input.exists) return { action: "create" };
+  if (input.planOwner) {
+    return {
+      action: "reject",
+      status: 409,
+      error: "This email is already a Plan Owner Cloud login.",
+    };
+  }
+  if (input.customer && input.customer !== input.targetCustomer) {
+    return {
+      action: "reject",
+      status: 409,
+      error: "This email is already a Cloud login on another organisation.",
+    };
+  }
+  return {
+    action: "reject",
+    status: 409,
+    error:
+      "This invite was already accepted. Sign in at /login/live. Ask your Plan Owner to reset the password if you cannot sign in.",
+  };
+}
+
 export type ProvisionInviteeInput = {
   email: string;
   fullName: string;
@@ -216,8 +253,9 @@ export async function ownerHasCloudCustomer(
 }
 
 /**
- * Idempotent invitee User on the Owner's Customer.
+ * One-shot invitee User on the Owner's Customer.
  * Never stamps Plan Owner. Never hijacks a User already bound to another org.
+ * Never resets password on an existing Cloud User (invite replay is not recovery).
  */
 export async function provisionInviteeOnCloud(
   input: ProvisionInviteeInput,
@@ -244,27 +282,23 @@ export async function provisionInviteeOnCloud(
   }
 
   const existing = await readCloudUser(base, headers, draft.email);
-  if (existing.exists) {
-    if (existing.planOwner) {
-      return {
-        ok: false,
-        error: "This email is already a Plan Owner Cloud login.",
-        status: 409,
-      };
-    }
-    if (existing.customer && existing.customer !== draft.customer) {
-      return {
-        ok: false,
-        error:
-          "This email is already a Cloud login on another organisation.",
-        status: 409,
-      };
-    }
-  } else {
-    const created = await createInviteeUser(base, headers, draft);
-    if (!created.ok) {
-      return { ok: false, error: created.error, status: 502 };
-    }
+  const existingDecision = decideInviteeExistingUser({
+    exists: existing.exists,
+    planOwner: existing.exists ? existing.planOwner : undefined,
+    customer: existing.exists ? existing.customer : undefined,
+    targetCustomer: draft.customer,
+  });
+  if (existingDecision.action === "reject") {
+    return {
+      ok: false,
+      error: existingDecision.error,
+      status: existingDecision.status,
+    };
+  }
+
+  const created = await createInviteeUser(base, headers, draft);
+  if (!created.ok) {
+    return { ok: false, error: created.error, status: 502 };
   }
 
   const stamped = await stampInviteeUser(base, headers, draft);
@@ -300,6 +334,6 @@ export async function provisionInviteeOnCloud(
     ok: true,
     email: draft.email,
     customerName: draft.customer,
-    created: !existing.exists,
+    created: true,
   };
 }

@@ -53,7 +53,7 @@ Accepted teammates on a **live** organisation get their own Cloud User on that C
 
 | Control | Where | Honest limit |
 |---------|--------|--------------|
-| Provision on accept | `provisionInviteeOnCloud` from `POST /api/invite/accept-seat` | Portable signed invite only. Owner email cannot accept as invitee. |
+| Provision on accept | `provisionInviteeOnCloud` from `POST /api/invite/accept-seat` | Portable signed invite only. One-shot — existing Cloud User is not a password reset. Owner email cannot accept as invitee. Desk rank uses the live Customer plan. |
 | Same Customer User Permission | `ensureCustomerUserPermission` | `allow=Customer`, `for_value=<Customer>`, `apply_to_all_doctypes=1` |
 | Tighter role | `User.custom_tl_app_role` + locked desk | `community\|contractor\|client`. Never `custom_tl_plan_owner=1`. |
 | Live bind | `resolveSessionCustomer` then `bindSessionCustomer` | Owner email first; else invitee `custom_tl_customer`. Claimed `customer=` still ignored. |

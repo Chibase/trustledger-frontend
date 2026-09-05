@@ -6,10 +6,11 @@ import {
 import { applyTrustLedgerUserFlags } from "@/lib/frappeServer";
 import { buildInviteeUserDraft, buildOwnerUserDraft } from "@/lib/frappeSoT";
 import {
+  decideInviteeExistingUser,
   decideLiveSeatKind,
   inviteeSeatGuard,
 } from "@/lib/inviteeCloud";
-import { applyLiveSessionCookies } from "@/lib/liveSessionCookies";
+import { applyLiveSessionCookies, livePlanOwnerFromCookies } from "@/lib/liveSessionCookies";
 import { canInviteDeskTier } from "@/lib/orgSeats";
 import { decideTenantBind } from "@/lib/tenantScope";
 
@@ -248,5 +249,48 @@ describe("canInviteDeskTier (SEC-5 re-check)", () => {
 
   it("VIP skips the desk gate", () => {
     expect(canInviteDeskTier("project", "funder", { vip: true })).toBe(true);
+  });
+
+  it("live Cloud plan wins over a stale Institutional token", () => {
+    expect(canInviteDeskTier("institutional", "funder")).toBe(true);
+    expect(canInviteDeskTier("project", "funder")).toBe(false);
+  });
+});
+
+describe("decideInviteeExistingUser", () => {
+  it("allows creating a new Cloud User", () => {
+    expect(
+      decideInviteeExistingUser({
+        exists: false,
+        targetCustomer: "CUST-ACME",
+      }),
+    ).toEqual({ action: "create" });
+  });
+
+  it("rejects replay against an existing seat on the same Customer", () => {
+    const r = decideInviteeExistingUser({
+      exists: true,
+      planOwner: false,
+      customer: "CUST-ACME",
+      targetCustomer: "CUST-ACME",
+    });
+    expect(r.action).toBe("reject");
+    if (r.action === "reject") expect(r.status).toBe(409);
+  });
+
+  it("rejects a User already bound to another organisation", () => {
+    const r = decideInviteeExistingUser({
+      exists: true,
+      customer: "CUST-PEER",
+      targetCustomer: "CUST-ACME",
+    });
+    expect(r.action).toBe("reject");
+  });
+});
+
+describe("livePlanOwnerFromCookies", () => {
+  it("does not treat a client-writable admin role as Plan Owner", () => {
+    expect(livePlanOwnerFromCookies(false)).toBe(false);
+    expect(livePlanOwnerFromCookies(true)).toBe(true);
   });
 });

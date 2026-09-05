@@ -9,8 +9,12 @@ import {
 } from "@/lib/inviteeCloud";
 import { applyLiveSessionCookies } from "@/lib/liveSessionCookies";
 import { canInviteDeskTier } from "@/lib/orgSeats";
-import { inviteBlockedReason } from "@/lib/orgInviteServerState";
+import {
+  inviteBlockedReason,
+  markInviteClosedServer,
+} from "@/lib/orgInviteServerState";
 import { verifyPortableOrgInvite } from "@/lib/orgInviteToken";
+import { isPlanId } from "@/config/plans";
 import { getCustomerEntitlementByName } from "@/lib/entitlementCloud";
 import { isVipCustomerName } from "@/lib/planLabel";
 import { isDeskTier } from "@/types/deskTier";
@@ -69,6 +73,15 @@ export async function POST(request: Request) {
       { status: 410 },
     );
   }
+  if (blocked === "closed") {
+    return NextResponse.json(
+      {
+        error:
+          "This invite was already accepted or declined. Sign in at /login/live.",
+      },
+      { status: 410 },
+    );
+  }
 
   const deskTier = isDeskTier(payload.deskTier) ? payload.deskTier : null;
   const appRole = isInviteableAppRole(payload.role) ? payload.role : null;
@@ -79,18 +92,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const vip = Boolean(
+  const tokenVip = Boolean(
     payload.complimentaryVip || isVipCustomerName(payload.orgName),
   );
-  if (!canInviteDeskTier(payload.planId, deskTier, vip ? { vip: true } : undefined)) {
-    return NextResponse.json(
-      {
-        error:
-          "This invite’s desk exposure is above the organisation’s plan. Ask your Plan Owner to send a new invite at a lower rank.",
-      },
-      { status: 403 },
-    );
-  }
 
   const guard = inviteeSeatGuard({
     email: payload.email,
@@ -103,12 +107,38 @@ export async function POST(request: Request) {
 
   const customerName = await ownerHasCloudCustomer(payload.ownerEmail);
   if (!customerName) {
+    if (!canInviteDeskTier(payload.planId, deskTier, tokenVip ? { vip: true } : undefined)) {
+      return NextResponse.json(
+        {
+          error:
+            "This invite’s desk exposure is above the organisation’s plan. Ask your Plan Owner to send a new invite at a lower rank.",
+        },
+        { status: 403 },
+      );
+    }
     return NextResponse.json({
       ok: true,
       cloud: false,
       message:
         "This organisation is not on TrustLedger Cloud yet. You can still join the workspace in this browser.",
     });
+  }
+
+  const ent = await getCustomerEntitlementByName(customerName);
+  const livePlan =
+    ent?.planId && isPlanId(ent.planId) ? ent.planId : payload.planId;
+  const orgVip =
+    tokenVip ||
+    isVipCustomerName(ent?.customerLabel) ||
+    isVipCustomerName(ent?.customerName);
+  if (!canInviteDeskTier(livePlan, deskTier, orgVip ? { vip: true } : undefined)) {
+    return NextResponse.json(
+      {
+        error:
+          "This invite’s desk exposure is above the organisation’s plan. Ask your Plan Owner to send a new invite at a lower rank.",
+      },
+      { status: 403 },
+    );
   }
 
   const provisioned = await provisionInviteeOnCloud({
@@ -127,11 +157,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const ent = await getCustomerEntitlementByName(customerName);
-  const orgVip =
-    vip ||
-    isVipCustomerName(ent?.customerLabel) ||
-    isVipCustomerName(ent?.customerName);
+  markInviteClosedServer(payload.inviteId);
 
   try {
     const { sid } = await frappeLogin(payload.email, password);
@@ -148,7 +174,7 @@ export async function POST(request: Request) {
       fullName: fullName || payload.name,
       isPlanOwner: false,
       deskTier,
-      planId: payload.planId,
+      planId: livePlan,
       vip: orgVip || undefined,
     });
     return response;
