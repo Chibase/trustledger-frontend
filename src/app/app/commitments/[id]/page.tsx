@@ -17,6 +17,7 @@ import {
   formatMelNumber,
   varianceForCommitment,
 } from "@/lib/melIndicators";
+import type { Stakeholder } from "@/types/stakeholder";
 
 const STATUS_OPTIONS = Object.keys(
   COMMITMENT_STATUS_LABELS,
