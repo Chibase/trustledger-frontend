@@ -25,6 +25,7 @@ import {
 } from "@/lib/transactionalEmail";
 import {
   accessEmailVerificationEnabled,
+  accessEmailVerificationForcedOff,
   accessVerificationReady,
 } from "@/lib/accessVerification";
 import {
@@ -179,12 +180,12 @@ const GATE_DEFS: GateDef[] = [
       const on = recaptchaConfigured();
       const required = recaptchaRequired();
       return {
-        pass: on,
+        pass: on && required,
         detail: on
           ? required
-            ? "Keys set · FORM_REQUIRE_RECAPTCHA=1 (fail closed)"
-            : "Keys set · tokens verified on public forms"
-          : "Set NEXT_PUBLIC_RECAPTCHA_SITE_KEY + RECAPTCHA_SECRET_KEY (+ FORM_REQUIRE_RECAPTCHA=1)",
+            ? "Keys set · fail-closed (set FORM_REQUIRE_RECAPTCHA=1 so missing keys later reject)"
+            : "Keys set · FORM_REQUIRE_RECAPTCHA=0 emergency bypass — remove 0 or set 1"
+          : "Set NEXT_PUBLIC_RECAPTCHA_SITE_KEY + RECAPTCHA_SECRET_KEY, then FORM_REQUIRE_RECAPTCHA=1",
       };
     },
   },
@@ -204,17 +205,14 @@ const GATE_DEFS: GateDef[] = [
         };
       }
       if (!enabled) {
-        const forcedOff =
-          (process.env.ACCESS_EMAIL_VERIFICATION || "").trim().toLowerCase() ===
-            "0" ||
-          (process.env.ACCESS_EMAIL_VERIFICATION || "").trim().toLowerCase() ===
-            "false" ||
-          (process.env.ACCESS_EMAIL_VERIFICATION || "").trim().toLowerCase() ===
-            "off";
+        const resendOn = transactionalEmailConfigured();
+        const forcedOff = accessEmailVerificationForcedOff();
         return {
           pass: false,
           detail: forcedOff
-            ? "Off via ACCESS_EMAIL_VERIFICATION=0 — set to 1 after a valid RESEND_API_KEY works"
+            ? resendOn
+              ? "Off via ACCESS_EMAIL_VERIFICATION=0 despite Resend working — delete 0 or set 1, Redeploy"
+              : "Off via ACCESS_EMAIL_VERIFICATION=0 — set to 1 after a valid RESEND_API_KEY works"
             : "Off — set a full RESEND_API_KEY (auto-on in Production) or ACCESS_EMAIL_VERIFICATION=1",
         };
       }

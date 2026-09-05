@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { recaptchaConfigured, recaptchaRequired } from "@/lib/formGuard";
+import { buildOperatorSitting } from "@/lib/operatorSitting";
+import { TRUSTLEDGER_CLOUD_URL, fromAddressUsesLegacyApex } from "@/lib/security/hosts";
 import { isFrappeAutoProvisionEnabled } from "@/lib/provisionOwnerCloud";
 import {
   inviteEmailDeliveryReady,
@@ -12,12 +14,12 @@ import { isPlatformOperatorOnly } from "@/lib/platformOperator";
 import { paystackConfigured } from "@/lib/paystackServer";
 import {
   accessEmailVerificationEnabled,
+  accessEmailVerificationForcedOff,
   accessVerificationReady,
 } from "@/lib/accessVerification";
 import { leadBackendStatus } from "@/lib/leadCapture";
 import { marketingEngineStatus } from "@/lib/marketing/config";
 import { probeUserPermissionApi } from "@/lib/userPermissionCloud";
-import { TRUSTLEDGER_CLOUD_URL } from "@/lib/security/hosts";
 
 const FRAPPE_SITE =
   process.env.FRAPPE_BASE_URL ||
@@ -94,11 +96,22 @@ export async function GET() {
     inviteEmailReason: inviteEmail.reason ?? null,
     recaptcha: recaptchaConfigured(),
     recaptchaFailClosed: recaptchaRequired(),
+    accessVerificationForcedOff: accessEmailVerificationForcedOff(),
+    fromUsesLegacyApex: fromAddressUsesLegacyApex(inviteEmail.from),
     securityIngest: Boolean(
       (process.env.SECURITY_INGEST_SECRET || process.env.CRON_SECRET || "").trim(),
     ),
     accessEmailVerification: accessEmailVerificationEnabled(),
     accessVerificationReady: accessVerificationReady(),
+    operatorSitting: buildOperatorSitting({
+      recaptcha: recaptchaConfigured(),
+      recaptchaFailClosed: recaptchaRequired(),
+      accessEmailVerification: accessEmailVerificationEnabled(),
+      accessVerificationReady: accessVerificationReady(),
+      resend: transactionalEmailConfigured(),
+      from: inviteEmail.from,
+      fromIsTestSender: /@resend\.dev\b/i.test(inviteEmail.from),
+    }),
     leadBackend: leads.preference,
     leadBackendCutover: leads.cutoverComplete,
     hubspotFallbackActive: leads.hubspotFallbackActive,

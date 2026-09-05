@@ -35,6 +35,7 @@ module.exports = {
     "<rootDir>/tests/ts/leadForms.test.ts",
     "<rootDir>/tests/ts/opsReports.test.ts",
     "<rootDir>/tests/ts/secBffHardening.test.ts",
+    "<rootDir>/tests/ts/operatorSitting.test.ts",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {

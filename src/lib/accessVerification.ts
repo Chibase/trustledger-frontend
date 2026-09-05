@@ -8,12 +8,18 @@ import { transactionalEmailConfigured } from "@/lib/transactionalEmail";
 
 export const TL_AUTH_PENDING_COOKIE = "tl-auth-pending";
 
+/** Explicit ACCESS_EMAIL_VERIFICATION=0/false/off — emergency bypass. */
+export function accessEmailVerificationForcedOff(): boolean {
+  const raw = (process.env.ACCESS_EMAIL_VERIFICATION || "").trim().toLowerCase();
+  return raw === "0" || raw === "false" || raw === "off" || raw === "no";
+}
+
 /** Explicit ACCESS_EMAIL_VERIFICATION=1, or Production when Resend is configured. */
 export function accessEmailVerificationEnabled(): boolean {
-  const raw = (process.env.ACCESS_EMAIL_VERIFICATION || "").trim().toLowerCase();
-  if (raw === "0" || raw === "false" || raw === "off" || raw === "no") {
+  if (accessEmailVerificationForcedOff()) {
     return false;
   }
+  const raw = (process.env.ACCESS_EMAIL_VERIFICATION || "").trim().toLowerCase();
   if (raw === "1" || raw === "true" || raw === "yes" || raw === "on") {
     return true;
   }

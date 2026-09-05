@@ -220,6 +220,12 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **HS-4** | Delete HubSpot client | Remove `submitHubSpotLead`; relocate `siteBaseUrl` | Planned (deferred until Production smoke) |
 | **P3** | Acquisition / ops (not buyer desk) | HS-2 inventory + ops smoke UI; EM-1 Desk checklist on `/ops/readiness`; HS-3/4 not in this packet | **Done (in-repo)** |
 
+### Operator sitting (not engineering)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **OP-1** | Production sitting runbook + ops panel | reCAPTCHA fail-closed once keys land; health flags for `ACCESS_EMAIL_VERIFICATION=0` and legacy From; `/ops/readiness` checklist; `docs/OPERATOR_SITTING.md`. Does not set Vercel / Desk / Webway | **Done (in-repo)** — Vercel keys, Resend domain, Webway paste, Desk SMTP still operator |
+
 ### Email marketing on Frappe (EM-1 templates + ops surface)
 
 | Packet | Name | Scope | Status |
@@ -317,6 +323,7 @@ src/app/api/webhooks/clickup/
 | Date | Change |
 |------|--------|
 | 2026-09-05 | SEC-BFF — Ops sid session, Cloud Plan Owner, Paystack verify one-shot, Frappe proxy allowlist, no live demo seed |
+| 2026-09-05 | OP-1 — operator sitting runbook + `/ops/readiness` panel; Vercel/Webway/Desk still operator |
 | 2026-09-05 | P3 — HS-2 in-repo inventory + ops smoke; EM-1 Desk remaining on `/ops/readiness`; HS-3/4 deferred |
 | 2026-09-05 | P0b — Project Cloud save: live edits upsert `TL Project`; dossier stays local overlay; empty Cloud stays empty |
 | 2026-09-04 | 24e-cloud — grievance lifecycle stamps on TL Incident (live upsert; blank times stay blank) |

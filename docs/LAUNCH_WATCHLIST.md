@@ -31,12 +31,14 @@ Ops ladder: `/ops/readiness` · Health: `GET /api/health` (`deploySha`)
 | Day-14 not charging | `CRON_SECRET` missing | Set secret; Ops **Charge due now** | Hardening gate `cronSecret` |
 | Demo `INC-*` in customer desk | Empty live→mock / invite `demo` | Fixed (launch-hardening) | Shipped |
 | Bad deploy / env bake | Wrong `NEXT_PUBLIC_*` | Vercel rollback | `deploySha` on health |
-| **Spam on forms** | reCAPTCHA keys unset | **Set keys + `FORM_REQUIRE_RECAPTCHA=1`**, redeploy | Wired; **keys = you** |
+| **Spam on forms** | reCAPTCHA keys unset | **Set keys + `FORM_REQUIRE_RECAPTCHA=1`**, redeploy. Runbook `docs/OPERATOR_SITTING.md` | Wired; **keys = you** |
 | Unverified inbox uses product | No email proof | Set `RESEND_API_KEY` (OTP + trial verify auto-on in Production) | Shipped |
 
 **Do not** set `PLATFORM_OPERATOR_ONLY=1` again after GO LIVE — it re-blocks buyers and the readiness ladder.
 
 ### Access email verification (before reCAPTCHA is fine)
+
+Production currently has Resend on and `ACCESS_EMAIL_VERIFICATION=0`. That **=0 wins** — OTP stays off until you delete it or set `=1`. Full sitting: `docs/OPERATOR_SITTING.md`.
 
 ```bash
 # Vercel Production — enables live login OTP + trial “verify email” copy

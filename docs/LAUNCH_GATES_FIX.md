@@ -1,5 +1,7 @@
 # Fix Ops readiness: reCAPTCHA + access email verification
 
+Living operator sitting (Vercel values, click-smoke, Webway, Desk SMTP): **`docs/OPERATOR_SITTING.md`**.
+
 Production health (2026-07-24) showed:
 
 | Signal | Value | Meaning |
