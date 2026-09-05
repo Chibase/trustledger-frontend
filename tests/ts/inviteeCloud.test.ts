@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import {
   FRAPPE_SID_COOKIE,
   TL_DESK_TIER_LOCKED_COOKIE,
@@ -21,7 +20,39 @@ jest.mock("@/lib/leadCapture", () => ({
   cookieSafeValue: (v: string) => v,
 }));
 
-function cookieValue(res: NextResponse, name: string): string | undefined {
+type CookieRecord = { value: string; httpOnly?: boolean; maxAge?: number };
+type FakeResponse = {
+  cookies: {
+    store: Map<string, CookieRecord>;
+    set: (
+      name: string,
+      value: string,
+      opts?: { httpOnly?: boolean; maxAge?: number },
+    ) => void;
+    get: (name: string) => CookieRecord | undefined;
+  };
+};
+
+function fakeResponse(): FakeResponse {
+  const store = new Map<string, CookieRecord>();
+  return {
+    cookies: {
+      store,
+      set(name, value, opts) {
+        store.set(name, {
+          value,
+          httpOnly: opts?.httpOnly,
+          maxAge: opts?.maxAge,
+        });
+      },
+      get(name) {
+        return store.get(name);
+      },
+    },
+  };
+}
+
+function cookieValue(res: FakeResponse, name: string): string | undefined {
   return res.cookies.get(name)?.value;
 }
 
@@ -172,8 +203,8 @@ describe("applyTrustLedgerUserFlags", () => {
 
 describe("applyLiveSessionCookies", () => {
   it("locks desk and clears Plan Owner for invitees", () => {
-    const res = NextResponse.json({ ok: true });
-    applyLiveSessionCookies(res, {
+    const res = fakeResponse();
+    applyLiveSessionCookies(res as never, {
       sid: "sid-invitee",
       role: "community",
       email: "junior@acme.test",
@@ -188,8 +219,8 @@ describe("applyLiveSessionCookies", () => {
   });
 
   it("does not lock desk for Plan Owner", () => {
-    const res = NextResponse.json({ ok: true });
-    applyLiveSessionCookies(res, {
+    const res = fakeResponse();
+    applyLiveSessionCookies(res as never, {
       sid: "sid-owner",
       role: "admin",
       email: "owner@acme.test",
