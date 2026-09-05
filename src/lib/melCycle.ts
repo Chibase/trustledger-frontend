@@ -47,6 +47,18 @@ function projectHasOpenAdapt(
   ).length > 0;
 }
 
+export function scopeCommitmentsForMelCycle(
+  commitments: Commitment[],
+  projects: Project[],
+): Commitment[] {
+  const ids = new Set(projects.map((row) => row.id));
+  const projectScoped = projects.length === 1;
+  return commitments.filter((row) => {
+    if (!row.projectId) return !projectScoped;
+    return ids.has(row.projectId);
+  });
+}
+
 export function monitorFromShortfall(input: {
   label: string;
   projectName?: string;

@@ -2,6 +2,7 @@ import {
   applyingAdaptLeavesStages,
   collectMelCycleSuggestions,
   monitorFromShortfall,
+  scopeCommitmentsForMelCycle,
 } from "@/lib/melCycle";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
@@ -147,5 +148,27 @@ describe("MEL-5 Learn & Adapt cycle", () => {
     expect(applyingAdaptLeavesStages(before, after)).toBe(true);
     expect(after.status).toBe("Investigating");
     expect(after.processStages?.closedAt).toBeFalsy();
+  });
+
+  it("does not attach orphan commitments to a single project desk", () => {
+    const orphan: import("@/types/commitment").Commitment = {
+      id: "COM-ORPHAN",
+      title: "Unlinked hire",
+      status: "open",
+      ownerLabel: "CLO",
+      dueOn: "2026-12-01",
+      projectId: null,
+      engagementId: null,
+      stakeholderIds: [],
+      createdAt: "2026-01-01T00:00:00.000Z",
+      expected: 1000,
+      actual: 620,
+    };
+    expect(
+      scopeCommitmentsForMelCycle([orphan], [gapProject]),
+    ).toEqual([]);
+    expect(
+      scopeCommitmentsForMelCycle([orphan], [gapProject, sampleProject({ id: "PRJ-B" })]),
+    ).toEqual([orphan]);
   });
 });

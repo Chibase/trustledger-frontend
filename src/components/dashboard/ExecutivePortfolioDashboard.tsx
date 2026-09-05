@@ -222,6 +222,7 @@ export function ExecutivePortfolioDashboard({
         projects={openProjects}
         commitments={commitments}
         incidents={incidents}
+        planId={planId}
         onIncidentSaved={(next) =>
           setIncidents((current) =>
             current.map((row) => (row.id === next.id ? next : row)),

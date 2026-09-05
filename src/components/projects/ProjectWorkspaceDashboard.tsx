@@ -219,6 +219,7 @@ export function ProjectWorkspaceDashboard({
       <MelCyclePanel
         projects={[project]}
         incidents={incidents}
+        planId={planId}
         onIncidentSaved={onIncidentSaved}
       />
 

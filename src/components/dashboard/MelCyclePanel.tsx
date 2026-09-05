@@ -6,11 +6,13 @@ import { MelAdaptWatch } from "@/components/dashboard/MelAdaptWatch";
 import { MelVarianceAlert } from "@/components/dashboard/MelVarianceAlert";
 import { RootCauseMix } from "@/components/incidents/RootCauseMix";
 import { useToast } from "@/components/ui/Toast";
-import { collectMelCycleSuggestions } from "@/lib/melCycle";
+import { collectMelCycleSuggestions, scopeCommitmentsForMelCycle } from "@/lib/melCycle";
 import { collectMelShortfalls } from "@/lib/melIndicators";
 import { collectOpenAdaptRecords, createMelAdaptId } from "@/lib/melLearnAdapt";
+import { hasCapability } from "@/lib/entitlements";
 import { commitmentService } from "@/services/commitmentService";
 import { incidentService } from "@/services/incidentService";
+import type { PlanId } from "@/config/plans";
 import type { Commitment } from "@/types/commitment";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
@@ -19,6 +21,7 @@ type Props = {
   projects: Project[];
   incidents: Incident[];
   commitments?: Commitment[];
+  planId?: PlanId | null;
   onIncidentSaved?: (next: Incident) => void;
 };
 
@@ -26,12 +29,14 @@ export function MelCyclePanel({
   projects,
   incidents,
   commitments,
+  planId = null,
   onIncidentSaved,
 }: Props) {
   const { pushToast } = useToast();
   const [fetchedCommitments, setFetchedCommitments] = useState<Commitment[]>([]);
   useEffect(() => {
     if (commitments !== undefined) return;
+    if (!hasCapability("commitments", planId)) return;
     let cancelled = false;
     void commitmentService
       .list()
@@ -44,11 +49,11 @@ export function MelCyclePanel({
     return () => {
       cancelled = true;
     };
-  }, [commitments]);
+  }, [commitments, planId]);
   const commitmentRows = commitments ?? fetchedCommitments;
-  const projectIds = new Set(projects.map((row) => row.id));
-  const scopedCommitments = commitmentRows.filter(
-    (row) => !row.projectId || projectIds.has(row.projectId),
+  const scopedCommitments = scopeCommitmentsForMelCycle(
+    commitmentRows,
+    projects,
   );
   const suggestions = useMemo(
     () =>
