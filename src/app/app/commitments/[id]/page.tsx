@@ -31,6 +31,9 @@ export default function AppCommitmentDetailPage() {
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [melExpected, setMelExpected] = useState("");
+  const [melActual, setMelActual] = useState("");
+  const [melUnitDraft, setMelUnitDraft] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +49,13 @@ export default function AppCommitmentDetailPage() {
         const commitment = await commitmentService.get(id);
         if (cancelled) return;
         setRow(commitment);
+        setMelExpected(
+          commitment?.expected != null ? String(commitment.expected) : "",
+        );
+        setMelActual(
+          commitment?.actual != null ? String(commitment.actual) : "",
+        );
+        setMelUnitDraft(commitment?.melUnit || "");
         if (commitment?.stakeholderIds.length) {
           const all = await stakeholderService.list({});
           if (!cancelled) {
@@ -86,6 +96,17 @@ export default function AppCommitmentDetailPage() {
     if (!trimmed) return null;
     const n = Number(trimmed);
     return Number.isFinite(n) ? n : null;
+  }
+
+  async function saveMel() {
+    if (!row) return;
+    await saveRow({
+      ...row,
+      expected: parseMelInput(melExpected),
+      actual: parseMelInput(melActual),
+      melUnit: melUnitDraft,
+    });
+    pushToast("M&E figures saved.", "success");
   }
 
   return (
@@ -186,13 +207,8 @@ export default function AppCommitmentDetailPage() {
                   <input
                     inputMode="decimal"
                     disabled={saving}
-                    value={row.expected ?? ""}
-                    onChange={(e) =>
-                      setRow({
-                        ...row,
-                        expected: parseMelInput(e.target.value),
-                      })
-                    }
+                    value={melExpected}
+                    onChange={(e) => setMelExpected(e.target.value)}
                     className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
                   />
                 </label>
@@ -201,13 +217,8 @@ export default function AppCommitmentDetailPage() {
                   <input
                     inputMode="decimal"
                     disabled={saving}
-                    value={row.actual ?? ""}
-                    onChange={(e) =>
-                      setRow({
-                        ...row,
-                        actual: parseMelInput(e.target.value),
-                      })
-                    }
+                    value={melActual}
+                    onChange={(e) => setMelActual(e.target.value)}
                     className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
                   />
                 </label>
@@ -215,17 +226,21 @@ export default function AppCommitmentDetailPage() {
                   <span className="mb-1 block font-medium">Unit</span>
                   <input
                     disabled={saving}
-                    value={row.melUnit || ""}
-                    onChange={(e) =>
-                      setRow({ ...row, melUnit: e.target.value })
-                    }
+                    value={melUnitDraft}
+                    onChange={(e) => setMelUnitDraft(e.target.value)}
                     className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
                     placeholder="people, %, ZAR"
                   />
                 </label>
               </div>
               {(() => {
-                const gap = varianceForCommitment(row);
+                const preview: Commitment = {
+                  ...row,
+                  expected: parseMelInput(melExpected),
+                  actual: parseMelInput(melActual),
+                  melUnit: melUnitDraft,
+                };
+                const gap = varianceForCommitment(preview);
                 if (!gap) return null;
                 return (
                   <p
@@ -233,8 +248,8 @@ export default function AppCommitmentDetailPage() {
                       gap.material ? "text-tl-amber" : "text-tl-ink-muted"
                     }`}
                   >
-                    Actual {formatMelNumber(gap.actual, row.melUnit)} is below
-                    expected {formatMelNumber(gap.expected, row.melUnit)}
+                    Actual {formatMelNumber(gap.actual, melUnitDraft)} is below
+                    expected {formatMelNumber(gap.expected, melUnitDraft)}
                     {gap.material ? " (material shortfall)." : "."}
                   </p>
                 );
@@ -242,12 +257,7 @@ export default function AppCommitmentDetailPage() {
               <button
                 type="button"
                 disabled={saving}
-                onClick={() => {
-                  void (async () => {
-                    await saveRow(row);
-                    pushToast("M&E figures saved.", "success");
-                  })();
-                }}
+                onClick={() => void saveMel()}
                 className="rounded-md bg-tl-trust px-3 py-1.5 text-xs font-semibold text-white hover:bg-tl-trust-ink disabled:opacity-60"
               >
                 {saving ? "Saving…" : "Save M&E"}
