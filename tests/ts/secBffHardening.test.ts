@@ -8,6 +8,7 @@ import {
   decidePaystackCredentialReveal,
   verifyPaystackRevealToken,
 } from "@/lib/paystackVerifyGuard";
+import { revokeInviteKey } from "@/lib/orgInviteServerState";
 import { overlayLocalIncidentsOntoCloud } from "@/services/incidentService";
 import type { Incident } from "@/types/incident";
 
@@ -84,25 +85,25 @@ describe("frappe proxy allowlist", () => {
 });
 
 describe("decidePaystackCredentialReveal", () => {
-  it("mints once, replays with the reveal cookie, and withholds later callers", () => {
+  it("withholds credentials unless the checkout browser holds a cookie", () => {
     expect(
       decidePaystackCredentialReveal({
         alreadyMinted: false,
-        hasRevealCookie: false,
+        hasCheckoutCookie: false,
+      }),
+    ).toBe("withhold");
+    expect(
+      decidePaystackCredentialReveal({
+        alreadyMinted: false,
+        hasCheckoutCookie: true,
       }),
     ).toBe("mint");
     expect(
       decidePaystackCredentialReveal({
         alreadyMinted: true,
-        hasRevealCookie: true,
+        hasCheckoutCookie: true,
       }),
     ).toBe("replay");
-    expect(
-      decidePaystackCredentialReveal({
-        alreadyMinted: true,
-        hasRevealCookie: false,
-      }),
-    ).toBe("withhold");
   });
 
   it("rejects a reveal token for a different reference", () => {
@@ -135,5 +136,16 @@ describe("live incident lists never seed mock INC-*", () => {
       timeline: [],
     } as Incident;
     expect(overlayLocalIncidentsOntoCloud([], [local])).toEqual([]);
+  });
+});
+
+describe("revokeInviteKey", () => {
+  it("namespaces revoke by Plan Owner email so peer orgs cannot collide", () => {
+    expect(revokeInviteKey("inv-1", "Owner@Acme.test")).toBe(
+      "owner@acme.test:inv-1",
+    );
+    expect(revokeInviteKey("inv-1", "owner@acme.test")).not.toBe(
+      revokeInviteKey("inv-1", "owner@peer.test"),
+    );
   });
 });

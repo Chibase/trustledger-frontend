@@ -16,17 +16,30 @@ function prune(map: Map<string, number>) {
   }
 }
 
-export function markInviteRevokedServer(inviteId: string): void {
-  prune(revokedInviteIds);
-  revokedInviteIds.set(inviteId, Date.now() + TTL_MS);
+export function revokeInviteKey(inviteId: string, ownerEmail: string): string {
+  return `${ownerEmail.trim().toLowerCase()}:${inviteId.trim()}`;
 }
 
-export function isInviteRevokedServer(inviteId: string): boolean {
+export function markInviteRevokedServer(
+  inviteId: string,
+  ownerEmail: string,
+): void {
   prune(revokedInviteIds);
-  const exp = revokedInviteIds.get(inviteId);
+  revokedInviteIds.set(
+    revokeInviteKey(inviteId, ownerEmail),
+    Date.now() + TTL_MS,
+  );
+}
+
+export function isInviteRevokedServer(
+  inviteId: string,
+  ownerEmail: string,
+): boolean {
+  prune(revokedInviteIds);
+  const exp = revokedInviteIds.get(revokeInviteKey(inviteId, ownerEmail));
   if (!exp) return false;
   if (exp <= Date.now()) {
-    revokedInviteIds.delete(inviteId);
+    revokedInviteIds.delete(revokeInviteKey(inviteId, ownerEmail));
     return false;
   }
   return true;
@@ -51,8 +64,9 @@ export function isInviteClosedServer(inviteId: string): boolean {
 
 export function inviteBlockedReason(
   inviteId: string,
+  ownerEmail: string,
 ): "revoked" | "closed" | null {
-  if (isInviteRevokedServer(inviteId)) return "revoked";
+  if (isInviteRevokedServer(inviteId, ownerEmail)) return "revoked";
   if (isInviteClosedServer(inviteId)) return "closed";
   return null;
 }

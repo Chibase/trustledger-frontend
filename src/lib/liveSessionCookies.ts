@@ -11,6 +11,7 @@ import {
   TL_DESK_TIER_LOCKED_COOKIE,
   TL_MODE_COOKIE,
   TL_ORG_OWNER_COOKIE,
+  TL_ORG_OWNER_UI_COOKIE,
   TL_TRIAL_PLAN_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
@@ -69,10 +70,15 @@ export function applyLiveSessionCookies(
       ...cookieBase,
       httpOnly: true,
     });
+    response.cookies.set(TL_ORG_OWNER_UI_COOKIE, "1", cookieBase);
   } else {
     response.cookies.set(TL_ORG_OWNER_COOKIE, "", {
       ...cookieBase,
       httpOnly: true,
+      maxAge: 0,
+    });
+    response.cookies.set(TL_ORG_OWNER_UI_COOKIE, "", {
+      ...cookieBase,
       maxAge: 0,
     });
   }

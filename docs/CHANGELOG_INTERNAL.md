@@ -3,8 +3,9 @@
 ## 2026-09-05 — SEC-BFF session hardening
 
 - Ops APIs (`/api/ops/*`, provision/ensure/smoke, charge-due, EFT, security events, marketing desk) require a live Cloud **sid** whose logged-in user is on `PLATFORM_OPERATOR_EMAILS`. An email cookie alone is 401. Cron jobs still use Bearer `CRON_SECRET`. `/ops` pages also require the sid cookie.
-- Live Plan Owner for mutating APIs (project create, invites, member password reset) is **Customer.custom_owner_email**, not `tl-org-owner`. That cookie is now httpOnly on live login (UI hint only). Invitees can change their own Cloud password without it.
-- `GET /api/paystack/verify` is rate-limited. Temp password / activation token return once, then only to the success-page browser that holds a short-lived httpOnly reveal cookie. Webhook still does not mint credentials.
+- Live Plan Owner for mutating APIs (project create, invites, member password reset) is **Customer.custom_owner_email**, not `tl-org-owner`. That cookie is now httpOnly on live login; a readable `tl-org-owner-ui` hint keeps Plan Owner UI. Invitees can change their own Cloud password without it.
+- `GET /api/paystack/verify` is rate-limited. Temp password / activation token return only to the checkout browser (pending cookie from initialize, then a short-lived reveal cookie). A leaked reference without those cookies gets payment status only. Webhook still does not mint credentials.
+- Invite revoke is namespaced by Plan Owner email so a live Owner cannot revoke another organisation's inviteId.
 - `POST /api/frappe` allowlists documented product methods only (no `frappe.client.*`, no ledger create, no report-AI). Identity comes from the live sid.
 - Live incident/project lists never fall back to demo `INC-*` / mock projects. Empty Cloud stays empty.
 

@@ -10,7 +10,9 @@ import type { NextResponse } from "next/server";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
 
 export const PAYSTACK_VERIFY_REVEAL_COOKIE = "tl-pay-reveal";
+export const PAYSTACK_VERIFY_PENDING_COOKIE = "tl-pay-pending";
 const REVEAL_MAX_AGE_SECONDS = 30 * 60;
+const PENDING_MAX_AGE_SECONDS = 2 * 60 * 60;
 
 const mintedReferences = new Map<string, number>();
 const MINT_TTL_MS = 24 * 60 * 60 * 1000;
@@ -109,11 +111,10 @@ export function paystackVerifyAlreadyMinted(reference: string): boolean {
  */
 export function decidePaystackCredentialReveal(input: {
   alreadyMinted: boolean;
-  hasRevealCookie: boolean;
+  hasCheckoutCookie: boolean;
 }): "mint" | "replay" | "withhold" {
-  if (input.hasRevealCookie) return input.alreadyMinted ? "replay" : "mint";
-  if (input.alreadyMinted) return "withhold";
-  return "mint";
+  if (!input.hasCheckoutCookie) return "withhold";
+  return input.alreadyMinted ? "replay" : "mint";
 }
 
 export function paystackVerifyRateLimit(request: Request, reference: string): boolean {
@@ -132,11 +133,37 @@ export function attachPaystackVerifyReveal(
   response: NextResponse,
   reference: string,
 ): void {
-  const exp = Date.now() + REVEAL_MAX_AGE_SECONDS * 1000;
+  attachPaystackVerifyCookie(
+    response,
+    PAYSTACK_VERIFY_REVEAL_COOKIE,
+    reference,
+    REVEAL_MAX_AGE_SECONDS,
+  );
+}
+
+export function attachPaystackVerifyPending(
+  response: NextResponse,
+  reference: string,
+): void {
+  attachPaystackVerifyCookie(
+    response,
+    PAYSTACK_VERIFY_PENDING_COOKIE,
+    reference,
+    PENDING_MAX_AGE_SECONDS,
+  );
+}
+
+function attachPaystackVerifyCookie(
+  response: NextResponse,
+  name: string,
+  reference: string,
+  maxAge: number,
+): void {
+  const exp = Date.now() + maxAge * 1000;
   const token = signReveal(reference, exp);
-  response.cookies.set(PAYSTACK_VERIFY_REVEAL_COOKIE, token, {
+  response.cookies.set(name, token, {
     path: "/",
-    maxAge: REVEAL_MAX_AGE_SECONDS,
+    maxAge,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,

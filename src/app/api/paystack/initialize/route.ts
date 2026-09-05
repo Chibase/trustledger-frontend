@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isWorkEmail } from "@/data/assessment";
 import { getPaystackPlan, type PaystackPlanId } from "@/lib/paystackPlans";
+import { attachPaystackVerifyPending } from "@/lib/paystackVerifyGuard";
 import {
   initializePaystackTransaction,
   paystackConfigured,
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
       organization,
       mode,
     });
-    return NextResponse.json({
+    const response = NextResponse.json({
       ok: true,
       authorizationUrl: init.authorizationUrl,
       reference: init.reference,
@@ -83,6 +84,8 @@ export async function POST(request: Request) {
       mode: init.mode,
       billAt: init.billAt,
     });
+    attachPaystackVerifyPending(response, init.reference);
+    return response;
   } catch (err) {
     return NextResponse.json(
       {

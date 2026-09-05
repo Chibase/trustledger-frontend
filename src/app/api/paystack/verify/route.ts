@@ -10,6 +10,7 @@ import {
   attachPaystackVerifyReveal,
   decidePaystackCredentialReveal,
   markPaystackVerifyMinted,
+  PAYSTACK_VERIFY_PENDING_COOKIE,
   PAYSTACK_VERIFY_REVEAL_COOKIE,
   paystackVerifyAlreadyMinted,
   paystackVerifyRateLimit,
@@ -38,11 +39,14 @@ export async function GET(request: Request) {
 
   const jar = await cookies();
   const revealToken = jar.get(PAYSTACK_VERIFY_REVEAL_COOKIE)?.value;
-  const hasRevealCookie = verifyPaystackRevealToken(revealToken, reference);
+  const pendingToken = jar.get(PAYSTACK_VERIFY_PENDING_COOKIE)?.value;
+  const hasCheckoutCookie =
+    verifyPaystackRevealToken(revealToken, reference) ||
+    verifyPaystackRevealToken(pendingToken, reference);
   const alreadyMinted = paystackVerifyAlreadyMinted(reference);
   const reveal = decidePaystackCredentialReveal({
     alreadyMinted,
-    hasRevealCookie,
+    hasCheckoutCookie,
   });
   const mintCredentials = reveal !== "withhold";
   const sendWelcomeEmail = reveal === "mint";
