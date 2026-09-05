@@ -65,6 +65,7 @@ import {
   projectHasDossierBasics,
   type Project,
 } from "@/types/project";
+import type { Commitment } from "@/types/commitment";
 import type { UserRole } from "@/types/rbac";
 
 type CreateReportWizardProps = {
@@ -136,6 +137,7 @@ export function CreateReportWizard({
   const [facts, setFacts] = useState<PeriodActivityFacts | null>(null);
   const [evidence, setEvidence] = useState<SavedReport["evidence"]>([]);
   const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
+  const [allCommitments, setAllCommitments] = useState<Commitment[]>([]);
   const [purgedTemplates, setPurgedTemplates] = useState(0);
 
   useEffect(() => {
@@ -167,6 +169,7 @@ export function CreateReportWizard({
         const rows = lists.projects;
         setProjects(rows);
         setAllIncidents(lists.incidents);
+        setAllCommitments(lists.commitments);
         const fromQuery =
           typeof window !== "undefined"
             ? new URLSearchParams(window.location.search).get("projectId")
@@ -196,13 +199,14 @@ export function CreateReportWizard({
         projectId,
         projectName: selectedProject?.name,
         project: selectedProject,
+        commitments: allCommitments,
       });
       setFacts(scopedFacts);
       setFactsBlock(factsToPromptBlock(scopedFacts));
       setEvidence(scopedFacts.evidence);
     });
     return () => cancelAnimationFrame(frame);
-  }, [allIncidents, projectId, projects]);
+  }, [allIncidents, allCommitments, projectId, projects]);
 
   const catalogue = useMemo(() => {
     const preferred = new Set(sectionsForKind(kind).map((s) => s.id));

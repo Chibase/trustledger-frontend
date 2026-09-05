@@ -20,8 +20,8 @@ Saving or applying the draft does **not** close or advance a grievance.
 
 | Section | On file | If empty |
 |---------|---------|----------|
-| What worked | MEL-1 indicators where actual ≥ expected; closed cases; done MEL-3 records | Does not invent a success |
-| What did not | MEL-1 shortfalls (watch, not a cause); open tagged cases; open Learn & Adapt records | Says nothing is on file |
+| What worked | MEL-1 indicators (project or commitment) where actual ≥ expected; closed cases; done MEL-3 records | Does not invent a success |
+| What did not | MEL-1 shortfalls on project or commitment (watch, not a cause); open tagged cases; open Learn & Adapt records | Says nothing is on file |
 | What we will change | Open Adapt actions | Does not invent a change |
 
 Case ids (`INC-*`) are cited when cases exist.

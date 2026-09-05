@@ -16,6 +16,7 @@ import {
 } from "@/lib/melLearnAdapt";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { Commitment } from "@/types/commitment";
 
 export const MEL_RETROSPECTIVE_HEADINGS = [
   "What worked",
@@ -31,6 +32,7 @@ export type MelRetrospectiveFacts = {
   unresolvedBlocked: Incident[];
   scopeIncidents?: Incident[];
   projects?: Project[];
+  commitments?: Commitment[];
   trustIndex: number;
   trustLabel: string;
   projectName?: string;
@@ -95,8 +97,9 @@ export function composeMelRetrospectiveMarkdown(
   });
   const incidents = incidentsFromFacts(input.facts);
   const projects = input.facts.projects || [];
-  const onTrack = collectMelOnTrack({ projects });
-  const shortfalls = collectMelShortfalls({ projects });
+  const commitments = input.facts.commitments || [];
+  const onTrack = collectMelOnTrack({ projects, commitments });
+  const shortfalls = collectMelShortfalls({ projects, commitments });
   const closed = incidents.filter((row) => row.status === "Closed");
   const openTagged = incidents.filter(
     (row) => row.status !== "Closed" && Boolean(row.rootCause),

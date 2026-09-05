@@ -13,6 +13,7 @@ import {
 import { lensUsesFixedBrief, reportLensForKind } from "@/lib/reportLenses";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { Commitment } from "@/types/commitment";
 import type { MelLearnAdaptRecord } from "@/types/melAdapt";
 
 function sampleProject(over: Partial<Project> = {}): Project {
@@ -166,6 +167,32 @@ describe("MEL-4 retrospective composer", () => {
     expect(
       bodyCitesAnyCaseId(draft.bodyMarkdown, ["INC-MEL-4", "INC-MEL-4B"]),
     ).toBe(true);
+  });
+
+  it("includes commitment expected vs actual when the project list has none", () => {
+    const commitment: Commitment = {
+      id: "COM-MEL-4",
+      title: "Local hire",
+      status: "open",
+      ownerLabel: "CLO",
+      dueOn: "2026-12-01",
+      projectId: "PRJ-MEL-4",
+      engagementId: null,
+      stakeholderIds: [],
+      createdAt: "2026-01-01T00:00:00.000Z",
+      expected: 1000,
+      actual: 620,
+      melUnit: "people",
+    };
+    const facts = factsFrom({
+      projects: [sampleProject()],
+      commitments: [commitment],
+    });
+    expect(periodFactsHaveWritableEvidence(facts)).toBe(true);
+    const draft = compose(facts);
+    expect(draft.bodyMarkdown).toMatch(/Local hire/);
+    expect(draft.bodyMarkdown).toMatch(/620/);
+    expect(draft.bodyMarkdown).toMatch(/watch, not a named cause/i);
   });
 
   it("does not invent a change when no Adapt actions are on file", () => {

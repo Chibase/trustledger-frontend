@@ -32,6 +32,7 @@ import {
 } from "@/lib/reportLenses";
 import type { Incident } from "@/types/incident";
 import type { Project, ProjectDossier } from "@/types/project";
+import type { Commitment } from "@/types/commitment";
 import { composeMelRetrospectiveMarkdown } from "@/lib/melRetrospective";
 
 export type PeriodActivityFacts = {
@@ -52,6 +53,8 @@ export type PeriodActivityFacts = {
   scopeIncidents?: Incident[];
   /** Projects in scope — MEL-1 expected vs actual. */
   projects?: Project[];
+  /** Commitments in scope — MEL-1 expected vs actual on the promise. */
+  commitments?: Commitment[];
 };
 
 export function emptyAggregatedPackFacts(): AggregatedPackFacts {
@@ -106,6 +109,17 @@ export function periodFactsHaveWritableEvidence(
   );
   if (dossierReady) return true;
   if ((facts.projects || []).some((p) => (p.melIndicators || []).length > 0)) {
+    return true;
+  }
+  if (
+    (facts.commitments || []).some(
+      (row) =>
+        row.expected != null &&
+        row.actual != null &&
+        Number.isFinite(row.expected) &&
+        Number.isFinite(row.actual),
+    )
+  ) {
     return true;
   }
   const buckets = [
@@ -296,6 +310,7 @@ export function buildPeriodActivityFacts(
     projectId?: string;
     projectName?: string;
     project?: Project;
+    commitments?: Commitment[];
   },
 ): PeriodActivityFacts {
   const scoped = options?.projectId
@@ -568,6 +583,11 @@ export function buildPeriodActivityFacts(
     dossier,
     scopeIncidents: scoped,
     projects: options?.project ? [options.project] : [],
+    commitments: options?.projectId
+      ? (options.commitments || []).filter(
+          (row) => row.projectId === options.projectId,
+        )
+      : options?.commitments || [],
   };
 }
 
@@ -589,7 +609,7 @@ export function factsToPromptBlock(facts: PeriodActivityFacts): string {
     facts.dossier
       ? `Project dossier — funder:${facts.dossier.funder?.name || "—"} ward:${facts.dossier.geo?.wardName || "—"} hire target:${facts.dossier.empowermentTargets?.localHireTarget ?? "—"} promises:${facts.dossier.promises?.length ?? 0}`
       : "Project dossier: none",
-    `MEL indicators: ${(facts.projects || []).reduce((n, p) => n + (p.melIndicators || []).length, 0)}`,
+    `MEL indicators: ${(facts.projects || []).reduce((n, p) => n + (p.melIndicators || []).length, 0)}; commitments with figures: ${(facts.commitments || []).filter((c) => c.expected != null || c.actual != null).length}`,
   ].join("\n");
 }
 

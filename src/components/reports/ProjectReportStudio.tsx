@@ -44,6 +44,7 @@ import {
 import { listWorkspaceIncidents } from "@/lib/workspaceData";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
+import { commitmentService } from "@/services/commitmentService";
 import {
   DESK_TIER_LABELS,
   tierMeetsMinimum,
@@ -64,6 +65,7 @@ import {
 import type { AiSuggestionStatus } from "@/types/ai";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { Commitment } from "@/types/commitment";
 import type { UserRole } from "@/types/rbac";
 
 export type { ReportFormatId };
@@ -136,10 +138,12 @@ export function ProjectReportStudio({
   const [body, setBody] = useState("");
   const [savedId, setSavedId] = useState<string | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents || []);
+  const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [library, setLibrary] = useState<SavedReport[]>([]);
   const [presentationOpen, setPresentationOpen] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     const frame = requestAnimationFrame(() => {
       const desk = readDeskTier(role);
       setTier(desk);
@@ -152,8 +156,19 @@ export function ProjectReportStudio({
       setLibrary(
         listSavedReports().filter((r) => r.projectId === project.id),
       );
+      void commitmentService
+        .list({ projectId: project.id })
+        .then((rows) => {
+          if (!cancelled) setCommitments(rows);
+        })
+        .catch(() => {
+          if (!cancelled) setCommitments([]);
+        });
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
   }, [role, project.id, seedIncidents]);
 
   const included = useMemo(() => {
@@ -177,8 +192,9 @@ export function ProjectReportStudio({
       buildPeriodActivityFacts(incidents, {
         projectId: project.id,
         project,
+        commitments,
       }),
-    [incidents, project],
+    [incidents, project, commitments],
   );
 
   const showCharts = format === "charts" || format === "charts_details";
