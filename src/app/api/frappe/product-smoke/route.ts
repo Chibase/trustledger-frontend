@@ -11,6 +11,7 @@ import {
   createCloudEngagement,
   createCloudStakeholder,
 } from "@/lib/siCloud";
+import { createCloudEngagementPlan } from "@/lib/sepCloud";
 import {
   upsertCloudCommunity,
   upsertCloudObservation,
@@ -24,6 +25,8 @@ import {
 } from "@/lib/platformOperator";
 import type { Commitment } from "@/types/commitment";
 import type { Engagement, EvidenceStub } from "@/types/engagement";
+import type { EngagementPlan } from "@/types/engagementPlan";
+import type { SepExecutionOverlay } from "@/types/sepExecution";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
 import type { Stakeholder } from "@/types/stakeholder";
@@ -45,6 +48,7 @@ type Body = {
     | "stakeholder"
     | "engagement"
     | "commitment"
+    | "sep"
     | "observation"
     | "participation"
     | "community"
@@ -57,6 +61,8 @@ type Body = {
   stakeholder?: Stakeholder;
   engagement?: Engagement;
   commitment?: Commitment;
+  plan?: EngagementPlan;
+  overlay?: SepExecutionOverlay | null;
   observation?: TrustObservation;
   participation?: TrustParticipationRecord;
   community?: TrustCommunityContext;
@@ -139,6 +145,14 @@ export async function POST(request: Request) {
     );
     return NextResponse.json(result, { status: result.ok ? 200 : 502 });
   }
+  if (body.kind === "sep" && body.plan) {
+    const result = await createCloudEngagementPlan(body.plan, customer, {
+      orgId: body.orgId,
+      overlay: body.overlay ?? null,
+      includeExecution: body.overlay != null,
+    });
+    return NextResponse.json(result, { status: result.ok ? 200 : 502 });
+  }
   if (body.kind === "observation" && body.observation) {
     const result = await upsertCloudObservation(
       body.observation,
@@ -175,7 +189,7 @@ export async function POST(request: Request) {
   return NextResponse.json(
     {
       error:
-        "kind + matching payload required (project|incident|evidence|stakeholder|engagement|commitment|observation|participation|community|verification)",
+        "kind + matching payload required (project|incident|evidence|stakeholder|engagement|commitment|sep|observation|participation|community|verification)",
     },
     { status: 400 },
   );

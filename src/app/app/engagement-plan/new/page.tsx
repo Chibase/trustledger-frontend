@@ -20,7 +20,7 @@ import {
   joinSepPlace,
   SEP_INSTRUMENT_CATALOG,
 } from "@/lib/sepInstruments";
-import { saveEngagementPlan } from "@/lib/sepStore";
+import { saveEngagementPlanLive } from "@/lib/sepPersist";
 import { projectService } from "@/services/projectService";
 import type { EngagementPlan, SepSectorId } from "@/types/engagementPlan";
 import {
@@ -267,7 +267,7 @@ function NewEngagementPlanForm() {
     }
   }
 
-  function save() {
+  async function save() {
     if (!draft) return;
     const next = rebuildSepDocument(
       {
@@ -285,9 +285,13 @@ function NewEngagementPlanForm() {
         document: draft.documentDrafter === "gemini" ? "keep" : "rebuild",
       },
     );
-    const saved = saveEngagementPlan(next);
-    pushToast("Engagement plan saved.", "success");
-    router.push(`/app/engagement-plan/${saved.id}`);
+    try {
+      const saved = await saveEngagementPlanLive(next);
+      pushToast("Engagement plan saved.", "success");
+      router.push(`/app/engagement-plan/${saved.id}`);
+    } catch {
+      pushToast("Could not save this plan on TrustLedger Cloud.", "error");
+    }
   }
 
   const playbookHint =
@@ -768,7 +772,7 @@ function NewEngagementPlanForm() {
             </ol>
             <button
               type="button"
-              onClick={save}
+              onClick={() => void save()}
               className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
             >
               Save plan

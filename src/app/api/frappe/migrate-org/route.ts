@@ -7,6 +7,9 @@ import {
   createCloudProject,
 } from "@/lib/productCloud";
 import {
+  upsertCloudEngagementPlan,
+} from "@/lib/sepCloud";
+import {
   assertLiveOperatorAccess,
   operatorGateMessage,
 } from "@/lib/platformOperator";
@@ -18,8 +21,10 @@ import {
   upsertCloudVerification,
 } from "@/lib/trustCloud";
 import type { EvidenceStub } from "@/types/engagement";
+import type { EngagementPlan } from "@/types/engagementPlan";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { SepExecutionOverlay } from "@/types/sepExecution";
 import type { TrustClaimVerificationStamp } from "@/lib/trust/claimVerification";
 import type {
   TrustCommunityContext,
@@ -40,6 +45,8 @@ type Body = {
   participation?: TrustParticipationRecord[];
   community?: TrustCommunityContext[];
   verifications?: TrustClaimVerificationStamp[];
+  plans?: EngagementPlan[];
+  sepOverlays?: SepExecutionOverlay[];
 };
 
 /**
@@ -90,6 +97,7 @@ export async function POST(request: Request) {
     participation: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
     community: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
     verifications: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
+    plans: [] as Array<{ id: string; ok: boolean; name?: string; error?: string }>,
   };
 
   for (const project of projects) {
@@ -155,6 +163,24 @@ export async function POST(request: Request) {
       error: r.ok ? undefined : r.error,
     });
   }
+  const overlayByPlan = new Map(
+    (body.sepOverlays || []).map((row) => [row.planId, row]),
+  );
+  for (const plan of body.plans || []) {
+    const overlay = overlayByPlan.get(plan.id) || null;
+    const r = await upsertCloudEngagementPlan(plan, customer, {
+      orgId: body.orgId,
+      overlay,
+      includeExecution: overlay != null,
+    });
+    results.plans.push({
+      id: plan.id,
+      ok: r.ok,
+      name: r.ok ? r.name : undefined,
+      error: r.ok ? undefined : r.error,
+    });
+    if (overlay) overlayByPlan.delete(plan.id);
+  }
 
   const failed =
     results.projects.filter((x) => !x.ok).length +
@@ -163,7 +189,8 @@ export async function POST(request: Request) {
     results.observations.filter((x) => !x.ok).length +
     results.participation.filter((x) => !x.ok).length +
     results.community.filter((x) => !x.ok).length +
-    results.verifications.filter((x) => !x.ok).length;
+    results.verifications.filter((x) => !x.ok).length +
+    results.plans.filter((x) => !x.ok).length;
 
   return NextResponse.json({
     ok: failed === 0,
@@ -177,6 +204,7 @@ export async function POST(request: Request) {
       participation: results.participation.length,
       community: results.community.length,
       verifications: results.verifications.length,
+      plans: results.plans.length,
       failed,
     },
     results,

@@ -1,9 +1,9 @@
 /**
- * SEP execution overlay backfill (browser store).
+ * SEP execution overlay backfill (browser store + Cloud hydrate).
  *
- * There is no SQL schema: plans live in `tl-engagement-plans` until a Cloud
- * DocType exists (ADR-053). Opening `/app/engagement-plan/[id]` runs
- * `backfillSepExecution(plan)` into `tl-sep-execution`.
+ * Trial stays in `tl-engagement-plans` / `tl-sep-execution`. Live entitled
+ * workspaces persist on TL Engagement Plan (ADR-053 / SI-SEP Cloud persist).
+ * Opening `/app/engagement-plan/[id]` runs `backfillSepExecution(plan)`.
  *
  * This script documents the contract and exits 0 so CI can invoke it.
  */

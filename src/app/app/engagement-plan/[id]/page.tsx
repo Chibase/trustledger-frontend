@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/Toast";
 import { applyEngagementPlanToSrm, previewSepApply } from "@/lib/sepApply";
 import { rebuildSepDocument } from "@/lib/sepComposer";
 import { requestSepDocumentDraft } from "@/lib/sepDraftClient";
-import { getEngagementPlan, saveEngagementPlan } from "@/lib/sepStore";
+import { getEngagementPlanLive, saveEngagementPlanLive } from "@/lib/sepPersist";
 import { projectService } from "@/services/projectService";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
@@ -47,24 +47,30 @@ export default function EngagementPlanDetailPage() {
   useEffect(() => {
     let cancelled = false;
     const handle = window.setTimeout(() => {
-      if (cancelled) return;
-      const row = id ? getEngagementPlan(id) : null;
-      const hydrated = row
-        ? rebuildSepDocument(
-            { ...row, timelineHint: row.timelineHint || "" },
-            { touch: false },
-          )
-        : row;
-      setPlan(hydrated);
-      setProjectId(hydrated?.projectId || "");
-      setPurpose(hydrated?.purposeStatement || "");
-      setPlace(hydrated?.placeHint || "");
-      setClient(hydrated?.clientFunderHint || "");
-      setTimeline(hydrated?.timelineHint || "");
-      setLoading(false);
-      void projectService.list().then((rows) => {
-        if (!cancelled) setProjects(rows);
-      });
+      void (async () => {
+        if (!id) {
+          if (!cancelled) setLoading(false);
+          return;
+        }
+        const row = await getEngagementPlanLive(id);
+        if (cancelled) return;
+        const hydrated = row
+          ? rebuildSepDocument(
+              { ...row, timelineHint: row.timelineHint || "" },
+              { touch: false },
+            )
+          : row;
+        setPlan(hydrated);
+        setProjectId(hydrated?.projectId || "");
+        setPurpose(hydrated?.purposeStatement || "");
+        setPlace(hydrated?.placeHint || "");
+        setClient(hydrated?.clientFunderHint || "");
+        setTimeline(hydrated?.timelineHint || "");
+        setLoading(false);
+        void projectService.list().then((rows) => {
+          if (!cancelled) setProjects(rows);
+        });
+      })();
     }, 0);
     return () => {
       cancelled = true;
@@ -72,7 +78,7 @@ export default function EngagementPlanDetailPage() {
     };
   }, [id]);
 
-  function persist(
+  async function persist(
     next: EngagementPlan,
     opts?: { document?: "rebuild" | "keep" },
   ) {
@@ -81,23 +87,27 @@ export default function EngagementPlanDetailPage() {
         opts?.document ||
         (next.documentDrafter === "gemini" ? "keep" : "rebuild"),
     });
-    const saved = saveEngagementPlan(rebuilt);
+    const saved = await saveEngagementPlanLive(rebuilt);
     setPlan(saved);
     return saved;
   }
 
-  function saveMeta() {
+  async function saveMeta() {
     if (!plan) return;
-    persist({
-      ...plan,
-      purposeStatement: purpose.trim() || plan.purposeStatement,
-      placeHint: place.trim(),
-      clientFunderHint: client.trim(),
-      timelineHint: timeline.trim(),
-      projectId: projectId || null,
-      status: plan.status === "suggested" ? "saved" : plan.status,
-    });
-    pushToast("Plan updated.", "success");
+    try {
+      await persist({
+        ...plan,
+        purposeStatement: purpose.trim() || plan.purposeStatement,
+        placeHint: place.trim(),
+        clientFunderHint: client.trim(),
+        timelineHint: timeline.trim(),
+        projectId: projectId || null,
+        status: plan.status === "suggested" ? "saved" : plan.status,
+      });
+      pushToast("Plan updated.", "success");
+    } catch {
+      pushToast("Could not save this plan on TrustLedger Cloud.", "error");
+    }
   }
 
   async function redraft() {
@@ -116,10 +126,15 @@ export default function EngagementPlanDetailPage() {
         ready,
         ready.sourceExcerpt || "",
       );
-      persist(
-        { ...drafted, status: drafted.status === "suggested" ? "saved" : drafted.status },
-        { document: "keep" },
-      );
+      try {
+        await persist(
+          { ...drafted, status: drafted.status === "suggested" ? "saved" : drafted.status },
+          { document: "keep" },
+        );
+      } catch {
+        pushToast("Could not save this plan on TrustLedger Cloud.", "error");
+        return;
+      }
       if (synthesizer === "gemini") {
         pushToast("Gemini redrafted the client document.", "success");
       } else if (drafted.documentDrafter === "gemini") {
@@ -146,7 +161,7 @@ export default function EngagementPlanDetailPage() {
     if (!plan) return;
     setApplying(true);
     try {
-      const ready = persist({
+      const ready = await persist({
         ...plan,
         purposeStatement: purpose.trim() || plan.purposeStatement,
         placeHint: place.trim(),
@@ -348,7 +363,7 @@ export default function EngagementPlanDetailPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={saveMeta}
+                  onClick={() => void saveMeta()}
                   className="rounded-md border border-tl-line px-3 py-1.5 text-sm font-medium hover:bg-tl-paper"
                 >
                   Save project, place & purpose

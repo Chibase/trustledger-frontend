@@ -10,9 +10,9 @@ import {
   upgradeLabelForCapability,
 } from "@/lib/entitlements";
 import {
-  listEngagementPlans,
-  listEngagementPlansForProject,
-} from "@/lib/sepStore";
+  listEngagementPlansForProjectLive,
+  listEngagementPlansLive,
+} from "@/lib/sepPersist";
 import type { PlanId } from "@/config/plans";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
@@ -44,12 +44,18 @@ export function SepDashboardPanel({
     const load = () => {
       const resolved = resolveClientPlanId(planId);
       setAllowed(hasCapability("engagements", resolved));
-      setRows(
-        projectId
-          ? listEngagementPlansForProject(projectId)
-          : listEngagementPlans(),
-      );
-      setReady(true);
+      void (projectId
+        ? listEngagementPlansForProjectLive(projectId)
+        : listEngagementPlansLive()
+      )
+        .then((rows) => {
+          setRows(rows);
+          setReady(true);
+        })
+        .catch(() => {
+          setRows([]);
+          setReady(true);
+        });
     };
     const frame = requestAnimationFrame(load);
     window.addEventListener("tl-workspace-seeded", load);

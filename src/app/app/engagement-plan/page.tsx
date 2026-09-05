@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { deleteEngagementPlan, listEngagementPlans } from "@/lib/sepStore";
+import {
+  deleteEngagementPlanLive,
+  listEngagementPlansLive,
+} from "@/lib/sepPersist";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import {
   SEP_SECTOR_LABELS,
@@ -16,23 +19,27 @@ export default function EngagementPlanListPage() {
   const [rows, setRows] = useState<EngagementPlan[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
     const load = () => {
-      setRows(listEngagementPlans());
+      void listEngagementPlansLive().then((rows) => {
+        if (!cancelled) setRows(rows);
+      });
     };
     const handle = window.setTimeout(load, 0);
     window.addEventListener("tl-workspace-seeded", load);
     return () => {
+      cancelled = true;
       window.clearTimeout(handle);
       window.removeEventListener("tl-workspace-seeded", load);
     };
   }, []);
 
-  function remove(id: string) {
+  async function remove(id: string) {
     if (!window.confirm("Delete this engagement plan from this workspace?")) {
       return;
     }
-    deleteEngagementPlan(id);
-    setRows(listEngagementPlans());
+    await deleteEngagementPlanLive(id);
+    setRows(await listEngagementPlansLive());
   }
 
   return (
@@ -94,7 +101,7 @@ export default function EngagementPlanListPage() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => remove(row.id)}
+                    onClick={() => void remove(row.id)}
                     className="rounded-md border border-tl-line px-3 py-1.5 text-xs font-medium text-tl-ink-muted hover:bg-tl-paper"
                   >
                     Delete

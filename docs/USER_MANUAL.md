@@ -129,7 +129,7 @@ Use **Engagement plan** when the work starts as a briefing, tender, or RFP rathe
 
 On the **Executive dashboard** (`/app/dashboard`), the **Plan modules** strip is the sequence for your commercial plan (executive first, then the desks that plan includes). Open a module, then **Return to executive view**. Module cards on the executive page show contribution to overall progress. Empty desks show a short prompt to add the first record — only the VIP showcase is preloaded. **Engagement plan** is one module on Project+ — not the whole product. A URL for a desk that is not on your plan shows an upgrade note instead of the module.
 
-If the workspace plan does not include a module, it stays off the switcher (or shows an upgrade note on the executive SEP card). Linked plans also appear on a **project dashboard**. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence.
+If the workspace plan does not include a module, it stays off the switcher (or shows an upgrade note on the executive SEP card). Linked plans also appear on a **project dashboard**. Applied rows follow the same live/trial path as the rest of Stakeholder Intelligence. **Live** entitled workspaces save the plan and its execution dashboard on TrustLedger Cloud; a trial without Cloud stays in the browser on that device.
 
 ---
 

@@ -17,7 +17,7 @@
 TrustLedger has moved from a **demo-first Vercel prototype** to an **operational-grade commercial platform**:
 
 1. **Version 001 resolution desk is live** for paying customers on Frappe Cloud (projects, incidents/grievance desk, AI suggest→apply→save, reports shell).
-2. **Version 002 Stakeholder Intelligence is the SRM engine** — registry, engagements, commitments, and (SI-SEP) a briefing→engagement-plan composer that seeds those desks after human apply. Cloud DocTypes + live BFF CRUD exist for `TL Stakeholder` / `TL Engagement` / `TL Commitment`. Without this layer there is no durable Stakeholder Relationship Management.
+2. **Version 002 Stakeholder Intelligence is the SRM engine** — registry, engagements, commitments, and (SI-SEP) a briefing→engagement-plan composer that seeds those desks after human apply. Cloud DocTypes + live BFF CRUD exist for `TL Stakeholder` / `TL Engagement` / `TL Commitment` / **`TL Engagement Plan`**. Without this layer there is no durable Stakeholder Relationship Management.
 3. **Commercial path works end-to-end:** marketing → assessment/quote/contact → `/trial` or Paystack `/pay` → email verification → trial workspace or live Owner login → Ops finance/billing.
 4. **Sample demo desk is retired** (ADR-033). Public education is `/product`; buyers use own-data trial or live Cloud — never fictional `INC-*` bleed into customer desks.
 5. **Platform Ops command centre** is real: readiness ladder, Owner provision, DocType ensure/smoke, charge-due, Executive Board view.
@@ -330,7 +330,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 
 | Objection | Response |
 |-----------|----------|
-| “Is the CRM real?” | On **Project/Institutional** (or CRM add-on), stakeholders/engagements/commitments persist to **TrustLedger Cloud** when you are live. Trial keeps your own browser data until you go live. |
+| “Is the CRM real?” | On **Project/Institutional** (or CRM add-on), stakeholders/engagements/commitments **and engagement plans** persist to **TrustLedger Cloud** when you are live. Trial keeps your own browser data until you go live. |
 | “Can I try without paying?” | Yes — `/trial` for 14 days with your own projects; or assessment for readiness scoring. |
 | “Where is the demo?” | Sample preview retired. Use `/product` for feature purpose, then trial or live. |
 | “Mobile?” | Responsive web in the browser; no separate App Store app yet. |
@@ -353,7 +353,7 @@ Run this cadence. Record outcomes in `docs/CHANGELOG_INTERNAL.md` and adjust §4
 | Production health | `/api/health` | `ok: true`; launch gates expected |
 | Readiness ladder | `/ops/readiness` | No unexpected regressions |
 | Sign-in smoke | `/login/live` | OTP email arrives; session opens |
-| SI smoke | `/ops/accounts` | Ensure DocTypes + Stakeholder→Engagement→Commitment smoke |
+| SI smoke | `/ops/accounts` | Ensure DocTypes + Stakeholder→Engagement→Commitment→Plan smoke |
 | Lead forms | assessment/contact/quote | Submissions land in CRM/Ops activity |
 
 ### 7.2 Monthly (product + commercial)
