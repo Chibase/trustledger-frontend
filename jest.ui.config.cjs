@@ -39,6 +39,8 @@ module.exports = {
     "<rootDir>/tests/ts/melIndicators.test.ts",
     "<rootDir>/tests/ts/grievanceRootCause.test.ts",
     "<rootDir>/tests/ts/processStageActions.test.tsx",
+    "<rootDir>/tests/ts/melLearnAdapt.test.ts",
+    "<rootDir>/tests/ts/learnAdaptPanel.test.tsx",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {

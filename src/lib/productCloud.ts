@@ -7,7 +7,7 @@ import {
   frappeBase,
   frappeKeyPair,
 } from "@/lib/leadCapture";
-import { INCIDENT_PROCESS_STAGE_FIELDNAMES, INCIDENT_ROOT_CAUSE_FIELDNAMES } from "@/lib/frappeProductDocTypes";
+import { INCIDENT_PROCESS_STAGE_FIELDNAMES, INCIDENT_ROOT_CAUSE_FIELDNAMES, INCIDENT_ADAPT_FIELDNAMES } from "@/lib/frappeProductDocTypes";
 import { rowsForCustomer } from "@/lib/tenantScope";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident, IncidentPriority, IncidentStatus } from "@/types/incident";
@@ -16,6 +16,10 @@ import type { Project } from "@/types/project";
 import {
   parseGrievanceRootCause,
 } from "@/lib/grievanceRootCause";
+import {
+  readIncidentAdaptRecords,
+  serializeMelAdaptRecords,
+} from "@/lib/melLearnAdapt";
 import {
   readProjectMelIndicators,
   serializeMelIndicators,
@@ -232,6 +236,10 @@ export function incidentToFrappeDoc(
     doc.root_cause = incident.rootCause;
     doc.root_cause_note = incident.rootCauseNote || "";
   }
+  // Omit adapt_json unless the client sent records (including []) so PUT cannot wipe.
+  if (incident.learnAdaptRecords !== undefined) {
+    doc.adapt_json = serializeMelAdaptRecords(incident.learnAdaptRecords);
+  }
   return omitCloudTrustOverlay(doc);
 }
 
@@ -244,6 +252,7 @@ export function frappeToIncident(
   const reportedAt = stages?.reportedAt || "";
   const rootCause = parseGrievanceRootCause(row.root_cause);
   const rootCauseNote = String(row.root_cause_note || "").trim();
+  const learnAdaptRecords = readIncidentAdaptRecords(row);
   return {
     id,
     title: String(row.title || ""),
@@ -272,6 +281,7 @@ export function frappeToIncident(
           ...(rootCauseNote ? { rootCauseNote } : {}),
         }
       : {}),
+    ...(learnAdaptRecords !== undefined ? { learnAdaptRecords } : {}),
   };
 }
 
@@ -527,9 +537,17 @@ const INCIDENT_CORE_FIELDS = [
   "tl_org_id",
 ] as const;
 
-export type IncidentCloudFieldSet = "core" | "stages" | "mel";
+export type IncidentCloudFieldSet = "core" | "stages" | "mel" | "adapt";
 
 export function incidentListFields(set: IncidentCloudFieldSet): string[] {
+  if (set === "adapt") {
+    return [
+      ...INCIDENT_CORE_FIELDS,
+      ...INCIDENT_PROCESS_STAGE_FIELDNAMES,
+      ...INCIDENT_ROOT_CAUSE_FIELDNAMES,
+      ...INCIDENT_ADAPT_FIELDNAMES,
+    ];
+  }
   if (set === "mel") {
     return [
       ...INCIDENT_CORE_FIELDS,
@@ -577,7 +595,10 @@ async function fetchCloudIncidents(
 export async function listCloudIncidentsForCustomer(
   customer: string,
 ): Promise<{ ok: true; incidents: Incident[] } | { ok: false; error: string }> {
-  let listed = await fetchCloudIncidents(customer, "mel");
+  let listed = await fetchCloudIncidents(customer, "adapt");
+  if (!listed.ok) {
+    listed = await fetchCloudIncidents(customer, "mel");
+  }
   if (!listed.ok) {
     listed = await fetchCloudIncidents(customer, "stages");
   }

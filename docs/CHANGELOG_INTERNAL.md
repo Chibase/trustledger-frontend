@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-05 — MEL-3 Learn & Adapt records
+
+- Case desk adds Monitor → Analyse → Adapt corrective-action records on the grievance. Marking a record done requires an Adapt action and does **not** close or advance reported → deploy → investigate → resolve → verify → close.
+- Cloud stores `adapt_json` on `TL Incident`. PUT omits it unless the client sent records (including `[]`). List fetch falls back if Custom Fields are missing so stage stamps are not dropped. Empty Cloud stays empty; an empty Cloud list wins over a stale local list.
+- Executive and project dashboards watch **open** records. Not a standalone SKU. MEL-4 stays planned. `docs/MEL_LEARN_ADAPT.md`.
+
 ## 2026-09-05 — MEL-2 grievance root-cause tags
 
 - Investigate and Resolve on the case desk require a closed operational root-cause tag (distinct from complaint nature). Other needs a short note. The tag is a watch, not a trust-movement cause. Historical investigated/resolved stamps are not rewritten.

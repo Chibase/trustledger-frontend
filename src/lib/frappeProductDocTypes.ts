@@ -74,6 +74,19 @@ export const INCIDENT_ROOT_CAUSE_FIELDNAMES = INCIDENT_ROOT_CAUSE_FIELDS.map(
   (row) => row.fieldname,
 ) as readonly string[];
 
+/** MEL-3 — Learn & Adapt JSON on TL Incident. */
+export const INCIDENT_ADAPT_FIELDS: FieldDef[] = [
+  {
+    fieldname: "adapt_json",
+    label: "Learn and Adapt (JSON)",
+    fieldtype: "Long Text",
+  },
+];
+
+export const INCIDENT_ADAPT_FIELDNAMES = INCIDENT_ADAPT_FIELDS.map(
+  (row) => row.fieldname,
+) as readonly string[];
+
 function fieldsFor(name: ProductDocTypeName): FieldDef[] {
   if (name === "TL Project") {
     return [
@@ -145,6 +158,7 @@ function fieldsFor(name: ProductDocTypeName): FieldDef[] {
       { fieldname: "tl_org_id", label: "TrustLedger org id", fieldtype: "Data" },
       ...INCIDENT_PROCESS_STAGE_FIELDS,
       ...INCIDENT_ROOT_CAUSE_FIELDS,
+      ...INCIDENT_ADAPT_FIELDS,
     ];
   }
   return [
@@ -368,6 +382,14 @@ export async function ensureProductDocTypes(options?: {
   results.push(...rootCause.results);
   missing.push(...rootCause.missing);
 
+  const adapt = await ensureIncidentAdaptFields({
+    dryRun,
+    headers,
+    base,
+  });
+  results.push(...adapt.results);
+  missing.push(...adapt.missing);
+
   const mel = await ensureCustomFieldsOnDocType({
     dryRun,
     headers,
@@ -393,11 +415,11 @@ export async function ensureProductDocTypes(options?: {
     message: dryRun
       ? missing.length
         ? `Dry-run: ${missing.length} DocType/field(s) missing — set dryRun:false to create.`
-        : "Dry-run: all product DocTypes, incident stage, MEL, and root-cause fields already exist."
+        : "Dry-run: all product DocTypes, incident stage, MEL, root-cause, and Learn & Adapt fields already exist."
       : ok
         ? created
           ? `Created ${created} DocType/field(s); others already present.`
-          : "All product DocTypes, incident stage, MEL, and root-cause fields already exist."
+          : "All product DocTypes, incident stage, MEL, root-cause, and Learn & Adapt fields already exist."
         : `Finished with ${errors.length} error(s) — check API key System Manager rights.`,
   };
 }
@@ -554,5 +576,22 @@ export async function ensureIncidentRootCauseFields(options: {
     dt: "TL Incident",
     fields: INCIDENT_ROOT_CAUSE_FIELDS,
     insertAfter: "closed_at",
+  });
+}
+
+/** MEL-3 — adapt_json on existing TL Incident. */
+export async function ensureIncidentAdaptFields(options: {
+  dryRun: boolean;
+  headers: HeadersInit;
+  base: string;
+}): Promise<{
+  results: DocTypeEnsureResult["results"];
+  missing: string[];
+}> {
+  return ensureCustomFieldsOnDocType({
+    ...options,
+    dt: "TL Incident",
+    fields: INCIDENT_ADAPT_FIELDS,
+    insertAfter: "root_cause_note",
   });
 }

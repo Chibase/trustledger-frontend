@@ -121,6 +121,10 @@ export function mergeIncidentCache(cloud: Incident, local: Incident): Incident {
       cloud.rootCause !== undefined
         ? cloud.rootCauseNote
         : local.rootCauseNote,
+    learnAdaptRecords:
+      cloud.learnAdaptRecords !== undefined
+        ? cloud.learnAdaptRecords
+        : local.learnAdaptRecords,
     reportedByRole: local.reportedByRole || cloud.reportedByRole,
     reporterName: local.reporterName ?? cloud.reporterName,
     anonymous: local.anonymous ?? cloud.anonymous,

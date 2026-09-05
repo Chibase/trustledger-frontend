@@ -8,9 +8,10 @@ import { NoteSentimentAssist } from "@/components/ai/NoteSentimentAssist";
 import { DiscussionSpace } from "@/components/discussion/DiscussionSpace";
 import { ProcessStageTimeline } from "@/components/incidents/ProcessStageTimeline";
 import { ProcessStageActions } from "@/components/incidents/ProcessStageActions";
+import { LearnAdaptPanel } from "@/components/incidents/LearnAdaptPanel";
 import { AuditTrailPanel } from "@/components/audit/AuditTrailPanel";
 import { evidenceService } from "@/services/noteService";
-import { incidentService } from "@/services/incidentService";
+import { incidentService, mergeIncidentCache } from "@/services/incidentService";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -83,7 +84,11 @@ export default function AppIncidentDetailPage({
           ? listWorkspaceIncidents().find((row) => row.id === id) ||
             listTrialIncidents().find((row) => row.id === id)
           : listDemoIncidents().find((row) => row.id === id);
-        setIncident(localCase ?? caseRecord);
+        setIncident(
+          caseRecord && localCase
+            ? mergeIncidentCache(caseRecord, localCase)
+            : (localCase ?? caseRecord),
+        );
         const localFiles = customer
           ? [...listOrgEvidence(id), ...listTrialEvidence(id)]
           : listDemoEvidence(id);
@@ -329,6 +334,14 @@ export default function AppIncidentDetailPage({
               .join(" · ")}
           </p>
         ) : null}
+      </section>
+
+      <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
+        <LearnAdaptPanel
+          key={`${caseRecord.id}-adapt`}
+          incident={caseRecord}
+          onSaved={setIncident}
+        />
       </section>
 
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
