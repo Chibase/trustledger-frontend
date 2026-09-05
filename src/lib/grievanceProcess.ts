@@ -2,6 +2,7 @@
  * Complaint natures, process TAT stages, escalation routing, trust from sentiment.
  */
 
+import { validateGrievanceRootCause } from "@/lib/grievanceRootCause";
 import type { Incident, IncidentPriority } from "@/types/incident";
 
 export const COMPLAINT_NATURES = [
@@ -30,6 +31,24 @@ export const PROCESS_STAGE_KEYS = [
 ] as const;
 
 export type ProcessStageKey = (typeof PROCESS_STAGE_KEYS)[number];
+
+/** MEL-2 — investigate and resolve cannot stamp without a valid root-cause tag. */
+export function rootCauseRequiredForStage(key: ProcessStageKey): boolean {
+  return key === "investigated" || key === "resolved";
+}
+
+export function reasonCannotStampStage(
+  incident: Incident,
+  target: ProcessStageKey,
+): string | null {
+  if (!rootCauseRequiredForStage(target)) return null;
+  const check = validateGrievanceRootCause(
+    incident.rootCause,
+    incident.rootCauseNote,
+  );
+  if (check.ok) return null;
+  return check.reason;
+}
 
 export const PROCESS_STAGE_LABELS: Record<ProcessStageKey, string> = {
   reported: "Reported",
@@ -249,6 +268,7 @@ export function advanceIncidentStage(
   const target = options.to ?? nextPendingStage(stages);
   if (!target) return incident;
   if (stageTimestamp(stages, target)) return incident;
+  if (reasonCannotStampStage(incident, target)) return incident;
 
   stages = setStageAt(stages, target, at);
   const event = {
@@ -275,6 +295,7 @@ export function verifyAndCloseIncident(
   let next = incident;
   const stages = ensureProcessStages(incident);
   if (!stages.resolvedAt) {
+    if (reasonCannotStampStage(incident, "resolved")) return incident;
     next = advanceIncidentStage(next, { to: "resolved", at, actor });
   }
   if (!ensureProcessStages(next).verifiedAt) {

@@ -1,10 +1,16 @@
 # Internal changelog
 
+## 2026-09-05 — MEL-2 grievance root-cause tags
+
+- Investigate and Resolve on the case desk require a closed operational root-cause tag (distinct from complaint nature). Other needs a short note. The tag is a watch, not a trust-movement cause. Historical investigated/resolved stamps are not rewritten.
+- Cloud stores `root_cause` / `root_cause_note` on `TL Incident`. PUT omits them unless the client sent a tag. List fetch falls back if Custom Fields are missing so stage stamps are not dropped. Empty Cloud stays empty.
+- `/app/incidents` shows tagged mix only. Ops ensure adds the fields. Not a standalone SKU. MEL-3/4 stay planned. `docs/MEL_ROOT_CAUSE.md`.
+
 ## 2026-09-05 — MEL-1 expected vs actual
 
 - Projects store named expected vs actual rows (`melIndicators`) on TrustLedger Cloud as `mel_json`. Commitments can store `expected_value` / `actual_value` / `mel_unit`. PUT omits MEL fields unless the client sent them (including an empty list).
 - A gap (actual below expected) is a **watch** on `/app/dashboard` and the project desk. Material = actual/expected below 0.8 (1,000 vs 620). Copy does not name a cause. Empty Cloud stays empty (live commitment lists overlay local extras onto Cloud ids only).
-- Ops ensure adds Custom Fields on existing `TL Project` / `TL Commitment`. Not a standalone SKU. MEL-2/3/4 stay planned. `docs/MEL_INDICATORS.md`.
+- Ops ensure adds Custom Fields on existing `TL Project` / `TL Commitment`. Not a standalone SKU. MEL-3/4 stay planned. `docs/MEL_INDICATORS.md`.
 
 ## 2026-09-05 — OP-1 operator sitting (not engineering)
 

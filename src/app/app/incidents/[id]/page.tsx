@@ -34,6 +34,7 @@ import {
 } from "@/lib/discussionStore";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { listWorkspaceIncidents } from "@/lib/workspaceData";
+import { rootCauseLabel } from "@/lib/grievanceRootCause";
 import { aiService } from "@/services/aiService";
 import { communicationNoteText } from "@/lib/sentimentAnalysis";
 import type { EvidenceStub } from "@/types/engagement";
@@ -264,6 +265,18 @@ export default function AppIncidentDetailPage({
             <dd>{caseRecord.projectName}</dd>
           </div>
           <div>
+            <dt className="text-xs text-tl-ink-muted">Root cause</dt>
+            <dd>
+              {caseRecord.rootCause
+                ? `${rootCauseLabel(caseRecord.rootCause)}${
+                    caseRecord.rootCauseNote
+                      ? ` — ${caseRecord.rootCauseNote}`
+                      : ""
+                  }`
+                : "—"}
+            </dd>
+          </div>
+          <div>
             <dt className="text-xs text-tl-ink-muted">Impact score</dt>
             <dd>{caseRecord.impactScore}</dd>
           </div>
@@ -273,12 +286,13 @@ export default function AppIncidentDetailPage({
       <section className="rounded-lg border border-tl-line bg-tl-surface p-4 text-sm">
         <h2 className="mb-3 font-semibold">Process turnaround</h2>
         <p className="mb-3 text-xs text-tl-ink-muted">
-          Reported → deploy → investigate → resolve → verify → close. Advance
-          stages or verify &amp; close when resolved; stamps persist in this
-          browser (demo/org).
+          Reported → deploy → investigate → resolve → verify → close. Investigate
+          and Resolve need a root-cause tag. Stamps persist on TrustLedger Cloud
+          when live (trial/org store locally).
         </p>
         <ProcessStageTimeline incident={caseRecord} />
         <ProcessStageActions
+          key={caseRecord.id}
           incident={caseRecord}
           onUpdated={setIncident}
           onToast={(message, kind) => pushToast(message, kind ?? "success")}

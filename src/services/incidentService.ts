@@ -116,6 +116,8 @@ export function mergeIncidentCache(cloud: Incident, local: Incident): Incident {
     ownerName: local.ownerName || cloud.ownerName,
     category: local.category || cloud.category,
     nature: local.nature || cloud.nature,
+    rootCause: cloud.rootCause ?? local.rootCause,
+    rootCauseNote: cloud.rootCauseNote ?? local.rootCauseNote,
     reportedByRole: local.reportedByRole || cloud.reportedByRole,
     reporterName: local.reporterName ?? cloud.reporterName,
     anonymous: local.anonymous ?? cloud.anonymous,

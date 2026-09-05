@@ -9,6 +9,8 @@ import { readTrialModeFromDocument } from "@/lib/trial";
 import { TL_VIP_COOKIE } from "@/lib/auth.constants";
 import { isVipShowcaseWorkspace } from "@/lib/planLabel";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
+import { RootCauseMix } from "@/components/incidents/RootCauseMix";
+import { rootCauseLabel } from "@/lib/grievanceRootCause";
 import type { Incident, IncidentStatus } from "@/types/incident";
 
 const STATUSES: Array<IncidentStatus | "All"> = [
@@ -128,7 +130,9 @@ export default function AppIncidentsPage() {
       {loading ? (
         <p className="text-sm text-tl-ink-muted">Loading incidents…</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-tl-line bg-tl-surface">
+        <div className="space-y-4">
+          <RootCauseMix incidents={filtered} />
+          <div className="overflow-x-auto rounded-lg border border-tl-line bg-tl-surface">
           <table className="min-w-full text-left text-sm">
             <thead className="border-b border-tl-line bg-tl-paper text-tl-ink-muted">
               <tr>
@@ -138,6 +142,7 @@ export default function AppIncidentsPage() {
                 <th className="px-3 py-2 font-medium">Priority</th>
                 <th className="px-3 py-2 font-medium">SLA</th>
                 <th className="px-3 py-2 font-medium">Escalation</th>
+                <th className="px-3 py-2 font-medium">Root cause</th>
                 <th className="px-3 py-2 font-medium">Status</th>
               </tr>
             </thead>
@@ -166,12 +171,17 @@ export default function AppIncidentsPage() {
                     )}
                   </td>
                   <td className="px-3 py-2">{incident.escalationLevel}</td>
+                  <td className="px-3 py-2">
+                    {incident.rootCause
+                      ? rootCauseLabel(incident.rootCause)
+                      : "—"}
+                  </td>
                   <td className="px-3 py-2">{incident.status}</td>
                 </tr>
               ))}
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-6 text-tl-ink-muted">
+                  <td colSpan={8} className="px-3 py-6 text-tl-ink-muted">
                     {deskKind === "own" &&
                     status === "All" &&
                     !breachedOnly &&
@@ -183,6 +193,7 @@ export default function AppIncidentsPage() {
               ) : null}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

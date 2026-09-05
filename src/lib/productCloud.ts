@@ -7,12 +7,15 @@ import {
   frappeBase,
   frappeKeyPair,
 } from "@/lib/leadCapture";
-import { INCIDENT_PROCESS_STAGE_FIELDNAMES } from "@/lib/frappeProductDocTypes";
+import { INCIDENT_PROCESS_STAGE_FIELDNAMES, INCIDENT_ROOT_CAUSE_FIELDNAMES } from "@/lib/frappeProductDocTypes";
 import { rowsForCustomer } from "@/lib/tenantScope";
 import type { EvidenceStub } from "@/types/engagement";
 import type { Incident, IncidentPriority, IncidentStatus } from "@/types/incident";
 import type { IncidentProcessStages } from "@/lib/grievanceProcess";
 import type { Project } from "@/types/project";
+import {
+  parseGrievanceRootCause,
+} from "@/lib/grievanceRootCause";
 import {
   readProjectMelIndicators,
   serializeMelIndicators,
@@ -224,6 +227,11 @@ export function incidentToFrappeDoc(
     const reported = stageToCloud(incident.reportedAt);
     if (reported) doc.reported_at = reported;
   }
+  // Omit root-cause keys unless the client sent a tag so PUT cannot wipe Cloud.
+  if (incident.rootCause !== undefined) {
+    doc.root_cause = incident.rootCause;
+    doc.root_cause_note = incident.rootCauseNote || "";
+  }
   return omitCloudTrustOverlay(doc);
 }
 
@@ -234,6 +242,8 @@ export function frappeToIncident(
   if (!id) return null;
   const stages = processStagesFromCloud(row);
   const reportedAt = stages?.reportedAt || "";
+  const rootCause = parseGrievanceRootCause(row.root_cause);
+  const rootCauseNote = String(row.root_cause_note || "").trim();
   return {
     id,
     title: String(row.title || ""),
@@ -256,6 +266,12 @@ export function frappeToIncident(
     sentimentScore: null,
     timeline: [],
     processStages: stages,
+    ...(rootCause
+      ? {
+          rootCause,
+          ...(rootCauseNote ? { rootCauseNote } : {}),
+        }
+      : {}),
   };
 }
 
@@ -511,15 +527,25 @@ const INCIDENT_CORE_FIELDS = [
   "tl_org_id",
 ] as const;
 
-function incidentListFields(includeStages: boolean): string[] {
-  return includeStages
-    ? [...INCIDENT_CORE_FIELDS, ...INCIDENT_PROCESS_STAGE_FIELDNAMES]
-    : [...INCIDENT_CORE_FIELDS];
+export type IncidentCloudFieldSet = "core" | "stages" | "mel";
+
+export function incidentListFields(set: IncidentCloudFieldSet): string[] {
+  if (set === "mel") {
+    return [
+      ...INCIDENT_CORE_FIELDS,
+      ...INCIDENT_PROCESS_STAGE_FIELDNAMES,
+      ...INCIDENT_ROOT_CAUSE_FIELDNAMES,
+    ];
+  }
+  if (set === "stages") {
+    return [...INCIDENT_CORE_FIELDS, ...INCIDENT_PROCESS_STAGE_FIELDNAMES];
+  }
+  return [...INCIDENT_CORE_FIELDS];
 }
 
 async function fetchCloudIncidents(
   customer: string,
-  includeStages: boolean,
+  fieldSet: IncidentCloudFieldSet,
 ): Promise<{ ok: true; rows: Record<string, unknown>[] } | { ok: false; error: string }> {
   const base = frappeBase();
   const headers = authHeaders();
@@ -530,7 +556,7 @@ async function fetchCloudIncidents(
     JSON.stringify([["customer", "=", customer]]),
   );
   const fields = encodeURIComponent(
-    JSON.stringify(incidentListFields(includeStages)),
+    JSON.stringify(incidentListFields(fieldSet)),
   );
   const res = await fetch(
     `${base}/api/resource/TL%20Incident?filters=${filters}&fields=${fields}&limit_page_length=200`,
@@ -551,9 +577,12 @@ async function fetchCloudIncidents(
 export async function listCloudIncidentsForCustomer(
   customer: string,
 ): Promise<{ ok: true; incidents: Incident[] } | { ok: false; error: string }> {
-  let listed = await fetchCloudIncidents(customer, true);
+  let listed = await fetchCloudIncidents(customer, "mel");
   if (!listed.ok) {
-    listed = await fetchCloudIncidents(customer, false);
+    listed = await fetchCloudIncidents(customer, "stages");
+  }
+  if (!listed.ok) {
+    listed = await fetchCloudIncidents(customer, "core");
   }
   if (!listed.ok) return listed;
   return {
