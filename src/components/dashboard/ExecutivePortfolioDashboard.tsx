@@ -33,9 +33,11 @@ import { isLiveMode } from "@/config/api";
 import {
   listWorkspaceIncidents,
   listWorkspaceProjects,
+  preferCloudIncidentList,
   preferCloudProjectList,
 } from "@/lib/workspaceData";
 import { projectService } from "@/services/projectService";
+import { incidentService } from "@/services/incidentService";
 import type { PlanId } from "@/config/plans";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import type { Incident } from "@/types/incident";
@@ -88,9 +90,17 @@ export function ExecutivePortfolioDashboard({
       }
       if (!cancelled) setProjects(listWorkspaceProjects(seedProjects));
     };
+    const loadIncidents = async () => {
+      if (isLiveMode()) {
+        const cloud = await incidentService.list();
+        if (!cancelled) setIncidents(preferCloudIncidentList(cloud));
+        return;
+      }
+      if (!cancelled) setIncidents(listWorkspaceIncidents(seedIncidents));
+    };
     const refresh = () => {
       setTier(readDeskTier(role));
-      setIncidents(listWorkspaceIncidents(seedIncidents));
+      void loadIncidents();
       void loadProjects();
     };
     const frame = requestAnimationFrame(refresh);

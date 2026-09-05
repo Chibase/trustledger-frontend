@@ -79,8 +79,11 @@ describe("MEL-3 Learn & Adapt records", () => {
     expect(incidentListFields("mel")).not.toContain("adapt_json");
   });
 
-  it("requires an Adapt action before the record can be marked done", () => {
+  it("requires Monitor and Adapt before the record can be marked done", () => {
     expect(reasonCannotCompleteAdapt(openRecord)).toMatch(/Adapt action/i);
+    expect(
+      reasonCannotCompleteAdapt({ ...openRecord, monitor: "  ", action: "Do X" }),
+    ).toMatch(/Monitor observation/i);
     expect(completeMelAdaptRecord(openRecord).status).toBe("open");
     const done = completeMelAdaptRecord({
       ...openRecord,

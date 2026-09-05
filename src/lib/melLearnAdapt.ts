@@ -72,8 +72,11 @@ export function readIncidentAdaptRecords(
 }
 
 export function reasonCannotCompleteAdapt(
-  row: Pick<MelLearnAdaptRecord, "action">,
+  row: Pick<MelLearnAdaptRecord, "action" | "monitor">,
 ): string | null {
+  if (!String(row.monitor || "").trim()) {
+    return "Write the Monitor observation before marking the record done.";
+  }
   if (!String(row.action || "").trim()) {
     return "Write the Adapt action before marking the record done.";
   }
