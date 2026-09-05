@@ -8,6 +8,8 @@ Use this for **bulk campaigns to contacts**. Keep **Resend on Vercel** for trans
 
 **Ops cadence / AI draft / human approve:** use ClickUp per `docs/CLICKUP_NEWSLETTER_OPS.md` (fortnightly → you approve → paste into Frappe Newsletter). ClickUp is not the blast engine.
 
+**Ops surface (P3):** `/ops/readiness` lists remaining Desk steps. This repo does **not** uninstall Email Delivery Service, configure SMTP, or send Newsletter blasts. Do not blast from Resend OTP keys.
+
 ```text
 Contacts (CRM Lead / Contact / Email Group)
         ↓

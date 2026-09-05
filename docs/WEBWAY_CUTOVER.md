@@ -17,7 +17,10 @@ Full phases: `docs/HS_CUTOVER.md`. CTA URLs: `docs/WORDPRESS_CTA.md`. Paste pack
 
 - [ ] Vercel Production: `LEAD_BACKEND=frappe` (or unset with Frappe keys — HS-1 default).
 - [ ] `GET /api/health` → `launch.leadBackendCutover: true`.
+- [ ] Ops `/ops/readiness` → Acquisition / ops: inventory loaded; optional **Write HS-2 smoke lead**.
 - [ ] Smoke once each on Vercel → Desk **CRM Lead**: `/contact`, `/quote`, `/assessment` (and feedback/support if easy).
+
+This repo does **not** edit WordPress. Paste packs below stay an operator sitting.
 
 ---
 

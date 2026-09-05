@@ -28,10 +28,10 @@ Frappe Cloud           →  CRM Lead → (commit) Customer + Owner User
 |-------|--------|--------|
 | **0 — Decide** | Lock ADR-034: acquisition CRM = Frappe CRM Lead; HubSpot not required | **Done** |
 | **1 — Frappe only writer (HS-1)** | Production frappe-only when Cloud keys exist; Ops/health gates | **Done** (#68) |
-| **2 — Smoke + explicit env (HS-2)** | All Vercel forms → CRM Lead; set `LEAD_BACKEND=frappe`; pause HubSpot sequences | **Active** |
-| **2b — Webway credibility** | Remove HubSpot embeds; CTAs → Vercel (`docs/WEBWAY_CUTOVER.md`) | **Active** (with HS-2) |
-| **3 — Sales on Frappe** | Lead stages → Commitment; Paystack / Ops provision; follow-ups via Frappe email / Webway mailbox; bulk brand pack **EM-1** (`docs/FRAPPE_EMAIL_MARKETING.md`) | **Active (EM-1 templates)** |
-| **4 — Retire HubSpot (HS-3/HS-4)** | Export if needed; unset `HUBSPOT_*`; delete `submitHubSpotLead`; cancel Free portal | Planned |
+| **2 — Smoke + explicit env (HS-2)** | All Vercel forms → CRM Lead; set `LEAD_BACKEND=frappe`; pause HubSpot sequences | **Done (in-repo)** — Production env + public-form click still operator |
+| **2b — Webway credibility** | Remove HubSpot embeds; CTAs → Vercel (`docs/WEBWAY_CUTOVER.md`) | **Active** (operator sitting; not this repo) |
+| **3 — Sales on Frappe** | Lead stages → Commitment; Paystack / Ops provision; follow-ups via Frappe email / Webway mailbox; bulk brand pack **EM-1** (`docs/FRAPPE_EMAIL_MARKETING.md`) | **Done (templates + ops surface)** — Desk SMTP/EDS still operator |
+| **4 — Retire HubSpot (HS-3/HS-4)** | Export if needed; unset `HUBSPOT_*`; delete `submitHubSpotLead`; cancel Free portal | Planned (deferred until Production smoke) |
 
 ---
 
@@ -58,14 +58,23 @@ LEAD_BACKEND=frappe
 
 ## Operator checklist (Phase 2 / HS-2)
 
-1. Confirm Production deploy includes HS-1+.
-2. Set `LEAD_BACKEND=frappe` on Vercel Production (explicit).
-3. Submit once each: `/contact`, `/quote`, `/assessment` unlock, product feedback, support ticket.
-4. Desk → **CRM Lead** — each source appears (`docs/CRM_VIEWS.md`).
-5. If anything 502: `LEAD_DEBUG=1` temporarily; fix API user roles / Lead Source names.
-6. Run **Webway** cutover: `docs/WEBWAY_CUTOVER.md`.
-7. Pause HubSpot form workflows / sequences that duplicated Vercel forms.
-8. Commitment → Customer/Owner stays Paystack + Ops provision. VIP: `docs/VIP_ACCESS.md`.
+In-repo (Ops `/ops/readiness` → **Acquisition / ops**):
+
+1. Confirm `GET /api/health` → `launch.leadBackendCutover` (or the Lead backend gate on readiness).
+2. Review the form inventory (`src/lib/leadFormInventory.ts`) — contact, quote, assessment, feedback, support are smoke-required.
+3. **Write HS-2 smoke lead** — Desk CRM Lead `hs2-smoke@trustledgersrm.co.za`, job title `HS-2 smoke`.
+
+Still operator (not this repo / not a code click):
+
+1. Set `LEAD_BACKEND=frappe` on Vercel Production (explicit).
+2. Submit once each on Production: `/contact`, `/quote`, `/assessment` unlock, product feedback, support ticket.
+3. Desk → **CRM Lead** — each source appears (`docs/CRM_VIEWS.md`).
+4. If anything 502: `LEAD_DEBUG=1` temporarily; fix API user roles / Lead Source names.
+5. Run **Webway** cutover: `docs/WEBWAY_CUTOVER.md`.
+6. Pause HubSpot form workflows / sequences that duplicated Vercel forms.
+7. Commitment → Customer/Owner stays Paystack + Ops provision. VIP: `docs/VIP_ACCESS.md`.
+
+Do **not** start HS-3/HS-4 (drop `HUBSPOT_*` / delete `submitHubSpotLead`) until the Production public-form smoke is confirmed.
 
 ---
 
