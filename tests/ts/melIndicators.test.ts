@@ -1,5 +1,6 @@
 import { commitmentToFrappeDoc } from "@/lib/siCloud";
 import {
+  collectMelOnTrack,
   collectMelShortfalls,
   parseMelIndicators,
   serializeMelIndicators,
@@ -131,5 +132,20 @@ describe("MEL-1 expected vs actual", () => {
     });
     expect(gaps).toHaveLength(1);
     expect(gaps[0]?.commitmentId).toBe("COM-1");
+  });
+
+  it("collects on-track expected vs actual separately from shortfalls", () => {
+    const onTrack = collectMelOnTrack({
+      projects: [
+        sampleProject({
+          melIndicators: [
+            gapRow,
+            { id: "MEL-OK", label: "Jobs", unit: "count", expected: 10, actual: 12 },
+          ],
+        }),
+      ],
+    });
+    expect(onTrack).toHaveLength(1);
+    expect(onTrack[0]?.label).toBe("Jobs");
   });
 });

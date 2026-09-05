@@ -1,7 +1,7 @@
 # MEL-3 — Learn & Adapt records
 
 **Packet:** MEL-3. **Not** a standalone product (ADR-054). **Not** `addon_mel`.  
-**Not in this packet:** AI retrospectives (MEL-4). Expected vs actual: `docs/MEL_INDICATORS.md`. Root-cause tags: `docs/MEL_ROOT_CAUSE.md`.
+**Not in this packet:** Expected vs actual: `docs/MEL_INDICATORS.md`. Root-cause tags: `docs/MEL_ROOT_CAUSE.md`. Retrospectives: `docs/MEL_RETROSPECTIVE.md` (MEL-4).
 
 ## What it is
 
@@ -35,4 +35,4 @@ Ops **Check/Create product DocTypes** adds `adapt_json` on existing `TL Incident
 | `/app/dashboard` | Open-record watch |
 | Project dashboard | Open records for that project’s cases |
 
-Themba does not run desk M&E. Activity reports still use `reportComposer`.
+Themba does not run desk M&E. Activity reports use `reportComposer`. The MEL-4 retrospective is a reports kind, not a case stage.

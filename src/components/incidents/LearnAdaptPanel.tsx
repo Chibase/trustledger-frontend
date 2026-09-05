@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { GRIEVANCE_ROOT_CAUSES, parseGrievanceRootCause, rootCauseLabel } from "@/lib/grievanceRootCause";
@@ -95,7 +96,15 @@ export function LearnAdaptPanel({ incident, onSaved }: Props) {
         <p className="mt-1 text-xs text-tl-ink-muted">
           Monitor → Analyse → Adapt is a corrective-action record. It does not
           replace reported → deploy → investigate → resolve → verify → close.
-          Marking a record done does not close the case.
+          Marking a record done does not close the case.{" "}
+          {incident.projectId ? (
+            <Link
+              href={`/app/reports?kind=mel_retrospective&projectId=${encodeURIComponent(incident.projectId)}`}
+              className="text-tl-trust-ink underline"
+            >
+              Draft a Learn &amp; Adapt retrospective
+            </Link>
+          ) : null}
         </p>
       </div>
 

@@ -129,6 +129,72 @@ export function varianceForCommitment(
   };
 }
 
+export type MelOnTrackRow = {
+  indicatorId: string;
+  label: string;
+  projectId?: string;
+  projectName?: string;
+  commitmentId?: string;
+  expected: number;
+  actual: number;
+  unit?: string;
+};
+
+/** Actual met or exceeded expected. Incomplete pairs are omitted. */
+export function collectMelOnTrack(input: {
+  projects: Project[];
+  commitments?: Commitment[];
+}): MelOnTrackRow[] {
+  const out: MelOnTrackRow[] = [];
+  const seenCommitment = new Set<string>();
+  for (const project of input.projects) {
+    for (const row of project.melIndicators || []) {
+      if (
+        row.expected == null ||
+        row.actual == null ||
+        !Number.isFinite(row.expected) ||
+        !Number.isFinite(row.actual)
+      ) {
+        continue;
+      }
+      if (row.actual < row.expected) continue;
+      out.push({
+        indicatorId: row.id,
+        label: row.label,
+        projectId: project.id,
+        projectName: project.name,
+        commitmentId: row.commitmentId,
+        expected: row.expected,
+        actual: row.actual,
+        unit: row.unit,
+      });
+      if (row.commitmentId) seenCommitment.add(row.commitmentId);
+    }
+  }
+  for (const row of input.commitments || []) {
+    if (seenCommitment.has(row.id)) continue;
+    if (
+      row.expected == null ||
+      row.actual == null ||
+      !Number.isFinite(row.expected) ||
+      !Number.isFinite(row.actual)
+    ) {
+      continue;
+    }
+    if (row.actual < row.expected) continue;
+    out.push({
+      indicatorId: row.id,
+      label: row.title,
+      projectId: row.projectId || undefined,
+      commitmentId: row.id,
+      expected: row.expected,
+      actual: row.actual,
+      unit: row.melUnit,
+    });
+  }
+  return out;
+}
+
 export function collectMelShortfalls(input: {
   projects: Project[];
   commitments?: Commitment[];

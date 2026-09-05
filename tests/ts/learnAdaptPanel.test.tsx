@@ -7,6 +7,22 @@ import { LearnAdaptPanel } from "@/components/incidents/LearnAdaptPanel";
 import { incidentService } from "@/services/incidentService";
 import type { Incident } from "@/types/incident";
 
+jest.mock("next/link", () => ({
+  __esModule: true,
+  default: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 jest.mock("@/components/ui/Toast", () => ({
   useToast: () => ({ pushToast: jest.fn() }),
 }));
@@ -78,5 +94,16 @@ describe("LearnAdaptPanel", () => {
     render(<LearnAdaptPanel incident={sample()} onSaved={jest.fn()} />);
     await user.click(screen.getByRole("button", { name: /Save Learn & Adapt/i }));
     expect(incidentService.save).not.toHaveBeenCalled();
+  });
+
+  it("links to the Learn & Adapt retrospective writer", () => {
+    render(<LearnAdaptPanel incident={sample()} onSaved={jest.fn()} />);
+    const link = screen.getByRole("link", {
+      name: /Draft a Learn & Adapt retrospective/i,
+    });
+    expect(link).toHaveAttribute(
+      "href",
+      "/app/reports?kind=mel_retrospective&projectId=PRJ-1",
+    );
   });
 });

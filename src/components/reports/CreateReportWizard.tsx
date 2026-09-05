@@ -65,6 +65,7 @@ import {
   projectHasDossierBasics,
   type Project,
 } from "@/types/project";
+import type { Commitment } from "@/types/commitment";
 import type { UserRole } from "@/types/rbac";
 
 type CreateReportWizardProps = {
@@ -136,6 +137,7 @@ export function CreateReportWizard({
   const [facts, setFacts] = useState<PeriodActivityFacts | null>(null);
   const [evidence, setEvidence] = useState<SavedReport["evidence"]>([]);
   const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
+  const [allCommitments, setAllCommitments] = useState<Commitment[]>([]);
   const [purgedTemplates, setPurgedTemplates] = useState(0);
 
   useEffect(() => {
@@ -167,6 +169,7 @@ export function CreateReportWizard({
         const rows = lists.projects;
         setProjects(rows);
         setAllIncidents(lists.incidents);
+        setAllCommitments(lists.commitments);
         const fromQuery =
           typeof window !== "undefined"
             ? new URLSearchParams(window.location.search).get("projectId")
@@ -196,13 +199,14 @@ export function CreateReportWizard({
         projectId,
         projectName: selectedProject?.name,
         project: selectedProject,
+        commitments: allCommitments,
       });
       setFacts(scopedFacts);
       setFactsBlock(factsToPromptBlock(scopedFacts));
       setEvidence(scopedFacts.evidence);
     });
     return () => cancelAnimationFrame(frame);
-  }, [allIncidents, projectId, projects]);
+  }, [allIncidents, allCommitments, projectId, projects]);
 
   const catalogue = useMemo(() => {
     const preferred = new Set(sectionsForKind(kind).map((s) => s.id));
@@ -262,7 +266,9 @@ export function CreateReportWizard({
     }
     if (!periodFactsHaveWritableEvidence(facts)) {
       setError(
-        isCustomerWorkspaceClient()
+        kind === "mel_retrospective"
+          ? "No Learn & Adapt evidence yet. Add expected vs actual, a root-cause tag, a Learn & Adapt record, or a case before writing this retrospective."
+          : isCustomerWorkspaceClient()
           ? "No project evidence yet. Complete project details under Capture (dossier / report packs), or log a case, before writing a report."
           : "No workspace evidence yet. Log a case or complete project details under Capture.",
       );
@@ -317,7 +323,9 @@ export function CreateReportWizard({
       setBody(result.bodyMarkdown);
       setStatus("ready");
       pushToast(
-        facts.attended.length
+        kind === "mel_retrospective"
+          ? "Retrospective written from workspace evidence — review, apply, then save"
+          : facts.attended.length
           ? `Report written from ${facts.attended.length} cases (e.g. ${facts.attended[0]?.id}) — review then save`
           : "Report written from project dossier / Capture packs — review then save",
         "success",
@@ -571,7 +579,9 @@ export function CreateReportWizard({
             </>
           ) : null}
           {fixedOutline
-            ? " this pack always writes the outline below. Topics are locked so the brief does not become a monthly dump."
+            ? lens === "retrospective"
+              ? " this retrospective always writes What worked / What did not / What we will change. The draft is a suggestion — apply it, then save. It does not close a grievance."
+              : " this pack always writes the outline below. Topics are locked so the brief does not become a monthly dump."
             : " topics are fixed by the report kind — you do not pick them. Prefer the "}
           {!fixedOutline && project ? (
             <>

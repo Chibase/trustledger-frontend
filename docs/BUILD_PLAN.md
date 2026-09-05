@@ -233,7 +233,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **MEL-1** | Expected vs actual | Cloud `mel_json` on `TL Project`; expected/actual on `TL Commitment`; variance watch on dashboard. Empty Cloud stays empty. Not a standalone SKU. `docs/MEL_INDICATORS.md` | **Done** |
 | **MEL-2** | Grievance root-cause tags | Mandatory taxonomy on investigate/resolve. Cloud `root_cause` on `TL Incident`; empty Cloud stays empty. `docs/MEL_ROOT_CAUSE.md` | **Done** |
 | **MEL-3** | Learn & Adapt records | Corrective-action workflow on the case desk (not replacing grievance stages). Cloud `adapt_json` on `TL Incident`. `docs/MEL_LEARN_ADAPT.md` | **Done** |
-| **MEL-4** | Retrospective composer | `reportComposer` What worked / did not / change; human apply | Planned |
+| **MEL-4** | Retrospective composer | `reportComposer` What worked / did not / change; human apply. `docs/MEL_RETROSPECTIVE.md` | **Done** |
 
 ### Email marketing on Frappe (EM-1 templates + ops surface)
 
@@ -331,6 +331,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-05 | MEL-4 — Learn & Adapt retrospective in reportComposer; human apply; not a pack SKU |
 | 2026-09-05 | MEL-3 — Learn & Adapt records on TL Incident; not a grievance stage; empty Cloud stays empty |
 | 2026-09-05 | MEL-2 — grievance root-cause tags on investigate/resolve; Cloud `root_cause`; empty Cloud stays empty |
 | 2026-09-05 | MEL-1 — expected vs actual on TL Project / TL Commitment; variance watch; empty Cloud stays empty |

@@ -17,7 +17,7 @@ import type { Incident, IncidentPriority } from "@/types/incident";
 import type { ProjectPromise } from "@/types/project";
 import type { ReportPackId } from "@/types/reportPacks";
 
-export const REPORT_LENSES = ["monthly", "executive", "funder"] as const;
+export const REPORT_LENSES = ["monthly", "executive", "funder", "retrospective"] as const;
 export type ReportLens = (typeof REPORT_LENSES)[number];
 
 export type ImpactBand = "Critical" | "High" | "Medium" | "Low";
@@ -69,6 +69,7 @@ const PRIORITY_BAND: Record<IncidentPriority, ImpactBand> = {
 export function reportLensForKind(kind: ReportKind): ReportLens {
   if (kind === "executive_risk") return "executive";
   if (kind === "board_investor") return "funder";
+  if (kind === "mel_retrospective") return "retrospective";
   return "monthly";
 }
 
@@ -80,6 +81,7 @@ export function reportLensForPack(packId: ReportPackId): ReportLens {
 
 export function defaultFormatForLens(lens: ReportLens): ReportFormatId {
   if (lens === "monthly") return "charts_details";
+  if (lens === "retrospective") return "details";
   return "charts";
 }
 
@@ -93,7 +95,7 @@ export function defaultKindForPack(packId: ReportPackId): ReportKind {
 export function lensUsesFixedBrief(
   lens: ReportLens,
 ): lens is Exclude<ReportLens, "monthly"> {
-  return lens === "executive" || lens === "funder";
+  return lens === "executive" || lens === "funder" || lens === "retrospective";
 }
 
 export const FIXED_BRIEF_OUTLINE: Record<
@@ -114,6 +116,11 @@ export const FIXED_BRIEF_OUTLINE: Record<
     "Material items",
     "What we are asking",
   ],
+  retrospective: [
+    "What worked",
+    "What did not",
+    "What we will change",
+  ],
 };
 
 /** True when saved markdown already matches this kind’s lens (skip recompose). */
@@ -126,6 +133,13 @@ export function savedBodyMatchesLens(kind: ReportKind, body: string): boolean {
   }
   if (lens === "funder") {
     return /## Assurance snapshot/i.test(text) && /What we are asking/i.test(text);
+  }
+  if (lens === "retrospective") {
+    return (
+      /## What worked/i.test(text) &&
+      /## What did not/i.test(text) &&
+      /## What we will change/i.test(text)
+    );
   }
   // Monthly and other detailed kinds keep the stored narrative.
   return true;

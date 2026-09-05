@@ -32,6 +32,8 @@ import {
 } from "@/lib/reportLenses";
 import type { Incident } from "@/types/incident";
 import type { Project, ProjectDossier } from "@/types/project";
+import type { Commitment } from "@/types/commitment";
+import { composeMelRetrospectiveMarkdown } from "@/lib/melRetrospective";
 
 export type PeriodActivityFacts = {
   attended: Incident[];
@@ -47,6 +49,12 @@ export type PeriodActivityFacts = {
   projectName?: string;
   packs: AggregatedPackFacts;
   dossier?: ProjectDossier;
+  /** Full scoped case set (not sliced). Used by MEL-4 retrospective. */
+  scopeIncidents?: Incident[];
+  /** Projects in scope — MEL-1 expected vs actual. */
+  projects?: Project[];
+  /** Commitments in scope — MEL-1 expected vs actual on the promise. */
+  commitments?: Commitment[];
 };
 
 export function emptyAggregatedPackFacts(): AggregatedPackFacts {
@@ -83,22 +91,54 @@ export function periodFactsHaveWritableEvidence(
     return true;
   }
   const d = facts.dossier;
-  if (!d) return false;
-  return Boolean(
-    d.funder?.name ||
-      d.geo?.wardName ||
-      d.geo?.municipalityName ||
-      d.geo?.placeId ||
-      d.sector ||
-      d.siteDescription ||
-      d.budget?.authorisedZar ||
-      d.empowermentTargets?.localHireTarget != null ||
-      d.empowermentTargets?.empowermentBudgetZar != null ||
-      d.empowermentTargets?.bbbeeLevelTarget ||
-      (d.promises && d.promises.length > 0) ||
-      d.communityIntel?.unemploymentRatePct != null ||
-      (d.communityIntel?.attachedIndicators?.length ?? 0) > 0,
+  const dossierReady = Boolean(
+    d &&
+      (d.funder?.name ||
+        d.geo?.wardName ||
+        d.geo?.municipalityName ||
+        d.geo?.placeId ||
+        d.sector ||
+        d.siteDescription ||
+        d.budget?.authorisedZar ||
+        d.empowermentTargets?.localHireTarget != null ||
+        d.empowermentTargets?.empowermentBudgetZar != null ||
+        d.empowermentTargets?.bbbeeLevelTarget ||
+        (d.promises && d.promises.length > 0) ||
+        d.communityIntel?.unemploymentRatePct != null ||
+        (d.communityIntel?.attachedIndicators?.length ?? 0) > 0),
   );
+  if (dossierReady) return true;
+  if ((facts.projects || []).some((p) => (p.melIndicators || []).length > 0)) {
+    return true;
+  }
+  if (
+    (facts.commitments || []).some(
+      (row) =>
+        row.expected != null &&
+        row.actual != null &&
+        Number.isFinite(row.expected) &&
+        Number.isFinite(row.actual),
+    )
+  ) {
+    return true;
+  }
+  const buckets = [
+    facts.attended,
+    facts.escalated,
+    facts.resolved,
+    facts.pending,
+    facts.unresolvedBlocked,
+    facts.scopeIncidents || [],
+  ];
+  for (const rows of buckets) {
+    for (const incident of rows) {
+      if (incident.rootCause) return true;
+      if (incident.learnAdaptRecords && incident.learnAdaptRecords.length > 0) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 export type ComposeNarrativeInput = {
@@ -150,6 +190,9 @@ export function funderSnapshotFromFacts(
 
 function inferReportLens(input: ComposeNarrativeInput): ReportLens {
   if (input.kind) return reportLensForKind(input.kind);
+  if (/learn\s*&\s*adapt retrospective|mel retrospective/i.test(input.kindLabel)) {
+    return "retrospective";
+  }
   if (/executive risk/i.test(input.kindLabel)) return "executive";
   if (
     /board|investor|funder/i.test(input.kindLabel) ||
@@ -267,6 +310,7 @@ export function buildPeriodActivityFacts(
     projectId?: string;
     projectName?: string;
     project?: Project;
+    commitments?: Commitment[];
   },
 ): PeriodActivityFacts {
   const scoped = options?.projectId
@@ -537,6 +581,13 @@ export function buildPeriodActivityFacts(
       scoped[0]?.projectName,
     packs,
     dossier,
+    scopeIncidents: scoped,
+    projects: options?.project ? [options.project] : [],
+    commitments: options?.projectId
+      ? (options.commitments || []).filter(
+          (row) => row.projectId === options.projectId,
+        )
+      : options?.commitments || [],
   };
 }
 
@@ -558,6 +609,7 @@ export function factsToPromptBlock(facts: PeriodActivityFacts): string {
     facts.dossier
       ? `Project dossier — funder:${facts.dossier.funder?.name || "—"} ward:${facts.dossier.geo?.wardName || "—"} hire target:${facts.dossier.empowermentTargets?.localHireTarget ?? "—"} promises:${facts.dossier.promises?.length ?? 0}`
       : "Project dossier: none",
+    `MEL indicators: ${(facts.projects || []).reduce((n, p) => n + (p.melIndicators || []).length, 0)}; commitments with figures: ${(facts.commitments || []).filter((c) => c.expected != null || c.actual != null).length}`,
   ].join("\n");
 }
 
@@ -984,6 +1036,13 @@ Portfolio risk for ${scope} in ${period}: **${facts.unresolvedBlocked.length}** 
 3. Confirm Capture packs (B-BBEE, employment, CSI, ESG, budget) and the evidence appendix before investor or board circulation.
 4. Re-measure trust after the next resolution cycle (currently **${facts.trustIndex}/100**).`;
 
+    case "what_worked":
+    case "what_did_not":
+    case "what_will_change":
+      return `## ${label}
+
+This heading is locked on the Learn & Adapt retrospective. Use report kind **Learn & Adapt retrospective** to draft What worked / What did not / What we will change from workspace evidence.`;
+
     case "appendix_evidence":
       return `## Appendix — ${label}
 
@@ -1168,8 +1227,7 @@ This client / funder pack is an assurance snapshot. Detailed operational activit
  * Write a finished markdown report from picked topics + evidence facts.
  * Never returns instructional placeholders.
  * Monthly = detailed activity (honours includedSectionIds).
- * Executive / funder = fixed briefs (topic ids are informational; the layout
- * is locked so packs do not collapse back into one generic dump).
+ * Executive / funder / retrospective = fixed briefs (topic ids are informational).
  */
 export function composeActivityReportMarkdown(
   input: ComposeNarrativeInput,
@@ -1177,6 +1235,7 @@ export function composeActivityReportMarkdown(
   const lens = inferReportLens(input);
   if (lens === "executive") return composeExecutiveRiskBrief(input);
   if (lens === "funder") return composeFunderBrief(input);
+  if (lens === "retrospective") return composeMelRetrospectiveMarkdown(input);
 
   const tone =
     input.tonePreference === "board" ||

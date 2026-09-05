@@ -86,6 +86,13 @@ describe("report pack lenses", () => {
     expect(reportLensForKind("monthly_activity")).toBe("monthly");
     expect(reportLensForKind("executive_risk")).toBe("executive");
     expect(reportLensForKind("board_investor")).toBe("funder");
+    expect(reportLensForKind("mel_retrospective")).toBe("retrospective");
+    expect(lensUsesFixedBrief("retrospective")).toBe(true);
+    expect(FIXED_BRIEF_OUTLINE.retrospective).toEqual([
+      "What worked",
+      "What did not",
+      "What we will change",
+    ]);
     expect(REPORT_PACKS.executive.defaultKind).toBe("executive_risk");
     expect(REPORT_PACKS.board_presentation.defaultKind).toBe("board_investor");
   });
@@ -154,6 +161,15 @@ describe("report pack lenses", () => {
     );
     expect(savedBodyMatchesLens("board_investor", funder.bodyMarkdown)).toBe(
       true,
+    );
+    expect(
+      savedBodyMatchesLens(
+        "mel_retrospective",
+        "## What worked\n\n- ok\n\n## What did not\n\n- gap\n\n## What we will change\n\n- action",
+      ),
+    ).toBe(true);
+    expect(savedBodyMatchesLens("mel_retrospective", monthly.bodyMarkdown)).toBe(
+      false,
     );
     expect(
       savedBodyMatchesLens("executive_risk", monthly.bodyMarkdown),

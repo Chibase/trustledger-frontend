@@ -139,3 +139,30 @@ export function collectOpenAdaptRecords(
     return (a.dueOn || "9999").localeCompare(b.dueOn || "9999");
   });
 }
+
+export type MelAdaptDoneRow = {
+  recordId: string;
+  incidentId: string;
+  incidentTitle: string;
+  monitor: string;
+  action: string;
+};
+
+export function collectDoneAdaptRecords(
+  incidents: Incident[],
+): MelAdaptDoneRow[] {
+  const rows: MelAdaptDoneRow[] = [];
+  for (const incident of incidents) {
+    for (const rec of incident.learnAdaptRecords || []) {
+      if (rec.status !== "done") continue;
+      rows.push({
+        recordId: rec.id,
+        incidentId: incident.id,
+        incidentTitle: incident.title,
+        monitor: rec.monitor,
+        action: rec.action,
+      });
+    }
+  }
+  return rows;
+}
