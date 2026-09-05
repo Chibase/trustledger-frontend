@@ -9,6 +9,7 @@ import type {
 } from "@/lib/grievanceProcess";
 import type { GrievanceRootCauseId } from "@/lib/grievanceRootCause";
 import type { DeskTier } from "@/types/deskTier";
+import type { MelLearnAdaptRecord } from "@/types/melAdapt";
 import type { StakeholderTrustResponse } from "@/types/trustOverlay";
 
 export type IncidentStatus =
@@ -77,6 +78,11 @@ export interface Incident {
   rootCause?: GrievanceRootCauseId;
   /** Required when `rootCause` is `other`. */
   rootCauseNote?: string;
+  /**
+   * MEL-3 Learn & Adapt records. Corrective actions — not grievance stages.
+   * Completing a record does not close the case.
+   */
+  learnAdaptRecords?: MelLearnAdaptRecord[];
   impactScore: number;
   sentimentScore: number | null;
   /** Applied label when sentiment was captured from the case note. */

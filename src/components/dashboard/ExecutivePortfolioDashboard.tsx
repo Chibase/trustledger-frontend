@@ -11,6 +11,7 @@ import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
 import { MelVarianceAlert } from "@/components/dashboard/MelVarianceAlert";
+import { MelAdaptWatch } from "@/components/dashboard/MelAdaptWatch";
 import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
@@ -209,6 +210,7 @@ export function ExecutivePortfolioDashboard({
       </div>
 
       <MelVarianceAlert projects={openProjects} commitments={commitments} />
+      <MelAdaptWatch incidents={incidents} />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChartCard

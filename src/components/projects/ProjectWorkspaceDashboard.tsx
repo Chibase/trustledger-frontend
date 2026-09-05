@@ -7,6 +7,7 @@ import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { ProjectDossierForm } from "@/components/projects/ProjectDossierForm";
 import { ProjectMelPanel } from "@/components/projects/ProjectMelPanel";
+import { MelAdaptWatch } from "@/components/dashboard/MelAdaptWatch";
 import { ProjectReportStudio } from "@/components/reports/ProjectReportStudio";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
@@ -212,6 +213,8 @@ export function ProjectWorkspaceDashboard({
           <SepDashboardPanel planId={planId} projectId={project.id} />
         </div>
       </details>
+
+      <MelAdaptWatch incidents={incidents} />
 
       <details className="rounded-lg border border-tl-line bg-tl-surface p-4">
         <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
