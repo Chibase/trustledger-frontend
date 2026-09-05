@@ -172,6 +172,7 @@ describe("MEL-2 grievance root-cause tags", () => {
     });
     const merged = mergeCloudAndLocal([cloud], [local]);
     expect(merged[0]?.rootCause).toBe("contractor_performance");
+    expect(merged[0]?.rootCauseNote).toBeUndefined();
 
     const empty = overlayLocalIncidentsOntoCloud([], [
       sampleIncident({ id: "INC-LOCAL-ONLY", rootCause: "process_failure" }),
