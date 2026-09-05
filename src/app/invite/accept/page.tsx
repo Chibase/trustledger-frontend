@@ -144,27 +144,45 @@ function AcceptInviteForm() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ invite: portableRaw }),
         });
-        const peeked = (await peek.json()) as { error?: string };
+        let peeked: { error?: string } = {};
+        try {
+          peeked = (await peek.json()) as { error?: string };
+        } catch {
+          setError("Invite link is invalid or revoked.");
+          return;
+        }
         if (!peek.ok) {
           setError(peeked.error || "Invite link is invalid or revoked.");
           return;
         }
       }
       if (portableRaw) {
-        const seatRes = await fetch("/api/invite/accept-seat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            invite: portableRaw,
-            password: password.trim(),
-            fullName: fullName.trim() || found.invite.name,
-          }),
-        });
-        const seatJson = (await seatRes.json()) as {
+        let seatRes: Response;
+        try {
+          seatRes = await fetch("/api/invite/accept-seat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              invite: portableRaw,
+              password: password.trim(),
+              fullName: fullName.trim() || found.invite.name,
+            }),
+          });
+        } catch {
+          setError("Could not reach TrustLedger Cloud. Try again.");
+          return;
+        }
+        let seatJson: {
           error?: string;
           cloud?: boolean;
           signedIn?: boolean;
-        };
+        } = {};
+        try {
+          seatJson = (await seatRes.json()) as typeof seatJson;
+        } catch {
+          setError("Could not create your Cloud seat.");
+          return;
+        }
         if (!seatRes.ok) {
           setError(seatJson.error || "Could not create your Cloud seat.");
           return;
@@ -201,6 +219,8 @@ function AcceptInviteForm() {
       }
       router.replace("/app/dashboard");
       router.refresh();
+    } catch {
+      setError("Could not accept this invite. Try again.");
     } finally {
       setBusy(false);
     }

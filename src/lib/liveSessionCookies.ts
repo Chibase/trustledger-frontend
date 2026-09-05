@@ -29,11 +29,6 @@ export type LiveSessionCookieInput = {
   vip?: boolean;
 };
 
-/** Live Plan Owner is the owner cookie only — never a client-writable session-role. */
-export function livePlanOwnerFromCookies(ownerCookie: boolean): boolean {
-  return ownerCookie;
-}
-
 export function applyLiveSessionCookies(
   response: NextResponse,
   input: LiveSessionCookieInput,

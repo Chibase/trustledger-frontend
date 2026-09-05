@@ -1,12 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import {
-  FRAPPE_SID_COOKIE,
-  TL_MODE_COOKIE,
-  TL_ORG_OWNER_COOKIE,
-  TL_USER_EMAIL_COOKIE,
-  TL_USER_NAME_COOKIE,
-} from "@/lib/auth.constants";
+import { requireLivePlanOwner } from "@/lib/livePlanOwner";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
 import { getFrappeBaseUrl } from "@/lib/frappeServer";
 import { siteBaseUrl } from "@/lib/hubspot";
@@ -60,33 +53,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const jar = await cookies();
-  const mode = jar.get(TL_MODE_COOKIE)?.value;
-  const sid = jar.get(FRAPPE_SID_COOKIE)?.value;
-  const isOwner = jar.get(TL_ORG_OWNER_COOKIE)?.value === "1";
-  const ownerEmail =
-    jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim().toLowerCase() || "";
-  const ownerName =
-    jar.get(TL_USER_NAME_COOKIE)?.value?.trim() || "Plan Owner";
-
-  if (mode !== "live" || !sid) {
+  const ownerGate = await requireLivePlanOwner();
+  if (!ownerGate.ok) {
     return NextResponse.json(
       {
         error:
-          "Sign in with a live TrustLedger Cloud Plan Owner account to manage passwords.",
+          ownerGate.status === 401
+            ? "Sign in with a live TrustLedger Cloud Plan Owner account to manage passwords."
+            : "Only the package Plan Owner can issue or reset team passwords.",
       },
-      { status: 401 },
+      { status: ownerGate.status },
     );
   }
-  if (!isOwner || !ownerEmail.includes("@")) {
-    return NextResponse.json(
-      {
-        error:
-          "Only the package Plan Owner can issue or reset team passwords.",
-      },
-      { status: 403 },
-    );
-  }
+  const sid = ownerGate.sid;
+  const ownerEmail = ownerGate.email.trim().toLowerCase();
+  const ownerName = ownerGate.fullName || "Plan Owner";
 
   let body: unknown;
   try {

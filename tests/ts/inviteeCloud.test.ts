@@ -10,7 +10,8 @@ import {
   decideLiveSeatKind,
   inviteeSeatGuard,
 } from "@/lib/inviteeCloud";
-import { applyLiveSessionCookies, livePlanOwnerFromCookies } from "@/lib/liveSessionCookies";
+import { applyLiveSessionCookies } from "@/lib/liveSessionCookies";
+import { livePlanOwnerFromCloud } from "@/lib/livePlanOwner";
 import { canInviteDeskTier } from "@/lib/orgSeats";
 import { decideTenantBind } from "@/lib/tenantScope";
 
@@ -288,9 +289,16 @@ describe("decideInviteeExistingUser", () => {
   });
 });
 
-describe("livePlanOwnerFromCookies", () => {
-  it("does not treat a client-writable admin role as Plan Owner", () => {
-    expect(livePlanOwnerFromCookies(false)).toBe(false);
-    expect(livePlanOwnerFromCookies(true)).toBe(true);
+describe("livePlanOwnerFromCloud", () => {
+  it("requires a Cloud sid Plan Owner flag, not a cookie", () => {
+    expect(
+      livePlanOwnerFromCloud({ sidPresent: false, cloudPlanOwner: true }),
+    ).toBe(false);
+    expect(
+      livePlanOwnerFromCloud({ sidPresent: true, cloudPlanOwner: false }),
+    ).toBe(false);
+    expect(
+      livePlanOwnerFromCloud({ sidPresent: true, cloudPlanOwner: true }),
+    ).toBe(true);
   });
 });

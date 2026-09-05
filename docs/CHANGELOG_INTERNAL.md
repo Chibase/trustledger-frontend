@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-05 — SEC-5 Copilot follow-up: live Plan Owner from sid
+
+- Live `isPlanOwner` comes from the Cloud sid (`User.custom_tl_plan_owner`), not `tl-org-owner` or `session-role`. Invite send/revoke/email-status use that gate when a live sid is present; trial still uses the browser owner cookie.
+- `/invite/accept` surfaces network/JSON failures from accept-seat. A live Cloud seat no longer overwrites server live cookies with local org values.
+
 ## 2026-09-05 — SEC-5 Cloud invitee seats
 
 - Portable email invites provision a **Cloud User on the Owner’s Customer** when the invitee accepts (`POST /api/invite/accept-seat`). Same Customer User Permission as SEC-1. `custom_tl_plan_owner` stays `0`. Desk + `custom_tl_app_role` (`community|contractor|client`) are stamped from the invite. Password is the one chosen on accept, then `/login/live` (OTP still applies on later logins; first accept skips OTP because the signed invite is proof). Accept is **one-shot**: an existing Cloud User is not a password-reset path. Desk rank is re-checked against the live Customer plan, not only the signed token.

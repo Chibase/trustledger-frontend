@@ -93,6 +93,12 @@ export function applyOrgInviteeSession(input: {
   planId: PlanId;
   mode?: "demo" | "trial" | "live";
 }) {
+  if (input.mode === "live") {
+    // Live cookies (sid, plan, desk, owner) come from the server. Only stamp
+    // the local org id so Settings can find the browser cache.
+    setCookie(TL_ORG_ID_COOKIE, input.orgId);
+    return;
+  }
   const mode = input.mode || "demo";
   setCookie(SESSION_ROLE_COOKIE, input.role);
   setCookie(TL_MODE_COOKIE, mode);
