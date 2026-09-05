@@ -60,6 +60,20 @@ export const COMMITMENT_MEL_FIELDS: FieldDef[] = [
   { fieldname: "mel_unit", label: "MEL unit", fieldtype: "Data" },
 ];
 
+/** MEL-2 — operational root-cause tag on TL Incident. */
+export const INCIDENT_ROOT_CAUSE_FIELDS: FieldDef[] = [
+  { fieldname: "root_cause", label: "Root cause", fieldtype: "Data" },
+  {
+    fieldname: "root_cause_note",
+    label: "Root cause note",
+    fieldtype: "Small Text",
+  },
+];
+
+export const INCIDENT_ROOT_CAUSE_FIELDNAMES = INCIDENT_ROOT_CAUSE_FIELDS.map(
+  (row) => row.fieldname,
+) as readonly string[];
+
 function fieldsFor(name: ProductDocTypeName): FieldDef[] {
   if (name === "TL Project") {
     return [
@@ -130,6 +144,7 @@ function fieldsFor(name: ProductDocTypeName): FieldDef[] {
       { fieldname: "project_name", label: "Project name", fieldtype: "Data" },
       { fieldname: "tl_org_id", label: "TrustLedger org id", fieldtype: "Data" },
       ...INCIDENT_PROCESS_STAGE_FIELDS,
+      ...INCIDENT_ROOT_CAUSE_FIELDS,
     ];
   }
   return [
@@ -345,6 +360,14 @@ export async function ensureProductDocTypes(options?: {
   results.push(...stages.results);
   missing.push(...stages.missing);
 
+  const rootCause = await ensureIncidentRootCauseFields({
+    dryRun,
+    headers,
+    base,
+  });
+  results.push(...rootCause.results);
+  missing.push(...rootCause.missing);
+
   const mel = await ensureCustomFieldsOnDocType({
     dryRun,
     headers,
@@ -370,11 +393,11 @@ export async function ensureProductDocTypes(options?: {
     message: dryRun
       ? missing.length
         ? `Dry-run: ${missing.length} DocType/field(s) missing — set dryRun:false to create.`
-        : "Dry-run: all product DocTypes, incident stage, and MEL fields already exist."
+        : "Dry-run: all product DocTypes, incident stage, MEL, and root-cause fields already exist."
       : ok
         ? created
           ? `Created ${created} DocType/field(s); others already present.`
-          : "All product DocTypes, incident stage, and MEL fields already exist."
+          : "All product DocTypes, incident stage, MEL, and root-cause fields already exist."
         : `Finished with ${errors.length} error(s) — check API key System Manager rights.`,
   };
 }
@@ -470,6 +493,7 @@ export async function ensureCustomFieldsOnDocType(options: {
           label: spec.label,
           fieldtype: spec.fieldtype,
           insert_after: insertAfter,
+          ...(spec.options ? { options: spec.options } : {}),
         }),
         cache: "no-store",
       });
@@ -513,5 +537,22 @@ export async function ensureIncidentStageFields(options: {
     dt: "TL Incident",
     fields: INCIDENT_PROCESS_STAGE_FIELDS,
     insertAfter: "tl_org_id",
+  });
+}
+
+/** MEL-2 — root_cause / root_cause_note on existing TL Incident. */
+export async function ensureIncidentRootCauseFields(options: {
+  dryRun: boolean;
+  headers: HeadersInit;
+  base: string;
+}): Promise<{
+  results: DocTypeEnsureResult["results"];
+  missing: string[];
+}> {
+  return ensureCustomFieldsOnDocType({
+    ...options,
+    dt: "TL Incident",
+    fields: INCIDENT_ROOT_CAUSE_FIELDS,
+    insertAfter: "closed_at",
   });
 }

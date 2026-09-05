@@ -7,6 +7,7 @@ import type {
   EscalationPolicy,
   IncidentProcessStages,
 } from "@/lib/grievanceProcess";
+import type { GrievanceRootCauseId } from "@/lib/grievanceRootCause";
 import type { DeskTier } from "@/types/deskTier";
 import type { StakeholderTrustResponse } from "@/types/trustOverlay";
 
@@ -69,6 +70,13 @@ export interface Incident {
   category: string;
   /** Structured nature of complaint (dust, noise, …). */
   nature?: ComplaintNatureId | string;
+  /**
+   * MEL-2 operational root-cause tag (why it happened). Distinct from `nature`.
+   * Not a trust-movement cause. Required to stamp investigated / resolved.
+   */
+  rootCause?: GrievanceRootCauseId;
+  /** Required when `rootCause` is `other`. */
+  rootCauseNote?: string;
   impactScore: number;
   sentimentScore: number | null;
   /** Applied label when sentiment was captured from the case note. */

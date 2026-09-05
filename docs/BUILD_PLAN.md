@@ -231,7 +231,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **MEL-1** | Expected vs actual | Cloud `mel_json` on `TL Project`; expected/actual on `TL Commitment`; variance watch on dashboard. Empty Cloud stays empty. Not a standalone SKU. `docs/MEL_INDICATORS.md` | **Done** |
-| **MEL-2** | Grievance root-cause tags | Mandatory taxonomy on investigate/resolve | Planned |
+| **MEL-2** | Grievance root-cause tags | Mandatory taxonomy on investigate/resolve. Cloud `root_cause` on `TL Incident`; empty Cloud stays empty. `docs/MEL_ROOT_CAUSE.md` | **Done** |
 | **MEL-3** | Learn & Adapt records | Corrective-action workflow (not replacing grievance stages) | Planned |
 | **MEL-4** | Retrospective composer | `reportComposer` What worked / did not / change; human apply | Planned |
 
@@ -331,6 +331,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-05 | MEL-2 — grievance root-cause tags on investigate/resolve; Cloud `root_cause`; empty Cloud stays empty |
 | 2026-09-05 | MEL-1 — expected vs actual on TL Project / TL Commitment; variance watch; empty Cloud stays empty |
 | 2026-09-05 | SEC-BFF — Ops sid session, Cloud Plan Owner, Paystack verify one-shot, Frappe proxy allowlist, no live demo seed |
 | 2026-09-05 | OP-1 — operator sitting runbook + `/ops/readiness` panel; Vercel/Webway/Desk still operator |
