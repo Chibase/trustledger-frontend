@@ -1,5 +1,7 @@
 /**
- * Browser store for Stakeholder Engagement Plans (trial / live until a Cloud DocType exists).
+ * Browser store for Stakeholder Engagement Plans.
+ * Trial / VIP seed stay here. Live entitled workspaces use `sepPersist`
+ * (Cloud SoT, this key is a cache). Empty Cloud stays empty.
  */
 
 import type { EngagementPlan } from "@/types/engagementPlan";
@@ -72,13 +74,19 @@ export function saveEngagementPlan(plan: EngagementPlan): EngagementPlan {
     ...plan,
     updatedAt: new Date().toISOString(),
   };
+  cacheEngagementPlan(next);
+  return next;
+}
+
+/** Write a plan into the local cache without bumping updatedAt (Cloud hydrate). */
+export function cacheEngagementPlan(plan: EngagementPlan) {
+  if (typeof window === "undefined") return;
   const root = readRoot();
   const key = scopeKey();
-  const rows = (root[key] || []).filter((row) => row.id !== next.id);
-  rows.unshift(next);
+  const rows = (root[key] || []).filter((row) => row.id !== plan.id);
+  rows.unshift(plan);
   root[key] = rows.slice(0, 40);
   writeRoot(root);
-  return next;
 }
 
 export function deleteEngagementPlan(id: string) {

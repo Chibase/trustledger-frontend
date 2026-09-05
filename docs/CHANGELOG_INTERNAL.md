@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-05 — SI-SEP Cloud persist
+
+- Live entitled workspaces persist Stakeholder Engagement Plans on **`TL Engagement Plan`** (`GET|POST|DELETE /api/frappe/sep`). Indexed columns plus JSON `payload` (composed plan) and `execution_json` (plan-centric overlay). Customer Link required (SEC-1).
+- Local `tl-engagement-plans` / `tl-sep-execution` stay the trial / VIP-seed store and a live cache. Empty Cloud stays empty (no local-only append). PUT omits `execution_json` unless the client sent the overlay. Blank created/updated times stay blank.
+- First live login migrates browser plans + overlays (`tl-sep-migrated` flag, independent of the org-bucket flag). Ops ensure + product-smoke include SEP. Gemini still drafts the presentable document only. Apply to SRM still uses existing SI services. Not a sealed ledger.
+
 ## 2026-09-05 — SEC-5 Cloud invitee seats
 
 - Portable email invites provision a **Cloud User on the Owner’s Customer** when the invitee accepts (`POST /api/invite/accept-seat`). Same Customer User Permission as SEC-1. `custom_tl_plan_owner` stays `0`. Desk + `custom_tl_app_role` (`community|contractor|client`) are stamped from the invite. Password is the one chosen on accept, then `/login/live` (OTP still applies on later logins; first accept skips OTP because the signed invite is proof). Accept is **one-shot**: an existing Cloud User is not a password-reset path. Desk rank is re-checked against the live Customer plan, not only the signed token.

@@ -12,7 +12,7 @@
 
 | Route | Purpose |
 |-------|---------|
-| `POST /api/frappe/ensure-product-doctypes` | Idempotent DocType create + incident stage Custom Fields (`dryRun` default true) |
+| `POST /api/frappe/ensure-product-doctypes` | Idempotent DocType create + incident stage Custom Fields (`dryRun` default true; SI / SEP / trust included by default) |
 | `GET\|POST /api/frappe/product?kind=incident` | Live list/upsert including process-stage stamps |
 | `GET\|POST /api/app/projects` | Live project list; Plan Owner create |
 | `GET\|PUT /api/app/projects/[id]` | Live project get/update (upsert); empty Cloud stays empty |

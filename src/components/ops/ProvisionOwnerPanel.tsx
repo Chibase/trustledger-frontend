@@ -426,6 +426,53 @@ export function ProvisionOwnerPanel({
         }),
       });
       const verJson = (await verRes.json()) as { ok?: boolean; error?: string };
+      const sepId = `SEP-SMOKE-${Date.now().toString(36).slice(-6)}`;
+      const sepRes = await fetch("/api/frappe/product-smoke", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          kind: "sep",
+          customer,
+          plan: {
+            id: sepId,
+            title: "SI-SEP smoke plan",
+            status: "saved",
+            sourceKind: "manual",
+            sectorId: "generic",
+            projectId: null,
+            projectNameHint: "Smoke assignment",
+            placeHint: "Ward 1",
+            clientFunderHint: customer,
+            timelineHint: "4 weeks",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            sourceExcerpt: "Ops smoke briefing.",
+            purposeStatement: "Smoke persist of a stakeholder engagement plan.",
+            phases: [],
+            stakeholderClasses: [],
+            activities: [],
+            commitments: [],
+            instruments: [],
+            grievancePath: "",
+            assumptions: [],
+            documentSections: [],
+          },
+          overlay: {
+            version: 1,
+            planId: sepId,
+            submittedAt: new Date().toISOString(),
+            ownerName: ownerName || "Operator",
+            lastReviewAt: null,
+            milestones: [],
+            tasks: [],
+            events: [],
+            interventions: [],
+            activityLog: [],
+          },
+        }),
+      });
+      const sepJson = (await sepRes.json()) as { ok?: boolean; error?: string };
       const bundle = {
         stakeholder: stkJson,
         engagement: engJson,
@@ -434,6 +481,7 @@ export function ProvisionOwnerPanel({
         participation: partJson,
         community: commJson,
         verification: verJson,
+        sep: sepJson,
       };
       if (!comRes.ok || !comJson.ok) {
         pushToast(comJson.error || "Commitment smoke failed", "error");
@@ -460,8 +508,13 @@ export function ProvisionOwnerPanel({
         setResult(JSON.stringify(bundle, null, 2));
         return;
       }
+      if (!sepRes.ok || !sepJson.ok) {
+        pushToast(sepJson.error || "Engagement plan smoke failed", "error");
+        setResult(JSON.stringify(bundle, null, 2));
+        return;
+      }
       pushToast(
-        "SI + trust smoke OK — Stakeholder, Engagement, Commitment, Observation, Participation, Community, Verification",
+        "SI + SEP + trust smoke OK — Stakeholder, Engagement, Commitment, Plan, Observation, Participation, Community, Verification",
         "success",
       );
       setResult(JSON.stringify(bundle, null, 2));
@@ -609,7 +662,7 @@ export function ProvisionOwnerPanel({
           onClick={() => void ensureDocTypes(true)}
           className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
         >
-          Check product + SI DocTypes
+          Check product + SI + SEP DocTypes
         </button>
         <button
           type="button"
@@ -617,7 +670,7 @@ export function ProvisionOwnerPanel({
           onClick={() => void ensureDocTypes(false)}
           className="rounded-md border border-tl-line px-3 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
         >
-          Create product + SI DocTypes
+          Create product + SI + SEP DocTypes
         </button>
         <button
           type="button"
@@ -633,7 +686,7 @@ export function ProvisionOwnerPanel({
           onClick={() => void smokeSi()}
           className="rounded-md border border-tl-amber/50 bg-tl-amber/10 px-3 py-2 text-sm font-medium hover:bg-tl-amber/20 disabled:opacity-50"
         >
-          Smoke Stakeholder→Engagement→Commitment
+          Smoke Stakeholder→Engagement→Commitment→Plan
         </button>
       </div>
       <p className="mt-2 text-xs text-tl-ink-muted">

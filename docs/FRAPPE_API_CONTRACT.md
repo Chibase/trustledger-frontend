@@ -36,6 +36,10 @@ Product desk engagements, stakeholders, and commitments use the Cloud SI BFF, no
 
 `GET|POST /api/frappe/si?kind=engagement|stakeholder|commitment`
 
+Stakeholder engagement plans + execution overlay:
+
+`GET|POST|DELETE /api/frappe/sep` (`id=` for get/delete)
+
 Trust observations, participation, and community context use:
 
 `GET|POST /api/frappe/trust` (`kind=observation|participation|community|verification|bucket`)
@@ -44,7 +48,7 @@ Live incidents (including process-stage stamps) use the product BFF, not `srm_co
 
 `GET|POST /api/frappe/product?kind=incident`
 
-`noteService` still tries `FRAPPE_METHODS.listNotes` in live mode, then falls through to `engagementService` (SI Engagement DocType). Named Python `engagements.py` is not in this frontend repo. SI-Cloud status: **shipped**. TE-7 / TE-11 trust DocTypes: **shipped**. 24e-cloud incident stamps: **shipped**. P0b project Cloud save: **shipped** (`GET\|PUT /api/app/projects/[id]`; create remains `POST /api/app/projects`).
+`noteService` still tries `FRAPPE_METHODS.listNotes` in live mode, then falls through to `engagementService` (SI Engagement DocType). Named Python `engagements.py` is not in this frontend repo. SI-Cloud status: **shipped**. SI-SEP Cloud persist: **shipped** (`TL Engagement Plan`). TE-7 / TE-11 trust DocTypes: **shipped**. 24e-cloud incident stamps: **shipped**. P0b project Cloud save: **shipped** (`GET\|PUT /api/app/projects/[id]`; create remains `POST /api/app/projects`).
 
 ### OD-2 resource path (until srm_core create methods land)
 
@@ -52,14 +56,15 @@ Prefer Frappe **resource** DocTypes created by Ops ensure:
 
 | Action | Path | Notes |
 |--------|------|-------|
-| Ensure DocTypes | `POST /api/frappe/ensure-product-doctypes` | `TL Project`, `TL Incident` (+ stage Datetimes), `TL Evidence`, SI, **TE-7 / TE-11 trust** |
+| Ensure DocTypes | `POST /api/frappe/ensure-product-doctypes` | `TL Project`, `TL Incident` (+ stage Datetimes), `TL Evidence`, SI, **SEP**, **TE-7 / TE-11 trust** |
 | Live incident list/upsert | `GET\|POST /api/frappe/product?kind=incident` | Process-stage stamps; empty Cloud stays empty |
+| Live SEP list/upsert | `GET\|POST\|DELETE /api/frappe/sep` | Plan + overlay JSON; empty Cloud stays empty |
 | Live project list/create | `GET\|POST /api/app/projects` | Create is Plan Owner-only; list is Cloud-authoritative |
 | Live project get/update | `GET\|PUT /api/app/projects/[id]` | Any bound live session may update; dossier omitted |
-| Smoke create | `POST /api/frappe/product-smoke` | `{ kind, customer, project\|incident\|evidence\|…\|observation\|participation\|community\|verification }` |
+| Smoke create | `POST /api/frappe/product-smoke` | `{ kind, customer, project\|incident\|evidence\|…\|sep\|observation\|participation\|community\|verification }` |
 | Upload file | `POST /api/frappe/upload-file` | multipart → Frappe `upload_file` |
 
-Field maps: `src/lib/productCloud.ts`. Spec: `docs/PRODUCT_DOCTYPES.md`.
+Field maps: `src/lib/productCloud.ts`, `src/lib/sepCloud.ts`. Spec: `docs/PRODUCT_DOCTYPES.md`. SI-SEP: `docs/SEP_EXECUTION.md`.
 
 Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH_BRIDGE_STUB.md`).
 
@@ -67,7 +72,7 @@ Live browser calls go through the Next.js BFF `POST /api/frappe` (see `docs/AUTH
 
 - `src/types/project.ts`
 - `src/types/incident.ts`
-- `src/types/engagement.ts`
+- `src/types/engagementPlan.ts`
 - `src/types/ai.ts`
 - `src/types/geo.ts` (Version 002)
 - `src/types/stakeholder.ts` (Version 002)

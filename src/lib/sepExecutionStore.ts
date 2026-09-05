@@ -1,6 +1,8 @@
 /**
- * Org-scoped SEP execution overlay (browser until a Cloud DocType exists).
- * Opening a plan dashboard runs backfill from the composed EngagementPlan.
+ * Org-scoped SEP execution overlay.
+ * Trial stays in this key. Live entitled workspaces persist via `sepPersist`
+ * onto TL Engagement Plan.execution_json. Opening a plan dashboard backfills
+ * from the composed EngagementPlan.
  */
 
 import type { EngagementPlan } from "@/types/engagementPlan";
@@ -125,8 +127,14 @@ export function getSepExecution(planId: string): SepExecutionOverlay | null {
   return bag[planId] || null;
 }
 
+export function listSepExecutions(): SepExecutionOverlay[] {
+  const bag = readRoot()[scopeKey()] || {};
+  return Object.values(bag);
+}
+
 export function saveSepExecution(
   overlay: SepExecutionOverlay,
+  opts?: { persistCloud?: boolean },
 ): SepExecutionOverlay {
   const root = readRoot();
   const key = scopeKey();
@@ -134,6 +142,16 @@ export function saveSepExecution(
   bag[overlay.planId] = overlay;
   root[key] = bag;
   writeRoot(root);
+  if (opts?.persistCloud !== false && typeof window !== "undefined") {
+    void import("@/config/api")
+      .then(({ isLiveMode }) => {
+        if (!isLiveMode()) return;
+        return import("@/lib/sepPersist").then((m) =>
+          m.pushSepExecutionToCloud(overlay),
+        );
+      })
+      .catch(() => undefined);
+  }
   return overlay;
 }
 

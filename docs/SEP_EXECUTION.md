@@ -4,7 +4,8 @@ Operator/client view for a **single** Stakeholder Engagement Plan (`EngagementPl
 
 ## Assumptions
 
-- Overlay is org-scoped in the browser (`tl-sep-execution`) until a Cloud DocType exists (ADR-053). No SQL. There is **no HTTP CRUD API** in this packet — `src/lib/sepExecutionDesk.ts` is the service contract (snapshot, timeline, analytics, platform sync). Flag this if a BFF is required before go-live persistence.
+- Live entitled workspaces persist the overlay on **TL Engagement Plan** (`execution_json`) via `GET|POST /api/frappe/sep`. Trial without a Cloud Customer stays org-scoped in the browser (`tl-sep-execution`). No SQL.
+- `src/lib/sepExecutionDesk.ts` remains the view contract (snapshot, timeline, analytics, platform sync). Overlay saves go through the same BFF as the composed plan.
 - In-plan filters (date range, task, milestone, severity, outcome kind) never query another `plan_id`.
 - Linked commitments seed outcome events only for overdue / broken / fulfilled. Open or in-progress promises stay on the promise board and do not inflate hurdle counts.
 - `plan_id` = engagement plan id. Linked SRM rows use `applied.*Ids` and `projectId`.
@@ -31,9 +32,9 @@ Operator/client view for a **single** Stakeholder Engagement Plan (`EngagementPl
 3. Practitioner: log a hurdle + intervention; confirm audit row in overlay.
 4. Switch desk to Client/Board: snapshot visible, Save event hidden.
 5. Confirm other desks (incidents, engagements) unchanged.
-6. Cloud DocType persistence is a later packet — do not promise live Frappe write for this overlay.
+6. Live entitled workspaces persist the overlay on Cloud with the plan. Trial without Cloud stays local. Empty Cloud stays empty. Not a sealed ledger.
 
 ## Blockers
 
-- None for trial/browser workspaces.
-- Live Cloud will not persist the overlay until a DocType + BFF exists.
+- None for trial/browser workspaces (local store).
+- Live persist requires Ops **Create product + SI + SEP DocTypes** so `TL Engagement Plan` exists on Cloud.

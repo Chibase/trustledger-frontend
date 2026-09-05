@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import { ensureProductDocTypes } from "@/lib/frappeProductDocTypes";
+import { ensureSepDocTypes } from "@/lib/frappeSepDocTypes";
 import { ensureSiDocTypes } from "@/lib/frappeSiDocTypes";
 import { ensureTrustDocTypes } from "@/lib/frappeTrustDocTypes";
 import { isFrappeOwnerIssuanceEnabled } from "@/lib/frappeSoT";
@@ -13,9 +14,14 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Body = { dryRun?: boolean; includeSi?: boolean; includeTrust?: boolean };
+type Body = {
+  dryRun?: boolean;
+  includeSi?: boolean;
+  includeTrust?: boolean;
+  includeSep?: boolean;
+};
 
-/** OD-2 / SI-Cloud / TE-7 — ensure product + SI + trust DocTypes on Frappe. */
+/** OD-2 / SI-Cloud / SI-SEP / TE-7 — ensure product + SI + SEP + trust DocTypes. */
 export async function POST(request: Request) {
   if (!isFrappeOwnerIssuanceEnabled()) {
     return NextResponse.json(
@@ -44,6 +50,7 @@ export async function POST(request: Request) {
   const dryRun = body.dryRun !== false;
   const includeSi = body.includeSi !== false;
   const includeTrust = body.includeTrust !== false;
+  const includeSep = body.includeSep !== false;
   const product = await ensureProductDocTypes({ dryRun });
   const si = includeSi
     ? await ensureSiDocTypes({ dryRun })
@@ -53,6 +60,15 @@ export async function POST(request: Request) {
         results: [],
         missing: [],
         message: "SI DocTypes skipped (includeSi:false)",
+      };
+  const sep = includeSep
+    ? await ensureSepDocTypes({ dryRun })
+    : {
+        ok: true,
+        dryRun,
+        results: [],
+        missing: [],
+        message: "SEP DocTypes skipped (includeSep:false)",
       };
   const trust = includeTrust
     ? await ensureTrustDocTypes({ dryRun })
@@ -64,8 +80,8 @@ export async function POST(request: Request) {
         message: "Trust DocTypes skipped (includeTrust:false)",
       };
 
-  const ok = product.ok && si.ok && trust.ok;
-  const message = [product.message, si.message, trust.message]
+  const ok = product.ok && si.ok && sep.ok && trust.ok;
+  const message = [product.message, si.message, sep.message, trust.message]
     .filter(Boolean)
     .join(" · ");
 
@@ -76,9 +92,20 @@ export async function POST(request: Request) {
       message,
       product,
       si,
+      sep,
       trust,
-      results: [...product.results, ...si.results, ...trust.results],
-      missing: [...product.missing, ...si.missing, ...trust.missing],
+      results: [
+        ...product.results,
+        ...si.results,
+        ...sep.results,
+        ...trust.results,
+      ],
+      missing: [
+        ...product.missing,
+        ...si.missing,
+        ...sep.missing,
+        ...trust.missing,
+      ],
     },
     { status: ok ? 200 : 502 },
   );

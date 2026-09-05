@@ -12,7 +12,7 @@ import type { Commitment } from "@/types/commitment";
 import type { Engagement } from "@/types/engagement";
 import type { EngagementPlan } from "@/types/engagementPlan";
 import type { Stakeholder } from "@/types/stakeholder";
-import { saveEngagementPlan } from "@/lib/sepStore";
+import { saveEngagementPlanLive } from "@/lib/sepPersist";
 
 function isoDateOffset(days: number): string {
   const d = new Date();
@@ -185,7 +185,7 @@ export async function applyEngagementPlanToSrm(
       commitmentIds,
     },
   };
-  saveEngagementPlan(next);
+  await saveEngagementPlanLive(next);
   return {
     plan: next,
     stakeholders: created.stakeholders,
