@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import type { LeadSmokeSnapshot } from "@/lib/leadSmoke";
 
@@ -24,7 +24,7 @@ export function AcquisitionOpsPanel() {
   const [write, setWrite] = useState<WriteResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  async function load() {
     setBusy("load");
     setError(null);
     try {
@@ -53,11 +53,7 @@ export function AcquisitionOpsPanel() {
     } finally {
       setBusy(null);
     }
-  }, [pushToast]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  }
 
   async function writeSmokeLead() {
     setBusy("write");
@@ -121,7 +117,7 @@ export function AcquisitionOpsPanel() {
           onClick={() => void load()}
           className="rounded-md border border-tl-line px-3 py-1.5 text-xs font-semibold text-tl-ink hover:bg-tl-paper disabled:opacity-60"
         >
-          {busy === "load" ? "Loading…" : "Refresh inventory"}
+          {busy === "load" ? "Loading…" : smoke ? "Refresh inventory" : "Load inventory"}
         </button>
         <button
           type="button"
