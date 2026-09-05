@@ -86,6 +86,6 @@ Operational feed: who did what (demo, assessment, feedback, contact, support). N
 | **23a** | `/ops` shell + allowlist gate + activity overview | Done |
 | **23e** | Executive Board brief | Done |
 | **23f** | Control pillars: finance, staff, AI tools, issues, marketing engine | **Done** |
-| **23b** | Reports hub (filter → table → CSV) | Next |
-| **23c** | Account control panel | Later |
-| **23d** | Support case pack + activity timeline | Later |
+| **23b** | Reports hub (filter → table → CSV) | **Done** |
+| **23c** | Account control panel | **Done (lite)** — provision + VIP; Desk SoT |
+| **23d** | Support case pack + activity timeline | **Done (slice)** — support filter + CSV |

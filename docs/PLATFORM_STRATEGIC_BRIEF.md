@@ -402,8 +402,8 @@ Prioritise by **SRM engine strength** and **operational honesty**, not feature c
 1. Stats SA / socio-economic ingest on geo places.  
 2. Live Grok via `srm-core` (server-only) for stronger briefs — still suggest→apply.  
 3. CRM relationship graph, influence/interest matrices, merge/dedupe.  
-4. Report packs bound to live SI + geo evidence; export formats.  
-5. Ops packets 23b–d (filterable reports, deeper accounts, support packs).  
+4. Report packs bound to live Cloud project/incident lists (empty Cloud stays empty). Deeper SI/geo-bound pack formats remain mid-term.  
+5. Ops packets 23b–d — **Done (lite)**: filterable CSV, accounts provision/VIP, support slice. Desk remains SoT for plan/status.  
 6. Optional reCAPTCHA fail-closed when traffic warrants.  
 
 ### 8.3 Later (V003+ — do not package as imminent)

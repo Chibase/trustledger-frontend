@@ -145,8 +145,8 @@ export function ProjectReportStudio({
       setTier(desk);
       setAudience(defaultAudienceForTier(desk));
       setIncidents(
-        seedIncidents?.length
-          ? seedIncidents
+        seedIncidents
+          ? seedIncidents.filter((i) => i.projectId === project.id)
           : listWorkspaceIncidents().filter((i) => i.projectId === project.id),
       );
       setLibrary(

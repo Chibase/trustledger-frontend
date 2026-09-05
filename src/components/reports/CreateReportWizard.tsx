@@ -46,19 +46,15 @@ import {
   lensUsesFixedBrief,
   reportLensForKind,
 } from "@/lib/reportLenses";
+import { dossierSummaryLines } from "@/lib/projectDossier";
+import { loadReportWorkspaceLists } from "@/lib/reportWorkspaceLists";
 import {
   createReportId,
   purgeTemplateGuideReports,
   saveAuthoredReport,
 } from "@/lib/reportStore";
-import { dossierSummaryLines } from "@/lib/projectDossier";
-import {
-  listWorkspaceIncidents,
-  preferCloudProjectList,
-} from "@/lib/workspaceData";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
-import { projectService } from "@/services/projectService";
 import type {
   ActivityReportComposeSuggestion,
   AiSuggestionStatus,
@@ -166,11 +162,11 @@ export function CreateReportWizard({
 
       void (async () => {
         // Same project list path as Capture — Cloud/VIP + local dossier overlay.
-        const seeded = await projectService.list().catch(() => [] as Project[]);
+        const lists = await loadReportWorkspaceLists();
         if (cancelled) return;
-        const rows = preferCloudProjectList(seeded);
+        const rows = lists.projects;
         setProjects(rows);
-        setAllIncidents(listWorkspaceIncidents());
+        setAllIncidents(lists.incidents);
         const fromQuery =
           typeof window !== "undefined"
             ? new URLSearchParams(window.location.search).get("projectId")

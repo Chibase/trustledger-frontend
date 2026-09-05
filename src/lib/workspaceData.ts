@@ -52,6 +52,15 @@ export function preferCloudProjectList(cloud: Project[]): Project[] {
   return listWorkspaceProjects(cloud);
 }
 
+/**
+ * Use the Cloud/BFF incident list as-is for live customers (empty stays empty).
+ * Trial and demo still merge the local workspace store.
+ */
+export function preferCloudIncidentList(cloud: Incident[]): Incident[] {
+  if (isLiveCustomerClient()) return cloud;
+  return listWorkspaceIncidents(cloud);
+}
+
 /** Projects for the current browser workspace (with dossier overlay). */
 export function listWorkspaceProjects(seed: Project[] = []): Project[] {
   const rows = isCustomerWorkspaceClient()

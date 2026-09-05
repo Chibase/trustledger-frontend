@@ -76,6 +76,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
           "/trial",
           "/pay",
           "/status",
+          "/legal",
           "/llms.txt",
         ],
         disallow: ["/app/", "/ops/", "/login", "/auth/", "/api/", "/invite/", "/firm"],

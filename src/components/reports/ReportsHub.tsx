@@ -33,13 +33,7 @@ import {
   funderChartGroups,
   monthlyChartGroups,
 } from "@/lib/reportLenses";
-import { isLiveMode } from "@/config/api";
-import {
-  listWorkspaceIncidents,
-  listWorkspaceProjects,
-  preferCloudProjectList,
-} from "@/lib/workspaceData";
-import { projectService } from "@/services/projectService";
+import { loadReportWorkspaceLists } from "@/lib/reportWorkspaceLists";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import {
   REPORT_PACK_IDS,
@@ -89,13 +83,11 @@ export function ReportsHub({
     let cancelled = false;
     const frame = requestAnimationFrame(() => {
       setTier(readDeskTier(role));
-      setIncidents(listWorkspaceIncidents());
       void (async () => {
-        if (isLiveMode()) {
-          const cloud = await projectService.list();
-          if (!cancelled) setProjects(preferCloudProjectList(cloud));
-        } else if (!cancelled) {
-          setProjects(listWorkspaceProjects());
+        const lists = await loadReportWorkspaceLists();
+        if (!cancelled) {
+          setProjects(lists.projects);
+          setIncidents(lists.incidents);
         }
       })();
       const fromUrl = readInitialPack();
@@ -336,7 +328,11 @@ export function ReportsHub({
             </div>
           ) : null}
 
-          <ReportsLibrary role={role} />
+          <ReportsLibrary
+            role={role}
+            projects={projects}
+            incidents={incidents}
+          />
         </section>
       ) : null}
 

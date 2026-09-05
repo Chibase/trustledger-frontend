@@ -4,6 +4,7 @@ import { useCallback, useState, type SyntheticEvent } from "react";
 import { commitmentService } from "@/services/commitmentService";
 import { engagementService } from "@/services/engagementService";
 import { stakeholderService } from "@/services/stakeholderService";
+import { incidentService } from "@/services/incidentService";
 import { getActiveOrgId } from "@/lib/orgStore";
 import {
   buildTrustIntelligenceFromSrm,
@@ -13,7 +14,7 @@ import {
 } from "@/lib/trust";
 import {
   listWorkspaceEvidence,
-  listWorkspaceIncidents,
+  preferCloudIncidentList,
 } from "@/lib/workspaceData";
 
 /**
@@ -31,7 +32,8 @@ export function TrustIntelligencePanel() {
     setLoading(true);
     setError(null);
     try {
-      const incidents = listWorkspaceIncidents();
+      const cloudIncidents = await incidentService.list();
+      const incidents = preferCloudIncidentList(cloudIncidents);
       const [engagements, commitments, stakeholders] = await Promise.all([
         engagementService.list(),
         commitmentService.list(),

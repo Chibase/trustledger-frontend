@@ -150,6 +150,18 @@ export function mergeCloudAndLocal(cloud: Incident[], local: Incident[]): Incide
   return out;
 }
 
+/** Overlay local extras onto Cloud ids only. Empty Cloud stays empty. */
+export function overlayLocalIncidentsOntoCloud(
+  cloud: Incident[],
+  local: Incident[],
+): Incident[] {
+  const localById = new Map(local.map((row) => [row.id, row]));
+  return cloud.map((row) => {
+    const overlay = localById.get(row.id);
+    return overlay ? mergeIncidentCache(row, overlay) : row;
+  });
+}
+
 async function listDemo(filters: IncidentListFilters): Promise<Incident[]> {
   const { readTrialModeFromDocument } = await import("@/lib/trial");
   if (readTrialModeFromDocument()) {
@@ -165,7 +177,10 @@ async function listLive(filters: IncidentListFilters): Promise<Incident[]> {
   const cloud = await listFromCloudProduct();
   if (cloud) {
     const local = await mergeLocalOverlays([]);
-    return filterIncidents(mergeCloudAndLocal(cloud, local), filters);
+    const rows = own
+      ? overlayLocalIncidentsOntoCloud(cloud, local)
+      : mergeCloudAndLocal(cloud, local);
+    return filterIncidents(rows, filters);
   }
   if (own) {
     return filterIncidents(await mergeLocalOverlays([]), filters);
