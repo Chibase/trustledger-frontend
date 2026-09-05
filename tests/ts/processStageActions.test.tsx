@@ -77,4 +77,31 @@ describe("ProcessStageActions MEL-2 gate", () => {
     expect(saved.rootCause).toBe("unmet_commitment");
     expect(saved.processStages?.investigatedAt).toBeTruthy();
   });
+
+  it("does not persist an invalid Other draft on verify and close", async function () {
+    const user = userEvent.setup();
+    const onToast = jest.fn();
+    render(
+      <ProcessStageActions
+        incident={sample({
+          rootCause: "unmet_commitment",
+          processStages: {
+            reportedAt: "2026-09-01T08:00:00.000Z",
+            resourceDeployedAt: "2026-09-01T10:00:00.000Z",
+            investigatedAt: "2026-09-02T09:00:00.000Z",
+            resolvedAt: "2026-09-03T09:00:00.000Z",
+          },
+        })}
+        onUpdated={jest.fn()}
+        onToast={onToast}
+      />,
+    );
+
+    await user.selectOptions(screen.getByLabelText("Root cause"), "other");
+    await user.click(screen.getByRole("button", { name: /Verify & close/i }));
+    expect(incidentService.save).toHaveBeenCalled();
+    const saved = (incidentService.save as jest.Mock).mock.calls[0][0] as Incident;
+    expect(saved.rootCause).toBe("unmet_commitment");
+    expect(saved.processStages?.closedAt).toBeTruthy();
+  });
 });

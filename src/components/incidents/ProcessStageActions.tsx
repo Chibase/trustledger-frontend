@@ -10,7 +10,6 @@ import {
   verifyAndCloseIncident,
 } from "@/lib/grievanceProcess";
 import {
-  parseGrievanceRootCause,
   rootCauseLabel,
   validateGrievanceRootCause,
 } from "@/lib/grievanceRootCause";
@@ -36,12 +35,12 @@ export function ProcessStageActions({
   const next = nextPendingStage(stages);
   const canVerifyClose = Boolean(stages.resolvedAt) && !stages.closedAt;
   const tagged = (): Incident => {
-    const parsed = parseGrievanceRootCause(cause);
+    const check = validateGrievanceRootCause(cause, note);
+    if (!check.ok) return incident;
     return {
       ...incident,
-      ...(parsed
-        ? { rootCause: parsed, rootCauseNote: note.trim() || undefined }
-        : {}),
+      rootCause: check.id,
+      rootCauseNote: check.note || undefined,
     };
   };
 
