@@ -231,6 +231,8 @@ describe("applyLiveSessionCookies", () => {
       planId: "project",
     });
     expect(cookieValue(res, TL_ORG_OWNER_COOKIE)).toBe("1");
+    expect(res.cookies.get(TL_ORG_OWNER_COOKIE)?.httpOnly).toBe(true);
+    expect(res.cookies.get(FRAPPE_SID_COOKIE)?.httpOnly).toBe(true);
     expect(cookieValue(res, TL_DESK_TIER_LOCKED_COOKIE)).toBe("0");
   });
 });

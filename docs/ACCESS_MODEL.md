@@ -91,6 +91,7 @@ Session / get_session returns { role, customer, plan, entitlements }
 4. **API gates (must have — UI alone is not enough)**  
    Before `create_project`, `invite_user`, `generate_report_brief`, etc.:  
    `assert_entitlement(customer, action)`.  
+   Live Plan Owner writes (create project, send invite, reset member password) check **Customer.custom_owner_email** via the live Cloud sid — not the `tl-org-owner` cookie. Platform Ops APIs require that same sid plus the operator allowlist.  
    Over limit → `403` + `{ code: "PLAN_LIMIT", upgrade: "project" }`.
 
 5. **Billing state**  

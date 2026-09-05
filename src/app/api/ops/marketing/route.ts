@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import {
   buildMarketingDesk,
   runMarketingDeskAction,
 } from "@/lib/marketing/desk";
 import type { MarketingBriefInput, MarketingDeskAction } from "@/lib/marketing/desk.types";
-import {
-  assertOpsAccess,
-  operatorGateMessage,
-} from "@/lib/platformOperator";
+import { opsDenied, requireOpsLiveSession } from "@/lib/opsSession";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,22 +21,20 @@ const ACTIONS = new Set<MarketingDeskAction>([
 ]);
 
 async function gate() {
-  const jar = await cookies();
-  const email = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  return assertOpsAccess(email);
+  return requireOpsLiveSession();
 }
 
-function forbidden(reason: "lockdown_misconfigured" | "not_operator") {
-  return NextResponse.json(
-    { error: operatorGateMessage(reason) },
-    { status: 403 },
-  );
+function forbidden(result: Awaited<ReturnType<typeof requireOpsLiveSession>>) {
+  if (result.ok) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  return opsDenied(result);
 }
 
 /** Ops-only snapshot of the MKT-1 engine + Marketing Review list. */
 export async function GET() {
   const access = await gate();
-  if (!access.ok) return forbidden(access.reason);
+  if (!access.ok) return forbidden(access);
   return NextResponse.json(await buildMarketingDesk(), {
     headers: { "Cache-Control": "no-store" },
   });
@@ -53,7 +46,7 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   const access = await gate();
-  if (!access.ok) return forbidden(access.reason);
+  if (!access.ok) return forbidden(access);
 
   let body: {
     action?: string;

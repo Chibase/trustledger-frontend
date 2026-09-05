@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import { isWorkEmail } from "@/data/assessment";
 import { notifyOpsAlert } from "@/lib/opsAlert";
 import { recordEftPayment } from "@/lib/paymentIntel";
@@ -9,10 +7,7 @@ import {
   getPaystackPlan,
   type PaystackPlanId,
 } from "@/lib/paystackPlans";
-import {
-  assertOpsAccess,
-  operatorGateMessage,
-} from "@/lib/platformOperator";
+import { opsDenied, requireOpsLiveSession } from "@/lib/opsSession";
 import { siteBaseUrl } from "@/lib/hubspot";
 
 type EftBody = {
@@ -39,15 +34,8 @@ function planIdOf(raw: string | undefined): PaystackPlanId | null {
 }
 
 export async function POST(request: Request) {
-  const jar = await cookies();
-  const operatorEmail = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  const gate = assertOpsAccess(operatorEmail);
-  if (!gate.ok) {
-    return NextResponse.json(
-      { error: operatorGateMessage(gate.reason) },
-      { status: 403 },
-    );
-  }
+  const session = await requireOpsLiveSession();
+  if (!session.ok) return opsDenied(session);
 
   let body: EftBody;
   try {
@@ -115,7 +103,7 @@ export async function POST(request: Request) {
     currency: "ZAR",
     reference,
     note: note || null,
-    confirmedBy: operatorEmail || null,
+    confirmedBy: session.email || null,
   });
 
   if (!result.logged) {

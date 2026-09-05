@@ -32,6 +32,7 @@ export async function POST() {
   response.cookies.set(TL_TRIAL_PLAN_COOKIE, "", clear);
   response.cookies.set(TL_VIP_COOKIE, "", clear);
   response.cookies.set(TL_ORG_OWNER_COOKIE, "", clear);
+  response.cookies.set(TL_ORG_OWNER_COOKIE, "", { ...clear, httpOnly: true });
   response.cookies.set(TL_ORG_ID_COOKIE, "", clear);
   response.cookies.set(TL_DESK_TIER_COOKIE, "", clear);
   response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "", clear);

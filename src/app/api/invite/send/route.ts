@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { isPlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
 import {
+  FRAPPE_SID_COOKIE,
   TL_ORG_ID_COOKIE,
   TL_ORG_OWNER_COOKIE,
   TL_USER_EMAIL_COOKIE,
@@ -13,6 +14,7 @@ import { siteBaseUrl } from "@/lib/hubspot";
 import { canInviteDeskTier } from "@/lib/orgSeats";
 import { signPortableOrgInvite } from "@/lib/orgInviteToken";
 import { isVipCustomerName } from "@/lib/planLabel";
+import { liveOwnerDenied, requireLivePlanOwner } from "@/lib/planOwnerAccess";
 import {
   inviteEmailDeliveryReady,
   sendOrgInviteEmail,
@@ -66,18 +68,26 @@ export async function POST(request: Request) {
   }
 
   const jar = await cookies();
-  const isOwner = jar.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+  const sid = jar.get(FRAPPE_SID_COOKIE)?.value;
   const sessionOrgId = jar.get(TL_ORG_ID_COOKIE)?.value?.trim() || "";
-  const sessionEmail =
+  let sessionEmail =
     jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim().toLowerCase() || "";
-  if (!isOwner) {
-    return NextResponse.json(
-      {
-        error:
-          "Only the Plan Owner can send invite emails. Sign in as Plan Owner, then open Settings → Team / Seats.",
-      },
-      { status: 401 },
-    );
+
+  if (sid) {
+    const owner = await requireLivePlanOwner();
+    if (!owner.ok) return liveOwnerDenied(owner);
+    sessionEmail = owner.email;
+  } else {
+    const isOwner = jar.get(TL_ORG_OWNER_COOKIE)?.value === "1";
+    if (!isOwner) {
+      return NextResponse.json(
+        {
+          error:
+            "Only the Plan Owner can send invite emails. Sign in as Plan Owner, then open Settings → Team / Seats.",
+        },
+        { status: 401 },
+      );
+    }
   }
 
   let body: unknown;

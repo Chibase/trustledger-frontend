@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import {
   FRAPPE_SID_COOKIE,
   TL_MODE_COOKIE,
-  TL_ORG_OWNER_COOKIE,
   TL_USER_EMAIL_COOKIE,
   TL_USER_NAME_COOKIE,
 } from "@/lib/auth.constants";
@@ -15,6 +14,8 @@ import {
   setCloudUserPassword,
   userBelongsToCustomer,
 } from "@/lib/cloudUserPassword";
+import { liveOwnerDenied, requireLivePlanOwner } from "@/lib/planOwnerAccess";
+import { canonicalLiveEmail } from "@/lib/tenantScope";
 import {
   sendTempPasswordEmail,
   transactionalEmailConfigured,
@@ -63,8 +64,7 @@ export async function POST(request: Request) {
   const jar = await cookies();
   const mode = jar.get(TL_MODE_COOKIE)?.value;
   const sid = jar.get(FRAPPE_SID_COOKIE)?.value;
-  const isOwner = jar.get(TL_ORG_OWNER_COOKIE)?.value === "1";
-  const ownerEmail =
+  const cookieEmail =
     jar.get(TL_USER_EMAIL_COOKIE)?.value?.trim().toLowerCase() || "";
   const ownerName =
     jar.get(TL_USER_NAME_COOKIE)?.value?.trim() || "Plan Owner";
@@ -73,18 +73,17 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "Sign in with a live TrustLedger Cloud Plan Owner account to manage passwords.",
+          "Sign in with a live TrustLedger Cloud account to manage passwords.",
       },
       { status: 401 },
     );
   }
-  if (!isOwner || !ownerEmail.includes("@")) {
+
+  const canonical = await canonicalLiveEmail({ sid, cookieEmail });
+  if (!canonical.ok) {
     return NextResponse.json(
-      {
-        error:
-          "Only the package Plan Owner can issue or reset team passwords.",
-      },
-      { status: 403 },
+      { error: canonical.error, code: canonical.code },
+      { status: canonical.status },
     );
   }
 
@@ -156,13 +155,17 @@ export async function POST(request: Request) {
     }
   }
 
-  // reset-member
+  // reset-member — Cloud Plan Owner only (Customer.custom_owner_email).
+  const owner = await requireLivePlanOwner();
+  if (!owner.ok) return liveOwnerDenied(owner);
+
   const target = body.email.trim().toLowerCase();
   if (!target.includes("@")) {
     return NextResponse.json({ error: "Member email required" }, { status: 400 });
   }
 
-  const customerName = await findCustomerNameForOwnerEmail(ownerEmail);
+  const customerName =
+    owner.customerName || (await findCustomerNameForOwnerEmail(owner.email));
   if (!customerName) {
     return NextResponse.json(
       {
@@ -176,7 +179,7 @@ export async function POST(request: Request) {
   const allowed = await userBelongsToCustomer({
     targetEmail: target,
     customerName,
-    ownerEmail,
+    ownerEmail: owner.email,
   });
   if (!allowed) {
     return NextResponse.json(
@@ -208,7 +211,7 @@ export async function POST(request: Request) {
       temporaryPassword: result.temporaryPassword,
       loginUrl,
       issuedByName: ownerName,
-      issuedByEmail: ownerEmail,
+      issuedByEmail: owner.email,
     });
     emailed = mail.sent;
   }

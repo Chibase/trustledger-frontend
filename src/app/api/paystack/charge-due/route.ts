@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
-import { assertOpsAccess } from "@/lib/platformOperator";
+import { opsDenied, requireOpsLiveSession } from "@/lib/opsSession";
 import { recordPaystackPayment } from "@/lib/paymentIntel";
 import {
   chargePaystackAuthorization,
@@ -38,12 +36,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const jar = await cookies();
-  const operator = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  const gate = assertOpsAccess(operator);
-  if (!gate.ok) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const session = await requireOpsLiveSession();
+  if (!session.ok) return opsDenied(session);
 
   let body: Body;
   try {

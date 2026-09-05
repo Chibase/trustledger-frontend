@@ -268,6 +268,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **SEC-3** | DPA Trust Pack | POPIA-aware DPA for Project+ | **Done (template)** — `/legal/dpa`; not executed until countersigned |
 | **SEC-4** | Isolation SKU | Dedicated site quote + Institutional/add-on commercial; request playbook `docs/PRIVATE_BENCH_REQUEST.md` | **Playbook done** — quote/SKU live when Cloud price locked |
 | **SEC-5** | Cloud invitee seats | Replace browser-only junior seats; Owner password issue already covers Cloud Users on the Customer | **Done** |
+| **SEC-BFF** | BFF session hardening | Ops APIs require live sid + Cloud identity; Plan Owner from Customer owner-email; Paystack verify one-shot; Frappe proxy allowlist; live lists never seed demo INC-* | **Done** |
 | **SEC-SITE** | Dual-origin public hardening + Chibase site | ADR-046 — `/firm` brochure; retire Chibase WP; website DNS to this app; MX stays Webway; **SEO: 410 for retired WP spam + firm sitemap** (`docs/CHIBASE_SITE.md`, `docs/SITE_SECURITY.md`) | **Done** (SEO deepen 2026-08-17) |
 | **CHIBASE-PREVIEW** | Hero preview desk | ADR-047 — local mock cases/people/promises on Chibase home; not a workspace; CTA to own-data trial | **Done** |
 | **CHIBASE-PACK** | Consulting packages | ADR-048 — independent Chibase catalogue + optional Paystack; add-on request from any TrustLedger plan; no software entitlements | **Done** |
@@ -315,7 +316,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
-| 2026-09-05 | Later leftover — UX-1 packs bind to live Cloud lists; ops 23b CSV; SEC-2/3 paper; ledger/Grok/community/SEC-4 still blocked |
+| 2026-09-05 | SEC-BFF — Ops sid session, Cloud Plan Owner, Paystack verify one-shot, Frappe proxy allowlist, no live demo seed |
 | 2026-09-05 | P3 — HS-2 in-repo inventory + ops smoke; EM-1 Desk remaining on `/ops/readiness`; HS-3/4 deferred |
 | 2026-09-05 | P0b — Project Cloud save: live edits upsert `TL Project`; dossier stays local overlay; empty Cloud stays empty |
 | 2026-09-04 | 24e-cloud — grievance lifecycle stamps on TL Incident (live upsert; blank times stay blank) |

@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { isPlanId, type PlanId } from "@/config/plans";
-import { TL_USER_EMAIL_COOKIE } from "@/lib/auth.constants";
 import {
   buildCustomerDraft,
   buildOwnerUserDraft,
   buildProvisionChecklist,
   isFrappeOwnerIssuanceEnabled,
 } from "@/lib/frappeSoT";
-import {
-  assertOpsAccess,
-  isPlatformOperatorOnly,
-  operatorGateMessage,
-} from "@/lib/platformOperator";
+import { isPlatformOperatorOnly } from "@/lib/platformOperator";
+import { opsDenied, requireOpsLiveSession } from "@/lib/opsSession";
 import { provisionOwnerOnCloud } from "@/lib/provisionOwnerCloud";
 import { PLAN_OWNER_DESK_TIER } from "@/types/deskTier";
 
@@ -56,15 +51,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const jar = await cookies();
-  const email = jar.get(TL_USER_EMAIL_COOKIE)?.value;
-  const gate = assertOpsAccess(email);
-  if (!gate.ok) {
-    return NextResponse.json(
-      { error: operatorGateMessage(gate.reason) },
-      { status: 403 },
-    );
-  }
+  const session = await requireOpsLiveSession();
+  if (!session.ok) return opsDenied(session);
 
   let body: Body;
   try {

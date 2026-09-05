@@ -114,7 +114,7 @@ function clearLiveCookies(response: NextResponse) {
   response.cookies.set(TL_USER_EMAIL_COOKIE, "", { ...clear, httpOnly: true });
   response.cookies.set(TL_TRIAL_PLAN_COOKIE, "", clear);
   response.cookies.set(TL_VIP_COOKIE, "", clear);
-  response.cookies.set(TL_ORG_OWNER_COOKIE, "", clear);
+  response.cookies.set(TL_ORG_OWNER_COOKIE, "", { ...clear, httpOnly: true });
   response.cookies.set(TL_DESK_TIER_COOKIE, "", clear);
   response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "", clear);
 }
@@ -348,7 +348,7 @@ export function proxy(request: NextRequest) {
   }
 
   if (pathname === "/ops" || pathname.startsWith("/ops/")) {
-    if (!signedIn || !isLiveSession) {
+    if (!signedIn || !hasLiveSid) {
       const dest = new URL("/login/live", request.url);
       dest.searchParams.set(
         "next",
