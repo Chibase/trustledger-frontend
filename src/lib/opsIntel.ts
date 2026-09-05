@@ -5,6 +5,7 @@ export type OpsActivityKind =
   | "assessment"
   | "feedback"
   | "contact"
+  | "quote"
   | "support"
   | "other";
 
@@ -78,6 +79,7 @@ export function classifyActivity(row: OpsLeadRow): OpsActivityKind {
   if (title.includes("assessment") || source.includes("assessment")) {
     return "assessment";
   }
+  if (title.includes("quote") || source.includes("quote")) return "quote";
   if (title.includes("contact") || source.includes("contact")) return "contact";
   if (title.includes("demo") || source.includes("demo")) return "demo";
   return "other";
@@ -93,11 +95,25 @@ export function activityLabel(kind: OpsActivityKind): string {
       return "Experience feedback";
     case "contact":
       return "Contact enquiry";
+    case "quote":
+      return "Quote request";
     case "support":
       return "Support ticket";
     default:
       return "Other activity";
   }
+}
+
+function emptyActivityCounts(): Record<OpsActivityKind, number> {
+  return {
+    demo: 0,
+    assessment: 0,
+    feedback: 0,
+    contact: 0,
+    quote: 0,
+    support: 0,
+    other: 0,
+  };
 }
 
 function toActivityRow(row: OpsLeadRow): OpsActivityRow {
@@ -115,14 +131,7 @@ function emptyIntake(): OpsOverview["intake"] {
   return {
     totalRecent: 0,
     bySource: {},
-    byActivity: {
-      demo: 0,
-      assessment: 0,
-      feedback: 0,
-      contact: 0,
-      support: 0,
-      other: 0,
-    },
+    byActivity: emptyActivityCounts(),
     feedbackRated: 0,
     feedbackAvgRating: null,
     weakFeedback: 0,
@@ -203,14 +212,7 @@ export async function buildOpsOverview(): Promise<OpsOverview> {
     const rows = await fetchRecentLeads(pair.key, pair.secret);
     const recent = rows.map(toActivityRow);
     const bySource: Record<string, number> = {};
-    const byActivity: Record<OpsActivityKind, number> = {
-      demo: 0,
-      assessment: 0,
-      feedback: 0,
-      contact: 0,
-      support: 0,
-      other: 0,
-    };
+    const byActivity: Record<OpsActivityKind, number> = emptyActivityCounts();
     let ratingSum = 0;
     let ratingCount = 0;
     let weakFeedback = 0;

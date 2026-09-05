@@ -9,6 +9,7 @@ const FILTERS: Array<OpsActivityKind | "all"> = [
   "assessment",
   "feedback",
   "contact",
+  "quote",
   "support",
   "other",
 ];

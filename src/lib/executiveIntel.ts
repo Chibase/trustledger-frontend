@@ -51,6 +51,7 @@ function emptyWeekActivity(): Record<OpsActivityKind, number> {
     assessment: 0,
     feedback: 0,
     contact: 0,
+    quote: 0,
     support: 0,
     other: 0,
   };

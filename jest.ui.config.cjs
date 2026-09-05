@@ -32,6 +32,7 @@ module.exports = {
     "<rootDir>/tests/ts/projectCloud.test.ts",
     "<rootDir>/tests/ts/sepCloud.test.ts",
     "<rootDir>/tests/ts/inviteeCloud.test.ts",
+    "<rootDir>/tests/ts/leadForms.test.ts",
   ],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   moduleNameMapper: {

@@ -5,6 +5,7 @@ import {
   submitHubSpotLead,
   type HubSpotLeadInput,
 } from "@/lib/hubspot";
+import { CRM_SOURCE_BY_TAG } from "@/lib/leadFormInventory";
 
 export type ProductLeadInput = HubSpotLeadInput & {
   /** Short source tag e.g. assessment | demo_entry | support_ticket */
@@ -245,25 +246,7 @@ function resolveCrmSource(
     .replace(/[^A-Z0-9]+/g, "_")}`;
   const perTag = process.env[envKey]?.trim();
   if (perTag) return perTag;
-  // Sensible defaults — create these exact names in Desk (see docs/CRM_VIEWS.md)
-  const defaults: Record<string, string> = {
-    product_feedback: "Product Feedback",
-    contact: "Website Contact",
-    demo_entry: "Website Demo",
-    demo_soft_gate: "Website Demo",
-    assessment: "Website Assessment",
-    resource_download: "Website Resource",
-    paystack_payment: "Paystack Payment",
-    trial_authorize: "Trial Authorize",
-    trial_opt_out: "Trial Opt-Out",
-    eft_payment: "EFT Payment",
-    quote_request: "Quote Request",
-    support_ticket: "Support Ticket",
-    themba_escalate: "Themba Guide",
-    themba_bug: "Themba Bug",
-    chibase_contact: "Chibase Consulting",
-    chibase_package: "Chibase Consulting",
-  };
+  const defaults = CRM_SOURCE_BY_TAG;
   return defaults[sourceTag] || process.env.FRAPPE_LEAD_SOURCE?.trim();
 }
 

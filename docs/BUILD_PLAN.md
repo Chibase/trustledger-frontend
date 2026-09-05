@@ -215,15 +215,16 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
 | **HS-1** | Frappe-first leads | Production default `frappe` when Cloud keys set; Ops/health gate; ADR-034 + `docs/HS_CUTOVER.md` | **Done** (#68) |
-| **HS-2** | Production smoke + Webway | All Vercel forms → CRM Lead; explicit `LEAD_BACKEND=frappe`; `docs/WEBWAY_CUTOVER.md` | **Active** |
-| **HS-3** | Remove HubSpot config | Drop portal/form env; strip WP embeds (Webway) | Planned |
-| **HS-4** | Delete HubSpot client | Remove `submitHubSpotLead`; relocate `siteBaseUrl` | Planned |
+| **HS-2** | Production smoke + Webway | All Vercel forms → CRM Lead; explicit `LEAD_BACKEND=frappe`; `docs/WEBWAY_CUTOVER.md` | **Done (in-repo)** — Production env + Webway CMS still operator sitting |
+| **HS-3** | Remove HubSpot config | Drop portal/form env; strip WP embeds (Webway) | Planned (deferred until Production smoke) |
+| **HS-4** | Delete HubSpot client | Remove `submitHubSpotLead`; relocate `siteBaseUrl` | Planned (deferred until Production smoke) |
+| **P3** | Acquisition / ops (not buyer desk) | HS-2 inventory + ops smoke UI; EM-1 Desk checklist on `/ops/readiness`; HS-3/4 not in this packet | **Done (in-repo)** |
 
-### Email marketing on Frappe (ACTIVE with HS-2)
+### Email marketing on Frappe (EM-1 templates + ops surface)
 
 | Packet | Name | Scope | Status |
 |--------|------|-------|--------|
-| **EM-1** | Branded bulk email | TrustLedger HTML templates + Desk runbook (`docs/FRAPPE_EMAIL_MARKETING.md`); Frappe Email Domain/Newsletter — not HubSpot / not Resend blasts | **Active** |
+| **EM-1** | Branded bulk email | TrustLedger HTML templates + Desk runbook (`docs/FRAPPE_EMAIL_MARKETING.md`); Frappe Email Domain/Newsletter — not HubSpot / not Resend blasts | **Done (templates + ops surface)** — Desk SMTP / EDS uninstall still operator |
 | **EM-2** | ClickUp newsletter ops | Cadence + AI draft + human approve in ClickUp; send remains Frappe Newsletter (`docs/CLICKUP_NEWSLETTER_OPS.md`) | **Done** (playbook) |
 
 ### Autonomous marketing engine (ACTIVE)
@@ -358,5 +359,6 @@ src/app/api/webhooks/clickup/
 | 2026-08-21 | MKT-2 — `/ops/marketing` operator desk for the engine |
 | 2026-08-21 | MKT-3 — operator briefs (topic / length / LinkedIn·Reddit·ESG·blog) |
 | 2026-08-21 | MKT-4 — marketing review inbox + archive |
+| 2026-09-05 | P3 — HS-2 in-repo inventory + ops smoke; EM-1 Desk remaining on `/ops/readiness`; HS-3/4 deferred |
 | 2026-09-05 | SI-SEP Cloud persist — TL Engagement Plan DocType + live BFF; overlay on execution_json; empty Cloud stays empty |
 | 2026-08-31 | CP-2 / ADR-054 — focused SKUs on one workspace (not standalone products); `docs/MODULAR_SKUS.md` |

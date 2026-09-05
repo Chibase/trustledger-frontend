@@ -21,8 +21,8 @@ export default async function OpsOverviewPage() {
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-tl-ink-muted">
           What people are doing on the platform — demos, assessments, feedback,
-          contact, support. This is not the customer product desk (no projects
-          or site issues).
+          contact, quotes, support. This is not the customer product desk (no
+          projects or site issues).
         </p>
         <p className="mt-1 text-xs text-tl-ink-muted">
           Generated {new Date(data.generatedAt).toLocaleString()}
@@ -78,7 +78,8 @@ export default async function OpsOverviewPage() {
             <p className="mt-3 text-sm text-tl-ink-muted">No activity yet.</p>
           )}
           <p className="mt-3 text-xs text-tl-ink-muted">
-            Contact {data.intake.contactLeads} · Support{" "}
+            Contact {data.intake.contactLeads} · Quotes{" "}
+            {data.intake.byActivity.quote} · Support{" "}
             {data.intake.supportTickets}
           </p>
         </div>

@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-05 — P3 acquisition / ops track (HS-2 in-repo + EM-1 ops surface)
+
+- Canonical Vercel form → CRM Lead inventory (`src/lib/leadFormInventory.ts`) stays in lockstep with `resolveCrmSource`. Ops `/ops/readiness` shows the HS-2 checklist and writes one smoke CRM Lead (`hs2-smoke@trustledgersrm.co.za`, job title **HS-2 smoke**) via `GET|POST /api/ops/lead-smoke` (operators only).
+- Quote requests classify as their own ops activity (not “other”). EM-1 templates/runbook stay as they are; the panel lists remaining Desk steps (uninstall Email Delivery Service, SMTP `sales@`, Send Test). Do not blast from Resend OTP keys. No Newsletter composer in this repo.
+- HS-3/HS-4 stay planned — HubSpot client and `HUBSPOT_*` are not deleted. WordPress/Webway CMS edits remain an operator sitting (`docs/WEBWAY_CUTOVER.md`). Not a buyer-desk packet.
+
 ## 2026-09-05 — SI-SEP Cloud persist
 
 - Live entitled workspaces persist Stakeholder Engagement Plans on **`TL Engagement Plan`** (`GET|POST|DELETE /api/frappe/sep`). Indexed columns plus JSON `payload` (composed plan) and `execution_json` (plan-centric overlay). Customer Link required (SEC-1).
