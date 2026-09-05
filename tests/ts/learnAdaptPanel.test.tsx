@@ -72,4 +72,11 @@ describe("LearnAdaptPanel", () => {
     expect(saved.processStages?.closedAt).toBeFalsy();
     expect(saved.status).toBe("Investigating");
   });
+
+  it("does not PUT an empty adapt list when the case never loaded records", async function () {
+    const user = userEvent.setup();
+    render(<LearnAdaptPanel incident={sample()} onSaved={jest.fn()} />);
+    await user.click(screen.getByRole("button", { name: /Save Learn & Adapt/i }));
+    expect(incidentService.save).not.toHaveBeenCalled();
+  });
 });

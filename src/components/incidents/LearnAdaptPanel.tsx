@@ -48,6 +48,11 @@ export function LearnAdaptPanel({ incident, onSaved }: Props) {
 
   async function persist(nextRows: MelLearnAdaptRecord[], message: string) {
     const cleaned = nextRows.filter((row) => row.monitor.trim());
+    const hadRecords = incident.learnAdaptRecords !== undefined;
+    if (cleaned.length === 0 && !hadRecords) {
+      pushToast("Add a Monitor observation before saving.", "error");
+      return;
+    }
     setSaving(true);
     try {
       const next = await incidentService.save({
