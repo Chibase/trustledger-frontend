@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-05 — OP-1 operator sitting (not engineering)
+
+- `/ops/readiness` adds an **Operator sitting** panel driven by this deploy's env and `GET /api/health` (`launch.operatorSitting`). Exact Vercel values (no secrets): reCAPTCHA v3 keys + `FORM_REQUIRE_RECAPTCHA=1`, delete `ACCESS_EMAIL_VERIFICATION=0` or set `=1`, `RESEND_FROM_EMAIL=TrustLedger <noreply@trustledgersrm.co.za>`. Click-smoke, Webway CTA paste, and Desk SMTP stay sitting — this repo cannot finish them.
+- Public forms fail-closed once **both** reCAPTCHA keys exist, even if `FORM_REQUIRE_RECAPTCHA` is unset. `=0` remains the emergency bypass. Missing keys still fail open (honeypot + tighter rate limit) so Production leads are not killed before keys land.
+- Health flags `accessVerificationForcedOff` and `fromUsesLegacyApex`. Invite delivery is **not** marked unready solely because From is still `@trustledger.co.za`. The app does not rewrite a working legacy From and does not ignore `ACCESS_EMAIL_VERIFICATION=0`.
+- Living runbook: `docs/OPERATOR_SITTING.md`. Vercel Production env, Google key creation, Resend domain verify, Webway CMS, and Desk SMTP remain operator work.
+
 ## 2026-09-05 — SEC-BFF session hardening
 
 - Ops APIs (`/api/ops/*`, provision/ensure/smoke, charge-due, EFT, security events, marketing desk) require a live Cloud **sid** whose logged-in user is on `PLATFORM_OPERATOR_EMAILS`. An email cookie alone is 401. Cron jobs still use Bearer `CRON_SECRET`. `/ops` pages also require the sid cookie.

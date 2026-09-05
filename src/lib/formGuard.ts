@@ -61,14 +61,19 @@ export function recaptchaConfigured(): boolean {
 /**
  * Fail closed when FORM_REQUIRE_RECAPTCHA=1 (or true/yes/on).
  * Set to 0 only as an emergency bypass after keys are live.
- * When unset: verification runs whenever keys are configured.
+ * When unset: fail-closed whenever keys are configured, so Production does
+ * not need a second env once keys land. Missing keys still fail open
+ * (honeypot + tighter rate limit) unless FORM_REQUIRE_RECAPTCHA=1.
  */
 export function recaptchaRequired(): boolean {
   const raw = (process.env.FORM_REQUIRE_RECAPTCHA || "").trim().toLowerCase();
   if (raw === "0" || raw === "false" || raw === "off" || raw === "no") {
     return false;
   }
-  return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
+  if (raw === "1" || raw === "true" || raw === "yes" || raw === "on") {
+    return true;
+  }
+  return recaptchaConfigured();
 }
 
 /** Launch gate: keys present so v3 tokens are verified on every public form. */

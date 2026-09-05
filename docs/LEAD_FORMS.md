@@ -8,7 +8,7 @@ Applies to `/assessment`, `/readiness/*` unlock, `/resources` downloads, `/conta
 | Work-email allowlist | Rejects common free-mail domains |
 | Honeypot (`tl_hp`) | Hidden field; bots that fill it get a fake success (no CRM write). Avoids `company_url` / website names that password managers autofill. |
 | Rate limit | ~8 posts / 15 min / IP / route when reCAPTCHA is on; **~3 / 15 min** when keys are missing (best-effort on serverless) |
-| **reCAPTCHA v3** | When env keys are set, token verified server-side on every public form |
+| **reCAPTCHA v3** | When env keys are set, token verified server-side on every public form. Unset `FORM_REQUIRE_RECAPTCHA` still fail-closes once both keys exist. `=0` is the emergency bypass. |
 
 ### Turn on reCAPTCHA (required before traffic rises)
 

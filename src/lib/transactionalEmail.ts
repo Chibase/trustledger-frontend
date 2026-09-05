@@ -6,6 +6,7 @@ import {
   TRUSTLEDGER_APEX_DOMAIN,
   TRUSTLEDGER_LEGACY_APEX_DOMAIN,
   TRUSTLEDGER_NOREPLY_EMAIL,
+  fromAddressUsesLegacyApex,
 } from "@/lib/security/hosts";
 
 export type TrialWelcomeEmailInput = {
@@ -311,6 +312,7 @@ export function resendPublicDiagnostics(): {
   /** True when an env var is set but too short / not a real re_ secret. */
   keyLooksTruncated: boolean;
   fromIsTestSender: boolean;
+  fromUsesLegacyApex: boolean;
 } {
   const rawCandidates = RESEND_KEY_ENV_CANDIDATES.map((name) =>
     normalizeResendSecret(process.env[name]),
@@ -331,6 +333,7 @@ export function resendPublicDiagnostics(): {
     from,
     keyLooksTruncated: Boolean(longestRaw) && !isPlausibleResendKey(longestRaw),
     fromIsTestSender: isResendTestFrom(from),
+    fromUsesLegacyApex: fromAddressUsesLegacyApex(from),
   };
 }
 

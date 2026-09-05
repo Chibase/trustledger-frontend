@@ -17,6 +17,21 @@ export const TRUSTLEDGER_INFO_EMAIL = `info@${TRUSTLEDGER_APEX_DOMAIN}`;
 export const TRUSTLEDGER_SALES_EMAIL = `sales@${TRUSTLEDGER_APEX_DOMAIN}`;
 export const TRUSTLEDGER_NOREPLY_EMAIL = `noreply@${TRUSTLEDGER_APEX_DOMAIN}`;
 
+function emailUsesApex(from: string, apex: string): boolean {
+  const host = apex.replace(/\./g, "\\.");
+  return new RegExp(`@${host}\\b`, "i").test(from);
+}
+
+/** True when a From address still uses the retired public apex. */
+export function fromAddressUsesLegacyApex(from: string): boolean {
+  return emailUsesApex(from, TRUSTLEDGER_LEGACY_APEX_DOMAIN);
+}
+
+/** True when a From address uses the current marketing apex. */
+export function fromAddressUsesCurrentApex(from: string): boolean {
+  return emailUsesApex(from, TRUSTLEDGER_APEX_DOMAIN);
+}
+
 export const CHIBASE_CANONICAL_HOST = "chibaseconsulting.co.za";
 
 export const TRUSTLEDGER_PRODUCT_URL = (
