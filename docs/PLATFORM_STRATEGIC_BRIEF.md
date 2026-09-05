@@ -168,7 +168,7 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | CRM relationships | No graph / merge / influence matrix | V002 deepening packet |
 | Report packs from live SI/geo | Composer uses local evidence | Bind packs to Cloud lists |
 | Ops analytics (23b–d) | Reports/accounts/support depth “Planned” | Schedule Ops packets |
-| Invite multi-device | Browser seats until Cloud User seats | Cloud seat issuance |
+| Invite multi-device | Live orgs provision Cloud seats on accept; trial without a Customer stays browser-local | Keep trial copy honest |
 | Doc drift | `TEDS_MATURITY_REPORT.md`, `VERSIONING.md`, `PUBLIC_LAUNCH.md` lag code | Sync after each GO packet |
 | Partner logos / Ops staff wellbeing | Placeholders | Replace or hide from public |
 
@@ -307,7 +307,7 @@ From `src/types/entitlements.ts` — useful when a Practitioner needs one V002 s
 | How to start | Start a **14-day trial** (`/trial`) with your own data, or **Subscribe** (`/pay`). Learn features on `/product`. |
 | Live access | After provision, sign in at `/login/live` (email OTP when access email is on). |
 | AI | Suggestions only — a human **applies** before anything is saved. |
-| Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. Live desks load the organisation from sign-in — the app will not switch onto another client’s workspace. Plan Owners are bound to that organisation on the server. Do not claim every junior seat is Cloud-permissioned. |
+| Data | Paying / trial workspaces never show fictional sample incidents. Live workspaces run on **TrustLedger Cloud**. Live desks load the organisation from sign-in — the app will not switch onto another client’s workspace. Plan Owners and accepted teammates on a live organisation are bound to that organisation on the server. Do not claim trial/browser-only invites are Cloud Users. |
 | Audiences | Funders, engineers, PMs, **MEL / M&E**, **social facilitators**, **community members / traditional authorities**, and **local government** — Global South, not one job title. |
 | Geography | South Africa **and** the Global South. ZA place packs are included baseline for SA plans. Do not invent unshipped national maps. |
 | Grounding | Cite operating procedures (seeding spine / daily loop), the SRM blueprint (six dimensions), and engagement practice. Be descriptive — not two vague sentences. |
@@ -393,8 +393,8 @@ Prioritise by **SRM engine strength** and **operational honesty**, not feature c
 
 1. **Buyer-verified Cloud SI** — empty CRM → create stakeholder → list from Cloud on Production.  
 2. **Copy hygiene** — remove leftover “demo” language from Capture/Projects/Settings.  
-3. **Continuous Cloud write** for projects (parity with incident / SI BFF).  
-4. **Cloud seats** for invitees (multi-device juniors).  
+3. **Continuous Cloud write** for projects — **Done** (P0b).  
+4. **Cloud seats** for invitees — **Done** (SEC-5; trial without a Cloud Customer stays browser-local).  
 5. **Doc sync** — maturity report, VERSIONING, PUBLIC_LAUNCH aligned to ADR-033 / GO LIVE.  
 
 ### 8.2 Mid-term (high value)

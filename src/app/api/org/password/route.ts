@@ -182,7 +182,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "That email is not a Cloud login on your package. Invitees need a TrustLedger Cloud User linked to your Customer (or reset your own Owner login).",
+          "That email is not a Cloud login on your package. Ask them to accept a team invite (that creates their Cloud seat), or reset your own Owner login.",
       },
       { status: 403 },
     );

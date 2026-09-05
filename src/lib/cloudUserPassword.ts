@@ -51,7 +51,7 @@ export async function setCloudUserPassword(input: {
       return {
         ok: false,
         error:
-          "No TrustLedger Cloud login exists for that email yet. Provision the User first, or re-send a team invite for browser seats.",
+          "No TrustLedger Cloud login exists for that email yet. Provision the User first, or send a team invite so they can accept a Cloud seat.",
         status: 404,
       };
     }

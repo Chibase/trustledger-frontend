@@ -77,11 +77,11 @@ Until keys are set: honeypot + work-email + **tighter** rate limit (3/15 min) st
 3. Auto-provision needs `FRAPPE_AUTO_PROVISION=1` ∧ `FRAPPE_OWNER_ISSUANCE=1` ∧ API keys.
 4. Buyer first login migrates `tl-org-*` best-effort — same browser as trial helps.
 
-### 2. Invites (browser-local until Cloud seats)
+### 2. Invites (Cloud seats when the Owner has a Customer)
 
-- Invites live in `localStorage` — **same browser/device** as Owner (ADR-026).
-- Invitees now enter **`trial` mode** (customer workspace) so they do not see demo `INC-*`.
-- Password is not a Frappe User yet — say so in onboarding copy if asked.
+- Portable email invites work on any device. Accept provisions a Cloud User on the Owner’s Customer when one exists (SEC-5).
+- Trial orgs **without** a Cloud Customer still accept in that browser (`cloud: false`).
+- Invitees enter **`live`** when Cloud provisioned, otherwise **`trial`**, so they do not see demo `INC-*`.
 
 ### 3. Demo vs live isolation
 

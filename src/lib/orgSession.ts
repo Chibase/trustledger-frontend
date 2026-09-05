@@ -91,7 +91,7 @@ export function applyOrgInviteeSession(input: {
   role: UserRole;
   deskTier: DeskTier;
   planId: PlanId;
-  mode?: "demo" | "trial";
+  mode?: "demo" | "trial" | "live";
 }) {
   const mode = input.mode || "demo";
   setCookie(SESSION_ROLE_COOKIE, input.role);

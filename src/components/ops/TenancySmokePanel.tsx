@@ -61,7 +61,8 @@ export function TenancySmokePanel() {
       </h2>
       <p className="mt-1 text-sm text-tl-ink-muted">
         Confirms Plan Owner Cloud Users are bound to their own organisation and
-        not a peer organisation. Does not provision junior Cloud seats (SEC-5).
+        not a peer organisation. Invitee Cloud seats are provisioned on accept
+        (SEC-5), not by this smoke.
         See{" "}
         <code className="font-mono text-xs text-tl-ink">
           docs/FRAPPE_USER_PERMISSIONS.md

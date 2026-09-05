@@ -1,19 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import {
-  FRAPPE_SID_COOKIE,
-  SESSION_MAX_AGE_SECONDS,
-  SESSION_ROLE_COOKIE,
-  TL_DESK_TIER_COOKIE,
-  TL_DESK_TIER_LOCKED_COOKIE,
-  TL_MODE_COOKIE,
-  TL_ORG_OWNER_COOKIE,
-  TL_TRIAL_PLAN_COOKIE,
-  TL_USER_EMAIL_COOKIE,
-  TL_USER_NAME_COOKIE,
-  TL_VIP_COOKIE,
-} from "@/lib/auth.constants";
-import {
   TL_AUTH_PENDING_COOKIE,
   hashLoginOtp,
   mintLoginOtp,
@@ -22,9 +9,9 @@ import {
   signPendingLiveAuth,
   verifyLoginOtp,
 } from "@/lib/accessVerification";
+import { applyLiveSessionCookies } from "@/lib/liveSessionCookies";
 import { sendLoginOtpEmail } from "@/lib/transactionalEmail";
 import { rateLimitAllow, clientIp } from "@/lib/formGuard";
-import { cookieSafeValue } from "@/lib/leadCapture";
 
 /** Complete live login after email OTP. */
 export async function POST(request: Request) {
@@ -77,46 +64,16 @@ export async function POST(request: Request) {
     home: pending.home,
   });
 
-  const cookieBase = {
-    path: "/",
-    maxAge: SESSION_MAX_AGE_SECONDS,
-    sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
-  };
-
-  response.cookies.set(FRAPPE_SID_COOKIE, pending.sid, {
-    ...cookieBase,
-    httpOnly: true,
+  applyLiveSessionCookies(response, {
+    sid: pending.sid,
+    role: pending.role,
+    email: pending.email,
+    fullName: pending.fullName,
+    isPlanOwner: Boolean(pending.isPlanOwner),
+    deskTier: pending.deskTier,
+    planId: pending.planId,
+    vip: pending.vip,
   });
-  response.cookies.set(SESSION_ROLE_COOKIE, pending.role, cookieBase);
-  response.cookies.set(TL_MODE_COOKIE, "live", cookieBase);
-  response.cookies.set(
-    TL_USER_NAME_COOKIE,
-    cookieSafeValue(pending.fullName, 80),
-    cookieBase,
-  );
-  response.cookies.set(
-    TL_USER_EMAIL_COOKIE,
-    cookieSafeValue(pending.email, 120),
-    { ...cookieBase, httpOnly: true },
-  );
-  if (pending.isPlanOwner) {
-    response.cookies.set(TL_ORG_OWNER_COOKIE, "1", cookieBase);
-  } else {
-    response.cookies.set(TL_ORG_OWNER_COOKIE, "", { ...cookieBase, maxAge: 0 });
-  }
-  if (pending.deskTier) {
-    response.cookies.set(TL_DESK_TIER_COOKIE, pending.deskTier, cookieBase);
-    response.cookies.set(TL_DESK_TIER_LOCKED_COOKIE, "0", cookieBase);
-  }
-  if (pending.planId) {
-    response.cookies.set(TL_TRIAL_PLAN_COOKIE, pending.planId, cookieBase);
-  }
-  if (pending.vip) {
-    response.cookies.set(TL_VIP_COOKIE, "1", cookieBase);
-  } else {
-    response.cookies.set(TL_VIP_COOKIE, "", { ...cookieBase, maxAge: 0 });
-  }
   response.cookies.set(TL_AUTH_PENDING_COOKIE, "", {
     path: "/",
     maxAge: 0,

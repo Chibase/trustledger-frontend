@@ -10,7 +10,7 @@ Plan Owners get a Cloud **User Permission** bound to their **Customer**. That is
 
 | Control | Where | Honest limit |
 |---------|--------|--------------|
-| Stamp User Permission on Owner provision | `ensureCustomerUserPermission` from `provisionOwnerOnCloud` | Owner only. Junior Cloud seats = **SEC-5**. |
+| Stamp User Permission on Owner provision | `ensureCustomerUserPermission` from `provisionOwnerOnCloud` | Owner only. Invitees stamped on accept (SEC-5). |
 | BFF session bind | `bindSessionCustomer` on SI, migrate-org, upload-file, `/api/app/projects` | Organisation comes from the **live sid user**, not a client-supplied Customer name and not a forgeable email cookie. Buyer `customer=` is **ignored** (first-login migrate still works when browser org name ≠ Cloud Customer name). Platform Operators may break-glass with an explicit Customer. |
 | List post-filter | `rowsForCustomer` on TL Project / SI lists | Drops rows not stamped to that Customer. Empty `customer` is **not** treated as shared. |
 | A≠B smoke | `GET\|POST /api/ops/tenancy-smoke` + `/ops/readiness` | Checks Owner bindings + peer-org binds. Does **not** impersonate a sid to read another tenant’s DocTypes. |
@@ -43,10 +43,20 @@ If the stamp fails after Customer + User create, **provision still succeeds** (P
 
 ## What sales may say
 
-**Yes:** Live desks resolve organisation from sign-in. The app will not switch onto another client’s workspace. Plan Owners are bound to their organisation on the server.
+**Yes:** Live desks resolve organisation from sign-in. The app will not switch onto another client’s workspace. Plan Owners and accepted teammates on a live organisation are bound to that organisation on the server.
 
-**No:** Every junior seat is Cloud-permissioned (SEC-5). SOC 2. Dedicated isolation (L5) without a quote.
+**No:** SOC 2. Dedicated isolation (L5) without a quote. Trial/browser-only invites (no Cloud Customer) are not Cloud Users.
 
-## Next (SEC-5)
+## Invitee Cloud seats (SEC-5)
 
-Invitees stay browser-local for now. When they become Cloud Users, stamp the same Customer User Permission (and a tighter role) — do not reuse the Plan Owner bind as a shared login.
+Accepted teammates on a **live** organisation get their own Cloud User on that Customer — not the Plan Owner login.
+
+| Control | Where | Honest limit |
+|---------|--------|--------------|
+| Provision on accept | `provisionInviteeOnCloud` from `POST /api/invite/accept-seat` | Portable signed invite only. One-shot — existing Cloud User is not a password reset. Owner email cannot accept as invitee. Desk rank uses the live Customer plan. |
+| Same Customer User Permission | `ensureCustomerUserPermission` | `allow=Customer`, `for_value=<Customer>`, `apply_to_all_doctypes=1` |
+| Tighter role | `User.custom_tl_app_role` + locked desk | `community\|contractor\|client`. Never `custom_tl_plan_owner=1`. |
+| Live bind | `resolveSessionCustomer` then `bindSessionCustomer` | Owner email first; else invitee `custom_tl_customer`. Claimed `customer=` still ignored. |
+| Login | `/login/live` | Invitee without a Customer stamp: 403 (operators exempt). Desk cookie locked. |
+
+Trial orgs without a Cloud Customer still accept in the browser (`cloud: false`). Plan Owner password issue for existing Cloud Users was already shipped.

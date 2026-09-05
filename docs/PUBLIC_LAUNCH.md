@@ -10,7 +10,7 @@
 | Marketing `/`, `/product`, `/assessment`, `/contact`, `/quote` | Yes | Lead capture + onboarding |
 | `/demo` | Redirect | **Retired** → `/product` (ADR-033) |
 | `/trial`, `/pay`, `/pay/success`, `/login/trial` | Yes | Own-data trial / card path |
-| `/invite/accept` | Yes | Browser-local org seats until Cloud Users |
+| `/invite/accept` | Yes | Live org (Cloud Customer) provisions a Cloud seat; trial without Cloud stays browser-local |
 | `/login/live`, live `/app` | **Buyers open** | `PLATFORM_OPERATOR_ONLY=0` |
 | `/api/frappe` (buyer session) | Live buyers + ops | Entitlement gate applies |
 | `/ops/*` | Always allowlist | `PLATFORM_OPERATOR_EMAILS` — never public |
