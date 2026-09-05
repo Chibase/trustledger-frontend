@@ -10,7 +10,7 @@ import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
-import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
+import { MelVarianceAlert } from "@/components/dashboard/MelVarianceAlert";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
@@ -42,6 +42,8 @@ import type { Engagement } from "@/types/engagement";
 import type { TlMode } from "@/lib/auth.constants";
 import type { UserRole } from "@/types/rbac";
 import { engagementService } from "@/services/engagementService";
+import { commitmentService } from "@/services/commitmentService";
+import type { Commitment } from "@/types/commitment";
 
 type Props = {
   role: UserRole;
@@ -71,6 +73,7 @@ export function ExecutivePortfolioDashboard({
   const [incidents, setIncidents] = useState<Incident[]>(seedIncidents);
   const [projects, setProjects] = useState<Project[]>(seedProjects);
   const [engagements, setEngagements] = useState<Engagement[]>([]);
+  const [commitments, setCommitments] = useState<Commitment[]>([]);
   const showNotesPulse = hasCapability("engagements", planId);
 
   useEffect(() => {
@@ -102,6 +105,17 @@ export function ExecutivePortfolioDashboard({
     let cancelled = false;
     void engagementService.list().then((rows) => {
       if (!cancelled) setEngagements(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [planId]);
+
+  useEffect(() => {
+    if (!hasCapability("commitments", planId)) return;
+    let cancelled = false;
+    void commitmentService.list().then((rows) => {
+      if (!cancelled) setCommitments(rows);
     });
     return () => {
       cancelled = true;
@@ -192,6 +206,8 @@ export function ExecutivePortfolioDashboard({
           value={totals.avgTrust != null ? `${totals.avgTrust}/100` : "—"}
         />
       </div>
+
+      <MelVarianceAlert projects={openProjects} commitments={commitments} />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChartCard

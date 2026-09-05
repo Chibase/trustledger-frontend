@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-05 — MEL-1 expected vs actual
+
+- Projects store named expected vs actual rows (`melIndicators`) on TrustLedger Cloud as `mel_json`. Commitments can store `expected_value` / `actual_value` / `mel_unit`. PUT omits MEL fields unless the client sent them (including an empty list).
+- A gap (actual below expected) is a **watch** on `/app/dashboard` and the project desk. Material = actual/expected below 0.8 (1,000 vs 620). Copy does not name a cause. Empty Cloud stays empty (live commitment lists overlay local extras onto Cloud ids only).
+- Ops ensure adds Custom Fields on existing `TL Project` / `TL Commitment`. Not a standalone SKU. MEL-2/3/4 stay planned. `docs/MEL_INDICATORS.md`.
+
 ## 2026-09-05 — OP-1 operator sitting (not engineering)
 
 - `/ops/readiness` adds an **Operator sitting** panel driven by this deploy's env and `GET /api/health` (`launch.operatorSitting`). Exact Vercel values (no secrets): reCAPTCHA v3 keys + `FORM_REQUIRE_RECAPTCHA=1`, delete `ACCESS_EMAIL_VERIFICATION=0` or set `=1`, `RESEND_FROM_EMAIL=TrustLedger <noreply@trustledgersrm.co.za>`. Click-smoke, Webway CTA paste, and Desk SMTP stay sitting — this repo cannot finish them.

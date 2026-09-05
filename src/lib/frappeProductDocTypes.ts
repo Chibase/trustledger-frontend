@@ -44,6 +44,22 @@ export const INCIDENT_PROCESS_STAGE_FIELDNAMES = INCIDENT_PROCESS_STAGE_FIELDS.m
   (row) => row.fieldname,
 ) as readonly string[];
 
+/** MEL-1 — JSON blob of expected vs actual rows on TL Project. */
+export const PROJECT_MEL_FIELDS: FieldDef[] = [
+  {
+    fieldname: "mel_json",
+    label: "MEL indicators (JSON)",
+    fieldtype: "Long Text",
+  },
+];
+
+/** MEL-1 — expected vs actual on TL Commitment. */
+export const COMMITMENT_MEL_FIELDS: FieldDef[] = [
+  { fieldname: "expected_value", label: "Expected value", fieldtype: "Float" },
+  { fieldname: "actual_value", label: "Actual value", fieldtype: "Float" },
+  { fieldname: "mel_unit", label: "MEL unit", fieldtype: "Data" },
+];
+
 function fieldsFor(name: ProductDocTypeName): FieldDef[] {
   if (name === "TL Project") {
     return [
@@ -73,6 +89,7 @@ function fieldsFor(name: ProductDocTypeName): FieldDef[] {
       { fieldname: "target_end_date", label: "Target end", fieldtype: "Date" },
       { fieldname: "public_summary", label: "Public summary", fieldtype: "Small Text" },
       { fieldname: "tl_org_id", label: "TrustLedger org id", fieldtype: "Data" },
+      ...PROJECT_MEL_FIELDS,
     ];
   }
   if (name === "TL Incident") {
@@ -328,6 +345,17 @@ export async function ensureProductDocTypes(options?: {
   results.push(...stages.results);
   missing.push(...stages.missing);
 
+  const mel = await ensureCustomFieldsOnDocType({
+    dryRun,
+    headers,
+    base,
+    dt: "TL Project",
+    fields: PROJECT_MEL_FIELDS,
+    insertAfter: "tl_org_id",
+  });
+  results.push(...mel.results);
+  missing.push(...mel.missing);
+
   const errors = results.filter((r) => r.status === "error");
   const created = results.filter((r) => r.status === "created").length;
   const ok = errors.length === 0;
@@ -342,11 +370,11 @@ export async function ensureProductDocTypes(options?: {
     message: dryRun
       ? missing.length
         ? `Dry-run: ${missing.length} DocType/field(s) missing — set dryRun:false to create.`
-        : "Dry-run: all product DocTypes and incident stage fields already exist."
+        : "Dry-run: all product DocTypes, incident stage, and MEL fields already exist."
       : ok
         ? created
           ? `Created ${created} DocType/field(s); others already present.`
-          : "All product DocTypes and incident stage fields already exist."
+          : "All product DocTypes, incident stage, and MEL fields already exist."
         : `Finished with ${errors.length} error(s) — check API key System Manager rights.`,
   };
 }
@@ -390,28 +418,30 @@ async function nativeDocTypeFieldExists(
 }
 
 /**
- * Idempotent Custom Fields for 24e-cloud stamps on existing TL Incident.
+ * Idempotent Custom Fields on an existing DocType.
  * Skips when the field is already native on the DocType.
  */
-export async function ensureIncidentStageFields(options: {
+export async function ensureCustomFieldsOnDocType(options: {
   dryRun: boolean;
   headers: HeadersInit;
   base: string;
+  dt: string;
+  fields: FieldDef[];
+  insertAfter: string;
 }): Promise<{
   results: DocTypeEnsureResult["results"];
   missing: string[];
 }> {
-  const { dryRun, headers, base } = options;
+  const { dryRun, headers, base, dt, fields } = options;
   const results: DocTypeEnsureResult["results"] = [];
   const missing: string[] = [];
-  const dt = "TL Incident";
   const exists = await frappeDocTypeExists(base, headers, dt);
   if (!exists) {
     return { results, missing };
   }
 
-  let insertAfter = "tl_org_id";
-  for (const spec of INCIDENT_PROCESS_STAGE_FIELDS) {
+  let insertAfter = options.insertAfter;
+  for (const spec of fields) {
     const name = `${dt}.${spec.fieldname}`;
     try {
       const present =
@@ -465,4 +495,23 @@ export async function ensureIncidentStageFields(options: {
     }
   }
   return { results, missing };
+}
+
+/**
+ * Idempotent Custom Fields for 24e-cloud stamps on existing TL Incident.
+ */
+export async function ensureIncidentStageFields(options: {
+  dryRun: boolean;
+  headers: HeadersInit;
+  base: string;
+}): Promise<{
+  results: DocTypeEnsureResult["results"];
+  missing: string[];
+}> {
+  return ensureCustomFieldsOnDocType({
+    ...options,
+    dt: "TL Incident",
+    fields: INCIDENT_PROCESS_STAGE_FIELDS,
+    insertAfter: "tl_org_id",
+  });
 }

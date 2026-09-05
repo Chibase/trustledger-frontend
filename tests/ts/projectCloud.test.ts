@@ -38,6 +38,7 @@ describe("P0b project Cloud save", () => {
     expect(doc.target_end_date).toBe("2026-11-30");
     expect(doc.tl_org_id).toBe("org-1");
     expect(doc).not.toHaveProperty("dossier");
+    expect(doc).not.toHaveProperty("mel_json");
     expect(doc).not.toHaveProperty("geo");
     expect(doc).not.toHaveProperty("promises");
     expect(doc).not.toHaveProperty("siteDescription");

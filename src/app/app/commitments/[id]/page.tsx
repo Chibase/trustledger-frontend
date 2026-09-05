@@ -13,7 +13,10 @@ import {
   type Commitment,
   type CommitmentStatus,
 } from "@/types/commitment";
-import type { Stakeholder } from "@/types/stakeholder";
+import {
+  formatMelNumber,
+  varianceForCommitment,
+} from "@/lib/melIndicators";
 
 const STATUS_OPTIONS = Object.keys(
   COMMITMENT_STATUS_LABELS,
@@ -63,15 +66,25 @@ export default function AppCommitmentDetailPage() {
 
   async function updateStatus(next: CommitmentStatus) {
     if (!row) return;
+    await saveRow({ ...row, status: next });
+    pushToast(`Status → ${COMMITMENT_STATUS_LABELS[next]}`, "success");
+  }
+
+  async function saveRow(updated: Commitment) {
     setSaving(true);
     try {
-      const updated = { ...row, status: next };
       await commitmentService.save(updated);
       setRow(updated);
-      pushToast(`Status → ${COMMITMENT_STATUS_LABELS[next]}`, "success");
     } finally {
       setSaving(false);
     }
+  }
+
+  function parseMelInput(raw: string): number | null {
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+    const n = Number(trimmed);
+    return Number.isFinite(n) ? n : null;
   }
 
   return (
@@ -157,6 +170,87 @@ export default function AppCommitmentDetailPage() {
                   No evidence note yet.
                 </p>
               )}
+            </section>
+
+            <section className="space-y-2 border-b border-tl-line pb-4">
+              <h2 className="font-display text-base font-semibold text-tl-ink">
+                Expected vs actual
+              </h2>
+              <p className="text-xs text-tl-ink-muted">
+                Optional numbers on this promise. A gap is a watch, not a cause.
+              </p>
+              <div className="grid gap-2 sm:grid-cols-3">
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium">Expected</span>
+                  <input
+                    inputMode="decimal"
+                    disabled={saving}
+                    value={row.expected ?? ""}
+                    onChange={(e) =>
+                      setRow({
+                        ...row,
+                        expected: parseMelInput(e.target.value),
+                      })
+                    }
+                    className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium">Actual</span>
+                  <input
+                    inputMode="decimal"
+                    disabled={saving}
+                    value={row.actual ?? ""}
+                    onChange={(e) =>
+                      setRow({
+                        ...row,
+                        actual: parseMelInput(e.target.value),
+                      })
+                    }
+                    className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium">Unit</span>
+                  <input
+                    disabled={saving}
+                    value={row.melUnit || ""}
+                    onChange={(e) =>
+                      setRow({ ...row, melUnit: e.target.value })
+                    }
+                    className="w-full rounded-md border border-tl-line px-3 py-2 text-sm"
+                    placeholder="people, %, ZAR"
+                  />
+                </label>
+              </div>
+              {(() => {
+                const gap = varianceForCommitment(row);
+                if (!gap) return null;
+                return (
+                  <p
+                    className={`text-xs ${
+                      gap.material ? "text-tl-amber" : "text-tl-ink-muted"
+                    }`}
+                  >
+                    Actual {formatMelNumber(gap.actual, row.melUnit)} is below
+                    expected {formatMelNumber(gap.expected, row.melUnit)}
+                    {gap.material ? " (material shortfall)." : "."}
+                  </p>
+                );
+              })()}
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => {
+                  void (async () => {
+                    await saveRow(row);
+                    pushToast("M&E figures saved.", "success");
+                  })();
+                }}
+                className="rounded-md bg-tl-trust px-3 py-1.5 text-xs font-semibold text-white hover:bg-tl-trust-ink disabled:opacity-60"
+              >
+                {saving ? "Saving…" : "Save M&E"}
+              </button>
             </section>
 
             <section>

@@ -6,6 +6,7 @@ import { HorizontalBarChart, VerticalBarChart } from "@/components/ops/charts/Ba
 import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { ProjectDossierForm } from "@/components/projects/ProjectDossierForm";
+import { ProjectMelPanel } from "@/components/projects/ProjectMelPanel";
 import { ProjectReportStudio } from "@/components/reports/ProjectReportStudio";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
@@ -25,7 +26,9 @@ import {
   incidentPriorityBars,
   incidentStatusFunnel,
 } from "@/lib/dashboardOverview";
-import { dossierSummaryLines } from "@/lib/projectDossier";
+import {
+  collectMelShortfalls,
+} from "@/lib/melIndicators";
 import { stakeholderService } from "@/services/stakeholderService";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
@@ -97,6 +100,10 @@ export function ProjectWorkspaceDashboard({
     [incidents],
   );
   const funnel = useMemo(() => incidentStatusFunnel(incidents), [incidents]);
+  const melGaps = useMemo(
+    () => collectMelShortfalls({ projects: [project] }),
+    [project],
+  );
   const categoryBars = useMemo(
     () =>
       categories.map((cat) => ({
@@ -155,6 +162,14 @@ export function ProjectWorkspaceDashboard({
         />
       </div>
 
+      {melGaps.length ? (
+        <p className="text-sm text-tl-amber">
+          {melGaps.length} M&amp;E shortfall
+          {melGaps.length === 1 ? "" : "s"} on expected vs actual — a watch, not
+          a cause. Edit below.
+        </p>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChartCard title="Budget mix" hint="Budget, spent, available">
           {budgetBars.length ? (
@@ -194,6 +209,15 @@ export function ProjectWorkspaceDashboard({
         </summary>
         <div className="mt-4">
           <SepDashboardPanel planId={planId} projectId={project.id} />
+        </div>
+      </details>
+
+      <details className="rounded-lg border border-tl-line bg-tl-surface p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-tl-ink">
+          Expected vs actual (M&E)
+        </summary>
+        <div className="mt-4">
+          <ProjectMelPanel key={project.id} project={project} onSaved={onProjectSaved} />
         </div>
       </details>
 

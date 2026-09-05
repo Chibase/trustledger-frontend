@@ -226,6 +226,15 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 |--------|------|-------|--------|
 | **OP-1** | Production sitting runbook + ops panel | reCAPTCHA fail-closed once keys land; health flags for `ACCESS_EMAIL_VERIFICATION=0` and legacy From; `/ops/readiness` checklist; `docs/OPERATOR_SITTING.md`. Does not set Vercel / Desk / Webway | **Done (in-repo)** — Vercel keys, Resend domain, Webway paste, Desk SMTP still operator |
 
+### Monitoring & evaluation (adaptive learning)
+
+| Packet | Name | Scope | Status |
+|--------|------|-------|--------|
+| **MEL-1** | Expected vs actual | Cloud `mel_json` on `TL Project`; expected/actual on `TL Commitment`; variance watch on dashboard. Empty Cloud stays empty. Not a standalone SKU. `docs/MEL_INDICATORS.md` | **Done** |
+| **MEL-2** | Grievance root-cause tags | Mandatory taxonomy on investigate/resolve | Planned |
+| **MEL-3** | Learn & Adapt records | Corrective-action workflow (not replacing grievance stages) | Planned |
+| **MEL-4** | Retrospective composer | `reportComposer` What worked / did not / change; human apply | Planned |
+
 ### Email marketing on Frappe (EM-1 templates + ops surface)
 
 | Packet | Name | Scope | Status |
@@ -322,6 +331,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-05 | MEL-1 — expected vs actual on TL Project / TL Commitment; variance watch; empty Cloud stays empty |
 | 2026-09-05 | SEC-BFF — Ops sid session, Cloud Plan Owner, Paystack verify one-shot, Frappe proxy allowlist, no live demo seed |
 | 2026-09-05 | OP-1 — operator sitting runbook + `/ops/readiness` panel; Vercel/Webway/Desk still operator |
 | 2026-09-05 | P3 — HS-2 in-repo inventory + ops smoke; EM-1 Desk remaining on `/ops/readiness`; HS-3/4 deferred |
