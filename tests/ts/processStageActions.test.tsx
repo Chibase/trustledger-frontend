@@ -104,4 +104,29 @@ describe("ProcessStageActions MEL-2 gate", () => {
     expect(saved.rootCause).toBe("unmet_commitment");
     expect(saved.processStages?.closedAt).toBeTruthy();
   });
+
+  it("drops a leftover Other note when saving a different tag", async function () {
+    const user = userEvent.setup();
+    render(
+      <ProcessStageActions
+        incident={sample()}
+        onUpdated={jest.fn()}
+        onToast={jest.fn()}
+      />,
+    );
+
+    await user.selectOptions(screen.getByLabelText("Root cause"), "other");
+    await user.type(
+      screen.getByLabelText(/Other — short note/i),
+      "Host protocol skipped",
+    );
+    await user.selectOptions(
+      screen.getByLabelText("Root cause"),
+      "information_gap",
+    );
+    await user.click(screen.getByRole("button", { name: /Save root cause/i }));
+    const saved = (incidentService.save as jest.Mock).mock.calls[0][0] as Incident;
+    expect(saved.rootCause).toBe("information_gap");
+    expect(saved.rootCauseNote).toBeUndefined();
+  });
 });

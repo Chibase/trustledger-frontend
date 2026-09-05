@@ -91,6 +91,13 @@ describe("MEL-2 grievance root-cause tags", () => {
       true,
     );
     expect(hasValidRootCause({ rootCause: "unmet_commitment" })).toBe(true);
+    expect(
+      validateGrievanceRootCause("information_gap", "leftover other note"),
+    ).toEqual({
+      ok: true,
+      id: "information_gap",
+      note: "",
+    });
   });
 
   it("blocks Investigate and Resolve without a tag, and allows deploy", () => {

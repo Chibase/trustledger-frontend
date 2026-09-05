@@ -64,7 +64,7 @@ export function validateGrievanceRootCause(
       reason: "Other needs a short note describing the cause.",
     };
   }
-  return { ok: true, id: parsed, note: trimmed };
+  return { ok: true, id: parsed, note: parsed === "other" ? trimmed : "" };
 }
 
 export function hasValidRootCause(input: {

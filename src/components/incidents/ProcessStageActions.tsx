@@ -104,7 +104,10 @@ export function ProcessStageActions({
       <RootCauseFields
         cause={cause}
         note={note}
-        onCause={setCause}
+        onCause={(value) => {
+          setCause(value);
+          if (value !== "other") setNote("");
+        }}
         onNote={setNote}
         disabled={pending}
       />
