@@ -29,6 +29,7 @@ import {
 import {
   collectMelShortfalls,
 } from "@/lib/melIndicators";
+import { dossierSummaryLines } from "@/lib/projectDossier";
 import { stakeholderService } from "@/services/stakeholderService";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";

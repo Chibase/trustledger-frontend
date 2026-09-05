@@ -11,6 +11,7 @@ import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
 import { MelVarianceAlert } from "@/components/dashboard/MelVarianceAlert";
+import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
