@@ -140,7 +140,8 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Area | Evidence | Plan relevance |
 |------|----------|----------------|
 | Grievance / incident desk | Live UI + TL Incident path; verify/close stamps in UI | All plans (core) |
-| Projects (light) | List/detail; Cloud DocType exists | All plans |
+| Projects (light) | List/detail; Cloud DocType; live save upserts `TL Project` | All plans |
+| Project continuous Cloud save | Live dossier/desk save upserts Cloud; dossier/geo pack stays local overlay | All plans (core) |
 | Stakeholder registry | Create/list; Cloud SI BFF | Project + Institutional (+ addon_crm) |
 | Engagements | List/detail/capture apply; Cloud SI; one-click note sentiment | Project + Institutional (+ addon_commitments pack) |
 | Communication-note sentiment | Analyze → apply → save; relationship-health pulse on dashboard & Engagements | Practitioner+ AI; notes live on Project+ engagements |
@@ -162,7 +163,6 @@ Use this section in monthly reviews. Update statuses; do not delete history — 
 | Area | Gap | Suggested action |
 |------|-----|------------------|
 | Stale “demo” copy in product UI | Capture/projects/settings still say demo | Copy sweep — say trial/live/Cloud |
-| Project continuous Cloud save | Stronger on migrate/smoke than every UI save | Wire project upsert the same way as incidents |
 | `srm_core` method dependency | Live SI/product lists use resource BFF; some methods still 404 | Prefer resource BFF pattern or install srm-core |
 | Geo depth / TC coverage | Wards national; **TC pack only ~15** (EC-weighted); lat/lng & Cloud Geo incomplete | National TC ingest; optional Cloud sync — `docs/ZA_BASELINE_INTEL.md` |
 | CRM relationships | No graph / merge / influence matrix | V002 deepening packet |

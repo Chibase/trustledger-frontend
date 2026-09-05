@@ -24,7 +24,7 @@ import {
 import { COMMUNITY_LANGUAGE_HINTS } from "@/lib/trust/language";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import { isLiveMode } from "@/config/api";
-import { listWorkspaceProjects } from "@/lib/workspaceData";
+import { preferCloudProjectList } from "@/lib/workspaceData";
 import { dossierSummaryLines, mergeProjectDossier } from "@/lib/projectDossier";
 import { projectChipLabel, projectHasDossierBasics } from "@/types/project";
 import { aiService } from "@/services/aiService";
@@ -95,7 +95,7 @@ export default function AppReportIssuePage() {
         if (trial) ensureTrialSeedProject();
         const seeded = trial ? [] : await projectService.list();
         if (cancelled) return;
-        const rows = listWorkspaceProjects(seeded).map(mergeProjectDossier);
+        const rows = preferCloudProjectList(seeded).map(mergeProjectDossier);
         setProjects(rows);
         const fromQuery =
           typeof window !== "undefined"

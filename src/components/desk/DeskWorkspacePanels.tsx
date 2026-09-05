@@ -11,6 +11,7 @@ import { IncidentTable } from "@/components/ui/IncidentTable";
 import { TrustPulse } from "@/components/trust/TrustPulse";
 import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
 import { RelationshipHealthPulse } from "@/components/trust/RelationshipHealthPulse";
+import { isLiveMode } from "@/config/api";
 import { listDemoIncidents, listDemoProjects } from "@/lib/demoStore";
 import {
   canSee,
@@ -22,6 +23,7 @@ import { hasCapability } from "@/lib/entitlements";
 import { averageTatHours, countOverStageTarget } from "@/lib/tatMetrics";
 import { readTrialModeFromDocument } from "@/lib/trial";
 import { listTrialIncidents, listTrialProjects } from "@/lib/trialStore";
+import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
 import { engagementService } from "@/services/engagementService";
@@ -103,10 +105,16 @@ export function DeskWorkspacePanels({
       ]);
       if (cancelled) return;
       const trial = readTrialModeFromDocument();
-      const localI = trial ? listTrialIncidents() : listDemoIncidents();
-      const localP = trial ? listTrialProjects() : listDemoProjects();
-      setIncidents(mergeIncidents([...seedIncidents, ...iRows], localI));
-      setProjects(mergeProjects([...seedProjects, ...pRows], localP));
+      const customer = isCustomerWorkspaceClient();
+      if (isLiveMode() && customer && !trial) {
+        setIncidents(iRows);
+        setProjects(pRows);
+      } else {
+        const localI = trial ? listTrialIncidents() : listDemoIncidents();
+        const localP = trial ? listTrialProjects() : listDemoProjects();
+        setIncidents(mergeIncidents([...seedIncidents, ...iRows], localI));
+        setProjects(mergeProjects([...seedProjects, ...pRows], localP));
+      }
       if (hasCapability("engagements", planId)) {
         const notes = await engagementService.list();
         if (!cancelled) setEngagements(notes);

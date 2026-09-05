@@ -33,10 +33,13 @@ import {
   funderChartGroups,
   monthlyChartGroups,
 } from "@/lib/reportLenses";
+import { isLiveMode } from "@/config/api";
 import {
   listWorkspaceIncidents,
   listWorkspaceProjects,
+  preferCloudProjectList,
 } from "@/lib/workspaceData";
+import { projectService } from "@/services/projectService";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import {
   REPORT_PACK_IDS,
@@ -83,16 +86,27 @@ export function ReportsHub({
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
     const frame = requestAnimationFrame(() => {
       setTier(readDeskTier(role));
       setIncidents(listWorkspaceIncidents());
-      setProjects(listWorkspaceProjects());
+      void (async () => {
+        if (isLiveMode()) {
+          const cloud = await projectService.list();
+          if (!cancelled) setProjects(preferCloudProjectList(cloud));
+        } else if (!cancelled) {
+          setProjects(listWorkspaceProjects());
+        }
+      })();
       const fromUrl = readInitialPack();
       const allowed = packsForDesk(readDeskTier(role), planId);
       if (fromUrl && allowed.includes(fromUrl)) setPack(fromUrl);
       else if (allowed[0]) setPack(allowed[0]);
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
   }, [role, planId]);
 
   const allowed = useMemo(() => packsForDesk(tier, planId), [tier, planId]);

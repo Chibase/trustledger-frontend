@@ -15,10 +15,13 @@ import {
 import { readDeskTier } from "@/lib/deskVisibility";
 import { hasCapability } from "@/lib/entitlements";
 import { packsForDesk } from "@/lib/reportPackAccess";
+import { isLiveMode } from "@/config/api";
 import {
   listWorkspaceIncidents,
   listWorkspaceProjects,
+  preferCloudProjectList,
 } from "@/lib/workspaceData";
+import { projectService } from "@/services/projectService";
 import type { PlanId } from "@/config/plans";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import { REPORT_PACKS } from "@/types/reportPacks";
@@ -51,13 +54,24 @@ export function ActivityDashboard({
   const [showSep, setShowSep] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     const frame = requestAnimationFrame(() => {
       setTier(readDeskTier(role));
       setIncidents(listWorkspaceIncidents(seedIncidents));
-      setProjects(listWorkspaceProjects(seedProjects));
       setShowSep(hasCapability("engagements", planId));
+      void (async () => {
+        if (isLiveMode()) {
+          const cloud = await projectService.list();
+          if (!cancelled) setProjects(preferCloudProjectList(cloud));
+        } else if (!cancelled) {
+          setProjects(listWorkspaceProjects(seedProjects));
+        }
+      })();
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
   }, [role, planId, seedIncidents, seedProjects]);
 
   const activity = useMemo(

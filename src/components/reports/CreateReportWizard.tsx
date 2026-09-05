@@ -54,7 +54,7 @@ import {
 import { dossierSummaryLines } from "@/lib/projectDossier";
 import {
   listWorkspaceIncidents,
-  listWorkspaceProjects,
+  preferCloudProjectList,
 } from "@/lib/workspaceData";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { aiService } from "@/services/aiService";
@@ -168,7 +168,7 @@ export function CreateReportWizard({
         // Same project list path as Capture — Cloud/VIP + local dossier overlay.
         const seeded = await projectService.list().catch(() => [] as Project[]);
         if (cancelled) return;
-        const rows = listWorkspaceProjects(seeded);
+        const rows = preferCloudProjectList(seeded);
         setProjects(rows);
         setAllIncidents(listWorkspaceIncidents());
         const fromQuery =

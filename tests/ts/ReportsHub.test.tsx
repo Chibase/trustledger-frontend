@@ -31,6 +31,7 @@ jest.mock("@/lib/workspaceData", () => ({
   listWorkspaceIncidents: () => mockIncidents,
   listWorkspaceProjects: () => mockProjects,
   listWorkspaceEvidence: () => mockEvidence,
+  preferCloudProjectList: () => mockProjects,
 }));
 
 jest.mock("@/services/engagementService", () => ({

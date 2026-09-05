@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { ProjectWorkspaceDashboard } from "@/components/projects/ProjectWorkspaceDashboard";
+import { isLiveMode } from "@/config/api";
 import { listDemoProjects } from "@/lib/demoStore";
 import {
   mergeProjectDossier,
@@ -38,6 +39,21 @@ export function ProjectDetailClient({ params, role, authorName, planId = null }:
         if (cancelled) return;
         const trial = readTrialModeFromDocument();
         const customer = isCustomerWorkspaceClient();
+        if (isLiveMode() && customer && !trial) {
+          const resolved = remote ? mergeProjectDossier(remote) : null;
+          setProject(resolved);
+          if (!resolved) return;
+          try {
+            const rows = await incidentService.list({ projectId: resolved.id });
+            if (!cancelled) {
+              const scoped = rows.filter((r) => r.projectId === resolved.id);
+              setIncidents(scoped.length ? scoped : rows);
+            }
+          } catch {
+            if (!cancelled) setIncidents([]);
+          }
+          return;
+        }
         const fromWorkspace = listWorkspaceProjects().find(
           (row) => row.id === id,
         );

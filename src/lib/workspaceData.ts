@@ -2,6 +2,7 @@
  * Unified workspace lists — customer mode never includes demo seed.
  */
 
+import { isLiveMode } from "@/config/api";
 import { mockIncidents } from "@/data/mockIncidents";
 import { mockProjects } from "@/data/mockProjects";
 import {
@@ -15,6 +16,7 @@ import {
   listOrgProjects,
 } from "@/lib/orgDataSpace";
 import { getActiveOrgId } from "@/lib/orgStore";
+import { readTrialModeFromDocument } from "@/lib/trial";
 import {
   listTrialEvidence,
   listTrialIncidents,
@@ -30,6 +32,24 @@ function mergeById<T extends { id: string }>(rows: T[]): T[] {
   const map = new Map<string, T>();
   for (const row of rows) map.set(row.id, row);
   return [...map.values()];
+}
+
+/** Live customer workspace (not trial) — Cloud list is source of record. */
+export function isLiveCustomerClient(): boolean {
+  return (
+    isLiveMode() &&
+    isCustomerWorkspaceClient() &&
+    !readTrialModeFromDocument()
+  );
+}
+
+/**
+ * Use the Cloud/BFF list as-is for live customers (empty stays empty).
+ * Trial and demo still merge the local workspace store.
+ */
+export function preferCloudProjectList(cloud: Project[]): Project[] {
+  if (isLiveCustomerClient()) return cloud;
+  return listWorkspaceProjects(cloud);
 }
 
 /** Projects for the current browser workspace (with dossier overlay). */

@@ -27,10 +27,13 @@ import {
   pctLabel,
 } from "@/lib/portfolioMetrics";
 import { isExecutiveDashboardProject } from "@/lib/projectCategoryMap";
+import { isLiveMode } from "@/config/api";
 import {
   listWorkspaceIncidents,
   listWorkspaceProjects,
+  preferCloudProjectList,
 } from "@/lib/workspaceData";
+import { projectService } from "@/services/projectService";
 import type { PlanId } from "@/config/plans";
 import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import type { Incident } from "@/types/incident";
@@ -71,14 +74,24 @@ export function ExecutivePortfolioDashboard({
   const showNotesPulse = hasCapability("engagements", planId);
 
   useEffect(() => {
+    let cancelled = false;
+    const loadProjects = async () => {
+      if (isLiveMode()) {
+        const cloud = await projectService.list();
+        if (!cancelled) setProjects(preferCloudProjectList(cloud));
+        return;
+      }
+      if (!cancelled) setProjects(listWorkspaceProjects(seedProjects));
+    };
     const refresh = () => {
       setTier(readDeskTier(role));
       setIncidents(listWorkspaceIncidents(seedIncidents));
-      setProjects(listWorkspaceProjects(seedProjects));
+      void loadProjects();
     };
     const frame = requestAnimationFrame(refresh);
     window.addEventListener("tl-workspace-seeded", refresh);
     return () => {
+      cancelled = true;
       cancelAnimationFrame(frame);
       window.removeEventListener("tl-workspace-seeded", refresh);
     };
