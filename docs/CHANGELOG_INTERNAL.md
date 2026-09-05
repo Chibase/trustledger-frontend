@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-05 — MEL-5 Learn & Adapt cycle
+
+- Executive and project dashboards show one **Learn & Adapt cycle** panel: shortfall watch, open Adapt watch, root-cause mix, and a suggested Learn & Adapt record when a **material** expected-vs-actual gap has no open Adapt on that project yet.
+- Apply is human-only. Monitor text is the gap figures plus “watch, not a named cause.” Adapt action stays blank. No case is invented. Applying does not close or advance the grievance. Link to the MEL-4 retrospective. Not `addon_mel`. `docs/MEL_CYCLE.md`.
+
 ## 2026-09-05 — MEL-4 Learn & Adapt retrospective
 
 - Reports kind **Learn & Adapt retrospective** drafts three locked sections from workspace evidence: What worked / What did not / What we will change. Local `reportComposer` only (`trustledger-evidence`). Suggest → apply → save. The draft does not close or advance a grievance.

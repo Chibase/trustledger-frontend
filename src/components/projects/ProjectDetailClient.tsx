@@ -123,6 +123,11 @@ export function ProjectDetailClient({ params, role, authorName, planId = null }:
       authorName={authorName}
       planId={planId}
       onProjectSaved={setProject}
+      onIncidentSaved={(next) =>
+        setIncidents((current) =>
+          current.map((row) => (row.id === next.id ? next : row)),
+        )
+      }
     />
   );
 }

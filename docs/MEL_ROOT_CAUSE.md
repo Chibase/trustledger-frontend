@@ -1,7 +1,7 @@
 # MEL-2 — grievance root-cause tags
 
 **Packet:** MEL-2. **Not** a standalone product (ADR-054). **Not** `addon_mel`.  
-**Not in this packet:** Learn & Adapt records: `docs/MEL_LEARN_ADAPT.md` (MEL-3). Retrospectives: `docs/MEL_RETROSPECTIVE.md` (MEL-4).
+**Not in this packet:** Learn & Adapt records: `docs/MEL_LEARN_ADAPT.md` (MEL-3). Retrospectives: `docs/MEL_RETROSPECTIVE.md` (MEL-4). Cycle close: `docs/MEL_CYCLE.md` (MEL-5).
 
 ## What it is
 

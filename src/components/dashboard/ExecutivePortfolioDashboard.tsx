@@ -10,8 +10,7 @@ import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
-import { MelVarianceAlert } from "@/components/dashboard/MelVarianceAlert";
-import { MelAdaptWatch } from "@/components/dashboard/MelAdaptWatch";
+import { MelCyclePanel } from "@/components/dashboard/MelCyclePanel";
 import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
@@ -219,8 +218,17 @@ export function ExecutivePortfolioDashboard({
         />
       </div>
 
-      <MelVarianceAlert projects={openProjects} commitments={commitments} />
-      <MelAdaptWatch incidents={incidents} />
+      <MelCyclePanel
+        projects={openProjects}
+        commitments={commitments}
+        incidents={incidents}
+        planId={planId}
+        onIncidentSaved={(next) =>
+          setIncidents((current) =>
+            current.map((row) => (row.id === next.id ? next : row)),
+          )
+        }
+      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChartCard

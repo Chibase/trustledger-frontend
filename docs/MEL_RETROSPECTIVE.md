@@ -2,7 +2,7 @@
 
 **Packet:** MEL-4. **Not** a standalone product (ADR-054). **Not** `addon_mel`.  
 **Not a fourth report pack SKU.** Monthly / executive / funder packs are unchanged.  
-**Not in this packet:** expected vs actual capture (MEL-1), root-cause tags (MEL-2), Learn & Adapt records (MEL-3).
+**Not in this packet:** expected vs actual capture (MEL-1), root-cause tags (MEL-2), Learn & Adapt records (MEL-3). Cycle close: `docs/MEL_CYCLE.md` (MEL-5).
 
 ## What it is
 
