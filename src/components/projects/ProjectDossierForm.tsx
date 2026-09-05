@@ -1076,7 +1076,11 @@ export function ProjectDossierForm({ project, onSaved, compact }: Props) {
         />
       </Field>
 
-      {saveError ? <p className="text-sm text-red-700">{saveError}</p> : null}
+      {saveError ? (
+        <p className="text-sm text-red-700" role="alert">
+          {saveError}
+        </p>
+      ) : null}
 
       <button
         type="button"

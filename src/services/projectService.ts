@@ -194,8 +194,13 @@ async function getLive(id: string): Promise<Project | null> {
 
 async function cacheAfterCloudSave(project: Project) {
   const { readTrialModeFromDocument } = await import("@/lib/trial");
+  if (readTrialModeFromDocument()) {
+    const { saveTrialProject } = await import("@/lib/trialStore");
+    saveTrialProject(project);
+    return;
+  }
   const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
-  if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
+  if (isCustomerWorkspaceClient()) {
     const { saveOrgProject } = await import("@/lib/orgDataSpace");
     saveOrgProject(project);
   }

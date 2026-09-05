@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { FRAPPE_SID_COOKIE } from "@/lib/auth.constants";
 import {
   getCloudProjectForCustomer,
+  mergeProjectCloudPutFallback,
   upsertCloudProject,
 } from "@/lib/productCloud";
 import { bindSessionCustomer } from "@/lib/tenantScope";
@@ -115,12 +116,10 @@ export async function PUT(request: Request, context: RouteContext) {
     return NextResponse.json({ error: upserted.error }, { status: 502 });
   }
 
-  let saved: Project = {
-    ...existing.project,
-    ...incoming,
-    id: existing.project.id,
-    dossier: undefined,
-  };
+  let saved: Project = mergeProjectCloudPutFallback(
+    existing.project,
+    incoming,
+  );
   const refreshed = await getCloudProjectForCustomer(
     bound.customerName,
     incoming.id,

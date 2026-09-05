@@ -1,4 +1,7 @@
-import { projectToFrappeDoc } from "@/lib/productCloud";
+import {
+  mergeProjectCloudPutFallback,
+  projectToFrappeDoc,
+} from "@/lib/productCloud";
 import { overlayLocalProjectsOntoCloud } from "@/services/projectService";
 import type { Project } from "@/types/project";
 
@@ -85,5 +88,23 @@ describe("P0b project Cloud save", () => {
   it("does not surface local-only rows when Cloud is empty", () => {
     const local = sampleProject({ id: "PRJ-LOCAL-ONLY" });
     expect(overlayLocalProjectsOntoCloud([], [local])).toEqual([]);
+  });
+
+  it("keeps Cloud dates on PUT fallback when the client sent blanks", () => {
+    const existing = sampleProject({
+      startDate: "2026-03-01",
+      targetEndDate: "2026-11-30",
+      name: "Cloud title",
+    });
+    const incoming = sampleProject({
+      startDate: "",
+      targetEndDate: "  ",
+      name: "Edited title",
+    });
+    const saved = mergeProjectCloudPutFallback(existing, incoming);
+    expect(saved.name).toBe("Edited title");
+    expect(saved.startDate).toBe("2026-03-01");
+    expect(saved.targetEndDate).toBe("2026-11-30");
+    expect(saved.dossier).toBeUndefined();
   });
 });

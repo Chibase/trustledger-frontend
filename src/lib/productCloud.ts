@@ -102,6 +102,26 @@ export function projectToFrappeDoc(
   return doc;
 }
 
+/**
+ * PUT response when Cloud refresh fails: keep Cloud dates if the client sent blanks.
+ * Blank keys were omitted from the upsert, so Cloud did not clear them.
+ */
+export function mergeProjectCloudPutFallback(
+  existing: Project,
+  incoming: Project,
+): Project {
+  const start = String(incoming.startDate || "").trim();
+  const end = String(incoming.targetEndDate || "").trim();
+  return {
+    ...existing,
+    ...incoming,
+    id: existing.id,
+    startDate: start || existing.startDate,
+    targetEndDate: end || existing.targetEndDate,
+    dossier: undefined,
+  };
+}
+
 export const INCIDENT_STAGE_CLOUD_FIELDS = {
   reportedAt: "reported_at",
   resourceDeployedAt: "resource_deployed_at",

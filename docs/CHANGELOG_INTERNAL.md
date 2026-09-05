@@ -6,6 +6,7 @@
 - `createCloudProject` aliases upsert so migrate/smoke re-runs do not fail when the row already exists. Mapper omits `dossier` (not a Cloud column). Blank `start_date` / `target_end_date` stay blank — updates do not invent “today”.
 - Live list/detail prefer the projects BFF. Empty Cloud stays empty (no local-only append). Dossier extras overlay onto Cloud ids only. Local org cache is written after a successful Cloud upsert.
 - Honest limit: programme dossier / geo pack stays a local overlay, not a Cloud DocType.
+- Copilot follow-up: PUT fallback keeps Cloud dates when the client sent blanks; trial Cloud cache writes the trial store; dossier save errors use `role="alert"`.
 
 ## 2026-09-04 — 24e-cloud grievance lifecycle stamps
 
