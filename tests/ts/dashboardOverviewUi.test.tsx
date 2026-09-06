@@ -10,6 +10,8 @@ import { ProjectWorkspaceDashboard } from "@/components/projects/ProjectWorkspac
 import { mockIncidents } from "@/data/mockIncidents";
 import { mockProjects } from "@/data/mockProjects";
 import { hasCapability } from "@/lib/entitlements";
+import { engagementService } from "@/services/engagementService";
+import { stakeholderService } from "@/services/stakeholderService";
 
 jest.mock("next/link", () => ({
   __esModule: true,
@@ -62,9 +64,13 @@ jest.mock("@/lib/deskVisibility", () => ({
   readDeskTier: () => "clo",
 }));
 
-jest.mock("@/lib/entitlements", () => ({
-  hasCapability: jest.fn((capability: string) => capability !== "engagements"),
-}));
+jest.mock("@/lib/entitlements", () => {
+  const actual = jest.requireActual("@/lib/entitlements") as typeof import("@/lib/entitlements");
+  return {
+    ...actual,
+    hasCapability: jest.fn((capability: string) => capability !== "engagements"),
+  };
+});
 
 describe("graph-first dashboards", () => {
   beforeEach(() => {
@@ -72,6 +78,8 @@ describe("graph-first dashboards", () => {
     (hasCapability as jest.Mock).mockImplementation(
       (capability: string) => capability !== "engagements",
     );
+    (stakeholderService.list as jest.Mock).mockResolvedValue([]);
+    (engagementService.list as jest.Mock).mockResolvedValue([]);
   });
 
   it("shows executive overall KPIs and chart cards, not per-project metric tables", async () => {
@@ -173,6 +181,76 @@ describe("graph-first dashboards", () => {
     });
     const kpi = screen.getByText("Active projects").closest("div");
     expect(kpi).toHaveTextContent("1");
+  });
+
+  it("shows Institutional SI KPIs for trial VIP even if the leftover cookie is Solo", async () => {
+    const { hasCapability: realHas } = jest.requireActual(
+      "@/lib/entitlements",
+    ) as typeof import("@/lib/entitlements");
+    (hasCapability as jest.Mock).mockImplementation(realHas);
+    (stakeholderService.list as jest.Mock).mockResolvedValue([
+      { id: "STK-VIP", name: "Ward committee" },
+    ]);
+    (engagementService.list as jest.Mock).mockResolvedValue([
+      {
+        id: "ENG-VIP",
+        status: "held",
+        heldOn: "2026-08-01",
+        title: "Imbizo",
+        stakeholderIds: ["STK-VIP"],
+        attendeesLabel: "Ward committee",
+        summary: "Held",
+        kind: "imbizo",
+        ward: "12",
+        projectId: "PRJ-NCGR-B",
+      },
+    ]);
+
+    render(
+      <ExecutivePortfolioDashboard
+        role="admin"
+        planId="solo"
+        isVip
+        mode="trial"
+        userName="Thozamile"
+        seedIncidents={[]}
+        seedProjects={[]}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Stakeholders").closest("div")).toHaveTextContent(
+        "1",
+      );
+    });
+    expect(screen.getByText("Engagements held").closest("div")).toHaveTextContent(
+      "1",
+    );
+    expect(screen.getByText("Log engagement")).toBeInTheDocument();
+  });
+
+  it("hides SI KPIs on Solo trial without VIP packaging", async () => {
+    const { hasCapability: realHas } = jest.requireActual(
+      "@/lib/entitlements",
+    ) as typeof import("@/lib/entitlements");
+    (hasCapability as jest.Mock).mockImplementation(realHas);
+
+    render(
+      <ExecutivePortfolioDashboard
+        role="admin"
+        planId="solo"
+        isVip={false}
+        mode="trial"
+        seedIncidents={[]}
+        seedProjects={[]}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Active projects")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("Stakeholders")).not.toBeInTheDocument();
+    expect(screen.queryByText("Engagements held")).not.toBeInTheDocument();
   });
 
   it("renders duplicate bar labels without colliding keys", () => {

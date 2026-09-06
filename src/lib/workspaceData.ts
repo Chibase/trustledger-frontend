@@ -34,6 +34,43 @@ function mergeById<T extends { id: string }>(rows: T[]): T[] {
   return [...map.values()];
 }
 
+type SiListRow = { id: string; source?: string };
+
+export type PreferCloudSiListOpts = {
+  /**
+   * Live Cloud extras: `live-source` keeps only `source === "live"` (stakeholders).
+   * `non-seed` keeps any non-mock local row (engagements — capture origin is
+   * minutes/discussion, never `live`).
+   */
+  liveExtras?: "live-source" | "non-seed";
+};
+
+/**
+ * Stakeholder Intelligence lists in live mode.
+ * Live Cloud customers: Cloud is source of record. Unsynced local extras
+ * overlay so a confirmed save is not dropped. `live-source` extras drop
+ * leftover trial/showcase stakeholders. Trial (including complimentary VIP):
+ * empty Cloud must not wipe local trial/org rows.
+ */
+export function preferCloudSiList<T extends SiListRow>(
+  cloud: T[],
+  local: T[],
+  opts: PreferCloudSiListOpts = {},
+): T[] {
+  const liveExtras = opts.liveExtras ?? "non-seed";
+  if (isLiveCustomerClient()) {
+    const extras =
+      liveExtras === "live-source"
+        ? local.filter((row) => row.source === "live")
+        : local.filter((row) => row.source !== "seed");
+    return mergeById([...cloud, ...extras]);
+  }
+  return mergeById([
+    ...cloud,
+    ...local.filter((row) => row.source !== "seed"),
+  ]);
+}
+
 /** Live customer workspace (not trial) — Cloud list is source of record. */
 export function isLiveCustomerClient(): boolean {
   return (

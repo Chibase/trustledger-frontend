@@ -1,5 +1,8 @@
 import { mockStakeholders } from "@/data/mock/stakeholders";
 import { isLiveMode } from "@/config/api";
+import { listOrgStakeholders } from "@/lib/orgDataSpace";
+import { getActiveOrgId } from "@/lib/orgStore";
+import { isLiveCustomerClient, preferCloudSiList } from "@/lib/workspaceData";
 import type {
   Stakeholder,
   StakeholderKind,
@@ -140,24 +143,31 @@ export const stakeholderService = {
     if (isLiveMode()) {
       const cloud = await listFromCloudSi();
       if (cloud) {
-        const local = readLocal().filter((r) => r.source !== "seed");
-        const byId = new Map<string, Stakeholder>();
-        for (const row of cloud) byId.set(row.id, row);
-        for (const row of local) byId.set(row.id, row);
+        const local = isLiveCustomerClient()
+          ? readLocal()
+          : [...listOrgStakeholders(getActiveOrgId()), ...readLocal()];
         return delay(
           applyFilters(
-            [...byId.values()].sort((a, b) => a.name.localeCompare(b.name)),
+            preferCloudSiList(cloud, local, { liveExtras: "live-source" }).sort(
+              (a, b) => a.name.localeCompare(b.name),
+            ),
             filters,
           ),
         );
       }
-      if (own) {
-        return delay(applyFilters(readLocal().filter((r) => r.source !== "seed"), filters));
-      }
     }
 
     if (own) {
-      return delay(applyFilters(readLocal().filter((r) => r.source !== "seed"), filters));
+      return delay(
+        applyFilters(
+          preferCloudSiList(
+            [],
+            [...listOrgStakeholders(getActiveOrgId()), ...readLocal()],
+            { liveExtras: "live-source" },
+          ).sort((a, b) => a.name.localeCompare(b.name)),
+          filters,
+        ),
+      );
     }
 
     return delay(applyFilters(mergeSeedAndLocal(readLocal()), filters));

@@ -170,6 +170,9 @@ describe("tier flow packaging", () => {
     expect(
       packagingPlanId({ planId: "project", vip: true, mode: "live" }),
     ).toBe("project");
+    expect(
+      packagingPlanId({ planId: "solo", vip: true, mode: "live" }),
+    ).toBe("institutional");
   });
 
   it("suggests the first empty module honouring advisory gates", () => {

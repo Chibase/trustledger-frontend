@@ -18,6 +18,7 @@ import { SessionEmailBridge } from "@/components/shell/SessionEmailBridge";
 import type { PlanId } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
 import { packageLabel, isVipShowcaseWorkspace } from "@/lib/planLabel";
+import { packagingPlanId } from "@/lib/planPackaging";
 import { PlanDashboardAccessGate } from "@/components/shell/PlanDashboardAccessGate";
 import { PlanModuleEmptyBanner } from "@/components/shell/PlanModuleEmptyBanner";
 import { PlanModuleSwitcher } from "@/components/shell/PlanModuleSwitcher";
@@ -53,7 +54,13 @@ export function AppShell({
   isVip = false,
   deskTier = null,
 }: AppShellProps) {
-  const planLabel = packageLabel(trialPlan, { mode, vip: isVip });
+  const packagedPlan = packagingPlanId({
+    planId: trialPlan,
+    vip: isVip,
+    mode,
+    email: userEmail,
+  });
+  const planLabel = packageLabel(packagedPlan, { mode, vip: isVip });
   const modeLabel =
     mode === "live" ? "live" : mode === "trial" ? "trial" : "workspace";
   /** Plan Owners get the first-login wizard; juniors use Guide on demand. */
@@ -141,6 +148,8 @@ export function AppShell({
             role={role}
             deskTier={deskTier}
             planId={trialPlan}
+            vip={isVip}
+            mode={mode}
           />
           <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
             <PlanModuleSwitcher

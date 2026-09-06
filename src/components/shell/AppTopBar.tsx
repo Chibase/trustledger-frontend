@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { hasCapability } from "@/lib/entitlements";
 import { userInitials } from "@/lib/executiveOverview";
 import type { PlanId } from "@/config/plans";
+import type { TlMode } from "@/lib/auth.constants";
+import { packagingPlanId } from "@/lib/planPackaging";
 import type { DeskTier } from "@/types/deskTier";
 import { DESK_TIER_LABELS } from "@/types/deskTier";
 import type { UserRole } from "@/types/rbac";
@@ -14,6 +16,8 @@ type Props = {
   role: UserRole;
   deskTier?: DeskTier | null;
   planId?: PlanId | null;
+  vip?: boolean;
+  mode?: TlMode | null;
 };
 
 export function AppTopBar({
@@ -21,10 +25,13 @@ export function AppTopBar({
   role,
   deskTier = null,
   planId = null,
+  vip = false,
+  mode = null,
 }: Props) {
   const router = useRouter();
   const deskLabel = deskTier ? DESK_TIER_LABELS[deskTier] : role;
-  const searchHref = hasCapability("stakeholdersCrm", planId)
+  const packagedPlan = packagingPlanId({ planId, vip, mode });
+  const searchHref = hasCapability("stakeholdersCrm", packagedPlan)
     ? "/app/stakeholders"
     : "/app/projects";
 
