@@ -16,7 +16,7 @@ Field desks often lose signal. Capture keeps an honest **same-browser draft** so
 | Apply / Save pack | Human click required (ADR-006). Typing never auto-applies. |
 | Confirmed apply, then network fail | Draft is kept with `pendingApply` and **stable ids**. Reconnect, or reopening Capture while already online, retries **that** apply (upsert), not a second apply. |
 | Pack Cloud project sync fail | Local capture row is already saved. Cloud project / empowerment update retries on `online`. |
-| Success while still offline | Local CRM / capture writes still happen. Banner holds Cloud retry until reconnect. |
+| Success while still offline | Local CRM / capture writes still happen. Banner holds a retry until reconnect. Toasts do not claim TrustLedger Cloud received the rows. |
 
 ## What this is not
 

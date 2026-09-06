@@ -910,7 +910,7 @@ export default function AppCapturePage() {
             });
             setPendingApply(hold);
             pushToast(
-              "Saved on this device. Cloud update will retry when you reconnect.",
+              "Saved on this device. This browser will retry the apply you confirmed when you reconnect.",
               "success",
             );
             setRecent(listCaptureRecords());
@@ -940,7 +940,7 @@ export default function AppCapturePage() {
         });
         setPendingApply(hold);
         pushToast(
-          "Saved on this device. Cloud update will retry when you reconnect.",
+          "Saved on this device. This browser will retry the apply you confirmed when you reconnect.",
           "success",
         );
         setRecent(listCaptureRecords());
@@ -952,7 +952,7 @@ export default function AppCapturePage() {
       setRecent(listCaptureRecords());
       pushToast(
         stored?.pendingApply?.cloudSync
-          ? "Cloud update finished from this browser"
+          ? "Apply retried from this browser (same records — not a second apply)"
           : `${ids.length} stakeholder(s) applied · engagement saved`,
         "success",
       );
@@ -1257,7 +1257,7 @@ export default function AppCapturePage() {
           : "";
       pushToast(
         stored?.pendingApply?.cloudSync
-          ? "Cloud update finished from this browser"
+          ? "Pack save retried from this browser (same pack — not a second save)"
           : `${meta.label} saved — available to Reports for this project${pathwayNote}${spentNote}`,
         "success",
       );
