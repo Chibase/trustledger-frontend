@@ -15,6 +15,7 @@ import {
 } from "@/lib/executiveOverview";
 import { mockIncidents } from "@/data/mockIncidents";
 import { mockProjects } from "@/data/mockProjects";
+import { projectMatchesDeskSearch } from "@/lib/workspaceSearch";
 import type { Engagement } from "@/types/engagement";
 import type { Project } from "@/types/project";
 
@@ -155,5 +156,12 @@ describe("executiveOverview", () => {
     expect(formatRelativeDeskTime("2026-09-06T11:50:00+02:00", now.getTime())).toBe(
       "10 min ago",
     );
+  });
+
+  it("matches project desk search on name, ward, or id", () => {
+    expect(projectMatchesDeskSearch(mockProjects[0]!, "ward 12")).toBe(true);
+    expect(projectMatchesDeskSearch(mockProjects[0]!, "PRJ-001")).toBe(true);
+    expect(projectMatchesDeskSearch(mockProjects[0]!, "no-such")).toBe(false);
+    expect(projectMatchesDeskSearch(mockProjects[0]!, "  ")).toBe(true);
   });
 });

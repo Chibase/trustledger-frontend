@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { GeoCascadePicker } from "@/components/geo/GeoCascadePicker";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -24,12 +25,16 @@ const KINDS = Object.keys(STAKEHOLDER_KIND_LABELS) as StakeholderKind[];
 
 export default function AppStakeholdersPage() {
   const { pushToast } = useToast();
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams.get("q") ?? "";
   const [rows, setRows] = useState<Stakeholder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return new URLSearchParams(window.location.search).get("q") ?? "";
-  });
+  const [query, setQuery] = useState(urlQuery);
+  const [urlSnapshot, setUrlSnapshot] = useState(urlQuery);
+  if (urlQuery !== urlSnapshot) {
+    setUrlSnapshot(urlQuery);
+    setQuery(urlQuery);
+  }
   const [kind, setKind] = useState<StakeholderKind | "all">("all");
   const [status, setStatus] = useState<StakeholderStatus | "all">("all");
   const [showCreate, setShowCreate] = useState(() => {
