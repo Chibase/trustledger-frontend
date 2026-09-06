@@ -136,3 +136,84 @@ export async function userBelongsToCustomer(input: {
   const customer = (json.data?.custom_tl_customer || "").trim();
   return customer === input.customerName;
 }
+
+export type CloudLoginUser = {
+  name: string;
+  email: string;
+  firstName: string;
+  enabled: boolean;
+};
+
+function parseEnabled(value: unknown): boolean {
+  if (value === undefined || value === null || value === "") return true;
+  return value !== 0 && value !== false && value !== "0";
+}
+
+function mapUserDoc(doc: {
+  name?: string;
+  email?: string;
+  first_name?: string;
+  full_name?: string;
+  enabled?: number | boolean | string;
+}): CloudLoginUser | null {
+  const name = (doc.name || "").trim();
+  const email = (doc.email || name).trim().toLowerCase();
+  if (!name || !email.includes("@")) return null;
+  const first =
+    (doc.first_name || "").trim() ||
+    (doc.full_name || "").trim().split(/\s+/).filter(Boolean)[0] ||
+    email.split("@")[0] ||
+    "there";
+  return {
+    name,
+    email,
+    firstName: first,
+    enabled: parseEnabled(doc.enabled),
+  };
+}
+
+/** Lookup a Cloud User by login email. Missing keys or missing user → null. */
+export async function findCloudLoginUser(
+  email: string,
+): Promise<CloudLoginUser | null> {
+  const needle = email.trim().toLowerCase();
+  if (!needle.includes("@")) return null;
+  const pair = frappeKeyPair();
+  const base = frappeBase();
+  if (!pair || !base) return null;
+  const headers = {
+    Authorization: `token ${cleanSecret(pair.key)}:${cleanSecret(pair.secret)}`,
+    Accept: "application/json",
+  };
+  const fields = JSON.stringify([
+    "name",
+    "email",
+    "first_name",
+    "full_name",
+    "enabled",
+  ]);
+
+  const byName = await fetch(
+    `${base}/api/resource/User/${encodeURIComponent(needle)}?fields=${encodeURIComponent(fields)}`,
+    { headers, cache: "no-store" },
+  );
+  if (byName.ok) {
+    const json = (await byName.json()) as {
+      data?: Parameters<typeof mapUserDoc>[0];
+    };
+    const mapped = json.data ? mapUserDoc(json.data) : null;
+    if (mapped) return mapped;
+  }
+
+  const filters = encodeURIComponent(JSON.stringify([["email", "=", needle]]));
+  const listed = await fetch(
+    `${base}/api/resource/User?filters=${filters}&fields=${encodeURIComponent(fields)}&limit_page_length=1`,
+    { headers, cache: "no-store" },
+  );
+  if (!listed.ok) return null;
+  const listJson = (await listed.json()) as {
+    data?: Array<Parameters<typeof mapUserDoc>[0]>;
+  };
+  const row = listJson.data?.[0];
+  return row ? mapUserDoc(row) : null;
+}

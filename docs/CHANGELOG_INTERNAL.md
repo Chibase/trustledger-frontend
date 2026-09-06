@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-06 — Live forgot-password email
+
+- `/login/live` → Forgot password emails a **TrustLedger** reset link (`/login/live/reset`) to the registered Cloud User via Resend. Frappe Desk `reset_password` mail is no longer used (it often never arrived, and the link pointed at Cloud Desk).
+- Unknown or disabled mailboxes still get a generic success. A Resend failure returns an error instead of claiming the mail was sent. Plan Owner temp-password from Team is unchanged.
+
 ## 2026-09-06 — UX-3 executive overview deepening
 
 - `/app/dashboard` follows the SRM reference mock **structure** (welcome, KPI row, trend + grievance donut + places, social impact + project health, activity + upcoming + stacked quick actions) using Field-ledger tokens. Not Inter / navy / blue generic SaaS. Product name stays **TrustLedger**.

@@ -1,23 +1,21 @@
 import { NextResponse } from "next/server";
 import { clientIp, rateLimitAllow } from "@/lib/formGuard";
-import { requestLivePasswordReset } from "@/lib/passwordReset";
+import { completeLivePasswordReset } from "@/lib/passwordReset";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Body = {
-  email?: string;
+  token?: string;
+  newPassword?: string;
 };
 
-/**
- * Guest-safe: email a TrustLedger password-reset link via Resend
- * to the registered Cloud User. Always generic on unknown mailboxes.
- */
+/** Guest-safe: set a new Cloud password from a signed reset email link. */
 export async function POST(request: Request) {
   const ip = clientIp(request);
-  if (!rateLimitAllow(`live-forgot-password:${ip}`, 8, 15 * 60 * 1000)) {
+  if (!rateLimitAllow(`live-reset-password:${ip}`, 10, 15 * 60 * 1000)) {
     return NextResponse.json(
-      { error: "Too many reset requests. Try again later." },
+      { error: "Too many reset attempts. Try again later." },
       { status: 429 },
     );
   }
@@ -29,6 +27,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const result = await requestLivePasswordReset(body.email || "");
+  const result = await completeLivePasswordReset({
+    token: body.token || "",
+    newPassword: body.newPassword || "",
+  });
   return NextResponse.json(result.body, { status: result.status });
 }

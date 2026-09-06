@@ -335,6 +335,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-06 | Live forgot-password — Resend reset link to registered Cloud inbox; /login/live/reset |
 | 2026-09-06 | UX-3 — executive overview deepening: mock layout, derived KPIs/trend/health/impact; Field ledger only |
 | 2026-09-06 | LC-1 — low-connectivity Capture: pack drafts, connection banner, AI gated offline, confirmed-apply retry |
 | 2026-09-06 | UX-2 — SRM dashboards: KPI row + recent cases + donut mix + quick actions; Field ledger washes |

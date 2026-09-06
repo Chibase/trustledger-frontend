@@ -769,6 +769,40 @@ export async function sendOrgInviteDecisionEmail(
   return sendResendEmail({ to: input.to, subject, text, html });
 }
 
+export type PasswordResetEmailInput = {
+  to: string;
+  name: string;
+  resetUrl: string;
+  expiresMinutes: number;
+};
+
+/** Guest live-login forgot password — link opens /login/live/reset on this app. */
+export async function sendPasswordResetEmail(
+  input: PasswordResetEmailInput,
+): Promise<{ sent: boolean; detail?: string }> {
+  const name = input.name?.trim() || "there";
+  const subject = "Reset your TrustLedger password";
+  const text = [
+    `Hi ${name},`,
+    "",
+    "We received a request to reset the password for this TrustLedger Cloud login.",
+    "",
+    `Reset password: ${input.resetUrl}`,
+    "",
+    `This link expires in ${input.expiresMinutes} minutes. If you did not ask for a reset, ignore this email — your password stays the same.`,
+    "",
+    "— TrustLedger",
+  ].join("\n");
+  const html = `
+    <p>Hi ${escapeHtml(name)},</p>
+    <p>We received a request to reset the password for this TrustLedger Cloud login.</p>
+    <p><a href="${escapeAttr(input.resetUrl)}"><strong>Reset your password</strong></a></p>
+    <p style="color:#666;font-size:13px">Expires in ${input.expiresMinutes} minutes. If you did not ask for a reset, ignore this email — your password stays the same.</p>
+    <p>— TrustLedger</p>
+  `;
+  return sendResendEmail({ to: input.to, subject, text, html });
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
