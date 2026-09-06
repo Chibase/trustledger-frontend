@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-09-06 — Preview password-reset copy
+
+- Forgot-password on a Vercel **preview** (no Cloud API keys) now says to use the live product `/login/live` instead of “cannot reach TrustLedger Cloud”. Production reset is unchanged and still emails a TrustLedger link.
+
 ## 2026-09-06 — VIP executive overview (UX-3 follow-up)
 
 - Complimentary VIP trial uses **Institutional** packaging on `/app/dashboard` (KPIs, quick actions, toolbar, search) even if a leftover cookie still says Solo. Nav already did this; the overview did not. The shell package chip also says **VIP** (not VIP · Solo). Live VIP with leftover Solo is lifted the same way; a real live Project SKU stays Project.

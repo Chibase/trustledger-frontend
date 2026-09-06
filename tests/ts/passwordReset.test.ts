@@ -10,6 +10,7 @@ import {
 import { findCloudLoginUser, setCloudUserPassword } from "@/lib/cloudUserPassword";
 import { sendPasswordResetEmail, transactionalEmailConfigured } from "@/lib/transactionalEmail";
 import { isVipShowcaseLiveLoginMailbox } from "@/lib/vipShowcaseAuth";
+import { frappeKeyPair } from "@/lib/leadCapture";
 
 jest.mock("@/lib/cloudUserPassword", () => ({
   findCloudLoginUser: jest.fn(),
@@ -43,6 +44,7 @@ const mailConfigured = transactionalEmailConfigured as jest.MockedFunction<
 const isVipMailbox = isVipShowcaseLiveLoginMailbox as jest.MockedFunction<
   typeof isVipShowcaseLiveLoginMailbox
 >;
+const keys = frappeKeyPair as jest.MockedFunction<typeof frappeKeyPair>;
 
 describe("passwordResetToken", () => {
   it("signs a token for the registered email and rejects expiry / wrong kind", () => {
@@ -62,6 +64,7 @@ describe("requestLivePasswordReset", () => {
     mailConfigured.mockReturnValue(true);
     sendMail.mockResolvedValue({ sent: true });
     isVipMailbox.mockReturnValue(false);
+    keys.mockReturnValue({ key: "k", secret: "s" });
   });
 
   it("does not email the VIP showcase mailbox", async () => {
@@ -125,6 +128,23 @@ describe("requestLivePasswordReset", () => {
     const result = await requestLivePasswordReset("owner@example.com");
     expect(result.status).toBe(502);
     expect(result.body.error).toMatch(/could not send/i);
+  });
+
+  it("points preview deploys without Cloud keys at the live product", async () => {
+    keys.mockReturnValue(null);
+    const previous = process.env.VERCEL_ENV;
+    process.env.VERCEL_ENV = "preview";
+    try {
+      const result = await requestLivePasswordReset("owner@example.com");
+      expect(result.status).toBe(503);
+      expect(result.body.error).toMatch(/not available on this preview/i);
+      expect(result.body.error).toMatch(/\/login\/live/);
+      expect(findUser).not.toHaveBeenCalled();
+      expect(sendMail).not.toHaveBeenCalled();
+    } finally {
+      if (previous === undefined) delete process.env.VERCEL_ENV;
+      else process.env.VERCEL_ENV = previous;
+    }
   });
 });
 
