@@ -3,8 +3,13 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { HorizontalBarChart, VerticalBarChart } from "@/components/ops/charts/BarChart";
+import { DonutChart } from "@/components/ops/charts/DonutChart";
 import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
+import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import type { DashboardQuickAction } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardRecentCases } from "@/components/dashboard/DashboardRecentCases";
+import { SrmDashboardFrame } from "@/components/dashboard/SrmDashboardFrame";
 import { ProjectDossierForm } from "@/components/projects/ProjectDossierForm";
 import { ProjectMelPanel } from "@/components/projects/ProjectMelPanel";
 import { MelCyclePanel } from "@/components/dashboard/MelCyclePanel";
@@ -13,6 +18,7 @@ import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
 import type { PlanId } from "@/config/plans";
+import { hasCapability } from "@/lib/entitlements";
 import {
   buildProjectCategoryMap,
   type ProjectDataCategory,
@@ -26,6 +32,7 @@ import {
   budgetMixBars,
   incidentPriorityBars,
   incidentStatusFunnel,
+  positiveShares,
 } from "@/lib/dashboardOverview";
 import {
   collectMelShortfalls,
@@ -116,55 +123,113 @@ export function ProjectWorkspaceDashboard({
       })),
     [categories],
   );
+  const mixSlices = useMemo(
+    () => positiveShares(funnel),
+    [funnel],
+  );
+  const issueHref = `/app/issues/report?projectId=${encodeURIComponent(project.id)}`;
+  const quickActions: DashboardQuickAction[] = [
+    { href: issueHref, label: "Log issue", icon: "case" as const },
+    ...(hasCapability("captureHub", planId)
+      ? [
+          {
+            href: `/app/capture?projectId=${encodeURIComponent(project.id)}`,
+            label: "Capture",
+            icon: "capture" as const,
+          },
+        ]
+      : []),
+    { href: "#project-reports", label: "Generate report", icon: "report" as const },
+    {
+      href: `/app/incidents?project=${encodeURIComponent(project.id)}`,
+      label: "Open cases",
+      icon: "people" as const,
+    },
+  ].slice(0, 4);
 
   return (
-    <div className="space-y-7">
-      <header className="space-y-2">
-        <p className="text-sm text-tl-ink-muted">
-          <Link href="/app/dashboard" className="underline">
-            Executive dashboard
-          </Link>
-          {" / "}
-          <span className="text-tl-ink">Project dashboard</span>
-          {" / "}
-          {project.id}
-        </p>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
-            {project.name}
-          </h1>
-          <ProjectStatusChip status={project.status} />
-        </div>
-        <p className="max-w-2xl text-sm text-tl-ink-muted">
-          Overall graphs for this project. Capture, categories, and reports stay
-          below. Feeds the{" "}
-          <Link href="/app/dashboard" className="text-tl-trust-ink underline">
-            workspace overview
-          </Link>
-          .
-        </p>
-      </header>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          label="Empowerment budget"
-          value={zar(row.empowermentBudget)}
+    <SrmDashboardFrame
+      header={
+        <header className="space-y-2">
+          <p className="text-sm text-tl-ink-muted">
+            <Link href="/app/dashboard" className="underline">
+              Executive dashboard
+            </Link>
+            {" / "}
+            <span className="text-tl-ink">Project dashboard</span>
+            {" / "}
+            {project.id}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
+              {project.name}
+            </h1>
+            <ProjectStatusChip status={project.status} />
+          </div>
+          <p className="max-w-2xl text-sm text-tl-ink-muted">
+            Track cases · Monitor progress · Improve outcomes on this project.
+            Feeds the{" "}
+            <Link href="/app/dashboard" className="text-tl-trust-ink underline">
+              workspace overview
+            </Link>
+            .
+          </p>
+        </header>
+      }
+      kpis={
+        <>
+          <KpiCard
+            label="Empowerment budget"
+            value={zar(row.empowermentBudget)}
+            hint="On file"
+            wash="trust"
+          />
+          <KpiCard
+            label="Spent"
+            value={zar(row.empowermentSpent)}
+            hint="On file"
+            wash="demo"
+          />
+          <KpiCard
+            label="Achieved"
+            value={pctLabel(row.empowermentPct)}
+            hint="On file"
+            wash="amber"
+            tone={
+              row.empowermentPct != null && row.empowermentPct < 50
+                ? "attention"
+                : "default"
+            }
+          />
+          <KpiCard
+            label="Trust pulse"
+            value={`${row.trustIndex}/100`}
+            hint="On file"
+            wash="paper"
+          />
+        </>
+      }
+      recent={
+        <DashboardRecentCases
+          incidents={incidents}
+          showProject={false}
+          viewAllHref={`/app/incidents?project=${encodeURIComponent(project.id)}`}
+          empty="No cases on this project yet. Log an issue when one arrives."
         />
-        <KpiCard label="Spent" value={zar(row.empowermentSpent)} />
-        <KpiCard
-          label="Achieved"
-          value={pctLabel(row.empowermentPct)}
-          tone={
-            row.empowermentPct != null && row.empowermentPct < 50
-              ? "attention"
-              : "default"
-          }
-        />
-        <KpiCard
-          label="Trust pulse"
-          value={`${row.trustIndex}/100`}
-        />
-      </div>
+      }
+      sidebar={
+        <>
+          <OverviewChartCard title="Cases by status" hint="This project">
+            <DonutChart
+              slices={mixSlices}
+              centerLabel="Cases"
+              empty="No cases yet."
+            />
+          </OverviewChartCard>
+          <DashboardQuickActions actions={quickActions} />
+        </>
+      }
+    >
 
       {melGaps.length ? (
         <p className="text-sm text-tl-amber">
@@ -334,7 +399,7 @@ export function ProjectWorkspaceDashboard({
           </ul>
         )}
       </details>
-    </div>
+    </SrmDashboardFrame>
   );
 }
 

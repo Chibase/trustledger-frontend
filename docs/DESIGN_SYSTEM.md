@@ -52,7 +52,7 @@ Scale (approx):
 - Max content width: `72rem` (app), `40rem` (forms)
 - App shell: left nav ≥768px; bottom or top collapse on mobile
 - Page padding: `1rem` mobile, `1.5rem–2rem` desktop
-- Prefer open sections over heavy card stacks; cards only for interactive units (KPI, issue row actions, AI suggestion panel)
+- Prefer open sections over heavy card stacks; cards only for interactive units (KPI, issue row actions, AI suggestion panel, SRM overview table / mix / quick actions)
 
 ## Components
 
@@ -63,7 +63,8 @@ Scale (approx):
 | Demo banner | full width, `--tl-demo` bg, white text, single line + “Book demo” link |
 | AI panel | dashed border, surface tint, always “Suggestion only” helper |
 | Tables | line headers, no dense newspaper rules |
-| KPI | one number + label + optional delta; max 4 per row on desktop |
+| KPI | one number + label + optional delta; max 4 per row on desktop; Field-ledger washes (`trust` / `amber` / `demo` / `paper`) — not lime/pink/yellow SaaS pastels |
+| SRM overview | KPI row → recent ledger table + donut mix + quick actions, then deeper graphs. Shared `SrmDashboardFrame`. Donut slices use trust / demo / amber / danger / ink-muted. |
 
 ## Motion
 

@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-06 — UX-2 SRM overview layout
+
+- Executive, project, activity, client, and reports dashboards share one overview: tinted KPI row, recent cases table, donut mix, and quick actions. Field-ledger washes only (trust / amber / demo / paper). No invented month-over-month percentages. Empty Cloud stays empty.
+- New pieces: `SrmDashboardFrame`, `DonutChart`, `DashboardRecentTable` / `DashboardRecentCases`, `DashboardQuickActions`. Deeper bar/funnel graphs stay below. Not a standalone SKU.
+
 ## 2026-09-05 — MEL-5 Learn & Adapt cycle
 
 - Executive and project dashboards show one **Learn & Adapt cycle** panel: shortfall watch, open Adapt watch, root-cause mix, and a suggested Learn & Adapt record when a **material** expected-vs-actual gap has no open Adapt on that project yet.

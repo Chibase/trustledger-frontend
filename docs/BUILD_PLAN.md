@@ -170,6 +170,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24e** | Stronger grievance | Fuller incident workflow on Frappe | **Done (Cloud stamps)** |
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** (superseded nav by UX-1) |
 | **UX-1** | Portfolio → project reports | Executive dashboard (graph-first workspace overview) → project dashboard (overall graphs; category capture/reports in details) → kind/format/level reports | **Done** — packs bind to live Cloud lists; empty Cloud stays empty |
+| **UX-2** | SRM overview layout | Same Field-ledger tokens; executive / project / activity / client / reports dashboards share KPI row + recent cases + donut mix + quick actions (`SrmDashboardFrame`). Not a beneficiary-app skin. Empty Cloud stays empty. | **Done** |
 | **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs; tenant local community intel beside Stats SA | **Done (baseline + local upload)** |
 | **D1** | Product onboarding | `/product` replaces public `/demo` sample entry | **Done** |
 | **D2** | Kill demo mode | No guest `tl-mode=demo`; retarget CTAs; clear lingering demo sessions | **Done** |
@@ -332,6 +333,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
+| 2026-09-06 | UX-2 — SRM dashboards: KPI row + recent cases + donut mix + quick actions; Field ledger washes |
 | 2026-09-05 | MEL-5 — Learn & Adapt cycle: material shortfall suggests a record; human apply; not a cause |
 | 2026-09-05 | MEL-4 — Learn & Adapt retrospective in reportComposer; human apply; not a pack SKU |
 | 2026-09-05 | MEL-3 — Learn & Adapt records on TL Incident; not a grievance stage; empty Cloud stays empty |

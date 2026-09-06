@@ -74,7 +74,7 @@ describe("ReportsHub TE-3 optional trust proof", () => {
       ).toBeInTheDocument();
     });
     expect(screen.getByText(String(pulse.trustIndex))).toBeInTheDocument();
-    expect(screen.getByText("Open cases")).toBeInTheDocument();
+    expect(screen.getAllByText("Open cases").length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Write with evidence AI" })).toBeInTheDocument();
     expect(screen.queryByText("Evidence writer for this pack")).not.toBeInTheDocument();
 
@@ -92,7 +92,7 @@ describe("ReportsHub TE-3 optional trust proof", () => {
       <ReportsHub role="community" authorName="Community" planId="project" />,
     );
     await waitFor(() => {
-      expect(screen.getByText("Open cases")).toBeInTheDocument();
+      expect(screen.getAllByText("Open cases").length).toBeGreaterThan(0);
     });
     expect(screen.getByText(`Trust · ${pulse.label}`)).toBeInTheDocument();
     expect(screen.getByText("Trust proof (optional)")).toBeInTheDocument();

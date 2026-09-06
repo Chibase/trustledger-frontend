@@ -87,6 +87,9 @@ describe("graph-first dashboards", () => {
       expect(screen.getByText("Workspace health")).toBeInTheDocument();
     });
     expect(screen.getByText("Overview")).toBeInTheDocument();
+    expect(screen.getByText("Recent cases")).toBeInTheDocument();
+    expect(screen.getByText("Quick actions")).toBeInTheDocument();
+    expect(screen.getByText("Projects by status")).toBeInTheDocument();
     expect(screen.getByText("Project status")).toBeInTheDocument();
     expect(screen.getByText("Case pipeline")).toBeInTheDocument();
     expect(screen.getByText("Open cases by priority")).toBeInTheDocument();
@@ -115,6 +118,9 @@ describe("graph-first dashboards", () => {
     );
 
     expect(screen.getByText(project.name)).toBeInTheDocument();
+    expect(screen.getByText("Recent cases")).toBeInTheDocument();
+    expect(screen.getByText("Cases by status")).toBeInTheDocument();
+    expect(screen.getByText("Quick actions")).toBeInTheDocument();
     expect(screen.getByText("Budget mix")).toBeInTheDocument();
     expect(screen.getByText("Category fill")).toBeInTheDocument();
     expect(screen.getByText("Case pipeline")).toBeInTheDocument();
