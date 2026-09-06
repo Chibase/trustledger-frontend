@@ -14,7 +14,7 @@ Field desks often lose signal. Capture keeps an honest **same-browser draft** so
 | Banner | Online vs “No connection — draft on this device”, plus last-saved time |
 | AI extract / brief | Needs a network. Buttons disable offline. Notes still draft. |
 | Apply / Save pack | Human click required (ADR-006). Typing never auto-applies. |
-| Confirmed apply, then network fail | Draft is kept with `pendingApply` and **stable ids**. Reconnect retries **that** apply (upsert), not a second apply. |
+| Confirmed apply, then network fail | Draft is kept with `pendingApply` and **stable ids**. Reconnect, or reopening Capture while already online, retries **that** apply (upsert), not a second apply. |
 | Pack Cloud project sync fail | Local capture row is already saved. Cloud project / empowerment update retries on `online`. |
 | Success while still offline | Local CRM / capture writes still happen. Banner holds Cloud retry until reconnect. |
 

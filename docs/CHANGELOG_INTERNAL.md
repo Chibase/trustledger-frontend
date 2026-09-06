@@ -3,7 +3,7 @@
 ## 2026-09-06 — LC-1 low-connectivity Capture
 
 - Capture hub drafts field notes **and** report packs in this browser (`tl-field-drafts`). Banner shows online vs no connection and last-saved time. AI extract/brief stay network-only.
-- Apply / Save pack still requires a human click. If that confirmed write fails or the desk is offline, the draft keeps `pendingApply` with stable ids and retries on reconnect (upsert, not a second apply). Pack Cloud project sync can lag the local capture row.
+- Apply / Save pack still requires a human click. If that confirmed write fails or the desk is offline, the draft keeps `pendingApply` with stable ids and retries on reconnect **or** when Capture is opened while already online (upsert, not a second apply). Pack Cloud project sync can lag the local capture row.
 - Not a native app, PWA, or cross-device sync. Living note: `docs/LOW_CONNECTIVITY.md`.
 
 ## 2026-09-06 — UX-2 SRM overview layout

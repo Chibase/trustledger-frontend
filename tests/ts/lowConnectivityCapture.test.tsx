@@ -7,6 +7,7 @@ import {
   formatDraftSavedAt,
   isBrowserOnline,
   isLikelyNetworkFailure,
+  shouldRetryPendingOnHydrate,
   subscribeBrowserConnection,
 } from "@/lib/connectivity";
 import { EMPTY_FIELD_META } from "@/lib/trust/fieldCapture";
@@ -124,6 +125,12 @@ describe("LC-1 low-connectivity capture", () => {
     });
     clearFieldCaptureDraft("org-1", "PRJ-1", "minutes");
     expect(readFieldCaptureDraft("org-1", "PRJ-1", "minutes")).toBeNull();
+  });
+
+  it("retries a confirmed apply when Capture opens already online", () => {
+    expect(shouldRetryPendingOnHydrate(true, true)).toBe(true);
+    expect(shouldRetryPendingOnHydrate(false, true)).toBe(false);
+    expect(shouldRetryPendingOnHydrate(true, false)).toBe(false);
   });
 
   it("treats navigator.onLine false as a network failure", () => {

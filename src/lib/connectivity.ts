@@ -35,6 +35,13 @@ export function isLikelyNetworkFailure(err: unknown): boolean {
   );
 }
 
+export function shouldRetryPendingOnHydrate(
+  online: boolean,
+  hasPendingApply: boolean,
+): boolean {
+  return online && hasPendingApply;
+}
+
 export function formatDraftSavedAt(
   iso: string | undefined | null,
 ): string | null {

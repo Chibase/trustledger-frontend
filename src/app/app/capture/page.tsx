@@ -68,6 +68,7 @@ import {
   isBrowserOnline,
   isLikelyNetworkFailure,
   subscribeBrowserConnection,
+  shouldRetryPendingOnHydrate,
 } from "@/lib/connectivity";
 import {
   applyEngagementToTrustLayer,
@@ -385,6 +386,7 @@ export default function AppCapturePage() {
     if (draftHydrated.current === key) return;
     draftHydrated.current = key;
     skipDraftSave.current = true;
+    let retryTimer = 0;
     const frame = requestAnimationFrame(() => {
       const draft = readFieldCaptureDraft(orgId, projectId, source);
       if (!draft) {
@@ -407,8 +409,14 @@ export default function AppCapturePage() {
         packBaseline.current = JSON.stringify(draft.pack);
         setPackData(draft.pack);
       }
+      if (shouldRetryPendingOnHydrate(isBrowserOnline(), Boolean(draft.pendingApply))) {
+        retryTimer = window.setTimeout(() => retryConfirmedApplyRef.current(), 0);
+      }
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      if (retryTimer) window.clearTimeout(retryTimer);
+    };
   }, [narrative, projectId, source]);
 
   useEffect(() => {
@@ -1111,10 +1119,24 @@ export default function AppCapturePage() {
     setPackSaving(true);
     const orgId = getActiveOrgId() || "local";
     try {
+      const stored = readFieldCaptureDraft(orgId, projectId, source);
       let structured: CaptureStructured = packData;
-      if (packData.pack === "issue_log") {
-        const entries = Array.isArray(packData.data.entries)
-          ? packData.data.entries
+      if (
+        stored?.pendingApply?.kind === "pack" &&
+        stored.pack?.pack === packSource &&
+        (packData.pack !== packSource ||
+          !fieldDraftHasContent({
+            title: "",
+            body: "",
+            meta: EMPTY_FIELD_META,
+            pack: packData,
+          }))
+      ) {
+        structured = stored.pack;
+      }
+      if (structured.pack === "issue_log") {
+        const entries = Array.isArray(structured.data.entries)
+          ? structured.data.entries
           : [];
         const titled = entries.filter((e) => e.title?.trim());
         if (titled.length) {
@@ -1122,25 +1144,24 @@ export default function AppCapturePage() {
           structured = {
             pack: "issue_log",
             data: {
-              ...packData.data,
+              ...structured.data,
               entries,
               casesLogged: rollup.casesLogged,
               casesOpen: rollup.casesOpen,
               casesClosed: rollup.casesClosed,
               casesEscalated: rollup.casesEscalated,
-              topThemes: rollup.topThemes || packData.data.topThemes,
-              openCaseRefs: rollup.openCaseRefs || packData.data.openCaseRefs,
+              topThemes: rollup.topThemes || structured.data.topThemes,
+              openCaseRefs: rollup.openCaseRefs || structured.data.openCaseRefs,
             },
           };
         } else {
           structured = {
             pack: "issue_log",
-            data: { ...packData.data, entries },
+            data: { ...structured.data, entries },
           };
         }
         setPackData(structured);
       }
-      const stored = readFieldCaptureDraft(orgId, projectId, source);
       const pending = withPendingApplyIds({
         confirmedAt:
           stored?.pendingApply?.confirmedAt || new Date().toISOString(),
@@ -1268,10 +1289,7 @@ export default function AppCapturePage() {
     if (!projectId) return;
     const draft = readFieldCaptureDraft(orgId, projectId, source);
     if (!draft?.pendingApply) return;
-    pushToast(
-      "Back online — retrying the apply you already confirmed.",
-      "success",
-    );
+    pushToast("Retrying the apply you already confirmed.", "success");
     if (draft.pendingApply.kind === "narrative") {
       void runConfirmedNarrativeApply();
     } else {
