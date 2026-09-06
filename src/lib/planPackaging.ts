@@ -65,6 +65,8 @@ export function packagingPlanId(input: {
   email?: string | null;
 }): PlanId {
   if (input.vip && input.mode === "trial") return "institutional";
+  // Complimentary VIP must not stay on a leftover Solo cookie in live either.
+  if (input.vip && input.planId === "solo") return "institutional";
   const resolved = resolveClientPlanId(input.planId) || input.planId || null;
   return resolved && isPlanId(resolved) ? resolved : "project";
 }
