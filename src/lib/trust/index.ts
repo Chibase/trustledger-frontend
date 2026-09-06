@@ -226,9 +226,12 @@ export {
 } from "@/lib/trust/persistFieldCapture";
 export {
   clearFieldCaptureDraft,
+  fieldDraftHasContent,
   readFieldCaptureDraft,
   saveFieldCaptureDraft,
+  withPendingApplyIds,
   type FieldCaptureDraft,
+  type FieldPendingApply,
 } from "@/lib/trust/fieldDraftStore";
 export {
   buildCommunityProfiles,

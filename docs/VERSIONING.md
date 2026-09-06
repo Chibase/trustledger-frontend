@@ -41,6 +41,7 @@
 Public portal, offline/mobile, GIS editing, marketplace — TEDS “future scope”. Do not market as imminent.
 
 - Native / App Store apps, offline-first field sync  
+  (Capture hub can draft in **this browser** when connectivity is low — LC-1; not a native companion)  
 - Public community portal, WhatsApp/SMS as product intake  
 - GIS editing  
 - Marketplace / multi-tenant ISV channel  

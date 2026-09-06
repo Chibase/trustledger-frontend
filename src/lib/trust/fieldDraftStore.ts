@@ -4,11 +4,28 @@
  */
 
 import {
+  emptyStructured,
+  type CaptureStructured,
+} from "@/lib/captureStore";
+import {
   EMPTY_FIELD_META,
   type FieldNoteMeta,
 } from "@/lib/trust/fieldCapture";
+import { fieldNoteHasContextExtras } from "@/lib/trust/persistFieldCapture";
+import type { StakeholderExtractSuggestion } from "@/types/ai";
 
 export const FIELD_DRAFT_STORAGE_KEY = "tl-field-drafts";
+
+export type FieldPendingApply = {
+  confirmedAt: string;
+  kind: "narrative" | "pack";
+  /** Local row already written; Cloud project / empowerment sync still outstanding. */
+  cloudSync?: boolean;
+  extract?: StakeholderExtractSuggestion;
+  captureId?: string;
+  engagementId?: string;
+  stakeholderIds?: string[];
+};
 
 export type FieldCaptureDraft = {
   orgId: string;
@@ -18,6 +35,8 @@ export type FieldCaptureDraft = {
   body: string;
   meta: FieldNoteMeta;
   updatedAt: string;
+  pack?: CaptureStructured;
+  pendingApply?: FieldPendingApply;
 };
 
 type DraftRoot = Record<string, FieldCaptureDraft>;
@@ -90,4 +109,41 @@ export function clearFieldCaptureDraft(
   const root = readRoot(store);
   delete root[draftId(orgId, projectId, source)];
   writeRoot(store, root);
+}
+
+export function fieldDraftHasContent(
+  draft: Pick<FieldCaptureDraft, "title" | "body" | "meta"> & {
+    pack?: CaptureStructured;
+    pendingApply?: FieldPendingApply;
+  },
+): boolean {
+  if (draft.pendingApply) return true;
+  if (draft.pack) {
+    const empty = emptyStructured(draft.pack.pack);
+    return JSON.stringify(draft.pack) !== JSON.stringify(empty);
+  }
+  if (draft.title.trim()) return true;
+  if (draft.body.trim()) return true;
+  return fieldNoteHasContextExtras(draft.meta);
+}
+
+export function withPendingApplyIds(
+  pending: FieldPendingApply,
+  stakeholderCount = 0,
+): FieldPendingApply {
+  const stamp = Date.now();
+  const stakeholderIds =
+    pending.stakeholderIds &&
+    pending.stakeholderIds.length === Math.max(stakeholderCount, 0)
+      ? pending.stakeholderIds
+      : Array.from({ length: Math.max(stakeholderCount, 0) }, (_, i) => {
+          return `STK-C${stamp.toString().slice(-5)}${i}`;
+        });
+  return {
+    ...pending,
+    captureId: pending.captureId || `CAP-${stamp.toString().slice(-6)}`,
+    engagementId:
+      pending.engagementId || `ENG-${stamp.toString(36).toUpperCase()}`,
+    stakeholderIds,
+  };
 }

@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-06 — LC-1 low-connectivity Capture
+
+- Capture hub drafts field notes **and** report packs in this browser (`tl-field-drafts`). Banner shows online vs no connection and last-saved time. AI extract/brief stay network-only.
+- Apply / Save pack still requires a human click. If that confirmed write fails or the desk is offline, the draft keeps `pendingApply` with stable ids and retries on reconnect **or** when Capture is opened while already online (upsert, not a second apply). Pack Cloud project sync can lag the local capture row. Toasts do **not** claim TrustLedger Cloud received SI rows — stakeholder/engagement save can stay local if Cloud is unreachable.
+- Not a native app, PWA, or cross-device sync. Living note: `docs/LOW_CONNECTIVITY.md`.
+
 ## 2026-09-06 — UX-2 SRM overview layout
 
 - Executive, project, activity, client, and reports dashboards share one overview: tinted KPI row, recent cases table, donut mix, and quick actions. Field-ledger washes only (trust / amber / demo / paper). No invented month-over-month percentages. Empty Cloud stays empty.

@@ -185,7 +185,7 @@ Details: `docs/SOLO_PLAN.md`, `docs/ACCESS_MODEL.md`, `docs/PLATFORM_STRATEGIC_B
 ## 11. What not to expect (honest limits)
 
 - No Stats SA live certified feeds yet  
-- No native offline mobile app  
+- No native offline mobile app. Capture hub can draft notes and packs **in this browser** when the signal drops; apply still required. Not an App Store companion.  
 - No public community portal yet  
 - No auto-resolve by AI  
 - Media storage is capped by plan on purpose  
