@@ -299,8 +299,10 @@ export function upcomingEngagements(
     .filter((row) => {
       if (row.status === "closed") return false;
       const t = Date.parse(row.heldOn);
-      if (!Number.isFinite(t)) return false;
-      return t >= start || row.status === "draft" || row.status === "follow_up";
+      if (!Number.isFinite(t)) {
+        return row.status === "draft" || row.status === "follow_up";
+      }
+      return t >= start;
     })
     .sort((a, b) => a.heldOn.localeCompare(b.heldOn))
     .slice(0, limit)

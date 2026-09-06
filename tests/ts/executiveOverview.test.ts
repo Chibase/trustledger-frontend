@@ -134,6 +134,12 @@ describe("executiveOverview", () => {
           placeLabel: "Clinic road",
         }),
         engagement({
+          id: "ENG-OLD-DRAFT",
+          title: "Stale draft",
+          status: "draft",
+          heldOn: "2026-01-01",
+        }),
+        engagement({
           id: "ENG-PAST",
           status: "closed",
           heldOn: "2026-01-01",

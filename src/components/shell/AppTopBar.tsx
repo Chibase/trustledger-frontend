@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { hasCapability } from "@/lib/entitlements";
@@ -24,7 +23,6 @@ export function AppTopBar({
   planId = null,
 }: Props) {
   const router = useRouter();
-  const [query, setQuery] = useState("");
   const deskLabel = deskTier ? DESK_TIER_LABELS[deskTier] : role;
   const searchHref = hasCapability("stakeholdersCrm", planId)
     ? "/app/stakeholders"
@@ -35,9 +33,11 @@ export function AppTopBar({
       <div className="flex items-center gap-3 px-4 py-3 md:px-8">
         <form
           className="min-w-0 flex-1"
+          action={searchHref}
+          method="get"
           onSubmit={(e) => {
             e.preventDefault();
-            const q = query.trim();
+            const q = String(new FormData(e.currentTarget).get("q") || "").trim();
             if (!q) {
               router.push(searchHref);
               return;
@@ -50,8 +50,8 @@ export function AppTopBar({
           </label>
           <input
             id="app-global-search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            name="q"
+            type="search"
             placeholder="Search projects, stakeholders, communities…"
             className="w-full rounded-md border border-tl-line bg-tl-paper px-3 py-2 text-sm text-tl-ink placeholder:text-tl-ink-muted"
           />
