@@ -8,17 +8,27 @@ import {
 } from "@/components/ops/charts/BarChart";
 import { DonutChart } from "@/components/ops/charts/DonutChart";
 import { FunnelChart } from "@/components/ops/charts/FunnelChart";
+import { MultiLineChart } from "@/components/ops/charts/MultiLineChart";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
 import { MelCyclePanel } from "@/components/dashboard/MelCyclePanel";
 import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
-import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
-import type { DashboardQuickAction } from "@/components/dashboard/DashboardQuickActions";
-import { DashboardRecentCases } from "@/components/dashboard/DashboardRecentCases";
+import {
+  DashboardQuickActions,
+  planOverviewQuickActions,
+} from "@/components/dashboard/DashboardQuickActions";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { SrmDashboardFrame } from "@/components/dashboard/SrmDashboardFrame";
+import {
+  ExecutiveWelcome,
+  OverviewActivityFeed,
+  ProjectHealthBars,
+  ProjectPlacesCard,
+  SocialImpactStrip,
+  UpcomingEngagementsCard,
+} from "@/components/dashboard/executiveOverviewPanels";
 import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
 import { hasCapability } from "@/lib/entitlements";
 import { readDeskTier } from "@/lib/deskVisibility";
@@ -26,13 +36,9 @@ import {
   engagementSentimentBars,
   incidentPriorityBars,
   incidentStatusFunnel,
-  positiveShares,
   projectStatusBars,
 } from "@/lib/dashboardOverview";
-import {
-  buildPortfolioOverview,
-  pctLabel,
-} from "@/lib/portfolioMetrics";
+import { buildPortfolioOverview } from "@/lib/portfolioMetrics";
 import { isExecutiveDashboardProject } from "@/lib/projectCategoryMap";
 import { isLiveMode } from "@/config/api";
 import {
@@ -41,6 +47,21 @@ import {
   preferCloudIncidentList,
   preferCloudProjectList,
 } from "@/lib/workspaceData";
+import {
+  countActiveProjects,
+  countHeldEngagements,
+  countOpenCases,
+  engagementTrendSeries,
+  formatPeriodLabel,
+  grievanceStatusSlices,
+  lastMonthBuckets,
+  projectHealthMix,
+  projectPlaceLabels,
+  recentOverviewActivity,
+  socialImpactFromPacks,
+  upcomingEngagements,
+  welcomeFirstName,
+} from "@/lib/executiveOverview";
 import { projectService } from "@/services/projectService";
 import { incidentService } from "@/services/incidentService";
 import type { PlanId } from "@/config/plans";
@@ -48,10 +69,12 @@ import { DESK_TIER_LABELS, type DeskTier } from "@/types/deskTier";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
 import type { Engagement } from "@/types/engagement";
+import type { Stakeholder } from "@/types/stakeholder";
 import type { TlMode } from "@/lib/auth.constants";
 import type { UserRole } from "@/types/rbac";
 import { engagementService } from "@/services/engagementService";
 import { commitmentService } from "@/services/commitmentService";
+import { stakeholderService } from "@/services/stakeholderService";
 import type { Commitment } from "@/types/commitment";
 
 type Props = {
@@ -61,12 +84,14 @@ type Props = {
   isVip?: boolean;
   mode?: TlMode | null;
   email?: string | null;
+  userName?: string;
   seedIncidents?: Incident[];
   seedProjects?: Project[];
 };
 
 /**
  * Executive portfolio dashboard — overall graphs for the workspace.
+ * UX-3: mock layout with values derived from lists on file (no invented %).
  */
 export function ExecutivePortfolioDashboard({
   role,
@@ -75,6 +100,7 @@ export function ExecutivePortfolioDashboard({
   isVip = false,
   mode = null,
   email = null,
+  userName = "",
   seedIncidents = [],
   seedProjects = [],
 }: Props) {
@@ -83,7 +109,15 @@ export function ExecutivePortfolioDashboard({
   const [projects, setProjects] = useState<Project[]>(seedProjects);
   const [engagements, setEngagements] = useState<Engagement[]>([]);
   const [commitments, setCommitments] = useState<Commitment[]>([]);
+  const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const showNotesPulse = hasCapability("engagements", planId);
+  const showStakeholders = hasCapability("stakeholdersCrm", planId);
+  const monthBuckets = useMemo(() => lastMonthBuckets(6), []);
+  const periodLabel = formatPeriodLabel(monthBuckets);
+  const quickActions = useMemo(
+    () => planOverviewQuickActions(planId),
+    [planId],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -139,6 +173,17 @@ export function ExecutivePortfolioDashboard({
     };
   }, [planId]);
 
+  useEffect(() => {
+    if (!showStakeholders) return;
+    let cancelled = false;
+    void stakeholderService.list().then((rows) => {
+      if (!cancelled) setStakeholders(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [showStakeholders]);
+
   const openProjects = useMemo(
     () => projects.filter(isExecutiveDashboardProject),
     [projects],
@@ -181,124 +226,156 @@ export function ExecutivePortfolioDashboard({
     () => engagementSentimentBars(engagements),
     [engagements],
   );
-  const mixSlices = useMemo(() => {
-    const projectMix = positiveShares(statusBars);
-    if (projectMix.length) return projectMix;
-    return positiveShares(funnel);
-  }, [statusBars, funnel]);
-  const mixTitle = positiveShares(statusBars).length
-    ? "Projects by status"
-    : "Cases by status";
-  const quickActions = useMemo(() => {
-    const actions: DashboardQuickAction[] = [
-      {
-        href: "/app/projects?new=1",
-        label: "Add project",
-        icon: "add" as const,
-      },
-      {
-        href: "/app/issues/report",
-        label: "Log issue",
-        icon: "case" as const,
-      },
-    ];
-    if (hasCapability("governanceReports", planId)) {
-      actions.push({
-        href: "/app/reports",
-        label: "Generate report",
-        icon: "report" as const,
-      });
-    }
-    if (hasCapability("incidents", planId)) {
-      actions.push({
-        href: "/app/incidents",
-        label: "Open cases",
-        icon: "people" as const,
-      });
-    } else if (hasCapability("captureHub", planId)) {
-      actions.push({
-        href: "/app/capture",
-        label: "Capture",
-        icon: "capture" as const,
-      });
-    }
-    return actions;
-  }, [planId]);
+  const trendPoints = useMemo(
+    () => engagementTrendSeries(engagements, incidents, monthBuckets),
+    [engagements, incidents, monthBuckets],
+  );
+  const grievanceSlices = useMemo(
+    () => grievanceStatusSlices(incidents),
+    [incidents],
+  );
+  const healthMix = useMemo(() => projectHealthMix(projects), [projects]);
+  const impact = useMemo(() => socialImpactFromPacks(projects), [projects]);
+  const activity = useMemo(
+    () => recentOverviewActivity({ incidents, engagements }),
+    [incidents, engagements],
+  );
+  const upcoming = useMemo(
+    () => upcomingEngagements(engagements),
+    [engagements],
+  );
+  const places = useMemo(() => projectPlaceLabels(projects), [projects]);
+  const activeProjectCount = useMemo(
+    () => countActiveProjects(projects),
+    [projects],
+  );
+  const heldCount = useMemo(
+    () => countHeldEngagements(engagements),
+    [engagements],
+  );
+  const openCaseCount = useMemo(
+    () => countOpenCases(incidents),
+    [incidents],
+  );
+
+  const trendSeries = [
+    {
+      id: "engagements",
+      label: "Engagements",
+      color: "var(--tl-trust)",
+      values: trendPoints.map((p) => p.engagements),
+    },
+    {
+      id: "reached",
+      label: "Stakeholders reached",
+      color: "var(--tl-demo)",
+      values: trendPoints.map((p) => p.stakeholdersReached),
+    },
+    {
+      id: "cases",
+      label: "Cases logged",
+      color: "var(--tl-danger)",
+      values: trendPoints.map((p) => p.grievances),
+    },
+  ];
 
   return (
     <SrmDashboardFrame
+      kpiWrap
       header={
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-tl-trust">Overview</p>
-            <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
-              Workspace health
-            </h1>
-            <p className="max-w-2xl text-sm text-tl-ink-muted">
-              Track cases · Monitor progress · Improve outcomes. Desk:{" "}
-              {DESK_TIER_LABELS[tier]}
+        <div className="space-y-4">
+          <p className="text-sm font-medium text-tl-trust">Overview</p>
+          <ExecutiveWelcome
+            firstName={welcomeFirstName(userName)}
+            periodLabel={periodLabel}
+          />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-tl-ink-muted">
+              Desk: {DESK_TIER_LABELS[tier]}
               {isPlanOwner ? " · Plan Owner" : ""}.
             </p>
+            <DashboardOverviewToolbar
+              planId={planId}
+              extra={
+                showNotesPulse
+                  ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
+                  : []
+              }
+            />
           </div>
-          <DashboardOverviewToolbar
-            planId={planId}
-            extra={
-              showNotesPulse
-                ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
-                : []
-            }
-          />
-        </header>
+        </div>
       }
       kpis={
         <>
           <KpiCard
-            label="Open projects"
-            value={String(totals.projectCount)}
-            hint="On file"
+            label="Active projects"
+            value={String(activeProjectCount)}
+            hint="Active or approved"
             wash="trust"
           />
-          <KpiCard
-            label="Empowerment achieved"
-            value={pctLabel(totals.empowermentPct)}
-            hint="On file"
-            wash="demo"
-            tone={
-              totals.empowermentPct != null && totals.empowermentPct >= 80
-                ? "default"
-                : "attention"
-            }
-          />
+          {showStakeholders ? (
+            <KpiCard
+              label="Stakeholders"
+              value={String(stakeholders.length)}
+              hint="On file"
+              wash="demo"
+            />
+          ) : null}
+          {showNotesPulse ? (
+            <KpiCard
+              label="Engagements held"
+              value={String(heldCount)}
+              hint="Held or closed"
+              wash="paper"
+            />
+          ) : null}
           <KpiCard
             label="Open cases"
-            value={String(totals.openCases)}
+            value={String(openCaseCount)}
             hint="On file"
             wash="amber"
           />
           <KpiCard
-            label="Avg trust pulse"
+            label="Trust pulse"
             value={totals.avgTrust != null ? `${totals.avgTrust}/100` : "—"}
             hint="On file"
             wash="paper"
           />
         </>
       }
-      recent={
-        <DashboardRecentCases
-          incidents={incidents}
-          empty="No cases on file yet. Log an issue when one arrives."
-        />
-      }
-      sidebar={
+      overview={
         <>
-          <OverviewChartCard title={mixTitle} hint="Workspace mix">
-            <DonutChart
-              slices={mixSlices}
-              centerLabel="Total"
-              empty="No mix on file yet."
-            />
-          </OverviewChartCard>
-          <DashboardQuickActions actions={quickActions} />
+          <div className="grid gap-4 lg:grid-cols-3">
+            <OverviewChartCard
+              title="Engagement trend"
+              hint="Records dated in this window — not a last-period estimate."
+            >
+              <MultiLineChart
+                labels={trendPoints.map((p) => p.label)}
+                series={trendSeries}
+              />
+            </OverviewChartCard>
+            <OverviewChartCard
+              title="Grievance status"
+              hint="Open, in progress, and resolved from the case register."
+            >
+              <DonutChart
+                slices={grievanceSlices}
+                centerLabel="Cases"
+                empty="No cases on file."
+              />
+            </OverviewChartCard>
+            <ProjectPlacesCard places={places} />
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SocialImpactStrip impact={impact} />
+            <ProjectHealthBars mix={healthMix} />
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <OverviewActivityFeed rows={activity} />
+            <UpcomingEngagementsCard rows={upcoming} />
+            <DashboardQuickActions actions={quickActions} variant="stack" />
+          </div>
         </>
       }
     >
@@ -316,7 +393,7 @@ export function ExecutivePortfolioDashboard({
 
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChartCard
-          title="Project status"
+          title="Projects by status"
           hint="Workspace mix"
         >
           {statusBars.length ? (

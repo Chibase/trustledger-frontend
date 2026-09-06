@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { guideRequestsNewTask } from "@/config/onboardingSteps";
 import { listDemoProjects } from "@/lib/demoStore";
 import { readTrialModeFromDocument } from "@/lib/trial";
@@ -11,6 +12,7 @@ import {
 } from "@/lib/trialStore";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
 import { projectService } from "@/services/projectService";
+import { projectMatchesDeskSearch } from "@/lib/workspaceSearch";
 import type { Project } from "@/types/project";
 
 function newTrialProjectId(): string {
@@ -29,6 +31,8 @@ type ProjectsListClientProps = {
 };
 
 export function ProjectsListClient({ canCreate = true }: ProjectsListClientProps) {
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams.get("q") ?? "";
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
@@ -139,8 +143,20 @@ export function ProjectsListClient({ canCreate = true }: ProjectsListClientProps
     return <p className="text-sm text-tl-ink-muted">Loading projects…</p>;
   }
 
+  const visible = projects.filter((project) =>
+    projectMatchesDeskSearch(project, urlQuery),
+  );
+
   return (
     <div className="space-y-4">
+      {urlQuery.trim() ? (
+        <p className="text-sm text-tl-ink-muted">
+          Showing projects matching “{urlQuery.trim()}”.{" "}
+          <Link href="/app/projects" className="text-tl-trust-ink underline">
+            Clear search
+          </Link>
+        </p>
+      ) : null}
       {canCreate ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-tl-ink-muted">
@@ -217,7 +233,7 @@ export function ProjectsListClient({ canCreate = true }: ProjectsListClientProps
             </tr>
           </thead>
           <tbody>
-            {projects.map((p) => (
+            {visible.map((p) => (
               <tr key={p.id} className="border-t border-tl-line">
                 <td className="p-3">
                   <Link
@@ -236,10 +252,12 @@ export function ProjectsListClient({ canCreate = true }: ProjectsListClientProps
                 <td className="p-3">{p.status}</td>
               </tr>
             ))}
-            {projects.length === 0 ? (
+            {visible.length === 0 ? (
               <tr>
                 <td colSpan={8} className="p-4 text-tl-ink-muted">
-                  {canCreate
+                  {urlQuery.trim()
+                    ? "No projects match that search."
+                    : canCreate
                     ? "No projects yet — use Add project to create your first site or programme."
                     : "No projects yet."}
                 </td>

@@ -28,6 +28,7 @@ module.exports = {
     "<rootDir>/tests/ts/trustCausality.test.ts",
     "<rootDir>/tests/ts/dashboardOverview.test.ts",
     "<rootDir>/tests/ts/dashboardOverviewUi.test.tsx",
+    "<rootDir>/tests/ts/executiveOverview.test.ts",
     "<rootDir>/tests/ts/incidentCloud.test.ts",
     "<rootDir>/tests/ts/projectCloud.test.ts",
     "<rootDir>/tests/ts/sepCloud.test.ts",

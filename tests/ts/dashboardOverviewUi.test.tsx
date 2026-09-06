@@ -79,19 +79,23 @@ describe("graph-first dashboards", () => {
       <ExecutivePortfolioDashboard
         role="admin"
         planId="institutional"
+        userName="Ada Mokoena"
         seedIncidents={mockIncidents}
         seedProjects={mockProjects}
       />,
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Workspace health")).toBeInTheDocument();
+      expect(screen.getByText("Welcome back, Ada")).toBeInTheDocument();
     });
     expect(screen.getByText("Overview")).toBeInTheDocument();
-    expect(screen.getByText("Recent cases")).toBeInTheDocument();
+    expect(screen.getByText("Recent activity")).toBeInTheDocument();
     expect(screen.getByText("Quick actions")).toBeInTheDocument();
+    expect(screen.getByText("Engagement trend")).toBeInTheDocument();
+    expect(screen.getByText("Grievance status")).toBeInTheDocument();
+    expect(screen.getByText("Project health")).toBeInTheDocument();
+    expect(screen.getByText("Social impact")).toBeInTheDocument();
     expect(screen.getByText("Projects by status")).toBeInTheDocument();
-    expect(screen.getByText("Project status")).toBeInTheDocument();
     expect(screen.getByText("Case pipeline")).toBeInTheDocument();
     expect(screen.getByText("Open cases by priority")).toBeInTheDocument();
     expect(screen.getByText("Engagement plans")).toBeInTheDocument();
@@ -165,9 +169,9 @@ describe("graph-first dashboards", () => {
       />,
     );
     await waitFor(() => {
-      expect(screen.getByText("Open projects")).toBeInTheDocument();
+      expect(screen.getByText("Active projects")).toBeInTheDocument();
     });
-    const kpi = screen.getByText("Open projects").closest("div");
+    const kpi = screen.getByText("Active projects").closest("div");
     expect(kpi).toHaveTextContent("1");
   });
 
