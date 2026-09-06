@@ -1,5 +1,6 @@
 import { mockCommitments } from "@/data/mockCommitments";
 import { isLiveMode } from "@/config/api";
+import { isLiveCustomerClient, preferCloudSiList } from "@/lib/workspaceData";
 import type { Commitment, CommitmentStatus } from "@/types/commitment";
 
 const STORAGE_KEY = "tl-commitments";
@@ -138,10 +139,11 @@ export const commitmentService = {
     if (typeof window !== "undefined" && isLiveMode()) {
       const cloud = await listFromCloudSi();
       if (cloud) {
+        const merged = isLiveCustomerClient()
+          ? overlayLocalCommitmentsOntoCloud(cloud, readLocal())
+          : preferCloudSiList(cloud, readLocal());
         return applyFilters(
-          overlayLocalCommitmentsOntoCloud(cloud, readLocal()).sort((a, b) =>
-            a.dueOn.localeCompare(b.dueOn),
-          ),
+          merged.sort((a, b) => a.dueOn.localeCompare(b.dueOn)),
           filters,
         );
       }

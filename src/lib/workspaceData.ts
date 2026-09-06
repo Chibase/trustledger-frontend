@@ -34,6 +34,29 @@ function mergeById<T extends { id: string }>(rows: T[]): T[] {
   return [...map.values()];
 }
 
+type SiListRow = { id: string; source?: string };
+
+/**
+ * Stakeholder Intelligence lists in live mode.
+ * Live Cloud customers: Cloud is source of record. Unsynced `live` drafts
+ * overlay so a confirmed save is not dropped. Leftover trial/showcase rows
+ * do not fill an empty Cloud. Trial (including complimentary VIP): empty
+ * Cloud must not wipe local trial/org rows.
+ */
+export function preferCloudSiList<T extends SiListRow>(
+  cloud: T[],
+  local: T[],
+): T[] {
+  if (isLiveCustomerClient()) {
+    const extras = local.filter((row) => row.source === "live");
+    return mergeById([...cloud, ...extras]);
+  }
+  return mergeById([
+    ...cloud,
+    ...local.filter((row) => row.source !== "seed"),
+  ]);
+}
+
 /** Live customer workspace (not trial) — Cloud list is source of record. */
 export function isLiveCustomerClient(): boolean {
   return (

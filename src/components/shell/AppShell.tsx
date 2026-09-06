@@ -141,6 +141,8 @@ export function AppShell({
             role={role}
             deskTier={deskTier}
             planId={trialPlan}
+            vip={isVip}
+            mode={mode}
           />
           <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
             <PlanModuleSwitcher

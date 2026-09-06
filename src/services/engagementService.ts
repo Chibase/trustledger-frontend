@@ -1,6 +1,7 @@
 import { mockEngagements } from "@/data/mockEngagements";
 import { isLiveMode } from "@/config/api";
 import { isTrustResponseBlank } from "@/lib/trust/response";
+import { preferCloudSiList } from "@/lib/workspaceData";
 import { omitCloudTrustOverlay, type StakeholderTrustResponse } from "@/types/trustOverlay";
 import type { Engagement, EngagementKind, EngagementStatus } from "@/types/engagement";
 
@@ -209,12 +210,8 @@ export const engagementService = {
     if (typeof window !== "undefined" && isLiveMode()) {
       const cloud = await listFromCloudSi();
       if (cloud) {
-        const local = readLocal().filter((r) => r.source !== "seed");
-        const byId = new Map<string, Engagement>();
-        for (const row of cloud) byId.set(row.id, row);
-        for (const row of local) byId.set(row.id, row);
         return applyFilters(
-          [...byId.values()]
+          preferCloudSiList(cloud, readLocal())
             .map(mergeSentiment)
             .map(mergeTrustResponse)
             .sort((a, b) => b.heldOn.localeCompare(a.heldOn)),

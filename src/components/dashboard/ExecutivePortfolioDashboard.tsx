@@ -31,6 +31,7 @@ import {
 } from "@/components/dashboard/executiveOverviewPanels";
 import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
 import { hasCapability } from "@/lib/entitlements";
+import { packagingPlanId } from "@/lib/planPackaging";
 import { readDeskTier } from "@/lib/deskVisibility";
 import {
   engagementSentimentBars,
@@ -110,13 +111,17 @@ export function ExecutivePortfolioDashboard({
   const [engagements, setEngagements] = useState<Engagement[]>([]);
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
-  const showNotesPulse = hasCapability("engagements", planId);
-  const showStakeholders = hasCapability("stakeholdersCrm", planId);
+  const packagedPlan = useMemo(
+    () => packagingPlanId({ planId, vip: isVip, mode, email }),
+    [planId, isVip, mode, email],
+  );
+  const showNotesPulse = hasCapability("engagements", packagedPlan);
+  const showStakeholders = hasCapability("stakeholdersCrm", packagedPlan);
   const monthBuckets = useMemo(() => lastMonthBuckets(6), []);
   const periodLabel = formatPeriodLabel(monthBuckets);
   const quickActions = useMemo(
-    () => planOverviewQuickActions(planId),
-    [planId],
+    () => planOverviewQuickActions(packagedPlan),
+    [packagedPlan],
   );
 
   useEffect(() => {
@@ -137,10 +142,31 @@ export function ExecutivePortfolioDashboard({
       }
       if (!cancelled) setIncidents(listWorkspaceIncidents(seedIncidents));
     };
+    const loadSi = async () => {
+      if (hasCapability("engagements", packagedPlan)) {
+        const rows = await engagementService.list();
+        if (!cancelled) setEngagements(rows);
+      } else if (!cancelled) {
+        setEngagements([]);
+      }
+      if (hasCapability("commitments", packagedPlan)) {
+        const rows = await commitmentService.list();
+        if (!cancelled) setCommitments(rows);
+      } else if (!cancelled) {
+        setCommitments([]);
+      }
+      if (hasCapability("stakeholdersCrm", packagedPlan)) {
+        const rows = await stakeholderService.list();
+        if (!cancelled) setStakeholders(rows);
+      } else if (!cancelled) {
+        setStakeholders([]);
+      }
+    };
     const refresh = () => {
       setTier(readDeskTier(role));
       void loadIncidents();
       void loadProjects();
+      void loadSi();
     };
     const frame = requestAnimationFrame(refresh);
     window.addEventListener("tl-workspace-seeded", refresh);
@@ -149,40 +175,7 @@ export function ExecutivePortfolioDashboard({
       cancelAnimationFrame(frame);
       window.removeEventListener("tl-workspace-seeded", refresh);
     };
-  }, [role, seedIncidents, seedProjects]);
-
-  useEffect(() => {
-    if (!hasCapability("engagements", planId)) return;
-    let cancelled = false;
-    void engagementService.list().then((rows) => {
-      if (!cancelled) setEngagements(rows);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [planId]);
-
-  useEffect(() => {
-    if (!hasCapability("commitments", planId)) return;
-    let cancelled = false;
-    void commitmentService.list().then((rows) => {
-      if (!cancelled) setCommitments(rows);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [planId]);
-
-  useEffect(() => {
-    if (!showStakeholders) return;
-    let cancelled = false;
-    void stakeholderService.list().then((rows) => {
-      if (!cancelled) setStakeholders(rows);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [showStakeholders]);
+  }, [role, seedIncidents, seedProjects, packagedPlan]);
 
   const openProjects = useMemo(
     () => projects.filter(isExecutiveDashboardProject),
@@ -295,7 +288,7 @@ export function ExecutivePortfolioDashboard({
               {isPlanOwner ? " · Plan Owner" : ""}.
             </p>
             <DashboardOverviewToolbar
-              planId={planId}
+              planId={packagedPlan}
               extra={
                 showNotesPulse
                   ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
@@ -383,7 +376,7 @@ export function ExecutivePortfolioDashboard({
         projects={openProjects}
         commitments={commitments}
         incidents={incidents}
-        planId={planId}
+        planId={packagedPlan}
         onIncidentSaved={(next) =>
           setIncidents((current) =>
             current.map((row) => (row.id === next.id ? next : row)),
@@ -478,7 +471,7 @@ export function ExecutivePortfolioDashboard({
           Engagement plans
         </summary>
         <div className="mt-4">
-          <SepDashboardPanel planId={planId} alwaysShow />
+          <SepDashboardPanel planId={packagedPlan} alwaysShow />
         </div>
       </details>
 

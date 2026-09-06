@@ -171,7 +171,7 @@ See `docs/PLATFORM_OPS.md`, ADR-015, ADR-016, ADR-017.
 | **24f** | Reports packs | Dual dashboards: Activity + Reports hub (monthly / executive / board) + Owner pack access | **Done** (superseded nav by UX-1) |
 | **UX-1** | Portfolio → project reports | Executive dashboard (graph-first workspace overview) → project dashboard (overall graphs; category capture/reports in details) → kind/format/level reports | **Done** — packs bind to live Cloud lists; empty Cloud stays empty |
 | **UX-2** | SRM overview layout | Same Field-ledger tokens; executive / project / activity / client / reports dashboards share KPI row + recent cases + donut mix + quick actions (`SrmDashboardFrame`). Not a beneficiary-app skin. Empty Cloud stays empty. | **Done** |
-| **UX-3** | Executive overview deepening | `/app/dashboard` uses the SRM mock **layout** (welcome, derived KPIs, trend, grievance donut, places, impact, health, activity, upcoming, stacked actions) with Field-ledger tokens. Values from lists on file — no invented last-period %, no navy/Inter restyle, no new nav modules. Shell search + Help + user chip. | **Done** |
+| **UX-3** | Executive overview deepening | `/app/dashboard` uses the SRM mock **layout** (welcome, derived KPIs, trend, grievance donut, places, impact, health, activity, upcoming, stacked actions) with Field-ledger tokens. Values from lists on file — no invented last-period %, no navy/Inter restyle, no new nav modules. Shell search + Help + user chip. VIP trial uses Institutional packaging on the overview; trial SI lists keep local rows when Cloud SI is empty. | **Done** |
 | **LC-1** | Low-connectivity Capture | Same-browser drafts for field notes **and** report packs; connection banner; AI gated offline; confirmed Apply/Save retries with stable ids. Not a native app / PWA. `docs/LOW_CONNECTIVITY.md` | **Done** |
 | **24g** | Intelligence / ESG | Indicators, socio-econ layers, stronger AI briefs; tenant local community intel beside Stats SA | **Done (baseline + local upload)** |
 | **D1** | Product onboarding | `/product` replaces public `/demo` sample entry | **Done** |
@@ -335,7 +335,7 @@ src/app/api/webhooks/clickup/
 
 | Date | Change |
 |------|--------|
-| 2026-09-06 | Live forgot-password — Resend reset link to registered Cloud inbox; /login/live/reset |
+| 2026-09-06 | UX-3 follow-up — VIP trial overview uses Institutional packaging; trial SI lists survive empty Cloud SI |
 | 2026-09-06 | UX-3 — executive overview deepening: mock layout, derived KPIs/trend/health/impact; Field ledger only |
 | 2026-09-06 | LC-1 — low-connectivity Capture: pack drafts, connection banner, AI gated offline, confirmed-apply retry |
 | 2026-09-06 | UX-2 — SRM dashboards: KPI row + recent cases + donut mix + quick actions; Field ledger washes |
