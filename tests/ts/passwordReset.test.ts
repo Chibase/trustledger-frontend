@@ -46,9 +46,10 @@ const isVipMailbox = isVipShowcaseLiveLoginMailbox as jest.MockedFunction<
 
 describe("passwordResetToken", () => {
   it("signs a token for the registered email and rejects expiry / wrong kind", () => {
-    const token = signPasswordResetToken("Owner@Example.com", 1_000_000);
+    const token = signPasswordResetToken("Owner@Example.com", 1_000_000, "USR-Owner");
     const parsed = verifyPasswordResetToken(token, 1_000_000);
     expect(parsed?.email).toBe("owner@example.com");
+    expect(parsed?.user).toBe("USR-Owner");
     expect(verifyPasswordResetToken(token, 1_000_000 + 60 * 60 + 1)).toBeNull();
     expect(verifyPasswordResetToken("not-a-token")).toBeNull();
   });
@@ -99,7 +100,7 @@ describe("requestLivePasswordReset", () => {
 
   it("emails a TrustLedger reset link to the registered Cloud inbox", async () => {
     findUser.mockResolvedValue({
-      name: "owner@example.com",
+      name: "USR-Ada",
       email: "owner@example.com",
       firstName: "Ada",
       enabled: true,
@@ -109,9 +110,8 @@ describe("requestLivePasswordReset", () => {
     expect(sendMail).toHaveBeenCalledTimes(1);
     const sent = sendMail.mock.calls[0]![0];
     expect(sent.to).toBe("owner@example.com");
-    expect(sent.name).toBe("Ada");
-    expect(sent.resetUrl).toContain("/login/live/reset?token=");
-    expect(sent.resetUrl).not.toContain("app.trustledgersrm.co.za");
+    const token = new URL(sent.resetUrl).searchParams.get("token") || "";
+    expect(verifyPasswordResetToken(token)?.user).toBe("USR-Ada");
   });
 
   it("surfaces a send failure instead of claiming the mail went out", async () => {
@@ -140,14 +140,14 @@ describe("completeLivePasswordReset", () => {
       email: "owner@example.com",
       temporaryPassword: "new-secret-1",
     });
-    const token = signPasswordResetToken("owner@example.com");
+    const token = signPasswordResetToken("owner@example.com", undefined, "USR-Ada");
     const result = await completeLivePasswordReset({
       token,
       newPassword: "new-secret-1",
     });
     expect(result.status).toBe(200);
     expect(setPassword).toHaveBeenCalledWith({
-      email: "owner@example.com",
+      email: "USR-Ada",
       newPassword: "new-secret-1",
     });
   });

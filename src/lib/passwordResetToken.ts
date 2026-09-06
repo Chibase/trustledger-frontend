@@ -11,6 +11,8 @@ export const PASSWORD_RESET_KIND = "live-password-reset" as const;
 export type PasswordResetPayload = {
   kind: typeof PASSWORD_RESET_KIND;
   email: string;
+  /** Frappe User.name — may differ from email. */
+  user: string;
   jti: string;
   exp: number;
 };
@@ -49,10 +51,13 @@ function fromB64url(input: string): Buffer {
 export function signPasswordResetToken(
   email: string,
   nowSec = Math.floor(Date.now() / 1000),
+  userName?: string,
 ): string {
+  const normalizedEmail = email.trim().toLowerCase();
   const body: PasswordResetPayload = {
     kind: PASSWORD_RESET_KIND,
-    email: email.trim().toLowerCase(),
+    email: normalizedEmail,
+    user: (userName || normalizedEmail).trim(),
     jti: randomBytes(16).toString("hex"),
     exp: nowSec + PASSWORD_RESET_TTL_SECONDS,
   };
@@ -83,8 +88,14 @@ export function verifyPasswordResetToken(
     ) as PasswordResetPayload;
     if (parsed.kind !== PASSWORD_RESET_KIND) return null;
     if (!parsed.email || !parsed.email.includes("@")) return null;
+    const user = (parsed.user || parsed.email).trim();
+    if (!user) return null;
     if (typeof parsed.exp !== "number" || parsed.exp < nowSec) return null;
-    return { ...parsed, email: parsed.email.trim().toLowerCase() };
+    return {
+      ...parsed,
+      email: parsed.email.trim().toLowerCase(),
+      user,
+    };
   } catch {
     return null;
   }

@@ -83,7 +83,7 @@ export async function requestLivePasswordReset(
 
   let token: string;
   try {
-    token = signPasswordResetToken(user.email);
+    token = signPasswordResetToken(user.email, undefined, user.name);
   } catch {
     return {
       status: 503,
@@ -138,7 +138,7 @@ export async function completeLivePasswordReset(input: {
   }
 
   const result = await setCloudUserPassword({
-    email: parsed.email,
+    email: parsed.user,
     newPassword: password,
   });
   if (!result.ok) {
