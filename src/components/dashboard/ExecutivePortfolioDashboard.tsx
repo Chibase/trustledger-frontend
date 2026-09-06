@@ -6,6 +6,7 @@ import {
   HorizontalBarChart,
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
+import { DonutChart } from "@/components/ops/charts/DonutChart";
 import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
@@ -13,7 +14,11 @@ import { SepDashboardPanel } from "@/components/sep/SepDashboardPanel";
 import { MelCyclePanel } from "@/components/dashboard/MelCyclePanel";
 import { ModuleContributionBoard } from "@/components/dashboard/ModuleContributionBoard";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
+import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import type { DashboardQuickAction } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardRecentCases } from "@/components/dashboard/DashboardRecentCases";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
+import { SrmDashboardFrame } from "@/components/dashboard/SrmDashboardFrame";
 import { TrustWorkspaceHub } from "@/components/trust/TrustWorkspaceHub";
 import { hasCapability } from "@/lib/entitlements";
 import { readDeskTier } from "@/lib/deskVisibility";
@@ -21,6 +26,7 @@ import {
   engagementSentimentBars,
   incidentPriorityBars,
   incidentStatusFunnel,
+  positiveShares,
   projectStatusBars,
 } from "@/lib/dashboardOverview";
 import {
@@ -175,49 +181,127 @@ export function ExecutivePortfolioDashboard({
     () => engagementSentimentBars(engagements),
     [engagements],
   );
+  const mixSlices = useMemo(() => {
+    const projectMix = positiveShares(statusBars);
+    if (projectMix.length) return projectMix;
+    return positiveShares(funnel);
+  }, [statusBars, funnel]);
+  const mixTitle = positiveShares(statusBars).length
+    ? "Projects by status"
+    : "Cases by status";
+  const quickActions = useMemo(() => {
+    const actions: DashboardQuickAction[] = [
+      {
+        href: "/app/projects?new=1",
+        label: "Add project",
+        icon: "add" as const,
+      },
+      {
+        href: "/app/issues/report",
+        label: "Log issue",
+        icon: "case" as const,
+      },
+    ];
+    if (hasCapability("governanceReports", planId)) {
+      actions.push({
+        href: "/app/reports",
+        label: "Generate report",
+        icon: "report" as const,
+      });
+    }
+    if (hasCapability("incidents", planId)) {
+      actions.push({
+        href: "/app/incidents",
+        label: "Open cases",
+        icon: "people" as const,
+      });
+    } else if (hasCapability("captureHub", planId)) {
+      actions.push({
+        href: "/app/capture",
+        label: "Capture",
+        icon: "capture" as const,
+      });
+    }
+    return actions;
+  }, [planId]);
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-tl-trust">Overview</p>
-          <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
-            Workspace health
-          </h1>
-          <p className="max-w-2xl text-sm text-tl-ink-muted">
-            Overall graphs for this workspace. Open a module for records and
-            evidence. Desk: {DESK_TIER_LABELS[tier]}
-            {isPlanOwner ? " · Plan Owner" : ""}.
-          </p>
-        </div>
-        <DashboardOverviewToolbar
-          planId={planId}
-          extra={
-            showNotesPulse
-              ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
-              : []
-          }
+    <SrmDashboardFrame
+      header={
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-tl-trust">Overview</p>
+            <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
+              Workspace health
+            </h1>
+            <p className="max-w-2xl text-sm text-tl-ink-muted">
+              Track cases · Monitor progress · Improve outcomes. Desk:{" "}
+              {DESK_TIER_LABELS[tier]}
+              {isPlanOwner ? " · Plan Owner" : ""}.
+            </p>
+          </div>
+          <DashboardOverviewToolbar
+            planId={planId}
+            extra={
+              showNotesPulse
+                ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
+                : []
+            }
+          />
+        </header>
+      }
+      kpis={
+        <>
+          <KpiCard
+            label="Open projects"
+            value={String(totals.projectCount)}
+            hint="On file"
+            wash="trust"
+          />
+          <KpiCard
+            label="Empowerment achieved"
+            value={pctLabel(totals.empowermentPct)}
+            hint="On file"
+            wash="demo"
+            tone={
+              totals.empowermentPct != null && totals.empowermentPct >= 80
+                ? "default"
+                : "attention"
+            }
+          />
+          <KpiCard
+            label="Open cases"
+            value={String(totals.openCases)}
+            hint="On file"
+            wash="amber"
+          />
+          <KpiCard
+            label="Avg trust pulse"
+            value={totals.avgTrust != null ? `${totals.avgTrust}/100` : "—"}
+            hint="On file"
+            wash="paper"
+          />
+        </>
+      }
+      recent={
+        <DashboardRecentCases
+          incidents={incidents}
+          empty="No cases on file yet. Log an issue when one arrives."
         />
-      </header>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Open projects" value={String(totals.projectCount)} />
-        <KpiCard
-          label="Empowerment achieved"
-          value={pctLabel(totals.empowermentPct)}
-          tone={
-            totals.empowermentPct != null && totals.empowermentPct >= 80
-              ? "default"
-              : "attention"
-          }
-        />
-        <KpiCard label="Open cases" value={String(totals.openCases)} />
-        <KpiCard
-          label="Avg trust pulse"
-          value={totals.avgTrust != null ? `${totals.avgTrust}/100` : "—"}
-        />
-      </div>
-
+      }
+      sidebar={
+        <>
+          <OverviewChartCard title={mixTitle} hint="Workspace mix">
+            <DonutChart
+              slices={mixSlices}
+              centerLabel="Total"
+              empty="No mix on file yet."
+            />
+          </OverviewChartCard>
+          <DashboardQuickActions actions={quickActions} />
+        </>
+      }
+    >
       <MelCyclePanel
         projects={openProjects}
         commitments={commitments}
@@ -372,6 +456,6 @@ export function ExecutivePortfolioDashboard({
           </ul>
         )}
       </section>
-    </div>
+    </SrmDashboardFrame>
   );
 }

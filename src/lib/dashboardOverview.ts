@@ -84,6 +84,31 @@ export function namedShareBars(
     .map((row) => ({ label: row.label, value: row.count }));
 }
 
+/** Newest first. Empty input stays empty — never invent cases. */
+export function recentIncidents(
+  incidents: Incident[],
+  limit = 8,
+): Incident[] {
+  return [...incidents]
+    .sort((a, b) => (b.reportedAt || "").localeCompare(a.reportedAt || ""))
+    .slice(0, Math.max(0, limit));
+}
+
+export function formatDeskDate(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso || "—";
+  return new Intl.DateTimeFormat("en-ZA", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+/** Drop zero buckets so a donut is not a hollow ring of empty stages. */
+export function positiveShares(bars: OverviewBar[]): OverviewBar[] {
+  return bars.filter((row) => row.value > 0);
+}
+
 export function engagementSentimentBars(engagements: Engagement[]): OverviewBar[] {
   const counts = { positive: 0, neutral: 0, negative: 0 };
   for (const row of engagements) {

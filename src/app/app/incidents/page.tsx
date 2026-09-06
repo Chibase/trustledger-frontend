@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { incidentService } from "@/services/incidentService";
 import { listDemoIncidents } from "@/lib/demoStore";
 import { listTrialIncidents } from "@/lib/trialStore";
@@ -22,6 +23,8 @@ const STATUSES: Array<IncidentStatus | "All"> = [
 ];
 
 export default function AppIncidentsPage() {
+  const searchParams = useSearchParams();
+  const projectFilter = (searchParams.get("project") || "").trim();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<(typeof STATUSES)[number]>("All");
@@ -63,6 +66,7 @@ export default function AppIncidentsPage() {
 
   const filtered = useMemo(() => {
     return incidents.filter((incident) => {
+      if (projectFilter && incident.projectId !== projectFilter) return false;
       if (status !== "All" && incident.status !== status) return false;
       if (breachedOnly && !incident.slaBreached) return false;
       if (query.trim()) {
@@ -72,13 +76,16 @@ export default function AppIncidentsPage() {
       }
       return true;
     });
-  }, [incidents, status, breachedOnly, query]);
+  }, [incidents, status, breachedOnly, query, projectFilter]);
 
   return (
     <div className="space-y-4">
       <div>
         <h1 className="font-display text-2xl font-semibold">Incidents</h1>
         <p className="mt-1 text-sm text-tl-ink-muted">
+          {projectFilter
+            ? `Showing cases for project ${projectFilter}. `
+            : ""}
           {deskKind === "vip"
             ? "Illustrative NCGR-B cases for this showcase. Filter by status, SLA, or search."
             : deskKind === "own"

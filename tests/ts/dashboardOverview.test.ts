@@ -4,7 +4,9 @@ import {
   incidentPriorityBars,
   incidentStatusFunnel,
   namedShareBars,
+  positiveShares,
   projectStatusBars,
+  recentIncidents,
 } from "@/lib/dashboardOverview";
 import type { Engagement } from "@/types/engagement";
 import type { Incident } from "@/types/incident";
@@ -152,5 +154,24 @@ describe("dashboardOverview", () => {
       { label: "Positive", value: 2 },
       { label: "Neutral", value: 1 },
     ]);
+  });
+
+  it("sorts recent cases newest first and drops zero donut slices", () => {
+    const older = incident("Open", "P4-Low");
+    const newer = {
+      ...incident("Investigating", "P2-High"),
+      id: "INC-NEW",
+      reportedAt: "2026-06-01T00:00:00Z",
+    };
+    expect(recentIncidents([older, newer], 1).map((row) => row.id)).toEqual([
+      "INC-NEW",
+    ]);
+    expect(recentIncidents([])).toEqual([]);
+    expect(
+      positiveShares([
+        { label: "Open", value: 2 },
+        { label: "Closed", value: 0 },
+      ]),
+    ).toEqual([{ label: "Open", value: 2 }]);
   });
 });

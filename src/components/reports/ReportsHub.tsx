@@ -12,6 +12,11 @@ import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import { TrustProofPanel } from "@/components/reports/TrustProofPanel";
 import { TrustIntelligencePanel } from "@/components/reports/TrustIntelligencePanel";
 import { KpiCard } from "@/components/ui/KpiCard";
+import { DashboardQuickActions, planOverviewQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardRecentCases } from "@/components/dashboard/DashboardRecentCases";
+import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
+import { DonutChart } from "@/components/ops/charts/DonutChart";
+import { positiveShares } from "@/lib/dashboardOverview";
 import type { PlanId } from "@/config/plans";
 import { PLANS } from "@/config/plans";
 import type { TlMode } from "@/lib/auth.constants";
@@ -257,17 +262,49 @@ export function ReportsHub({
 
           {active.id === "monthly" ? (
             <div className="space-y-5">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <KpiCard label="Open cases" value={String(open.length)} />
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <KpiCard
+                  label="Open cases"
+                  value={String(open.length)}
+                  hint="On file"
+                  wash="trust"
+                />
                 <KpiCard
                   label="High risk"
                   value={String(highRisk.length)}
+                  hint="On file"
+                  wash="amber"
                   tone={highRisk.length > 0 ? "attention" : "default"}
                 />
                 <KpiCard
                   label={`Trust · ${pulse.label}`}
                   value={`${pulse.trustIndex}`}
+                  hint="On file"
+                  wash="paper"
                 />
+                <KpiCard
+                  label="Projects"
+                  value={String(projects.length)}
+                  hint="On file"
+                  wash="demo"
+                />
+              </div>
+              <div className="grid items-start gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <DashboardRecentCases incidents={incidents} />
+                </div>
+                <div className="space-y-4">
+                  <OverviewChartCard title="Cases by status" hint="This period">
+                    <DonutChart
+                      slices={positiveShares(statusBars(incidents))}
+                      centerLabel="Cases"
+                      empty="No cases on file yet."
+                    />
+                  </OverviewChartCard>
+                  <DashboardQuickActions
+                    actions={planOverviewQuickActions(planId)}
+                  />
+                </div>
               </div>
               <MonthlyOpsLayout
                 chartGroups={monthlyChartGroups(incidents, [

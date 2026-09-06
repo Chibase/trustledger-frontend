@@ -4,18 +4,24 @@ import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DeskWorkspacePanels } from "@/components/desk/DeskWorkspacePanels";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
+import { DashboardQuickActions, planOverviewQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardRecentCases } from "@/components/dashboard/DashboardRecentCases";
+import { SrmDashboardFrame } from "@/components/dashboard/SrmDashboardFrame";
 import {
   HorizontalBarChart,
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
+import { DonutChart } from "@/components/ops/charts/DonutChart";
 import { FunnelChart } from "@/components/ops/charts/FunnelChart";
 import {
   budgetMixBars,
   incidentPriorityBars,
   incidentStatusFunnel,
   namedShareBars,
+  positiveShares,
   projectStatusBars,
 } from "@/lib/dashboardOverview";
+import type { PlanId } from "@/config/plans";
 import type { ClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
 
 const currency = new Intl.NumberFormat("en-ZA", {
@@ -26,11 +32,13 @@ const currency = new Intl.NumberFormat("en-ZA", {
 
 type ClientPortfolioDashboardProps = {
   brief: ClientPortfolioBrief;
+  planId?: PlanId | null;
 };
 
 /** Client home — overall graphs for the governance portfolio. */
 export function ClientPortfolioDashboard({
   brief,
+  planId = null,
 }: ClientPortfolioDashboardProps) {
   const { kpis } = brief;
   const budgetBars = budgetMixBars({
@@ -47,48 +55,84 @@ export function ClientPortfolioDashboard({
       count: row.count,
     })),
   );
+  const mixSlices = positiveShares(statusBars).length
+    ? positiveShares(statusBars)
+    : positiveShares(funnel);
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        eyebrow="Overview"
-        title="Workspace health"
-        description={`${brief.dataSourceNote} Overall graphs for this portfolio.`}
-        actions={
-          <>
-            <Link
-              href="/app/reports"
-              className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
-            >
-              Governance reports
-            </Link>
-            <Link
-              href="/app/stakeholders"
-              className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
-            >
-              Stakeholder CRM
-            </Link>
-          </>
-        }
-      />
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Projects" value={String(kpis.projects)} />
-        <KpiCard
-          label="Open grievances"
-          value={String(kpis.openIncidents)}
-          tone={kpis.openIncidents > 0 ? "attention" : "default"}
+    <SrmDashboardFrame
+      header={
+        <PageHeader
+          eyebrow="Overview"
+          title="Workspace health"
+          description={`${brief.dataSourceNote} Track cases · Monitor progress · Improve outcomes.`}
+          actions={
+            <>
+              <Link
+                href="/app/reports"
+                className="rounded-md bg-tl-trust px-4 py-2 text-sm font-medium text-white hover:bg-tl-trust-ink"
+              >
+                Governance reports
+              </Link>
+              <Link
+                href="/app/stakeholders"
+                className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper"
+              >
+                Stakeholder CRM
+              </Link>
+            </>
+          }
         />
-        <KpiCard
-          label="SLA breaches"
-          value={String(kpis.slaBreaches)}
-          tone={kpis.slaBreaches > 0 ? "danger" : "default"}
+      }
+      kpis={
+        <>
+          <KpiCard
+            label="Projects"
+            value={String(kpis.projects)}
+            hint="On file"
+            wash="trust"
+          />
+          <KpiCard
+            label="Open grievances"
+            value={String(kpis.openIncidents)}
+            hint="On file"
+            wash="amber"
+            tone={kpis.openIncidents > 0 ? "attention" : "default"}
+          />
+          <KpiCard
+            label="SLA breaches"
+            value={String(kpis.slaBreaches)}
+            hint="On file"
+            wash="paper"
+            tone={kpis.slaBreaches > 0 ? "danger" : "default"}
+          />
+          <KpiCard
+            label="Budget spent"
+            value={currency.format(kpis.budgetSpent)}
+            hint="On file"
+            wash="demo"
+          />
+        </>
+      }
+      recent={
+        <DashboardRecentCases
+          incidents={brief.incidents}
+          empty="No cases on file yet."
         />
-        <KpiCard
-          label="Budget spent"
-          value={currency.format(kpis.budgetSpent)}
-        />
-      </div>
+      }
+      sidebar={
+        <>
+          <OverviewChartCard title="Portfolio mix" hint="Status">
+            <DonutChart
+              slices={mixSlices}
+              centerLabel="Total"
+              empty="No mix on file yet."
+            />
+          </OverviewChartCard>
+          <DashboardQuickActions actions={planOverviewQuickActions(planId)} />
+        </>
+      }
+    >
 
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChartCard title="Project status" hint="Portfolio mix">
@@ -151,6 +195,6 @@ export function ClientPortfolioDashboard({
           />
         </div>
       </details>
-    </div>
+    </SrmDashboardFrame>
   );
 }

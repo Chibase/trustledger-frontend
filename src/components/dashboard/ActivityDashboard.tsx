@@ -4,12 +4,17 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
+import { DashboardQuickActions, planOverviewQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardRecentCases } from "@/components/dashboard/DashboardRecentCases";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
+import { SrmDashboardFrame } from "@/components/dashboard/SrmDashboardFrame";
+import { DonutChart } from "@/components/ops/charts/DonutChart";
 import { VerticalBarChart } from "@/components/ops/charts/BarChart";
 import { ProjectStatusChip } from "@/components/ui/StatusChip";
 import { buildProjectActivity } from "@/lib/dashboardActivity";
 import {
   incidentPriorityBars,
+  positiveShares,
   projectStatusBars,
 } from "@/lib/dashboardOverview";
 import { readDeskTier } from "@/lib/deskVisibility";
@@ -90,48 +95,92 @@ export function ActivityDashboard({
     () => incidentPriorityBars(incidents),
     [incidents],
   );
+  const mixSlices = useMemo(
+    () =>
+      positiveShares(statusBars).length
+        ? positiveShares(statusBars)
+        : positiveShares(priorityBars),
+    [statusBars, priorityBars],
+  );
 
   return (
-    <div className="space-y-7">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-tl-trust">Overview</p>
-          <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
-            Workspace health
-          </h1>
-          <p className="max-w-2xl text-sm text-tl-ink-muted">
-            Overall graphs for this workspace. Reporting packs live on the{" "}
-            <Link href="/app/reports" className="text-tl-trust-ink underline">
-              Reports
-            </Link>{" "}
-            desk. Desk: {DESK_TIER_LABELS[tier]}
-            {isPlanOwner ? " · you control pack access in Settings" : ""}.
-          </p>
-        </div>
-        <DashboardOverviewToolbar
-          planId={planId}
-          extra={
-            showSep
-              ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
-              : []
-          }
+    <SrmDashboardFrame
+      header={
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-tl-trust">Overview</p>
+            <h1 className="font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
+              Workspace health
+            </h1>
+            <p className="max-w-2xl text-sm text-tl-ink-muted">
+              Track cases · Monitor progress · Improve outcomes. Reporting packs
+              live on the{" "}
+              <Link href="/app/reports" className="text-tl-trust-ink underline">
+                Reports
+              </Link>{" "}
+              desk. Desk: {DESK_TIER_LABELS[tier]}
+              {isPlanOwner ? " · you control pack access in Settings" : ""}.
+            </p>
+          </div>
+          <DashboardOverviewToolbar
+            planId={planId}
+            extra={
+              showSep
+                ? [{ href: "/app/engagement-plan", label: "Engagement plan" }]
+                : []
+            }
+          />
+        </header>
+      }
+      kpis={
+        <>
+          <KpiCard
+            label="Projects"
+            value={String(projects.length)}
+            hint="On file"
+            wash="trust"
+          />
+          <KpiCard
+            label="Open cases"
+            value={String(open.length)}
+            hint="On file"
+            wash="demo"
+          />
+          <KpiCard
+            label="High risk"
+            value={String(highRisk.length)}
+            hint="On file"
+            wash="amber"
+            tone={highRisk.length > 0 ? "attention" : "default"}
+          />
+          <KpiCard
+            label="SLA pressure"
+            value={String(breached.length)}
+            hint="On file"
+            wash="paper"
+            tone={breached.length > 0 ? "attention" : "default"}
+          />
+        </>
+      }
+      recent={
+        <DashboardRecentCases
+          incidents={incidents}
+          empty="No cases on file yet."
         />
-      </header>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Projects" value={String(projects.length)} />
-        <KpiCard label="Open cases" value={String(open.length)} />
-        <KpiCard
-          label="High risk"
-          value={String(highRisk.length)}
-          tone={highRisk.length > 0 ? "attention" : "default"}
-        />
-        <KpiCard
-          label="SLA pressure"
-          value={String(breached.length)}
-          tone={breached.length > 0 ? "attention" : "default"}
-        />
-      </div>
+      }
+      sidebar={
+        <>
+          <OverviewChartCard title="Workspace mix" hint="Status or priority">
+            <DonutChart
+              slices={mixSlices}
+              centerLabel="Total"
+              empty="No mix on file yet."
+            />
+          </OverviewChartCard>
+          <DashboardQuickActions actions={planOverviewQuickActions(planId)} />
+        </>
+      }
+    >
 
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChartCard title="Project status" hint="Workspace mix">
@@ -226,6 +275,6 @@ export function ActivityDashboard({
           Open Reports dashboard
         </Link>
       </details>
-    </div>
+    </SrmDashboardFrame>
   );
 }
