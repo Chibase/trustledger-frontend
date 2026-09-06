@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
-import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardQuickActions, planOverviewQuickActions } from "@/components/dashboard/DashboardQuickActions";
 import { DashboardRecentCases } from "@/components/dashboard/DashboardRecentCases";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { SrmDashboardFrame } from "@/components/dashboard/SrmDashboardFrame";
@@ -177,18 +177,7 @@ export function ActivityDashboard({
               empty="No mix on file yet."
             />
           </OverviewChartCard>
-          <DashboardQuickActions
-            actions={[
-              {
-                href: "/app/projects?new=1",
-                label: "Add project",
-                icon: "add",
-              },
-              { href: "/app/issues/report", label: "Log issue", icon: "case" },
-              { href: "/app/reports", label: "Generate report", icon: "report" },
-              { href: "/app/incidents", label: "Open cases", icon: "people" },
-            ]}
-          />
+          <DashboardQuickActions actions={planOverviewQuickActions(planId)} />
         </>
       }
     >

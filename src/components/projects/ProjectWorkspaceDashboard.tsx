@@ -129,23 +129,30 @@ export function ProjectWorkspaceDashboard({
   );
   const issueHref = `/app/issues/report?projectId=${encodeURIComponent(project.id)}`;
   const quickActions: DashboardQuickAction[] = [
-    { href: issueHref, label: "Log issue", icon: "case" as const },
-    ...(hasCapability("captureHub", planId)
-      ? [
-          {
-            href: `/app/capture?projectId=${encodeURIComponent(project.id)}`,
-            label: "Capture",
-            icon: "capture" as const,
-          },
-        ]
-      : []),
-    { href: "#project-reports", label: "Generate report", icon: "report" as const },
-    {
+    { href: issueHref, label: "Log issue", icon: "case" },
+  ];
+  if (hasCapability("captureHub", planId)) {
+    quickActions.push({
+      href: `/app/capture?projectId=${encodeURIComponent(project.id)}`,
+      label: "Capture",
+      icon: "capture",
+    });
+  }
+  if (hasCapability("governanceReports", planId)) {
+    quickActions.push({
+      href: "/app/reports",
+      label: "Generate report",
+      icon: "report",
+    });
+  }
+  if (hasCapability("incidents", planId)) {
+    quickActions.push({
       href: `/app/incidents?project=${encodeURIComponent(project.id)}`,
       label: "Open cases",
-      icon: "people" as const,
-    },
-  ].slice(0, 4);
+      icon: "people",
+    });
+  }
+  if (quickActions.length > 4) quickActions.length = 4;
 
   return (
     <SrmDashboardFrame

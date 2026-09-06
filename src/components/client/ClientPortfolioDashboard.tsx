@@ -4,7 +4,7 @@ import { KpiCard } from "@/components/ui/KpiCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DeskWorkspacePanels } from "@/components/desk/DeskWorkspacePanels";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
-import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardQuickActions, planOverviewQuickActions } from "@/components/dashboard/DashboardQuickActions";
 import { DashboardRecentCases } from "@/components/dashboard/DashboardRecentCases";
 import { SrmDashboardFrame } from "@/components/dashboard/SrmDashboardFrame";
 import {
@@ -21,6 +21,7 @@ import {
   positiveShares,
   projectStatusBars,
 } from "@/lib/dashboardOverview";
+import type { PlanId } from "@/config/plans";
 import type { ClientPortfolioBrief } from "@/lib/clientPortfolioIntel";
 
 const currency = new Intl.NumberFormat("en-ZA", {
@@ -31,11 +32,13 @@ const currency = new Intl.NumberFormat("en-ZA", {
 
 type ClientPortfolioDashboardProps = {
   brief: ClientPortfolioBrief;
+  planId?: PlanId | null;
 };
 
 /** Client home — overall graphs for the governance portfolio. */
 export function ClientPortfolioDashboard({
   brief,
+  planId = null,
 }: ClientPortfolioDashboardProps) {
   const { kpis } = brief;
   const budgetBars = budgetMixBars({
@@ -126,18 +129,7 @@ export function ClientPortfolioDashboard({
               empty="No mix on file yet."
             />
           </OverviewChartCard>
-          <DashboardQuickActions
-            actions={[
-              { href: "/app/reports", label: "Generate report", icon: "report" },
-              {
-                href: "/app/stakeholders",
-                label: "Stakeholders",
-                icon: "people",
-              },
-              { href: "/app/issues/report", label: "Log issue", icon: "case" },
-              { href: "/app/incidents", label: "Open cases", icon: "add" },
-            ]}
-          />
+          <DashboardQuickActions actions={planOverviewQuickActions(planId)} />
         </>
       }
     >

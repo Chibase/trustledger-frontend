@@ -12,7 +12,7 @@ import { ReportsLibrary } from "@/components/reports/ReportsLibrary";
 import { TrustProofPanel } from "@/components/reports/TrustProofPanel";
 import { TrustIntelligencePanel } from "@/components/reports/TrustIntelligencePanel";
 import { KpiCard } from "@/components/ui/KpiCard";
-import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardQuickActions, planOverviewQuickActions } from "@/components/dashboard/DashboardQuickActions";
 import { DashboardRecentCases } from "@/components/dashboard/DashboardRecentCases";
 import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import { DonutChart } from "@/components/ops/charts/DonutChart";
@@ -302,28 +302,7 @@ export function ReportsHub({
                     />
                   </OverviewChartCard>
                   <DashboardQuickActions
-                    actions={[
-                      {
-                        href: "/app/reports",
-                        label: "Write pack",
-                        icon: "report",
-                      },
-                      {
-                        href: "/app/dashboard",
-                        label: "Executive",
-                        icon: "add",
-                      },
-                      {
-                        href: "/app/incidents",
-                        label: "Open cases",
-                        icon: "case",
-                      },
-                      {
-                        href: "/app/projects",
-                        label: "Projects",
-                        icon: "people",
-                      },
-                    ]}
+                    actions={planOverviewQuickActions(planId)}
                   />
                 </div>
               </div>

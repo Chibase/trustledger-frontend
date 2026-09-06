@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { hasCapability } from "@/lib/entitlements";
+import type { PlanId } from "@/config/plans";
 
 export type DashboardQuickAction = {
   href: string;
@@ -100,4 +102,46 @@ export function DashboardQuickActions({
       </ul>
     </section>
   );
+}
+
+/** Plan-gated overview tiles. Never invent modules the desk cannot open. */
+export function planOverviewQuickActions(
+  planId: PlanId | null | undefined,
+): DashboardQuickAction[] {
+  const actions: DashboardQuickAction[] = [];
+  if (hasCapability("projects", planId)) {
+    actions.push({
+      href: "/app/projects?new=1",
+      label: "Add project",
+      icon: "add",
+    });
+  }
+  if (hasCapability("incidents", planId)) {
+    actions.push({
+      href: "/app/issues/report",
+      label: "Log issue",
+      icon: "case",
+    });
+  }
+  if (hasCapability("governanceReports", planId)) {
+    actions.push({
+      href: "/app/reports",
+      label: "Generate report",
+      icon: "report",
+    });
+  }
+  if (hasCapability("incidents", planId)) {
+    actions.push({
+      href: "/app/incidents",
+      label: "Open cases",
+      icon: "people",
+    });
+  } else if (hasCapability("captureHub", planId)) {
+    actions.push({
+      href: "/app/capture",
+      label: "Capture",
+      icon: "capture",
+    });
+  }
+  return actions.slice(0, 4);
 }

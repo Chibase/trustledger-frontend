@@ -3,6 +3,7 @@
  */
 import { render, screen, waitFor } from "@testing-library/react";
 import { DashboardOverviewToolbar } from "@/components/dashboard/DashboardOverviewToolbar";
+import { ActivityDashboard } from "@/components/dashboard/ActivityDashboard";
 import { ExecutivePortfolioDashboard } from "@/components/dashboard/ExecutivePortfolioDashboard";
 import { HorizontalBarChart } from "@/components/ops/charts/BarChart";
 import { ProjectWorkspaceDashboard } from "@/components/projects/ProjectWorkspaceDashboard";
@@ -193,5 +194,28 @@ describe("graph-first dashboards", () => {
       screen.queryByRole("link", { name: "Capture" }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Projects" })).toBeInTheDocument();
+  });
+
+  it("hides report quick action when governanceReports is off", async () => {
+    (hasCapability as jest.Mock).mockImplementation(
+      (capability: string) =>
+        capability !== "governanceReports" &&
+        capability !== "engagements" &&
+        capability !== "captureHub",
+    );
+    render(
+      <ActivityDashboard
+        role="admin"
+        planId="solo"
+        seedIncidents={mockIncidents}
+        seedProjects={mockProjects}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Quick actions")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("link", { name: "Generate report" }),
+    ).not.toBeInTheDocument();
   });
 });
