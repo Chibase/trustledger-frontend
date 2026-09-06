@@ -3,7 +3,6 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { TRUSTLEDGER_CLOUD_HOST } from "@/lib/security/hosts";
 import {
   isVipShowcaseDefaultEmail,
   VIP_SHOWCASE_DEFAULT_EMAIL,
@@ -379,10 +378,8 @@ function LiveLoginForm() {
         <Link href="/product" className="text-tl-trust-ink underline">
           Product &amp; onboarding
         </Link>
-        . Reset links go to TrustLedger Cloud (
-        <span className="font-mono">{TRUSTLEDGER_CLOUD_HOST}</span>
-        ); set a new password there, then return here to sign in. Illustrative
-        VIP programme:{" "}
+        . Forgot password emails a reset link to the registered Cloud inbox.
+        Illustrative VIP programme:{" "}
         <Link href="/login/vip" className="text-tl-trust-ink underline">
           /login/vip
         </Link>
