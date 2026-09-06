@@ -63,8 +63,8 @@ Scale (approx):
 | Demo banner | full width, `--tl-demo` bg, white text, single line + “Book demo” link |
 | AI panel | dashed border, surface tint, always “Suggestion only” helper |
 | Tables | line headers, no dense newspaper rules |
-| KPI | one number + label + optional delta; max 4 per row on desktop; Field-ledger washes (`trust` / `amber` / `demo` / `paper`) — not lime/pink/yellow SaaS pastels |
-| SRM overview | KPI row → recent ledger table + donut mix + quick actions, then deeper graphs. Shared `SrmDashboardFrame`. Donut slices use trust / demo / amber / danger / ink-muted. |
+| KPI | one number + label + optional delta; max 4 per row on desktop (activity / client / reports); executive overview may wrap a fifth **derived** KPI. Field-ledger washes (`trust` / `amber` / `demo` / `paper`) — not lime/pink/yellow SaaS pastels. Never invent last-period % |
+| SRM overview | KPI row → recent ledger table + donut mix + quick actions, then deeper graphs. Shared `SrmDashboardFrame`. Executive deepening may replace the recent+sidebar band with trend / grievance donut / places / impact / health / activity. Donut slices use trust / demo / amber / danger / ink-muted. |
 | Connectivity banner | Capture hub only. Paper + line when online; amber wash when offline. Says same-browser draft — not a native app. |
 
 ## Motion

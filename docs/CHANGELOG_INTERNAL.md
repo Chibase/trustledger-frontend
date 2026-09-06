@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-06 — UX-3 executive overview deepening
+
+- `/app/dashboard` follows the SRM reference mock **structure** (welcome, KPI row, trend + grievance donut + places, social impact + project health, activity + upcoming + stacked quick actions) using Field-ledger tokens. Not Inter / navy / blue generic SaaS. Product name stays **TrustLedger**.
+- KPIs are derived from lists on file: active/approved projects, stakeholder count (when CRM is on), held/closed engagements, open cases, trust pulse. No invented last-period percentages. Social impact is Capture packs or —. Places link to `/app/geo` (not a decorative map).
+- Desktop shell adds a search field (stakeholders `?q=` when CRM is on, else projects), Help → Guide, and a user chip with real name + desk. Activity / client / reports keep the UX-2 four-KPI frame.
+
 ## 2026-09-06 — LC-1 low-connectivity Capture
 
 - Capture hub drafts field notes **and** report packs in this browser (`tl-field-drafts`). Banner shows online vs no connection and last-saved time. AI extract/brief stay network-only.

@@ -7,6 +7,7 @@ import { VipShowcaseBanner } from "@/components/shell/VipShowcaseBanner";
 import { SetupWizardGate } from "@/components/onboarding/SetupWizardGate";
 import { TrialPasswordChangePrompt } from "@/components/shell/TrialPasswordChangePrompt";
 import { AppNav } from "@/components/shell/AppNav";
+import { AppTopBar } from "@/components/shell/AppTopBar";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { ShellSignOut } from "@/components/shell/ShellSignOut";
 import { FeedbackDrawer } from "@/components/shell/FeedbackDrawer";
@@ -22,6 +23,7 @@ import { PlanModuleEmptyBanner } from "@/components/shell/PlanModuleEmptyBanner"
 import { PlanModuleSwitcher } from "@/components/shell/PlanModuleSwitcher";
 import { VipPackagingSync } from "@/components/shell/VipPackagingSync";
 import type { TrialSnapshot } from "@/lib/trial";
+import type { DeskTier } from "@/types/deskTier";
 import type { UserRole } from "@/types/rbac";
 
 type AppShellProps = {
@@ -35,6 +37,7 @@ type AppShellProps = {
   trial?: TrialSnapshot;
   isGuest?: boolean;
   isVip?: boolean;
+  deskTier?: DeskTier | null;
 };
 
 export function AppShell({
@@ -48,6 +51,7 @@ export function AppShell({
   trial,
   isGuest = false,
   isVip = false,
+  deskTier = null,
 }: AppShellProps) {
   const planLabel = packageLabel(trialPlan, { mode, vip: isVip });
   const modeLabel =
@@ -132,6 +136,12 @@ export function AppShell({
         </aside>
 
         <div className="min-w-0 flex-1">
+          <AppTopBar
+            userName={userName}
+            role={role}
+            deskTier={deskTier}
+            planId={trialPlan}
+          />
           <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
             <PlanModuleSwitcher
               planId={trialPlan}

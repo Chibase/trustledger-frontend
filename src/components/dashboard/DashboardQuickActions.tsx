@@ -71,13 +71,38 @@ const WASH: Record<QuickActionIcon, string> = {
 type Props = {
   actions: DashboardQuickAction[];
   title?: string;
+  variant?: "tiles" | "stack";
 };
 
 export function DashboardQuickActions({
   actions,
   title = "Quick actions",
+  variant = "tiles",
 }: Props) {
   if (!actions.length) return null;
+  if (variant === "stack") {
+    return (
+      <section className="rounded-xl border border-tl-line bg-tl-surface p-4 shadow-sm">
+        <h2 className="text-sm font-semibold text-tl-ink">{title}</h2>
+        <ul className="mt-3 space-y-2">
+          {actions.map((action, index) => (
+            <li key={action.href}>
+              <Link
+                href={action.href}
+                className={
+                  index === 0
+                    ? "flex w-full items-center justify-center rounded-md bg-tl-trust px-3 py-2.5 text-sm font-medium text-white hover:bg-tl-trust-ink"
+                    : "flex w-full items-center justify-center rounded-md border border-tl-line bg-tl-surface px-3 py-2.5 text-sm font-medium text-tl-ink hover:bg-tl-paper"
+                }
+              >
+                {action.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
   return (
     <section className="rounded-xl border border-tl-line bg-tl-surface p-4 shadow-sm">
       <h2 className="text-sm font-semibold text-tl-ink">{title}</h2>
@@ -112,14 +137,21 @@ export function planOverviewQuickActions(
   if (hasCapability("projects", planId)) {
     actions.push({
       href: "/app/projects?new=1",
-      label: "Add project",
+      label: "Add new project",
       icon: "add",
+    });
+  }
+  if (hasCapability("engagements", planId)) {
+    actions.push({
+      href: "/app/engagements",
+      label: "Log engagement",
+      icon: "capture",
     });
   }
   if (hasCapability("incidents", planId)) {
     actions.push({
       href: "/app/issues/report",
-      label: "Log issue",
+      label: "Submit grievance",
       icon: "case",
     });
   }
@@ -130,7 +162,13 @@ export function planOverviewQuickActions(
       icon: "report",
     });
   }
-  if (hasCapability("incidents", planId)) {
+  if (hasCapability("geoIntake", planId)) {
+    actions.push({
+      href: "/app/geo",
+      label: "View map",
+      icon: "people",
+    });
+  } else if (hasCapability("incidents", planId)) {
     actions.push({
       href: "/app/incidents",
       label: "Open cases",
@@ -143,5 +181,5 @@ export function planOverviewQuickActions(
       icon: "capture",
     });
   }
-  return actions.slice(0, 4);
+  return actions.slice(0, 5);
 }

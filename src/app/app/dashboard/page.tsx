@@ -42,6 +42,7 @@ export default async function AppDashboardPage() {
         isVip={Boolean(user.isVip)}
         mode={user.mode}
         email={user.email}
+        userName={user.name}
         seedIncidents={incidents}
         seedProjects={projects}
       />

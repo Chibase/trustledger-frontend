@@ -26,7 +26,10 @@ export default function AppStakeholdersPage() {
   const { pushToast } = useToast();
   const [rows, setRows] = useState<Stakeholder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("q") ?? "";
+  });
   const [kind, setKind] = useState<StakeholderKind | "all">("all");
   const [status, setStatus] = useState<StakeholderStatus | "all">("all");
   const [showCreate, setShowCreate] = useState(() => {
