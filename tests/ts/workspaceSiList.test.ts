@@ -35,10 +35,20 @@ describe("preferCloudSiList", () => {
     expect(rows.map((row) => row.id)).toEqual(["ENG-VIP"]);
   });
 
-  it("does not fill an empty live Cloud with leftover trial rows", () => {
+  it("does not fill an empty live Cloud with leftover trial stakeholders", () => {
     setMode("live");
-    const rows = preferCloudSiList([], [trialRow, liveRow]);
+    const rows = preferCloudSiList([], [trialRow, liveRow], {
+      liveExtras: "live-source",
+    });
     expect(rows.map((row) => row.id)).toEqual(["ENG-LIVE"]);
+  });
+
+  it("keeps unsynced engagement drafts whose source is minutes, not live", () => {
+    setMode("live");
+    const rows = preferCloudSiList([], [
+      { id: "ENG-MIN", source: "minutes" as const },
+    ]);
+    expect(rows.map((row) => row.id)).toEqual(["ENG-MIN"]);
   });
 
   it("keeps unsynced live drafts beside Cloud rows", () => {

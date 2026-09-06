@@ -3,7 +3,7 @@
 ## 2026-09-06 — VIP executive overview (UX-3 follow-up)
 
 - Complimentary VIP trial uses **Institutional** packaging on `/app/dashboard` (KPIs, quick actions, toolbar, search) even if a leftover cookie still says Solo. Nav already did this; the overview did not.
-- Trial SI lists (engagements, stakeholders, commitments) keep local/org rows when live Cloud SI returns empty. Live Cloud customers still do not fill an empty Cloud with leftover trial/showcase rows.
+- Trial SI lists (engagements, stakeholders, commitments) keep local/org rows when live Cloud SI returns empty. Live Cloud customers still do not fill an empty Cloud with leftover **trial-source** stakeholders. Engagement drafts keep capture origins (`minutes` / `discussion`) and still overlay Cloud.
 - Overview reloads stakeholders/engagements/commitments after `tl-workspace-seeded` so the VIP showcase pack is not raced off the first paint.
 
 ## 2026-09-06 — Live forgot-password email

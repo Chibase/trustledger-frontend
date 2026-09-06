@@ -148,8 +148,8 @@ export const stakeholderService = {
           : [...listOrgStakeholders(getActiveOrgId()), ...readLocal()];
         return delay(
           applyFilters(
-            preferCloudSiList(cloud, local).sort((a, b) =>
-              a.name.localeCompare(b.name),
+            preferCloudSiList(cloud, local, { liveExtras: "live-source" }).sort(
+              (a, b) => a.name.localeCompare(b.name),
             ),
             filters,
           ),
@@ -160,10 +160,11 @@ export const stakeholderService = {
     if (own) {
       return delay(
         applyFilters(
-          preferCloudSiList([], [
-            ...listOrgStakeholders(getActiveOrgId()),
-            ...readLocal(),
-          ]).sort((a, b) => a.name.localeCompare(b.name)),
+          preferCloudSiList(
+            [],
+            [...listOrgStakeholders(getActiveOrgId()), ...readLocal()],
+            { liveExtras: "live-source" },
+          ).sort((a, b) => a.name.localeCompare(b.name)),
           filters,
         ),
       );
