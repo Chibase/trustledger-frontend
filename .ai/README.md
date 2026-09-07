@@ -1,79 +1,83 @@
 # TrustLedger AI Engineering Workflow
 
+**Locked.** ChatGPT, Cursor, Codex, and any other authorised AI implementation agent use this repository-controlled process. Do not invent a parallel workflow.
+
 ## Authority Chain
 
-1. `AGENTS.md` is the binding engineering constitution.
-2. `docs/BUILD_PLAN.md` defines packet roadmap, locked delivery rules, and product scope.
-3. `docs/DECISIONS.md` contains locked architectural decisions.
-4. `docs/DESIGN_SYSTEM.md` governs the design system.
-5. `.ai/TASK.md` is the **current implementation assignment** and the **hard execution gate**.
-6. `.ai/HANDOFF.md` is the **AI Engineering Handoff** — the assigned agent's post-execution report.
+1. `AGENTS.md` — binding engineering constitution.
+2. `docs/BUILD_PLAN.md` — packet roadmap, locked delivery rules, product scope. **Not an assignment.**
+3. `docs/DECISIONS.md` — locked architectural decisions.
+4. `docs/DESIGN_SYSTEM.md` — design system.
+5. `.ai/TASK.md` — **current implementation assignment** and **hard execution gate**.
+6. `.ai/HANDOFF.md` — latest **completed** execution handoff (history of the last closed task).
 
-BUILD_PLAN, DECISIONS, and DESIGN_SYSTEM remain binding. They do **not** authorise product work when `.ai/TASK.md` is EMPTY, COMPLETE, VERIFIED, or CLOSED.
+GitHub is the shared source of truth for source code, engineering authority, task state, handoffs, decisions, and implementation history.
+
+## Permanent operating cycle
+
+```
+DESIGN
+  ↓
+ASSIGN
+  ↓
+EXECUTE
+  ↓
+HANDOFF
+  ↓
+VERIFY
+  ↓
+CLOSE
+  ↓
+EMPTY
+  ↓
+NEXT TASK
+```
+
+**EMPTY TASK = STOP.**
+
+Do not infer a task from an **ACTIVE** heading, Planned row, or phase label in `docs/BUILD_PLAN.md`. The current `.ai/TASK.md` is the only authorised implementation assignment.
 
 ## Task lifecycle
 
-`.ai/TASK.md` `Status` must be exactly one of:
+`.ai/TASK.md` `Status` is exactly one of:
 
 ```
 EMPTY → ASSIGNED → IN PROGRESS → COMPLETE → VERIFIED → CLOSED
 ```
 
-| Status | Meaning | Who sets it | Execution |
-|--------|---------|-------------|-----------|
-| **EMPTY** | No implementation task is assigned. | ChatGPT / owner | **Not authorised.** Do not implement product changes. Do not infer a packet from BUILD_PLAN. |
-| **ASSIGNED** | A task has been formally assigned. Execution has not started. | ChatGPT / owner | The named agent may start by setting **IN PROGRESS**. No other agent may execute. |
-| **IN PROGRESS** | The assigned agent is executing the authorised TASK scope. | Assigned implementation agent | **Authorised** for that agent only, within TASK scope. |
-| **COMPLETE** | The assigned agent has finished the work and written `.ai/HANDOFF.md`. | Assigned implementation agent | **Not authorised.** Do not re-execute. Wait for verification. |
-| **VERIFIED** | ChatGPT / owner has independently reviewed the result and accepted it. | ChatGPT / owner only | **Not authorised.** |
-| **CLOSED** | The task is formally finished. No further execution should occur. | ChatGPT / owner only | **Not authorised.** |
+After **CLOSED**, `.ai/TASK.md` is reset to **EMPTY**. The closed task remains permanently recorded in `.ai/HANDOFF.md` (not in TASK). TASK cannot hold history and EMPTY at the same time.
 
-The assigned implementation agent must **not** set VERIFIED or CLOSED.
+| Status | Meaning | Authority | Implementation execution |
+|--------|---------|-----------|--------------------------|
+| **EMPTY** | No task is authorised. | ChatGPT / owner (idle / after close) | **STOP.** |
+| **ASSIGNED** | ChatGPT / owner has assigned the task. Execution has not started. | ChatGPT / owner | Named agent may start (set **IN PROGRESS**). |
+| **IN PROGRESS** | Assigned implementation agent has started. | Assigned implementation agent | **Authorised** for that agent, TASK scope only. |
+| **COMPLETE** | Implementation agent has finished and produced HANDOFF. | Assigned implementation agent | **STOP.** Do not re-execute. |
+| **VERIFIED** | ChatGPT / owner has independently reviewed and accepted the result. | ChatGPT / owner **only** | **STOP.** |
+| **CLOSED** | ChatGPT / owner has formally closed the task. | ChatGPT / owner **only** | **STOP.** Then reset TASK to **EMPTY**. |
 
-## Assignment gate
+No AI implementation agent may set **VERIFIED** or **CLOSED**, unless ChatGPT / owner explicitly instructs them to record an owner closure (as in workflow lock). They must never declare their own work VERIFIED or CLOSED.
 
-`.ai/TASK.md` is the only authorised current implementation assignment.
+## Hard execution gate
 
-* **EMPTY** = no implementation is authorised.
-* **ASSIGNED** or **IN PROGRESS** = the TASK body is the only authorised current implementation assignment. Execute only that task and its explicitly required supporting changes.
-* **COMPLETE**, **VERIFIED**, or **CLOSED** = do not implement further changes for this TASK.
-* The assigned agent must still obey `AGENTS.md`, `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, and `docs/DESIGN_SYSTEM.md`.
-* Cloud Agent checkouts may lag `origin/master`. Fetch the branch tip before concluding that `.ai/` files are missing.
+Implementation agents may execute **ONLY** when Status is **ASSIGNED** or **IN PROGRESS**.
 
-## Operating Cycle
+They must **STOP** when Status is **EMPTY**, **COMPLETE**, **VERIFIED**, or **CLOSED**.
 
-DESIGN → ASSIGN → EXECUTE → HANDOFF → VERIFY → CLOSE
+**EMPTY TASK = STOP.**
 
-### DESIGN
+## Handoff reset rule
 
-ChatGPT and the product owner define the requirement, scope, behaviour and acceptance criteria.
+`.ai/HANDOFF.md` contains the **latest completed execution handoff**.
 
-### ASSIGN
+* The assigned agent writes/updates HANDOFF when setting Status **COMPLETE**.
+* After ChatGPT / owner **CLOSES** the task, that HANDOFF is the preserved record.
+* Replace or rewrite HANDOFF for a **new** task only after the **current** task is **CLOSED**.
+* Do not erase a closed handoff while TASK is EMPTY awaiting the next assignment.
 
-The agreed implementation task is recorded in `.ai/TASK.md` with Status **ASSIGNED** and an **Assigned Agent**. The agent may be Cursor, Codex, or another authorised AI implementation agent — do not assume one vendor.
+Required HANDOFF fields: Task, Assigned Agent, Status, Findings, Changes, Validation, Behaviour, Risks, Git Status, Remaining Work.
 
-### EXECUTE
-
-The assigned agent sets Status **IN PROGRESS**, inspects the repository, implements only the authorised TASK scope, and runs appropriate validation.
-
-### HANDOFF
-
-The assigned agent writes `.ai/HANDOFF.md` and sets Status **COMPLETE**.
-
-`.ai/HANDOFF.md` must record:
-
-* Task
-* Assigned Agent
-* Status
-* Findings
-* Changes
-* Validation
-* Behaviour
-* Risks
-* Git Status
-* Remaining Work
-
-Use this shape: header fields **Task**, **Assigned Agent**, and **Status**, then the eight sections below.
+Shape: header **Task**, **Assigned Agent**, **Status**, then:
 
 1. Task
 2. Findings
@@ -84,27 +88,112 @@ Use this shape: header fields **Task**, **Assigned Agent**, and **Status**, then
 7. Git Status
 8. Remaining Work
 
+## Roles
+
+### ChatGPT / owner
+
+Responsible for:
+
+* product and engineering design;
+* task definition;
+* assignment (Status **ASSIGNED**, named agent);
+* interpretation of requirements;
+* independent verification (Status **VERIFIED**);
+* task closure (Status **CLOSED**, then TASK → **EMPTY**);
+* deciding when the next task may begin.
+
+### Implementation agent
+
+May be **Cursor**, **Codex**, or **another explicitly authorised AI agent**. The repository does not assume a permanent executor.
+
+Responsible for:
+
+* repository inspection;
+* executing **only** the assigned TASK;
+* respecting `AGENTS.md` and project authority (BUILD_PLAN, DECISIONS, DESIGN_SYSTEM);
+* making the smallest compatible changes;
+* validation;
+* producing HANDOFF and setting **COMPLETE**;
+* reporting blockers instead of inventing workarounds;
+* **never** declaring its own work VERIFIED or CLOSED.
+
+### GitHub
+
+Shared source of truth for:
+
+* source code;
+* engineering authority (`AGENTS.md`, `docs/`);
+* task state (`.ai/TASK.md`);
+* handoffs (`.ai/HANDOFF.md`);
+* decisions;
+* implementation history (git).
+
+## Interruption / takeover
+
+If an implementation agent becomes unavailable, another authorised agent may take over **only after**:
+
+1. reading the current TASK;
+2. reading the latest HANDOFF;
+3. verifying Git state (`git fetch origin master`, clean vs remote);
+4. confirming the current task status;
+5. continuing **only** within the existing authorised scope.
+
+An unavailable agent does **not** cancel the task.
+
+## Stale checkout
+
+Agents on a potentially stale checkout (including Cloud Agent snapshots) must:
+
+* `git fetch origin master` before relying on `.ai` state;
+* never conclude that `.ai` is missing until the remote has been checked;
+* never overwrite newer remote work with stale local state.
+
+## Cycle steps
+
+### DESIGN
+
+ChatGPT / owner define requirement, scope, behaviour, and acceptance criteria.
+
+### ASSIGN
+
+ChatGPT / owner write `.ai/TASK.md` with Status **ASSIGNED** and **Assigned Agent**.
+
+### EXECUTE
+
+Assigned agent sets **IN PROGRESS**, implements only the TASK scope, validates.
+
+### HANDOFF
+
+Assigned agent writes `.ai/HANDOFF.md` and sets **COMPLETE**.
+
 ### VERIFY
 
-ChatGPT / owner checks the result against acceptance criteria and architecture, then sets Status **VERIFIED**.
+ChatGPT / owner independently review and set **VERIFIED**.
 
 ### CLOSE
 
-ChatGPT / owner sets Status **CLOSED**. The cycle may then DESIGN / ASSIGN a new TASK.
+ChatGPT / owner set **CLOSED**, then reset `.ai/TASK.md` to **EMPTY**. Closed work stays in `.ai/HANDOFF.md`.
+
+### EMPTY
+
+**EMPTY TASK = STOP.** Wait for ChatGPT / owner to ASSIGN the next task.
+
+### NEXT TASK
+
+Only ChatGPT / owner may create the next assignment.
 
 ## Rules
 
 * Read `AGENTS.md`, `.ai/TASK.md`, and `.ai/HANDOFF.md` before implementation.
-* If Status is EMPTY, COMPLETE, VERIFIED, or CLOSED, stop. Do not implement product changes.
-* Read `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, `docs/DESIGN_SYSTEM.md`, and any task-specific documentation before coding.
-* Implement only the active authorised TASK scope.
-* Prefer the smallest compatible patch.
-* Do not re-architect the platform unless explicitly authorised.
-* Never modify `srm-core/` unless the task explicitly authorises backend work.
+* **EMPTY TASK = STOP.** Also stop on COMPLETE, VERIFIED, CLOSED.
+* Never infer a packet from BUILD_PLAN ACTIVE headers.
+* Read BUILD_PLAN, DECISIONS, DESIGN_SYSTEM, and task-specific docs before coding.
+* Implement only the authorised TASK scope. Smallest compatible patch.
+* Do not re-architect unless the TASK authorises it.
+* Never modify `srm-core/` unless the TASK explicitly authorises backend work.
 * Never expose secrets or API keys.
-* Do not claim completion without running the required validation.
-* When blocked, report the exact blocker rather than inventing a workaround.
-* Remain **agent-neutral** in workflow docs: name the assigned agent on the TASK, do not hard-code a single implementation vendor.
+* Do not claim completion without the required validation.
+* When blocked, report the exact blocker.
 
 ## Observations (not assignments)
 
