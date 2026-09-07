@@ -97,9 +97,9 @@ No product or user-facing behaviour change. Implementation agents must STOP on C
 
 * Base: `origin/master` `d1b8acc`.
 * Branch: `cursor/v-01-current-state-verification-02da`.
-* Commits: `0b21fe9` assign V-01 IN PROGRESS; this COMPLETE commit on the same branch.
-* Pull request: https://github.com/Chibase/trustledger-frontend/pull/258 (draft until COMPLETE push).
-* Working tree intended clean after this commit. `src/` and `srm-core/` untouched.
+* Commits: `0b21fe9` assign V-01 IN PROGRESS; `1a2dc07` COMPLETE handoff.
+* Pull request: https://github.com/Chibase/trustledger-frontend/pull/258 (ready for ChatGPT/owner review).
+* Working tree clean after this commit. `src/` and `srm-core/` untouched. Diff vs `origin/master`: `.ai/TASK.md`, `.ai/HANDOFF.md` only.
 
 ## 8. Remaining Work
 
