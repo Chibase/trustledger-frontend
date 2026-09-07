@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # TrustLedger agent rules
 
-1. Read `docs/BUILD_PLAN.md` before coding. Implement **only the active packet**.
+1. Read `.ai/TASK.md` and `.ai/HANDOFF.md` before implementation. **EMPTY TASK = do not implement product changes.** A non-empty TASK is the only authorised current implementation assignment. Then read `docs/BUILD_PLAN.md`. Implement **only the assigned TASK scope** — do not infer a packet from BUILD_PLAN phase headers when TASK is empty. Workflow: `.ai/README.md`.
 2. Obey `docs/DECISIONS.md` and `docs/DESIGN_SYSTEM.md` — do not re-ask locked choices.
 3. Current phase = **GO LIVE Done** + Cloud Stakeholder Intelligence deepening. Backend host = `app.trustledgersrm.co.za` only (Interserv retired). No Cloudflare/WordPress work in this repo unless asked.
 4. Minimise human interruption: only ask when blocked (secrets, prod destroy, plan conflict).

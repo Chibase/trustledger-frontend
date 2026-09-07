@@ -1,8 +1,10 @@
-# Codex Handoff
+# AI Engineering Handoff
 
 Status: EMPTY
 
-When an implementation task is completed, report:
+Agent: (the assigned AI implementation agent that executed the task)
+
+When an implementation task is completed, the assigned agent reports:
 
 ## 1. Task
 
