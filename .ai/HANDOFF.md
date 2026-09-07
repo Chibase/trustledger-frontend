@@ -1,58 +1,61 @@
 # AI Engineering Handoff
 
+Task: Phase 6 End-to-End Integration Test
+
+Assigned Agent: Cursor
+
 Status: COMPLETE
 
-Agent: Cursor
-
-When an implementation task is completed, the assigned agent reports:
+Cursor executed this task. Scope was documentation/workflow only. No product code was changed. No `srm-core` changes occurred.
 
 ## 1. Task
 
-PHASE 5 — Real Task Handoff Test. Assigned agent: Cursor. Prove ChatGPT → shared `.ai` state → Cursor → handoff → GitHub → ChatGPT verification. Authorised scope: record the assignment in `.ai/TASK.md`, add one final line to `.ai/README.md` that Phase 5 was executed by Cursor, and fill this handoff. No product packet, no application code, no `srm-core`, no BUILD_PLAN / DECISIONS / DESIGN_SYSTEM edits.
+Phase 6 End-to-End Integration Test. Prove DESIGN → ASSIGN → EXECUTE → HANDOFF → VERIFY → CLOSE. Authorised work: define TASK lifecycle states; keep the workflow agent-neutral; record required HANDOFF fields; add one Phase 6 completion marker in `.ai/README.md`. Do not re-execute Phase 5. Do not start Packet 24c or product development. Do not set VERIFIED or CLOSED.
 
 ## 2. Findings
 
-* Authority chain is intact (`AGENTS.md` → BUILD_PLAN → DECISIONS → DESIGN_SYSTEM → `.ai/TASK.md` → `.ai/HANDOFF.md`).
-* Before this TASK, `.ai/TASK.md` was EMPTY (hard gate idle). `.ai/HANDOFF.md` was the empty eight-section template.
-* `origin/master` was fetched. HEAD matched `179d3ef` (`chore(ai): normalise shared workflow as agent-neutral gate`). Working tree was clean. No unrelated local work to preserve.
-* Shared workflow files were present: `.ai/README.md`, `.ai/TASK.md`, `.ai/HANDOFF.md`.
-* TASK functions as the assignment gate: this non-empty TASK is the only authorised current assignment. BUILD_PLAN ACTIVE headers were not treated as an assignment.
-* HANDOFF functions as the result handoff (this file).
-* No conflict with locked ADRs: documentation-only `.ai/` change, no product behaviour, no rearchitecture.
+* Fetched `origin/master`. HEAD matched `8945a98` (Phase 5 handoff). Working tree was clean.
+* Phase 5 TASK was still **ASSIGNED** with COMPLETE HANDOFF — not re-executed. Replaced by this Phase 6 TASK.
+* Authority chain intact. No ADR conflict: docs-only `.ai/` + `AGENTS.md` workflow gate; no product behaviour.
+* Prior gate treated any non-empty TASK as executable, so a COMPLETE Phase 5 TASK could be re-run. Lifecycle states close that gap. `AGENTS.md` rule 1 now matches the lifecycle (EMPTY / COMPLETE / VERIFIED / CLOSED = do not implement).
+* BUILD_PLAN ACTIVE-header / `/demo` observations remain observations only.
 
 ## 3. Changes
 
-* `.ai/TASK.md` — replaced EMPTY placeholder with the Phase 5 assignment (title, assigned agent Cursor, objective, scope, acceptance criteria, execution rules). Status: ASSIGNED.
-* `.ai/README.md` — one final line: `Phase 5 Real Task Handoff Test has been executed by Cursor.`
-* `.ai/HANDOFF.md` — this report; Agent: Cursor; Status: COMPLETE.
+* `.ai/README.md` — lifecycle table; cycle DESIGN → ASSIGN → EXECUTE → HANDOFF → VERIFY → CLOSE; agent-neutral ASSIGN/EXECUTE; HANDOFF required fields; Phase 6 completion marker.
+* `.ai/TASK.md` — Phase 6 assignment. Status set **IN PROGRESS** at start of execution, then **COMPLETE**. Assigned Agent: Cursor. VERIFIED / CLOSED not set.
+* `.ai/HANDOFF.md` — this Phase 6 report (Task, Assigned Agent, Status + eight sections).
+* `AGENTS.md` — rule 1 now enforces the lifecycle (execute only ASSIGNED / IN PROGRESS).
 
 ## 4. Validation
 
-* `git fetch origin master`; HEAD equalled `origin/master` at `179d3ef` before edits.
-* `git diff --name-only` / `--stat`: only `.ai/TASK.md`, `.ai/README.md`, `.ai/HANDOFF.md`.
-* Confirmed README ends with the required Phase 5 execution line.
-* Confirmed no `src/`, no `srm-core`, no `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, `docs/DESIGN_SYSTEM.md`, no `AGENTS.md`.
-* Phrase checks: TASK contains Phase 5 assignment and Assigned Agent Cursor; HANDOFF Agent is Cursor; eight sections present.
+* `git fetch origin master`; clean tree at `8945a98` before edits.
+* `git diff --name-only` inspected against HEAD: only `.ai/README.md`, `.ai/TASK.md`, `.ai/HANDOFF.md`, `AGENTS.md`.
+* Confirmed no `src/`, no `srm-core`, no `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, `docs/DESIGN_SYSTEM.md`.
+* README contains the Phase 6 completion marker and the six lifecycle states.
+* TASK Status is COMPLETE; Assigned Agent is Cursor; VERIFIED and CLOSED are absent.
+* HANDOFF identifies Cursor; states documentation/workflow-only; states no product code and no `srm-core`.
 * `npm run lint` and `npm run build` were **not** run (documentation-only; not claimed).
 
 ## 5. Behaviour
 
-No product or user-facing behaviour change. ChatGPT can now verify that Cursor consumed a concrete TASK, made the authorised one-line README stamp, and produced this structured handoff on GitHub (`origin/master`).
+No product or user-facing behaviour change. ChatGPT / owner can VERIFY then CLOSE this TASK. Implementation agents must not execute COMPLETE / VERIFIED / CLOSED tasks.
 
 ## 6. Risks
 
-* TASK remains ASSIGNED with this Phase 5 text. A later agent must not treat it as a new product packet. Phase 5 instruction: do not start another task.
-* BUILD_PLAN ACTIVE-header / `/demo` observations are unchanged (out of scope).
-* Cloud Agent checkouts may still lag `origin/master`; fetch before concluding `.ai/` is missing.
+* VERIFIED and CLOSED are unset by design; ChatGPT / owner must set them after review.
+* `AGENTS.md` was updated so COMPLETE cannot be treated as an executable non-empty TASK. That is workflow-lock adjacent; Phase 7 may still tighten templates.
+* BUILD_PLAN ambiguities are unchanged (out of scope).
+* Cloud Agent checkouts may lag `origin/master`.
 
 ## 7. Git Status
 
-* Branch: `cursor/phase-5-handoff-test-d4e1`
-* Target: `origin/master` (Phase 5 acceptance requires push to `origin/master`)
-* Base: `179d3ef`
-* Files in this change: `.ai/TASK.md`, `.ai/README.md`, `.ai/HANDOFF.md`
+* Branch: `cursor/phase-6-e2e-test-d4e1`
+* Target: `origin/master` (Phase 6 instruction: push to `origin/master`)
+* Base: `8945a98`
+* Files: `.ai/README.md`, `.ai/TASK.md`, `.ai/HANDOFF.md`, `AGENTS.md`
 * Working tree expected clean after commit and push
 
 ## 8. Remaining Work
 
-Nothing in this TASK left undone. Do not start Packet 24c or any other product-development packet. ChatGPT verification of this handoff is the next step outside this assignment.
+ChatGPT / owner: VERIFY then CLOSE. Do not start Packet 24c or other product work from this TASK. Phase 7 — Lock Workflow is the next integration step after verification, not part of this execution.
