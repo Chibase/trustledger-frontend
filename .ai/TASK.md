@@ -6,48 +6,47 @@ Assigned Agent: Cursor
 
 ## Title
 
-V-03 — TrustLedger Differentiating Intelligence Verification
+I-01 — Common Intelligence Foundation
 
 ## Objective
 
-Produce an evidence-based assessment of TrustLedger **differentiating intelligence** after V-02 CLOSED / EMPTY, so ChatGPT/owner can independently verify what is genuinely implemented versus mock, demo, or presentation-only. Verification-only.
+Establish the minimum reusable foundation for this TrustLedger intelligence lifecycle:
+
+Evidence → Context → Signal → Interpretation → Intelligence → Recommendation → Human Decision → Action → Outcome → Learning
 
 ## Scope
 
-Verify the actual implementation and evidence chain for:
+1. Inspect the existing implementation first. Reuse what already exists; do not duplicate existing structures.
+2. Implement only the minimum common contracts/types/helpers needed to support the lifecycle consistently across future intelligence capabilities.
+3. Preserve existing product behaviour and stable entities.
+4. Keep evidence, provenance, context, signals, interpretations, intelligence and recommendations explicitly distinguishable.
+5. Keep machine-generated suggestions separate from human decisions and actions.
+6. Design for future methodologies and intelligence domains without hard-coding a particular methodology.
+7. Do not introduce premature product features.
 
-1. Stakeholder intelligence
-2. Relationship / influence intelligence
-3. Trust and stability signals
-4. Community risk intelligence
-5. ESG / Social Performance intelligence
-6. Early-warning / predictive intelligence
-7. AI-assisted intelligence
-8. Evidence → intelligence → decision/action chain
-9. Separation of genuine intelligence from mock/demo presentation
+## Out of scope
 
-For every area, classify it as exactly one of: **Implemented + verified** / **Implemented but runtime-dependent** / **Partial** / **Blocked or operator-dependent** / **Demo-local only** / **Missing**.
-
-Inspect `src/` implementation, BFF/API routes, data services, Frappe integration, relevant DocTypes/contracts, and available production/runtime evidence. Record concrete file paths, routes, data sources, and HTTP/runtime evidence where available.
-
-* Verification-only. Do not build, fix, refactor, or start another packet.
-* Do not modify application code (`src/`).
-* Do not modify `srm-core`.
-* Do not modify locked product documents (`docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, `docs/DESIGN_SYSTEM.md`).
-* Do not fix identified gaps.
-* Do not start HS-3/HS-4 or any other product-development packet.
-* Do not set VERIFIED or CLOSED (ChatGPT / owner only).
+- No new dashboard
+- No predictive model
+- No LLM integration
+- No methodology engine or marketplace
+- No stakeholder graph
+- No BAU module
+- No unrelated refactoring
+- Do not touch `srm-core/`
+- Do not redesign stable product entities
 
 ## Acceptance criteria
 
-1. `.ai/TASK.md` contains this V-03 assignment and ends at Status **COMPLETE**.
-2. `.ai/HANDOFF.md` is replaced with the V-03 intelligence assessment using the required eight-section structure (Task, Findings, Changes, Validation, Behaviour, Risks, Git Status, Remaining Work).
-3. The handoff identifies Cursor as the executing agent.
-4. Each of the nine areas is classified with concrete evidence (file paths, routes, DocTypes, data sources, HTTP/runtime probes).
-5. Application source code is untouched.
-6. `srm-core` is untouched.
-7. `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, and `docs/DESIGN_SYSTEM.md` are untouched.
-8. Changes are committed and a PR to master is opened. Working tree is clean after completion.
+1. Shared lifecycle contracts exist and keep each stage distinguishable.
+2. Suggestions remain `suggestion_only` / non-autonomous; human decisions are a separate stage.
+3. Existing SRM entities, Trust layer, UI, APIs, and `srm-core/` are unchanged in behaviour.
+4. No dashboard, LLM, methodology engine, graph, or BAU work.
+5. `docs/CHANGELOG_INTERNAL.md` updated.
+6. `npm run lint` and `npm run build` pass.
+7. `.ai/HANDOFF.md` written with the eight required sections.
+8. `.ai/TASK.md` ends at Status **COMPLETE**. VERIFIED / CLOSED not set.
+9. Changes committed and a PR to master opened.
 
 ## Execution rules
 
@@ -55,4 +54,4 @@ Inspect `src/` implementation, BFF/API routes, data services, Frappe integration
 * Follow `AGENTS.md`, `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, and `docs/DESIGN_SYSTEM.md`.
 * Stop if the task conflicts with a locked decision.
 * Do not perform any additional cleanup or product work.
-* When verification is complete, set Status **COMPLETE** and write `.ai/HANDOFF.md`.
+* When implementation is complete, set Status **COMPLETE** and write `.ai/HANDOFF.md`.
