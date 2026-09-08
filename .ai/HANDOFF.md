@@ -1,241 +1,199 @@
 # AI Engineering Handoff
 
-Task: V-02 — Core Product Integrity Verification
+Task: V-03 — TrustLedger Differentiating Intelligence Verification
 
 Assigned Agent: Cursor
 
-Status: CLOSED
+Status: COMPLETE
 
-Owner closure: ChatGPT/owner independently **VERIFIED** V-02 against the COMPLETE handoff and merged PR #260 (`fb2eb6f`), then formally **CLOSED** it. This handoff is the preserved historical record. `.ai/TASK.md` is **EMPTY** for the next assignment. Do not replace this handoff until the next task is CLOSED.
-
-Cursor executed V-02. Scope was verification-only (`.ai/` task + handoff). No product code was changed. No `srm-core` changes occurred. VERIFIED / CLOSED were not set by the implementation agent.
+Cursor executed V-03. Scope was verification-only (`.ai/` task + handoff). No product code was changed. No `srm-core` changes occurred. VERIFIED / CLOSED were not set.
 
 ## 1. Task
 
-V-02 — Core Product Integrity Verification. Verification-only assessment of the operational chain **Organisation → Project → Geographic Area → Stakeholders → Engagements → Commitments → Grievances → Reporting** against repository code, Frappe Cloud BFF integration, and available production/runtime evidence. No product development. No `src/` / `srm-core` / locked product-doc changes. Do not set VERIFIED or CLOSED.
+V-03 — TrustLedger Differentiating Intelligence Verification. Verification-only assessment of nine intelligence areas against `src/` implementation, BFF/API routes, Frappe DocTypes/contracts, and available production/runtime evidence. Do not build, fix, refactor, or start another packet. Do not modify `src/`, `srm-core`, or locked product documents. Do not set VERIFIED or CLOSED.
 
-V-02 was not present on `origin/master` (EMPTY after V-01 CLOSED). Cursor initialised `.ai/TASK.md` from the ChatGPT/owner assignment in this run, then executed it. The prior V-01 CLOSED handoff is replaced here because V-02 is a new task after owner closure of V-01.
+V-03 was not present on `origin/master` (EMPTY after V-02 CLOSED `#261`). Cursor initialised `.ai/TASK.md` from the ChatGPT/owner assignment in this run, then executed it. The prior V-02 CLOSED handoff is replaced here because V-03 is a new task after owner closure of V-02.
 
-Git at assessment: branch `cursor/v-02-core-product-integrity-c06d`; `origin/master` = `fe01d80` (`chore(ai): close V-01 current-state verification (#259)`); Production `deploySha` = `fe01d80` (matches master). Cloud reachable via health check.
+Git at assessment: branch `cursor/v-03-differentiating-intelligence-c06d`; `origin/master` = `672c342` (`chore(ai): close V-02 core product integrity verification (#261)`); Production `deploySha` = `672c342` (matches master). Cloud reachable via health check (app 200, Cloud 200).
 
 ## 2. Findings
 
-### Cross-cutting persist / empty-Cloud rules
+### Cross-cutting (applies to every area)
 
-| Mode | Behaviour |
-|------|-----------|
-| **live** customer (`tl-mode=live`, not trial) | Cloud list is SoT. Overlay helpers keep **Cloud ids only** — empty `[]` wins (no demo `INC-*`). |
-| **trial** / invitee customer | Browser `tl-org-data` / SI local keys; no mock seed. Trial SI may keep local rows when Cloud SI returns empty. |
-| **demo** (retired sample path) | Mock seed allowed; ADR-033 retired public `/demo` → `/product`. |
-
-Evidence: `preferCloudProjectList` / `preferCloudIncidentList` / `preferCloudSiList` / `overlayLocal*OntoCloud` in `src/lib/workspaceData.ts`, `src/services/{project,incident,commitment}Service.ts`, `src/lib/sepPersist.ts`. BFF comments: `GET /api/frappe/si`, `GET /api/frappe/product`, `GET /api/frappe/sep` — “empty Cloud stays empty (no mock seed)”.
-
-Env: `NEXT_PUBLIC_DATA_MODE=live` enables Cloud paths (`src/config/api.ts` `isLiveMode`). `PLATFORM_OPERATOR_ONLY` gates live BFF when `1`; Production health reports `launch.lockdownLifted: true` (buyers open). Ops stay on `PLATFORM_OPERATOR_EMAILS`.
-
-Entitlements: `src/config/entitlements.ts` + `FeatureGate` / `AppNav` `hasCapability`. Solo lacks SI (`stakeholdersCrm`, `engagements`, `commitments`, `captureHub`). Project+ / Institutional have full SI chain. SEP reuses `engagements` capability (no separate SKU).
-
-### Capture hub (feeder into SI)
-
-| # | Finding |
-|---|---------|
-| Routes | `src/app/app/capture/page.tsx`; BFF `POST /api/app/capture/extract-text` |
-| Store | `src/lib/captureStore.ts` — `listCaptureRecords` / `saveCaptureRecord` (`tl-capture-records` localStorage) |
-| Apply → SI | Capture narrative apply saves `stakeholderService.save` + `engagementService.save` with `projectIds` / `stakeholderIds` / `captureId` (`capture/page.tsx` ~787–854) |
-| Gate | `captureHub` (Project+) |
-| Class | **implemented but runtime-dependent** (apply hits live SI BFF when live) |
-
-### SEP (chain sibling — briefing → registry/engagements/commitments)
-
-| # | Finding |
-|---|---------|
-| Routes | `/app/engagement-plan`, `/new`, `/[id]` under `src/app/app/engagement-plan/` |
-| Persist | `src/lib/sepPersist.ts` → `GET\|POST\|DELETE /api/frappe/sep` → DocType **`TL Engagement Plan`** (`src/lib/sepCloud.ts`) |
-| Apply | `src/lib/sepApply.ts` `applyEngagementPlanToSrm` → stakeholder / engagement / commitment services |
-| Gate | `engagements` |
-| Class | **implemented but runtime-dependent** |
-| Gap | `tedsMaturity.ts` stillNeeded still says “Cloud document type for saved plans” — **stale**; SI-SEP Cloud persist is Done |
+* Live SI/product/trust BFFs require a Plan Owner session. Unauthenticated Production probes: `GET /api/frappe/si?kind=stakeholder` **401**, `GET /api/frappe/trust?kind=observation` **401**. Classifications therefore cannot be **Implemented + verified** for Cloud writes from this agent.
+* Customer vs demo: `src/lib/workspaceMode.ts` `isCustomerWorkspaceClient()`; empty Cloud: `preferCloud*` in `src/lib/workspaceData.ts`; BFF comments on `src/app/api/frappe/si/route.ts`, `product/route.ts`, `sep/route.ts`, `trust/route.ts`.
+* Entitlements: `src/config/entitlements.ts` — Solo has `trustPulse` + `geoIntake` but **no** `stakeholdersCrm` / `engagements` / `commitments` / `captureHub` / `esgIndicators` / `aiAssist`. Project+ has SI + ESG. Practitioner adds `aiAssist`.
+* `srm-core/` is empty in this repo. Cloud AI method paths exist in `src/config/api.ts` (`srm_core.api.ai.*`) but Python methods are not in-tree. Live Grok is deferred (AGENTS.md / VERSIONING).
+* Production `GET /api/health` (2026-09-08): `ok: true`, `deploySha: 672c342`, `lockdownLifted: true`, Cloud 200. AI mock flag is **not** exposed on health.
 
 ---
 
-### 1. Organisation / Plan Owner / tenancy (T1–T5, OD-3/OD-4)
+### 1. Stakeholder intelligence
 
 | Item | Evidence |
 |------|----------|
-| **Routes** | `/app/settings` (`src/app/app/settings/page.tsx`); org UI: `TeamSeatsPanel`, `DataSpacePanel`, `MediaLibraryPanel`, `PlanOwnerMasterPanel`, `EntitlementsSettingsPanel`. Invite: `/invite/accept`, `/invite/reject`. Live login `/login/live`. Pay/trial bootstrap. |
-| **Client** | `orgStore.ts` (`ensureOwnerOrg`, `createOrgInvite`, `tl-orgs`); `orgSession.ts` (`bootstrapPlanOwnerOrg`, cookies); `orgDataSpace.ts` (`tl-org-data`); `entitlementCloud.ts` (`getCustomerEntitlementByOwnerEmail`, `entitlementAllowsLiveAccess`); `frappeSoT.ts` (Customer/User drafts); `planOwnerAccess.ts`; `tenantScope.ts` `bindSessionCustomer`; `migrateOrgClient.ts` → `POST /api/frappe/migrate-org` |
-| **BFF** | `POST /api/frappe/provision-owner`; `POST /api/frappe/migrate-org`; invite APIs under `src/app/api/invite/*`; `POST /api/org/password`; Paystack + `GET\|POST /api/cron/charge-due` |
-| **DocTypes** | Frappe **Customer** + **User** (custom_plan_code, custom_owner_email, custom_entitlement_status, custom_project_limit). Not a `TL Organisation` DocType. |
-| **Persist** | Trial: localStorage org. Live: Cloud Customer/User SoT (T5/OD Done). OD-3 migrates projects/incidents/evidence/trust/SEP — **not** SI stakeholders/engagements/commitments. |
-| **Empty Cloud** | N/A as list; tenancy bind drops unbound rows. No INC-* seed in customer/trial (`workspaceMode.ts`). |
-| **Links** | Customer stamps all TL\* rows; Plan Owner invites seats; project create checks `projectLimit`. |
-| **Gates** | Plan seats; `requireLivePlanOwner` for create project / invites; entitlement status trial\|active for live access; `PLATFORM_OPERATOR_ONLY` when set. |
-| **Gaps** | Invite email operator sitting (Resend From apex); `tedsMaturity` administration stillNeeded “Plan Owner invites (post lockdown)” stale vs GO LIVE Done. Migrate omits SI CRM rows. |
-| **Class** | **implemented but runtime-dependent** (Cloud provision + env); invite mail **blocked/operator-dependent** for remaining sitting items |
+| **Routes** | `/app/stakeholders`, `/app/stakeholders/[id]` (`src/app/app/stakeholders/`) |
+| **Client** | `src/services/stakeholderService.ts`; influence picker on list create (`stakeholders/page.tsx`) |
+| **BFF** | `GET\|POST /api/frappe/si?kind=stakeholder` → `upsertCloudStakeholder` / `listCloudSiRows` (`src/lib/siCloud.ts`) |
+| **DocType** | **`TL Stakeholder`** (`src/lib/frappeSiDocTypes.ts`); fields include `influence` |
+| **Data** | Live Cloud; trial local (`tl-crm-stakeholders` / org); demo `src/data/mock/stakeholders.ts` only when not customer |
+| **Runtime** | Production SI BFF 401 without live session |
+| **Class** | **Implemented but runtime-dependent** |
 
-### 2. Project
+Registry + place/project links + Cloud persist exist (V-02). This is genuine SI for live/trial, not a marketing mock. Gaps vs “intelligence”: no graph, create path sets `interests: []`.
 
-| Item | Evidence |
-|------|----------|
-| **Routes** | `/app/projects` `page.tsx`; `/app/projects/[id]` → `ProjectDetailClient`, dossier, MEL, workspace dashboard |
-| **Client** | `projectService.ts` — `list` / `get` / `save` / `overlayLocalProjectsOntoCloud`; `projectDossier.ts` (local overlay); `listWorkspaceProjects` |
-| **BFF** | `GET\|POST /api/app/projects`; `GET\|PUT /api/app/projects/[id]`. Optional srm_core `list_projects` then resource API fallthrough. |
-| **DocType** | **`TL Project`** (`productCloud.ts` / `frappeProductDocTypes.ts`) |
-| **Persist** | Live: Cloud upsert; dossier stays local. Trial: `tl-org-data` / trialStore. Demo: mockProjects. |
-| **Empty Cloud** | Yes — `overlayLocalProjectsOntoCloud` maps Cloud ids only; live list returns `[]` when empty. |
-| **Links** | `ward` / `municipality` strings; dossier.geo.placeId (local); incidents/engagements/commitments/capture/reports filter by `projectId`. |
-| **Gates** | `projects` capability (all commercial plans); create Plan Owner + projectLimit; Solo = 1. |
-| **Gaps** | Programmes/milestones/teams; place id not a Cloud Link field (Data/JSON overlay). `tedsMaturity` score 40. |
-| **Class** | **implemented but runtime-dependent** |
-
-### 3. Geographic Area
+### 2. Relationship / influence intelligence
 
 | Item | Evidence |
 |------|----------|
-| **Routes** | `/app/geo` `src/app/app/geo/page.tsx`. **Not** in `AppNav` — reached via dashboard quick actions / dossier / intelligence / stakeholder links. |
-| **Client** | `geoService.ts` — pack seed via `geoSeed.ts`; live tries `FRAPPE_METHODS.listGeoPlaces` then falls back to seed. |
-| **BFF** | `GET /api/geo` (client-safe pack queries). No `/api/frappe/geo` DocType BFF. |
-| **DocType** | **None** in-repo. Platform ZA place packs (ADR-040), not tenant DocType. |
-| **Persist** | Static/seed packs under `data/geo/`; indicators mock/pack. Project dossier.geo is local overlay. |
-| **Empty Cloud** | N/A (not Cloud-backed tenant data). Does not invent INC-*. |
-| **Links** | Project dossier placeId; stakeholder.placeId; incident.geo; engagement ward/placeLabel (strings). |
-| **Gates** | `geoIntake` on all SA plans (Solo+). |
-| **Gaps** | Frappe Geo DocTypes; Stats SA; lat/lng — `tedsMaturity` geo.stillNeeded. |
-| **Class** | **partial** (strong seed baseline; no Cloud geo SoT) |
+| **Registry field** | `Stakeholder.influence` (`high\|medium\|low\|unknown`) persisted on Cloud (`siCloud.ts` `influence`). UI select on `/app/stakeholders`. |
+| **Related people** | `relatedStakeholderIds` on type + Cloud JSON (`related_stakeholder_ids`). **No editor or graph UI** under `/app/stakeholders`. Values appear in demo/VIP seed (`src/data/mock/stakeholders.ts`, `src/data/vipShowcase.ts`) only. |
+| **SEP matrix** | `src/components/sep/SepMatrixBoard.tsx` + `src/lib/sepMatrix.ts` — power–interest **classes** on an engagement plan, not a live CRM relationship graph. |
+| **Engagement links** | `engagement.stakeholderIds[]` Cloud JSON; Capture apply writes those ids (`capture/page.tsx` ~787–854). |
+| **Maturity** | `tedsMaturity.ts` stillNeeded: “Relationship mapping graph”, “Influence / interest matrices”, “Merge / dedupe tooling”. |
+| **Class** | **Partial** |
 
-### 4. Stakeholders
+Influence as an enum on a person is implemented. Differentiating relationship intelligence (graph, matrices on named people, live related-ids UX) is not.
+
+### 3. Trust and stability signals
 
 | Item | Evidence |
 |------|----------|
-| **Routes** | `/app/stakeholders`, `/app/stakeholders/[id]` |
-| **Client** | `stakeholderService.ts` — `list` / `get` / `save` / `createStakeholderId`; keys `tl-crm-stakeholders` + org stakeholders |
-| **BFF** | `GET\|POST /api/frappe/si?kind=stakeholder` → `upsertCloudStakeholder` / `listCloudSiRows` |
-| **DocType** | **`TL Stakeholder`** |
-| **Persist** | Live Cloud; trial org+local; demo mockStakeholders. Live customer extras only `source==="live"`. |
-| **Empty Cloud** | Yes for live customers. Trial may retain local non-seed when Cloud empty. |
-| **Links** | `placeId`, `projectIds[]`; Capture/SEP apply create rows; engagement.stakeholderIds |
-| **Gates** | `stakeholdersCrm` (Project+) |
-| **Gaps** | Relationship graph / influence matrix / dedupe (`tedsMaturity`). OD-3 migrate does not push stakeholders. |
-| **Class** | **implemented but runtime-dependent** |
+| **Desk pulse** | `TrustPulse` (`src/components/trust/TrustPulse.tsx`) uses `trustIndexFromIncidents` (`src/lib/grievanceProcess.ts`) on **workspace incident lists** (sentiment −100…100 + SLA pressure). Genuine when cases are genuine. |
+| **Compose** | `src/lib/trust/composeSignals.ts` — incident pulse + `relationshipHealthFromLabels` + promise health from commitments. |
+| **Note pulse** | `RelationshipHealthPulse` (`src/components/trust/RelationshipHealthPulse.tsx`) — heuristic early-warning from applied engagement sentiment. |
+| **Trust layer Cloud** | DocTypes `TL Trust Observation`, `TL Trust Participation`, `TL Trust Community Context`, `TL Trust Claim Verification` (`src/lib/frappeTrustDocTypes.ts`). BFF `GET\|POST /api/frappe/trust` (`src/app/api/frappe/trust/route.ts`) — Production **401**. `omitCloudTrustOverlay` strips TE-1 overlay from SI/product Cloud writes. |
+| **Advisory intel** | `src/lib/trust/intelligence.ts` — local rules, **no LLM**, suggestion → human apply, `autonomous: false`. |
+| **Class** | **Implemented but runtime-dependent** |
 
-### 5. Engagements
+Pulse is derived from desk evidence, not a fictional widget. TE-1 overlay remains frontend-optional and is omitted on Cloud mappers. Verification stamps are human-apply only (`frappeTrustDocTypes.ts` header).
+
+### 4. Community risk intelligence
 
 | Item | Evidence |
 |------|----------|
-| **Routes** | `/app/engagements`, `/app/engagements/[id]` |
-| **Client** | `engagementService.ts`; local `tl-engagements` + sentiment/trust overlays |
-| **BFF** | `GET\|POST /api/frappe/si?kind=engagement` |
-| **DocType** | **`TL Engagement`** |
-| **Persist** | Live Cloud (trust overlay omitted on write); trial local; demo seed. |
-| **Empty Cloud** | Live: Cloud SoT + non-seed local extras overlay. Trial keeps local if BFF fails/empty. |
-| **Links** | `projectId`, `stakeholderIds[]`, `captureId`, actionItems → commitment promote; SEP apply |
-| **Gates** | `engagements` |
-| **Gaps** | Structured attendance; geo place ids on engagement (`tedsMaturity`). |
-| **Class** | **implemented but runtime-dependent** |
+| **Profiles** | `CommunityProfilesPanel` on `/app/intelligence` from `src/lib/trust/communityProfiles.ts` (trust community context / field capture). Empty until humans apply field extras. Cloud via `shouldUseTrustCloud()`. |
+| **Local intel** | `src/lib/parseLocalCommunityIntel.ts` — tenant-owned baseline_compare vs project_impact; **never writes Stats SA packs** (ADR-040). Stored on project dossier overlay. |
+| **Cases** | Complaint nature `community_disgruntlement` (`grievanceProcess.ts`); triage regex in `aiService.mockTriage`. |
+| **SEP** | Social-risk / early-warning sections in `src/lib/sepRenderSections.ts` / `sepDocumentRenderer.ts` — plan prose, not a live risk register DocType. |
+| **Class** | **Partial** |
 
-### 6. Commitments
+Field-capture community context and local impact metrics exist. There is no Cloud community-risk DocType, no scored risk model, and SEP “early-warning” is document text unless applied into SI rows.
+
+### 5. ESG / Social Performance intelligence
 
 | Item | Evidence |
 |------|----------|
-| **Routes** | `/app/commitments`, `/app/commitments/[id]` |
-| **Client** | `commitmentService.ts` — `overlayLocalCommitmentsOntoCloud`; promote from engagement detail `promoteAction` |
-| **BFF** | `GET\|POST /api/frappe/si?kind=commitment` |
-| **DocType** | **`TL Commitment`** (MEL expected/actual fields) |
-| **Persist** | Live Cloud; trial local `tl-commitments`; demo seed |
-| **Empty Cloud** | Yes for live customers (id overlay only) |
-| **Links** | `engagementId`, `projectId`, `stakeholderIds`, `sourceActionItem` |
-| **Gates** | `commitments` |
-| **Gaps** | Cloud evidence file attach; owner from seats (`tedsMaturity`). Migrate omits commitments. |
-| **Class** | **implemented but runtime-dependent** |
+| **Desk** | `/app/intelligence` (`src/app/app/intelligence/page.tsx`), `FeatureGate` `esgIndicators`. Production `HEAD /app/intelligence` → **307** `/login/live?next=%2Fapp%2Fintelligence`. |
+| **Indicators** | Page reads `mockIndicators` / `FEATURED_INDICATOR_PLACES` (`src/data/mockIndicators.ts`) — hardcoded Gauteng, Eastern Cape, JHB, CPT, eThekwini; comment says platform Stats SA baseline (ADR-040), **not INC-* demo seed**. Filename is `mockIndicators`. |
+| **Geo BFF** | Production `GET /api/geo?indicators=1&placeId=za-gp` **200**: unemployment 34.2% (Stats SA QLFS 2024), piped water 88.1%, youth NEET 42.5%. `geoService.indicatorsForPlace` merges pack + `mockIndicators`; live tries `srm_core.api.geo.list_indicators` then falls back. ZA pack notes say socio-econ ships via Intelligence baseline for **featured places**, not full ward ingest. |
+| **Briefs** | `aiService.generateIndicatorBrief` — **always** `mockIndicatorBrief` (local heuristic; comment: never call LLM from browser). Saved `tl-esg-briefs` localStorage (`src/lib/indicatorBriefStore.ts`). **No Cloud ESG DocType.** |
+| **Local SP** | Dossier `communityIntel.localIndicators` + Capture social_intel parse (`parseLocalCommunityIntel`). |
+| **Class** | **Partial** |
 
-### 7. Grievances (Incidents)
+Featured-place baseline + local upload + local brief save. Not live municipal Stats SA ingest, not Cloud SoT, not Grok.
+
+### 6. Early-warning / predictive intelligence
 
 | Item | Evidence |
 |------|----------|
-| **Routes** | `/app/incidents`, `/app/incidents/[id]`; intake `/app/issues/report` |
-| **Client** | `incidentService.ts`; stamps `grievanceProcess.ts` (`advanceIncidentStage`, `verifyAndCloseIncident`); UI `ProcessStageActions.tsx`; root cause `grievanceRootCause.ts`; MEL learn/adapt |
-| **BFF** | `GET\|POST /api/frappe/product?kind=incident`; upload `POST /api/frappe/upload-file`; ensure DocTypes `POST /api/frappe/ensure-product-doctypes` |
-| **DocType** | **`TL Incident`** (+ stage Datetimes, root_cause, adapt_json); **`TL Evidence`** |
-| **Persist** | Live Cloud upsert (throws if push fails); also caches org. Trial org store. Demo mockIncidents only in non-customer. |
-| **Empty Cloud** | Yes — `overlayLocalIncidentsOntoCloud`; customer never merges mockIncidents |
-| **Links** | `projectId` / `projectName`; optional `geo`; reports bind cases; issue report can pass projectId |
-| **Gates** | `incidents`, `issueIntake` (Solo+) |
-| **Gaps** | Client TAT policy admin UI; live escalation queues by tier |
-| **Class** | **implemented but runtime-dependent** |
+| **Heuristic EW** | `RelationshipHealthPulse` (“leadership early-warning strip”); `collectTrustAlerts` / `TRUST_INTELLIGENCE_RULES` (`src/lib/trust/recommendations.ts`, `rules.ts`); SLA/TAT pressure on Trust pulse; `NoteSentimentAssist` copy. |
+| **SEP** | Early-warning as plan section / QA (`sepQualityAssurance.ts`) — documentary. |
+| **Predictive** | **No** forecast model, no time-series DocType, no predicted incident/risk API. `srm-core` Grok path unused for this. |
+| **Class** | **Partial** |
 
-### 8. Reporting
+Early-warning is rule/heuristic on already-scored notes and cases. Predictive intelligence is **missing** inside this combined area.
+
+### 7. AI-assisted intelligence
 
 | Item | Evidence |
 |------|----------|
-| **Routes** | `/app/reports` → `ReportsHub`, `CreateReportWizard`, `ProjectReportStudio`, library |
-| **Client** | `reportComposer.ts` (local evidence writer — never Frappe/Grok month-end); `src/lib/reportWorkspaceLists.ts` `loadReportWorkspaceLists()`; `reportStore.ts` (`tl-authored-reports` **localStorage only**); `reportPackAccess.ts` |
-| **BFF** | None for report CRUD. Lists via project/incident/commitment BFFs. SEP PDF: `POST /api/app/engagement-plan/pdf` |
-| **DocType** | None for saved reports |
-| **Persist** | Authored reports browser-only. Packs bind to live Cloud lists when live. |
-| **Empty Cloud** | Yes — `loadReportWorkspaceLists` uses preferCloud*; composer does not invent INC-* |
-| **Links** | Project-first; cites workspace incidents/commitments/capture packs |
-| **Gates** | `governanceReports` (all plans); pack depth by desk/plan |
-| **Gaps** | No Cloud report DocType; deeper geo/CRM-bound packs; export/print maturity (`tedsMaturity` reporting score 40) |
-| **Class** | **partial** (live list bind + local composer strong; report SoT not Cloud) |
+| **Locked pattern** | Suggest → human apply → save (`AiSuggestionPanel`, `NoteSentimentAssist`, Capture extract, SEP draft). Solo has no `aiAssist`. |
+| **Mock vs Cloud** | `aiService.ts` `USE_MOCK` = `NEXT_PUBLIC_AI_MOCK` not false/0 (**defaults on**). `.env.example` `NEXT_PUBLIC_AI_MOCK=true`. Triage/sentiment/draft/stakeholder-extract **can** call `FRAPPE_METHODS` when mock off; `srm-core` empty here. Sentiment falls back to local heuristic on Cloud error. |
+| **Never Cloud LLM** | `generateIndicatorBrief`, `generateReportBrief`, `composeActivityReport` — local only (Grok returns fill-in-the-blank templates; AGENTS.md reportComposer rule). Trust TE-4: `source: "local_rules"`. |
+| **Themba** | Public Q&A; does not write desk data (`themba/prompt.ts`). |
+| **Class** | **Partial** |
 
-### Production / env gates (probed 2026-09-08)
+Human-gated assist is real. Differentiating “live model intelligence” is not: indicator/report paths are local heuristics by design; Cloud AI depends on env + missing in-repo `srm-core`.
 
-* `GET /api/health`: `ok: true`, `deploySha: fe01d80`, TrustLedger app 200, Cloud 200, `lockdownLifted: true`, Paystack/cron/Resend/auto-provision/owner issuance/L2 session bind true, `leadBackend: frappe`.
-* Unauthenticated Cloud BFFs return **401** (expected; no live Owner session in this agent): `GET /api/frappe/si?kind=stakeholder`, `GET /api/app/projects`, `GET /api/frappe/product?kind=incident`, `GET /api/frappe/sep` — `"Not logged in to live session"` / `"Live sign-in required"`. Chain writes are therefore **runtime-dependent** on a live Plan Owner session; they are not missing.
-* `GET /api/geo?counts=1` **200** (no login): `country: 1`, `province: 9`, `district: 52`, `local_municipality: 205`, `metro: 8` (213 munis/metros), `ward: 4468`, `traditional_council: 15` — matches ADR-040 ZA pack baseline.
-* Operator sitting remains: reCAPTCHA keys, OTP kill-switch, Resend From legacy apex, Webway CTA, Desk SMTP.
-* `srm-core/` empty in this repo — product CRUD uses Frappe **resource** DocTypes via BFF, not Python methods in-tree.
+### 8. Evidence → intelligence → decision/action chain
+
+| Step | Evidence |
+|------|----------|
+| Evidence in | Capture (`tl-capture-records`), `POST /api/app/capture/extract-text`, incident evidence `POST /api/frappe/upload-file` / `TL Evidence`, SEP briefing → plan. |
+| Intelligence | Trust pulse / relationship health / local ESG brief / reportComposer (`src/lib/reportComposer.ts`) from `loadReportWorkspaceLists()` (`src/lib/reportWorkspaceLists.ts`) — live lists when live; empty Cloud stays empty. |
+| Decision/action | **Human apply only**: Capture apply → `stakeholderService.save` + `engagementService.save`; SEP `applyEngagementPlanToSrm` (`src/lib/sepApply.ts`); grievance `advanceIncidentStage` / `verifyAndCloseIncident`; commitment `promoteAction`; trust recs `decision: "suggestion_only"`. Indicator brief “recommendedActions” do **not** auto-create cases. Authored reports: `tl-authored-reports` localStorage. |
+| **Class** | **Partial** |
+
+Desk apply chain (evidence → saved SI/grievance/commitment) is implemented and runtime-dependent on live session. Intelligence artefacts (ESG briefs, trust advisory markdown) do not close the loop into Cloud decisions without a further human save on another desk.
+
+### 9. Separation of genuine intelligence from mock/demo presentation
+
+| Guard | Evidence |
+|-------|----------|
+| **Working** | ADR-033 `/demo` → `/product`; customer workspaces never merge `mockIncidents` (`workspaceData.ts`); live Cloud list wins; VIP leftover-Solo packaging does not seed INC-*. |
+| **Platform baseline vs demo** | `mockIndicators` is labeled Stats SA featured-place baseline (ADR-040), served on Production `/api/geo`. Not fictional case seed — but **not tenant-measured** either. Intelligence page binds this file directly, not Cloud socio-econ. |
+| **Bleed risk** | `aiService.incidentsForBrief` defaults to `INC-1001` / `INC-1004` from `mockIncidents` when `incidentIds` missing (`generateReportBrief` path). Customer report compose uses `reportComposer` + workspace facts (safer). |
+| **Env** | `.env.example` still `NEXT_PUBLIC_DATA_MODE=demo` and `NEXT_PUBLIC_AI_MOCK=true`. Production health shows live Cloud 200 + lockdown lifted (data mode live in prod), but AI mock is opaque. |
+| **Class** | **Partial** |
+
+CRM/grievance empty-Cloud rules are strong. Intelligence/ESG presentation still mixes a shared hardcoded baseline and local heuristic briefs; one AI brief helper can still cite demo INC-* if called without workspace ids.
 
 ### Classification roll-up
 
-| Area | Classification |
-|------|----------------|
-| Organisation / Plan Owner | implemented but runtime-dependent (+ invite mail operator-dependent) |
-| Project | implemented but runtime-dependent |
-| Geographic Area | partial |
-| Stakeholders | implemented but runtime-dependent |
-| Engagements (+ Capture feeder) | implemented but runtime-dependent |
-| Commitments | implemented but runtime-dependent |
-| Grievances | implemented but runtime-dependent |
-| Reporting | partial |
-| SEP (sibling) | implemented but runtime-dependent |
+| # | Area | Classification |
+|---|------|----------------|
+| 1 | Stakeholder intelligence | Implemented but runtime-dependent |
+| 2 | Relationship / influence intelligence | Partial |
+| 3 | Trust and stability signals | Implemented but runtime-dependent |
+| 4 | Community risk intelligence | Partial |
+| 5 | ESG / Social Performance intelligence | Partial |
+| 6 | Early-warning / predictive intelligence | Partial |
+| 7 | AI-assisted intelligence | Partial |
+| 8 | Evidence → intelligence → decision/action chain | Partial |
+| 9 | Separation of genuine intelligence from mock/demo | Partial |
 
-No chain stage is **missing**. None are **demo/local-only** as the sole customer path (demo seed exists only for non-customer sessions). Geo and Reporting are the clearest **partial** SoT gaps.
+No area is **Implemented + verified** (no live Owner session to prove Cloud writes). None of the nine is wholly **Missing** or solely **Demo-local only**. **Blocked or operator-dependent**: live Grok / `srm_core.api.ai.*` and `list_indicators` need Cloud `srm-core` that is not in this repo (not HS-3/HS-4; not started).
 
 ## 3. Changes
 
-* `.ai/TASK.md` — V-02 assignment ended **COMPLETE**; owner close reset it to canonical **EMPTY**.
-* `.ai/HANDOFF.md` — V-02 integrity assessment preserved; Status **CLOSED** with owner VERIFIED + CLOSED.
+* `.ai/TASK.md` — V-03 assignment. Status **IN PROGRESS** then **COMPLETE**. Assigned Agent: Cursor. VERIFIED / CLOSED not set.
+* `.ai/HANDOFF.md` — this V-03 intelligence assessment.
 
-No other files. No `src/`, no `srm-core`, no `docs/BUILD_PLAN.md` / `DECISIONS.md` / `DESIGN_SYSTEM.md`.
+No other files. No `src/`, no `srm-core`, no `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, `docs/DESIGN_SYSTEM.md`.
 
 ## 4. Validation
 
-* `git fetch origin master`; master `fe01d80`.
-* Read-only inspection of desks, services, BFF routes, DocType helpers (`frappeProductDocTypes.ts`, `frappeSiDocTypes.ts`, `sepCloud.ts`), entitlements, `workspaceData.ts` empty-Cloud rules, `migrate-org` body (projects/incidents/evidence/trust/SEP — not SI CRM).
-* Production health + unauthenticated BFF/geo probes (see Findings).
+* `git fetch origin master`; master `672c342` EMPTY before this assignment.
+* Read-only inspection of desks, services, BFF routes, DocType helpers, entitlements, trust/ESG/AI modules, empty-Cloud helpers.
+* Production probes: `/api/health`, unauthenticated SI/trust 401, `/api/geo?indicators=1&placeId=za-gp` 200, `/app/intelligence` 307 to live login.
 * Diff limited to `.ai/TASK.md` and `.ai/HANDOFF.md`.
-* Did not modify application code; did not run lint/build as product gate (verification-only; AGENTS packet gate applies to product packets).
-* Lifecycle: EMPTY (master after V-01) → owner-assigned V-02 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by the implementation agent.
-* ChatGPT/owner independent review (2026-09-08): PR **#260** is **MERGED** (`fb2eb6f`, merged by Chibase at 2026-09-08T08:46:29Z). Merge touched only `.ai/TASK.md` and `.ai/HANDOFF.md`. COMPLETE findings remain consistent with `origin/master`. Status set **VERIFIED**, then **CLOSED**, then TASK reset to **EMPTY**.
+* Did not run lint/build as a product gate (verification-only).
+* Lifecycle: EMPTY (master after V-02 close) → owner-assigned V-03 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by agent.
 
 ## 5. Behaviour
 
-No product behaviour change. Implementation agents must STOP on EMPTY / COMPLETE / VERIFIED / CLOSED. Next work requires a new ChatGPT/owner ASSIGNED TASK. Do not start Packet 24c, HS-3/HS-4, lint remediation, or geo/reporting product work from this assessment.
+No product or user-facing behaviour change. Next agent must STOP until ChatGPT/owner VERIFIED/CLOSED and a new ASSIGNED task exists. Do not start HS-3/HS-4, Packet 24c, Stats SA ingest, relationship graph, Grok wiring, or lint remediation from this assessment.
 
 ## 6. Risks
 
-* `tedsMaturity.ts` stillNeeded rows for SEP Cloud DocType, Plan Owner invites, ADR-013 lift are **stale** vs BUILD_PLAN / GO LIVE — can mislead if treated as assignments.
-* OD-3 `migrate-org` does not migrate SI stakeholders/engagements/commitments — trial SI can stay browser-only after first live login unless users re-save via SI BFF.
-* Reporting authored bodies have no Cloud DocType — live desks lose library on new browser/device.
-* Geo has no Cloud DocType — place binding on projects is dossier overlay only.
-* Operator sitting (reCAPTCHA, OTP, Webway, Desk SMTP, Resend apex) cannot be finished from this repo.
-* Open PRs noted in V-01 (#257/#241/#238/#194/#195) may still be unmerged; not re-executed here.
+* Treating `/app/intelligence` + `mockIndicators` as tenant-verified ESG will over-claim Version 002 (ADR-044). Featured Stats SA cells are a **shared baseline**, not project M&E.
+* `generateReportBrief` can cite demo `INC-1001` if invoked without workspace incident ids.
+* `relatedStakeholderIds` on Cloud without UI will drift unused; agents may assume a graph exists.
+* Trust overlay omitted on SI Cloud writes — live Owners will not see TE-1 attitudes on Frappe rows.
+* ESG briefs (`tl-esg-briefs`) and authored reports are browser-local; new device loses them.
+* Default `NEXT_PUBLIC_AI_MOCK=true` means Production may still be heuristic AI even when Frappe Cloud is up; health does not report the flag.
+* Predictive “early warning” copy on Relationship health is thresholding of applied sentiment, not a forecast.
+* Operator sitting (reCAPTCHA, OTP, Webway, Desk SMTP) is unchanged and out of scope.
 
 ## 7. Git Status
 
-* V-02 execution merged: `fb2eb6f` (`chore(ai): complete V-02 core product integrity verification (#260)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED V-02 and reset `.ai/TASK.md` to EMPTY. Diff vs `fb2eb6f`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/261.
+* Base: `origin/master` `672c342`.
+* Branch: `cursor/v-03-differentiating-intelligence-c06d`.
+* Diff vs `origin/master`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/` and `srm-core/` untouched.
+* Pull request: https://github.com/Chibase/trustledger-frontend/pull/262.
+* Production `deploySha` matched `672c342` at assessment.
 
 ## 8. Remaining Work
 
-V-02 is **VERIFIED** and **CLOSED**. No further execution of V-02. Product development may resume only when ChatGPT/owner writes a new ASSIGNED TASK. Do not start Packet 24c, HS-3/HS-4, lint remediation, geo/reporting Cloud SoT, or operator sitting from this handoff.
+V-03 execution is **COMPLETE**. ChatGPT/owner independently **VERIFY**, then **CLOSE**, then reset `.ai/TASK.md` to EMPTY. Do not re-execute V-03. Do not start HS-3/HS-4, Packet 24c, relationship-graph, Stats SA ingest, live Grok, or product development from this handoff. Next work requires a new ASSIGNED TASK.
