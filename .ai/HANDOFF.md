@@ -71,8 +71,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 ## 7. Git Status
 
 * Base: `origin/master` `ff9d0e1`.
-* Branch: `cursor/i-05-intelligence-foundation-77de`.
-* PR: https://github.com/Chibase/trustledger-frontend/pull/280
+* Branch: `cursor/i-05-explainable-intelligence-77de`.
 * Diff vs `origin/master`: I-05 intelligence types/helpers/tests/docs, changelog, living-note pointers, `.ai/TASK.md`, `.ai/HANDOFF.md`. Existing desks/entities and `srm-core/` untouched.
 
 ## 8. Remaining Work
