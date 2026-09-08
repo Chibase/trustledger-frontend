@@ -37,4 +37,4 @@ An `ExplainableSignalRecord` is an I-01 `IntelligenceSignalRecord` plus:
 
 ## Next packet (not this one)
 
-Interpretation (I-04) requires a new ASSIGNED TASK.
+Interpretation lives in `docs/INTELLIGENCE_INTERPRETATION.md`. Intelligence synthesis and later packets require a new ASSIGNED TASK.
