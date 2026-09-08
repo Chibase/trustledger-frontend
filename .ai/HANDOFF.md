@@ -76,7 +76,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 ## 7. Git Status
 
 * I-05 execution merged: `bd7233e` (`I-05: Explainable Intelligence Foundation (#281)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED I-05 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-05: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched.
+* Owner close: ChatGPT/owner VERIFIED then CLOSED I-05 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-05: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/283.
 
 ## 8. Remaining Work
 
