@@ -234,6 +234,7 @@ No product behaviour change. Next agent must STOP until ChatGPT/owner VERIFIED/C
 * Branch: `cursor/v-02-core-product-integrity-c06d`.
 * Commits: `8fafbb2` assign V-02 IN PROGRESS; `77b7652` COMPLETE handoff (plus follow-up if Git Status / production probes were tightened).
 * Diff vs `origin/master`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/` and `srm-core/` untouched.
+* Pull request: https://github.com/Chibase/trustledger-frontend/pull/260.
 * Production `deploySha` matched `fe01d80` at assessment.
 
 ## 8. Remaining Work
