@@ -4,9 +4,13 @@ Task: I-03 — Explainable Signal Foundation
 
 Assigned Agent: Cursor
 
-Status: COMPLETE
+Status: CLOSED
 
-Cursor executed I-03. Scope was the minimum reusable explainable signal contracts and helpers. Existing product behaviour is unchanged. No `srm-core` changes. VERIFIED / CLOSED were not set. I-04 was not started.
+Owner closure: ChatGPT/owner independently **VERIFIED** I-03 against the architecture, specification, acceptance criteria, and merged PR #273 (`07c3e19`), then formally **CLOSED** it. This handoff is the preserved historical record. `.ai/TASK.md` is **EMPTY** for the next assignment. Do not replace this handoff until the next task is CLOSED. Do not begin I-04 from this close.
+
+Cursor executed I-03. Scope was the minimum reusable explainable signal contracts and helpers. Existing product behaviour is unchanged. No `srm-core` changes. VERIFIED / CLOSED were not set by the implementation agent. I-04 was not started.
+
+Lint exception (owner-accepted, preserved): `npm run lint` still reports a **pre-existing global** set of `react-hooks/set-state-in-effect` errors and unused-var warnings on unrelated files. I-03 did not introduce them, did not fix them, and did not expand the exception. Closure does not require remediating that lint set.
 
 ## 1. Task
 
@@ -37,7 +41,7 @@ Git at start: `origin/master` = `ebe7032` (`Merge pull request #272 from Chibase
 * `tests/ts/intelligenceSignal.test.ts` + `jest.ui.config.cjs` entry.
 * `docs/INTELLIGENCE_SIGNAL.md`; pointers from I-01/I-02 living notes.
 * `docs/CHANGELOG_INTERNAL.md`.
-* `.ai/TASK.md` — I-03, Status **COMPLETE**. `.ai/HANDOFF.md` — this file.
+* `.ai/TASK.md` — I-03, Status **IN PROGRESS** then **COMPLETE** (now **EMPTY** after owner close). `.ai/HANDOFF.md` — this file.
 
 **Files changed:** `.ai/TASK.md`, `.ai/HANDOFF.md`, `docs/CHANGELOG_INTERNAL.md`, `docs/INTELLIGENCE_SIGNAL.md`, `docs/INTELLIGENCE_FOUNDATION.md`, `docs/INTELLIGENCE_CONTEXT.md`, `jest.ui.config.cjs`, `src/types/intelligenceSignal.ts`, `src/lib/intelligence/signal.ts`, `src/lib/intelligence/index.ts`, `tests/ts/intelligenceSignal.test.ts`.
 
@@ -49,32 +53,31 @@ Unchanged: `src/app/`, SRM entity types, I-01/I-02 type files (no breaking edit)
 
 **Build:** `npm run build` — pass.
 
-**Lint:** `npm run lint` — same **pre-existing global** 8 `react-hooks/set-state-in-effect` errors + 2 unused-var warnings (`login/trial`, `pay/activate`, `pay/success`, `ExperienceFeedbackForm`, `GeoLocationWizard`, `FeedbackDrawer`, `orgDataSpace.ts`, `sepPdf.ts`). No new I-03 lint. Exception **not expanded**.
+**Lint:** `npm run lint` — same **pre-existing global** 8 `react-hooks/set-state-in-effect` errors + 2 unused-var warnings (`login/trial`, `pay/activate`, `pay/success`, `ExperienceFeedbackForm`, `GeoLocationWizard`, `FeedbackDrawer`, `orgDataSpace.ts`, `sepPdf.ts`). No new I-03 lint. Exception **not expanded**. **Preserved at I-03 close:** this pre-existing lint set is not an I-03 defect and is not remediated by this closure.
 
 **Scope compliance:** No dashboard, LLM, scoring, methodology engine, graph, BAU, GIS, auto-actions, DocTypes, Cloud persistence, `srm-core/`, or I-04.
 
 **Verification notes:** Classification is a closed descriptive enum. `assembleSignalFromContext` requires caller-supplied classification/explanation. Signal rows reject hypothesis/action/governance/status. Method refs remain identity-only.
 
-**Lifecycle:** EMPTY (after I-02 close) → owner-assigned I-03 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set. I-04 not started.
+**Lifecycle:** EMPTY (after I-02 close) → owner-assigned I-03 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by the implementation agent.
+**Owner gate (2026-09-08):** PR **#273** is **MERGED**. COMPLETE implementation remains consistent with `origin/master`. Status set **VERIFIED**, then **CLOSED**, then TASK reset to **EMPTY**. I-04 not started.
 
 ## 5. Behaviour
 
-No user-facing behaviour change. No new dashboard, API, DocType, or persistence. Signals are not interpretations or recommendations.
+No user-facing behaviour change. No new dashboard, API, DocType, or persistence. Implementation agents must STOP on EMPTY / COMPLETE / VERIFIED / CLOSED. Future intelligence packets (including I-04) require a new ChatGPT/owner ASSIGNED TASK. Signals are not interpretations or recommendations.
 
 ## 6. Risks / known limitations
 
 * Signals are unused by product UI until a later assigned packet. Intentional.
 * `explanation` is caller-authored; I-03 does not check that the text stays non-interpretive.
 * TE-4 alerts are not migrated onto I-03. Dual signal vocabularies until a later packet (not I-04 unless assigned).
-* Pre-existing `npm run lint` errors remain on unrelated pages; exception unchanged.
+* Pre-existing `npm run lint` errors remain on unrelated pages; exception unchanged. Owner closed I-03 with that global lint exception preserved; do not treat those errors as I-03 remaining work.
 
 ## 7. Git Status
 
-* Base: `origin/master` `ebe7032`.
-* Branch: `cursor/i-03-explainable-signal-foundation-77de`.
-* Diff vs `origin/master`: I-03 signal types/helpers/tests/docs, changelog, living-note pointers, `.ai/TASK.md`, `.ai/HANDOFF.md`. Existing desks/entities and `srm-core/` untouched.
-* Pull request: https://github.com/Chibase/trustledger-frontend/pull/273.
+* I-03 execution merged: `07c3e19` (`I-03: Explainable Signal Foundation (#273)`).
+* Owner close: ChatGPT/owner VERIFIED then CLOSED I-03 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-03: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/274.
 
 ## 8. Remaining Work
 
-I-03 execution is **COMPLETE**. ChatGPT/owner independently **VERIFY**, then **CLOSE**, then reset `.ai/TASK.md` to EMPTY. Do not start I-04 from this handoff. Next work requires a new ASSIGNED TASK.
+I-03 is **VERIFIED** and **CLOSED**. No further execution of I-03. Do not begin I-04 or any other intelligence packet from this close. Next work requires a new ChatGPT/owner ASSIGNED TASK.
