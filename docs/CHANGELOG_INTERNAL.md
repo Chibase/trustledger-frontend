@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-08 — I-01 Common Intelligence Foundation
+
+- Shared lifecycle contracts for Evidence → Context → Signal → Interpretation → Intelligence → Recommendation → Human Decision → Action → Outcome → Learning (`src/types/intelligenceFoundation.ts`, `src/lib/intelligence/`).
+- Suggestions stay `suggestion_only` / non-autonomous; human decisions are a separate record. Existing TE-4 trust recommendations map on via a read-only adapter. No dashboard, LLM, methodology engine, graph, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_FOUNDATION.md`.
+
 ## 2026-09-06 — VIP executive overview (UX-3 follow-up)
 
 - Complimentary VIP trial uses **Institutional** packaging on `/app/dashboard` (KPIs, quick actions, toolbar, search) even if a leftover cookie still says Solo. Nav already did this; the overview did not. The shell package chip also says **VIP** (not VIP · Solo). Live VIP with leftover Solo is lifted the same way; a real live Project SKU stays Project.
