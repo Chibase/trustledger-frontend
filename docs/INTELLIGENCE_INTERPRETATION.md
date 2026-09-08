@@ -40,4 +40,4 @@ An `ExplainableInterpretationRecord` is an I-01 `IntelligenceInterpretationRecor
 
 ## Next packet (not this one)
 
-Intelligence synthesis (I-05) requires a new ASSIGNED TASK.
+Intelligence synthesis lives in `docs/INTELLIGENCE_SYNTHESIS.md`. Later packets require a new ASSIGNED TASK.

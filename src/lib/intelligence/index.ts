@@ -56,3 +56,12 @@ export {
   isInterpretationReviewState,
   recordInterpretationReview,
 } from "@/lib/intelligence/interpretation";
+export {
+  assembleIntelligenceFromInterpretations,
+  createExplainableIntelligence,
+  intelligenceAppliesAt,
+  intelligenceIsNotRecommendation,
+  isIntelligenceRecord,
+  isIntelligenceReviewState,
+  recordIntelligenceReview,
+} from "@/lib/intelligence/synthesis";
