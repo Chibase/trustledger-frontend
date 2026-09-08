@@ -6,7 +6,7 @@
 import { findCloudLoginUser, setCloudUserPassword } from "@/lib/cloudUserPassword";
 import { rateLimitAllow } from "@/lib/formGuard";
 import { siteBaseUrl } from "@/lib/hubspot";
-import { frappeBase, frappeKeyPair } from "@/lib/leadCapture";
+import { frappeKeyPair } from "@/lib/leadCapture";
 import {
   PASSWORD_RESET_TTL_SECONDS,
   signPasswordResetToken,
@@ -20,6 +20,15 @@ import { isVipShowcaseLiveLoginMailbox } from "@/lib/vipShowcaseAuth";
 
 export const PASSWORD_RESET_GENERIC_MESSAGE =
   "If this email is registered on TrustLedger Cloud, we sent a password reset link. Check inbox and spam.";
+
+/** Preview deploys often have Resend but not Cloud API keys. */
+export function passwordResetCloudUnavailableMessage(): string {
+  const env = (process.env.VERCEL_ENV || "").trim().toLowerCase();
+  if (env === "preview" || env === "development") {
+    return `Password reset for TrustLedger Cloud is not available on this preview. Use the live product at ${siteBaseUrl()}/login/live, or ask your Plan Owner to set a temporary password.`;
+  }
+  return "Password reset cannot reach TrustLedger Cloud on this deployment. Try again later or ask your Plan Owner to set a temporary password.";
+}
 
 export type PasswordResetJson = {
   ok?: boolean;
@@ -66,13 +75,10 @@ export async function requestLivePasswordReset(
     };
   }
 
-  if (!frappeKeyPair() || !frappeBase()) {
+  if (!frappeKeyPair()) {
     return {
       status: 503,
-      body: {
-        error:
-          "Password reset cannot reach TrustLedger Cloud on this deployment. Try again later or ask your Plan Owner to set a temporary password.",
-      },
+      body: { error: passwordResetCloudUnavailableMessage() },
     };
   }
 
