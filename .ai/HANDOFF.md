@@ -6,11 +6,15 @@ Assigned Agent: Cursor
 
 Status: COMPLETE
 
+Cursor executed V-02. Scope was verification-only (`.ai/` task + handoff). No product code was changed. No `srm-core` changes occurred. VERIFIED / CLOSED were not set.
+
 ## 1. Task
 
-V-02 — Core Product Integrity Verification. Verification-only assessment of the operational chain **Organisation → Project → Geographic Area → Stakeholders → Engagements → Commitments → Grievances → Reporting** against repository code and Frappe Cloud BFF integration. No product development. No `src/` / `srm-core` / locked product-doc changes. Do not set VERIFIED or CLOSED.
+V-02 — Core Product Integrity Verification. Verification-only assessment of the operational chain **Organisation → Project → Geographic Area → Stakeholders → Engagements → Commitments → Grievances → Reporting** against repository code, Frappe Cloud BFF integration, and available production/runtime evidence. No product development. No `src/` / `srm-core` / locked product-doc changes. Do not set VERIFIED or CLOSED.
 
-Git at assessment: branch `cursor/v-01-close-c06d`; `origin/master` = `fe01d80`; Production `deploySha` = `fe01d80` (matches master). Cloud reachable via health check.
+V-02 was not present on `origin/master` (EMPTY after V-01 CLOSED). Cursor initialised `.ai/TASK.md` from the ChatGPT/owner assignment in this run, then executed it. The prior V-01 CLOSED handoff is replaced here because V-02 is a new task after owner closure of V-01.
+
+Git at assessment: branch `cursor/v-02-core-product-integrity-c06d`; `origin/master` = `fe01d80` (`chore(ai): close V-01 current-state verification (#259)`); Production `deploySha` = `fe01d80` (matches master). Cloud reachable via health check.
 
 ## 2. Findings
 
@@ -32,7 +36,7 @@ Entitlements: `src/config/entitlements.ts` + `FeatureGate` / `AppNav` `hasCapabi
 
 | # | Finding |
 |---|---------|
-| Routes | `/workspace/src/app/app/capture/page.tsx`; BFF `POST /api/app/capture/extract-text` |
+| Routes | `src/app/app/capture/page.tsx`; BFF `POST /api/app/capture/extract-text` |
 | Store | `src/lib/captureStore.ts` — `listCaptureRecords` / `saveCaptureRecord` (`tl-capture-records` localStorage) |
 | Apply → SI | Capture narrative apply saves `stakeholderService.save` + `engagementService.save` with `projectIds` / `stakeholderIds` / `captureId` (`capture/page.tsx` ~787–854) |
 | Gate | `captureHub` (Project+) |
@@ -161,7 +165,7 @@ Entitlements: `src/config/entitlements.ts` + `FeatureGate` / `AppNav` `hasCapabi
 | Item | Evidence |
 |------|----------|
 | **Routes** | `/app/reports` → `ReportsHub`, `CreateReportWizard`, `ProjectReportStudio`, library |
-| **Client** | `reportComposer.ts` (local evidence writer — never Frappe/Grok month-end); `loadReportWorkspaceLists()`; `reportStore.ts` (`tl-authored-reports` **localStorage only**); `reportPackAccess.ts` |
+| **Client** | `reportComposer.ts` (local evidence writer — never Frappe/Grok month-end); `src/lib/reportWorkspaceLists.ts` `loadReportWorkspaceLists()`; `reportStore.ts` (`tl-authored-reports` **localStorage only**); `reportPackAccess.ts` |
 | **BFF** | None for report CRUD. Lists via project/incident/commitment BFFs. SEP PDF: `POST /api/app/engagement-plan/pdf` |
 | **DocType** | None for saved reports |
 | **Persist** | Authored reports browser-only. Packs bind to live Cloud lists when live. |
@@ -173,7 +177,9 @@ Entitlements: `src/config/entitlements.ts` + `FeatureGate` / `AppNav` `hasCapabi
 
 ### Production / env gates (probed 2026-09-08)
 
-* `GET /api/health`: `ok: true`, `deploySha: fe01d80`, TrustLedger app 200, Cloud 200, `lockdownLifted: true`, Paystack/cron/Resend/auto-provision/owner issuance/L2 session bind true.
+* `GET /api/health`: `ok: true`, `deploySha: fe01d80`, TrustLedger app 200, Cloud 200, `lockdownLifted: true`, Paystack/cron/Resend/auto-provision/owner issuance/L2 session bind true, `leadBackend: frappe`.
+* Unauthenticated Cloud BFFs return **401** (expected; no live Owner session in this agent): `GET /api/frappe/si?kind=stakeholder`, `GET /api/app/projects`, `GET /api/frappe/product?kind=incident`, `GET /api/frappe/sep` — `"Not logged in to live session"` / `"Live sign-in required"`. Chain writes are therefore **runtime-dependent** on a live Plan Owner session; they are not missing.
+* `GET /api/geo?counts=1` **200** (no login): `country: 1`, `province: 9`, `district: 52`, `local_municipality: 205`, `metro: 8` (213 munis/metros), `ward: 4468`, `traditional_council: 15` — matches ADR-040 ZA pack baseline.
 * Operator sitting remains: reCAPTCHA keys, OTP kill-switch, Resend From legacy apex, Webway CTA, Desk SMTP.
 * `srm-core/` empty in this repo — product CRUD uses Frappe **resource** DocTypes via BFF, not Python methods in-tree.
 
@@ -203,10 +209,11 @@ No other files. No `src/`, no `srm-core`, no `docs/BUILD_PLAN.md` / `DECISIONS.m
 ## 4. Validation
 
 * `git fetch origin master`; master `fe01d80`.
-* Read-only inspection of desks, services, BFF routes, DocType helpers, ACCESS_MODEL / PRODUCT_DOCTYPES / FRAPPE_API_CONTRACT / OPERATIONAL_DELIVERY / workspaceData empty-Cloud rules.
-* Production health probe confirms live deploy + Cloud reachability + lockdown lifted.
+* Read-only inspection of desks, services, BFF routes, DocType helpers (`frappeProductDocTypes.ts`, `frappeSiDocTypes.ts`, `sepCloud.ts`), entitlements, `workspaceData.ts` empty-Cloud rules, `migrate-org` body (projects/incidents/evidence/trust/SEP — not SI CRM).
+* Production health + unauthenticated BFF/geo probes (see Findings).
+* Diff limited to `.ai/TASK.md` and `.ai/HANDOFF.md`.
 * Did not modify application code; did not run lint/build as product gate (verification-only; AGENTS packet gate applies to product packets).
-* Lifecycle: owner-assigned V-02 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by agent.
+* Lifecycle: EMPTY (master after V-01) → owner-assigned V-02 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by agent.
 
 ## 5. Behaviour
 
@@ -223,9 +230,11 @@ No product behaviour change. Next agent must STOP until ChatGPT/owner VERIFIED/C
 
 ## 7. Git Status
 
-* Branch: `cursor/v-01-close-c06d` (or current agent branch after push).
-* Diff: `.ai/TASK.md`, `.ai/HANDOFF.md` only.
-* `origin/master` at assessment: `fe01d80`. Production deploySha matched.
+* Base: `origin/master` `fe01d80`.
+* Branch: `cursor/v-02-core-product-integrity-c06d`.
+* Commits: `8fafbb2` assign V-02 IN PROGRESS; `77b7652` COMPLETE handoff (plus follow-up if Git Status / production probes were tightened).
+* Diff vs `origin/master`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/` and `srm-core/` untouched.
+* Production `deploySha` matched `fe01d80` at assessment.
 
 ## 8. Remaining Work
 
