@@ -22,3 +22,18 @@ export {
   provenanceFromTrustTrace,
   recordRefsFromTrustTrace,
 } from "@/lib/intelligence/fromTrust";
+export {
+  asContextLevel,
+  assembleStakeholderContext,
+  contextAppliesAt,
+  contextIsNotInterpretation,
+  createIntelligenceContext,
+  createTemporalContext,
+  influenceAsContextLevel,
+  isContextLevel,
+  isContextRecord,
+  normalizeStakeholderOperatingContext,
+  operatingContextFromStakeholder,
+  refsFromStakeholder,
+  relatedRefsFromRecords,
+} from "@/lib/intelligence/context";

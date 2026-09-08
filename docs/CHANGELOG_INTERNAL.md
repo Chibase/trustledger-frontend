@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-08 — I-02 Contextual Intelligence Foundation
+
+- Descriptive Context layer on the I-01 lifecycle: temporal window, spine refs, evidence/provenance, and Stakeholder Operating Context (influence, impact, capacity, commitment, BAU pressure, competing priorities, availability, accountability clarity, engagement burden).
+- Assembly copies recorded attributes and references; it does not score, infer, or interpret. No dashboard, LLM, graph, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_CONTEXT.md`.
+
 ## 2026-09-08 — I-01 Common Intelligence Foundation
 
 - Shared lifecycle contracts for Evidence → Context → Signal → Interpretation → Intelligence → Recommendation → Human Decision → Action → Outcome → Learning (`src/types/intelligenceFoundation.ts`, `src/lib/intelligence/`).
