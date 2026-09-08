@@ -191,6 +191,7 @@ No product or user-facing behaviour change. Next agent must STOP until ChatGPT/o
 * Base: `origin/master` `672c342`.
 * Branch: `cursor/v-03-differentiating-intelligence-c06d`.
 * Diff vs `origin/master`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/` and `srm-core/` untouched.
+* Pull request: https://github.com/Chibase/trustledger-frontend/pull/262.
 * Production `deploySha` matched `672c342` at assessment.
 
 ## 8. Remaining Work
