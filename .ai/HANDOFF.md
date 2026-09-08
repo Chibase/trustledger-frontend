@@ -72,7 +72,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 ## 7. Git Status
 
 * I-01 execution merged: `08b6b6d` (`Merge pull request #269 from Chibase/cursor/i-01-common-intelligence-foundation-77de`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED I-01 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-01: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched.
+* Owner close: ChatGPT/owner VERIFIED then CLOSED I-01 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-01: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/270.
 
 ## 8. Remaining Work
 
