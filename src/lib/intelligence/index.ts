@@ -65,3 +65,12 @@ export {
   isIntelligenceReviewState,
   recordIntelligenceReview,
 } from "@/lib/intelligence/synthesis";
+export {
+  assembleRecommendationFromIntelligence,
+  createExplainableRecommendation,
+  explainableRecommendationIsNotDecision,
+  isExplainableRecommendationRecord,
+  isRecommendationReviewState,
+  recommendationAppliesAt,
+  recordRecommendationReview,
+} from "@/lib/intelligence/recommendation";

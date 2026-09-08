@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-08 — I-06 Explainable Recommendation Foundation
+
+- Suggestion-only recommendation contracts on the I-01 lifecycle: intelligence inputs, statement/action/rationale/objective, no-action alternative, risks/constraints/dependencies, evidential confidence, limitations, temporal window, provenance, methodology identity, locked ADR-006 governance, and professional review state.
+- A recommendation must not copy an intelligence statement, become a decision, execute, or score. Review `accepted` is not a human-decision record. No dashboard, LLM, scoring, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_RECOMMENDATION.md`.
+
 ## 2026-09-08 — I-05 Explainable Intelligence Foundation
 
 - Synthesis-only intelligence contracts on the I-01 lifecycle: interpretation inputs, statement + synthesis, subject/signal/context/evidence traceability, evidential confidence, limitations, temporal window, provenance, methodology identity, and professional review state.

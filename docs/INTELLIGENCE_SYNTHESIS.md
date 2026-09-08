@@ -42,4 +42,4 @@ Traceability: **Intelligence → Interpretations → Signals → Context → Evi
 
 ## Next packet (not this one)
 
-Recommendation (I-06) requires a new ASSIGNED TASK.
+Recommendation lives in `docs/INTELLIGENCE_RECOMMENDATION.md`. Later packets require a new ASSIGNED TASK.
