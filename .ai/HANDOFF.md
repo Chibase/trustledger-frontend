@@ -192,7 +192,7 @@ No product or user-facing behaviour change. Implementation agents must STOP on E
 ## 7. Git Status
 
 * V-03 execution merged: `6a7a73f` (`chore(ai): complete V-03 differentiating intelligence verification (#262)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED V-03 and reset `.ai/TASK.md` to EMPTY. Diff vs `6a7a73f`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and locked product documents untouched.
+* Owner close: ChatGPT/owner VERIFIED then CLOSED V-03 and reset `.ai/TASK.md` to EMPTY. Diff vs `6a7a73f`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/263.
 
 ## 8. Remaining Work
 
