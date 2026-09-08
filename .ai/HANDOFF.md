@@ -4,9 +4,11 @@ Task: V-02 — Core Product Integrity Verification
 
 Assigned Agent: Cursor
 
-Status: COMPLETE
+Status: CLOSED
 
-Cursor executed V-02. Scope was verification-only (`.ai/` task + handoff). No product code was changed. No `srm-core` changes occurred. VERIFIED / CLOSED were not set.
+Owner closure: ChatGPT/owner independently **VERIFIED** V-02 against the COMPLETE handoff and merged PR #260 (`fb2eb6f`), then formally **CLOSED** it. This handoff is the preserved historical record. `.ai/TASK.md` is **EMPTY** for the next assignment. Do not replace this handoff until the next task is CLOSED.
+
+Cursor executed V-02. Scope was verification-only (`.ai/` task + handoff). No product code was changed. No `srm-core` changes occurred. VERIFIED / CLOSED were not set by the implementation agent.
 
 ## 1. Task
 
@@ -201,8 +203,8 @@ No chain stage is **missing**. None are **demo/local-only** as the sole customer
 
 ## 3. Changes
 
-* `.ai/TASK.md` — Status **COMPLETE** (was IN PROGRESS).
-* `.ai/HANDOFF.md` — this V-02 integrity assessment.
+* `.ai/TASK.md` — V-02 assignment ended **COMPLETE**; owner close reset it to canonical **EMPTY**.
+* `.ai/HANDOFF.md` — V-02 integrity assessment preserved; Status **CLOSED** with owner VERIFIED + CLOSED.
 
 No other files. No `src/`, no `srm-core`, no `docs/BUILD_PLAN.md` / `DECISIONS.md` / `DESIGN_SYSTEM.md`.
 
@@ -213,11 +215,12 @@ No other files. No `src/`, no `srm-core`, no `docs/BUILD_PLAN.md` / `DECISIONS.m
 * Production health + unauthenticated BFF/geo probes (see Findings).
 * Diff limited to `.ai/TASK.md` and `.ai/HANDOFF.md`.
 * Did not modify application code; did not run lint/build as product gate (verification-only; AGENTS packet gate applies to product packets).
-* Lifecycle: EMPTY (master after V-01) → owner-assigned V-02 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by agent.
+* Lifecycle: EMPTY (master after V-01) → owner-assigned V-02 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by the implementation agent.
+* ChatGPT/owner independent review (2026-09-08): PR **#260** is **MERGED** (`fb2eb6f`, merged by Chibase at 2026-09-08T08:46:29Z). Merge touched only `.ai/TASK.md` and `.ai/HANDOFF.md`. COMPLETE findings remain consistent with `origin/master`. Status set **VERIFIED**, then **CLOSED**, then TASK reset to **EMPTY**.
 
 ## 5. Behaviour
 
-No product behaviour change. Next agent must STOP until ChatGPT/owner VERIFIED/CLOSED and a new ASSIGNED task exists. Do not start Packet 24c, HS-3/HS-4, lint remediation, or geo/reporting product work from this assessment.
+No product behaviour change. Implementation agents must STOP on EMPTY / COMPLETE / VERIFIED / CLOSED. Next work requires a new ChatGPT/owner ASSIGNED TASK. Do not start Packet 24c, HS-3/HS-4, lint remediation, or geo/reporting product work from this assessment.
 
 ## 6. Risks
 
@@ -230,13 +233,9 @@ No product behaviour change. Next agent must STOP until ChatGPT/owner VERIFIED/C
 
 ## 7. Git Status
 
-* Base: `origin/master` `fe01d80`.
-* Branch: `cursor/v-02-core-product-integrity-c06d`.
-* Commits: `8fafbb2` assign V-02 IN PROGRESS; `77b7652` COMPLETE handoff (plus follow-up if Git Status / production probes were tightened).
-* Diff vs `origin/master`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/` and `srm-core/` untouched.
-* Pull request: https://github.com/Chibase/trustledger-frontend/pull/260.
-* Production `deploySha` matched `fe01d80` at assessment.
+* V-02 execution merged: `fb2eb6f` (`chore(ai): complete V-02 core product integrity verification (#260)`).
+* Owner close: ChatGPT/owner VERIFIED then CLOSED V-02 and reset `.ai/TASK.md` to EMPTY. Diff vs `fb2eb6f`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and locked product documents untouched.
 
 ## 8. Remaining Work
 
-Owner only: independently **VERIFY** then **CLOSE** V-02; reset TASK to EMPTY. No authorised product packet from this handoff. Optional future owner assignments (not started): SI migrate completeness, Cloud report SoT, Frappe Geo DocTypes, stale `tedsMaturity` sync, operator sitting.
+V-02 is **VERIFIED** and **CLOSED**. No further execution of V-02. Product development may resume only when ChatGPT/owner writes a new ASSIGNED TASK. Do not start Packet 24c, HS-3/HS-4, lint remediation, geo/reporting Cloud SoT, or operator sitting from this handoff.
