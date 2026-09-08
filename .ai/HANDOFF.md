@@ -4,9 +4,13 @@ Task: I-02 — Contextual Intelligence Foundation
 
 Assigned Agent: Cursor
 
-Status: COMPLETE
+Status: CLOSED
 
-Cursor executed I-02. Scope was the minimum reusable Context layer (contracts + assembly helpers). Existing product behaviour is unchanged. No `srm-core` changes. VERIFIED / CLOSED were not set. I-03 was not started.
+Owner closure: ChatGPT/owner independently **VERIFIED** I-02 against the architecture, acceptance criteria, and merged PR #271 (`3179918`), then formally **CLOSED** it. This handoff is the preserved historical record. `.ai/TASK.md` is **EMPTY** for the next assignment. Do not replace this handoff until the next task is CLOSED. Do not begin I-03 from this close.
+
+Cursor executed I-02. Scope was the minimum reusable Context layer (contracts + assembly helpers). Existing product behaviour is unchanged. No `srm-core` changes. VERIFIED / CLOSED were not set by the implementation agent. I-03 was not started.
+
+Lint exception (owner-accepted, preserved): `npm run lint` still reports a **pre-existing global** set of `react-hooks/set-state-in-effect` errors and unused-var warnings on unrelated files. I-02 did not introduce them and did not fix them. Closure does not require remediating that lint set.
 
 ## 1. Task
 
@@ -37,7 +41,7 @@ Git at start: `origin/master` = `a50318b` (`chore(ai): close I-01 common intelli
 * `tests/ts/intelligenceContext.test.ts` + `jest.ui.config.cjs` entry.
 * `docs/INTELLIGENCE_CONTEXT.md`; pointer from `docs/INTELLIGENCE_FOUNDATION.md`.
 * `docs/CHANGELOG_INTERNAL.md`.
-* `.ai/TASK.md` — I-02, Status **COMPLETE**. `.ai/HANDOFF.md` — this file.
+* `.ai/TASK.md` — I-02, Status **IN PROGRESS** then **COMPLETE** (now **EMPTY** after owner close). `.ai/HANDOFF.md` — this file.
 
 Unchanged: `src/app/`, Stakeholder/Engagement/Commitment types, I-01 lifecycle type file (no breaking edit), `srm-core/`, `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, `docs/DESIGN_SYSTEM.md`.
 
@@ -47,27 +51,26 @@ Unchanged: `src/app/`, Stakeholder/Engagement/Commitment types, I-01 lifecycle t
 * Inspected I-01 contracts, Stakeholder/Engagement/Commitment types, TE-5 community context, architecture review Parts 1–5, ADR-006.
 * `./node_modules/.bin/jest --config jest.ui.config.cjs tests/ts/intelligenceContext.test.ts tests/ts/intelligenceFoundation.test.ts` — pass (9 tests).
 * `npm run build` — pass.
-* `npm run lint` — same **pre-existing global** 8 `react-hooks/set-state-in-effect` errors + 2 unused-var warnings (`login/trial`, `pay/activate`, `pay/success`, `ExperienceFeedbackForm`, `GeoLocationWizard`, `FeedbackDrawer`, `orgDataSpace.ts`, `sepPdf.ts`). No new lint on I-02 files. Not fixed (out of scope; owner-accepted exception from I-01 close).
-* Lifecycle: EMPTY (after I-01 close) → owner-assigned I-02 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set. I-03 not started.
+* `npm run lint` — same **pre-existing global** 8 `react-hooks/set-state-in-effect` errors + 2 unused-var warnings (`login/trial`, `pay/activate`, `pay/success`, `ExperienceFeedbackForm`, `GeoLocationWizard`, `FeedbackDrawer`, `orgDataSpace.ts`, `sepPdf.ts`). No new lint on I-02 files. Not fixed (out of scope; owner-accepted exception from I-01 close). **Preserved at I-02 close:** this pre-existing lint set is not an I-02 defect and is not remediated by this closure.
+* Lifecycle: EMPTY (after I-01 close) → owner-assigned I-02 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by the implementation agent.
+* ChatGPT/owner independent review (2026-09-08): PR **#271** is **MERGED**. COMPLETE implementation remains consistent with `origin/master`. Status set **VERIFIED**, then **CLOSED**, then TASK reset to **EMPTY**. I-03 not started.
 
 ## 5. Behaviour
 
-No user-facing behaviour change. No new dashboard, API, DocType, or persistence. Future packets can import `@/lib/intelligence` context helpers without redesigning CRM entities. Context rows are not signals or interpretations.
+No user-facing behaviour change. No new dashboard, API, DocType, or persistence. Implementation agents must STOP on EMPTY / COMPLETE / VERIFIED / CLOSED. Future intelligence packets (including I-03) require a new ChatGPT/owner ASSIGNED TASK. Context rows are not signals or interpretations.
 
 ## 6. Risks
 
 * Operating-context `commitment` can be confused with the Commitment entity. The living note and type comment distinguish them; UI copy (if added later) must too.
 * Context is unused by product UI until a later assigned packet. Intentional.
 * `relatedStakeholderIds` become refs, not a graph. Do not treat this as relationship intelligence.
-* Pre-existing `npm run lint` errors remain on unrelated pages.
+* Pre-existing `npm run lint` errors remain on unrelated pages. Owner closed I-02 with that global lint exception preserved; do not treat those errors as I-02 remaining work.
 
 ## 7. Git Status
 
-* Base: `origin/master` `a50318b`.
-* Branch: `cursor/i-02-contextual-intelligence-foundation-77de`.
-* Diff vs `origin/master`: I-02 context types/helpers/tests/docs, changelog, I-01 living-note pointer, `.ai/TASK.md`, `.ai/HANDOFF.md`. Implementation of existing desks/entities and `srm-core/` untouched.
-* Pull request: https://github.com/Chibase/trustledger-frontend/pull/271.
+* I-02 execution merged: `3179918` (`I-02: Contextual Intelligence Foundation (#271)`).
+* Owner close: ChatGPT/owner VERIFIED then CLOSED I-02 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-02: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched.
 
 ## 8. Remaining Work
 
-I-02 execution is **COMPLETE**. ChatGPT/owner independently **VERIFY**, then **CLOSE**, then reset `.ai/TASK.md` to EMPTY. Do not start I-03, signals, interpretation, relationship graphs, scoring, BAU module, LLM, or DocTypes from this handoff. Next work requires a new ASSIGNED TASK.
+I-02 is **VERIFIED** and **CLOSED**. No further execution of I-02. Do not begin I-03 or any other intelligence packet from this close. Next work requires a new ChatGPT/owner ASSIGNED TASK.
