@@ -76,7 +76,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 ## 7. Git Status
 
 * I-03 execution merged: `07c3e19` (`I-03: Explainable Signal Foundation (#273)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED I-03 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-03: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched.
+* Owner close: ChatGPT/owner VERIFIED then CLOSED I-03 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-03: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/274.
 
 ## 8. Remaining Work
 
