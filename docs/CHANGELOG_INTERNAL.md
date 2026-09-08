@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-08 — I-05 Explainable Intelligence Foundation
+
+- Synthesis-only intelligence contracts on the I-01 lifecycle: interpretation inputs, statement + synthesis, subject/signal/context/evidence traceability, evidential confidence, limitations, temporal window, provenance, methodology identity, and professional review state.
+- Intelligence must not copy an interpretation hypothesis. Confidence is not a probability. Review state is not a decision to act. No dashboard, LLM, scoring, recommendations, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_SYNTHESIS.md`.
+
 ## 2026-09-08 — I-04 Explainable Interpretation Foundation
 
 - Hypothesis-only interpretation contracts on the I-01 lifecycle: signal/context/evidence inputs, rationale, alternatives, evidential confidence, limitations, temporal window, provenance, methodology identity, and professional review state.
