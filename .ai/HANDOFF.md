@@ -76,7 +76,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 ## 7. Git Status
 
 * I-04 execution merged: `1866cd9` (`I-04: Explainable Interpretation Foundation (#276)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED I-04 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-04: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/277.
+* Owner close: ChatGPT/owner VERIFIED then CLOSED I-04 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-04: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched.
 
 ## 8. Remaining Work
 
