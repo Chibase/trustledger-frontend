@@ -72,6 +72,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 
 * Base: `origin/master` `952a6cf`.
 * Branch: `cursor/i-04-interpretation-foundation-77de`.
+* PR: https://github.com/Chibase/trustledger-frontend/pull/276
 * Diff vs `origin/master`: I-04 interpretation types/helpers/tests/docs, changelog, living-note pointers, `.ai/TASK.md`, `.ai/HANDOFF.md`. Existing desks/entities and `srm-core/` untouched.
 
 ## 8. Remaining Work
