@@ -69,6 +69,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 * Base: `origin/master` `55b3d44`.
 * Branch: `cursor/i-01-common-intelligence-foundation-77de`.
 * Diff vs `origin/master`: I-01 contracts, helpers, tests, living note, changelog, `.ai/TASK.md`, `.ai/HANDOFF.md`. `srm-core/` and application UI untouched.
+* Pull request: https://github.com/Chibase/trustledger-frontend/pull/269.
 
 ## 8. Remaining Work
 
