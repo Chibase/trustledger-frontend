@@ -45,4 +45,4 @@ Traceability: **Recommendation → Intelligence → Interpretation → Signal �
 
 ## Next packet (not this one)
 
-Human Decision (I-07) requires a new ASSIGNED TASK.
+Human Decision remains an I-01 record (`recordHumanDecision`). P-01 productises it on the stakeholder workspace (`docs/STAKEHOLDER_INTELLIGENCE_WORKSPACE.md`). A dedicated I-07 foundation packet still requires a new ASSIGNED TASK.

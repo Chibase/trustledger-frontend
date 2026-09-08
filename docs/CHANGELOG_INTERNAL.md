@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-08 — P-01 Stakeholder Intelligence & Decision Workspace
+
+- First productisation vertical slice of I-01–I-06 on the stakeholder record: context, attributable evidence/activity, signals, interpretations, intelligence, suggestion-only recommendations, a distinct human decision, then recorded action/outcome.
+- Recommendations are not decisions. Customer workspaces do not receive demo sample chains or INC-* showcase bleed. Local browser store only — no new DocTypes or Cloud redesign.
+- Living note: `docs/STAKEHOLDER_INTELLIGENCE_WORKSPACE.md`.
+
 ## 2026-09-08 — I-06 Explainable Recommendation Foundation
 
 - Suggestion-only recommendation contracts on the I-01 lifecycle: intelligence inputs, statement/action/rationale/objective, no-action alternative, risks/constraints/dependencies, evidential confidence, limitations, temporal window, provenance, methodology identity, locked ADR-006 governance, and professional review state.

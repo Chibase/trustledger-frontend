@@ -161,6 +161,17 @@ export default function AppIntelligencePage() {
           }
         />
 
+        <p className="rounded-lg border border-tl-line bg-tl-surface px-4 py-3 text-sm text-tl-ink-muted">
+          Place and ESG indicator briefs stay on this page. The stakeholder
+          intelligence and decision workspace — context, evidence, signals,
+          interpretations, recommendations, and a distinct human decision — is
+          on each{" "}
+          <Link href="/app/stakeholders" className="text-tl-trust-ink underline">
+            stakeholder record
+          </Link>
+          .
+        </p>
+
         <label className="block max-w-md text-sm">
           <span className="mb-1 block font-medium text-tl-ink">Place</span>
           <select

@@ -1,9 +1,17 @@
 # Current TrustLedger Task
 
-Status: EMPTY
+Status: COMPLETE
 
-No implementation task is currently assigned.
+Assigned Agent: Cursor
 
-Future assignments must be explicitly created by ChatGPT/owner.
+## Task
 
-The last closed task is recorded in `.ai/HANDOFF.md`. Do not infer work from BUILD_PLAN. **EMPTY TASK = STOP.**
+P-01 — Stakeholder Intelligence & Decision Workspace
+
+DESIGN GATE APPROVED. Execute P-01 only.
+
+First productisation vertical slice on one integrated stakeholder page:
+
+STAKEHOLDER → CONTEXT → EVIDENCE → SIGNALS → INTERPRETATIONS → INTELLIGENCE → RECOMMENDATIONS → HUMAN DECISION → ACTION/OUTCOME
+
+Reuse I-01–I-06 contracts. Recommendation ≠ Human Decision. Do not set VERIFIED or CLOSED.

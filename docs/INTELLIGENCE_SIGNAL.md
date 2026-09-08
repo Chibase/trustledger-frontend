@@ -37,4 +37,4 @@ An `ExplainableSignalRecord` is an I-01 `IntelligenceSignalRecord` plus:
 
 ## Next packet (not this one)
 
-Interpretation lives in `docs/INTELLIGENCE_INTERPRETATION.md`. Intelligence synthesis lives in `docs/INTELLIGENCE_SYNTHESIS.md`. Later packets require a new ASSIGNED TASK.
+Interpretation lives in `docs/INTELLIGENCE_INTERPRETATION.md`. Productisation of the stakeholder trail is `docs/STAKEHOLDER_INTELLIGENCE_WORKSPACE.md` (P-01). Further packets require a new ASSIGNED TASK.

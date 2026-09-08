@@ -35,4 +35,4 @@ Levels are `high | medium | low | unknown`, matching existing `StakeholderInflue
 
 ## Next packet (not this one)
 
-Signals live in `docs/INTELLIGENCE_SIGNAL.md`. Interpretation and later packets require a new ASSIGNED TASK.
+Signals live in `docs/INTELLIGENCE_SIGNAL.md`. Productisation of the stakeholder trail is `docs/STAKEHOLDER_INTELLIGENCE_WORKSPACE.md` (P-01). Further packets require a new ASSIGNED TASK.
