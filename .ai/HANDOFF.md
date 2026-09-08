@@ -4,9 +4,11 @@ Task: V-03 — TrustLedger Differentiating Intelligence Verification
 
 Assigned Agent: Cursor
 
-Status: COMPLETE
+Status: CLOSED
 
-Cursor executed V-03. Scope was verification-only (`.ai/` task + handoff). No product code was changed. No `srm-core` changes occurred. VERIFIED / CLOSED were not set.
+Owner closure: ChatGPT/owner independently **VERIFIED** V-03 against the COMPLETE handoff and merged PR #262 (`6a7a73f`), then formally **CLOSED** it. This handoff is the preserved historical record. `.ai/TASK.md` is **EMPTY** for the next assignment. Do not replace this handoff until the next task is CLOSED.
+
+Cursor executed V-03. Scope was verification-only (`.ai/` task + handoff). No product code was changed. No `srm-core` changes occurred. VERIFIED / CLOSED were not set by the implementation agent.
 
 ## 1. Task
 
@@ -157,8 +159,8 @@ No area is **Implemented + verified** (no live Owner session to prove Cloud writ
 
 ## 3. Changes
 
-* `.ai/TASK.md` — V-03 assignment. Status **IN PROGRESS** then **COMPLETE**. Assigned Agent: Cursor. VERIFIED / CLOSED not set.
-* `.ai/HANDOFF.md` — this V-03 intelligence assessment.
+* `.ai/TASK.md` — V-03 assignment ended **COMPLETE**; owner close reset it to canonical **EMPTY**.
+* `.ai/HANDOFF.md` — V-03 intelligence assessment preserved; Status **CLOSED** with owner VERIFIED + CLOSED.
 
 No other files. No `src/`, no `srm-core`, no `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, `docs/DESIGN_SYSTEM.md`.
 
@@ -169,11 +171,12 @@ No other files. No `src/`, no `srm-core`, no `docs/BUILD_PLAN.md`, `docs/DECISIO
 * Production probes: `/api/health`, unauthenticated SI/trust 401, `/api/geo?indicators=1&placeId=za-gp` 200, `/app/intelligence` 307 to live login.
 * Diff limited to `.ai/TASK.md` and `.ai/HANDOFF.md`.
 * Did not run lint/build as a product gate (verification-only).
-* Lifecycle: EMPTY (master after V-02 close) → owner-assigned V-03 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by agent.
+* Lifecycle: EMPTY (master after V-02 close) → owner-assigned V-03 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by the implementation agent.
+* ChatGPT/owner independent review (2026-09-08): PR **#262** is **MERGED** (`6a7a73f`, merged by Chibase at 2026-09-08T09:05:45Z). Merge touched only `.ai/TASK.md` and `.ai/HANDOFF.md`. COMPLETE findings remain consistent with `origin/master`. Status set **VERIFIED**, then **CLOSED**, then TASK reset to **EMPTY**.
 
 ## 5. Behaviour
 
-No product or user-facing behaviour change. Next agent must STOP until ChatGPT/owner VERIFIED/CLOSED and a new ASSIGNED task exists. Do not start HS-3/HS-4, Packet 24c, Stats SA ingest, relationship graph, Grok wiring, or lint remediation from this assessment.
+No product or user-facing behaviour change. Implementation agents must STOP on EMPTY / COMPLETE / VERIFIED / CLOSED. Next work requires a new ChatGPT/owner ASSIGNED TASK. Do not start V-04, HS-3/HS-4, Packet 24c, Stats SA ingest, relationship graph, Grok wiring, or lint remediation from this assessment.
 
 ## 6. Risks
 
@@ -188,12 +191,9 @@ No product or user-facing behaviour change. Next agent must STOP until ChatGPT/o
 
 ## 7. Git Status
 
-* Base: `origin/master` `672c342`.
-* Branch: `cursor/v-03-differentiating-intelligence-c06d`.
-* Diff vs `origin/master`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/` and `srm-core/` untouched.
-* Pull request: https://github.com/Chibase/trustledger-frontend/pull/262.
-* Production `deploySha` matched `672c342` at assessment.
+* V-03 execution merged: `6a7a73f` (`chore(ai): complete V-03 differentiating intelligence verification (#262)`).
+* Owner close: ChatGPT/owner VERIFIED then CLOSED V-03 and reset `.ai/TASK.md` to EMPTY. Diff vs `6a7a73f`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/263.
 
 ## 8. Remaining Work
 
-V-03 execution is **COMPLETE**. ChatGPT/owner independently **VERIFY**, then **CLOSE**, then reset `.ai/TASK.md` to EMPTY. Do not re-execute V-03. Do not start HS-3/HS-4, Packet 24c, relationship-graph, Stats SA ingest, live Grok, or product development from this handoff. Next work requires a new ASSIGNED TASK.
+V-03 is **VERIFIED** and **CLOSED**. No further execution of V-03. Product development may resume only when ChatGPT/owner writes a new ASSIGNED TASK. Do not start V-04, HS-3/HS-4, Packet 24c, relationship-graph, Stats SA ingest, live Grok, or product development from this handoff.
