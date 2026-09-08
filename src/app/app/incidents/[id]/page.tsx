@@ -12,7 +12,7 @@ import { LearnAdaptPanel } from "@/components/incidents/LearnAdaptPanel";
 import { AuditTrailPanel } from "@/components/audit/AuditTrailPanel";
 import { evidenceService } from "@/services/noteService";
 import { incidentService } from "@/services/incidentService";
-import { isLiveMode } from "@/config/api";
+import { isLiveCustomerClient } from "@/lib/workspaceData";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -85,7 +85,7 @@ export default function AppIncidentDetailPage({
           ? listWorkspaceIncidents().find((row) => row.id === id) ||
             listTrialIncidents().find((row) => row.id === id)
           : listDemoIncidents().find((row) => row.id === id);
-        setIncident(caseRecord ?? (isLiveMode() ? null : localCase));
+        setIncident(caseRecord ?? (isLiveCustomerClient() ? null : localCase));
         const localFiles = customer
           ? [...listOrgEvidence(id), ...listTrialEvidence(id)]
           : listDemoEvidence(id);

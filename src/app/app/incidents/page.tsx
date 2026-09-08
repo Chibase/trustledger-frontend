@@ -10,6 +10,7 @@ import { readTrialModeFromDocument } from "@/lib/trial";
 import { TL_VIP_COOKIE } from "@/lib/auth.constants";
 import { isVipShowcaseWorkspace } from "@/lib/planLabel";
 import { isCustomerWorkspaceClient } from "@/lib/workspaceMode";
+import { isLiveCustomerClient } from "@/lib/workspaceData";
 import { RootCauseMix } from "@/components/incidents/RootCauseMix";
 import { rootCauseLabel } from "@/lib/grievanceRootCause";
 import type { Incident, IncidentStatus } from "@/types/incident";
@@ -48,6 +49,11 @@ export default function AppIncidentsPage() {
     }, 0);
     incidentService.list().then((rows) => {
       if (cancelled) return;
+      if (isLiveCustomerClient()) {
+        setIncidents(rows);
+        setLoading(false);
+        return;
+      }
       const local = readTrialModeFromDocument()
         ? listTrialIncidents()
         : listDemoIncidents();
