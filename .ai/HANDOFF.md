@@ -69,7 +69,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 ## 7. Git Status
 
 * I-02 execution merged: `3179918` (`I-02: Contextual Intelligence Foundation (#271)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED I-02 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-02: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched.
+* Owner close: ChatGPT/owner VERIFIED then CLOSED I-02 and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-02: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/272.
 
 ## 8. Remaining Work
 
