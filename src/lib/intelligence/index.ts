@@ -37,3 +37,13 @@ export {
   refsFromStakeholder,
   relatedRefsFromRecords,
 } from "@/lib/intelligence/context";
+export {
+  assembleSignalFromContext,
+  createExplainableSignal,
+  isSignalClassification,
+  isSignalRecord,
+  isSignalState,
+  normalizeSignalObservations,
+  signalAppliesAt,
+  signalIsNotInterpretation,
+} from "@/lib/intelligence/signal";
