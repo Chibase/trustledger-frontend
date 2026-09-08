@@ -47,3 +47,12 @@ export {
   signalAppliesAt,
   signalIsNotInterpretation,
 } from "@/lib/intelligence/signal";
+export {
+  assembleInterpretationFromSignal,
+  createExplainableInterpretation,
+  interpretationAppliesAt,
+  interpretationIsNotIntelligence,
+  isInterpretationRecord,
+  isInterpretationReviewState,
+  recordInterpretationReview,
+} from "@/lib/intelligence/interpretation";

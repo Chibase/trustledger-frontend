@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-08 — I-04 Explainable Interpretation Foundation
+
+- Hypothesis-only interpretation contracts on the I-01 lifecycle: signal/context/evidence inputs, rationale, alternatives, evidential confidence, limitations, temporal window, provenance, methodology identity, and professional review state.
+- Confidence is not a probability. Review state is not a decision to act. No dashboard, LLM, scoring, intelligence synthesis, recommendations, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_INTERPRETATION.md`.
+
 ## 2026-09-08 — I-03 Explainable Signal Foundation
 
 - Descriptive signal contracts on the I-01 lifecycle: identity, domain, classification/state, subject/related refs, temporal window, evidence/context linkage, observations, provenance, and explanation.
