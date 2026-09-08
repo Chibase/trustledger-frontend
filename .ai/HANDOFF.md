@@ -100,7 +100,7 @@ No product or user-facing behaviour change. Implementation agents must STOP on E
 ## 7. Git Status
 
 * V-01 execution base: `origin/master` `d1b8acc`. Branch `cursor/v-01-current-state-verification-02da`. Merged as `d410554` (`chore(ai): V-01 Current-State Verification (#258)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED V-01 and reset `.ai/TASK.md` to EMPTY. Diff vs `d410554`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and product documentation untouched.
+* Owner close: ChatGPT/owner VERIFIED then CLOSED V-01 and reset `.ai/TASK.md` to EMPTY. Diff vs `d410554`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and product documentation untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/259.
 
 ## 8. Remaining Work
 
