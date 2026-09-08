@@ -76,7 +76,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 ## 7. Git Status
 
 * I-06 execution merged: `5cd427f` (`I-06: Explainable Recommendation Foundation (#285)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED I-06. Cursor performed the mechanical closure/reset and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-06: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched. I-07 was not started. Pull request: https://github.com/Chibase/trustledger-frontend/pull/286.
+* Owner close: ChatGPT/owner VERIFIED then CLOSED I-06. Cursor performed the mechanical closure/reset and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-06: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched. I-07 was not started.
 
 ## 8. Remaining Work
 
