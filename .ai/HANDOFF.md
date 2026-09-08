@@ -4,9 +4,11 @@ Task: V-01 — Current-State Verification
 
 Assigned Agent: Cursor
 
-Status: COMPLETE
+Status: CLOSED
 
-Cursor executed V-01. Scope was verification-only (`.ai/` task + handoff). No product code was changed. No `srm-core` changes occurred. VERIFIED / CLOSED were not set.
+Owner closure: ChatGPT/owner independently **VERIFIED** V-01 against repository and Production state on 2026-09-08, then formally **CLOSED** it. This handoff is the preserved historical record. `.ai/TASK.md` is **EMPTY** for the next assignment. Do not replace this handoff until the next task is CLOSED.
+
+Cursor executed V-01. Scope was verification-only (`.ai/` task + handoff). No product code was changed. No `srm-core` changes occurred. VERIFIED / CLOSED were not set by the implementation agent.
 
 ## 1. Task
 
@@ -80,27 +82,26 @@ No other files. No `src/`, no `srm-core`, no `docs/BUILD_PLAN.md`, `docs/DECISIO
 * Production health and `/demo` redirect probed (see Findings).
 * `npm run lint` run and **failed** (recorded). `npm run build` run and **passed**.
 * Lifecycle: EMPTY (master) → owner-assigned V-01 → IN PROGRESS → COMPLETE. Implementation agent did not set VERIFIED or CLOSED.
+* ChatGPT/owner independent review (2026-09-08): fetched `origin/master` at `d410554` (`chore(ai): V-01 Current-State Verification (#258)`). V-01 merge touched only `.ai/TASK.md` and `.ai/HANDOFF.md`. Findings match current docs, Git history, open PRs, and Production probes. Status set **VERIFIED**, then **CLOSED**, then TASK reset to **EMPTY**.
+* Owner re-probe (does not reopen V-01): Production `deploySha` is now `d410554`; `/demo` still 308 → `/product`; `/product` 200; `leadBackend: frappe`; `hubspotFallbackActive: false`; lockdown lifted; L2 BFF session bind true; OTP off; operator sitting unchanged. Open PRs #257 / #241 / #238 / #194 / #195 still unmerged. `srm-core/` remains an empty directory with no submodule and no source (not listed in `.gitignore`; Git does not track empty directories). File counts (611 `src` ts/tsx, 92 `docs` md), HS-3/HS-4 only Planned engineering packets, and ADR-033 vs stale README/`/demo` table cell all still hold.
 
 ## 5. Behaviour
 
-No product or user-facing behaviour change. Implementation agents must STOP on COMPLETE. Next work requires ChatGPT/owner VERIFY → CLOSE → EMPTY, then a new ASSIGNED TASK. Do not infer HS-3/HS-4, Packet 24c, lint fixes, or README/TEDS doc sync from this assessment.
+No product or user-facing behaviour change. Implementation agents must STOP on EMPTY / COMPLETE / VERIFIED / CLOSED. Next work requires a new ChatGPT/owner ASSIGNED TASK. Do not infer HS-3/HS-4, Packet 24c, lint fixes, or README/TEDS doc sync from this assessment.
 
 ## 6. Risks
 
 * Stale docs (root README `/demo`, BUILD_PLAN Demo URL cell, TEDS_MATURITY_REPORT 36%, some `tedsMaturity.ts` stillNeeded lines, ADR-001/004/013 status wording) can mislead the next agent if treated as assignments. They are observations until ChatGPT/owner assigns a docs packet.
 * `npm run lint` is red on current master. A later product packet that claims “lint green” without fixing these `set-state-in-effect` errors will fail the AGENTS.md packet gate.
-* Cloud Agent checkouts may lag `origin/master`; fetch before relying on `.ai` state. Until this PR is merged, **master remains EMPTY** (Phase 7). ChatGPT/owner should treat this branch/PR as the V-01 source of truth until merge.
+* Cloud Agent checkouts may lag `origin/master`; fetch before relying on `.ai` state. V-01 is merged (`d410554` / #258). Owner close of V-01 does not authorise a product packet.
 * An EMPTY TASK on master must not be treated as permission to pick a BUILD_PLAN packet.
 * Operator sitting (reCAPTCHA, OTP kill-switch, Webway, Desk SMTP) cannot be finished from this repo.
 
 ## 7. Git Status
 
-* Base: `origin/master` `d1b8acc`.
-* Branch: `cursor/v-01-current-state-verification-02da`.
-* Commits: `0b21fe9` assign V-01 IN PROGRESS; `1a2dc07` COMPLETE handoff.
-* Pull request: https://github.com/Chibase/trustledger-frontend/pull/258 (ready for ChatGPT/owner review).
-* Working tree clean after this commit. `src/` and `srm-core/` untouched. Diff vs `origin/master`: `.ai/TASK.md`, `.ai/HANDOFF.md` only.
+* V-01 execution base: `origin/master` `d1b8acc`. Branch `cursor/v-01-current-state-verification-02da`. Merged as `d410554` (`chore(ai): V-01 Current-State Verification (#258)`).
+* Owner close: ChatGPT/owner VERIFIED then CLOSED V-01 and reset `.ai/TASK.md` to EMPTY. Diff vs `d410554`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and product documentation untouched.
 
 ## 8. Remaining Work
 
-V-01 execution is **COMPLETE**. ChatGPT/owner independently **VERIFY**, then **CLOSE**, then reset `.ai/TASK.md` to EMPTY. Do not re-execute V-01. Do not start HS-3/HS-4, Packet 24c, lint remediation, or product development from this handoff. Next product or docs work requires a new ASSIGNED TASK.
+V-01 is **VERIFIED** and **CLOSED**. No further execution of V-01. Product development may resume only when ChatGPT/owner writes a new ASSIGNED TASK. Do not start HS-3/HS-4, Packet 24c, lint remediation, or product development from this handoff.
