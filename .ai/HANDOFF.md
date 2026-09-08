@@ -234,7 +234,7 @@ No product behaviour change. Implementation agents must STOP on EMPTY / COMPLETE
 ## 7. Git Status
 
 * V-02 execution merged: `fb2eb6f` (`chore(ai): complete V-02 core product integrity verification (#260)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED V-02 and reset `.ai/TASK.md` to EMPTY. Diff vs `fb2eb6f`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and locked product documents untouched.
+* Owner close: ChatGPT/owner VERIFIED then CLOSED V-02 and reset `.ai/TASK.md` to EMPTY. Diff vs `fb2eb6f`: `.ai/TASK.md`, `.ai/HANDOFF.md` only. `src/`, `srm-core/`, and locked product documents untouched. Pull request: https://github.com/Chibase/trustledger-frontend/pull/261.
 
 ## 8. Remaining Work
 
