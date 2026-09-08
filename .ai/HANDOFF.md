@@ -71,8 +71,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 ## 7. Git Status
 
 * Base: `origin/master` `4d80227`.
-* Branch: `cursor/i-06-explainable-recommendation-77de`.
-* PR: https://github.com/Chibase/trustledger-frontend/pull/284
+* Branch: `cursor/i-06-recommendation-foundation-77de`.
 * Diff vs `origin/master`: I-06 recommendation types/helpers/tests/docs, changelog, living-note pointers, `.ai/TASK.md`, `.ai/HANDOFF.md`. Existing desks/entities and `srm-core/` untouched.
 
 ## 8. Remaining Work
