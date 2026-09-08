@@ -66,6 +66,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 * Base: `origin/master` `a50318b`.
 * Branch: `cursor/i-02-contextual-intelligence-foundation-77de`.
 * Diff vs `origin/master`: I-02 context types/helpers/tests/docs, changelog, I-01 living-note pointer, `.ai/TASK.md`, `.ai/HANDOFF.md`. Implementation of existing desks/entities and `srm-core/` untouched.
+* Pull request: https://github.com/Chibase/trustledger-frontend/pull/271.
 
 ## 8. Remaining Work
 
