@@ -42,4 +42,4 @@ Traceability: **Intelligence → Interpretations → Signals → Context → Evi
 
 ## Next packet (not this one)
 
-Recommendation lives in `docs/INTELLIGENCE_RECOMMENDATION.md`. Later packets require a new ASSIGNED TASK.
+Recommendation lives in `docs/INTELLIGENCE_RECOMMENDATION.md`. Productisation of the stakeholder trail is `docs/STAKEHOLDER_INTELLIGENCE_WORKSPACE.md` (P-01). Further packets require a new ASSIGNED TASK.

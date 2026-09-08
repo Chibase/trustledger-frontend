@@ -1,83 +1,88 @@
 # AI Engineering Handoff
 
-Task: I-06 — Explainable Recommendation Foundation
+Task: P-01 — Stakeholder Intelligence & Decision Workspace
 
 Assigned Agent: Cursor
 
-Status: CLOSED
+Status: COMPLETE
 
-Owner closure: ChatGPT/owner independently **VERIFIED** I-06 against the approved DESIGN gate and merged PR #285 (`5cd427f`), then formally **CLOSED** it. Mechanical closure/reset was performed by Cursor. This handoff is the preserved historical record. `.ai/TASK.md` is **EMPTY** for the next assignment. Do not replace this handoff until the next task is CLOSED. Do not begin I-07 from this close.
+Cursor executed P-01 after owner DESIGN GATE APPROVAL and ASSIGN. Scope was the first productisation vertical slice of I-01–I-06 on the stakeholder record. Existing CRM and `/app/intelligence` ESG briefs remain. No `srm-core` changes. VERIFIED / CLOSED were not set. No further packet was started.
 
-Cursor executed I-06. Scope was the minimum reusable explainable recommendation contracts and helpers. Existing product behaviour is unchanged. No `srm-core` changes. VERIFIED / CLOSED were not set by the implementation agent. I-07 was not started.
-
-Lint exception (owner-accepted, preserved): `npm run lint` still reports a **pre-existing global** set of `react-hooks/set-state-in-effect` errors and unused-var warnings on unrelated files. I-06 did not introduce them, did not fix them, and did not expand the exception. Closure does not require remediating that lint set.
+Lint exception (owner-accepted, preserved): `npm run lint` still reports a **pre-existing global** set of `react-hooks/set-state-in-effect` errors and unused-var warnings on unrelated files. P-01 did not introduce them, did not fix them, and did not expand the exception.
 
 ## 1. Task
 
-I-06 — Explainable Recommendation Foundation for Evidence → Context → Signal → Interpretation → Intelligence → Recommendation → Human Decision → Action → Outcome → Learning.
+P-01 — Stakeholder Intelligence & Decision Workspace for Evidence → Context → Signal → Interpretation → Intelligence → Recommendation → Human Decision → Action → Outcome.
 
-Reusable recommendation contracts: identity/domain/subject; explicit intelligence refs; statement; rationale; intended objective; alternatives including no-action; risks, constraints, dependencies, missing evidence; evidential confidence; temporal validity; provenance; methodology identity/version as a reference only; review state `proposed | reviewed | accepted | rejected | withdrawn`; locked ADR-006 suggestion governance; strict separation from Intelligence, Decision, Action and Outcome.
+Usable integrated workspace on `/app/stakeholders/[id]`: select/open a stakeholder; view operating context; view attributable evidence and project activity; view signals, interpretations, intelligence, and recommendations; record a distinct human decision; optionally record action/outcome; keep Recommendation → Intelligence → Interpretation → Signal → Context → Evidence traceability.
 
-Reuse I-01–I-05. Preserve existing entities and behaviour. A recommendation is a suggestion, never a decision or score. Statement/action must not copy an intelligence statement.
+Reuse I-01–I-06. Recommendation ≠ Human Decision. No LLM, scoring, methodology engine, graph, GIS, social-media monitoring, automated actions, new DocTypes, Cloud persistence redesign, or `srm-core`.
 
-Owner assigned I-06 after I-05 **CLOSED** (`4d80227`, PR #283) and TASK **EMPTY**. Cursor set TASK ASSIGNED → IN PROGRESS → COMPLETE.
+Owner assigned P-01 after I-06 **CLOSED** (`2f03937`, PR #287) and TASK **EMPTY**. Cursor set TASK ASSIGNED → IN PROGRESS → COMPLETE.
 
-Git at start: `origin/master` = `4d80227` (`chore(ai): close I-05 explainable intelligence foundation (#283)`).
+Git at start: `origin/master` = `2f03937` (`chore(ai): close I-06 explainable recommendation foundation (#287)`).
 
 ## 2. Findings
 
-* I-01 already had `IntelligenceRecommendationRecord` (`intelligenceId?`, `title`, `action`, `rationale`, locked `SuggestionGovernance`). It did not model multiple intelligence ids, statement-vs-title sync, objective, structured alternatives/no-action, risks/constraints/dependencies, confidence, limitations, missing evidence, temporal windows, subject/chain refs, or review state.
-* I-05 intelligence is a synthesis. A recommendation must not copy that statement as the suggested action.
-* Review state `accepted` / `rejected` is judgement on the suggestion. It is not `HumanDecisionStatus` and does not create a decision record or execute anything.
-* TE-4 `commonRecommendationFromTrust` stays a read-only I-01 adapter; I-06 does not change it.
+* Stakeholder detail was CRM-only. `/app/intelligence` is place/ESG indicator briefs, not the I-01–I-06 trail.
+* Engagements and commitments already have `stakeholderIds`. Seed rows are often unlinked (`[]`). Incidents have `projectId` only — not first-class stakeholder evidence.
+* I-02 `assembleStakeholderContext` copies recorded influence; other operating attributes are absent on the Stakeholder entity and must not be inferred.
+* I-03–I-06 have no Cloud DocTypes. Local org-scoped storage matches existing trial stores without a persistence redesign.
+* I-01 already had `recordHumanDecision`. I-06 `reviewState: accepted` is still a suggestion.
 
 ## 3. Changes
 
 **Implementation**
 
-* `src/types/intelligenceRecommendation.ts` — `ExplainableRecommendationRecord`, alternatives, review state.
-* `src/lib/intelligence/recommendation.ts` — `createExplainableRecommendation`, `assembleRecommendationFromIntelligence`, `recordRecommendationReview`, guards.
-* `src/lib/intelligence/index.ts` — re-exports.
-* `tests/ts/intelligenceRecommendation.test.ts` + `jest.ui.config.cjs` entry.
-* `docs/INTELLIGENCE_RECOMMENDATION.md`; pointers from I-01/I-05 living notes.
+* `src/types/stakeholderIntelligenceWorkspace.ts` — workspace view model.
+* `src/lib/intelligence/stakeholderWorkspace.ts` — composer + human-governed record helpers on I-01–I-06 assemblers.
+* `src/lib/intelligence/stakeholderWorkspaceStore.ts` — local store; customer workspaces reject `seed_demo`.
+* `src/components/intelligence/StakeholderIntelligenceWorkspace.tsx` — integrated trail UI.
+* `src/app/app/stakeholders/[id]/page.tsx` — mount workspace under the CRM card.
+* Pointers on `/app/stakeholders` and `/app/intelligence`.
+* Tests + `jest.ui.config.cjs` entries.
+* `docs/STAKEHOLDER_INTELLIGENCE_WORKSPACE.md`; pointers from I-01–I-06 living notes.
 * `docs/CHANGELOG_INTERNAL.md`.
-* `.ai/TASK.md` — I-06, Status **IN PROGRESS** then **COMPLETE** (now **EMPTY** after owner close). `.ai/HANDOFF.md` — this file.
+* `.ai/TASK.md` — P-01, Status **COMPLETE**. `.ai/HANDOFF.md` — this file.
 
-**Files changed:** `.ai/TASK.md`, `.ai/HANDOFF.md`, `docs/CHANGELOG_INTERNAL.md`, `docs/INTELLIGENCE_RECOMMENDATION.md`, `docs/INTELLIGENCE_FOUNDATION.md`, `docs/INTELLIGENCE_SYNTHESIS.md`, `jest.ui.config.cjs`, `src/types/intelligenceRecommendation.ts`, `src/lib/intelligence/recommendation.ts`, `src/lib/intelligence/index.ts`, `tests/ts/intelligenceRecommendation.test.ts`.
+**Files changed:** `.ai/TASK.md`, `.ai/HANDOFF.md`, `docs/CHANGELOG_INTERNAL.md`, `docs/STAKEHOLDER_INTELLIGENCE_WORKSPACE.md`, `docs/INTELLIGENCE_FOUNDATION.md`, `docs/INTELLIGENCE_CONTEXT.md`, `docs/INTELLIGENCE_SIGNAL.md`, `docs/INTELLIGENCE_INTERPRETATION.md`, `docs/INTELLIGENCE_SYNTHESIS.md`, `docs/INTELLIGENCE_RECOMMENDATION.md`, `jest.ui.config.cjs`, `src/types/stakeholderIntelligenceWorkspace.ts`, `src/lib/intelligence/stakeholderWorkspace.ts`, `src/lib/intelligence/stakeholderWorkspaceStore.ts`, `src/lib/intelligence/index.ts`, `src/components/intelligence/StakeholderIntelligenceWorkspace.tsx`, `src/app/app/stakeholders/[id]/page.tsx`, `src/app/app/stakeholders/page.tsx`, `src/app/app/intelligence/page.tsx`, `tests/ts/stakeholderIntelligenceWorkspace.test.ts`, `tests/ts/stakeholderIntelligenceWorkspaceUi.test.tsx`.
 
-Unchanged: `src/app/`, SRM entity types, I-01–I-05 type files (no breaking edit), TE-4 adapter, `srm-core/`, `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, `docs/DESIGN_SYSTEM.md`.
+Unchanged: SRM entity types, I-01–I-06 contracts (no breaking edit), TE-4 adapter, `srm-core/`, `docs/BUILD_PLAN.md`, `docs/DECISIONS.md`, `docs/DESIGN_SYSTEM.md`.
 
 ## 4. Validation
 
-**Tests:** `./node_modules/.bin/jest --config jest.ui.config.cjs tests/ts/intelligenceRecommendation.test.ts tests/ts/intelligenceSynthesis.test.ts tests/ts/intelligenceInterpretation.test.ts tests/ts/intelligenceSignal.test.ts tests/ts/intelligenceContext.test.ts tests/ts/intelligenceFoundation.test.ts` — pass (21 tests).
+**Tests:** `./node_modules/.bin/jest --config jest.ui.config.cjs tests/ts/stakeholderIntelligenceWorkspace.test.ts tests/ts/stakeholderIntelligenceWorkspaceUi.test.tsx` — pass (10 tests). Related I-01/I-06 suites still pass.
 
 **Build:** `npm run build` — pass.
 
-**Lint:** `npm run lint` — same **pre-existing global** 8 `react-hooks/set-state-in-effect` errors + 2 unused-var warnings (`login/trial`, `pay/activate`, `pay/success`, `ExperienceFeedbackForm`, `GeoLocationWizard`, `FeedbackDrawer`, `orgDataSpace.ts`, `sepPdf.ts`). No new I-06 lint. Exception **not expanded**. **Preserved at I-06 close:** this pre-existing lint set is not an I-06 defect and is not remediated by this closure.
+**Lint:** `npm run lint` — same **pre-existing global** 8 `react-hooks/set-state-in-effect` errors + 2 unused-var warnings (`login/trial`, `pay/activate`, `pay/success`, `ExperienceFeedbackForm`, `GeoLocationWizard`, `FeedbackDrawer`, `orgDataSpace.ts`, `sepPdf.ts`). No new P-01 lint. Exception **not expanded**.
 
-**Scope compliance:** No dashboard/UI, LLM, predictive/probability models, scoring, automated actions, decision workflow, methodology engine, graph, BAU, GIS, social-media monitoring, DocTypes, Cloud persistence, `srm-core/`, or I-07.
+**Scope compliance:** No LLM, predictive/probability models, scoring, methodology engine, stakeholder graph, advanced GIS, social-media monitoring, automated actions, marketplace, mobile app, new DocTypes, Cloud persistence redesign, or `srm-core/`. I-01–I-06 contracts reused. Recommendation remains `suggestion_only`. Human decision is a new record.
 
-**Verification notes:** `intelligenceIds` required. No-action alternative is always present. Statement/action rejected when they match a contributing intelligence statement. `recordRecommendationReview({ reviewState: "accepted" })` stays `stage: "recommendation"` with `suggestion_only` governance and no `status` field. Confidence is a string from `INTELLIGENCE_CONFIDENCE_LEVELS`.
+**Verification notes:** Customer compose does not infer signals from high influence or unlinked counts. `seed_demo` is dropped for customer workspaces and cannot be saved there. `recordWorkspaceDecision` leaves the recommendation JSON unchanged and without `status`. Trace helper preserves Recommendation → Intelligence → Interpretation → Signal → Context → Evidence.
 
-**Lifecycle:** EMPTY (after I-05 close) → owner-assigned I-06 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by the implementation agent.
-**Owner gate (2026-09-08):** PR **#285** is **MERGED**. COMPLETE implementation remains consistent with `origin/master`. Status set **VERIFIED**, then **CLOSED**, then TASK reset to **EMPTY**. Mechanical closure performed by Cursor. I-07 not started.
+**Lifecycle:** EMPTY (after I-06 close) → owner-assigned P-01 → IN PROGRESS → COMPLETE. VERIFIED / CLOSED not set by the implementation agent.
 
 ## 5. Behaviour
 
-No user-facing behaviour change. No new dashboard, API, DocType, or persistence. Implementation agents must STOP on EMPTY / COMPLETE / VERIFIED / CLOSED. Future intelligence packets (including I-07) require a new ChatGPT/owner ASSIGNED TASK. Recommendations are not decisions, actions, predictions, or scores.
+`/app/stakeholders/[id]` now includes the intelligence & decision workspace below the CRM card. Existing registry fields, list, create, and Cloud SI paths are unchanged. `/app/intelligence` still serves place/ESG briefs, with a pointer to the stakeholder record. Demo workspaces may opt-in to a labelled sample chain; customer/trial/live files stay empty until a person records the trail.
 
 ## 6. Risks / known limitations
 
-* Recommendation rows are unused by product UI until a later assigned packet. Intentional.
-* Statement/action/rationale text is caller-authored; I-06 rejects intelligence-statement copies but does not prove the wording stays non-prescriptive.
-* Review literals `accepted` / `rejected` overlap `HumanDecisionStatus` strings; later packets must keep the field (`reviewState` vs `status`) and stage distinct.
-* Pre-existing `npm run lint` errors remain on unrelated pages; exception unchanged. Owner closed I-06 with that global lint exception preserved; do not treat those errors as I-06 remaining work.
+* No Cloud DocTypes or Cloud persistence for I-03–I-07. Chain rows are browser/org local (`tl-stakeholder-intelligence-workspace`).
+* Incidents and evidence are not first-class stakeholder links; shared-project cases show only when `stakeholder.projectIds` matches.
+* I-02 operating attributes besides `influence` are not stored on the Stakeholder entity; they remain unset unless later supplied.
+* Seed engagements/commitments often have empty `stakeholderIds`, so demo activity lists can be empty until rows are linked or a labelled sample is loaded.
+* I-06 `reviewState` is not a UI control here (avoids confusing suggestion review with human decision).
+* Learning stage is not in this UI. Action/outcome use I-01 records only — not a new foundation packet.
+* TE-4 Trust recommendations are not mapped into this workspace (place/indicator subject, not stakeholder trail).
+* Dedicated I-07 Human Decision foundation packet was not built; P-01 uses I-01 `recordHumanDecision`.
+* Pre-existing `npm run lint` errors remain on unrelated pages; exception unchanged.
 
 ## 7. Git Status
 
-* I-06 execution merged: `5cd427f` (`I-06: Explainable Recommendation Foundation (#285)`).
-* Owner close: ChatGPT/owner VERIFIED then CLOSED I-06. Cursor performed the mechanical closure/reset and reset `.ai/TASK.md` to EMPTY. Diff vs merged I-06: `.ai/TASK.md`, `.ai/HANDOFF.md` only. Implementation code, `srm-core/`, and locked product documents untouched. I-07 was not started. Pull request: https://github.com/Chibase/trustledger-frontend/pull/287.
+Implementation on `cursor/p-01-stakeholder-intelligence-workspace-77de` from `origin/master` `2f03937`. I-07 / further packets were not started.
 
 ## 8. Remaining Work
 
-I-06 is **VERIFIED** and **CLOSED**. No further execution of I-06. Do not begin I-07 or any other intelligence packet from this close. Next work requires a new ChatGPT/owner ASSIGNED TASK.
+P-01 is **COMPLETE**. ChatGPT/owner independently VERIFIES, then CLOSES, then resets TASK to EMPTY. Do not set VERIFIED or CLOSED from this handoff. Do not begin another packet from this complete.

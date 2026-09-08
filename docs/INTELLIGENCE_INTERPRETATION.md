@@ -40,4 +40,4 @@ An `ExplainableInterpretationRecord` is an I-01 `IntelligenceInterpretationRecor
 
 ## Next packet (not this one)
 
-Intelligence synthesis lives in `docs/INTELLIGENCE_SYNTHESIS.md`. Later packets require a new ASSIGNED TASK.
+Intelligence synthesis lives in `docs/INTELLIGENCE_SYNTHESIS.md`. Productisation of the stakeholder trail is `docs/STAKEHOLDER_INTELLIGENCE_WORKSPACE.md` (P-01). Further packets require a new ASSIGNED TASK.

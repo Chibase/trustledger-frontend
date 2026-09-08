@@ -74,3 +74,29 @@ export {
   recommendationAppliesAt,
   recordRecommendationReview,
 } from "@/lib/intelligence/recommendation";
+export {
+  buildDemoSampleChain,
+  commitmentsLinkedToStakeholder,
+  composeStakeholderWorkspace,
+  createWorkspaceRecordId,
+  emptyStakeholderChain,
+  engagementsLinkedToStakeholder,
+  evidenceForIncidents,
+  incidentsOnSharedProjects,
+  recordWorkspaceAction,
+  recordWorkspaceDecision,
+  recordWorkspaceIntelligence,
+  recordWorkspaceInterpretation,
+  recordWorkspaceOutcome,
+  recordWorkspaceRecommendation,
+  recordWorkspaceSignal,
+  recordsOnSharedProjects,
+  stakeholderContextId,
+  traceRecommendation,
+  workspaceRecommendationIsSuggestion,
+} from "@/lib/intelligence/stakeholderWorkspace";
+export {
+  loadStakeholderChain,
+  saveStakeholderChain,
+  STAKEHOLDER_WORKSPACE_STORAGE_KEY,
+} from "@/lib/intelligence/stakeholderWorkspaceStore";

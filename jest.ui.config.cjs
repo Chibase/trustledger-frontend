@@ -24,6 +24,8 @@ module.exports = {
     "<rootDir>/tests/ts/intelligenceInterpretation.test.ts",
     "<rootDir>/tests/ts/intelligenceSynthesis.test.ts",
     "<rootDir>/tests/ts/intelligenceRecommendation.test.ts",
+    "<rootDir>/tests/ts/stakeholderIntelligenceWorkspace.test.ts",
+    "<rootDir>/tests/ts/stakeholderIntelligenceWorkspaceUi.test.tsx",
     "<rootDir>/tests/ts/trustGlobalSouth.test.tsx",
     "<rootDir>/tests/ts/trustMvpReadiness.test.ts",
     "<rootDir>/tests/ts/trustWorkspace.test.tsx",

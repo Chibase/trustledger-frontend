@@ -33,4 +33,4 @@ Methodologies are an identity stub (`IntelligenceMethodRef`). There is no method
 
 ## Next packet (not this one)
 
-I-02 context contracts live in `docs/INTELLIGENCE_CONTEXT.md`. I-03 signal contracts live in `docs/INTELLIGENCE_SIGNAL.md`. I-04 interpretation contracts live in `docs/INTELLIGENCE_INTERPRETATION.md`. I-05 intelligence contracts live in `docs/INTELLIGENCE_SYNTHESIS.md`. I-06 recommendation contracts live in `docs/INTELLIGENCE_RECOMMENDATION.md`. Further intelligence packets require a new ASSIGNED TASK.
+I-02 context contracts live in `docs/INTELLIGENCE_CONTEXT.md`. I-03–I-06 live in their respective notes. The first productisation slice is `docs/STAKEHOLDER_INTELLIGENCE_WORKSPACE.md` (P-01). Further intelligence packets require a new ASSIGNED TASK.

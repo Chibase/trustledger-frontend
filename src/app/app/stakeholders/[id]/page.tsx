@@ -3,35 +3,60 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { StakeholderIntelligenceWorkspace } from "@/components/intelligence/StakeholderIntelligenceWorkspace";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { listWorkspaceEvidence, listWorkspaceIncidents } from "@/lib/workspaceData";
+import { commitmentService } from "@/services/commitmentService";
+import { engagementService } from "@/services/engagementService";
 import { stakeholderService } from "@/services/stakeholderService";
+import type { Commitment } from "@/types/commitment";
+import type { Engagement, EvidenceStub } from "@/types/engagement";
+import type { Incident } from "@/types/incident";
 import {
   STAKEHOLDER_KIND_LABELS,
   type Stakeholder,
 } from "@/types/stakeholder";
 
+type PageData = {
+  row: Stakeholder | null;
+  engagements: Engagement[];
+  commitments: Commitment[];
+  incidents: Incident[];
+  evidence: EvidenceStub[];
+};
+
 export default function StakeholderDetailPage() {
   const params = useParams<{ id: string }>();
-  const [row, setRow] = useState<Stakeholder | null>(null);
+  const [data, setData] = useState<PageData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    stakeholderService.get(params.id).then((data) => {
-      if (!cancelled) {
-        setRow(data);
-        setLoading(false);
-      }
+    Promise.all([
+      stakeholderService.get(params.id),
+      engagementService.list(),
+      commitmentService.list(),
+    ]).then(([row, engagements, commitments]) => {
+      if (cancelled) return;
+      setData({
+        row,
+        engagements,
+        commitments,
+        incidents: listWorkspaceIncidents(),
+        evidence: listWorkspaceEvidence(),
+      });
+      setLoading(false);
     });
     return () => {
       cancelled = true;
     };
   }, [params.id]);
 
-  if (loading) {
+  if (loading || !data) {
     return <p className="text-sm text-tl-ink-muted">Loading…</p>;
   }
-  if (!row) {
+  if (!data.row) {
     return (
       <div className="space-y-4">
         <p className="text-sm text-tl-ink-muted">Stakeholder not found.</p>
@@ -42,7 +67,10 @@ export default function StakeholderDetailPage() {
     );
   }
 
+  const row = data.row;
+
   return (
+    <FeatureGate capability="stakeholdersCrm">
     <div className="space-y-6">
       <PageHeader
         eyebrow={STAKEHOLDER_KIND_LABELS[row.kind]}
@@ -147,6 +175,16 @@ export default function StakeholderDetailPage() {
           </dd>
         </div>
       </dl>
+
+      <StakeholderIntelligenceWorkspace
+        key={row.id}
+        stakeholder={row}
+        engagements={data.engagements}
+        commitments={data.commitments}
+        incidents={data.incidents}
+        evidence={data.evidence}
+      />
     </div>
+    </FeatureGate>
   );
 }

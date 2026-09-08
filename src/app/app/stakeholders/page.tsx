@@ -127,7 +127,7 @@ export default function AppStakeholdersPage() {
       <PageHeader
         eyebrow="Stakeholder Intelligence"
         title="Stakeholder registry"
-        description="The SRM engine starts here — people and organisations linked to place, influence, and engagements. Live sessions persist to TrustLedger Cloud; trial keeps your own browser workspace (no sample seed)."
+        description="The SRM engine starts here — people and organisations linked to place, influence, and engagements. Open a record for the intelligence and decision workspace. Live sessions persist to TrustLedger Cloud; trial keeps your own browser workspace (no sample seed)."
         actions={
           <div className="flex flex-wrap gap-2">
             <button
