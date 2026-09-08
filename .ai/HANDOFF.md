@@ -73,6 +73,7 @@ No user-facing behaviour change. No new dashboard, API, DocType, or persistence.
 * Base: `origin/master` `ebe7032`.
 * Branch: `cursor/i-03-explainable-signal-foundation-77de`.
 * Diff vs `origin/master`: I-03 signal types/helpers/tests/docs, changelog, living-note pointers, `.ai/TASK.md`, `.ai/HANDOFF.md`. Existing desks/entities and `srm-core/` untouched.
+* Pull request: https://github.com/Chibase/trustledger-frontend/pull/273.
 
 ## 8. Remaining Work
 
