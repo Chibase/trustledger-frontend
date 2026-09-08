@@ -35,4 +35,4 @@ Levels are `high | medium | low | unknown`, matching existing `StakeholderInflue
 
 ## Next packet (not this one)
 
-Signals, interpretation, relationship intelligence, and I-03 require a new ASSIGNED TASK.
+Signals live in `docs/INTELLIGENCE_SIGNAL.md`. Interpretation and later packets require a new ASSIGNED TASK.

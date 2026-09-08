@@ -20,6 +20,7 @@ module.exports = {
     "<rootDir>/tests/ts/trustIntelligence.test.ts",
     "<rootDir>/tests/ts/intelligenceFoundation.test.ts",
     "<rootDir>/tests/ts/intelligenceContext.test.ts",
+    "<rootDir>/tests/ts/intelligenceSignal.test.ts",
     "<rootDir>/tests/ts/trustGlobalSouth.test.tsx",
     "<rootDir>/tests/ts/trustMvpReadiness.test.ts",
     "<rootDir>/tests/ts/trustWorkspace.test.tsx",

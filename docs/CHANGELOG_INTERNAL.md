@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-08 — I-03 Explainable Signal Foundation
+
+- Descriptive signal contracts on the I-01 lifecycle: identity, domain, classification/state, subject/related refs, temporal window, evidence/context linkage, observations, provenance, and explanation.
+- Classification is not a score. Assembly from I-02 context copies refs; it does not infer meaning. No dashboard, LLM, recommendations, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_SIGNAL.md`.
+
 ## 2026-09-08 — I-02 Contextual Intelligence Foundation
 
 - Descriptive Context layer on the I-01 lifecycle: temporal window, spine refs, evidence/provenance, and Stakeholder Operating Context (influence, impact, capacity, commitment, BAU pressure, competing priorities, availability, accountability clarity, engagement burden).
