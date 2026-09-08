@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # TrustLedger agent rules
 
-1. Read `docs/BUILD_PLAN.md` before coding. Implement **only the active packet**.
+1. **AI workflow (locked).** Read `.ai/README.md`, `.ai/TASK.md`, and `.ai/HANDOFF.md` before implementation. Fetch `origin/master` first; do not treat `.ai` as missing until remote is checked; do not overwrite newer remote work. Lifecycle: **EMPTY → ASSIGNED → IN PROGRESS → COMPLETE → VERIFIED → CLOSED**. **EMPTY TASK = STOP.** Execute **only** when Status is **ASSIGNED** (then set IN PROGRESS) or **IN PROGRESS**, and **only** the TASK body. STOP on EMPTY, COMPLETE, VERIFIED, CLOSED. Never infer a task from BUILD_PLAN ACTIVE headings. Never set VERIFIED or CLOSED. Takeover: read TASK + HANDOFF, verify Git, confirm status, continue only in authorised scope — unavailability does not cancel the task. Agent may be Cursor, Codex, or another named authorised agent. Then read `docs/BUILD_PLAN.md`.
 2. Obey `docs/DECISIONS.md` and `docs/DESIGN_SYSTEM.md` — do not re-ask locked choices.
 3. Current phase = **GO LIVE Done** + Cloud Stakeholder Intelligence deepening. Backend host = `app.trustledgersrm.co.za` only (Interserv retired). No Cloudflare/WordPress work in this repo unless asked.
 4. Minimise human interruption: only ask when blocked (secrets, prod destroy, plan conflict).

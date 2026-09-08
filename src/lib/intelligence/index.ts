@@ -1,0 +1,58 @@
+export {
+  createIntelligenceProvenance,
+  createIntelligenceRecommendation,
+  intelligenceLifecycleIndex,
+  isHumanDecisionRecord,
+  isHumanDecisionStatus,
+  isIntelligenceConfidenceLevel,
+  isIntelligenceLifecycleStage,
+  isRecommendationRecord,
+  isSpineKind,
+  isSuggestionGovernance,
+  lifecycleStageOf,
+  recordHumanDecision,
+  recommendationIsNotADecision,
+  stampSuggestion,
+  suggestionGovernance,
+  uniqueRecordRefs,
+  SUGGESTION_GOVERNANCE,
+} from "@/lib/intelligence/foundation";
+export {
+  commonRecommendationFromTrust,
+  provenanceFromTrustTrace,
+  recordRefsFromTrustTrace,
+} from "@/lib/intelligence/fromTrust";
+export {
+  asContextLevel,
+  assembleStakeholderContext,
+  contextAppliesAt,
+  contextIsNotInterpretation,
+  createIntelligenceContext,
+  createTemporalContext,
+  influenceAsContextLevel,
+  isContextLevel,
+  isContextRecord,
+  normalizeStakeholderOperatingContext,
+  operatingContextFromStakeholder,
+  refsFromStakeholder,
+  relatedRefsFromRecords,
+} from "@/lib/intelligence/context";
+export {
+  assembleSignalFromContext,
+  createExplainableSignal,
+  isSignalClassification,
+  isSignalRecord,
+  isSignalState,
+  normalizeSignalObservations,
+  signalAppliesAt,
+  signalIsNotInterpretation,
+} from "@/lib/intelligence/signal";
+export {
+  assembleInterpretationFromSignal,
+  createExplainableInterpretation,
+  interpretationAppliesAt,
+  interpretationIsNotIntelligence,
+  isInterpretationRecord,
+  isInterpretationReviewState,
+  recordInterpretationReview,
+} from "@/lib/intelligence/interpretation";

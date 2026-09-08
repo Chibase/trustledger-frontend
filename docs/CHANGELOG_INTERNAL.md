@@ -1,5 +1,29 @@
 # Internal changelog
 
+## 2026-09-08 — I-04 Explainable Interpretation Foundation
+
+- Hypothesis-only interpretation contracts on the I-01 lifecycle: signal/context/evidence inputs, rationale, alternatives, evidential confidence, limitations, temporal window, provenance, methodology identity, and professional review state.
+- Confidence is not a probability. Review state is not a decision to act. No dashboard, LLM, scoring, intelligence synthesis, recommendations, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_INTERPRETATION.md`.
+
+## 2026-09-08 — I-03 Explainable Signal Foundation
+
+- Descriptive signal contracts on the I-01 lifecycle: identity, domain, classification/state, subject/related refs, temporal window, evidence/context linkage, observations, provenance, and explanation.
+- Classification is not a score. Assembly from I-02 context copies refs; it does not infer meaning. No dashboard, LLM, recommendations, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_SIGNAL.md`.
+
+## 2026-09-08 — I-02 Contextual Intelligence Foundation
+
+- Descriptive Context layer on the I-01 lifecycle: temporal window, spine refs, evidence/provenance, and Stakeholder Operating Context (influence, impact, capacity, commitment, BAU pressure, competing priorities, availability, accountability clarity, engagement burden).
+- Assembly copies recorded attributes and references; it does not score, infer, or interpret. No dashboard, LLM, graph, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_CONTEXT.md`.
+
+## 2026-09-08 — I-01 Common Intelligence Foundation
+
+- Shared lifecycle contracts for Evidence → Context → Signal → Interpretation → Intelligence → Recommendation → Human Decision → Action → Outcome → Learning (`src/types/intelligenceFoundation.ts`, `src/lib/intelligence/`).
+- Suggestions stay `suggestion_only` / non-autonomous; human decisions are a separate record. Existing TE-4 trust recommendations map on via a read-only adapter. No dashboard, LLM, methodology engine, graph, DocTypes, or `srm-core` change.
+- Living note: `docs/INTELLIGENCE_FOUNDATION.md`.
+
 ## 2026-09-06 — Preview password-reset copy
 
 - Forgot-password on a Vercel **preview** (no Cloud API keys) now says to use the live product `/login/live` instead of “cannot reach TrustLedger Cloud”. Production reset is unchanged and still emails a TrustLedger link.
