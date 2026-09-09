@@ -37,6 +37,8 @@ Connect the existing `/app/reports` `CreateReportWizard` flow to the already-imp
 
 - `npm run test:audit -- --runTestsByPath tests/ts/reportNarrative.test.tsx tests/ts/CreateReportWizard.test.tsx tests/ts/ProjectReportStudio.test.tsx tests/ts/ReportsHub.test.tsx` — **pass** (4 suites, 10 tests passed)
 - `npx eslint src/components/reports/CreateReportWizard.tsx src/components/reports/ReportsLibrary.tsx src/lib/reportStore.ts tests/ts/CreateReportWizard.test.tsx` — **pass** (0 errors)
+- `npx tsc --noEmit` — **pass** (0 type errors after build fix)
+- `npm run build` — **pass** (110 pages, TypeScript clean, 0 errors)
 - Verified `srm-core/` is completely untouched.
 
 ## 5. Behaviour
@@ -54,6 +56,7 @@ Connect the existing `/app/reports` `CreateReportWizard` flow to the already-imp
 
 - Branch: `copilot/rpt-03-connect-createreportwizard`
 - `srm-core/` untouched.
+- Build fix: `funderSnapshot` guarded at both `funderChartGroups` call sites in `CreateReportWizard.tsx` (returns `[]` when undefined; no type weakening).
 
 ## 8. Remaining Work
 

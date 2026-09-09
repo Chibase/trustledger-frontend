@@ -348,14 +348,14 @@ export function CreateReportWizard({
 
   const chartGroups = useMemo(() => {
     if (lens === "executive") return executiveChartGroups(riskRows);
-    if (lens === "funder") return funderChartGroups(funderSnapshot);
+    if (lens === "funder") return funderSnapshot ? funderChartGroups(funderSnapshot) : [];
     return monthlyChartGroups(facts?.attended || [], kindChartBars);
   }, [lens, riskRows, funderSnapshot, facts, kindChartBars]);
 
   function chartGroupsForKind(targetKind: ReportKind) {
     const targetLens = reportLensForKind(targetKind);
     if (targetLens === "executive") return executiveChartGroups(riskRows);
-    if (targetLens === "funder") return funderChartGroups(funderSnapshot);
+    if (targetLens === "funder") return funderSnapshot ? funderChartGroups(funderSnapshot) : [];
     return monthlyChartGroups(
       facts?.attended || [],
       kindChartBarsForKind(targetKind),

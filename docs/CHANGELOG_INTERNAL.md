@@ -1,5 +1,12 @@
 # Internal changelog
 
+## 2026-09-09 — RPT-03 Build fix: guard funderSnapshot in CreateReportWizard
+
+- Fixed Vercel TypeScript build error (`CreateReportWizard.tsx:351`): `funderSnapshot` typed `FunderSnapshot | undefined` was passed directly to `funderChartGroups(snapshot: FunderSnapshot)`.
+- Guarded both call sites (`chartGroups` useMemo and `chartGroupsForKind`) with a ternary returning `[]` when `funderSnapshot` is undefined — no `!` assertion, no type weakening, no contract change to `funderChartGroups`.
+- `npx tsc --noEmit` passes; `npm run build` passes (110 pages, TypeScript clean).
+- Focused tests (4 suites, 10 tests) remain green; ESLint clean.
+
 ## 2026-09-09 — RPT-03 Connect CreateReportWizard to client-ready report presentation
 
 - Connected the `/app/reports` `CreateReportWizard` flow to `ReportPresentationView`, enabling newly composed reports to be viewed in full-screen client presentation, exported to PDF via `/api/app/reports/pdf`, and printed.
