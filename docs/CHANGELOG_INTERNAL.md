@@ -1,5 +1,11 @@
 # Internal changelog
 
+## 2026-09-09 — RPT-02 Client-ready report presentation and PDF export
+
+- Project report presentation now stays inside the existing `ProjectReportStudio` / `ReportPresentationView` flow but renders client-facing narrative sections instead of exposing raw markdown and internal reporting phrasing.
+- Report download on the project reporting flow now creates a professional PDF from the viewed report context, lens data, charts, and narrative content; print support remains in place.
+- Focused coverage added for narrative rendering and PDF export routing (`reportNarrative`, `ProjectReportStudio`, plus existing `ReportsHub` flow check).
+
 ## 2026-09-09 — RPT-01 Reports Create Report trigger
 
 - On `/app/reports`, the report-library **Create a report** control now opens the existing evidence writer on the current page instead of linking back to the same route with no state change.

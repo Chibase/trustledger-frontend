@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import {
   HorizontalBarChart,
@@ -204,7 +204,7 @@ export function ProjectReportStudio({
   const showDetails = format === "details" || format === "charts_details";
   const reportTitle = `${REPORT_KIND_LABELS[kind]} — ${project.name}`;
 
-  function kindChartBarsForKind(targetKind: ReportKind) {
+  const kindChartBarsForKind = useCallback((targetKind: ReportKind) => {
     const rows = categoriesForReportKind(categories, targetKind);
     const bars: Array<{ label: string; value: number }> = [];
     for (const cat of rows) {
@@ -218,9 +218,12 @@ export function ProjectReportStudio({
       }
     }
     return bars.slice(0, 10);
-  }
+  }, [categories]);
 
-  const kindChartBars = useMemo(() => kindChartBarsForKind(kind), [categories, kind]);
+  const kindChartBars = useMemo(
+    () => kindChartBarsForKind(kind),
+    [kindChartBarsForKind, kind],
+  );
 
   const lens = reportLensForKind(kind);
   const riskRows = useMemo(() => riskRowsFromFacts(facts), [facts]);
