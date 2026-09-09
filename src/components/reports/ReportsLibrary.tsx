@@ -47,6 +47,7 @@ type ReportsLibraryProps = {
   role: UserRole;
   projects?: Project[];
   incidents?: Incident[];
+  onCreateReport?: () => void;
 };
 
 /**
@@ -57,6 +58,7 @@ export function ReportsLibrary({
   role,
   projects = [],
   incidents = [],
+  onCreateReport,
 }: ReportsLibraryProps) {
   const [tier, setTier] = useState<DeskTier>("clo");
   const [rows, setRows] = useState<SavedReport[]>([]);
@@ -128,12 +130,22 @@ export function ReportsLibrary({
               Clear browser library
             </button>
           ) : null}
-          <Link
-            href="/app/reports"
-            className="text-xs font-medium text-tl-trust-ink hover:underline"
-          >
-            Create a report
-          </Link>
+          {onCreateReport ? (
+            <button
+              type="button"
+              onClick={onCreateReport}
+              className="text-xs font-medium text-tl-trust-ink hover:underline"
+            >
+              Create a report
+            </button>
+          ) : (
+            <Link
+              href="/app/reports"
+              className="text-xs font-medium text-tl-trust-ink hover:underline"
+            >
+              Create a report
+            </Link>
+          )}
         </div>
       </div>
 

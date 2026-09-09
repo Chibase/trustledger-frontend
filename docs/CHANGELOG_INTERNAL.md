@@ -1,5 +1,10 @@
 # Internal changelog
 
+## 2026-09-09 — RPT-01 Reports Create Report trigger
+
+- On `/app/reports`, the report-library **Create a report** control now opens the existing evidence writer on the current page instead of linking back to the same route with no state change.
+- The report-generation flow itself is unchanged: the existing `CreateReportWizard` still enforces project selection and workspace case/evidence validation before composing.
+
 ## 2026-09-08 — I-06 Explainable Recommendation Foundation
 
 - Suggestion-only recommendation contracts on the I-01 lifecycle: intelligence inputs, statement/action/rationale/objective, no-action alternative, risks/constraints/dependencies, evidential confidence, limitations, temporal window, provenance, methodology identity, locked ADR-006 governance, and professional review state.

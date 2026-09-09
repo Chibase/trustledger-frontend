@@ -136,4 +136,29 @@ describe("ReportsHub TE-3 optional trust proof", () => {
     expect(screen.getAllByText(/Suggestion only/).length).toBeGreaterThan(0);
     expect(screen.getByText(`Trust · ${pulse.label}`)).toBeInTheDocument();
   });
+
+  it("opens the existing writer flow from the create report control", async () => {
+    const user = userEvent.setup();
+    render(
+      <ReportsHub role="admin" authorName="Test Author" planId="project" />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Monthly operational report")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByText("Evidence writer for this pack"),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Create a report" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Evidence writer for this pack"),
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.getByRole("button", { name: "AI write the report" }),
+    ).toBeInTheDocument();
+  });
 });
