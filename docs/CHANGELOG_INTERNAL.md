@@ -1,5 +1,9 @@
 # Internal changelog
 
+## 2026-09-09 — RPT-02 verification and closure
+
+- ChatGPT independently verified RPT-02 as clean, recorded **VERIFIED → CLOSED** in `.ai/HANDOFF.md`, and reset `.ai/TASK.md` to `EMPTY` for the next assignment.
+
 ## 2026-09-09 — RPT-02 Client-ready report presentation and PDF export
 
 - Project report presentation now stays inside the existing `ProjectReportStudio` / `ReportPresentationView` flow but renders client-facing narrative sections instead of exposing raw markdown and internal reporting phrasing.

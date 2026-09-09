@@ -4,7 +4,7 @@ Task: RPT-02 — Client-Ready Report Presentation & Export
 
 Assigned Agent: GitHub Copilot Task Agent
 
-Status: COMPLETE
+Status: CLOSED
 
 ## 1. Task
 
@@ -23,13 +23,14 @@ Upgrade the existing TrustLedger report presentation/export flow so the current 
 - `src/components/reports/ReportNarrative.tsx`, `src/lib/reportMarkdown.ts`, `src/types/reportPresentation.ts` — added shared client-facing markdown parsing/sanitisation so the existing report bodies render as polished headings, paragraphs, and lists without raw markdown/internal phrasing.
 - `src/lib/reportPdf.ts` and `src/app/api/app/reports/pdf/route.ts` — added authenticated server-side PDF generation using the current report lens data, chart groups, and narrative content.
 - `tests/ts/reportNarrative.test.tsx`, `tests/ts/ProjectReportStudio.test.tsx`, and `jest.ui.config.cjs` — added focused coverage for polished narrative rendering and PDF export routing.
-- `docs/CHANGELOG_INTERNAL.md` and `.ai/TASK.md` — recorded the work and moved the task to `COMPLETE`.
+- `docs/CHANGELOG_INTERNAL.md` and `.ai/TASK.md` — recorded the work, then owner verification/closure updated task state to `CLOSED` and reset TASK to `EMPTY`.
 
 ## 4. Validation
 
 - `npm run test:audit -- --runTestsByPath tests/ts/reportNarrative.test.tsx tests/ts/ProjectReportStudio.test.tsx tests/ts/ReportsHub.test.tsx` — **pass**
 - `npm run lint` — **fails on pre-existing unrelated repo rules** (`react-hooks/set-state-in-effect` in `src/app/login/trial/page.tsx`, `src/app/pay/activate/page.tsx`, `src/app/pay/success/page.tsx`, `src/components/forms/ExperienceFeedbackForm.tsx`, `src/components/geo/GeoLocationWizard.tsx`, `src/components/shell/FeedbackDrawer.tsx`; plus unused-var warnings in `src/lib/orgDataSpace.ts` and `src/lib/sepPdf.ts`)
 - `npm run build` — **fails in sandbox because Next.js cannot fetch Google Fonts** (`Source Sans 3`, `Source Serif 4`) during `next build`
+- ChatGPT independent verification: **verified clean implementation** and approved task closure (**VERIFIED → CLOSED**).
 
 ## 5. Behaviour
 
@@ -44,9 +45,9 @@ Upgrade the existing TrustLedger report presentation/export flow so the current 
 
 ## 7. Git Status
 
-- Branch for PR: `copilot/rpt-02-update-report-presentation`
+- Branch for PR: `copilot/rpt-02-close-implementation`
 - No `srm-core` changes
 
 ## 8. Remaining Work
 
-- Owner/ChatGPT to verify the result, review the generated PR, and close the task.
+- None. Task verified and closed by ChatGPT; `.ai/TASK.md` reset to `EMPTY` for next assignment.
