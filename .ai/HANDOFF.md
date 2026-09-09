@@ -1,53 +1,64 @@
 # AI Engineering Handoff
 
-Task: RPT-02 — Client-Ready Report Presentation & Export
+Task: RPT-03 — Connect CreateReportWizard to client-ready report presentation
 
-Assigned Agent: GitHub Copilot Task Agent
-
-Status: CLOSED
+Status: COMPLETE
 
 ## 1. Task
 
-Upgrade the existing TrustLedger report presentation/export flow so the current `ReportPresentationView` and `ProjectReportStudio` workflow produce clean client-facing report views, preserve print output, and download the viewed report as a professional PDF without redesigning the reporting system or changing evidence-grounding rules.
+Connect the existing `/app/reports` `CreateReportWizard` flow to the already-implemented `ReportPresentationView` so a generated report can be viewed in full-screen presentation, downloaded as PDF, and printed. Reuse the existing report presentation/export architecture without creating another reporting or PDF system. Ensure saved reports reach the same presentation/export path where applicable. Investigate the observed behaviour where the UI says `Saved as RPT-...` but the Report Library immediately says `No saved reports yet` and implement the minimum necessary integration fix.
 
 ## 2. Findings
 
-- The existing project report flow already centred on `ProjectReportStudio` → `ReportPresentationView` with lens-specific layouts, so the task could stay inside the current architecture.
-- Client-facing details were still rendered as raw markdown text, which exposed markdown markers and internal implementation phrasing directly in the visible report.
-- The primary download path still built a `.md` file locally, so viewed reports were not exportable as a client-ready PDF.
+- `CreateReportWizard` previously drafted reports into state and textarea editor but lacked integration with `ReportPresentationView`, format selection, PDF export, and print capabilities.
+- `ProjectReportStudio` already established the canonical pattern for computing lens data (`riskRows`, `funderSnapshot`, `chartGroups`, `kindChartBars`), binding `ReportPresentationView`, and posting to `/api/app/reports/pdf`.
+- When `CreateReportWizard` saved reports using `saveAuthoredReport()`, `ReportsLibrary` sitting below it did not update because it only read localStorage once on component mount. Because `window.localStorage.setItem` does not emit `storage` events to the calling window, `ReportsLibrary` remained stagnant, leading to the reported "No saved reports yet" bug.
 
 ## 3. Changes
 
-- `src/components/reports/ReportPresentationView.tsx` — refreshed the fullscreen presentation header/cover treatment and switched the primary export control to **Download PDF** with in-flight state.
-- `src/components/reports/ReportLensLayout.tsx` and `src/components/reports/ProjectReportStudio.tsx` — replaced raw markdown rendering with a structured report narrative view, reused for preview/details, and routed project report download through the new PDF export flow.
-- `src/components/reports/ReportNarrative.tsx`, `src/lib/reportMarkdown.ts`, `src/types/reportPresentation.ts` — added shared client-facing markdown parsing/sanitisation so the existing report bodies render as polished headings, paragraphs, and lists without raw markdown/internal phrasing.
-- `src/lib/reportPdf.ts` and `src/app/api/app/reports/pdf/route.ts` — added authenticated server-side PDF generation using the current report lens data, chart groups, and narrative content.
-- `tests/ts/reportNarrative.test.tsx`, `tests/ts/ProjectReportStudio.test.tsx`, and `jest.ui.config.cjs` — added focused coverage for polished narrative rendering and PDF export routing.
-- `docs/CHANGELOG_INTERNAL.md` and `.ai/TASK.md` — recorded the work, then owner verification/closure updated task state to `CLOSED` and reset TASK to `EMPTY`.
+- `src/components/reports/CreateReportWizard.tsx`:
+  - Added format selection (`charts`, `details`, `charts_details`) defaulting according to the active report lens.
+  - Wired `ReportPresentationView` with report title, project context, lens calculations, chart bars, and narrative body.
+  - Added "View report", "Download PDF", and "Print" actions to the action toolbar.
+  - Added a "Saved on this project" section listing saved reports with View, Download PDF, and Print actions.
+  - Connected `savedId` display with a quick-action link to view the saved report in the presentation view.
+- `src/lib/reportStore.ts`:
+  - Added window event dispatch (`"tl-reports-changed"`) on `saveAuthoredReport()` and `clearAllSavedReports()`.
+- `src/components/reports/ReportsLibrary.tsx`:
+  - Added listener for `"tl-reports-changed"` (and `"storage"`) to dynamically refresh saved reports without requiring a page reload.
+- `tests/ts/CreateReportWizard.test.tsx`:
+  - Added focused unit tests verifying report generation, presentation dialog opening, PDF download to `/api/app/reports/pdf`, saved report presentation reopening, and event synchronization.
+- `jest.ui.config.cjs`:
+  - Registered `tests/ts/CreateReportWizard.test.tsx` in `testMatch`.
+- `docs/CHANGELOG_INTERNAL.md` and `.ai/TASK.md`:
+  - Documented changes and moved status to `COMPLETE`.
 
 ## 4. Validation
 
-- `npm run test:audit -- --runTestsByPath tests/ts/reportNarrative.test.tsx tests/ts/ProjectReportStudio.test.tsx tests/ts/ReportsHub.test.tsx` — **pass**
-- `npm run lint` — **fails on pre-existing unrelated repo rules** (`react-hooks/set-state-in-effect` in `src/app/login/trial/page.tsx`, `src/app/pay/activate/page.tsx`, `src/app/pay/success/page.tsx`, `src/components/forms/ExperienceFeedbackForm.tsx`, `src/components/geo/GeoLocationWizard.tsx`, `src/components/shell/FeedbackDrawer.tsx`; plus unused-var warnings in `src/lib/orgDataSpace.ts` and `src/lib/sepPdf.ts`)
-- `npm run build` — **fails in sandbox because Next.js cannot fetch Google Fonts** (`Source Sans 3`, `Source Serif 4`) during `next build`
-- ChatGPT independent verification: **verified clean implementation** and approved task closure (**VERIFIED → CLOSED**).
+- `npm run test:audit -- --runTestsByPath tests/ts/reportNarrative.test.tsx tests/ts/CreateReportWizard.test.tsx tests/ts/ProjectReportStudio.test.tsx tests/ts/ReportsHub.test.tsx` — **pass** (4 suites, 10 tests passed)
+- `npx eslint src/components/reports/CreateReportWizard.tsx src/components/reports/ReportsLibrary.tsx src/lib/reportStore.ts tests/ts/CreateReportWizard.test.tsx` — **pass** (0 errors)
+- `npx tsc --noEmit` — **pass** (0 type errors after build fix)
+- `npm run build` — **pass** (110 pages, TypeScript clean, 0 errors)
+- Verified `srm-core/` is completely untouched.
 
 ## 5. Behaviour
 
-- Project reports now open in a cleaner client-facing presentation with report context cards and structured narrative sections instead of raw markdown.
-- The same viewed report can now be downloaded as a PDF generated from the current report lens, chart groups, and evidence-grounded narrative content.
-- Existing report-generation logic, evidence validation, report lenses, format choices, and print flow remain in place.
+- Authors generating reports via `/app/reports` now immediately see the client-ready presentation view and can reopen it using "View report".
+- Users can download client-ready PDFs via the existing `/api/app/reports/pdf` endpoint or trigger browser print from both the wizard toolbar and the presentation view header.
+- Saved project reports are listed with "View", "Download PDF", and "Print" actions.
+- Newly saved reports immediately reflect in the report library below without requiring a page refresh.
 
 ## 6. Risks
 
-- The PDF export reuses the current report data and narrative structure, but chart visuals are represented through server-rendered PDF chart sections rather than browser SVG capture.
-- Lint and build remain blocked by pre-existing repository issues / sandbox font access, so a clean full-repo validation still depends on those external fixes.
+- None identified within the reporting subsystem. Server PDF export depends on authenticated user session and plan capabilities as enforced by the existing `/api/app/reports/pdf` route.
 
 ## 7. Git Status
 
-- Branch for PR: `copilot/rpt-02-close-implementation`
-- No `srm-core` changes
+- Branch: `copilot/rpt-03-connect-createreportwizard`
+- `srm-core/` untouched.
+- Build fix: `funderSnapshot` guarded at both `funderChartGroups` call sites in `CreateReportWizard.tsx` (returns `[]` when undefined; no type weakening).
 
 ## 8. Remaining Work
 
-- None. Task verified and closed by ChatGPT; `.ai/TASK.md` reset to `EMPTY` for next assignment.
+- Owner/ChatGPT to independently verify the implementation and decide VERIFIED → CLOSED.
+

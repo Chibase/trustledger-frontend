@@ -1,6 +1,19 @@
 # Internal changelog
 
-## 2026-09-09 — RPT-02 verification and closure
+## 2026-09-09 — RPT-03 Build fix: guard funderSnapshot in CreateReportWizard
+
+- Fixed Vercel TypeScript build error (`CreateReportWizard.tsx:351`): `funderSnapshot` typed `FunderSnapshot | undefined` was passed directly to `funderChartGroups(snapshot: FunderSnapshot)`.
+- Guarded both call sites (`chartGroups` useMemo and `chartGroupsForKind`) with a ternary returning `[]` when `funderSnapshot` is undefined — no `!` assertion, no type weakening, no contract change to `funderChartGroups`.
+- `npx tsc --noEmit` passes; `npm run build` passes (110 pages, TypeScript clean).
+- Focused tests (4 suites, 10 tests) remain green; ESLint clean.
+
+## 2026-09-09 — RPT-03 Connect CreateReportWizard to client-ready report presentation
+
+- Connected the `/app/reports` `CreateReportWizard` flow to `ReportPresentationView`, enabling newly composed reports to be viewed in full-screen client presentation, exported to PDF via `/api/app/reports/pdf`, and printed.
+- Added format selection (`charts`, `details`, `charts_details`), View report, Download PDF, and Print actions to `CreateReportWizard`.
+- Fixed the store integration mismatch where saving a report left `ReportsLibrary` showing "No saved reports yet": `reportStore` now dispatches `tl-reports-changed` upon save/clear, and `ReportsLibrary` dynamically refreshes in-memory.
+- Added "Saved on this project" list inside `CreateReportWizard` to open, export, or print saved project reports.
+- Added focused coverage in `tests/ts/CreateReportWizard.test.tsx` and registered it in `jest.ui.config.cjs`.
 
 - ChatGPT independently verified RPT-02 as clean, recorded **VERIFIED → CLOSED** in `.ai/HANDOFF.md`, and reset `.ai/TASK.md` to `EMPTY` for the next assignment.
 

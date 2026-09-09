@@ -72,14 +72,23 @@ export function ReportsLibrary({
   );
 
   useEffect(() => {
+    function refresh() {
+      setRows(listSavedReports());
+    }
     const frame = requestAnimationFrame(() => {
       setTier(readDeskTier(role));
       setPurged(purgeTemplateGuideReports());
-      setRows(listSavedReports());
+      refresh();
       setAuthor(readSessionAuthor());
       setPlanId(readSessionPlanId());
     });
-    return () => cancelAnimationFrame(frame);
+    window.addEventListener("tl-reports-changed", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("tl-reports-changed", refresh);
+      window.removeEventListener("storage", refresh);
+    };
   }, [role]);
 
   const visible = useMemo(() => {

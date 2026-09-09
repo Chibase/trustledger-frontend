@@ -40,8 +40,15 @@ export function purgeTemplateGuideReports(): number {
   return removed;
 }
 
+function notifyReportsChanged() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("tl-reports-changed"));
+  }
+}
+
 export function clearAllSavedReports(): void {
   writeJson([]);
+  notifyReportsChanged();
 }
 
 export function listSavedReports(): SavedReport[] {
@@ -60,6 +67,7 @@ export function saveAuthoredReport(report: SavedReport) {
   const rows = listSavedReports().filter((r) => r.id !== report.id);
   rows.unshift(report);
   writeJson(rows);
+  notifyReportsChanged();
 }
 
 export function getSavedReport(id: string): SavedReport | null {

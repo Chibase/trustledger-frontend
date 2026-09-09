@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AiAssistButton } from "@/components/ai/AiAssistButton";
 import { AiSuggestionPanel } from "@/components/ai/AiSuggestionPanel";
+import { ReportPresentationView } from "@/components/reports/ReportPresentationView";
 import { requireEmailThen } from "@/components/shell/EmailCaptureGate";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -13,9 +14,11 @@ import {
 import {
   REPORT_AUDIENCES,
   REPORT_AUDIENCE_LABELS,
+  REPORT_FORMAT_LABELS,
   REPORT_KIND_LABELS,
   REPORT_KINDS,
   type ReportAudience,
+  type ReportFormatId,
   type ReportKind,
   type ReportSectionId,
   type SavedReport,
@@ -37,19 +40,31 @@ import {
   bodyCitesAnyCaseId,
   buildPeriodActivityFacts,
   factsToPromptBlock,
+  funderSnapshotFromFacts,
   looksLikeReportTemplateGuide,
   periodFactsHaveWritableEvidence,
+  riskRowsFromFacts,
   type PeriodActivityFacts,
 } from "@/lib/reportComposer";
 import {
+  defaultFormatForLens,
+  executiveChartGroups,
   FIXED_BRIEF_OUTLINE,
+  funderChartGroups,
   lensUsesFixedBrief,
+  monthlyChartGroups,
   reportLensForKind,
 } from "@/lib/reportLenses";
+import {
+  buildProjectCategoryMap,
+  categoriesForReportKind,
+} from "@/lib/projectCategoryMap";
 import { dossierSummaryLines } from "@/lib/projectDossier";
 import { loadReportWorkspaceLists } from "@/lib/reportWorkspaceLists";
 import {
   createReportId,
+  getSavedReport,
+  listSavedReports,
   purgeTemplateGuideReports,
   saveAuthoredReport,
 } from "@/lib/reportStore";
@@ -66,7 +81,40 @@ import {
   type Project,
 } from "@/types/project";
 import type { Commitment } from "@/types/commitment";
+import type { ClientReportPdfPayload } from "@/types/reportPresentation";
 import type { UserRole } from "@/types/rbac";
+
+export type { ReportFormatId };
+
+const FORMAT_OPTIONS: Array<{
+  id: ReportFormatId;
+  label: string;
+  hint: string;
+}> = [
+  {
+    id: "charts",
+    label: REPORT_FORMAT_LABELS.charts,
+    hint: "Category charts from mapped project data",
+  },
+  {
+    id: "details",
+    label: REPORT_FORMAT_LABELS.details,
+    hint: "Narrative filled from the chosen kind’s map",
+  },
+  {
+    id: "charts_details",
+    label: REPORT_FORMAT_LABELS.charts_details,
+    hint: "Combined print-ready pack",
+  },
+];
+
+function slugFilePart(raw: string): string {
+  return raw
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 48);
+}
 
 type CreateReportWizardProps = {
   role: UserRole;
@@ -139,6 +187,27 @@ export function CreateReportWizard({
   const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
   const [allCommitments, setAllCommitments] = useState<Commitment[]>([]);
   const [purgedTemplates, setPurgedTemplates] = useState(0);
+  const [format, setFormat] = useState<ReportFormatId>("charts_details");
+  const [presentationOpen, setPresentationOpen] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [library, setLibrary] = useState<SavedReport[]>([]);
+
+  useEffect(() => {
+    function refreshLibrary() {
+      if (!projectId) {
+        setLibrary([]);
+        return;
+      }
+      setLibrary(listSavedReports().filter((r) => r.projectId === projectId));
+    }
+    refreshLibrary();
+    window.addEventListener("tl-reports-changed", refreshLibrary);
+    window.addEventListener("storage", refreshLibrary);
+    return () => {
+      window.removeEventListener("tl-reports-changed", refreshLibrary);
+      window.removeEventListener("storage", refreshLibrary);
+    };
+  }, [projectId]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -235,6 +304,66 @@ export function CreateReportWizard({
     ? FIXED_BRIEF_OUTLINE[lens]
     : null;
 
+  const categories = useMemo(() => {
+    if (!project) return [];
+    return buildProjectCategoryMap({
+      project,
+      incidents: allIncidents,
+    });
+  }, [project, allIncidents]);
+
+  const kindChartBarsForKind = useCallback(
+    (targetKind: ReportKind) => {
+      const rows = categoriesForReportKind(categories, targetKind);
+      const bars: Array<{ label: string; value: number }> = [];
+      for (const cat of rows) {
+        for (const b of cat.chartBars) {
+          if (b.value > 0) {
+            bars.push({
+              label: `${cat.label.split(" ")[0]}: ${b.label}`.slice(0, 28),
+              value: b.value,
+            });
+          }
+        }
+      }
+      return bars.slice(0, 10);
+    },
+    [categories],
+  );
+
+  const kindChartBars = useMemo(
+    () => kindChartBarsForKind(kind),
+    [kindChartBarsForKind, kind],
+  );
+
+  const riskRows = useMemo(
+    () => (facts ? riskRowsFromFacts(facts) : []),
+    [facts],
+  );
+
+  const funderSnapshot = useMemo(
+    () => (facts ? funderSnapshotFromFacts(facts) : undefined),
+    [facts],
+  );
+
+  const chartGroups = useMemo(() => {
+    if (lens === "executive") return executiveChartGroups(riskRows);
+    if (lens === "funder") return funderSnapshot ? funderChartGroups(funderSnapshot) : [];
+    return monthlyChartGroups(facts?.attended || [], kindChartBars);
+  }, [lens, riskRows, funderSnapshot, facts, kindChartBars]);
+
+  function chartGroupsForKind(targetKind: ReportKind) {
+    const targetLens = reportLensForKind(targetKind);
+    if (targetLens === "executive") return executiveChartGroups(riskRows);
+    if (targetLens === "funder") return funderSnapshot ? funderChartGroups(funderSnapshot) : [];
+    return monthlyChartGroups(
+      facts?.attended || [],
+      kindChartBarsForKind(targetKind),
+    );
+  }
+
+  const reportTitle = `${REPORT_KIND_LABELS[kind]} — ${project?.name || periodLabel}`;
+
   function selectProject(nextId: string) {
     setProjectId(nextId);
     setDraft(null);
@@ -242,6 +371,106 @@ export function CreateReportWizard({
     setStatus("idle");
     setError(null);
     setSavedId(null);
+    setLibrary(listSavedReports().filter((r) => r.projectId === nextId));
+  }
+
+  function buildPdfPayload(opts?: {
+    format?: ReportFormatId;
+    bodyMarkdown?: string;
+    title?: string;
+    kind?: ReportKind;
+    audience?: ReportAudience;
+    period?: string;
+  }): ClientReportPdfPayload {
+    const fmt = opts?.format ?? format;
+    const title =
+      opts?.title ??
+      (savedId
+        ? getSavedReport(savedId)?.title || reportTitle
+        : draft?.title || reportTitle);
+    const k = opts?.kind ?? kind;
+    const aud = opts?.audience ?? audience;
+    const period = opts?.period ?? periodLabel;
+    return {
+      title,
+      projectName: project?.name || "",
+      periodLabel: period,
+      kindLabel: REPORT_KIND_LABELS[k],
+      audienceLabel: REPORT_AUDIENCE_LABELS[aud],
+      format: fmt,
+      narrativeMarkdown: (opts?.bodyMarkdown ?? body).trim(),
+      lens: reportLensForKind(k),
+      chartGroups: chartGroupsForKind(k),
+      riskRows,
+      funderSnapshot,
+      trustIndex: facts?.trustIndex ?? 0,
+      trustLabel: facts?.trustLabel,
+    };
+  }
+
+  async function handleDownload(opts?: {
+    format?: ReportFormatId;
+    bodyMarkdown?: string;
+    title?: string;
+    kind?: ReportKind;
+    audience?: ReportAudience;
+    period?: string;
+  }) {
+    if (!project) return;
+    const fmt = opts?.format ?? format;
+    const k = opts?.kind ?? kind;
+    setDownloadingPdf(true);
+    setError(null);
+    try {
+      const payload = buildPdfPayload(opts);
+      const res = await fetch("/api/app/reports/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        let message = "Could not build the PDF.";
+        try {
+          const json = (await res.json()) as { error?: string };
+          if (json.error) message = json.error;
+        } catch {
+          /* keep default */
+        }
+        throw new Error(message);
+      }
+      const pdf = await res.blob();
+      const url = URL.createObjectURL(pdf);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${slugFilePart(project.name)}-${slugFilePart(k)}-${slugFilePart(fmt)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not build the PDF.");
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }
+
+  function handlePrint() {
+    window.setTimeout(() => window.print(), 40);
+  }
+
+  function openPresentation(nextFormat?: ReportFormatId) {
+    if (nextFormat) setFormat(nextFormat);
+    setPresentationOpen(true);
+  }
+
+  function openSaved(report: SavedReport) {
+    setKind(report.kind);
+    setAudience(report.audience);
+    setPeriodLabel(report.periodLabel);
+    const fmt = report.preferredFormat || "charts_details";
+    setBody(report.bodyMarkdown);
+    setSavedId(report.id);
+    setFormat(fmt);
+    setPresentationOpen(true);
   }
 
   async function handleCompose() {
@@ -322,6 +551,7 @@ export function CreateReportWizard({
       setDraft(result);
       setBody(result.bodyMarkdown);
       setStatus("ready");
+      setPresentationOpen(true);
       pushToast(
         kind === "mel_retrospective"
           ? "Retrospective written from workspace evidence — review, apply, then save"
@@ -378,9 +608,13 @@ export function CreateReportWizard({
         createdAt: now,
         updatedAt: now,
         purposeTags: purposes.length ? purposes : ["reporting"],
+        preferredFormat: format,
       };
       saveAuthoredReport(report);
       setSavedId(id);
+      if (project) {
+        setLibrary(listSavedReports().filter((r) => r.projectId === project.id));
+      }
       pushToast(
         statusValue === "submitted"
           ? "Report submitted to library"
@@ -516,9 +750,9 @@ export function CreateReportWizard({
 
       {projectId && project ? (
         <>
-      <section className="grid gap-4 rounded-lg border border-tl-line bg-tl-surface p-4 sm:grid-cols-2">
+      <section className="grid gap-4 rounded-lg border border-tl-line bg-tl-surface p-4 sm:grid-cols-3">
         <label className="block text-sm">
-          <span className="mb-1 block font-medium">Report type</span>
+          <span className="mb-1 block font-medium">1. Report type</span>
           <select
             className="w-full rounded-md border border-tl-line px-3 py-2"
             value={kind}
@@ -529,6 +763,7 @@ export function CreateReportWizard({
               setDraft(null);
               setSavedId(null);
               setStatus("idle");
+              setFormat(defaultFormatForLens(reportLensForKind(next)));
             }}
           >
             {REPORT_KINDS.map((id) => (
@@ -539,7 +774,21 @@ export function CreateReportWizard({
           </select>
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block font-medium">Audience</span>
+          <span className="mb-1 block font-medium">2. Format</span>
+          <select
+            className="w-full rounded-md border border-tl-line px-3 py-2"
+            value={format}
+            onChange={(e) => setFormat(e.target.value as ReportFormatId)}
+          >
+            {FORMAT_OPTIONS.map((opt) => (
+              <option key={opt.id} value={opt.id}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">3. Audience</span>
           <select
             className="w-full rounded-md border border-tl-line px-3 py-2"
             value={audience}
@@ -552,7 +801,7 @@ export function CreateReportWizard({
             ))}
           </select>
         </label>
-        <label className="block text-sm sm:col-span-2">
+        <label className="block text-sm sm:col-span-3">
           <span className="mb-1 block font-medium">Period</span>
           <input
             className="w-full rounded-md border border-tl-line px-3 py-2"
@@ -663,6 +912,33 @@ export function CreateReportWizard({
         />
         <button
           type="button"
+          onClick={() => openPresentation()}
+          disabled={!body.trim()}
+          className="rounded-md border border-tl-trust/40 bg-tl-paper px-4 py-2 text-sm font-medium text-tl-trust-ink hover:border-tl-trust disabled:opacity-50"
+        >
+          View report
+        </button>
+        <button
+          type="button"
+          onClick={() => void handleDownload()}
+          disabled={!body.trim() || downloadingPdf}
+          className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
+        >
+          {downloadingPdf ? "Preparing PDF…" : "Download PDF"}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            openPresentation();
+            handlePrint();
+          }}
+          disabled={!body.trim()}
+          className="rounded-md border border-tl-line bg-tl-surface px-4 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
+        >
+          Print
+        </button>
+        <button
+          type="button"
           onClick={handleApplyDraft}
           disabled={!draft}
           className="rounded-md border border-tl-line px-4 py-2 text-sm font-medium hover:bg-tl-paper disabled:opacity-50"
@@ -726,10 +1002,116 @@ export function CreateReportWizard({
       </label>
 
       {savedId ? (
-        <p className="text-sm text-tl-ink-muted">
-          Saved as <span className="font-medium text-tl-ink">{savedId}</span>.
-          Open the dashboard report library to view by desk level.
-        </p>
+        <div className="flex flex-wrap items-center gap-2 text-sm text-tl-ink-muted">
+          <span>
+            Saved as <span className="font-medium text-tl-ink">{savedId}</span>.
+          </span>
+          <button
+            type="button"
+            onClick={() => openPresentation()}
+            className="font-medium text-tl-trust-ink underline hover:text-tl-trust"
+          >
+            View report presentation
+          </button>
+          <span>· Open the dashboard report library to view by desk level.</span>
+        </div>
+      ) : null}
+
+      <section>
+        <h3 className="mb-2 text-sm font-semibold text-tl-ink">
+          Saved on this project
+        </h3>
+        {library.length === 0 ? (
+          <p className="text-sm text-tl-ink-muted">
+            No saved reports yet on this project.
+          </p>
+        ) : (
+          <ul className="divide-y divide-tl-line rounded-md border border-tl-line bg-tl-paper text-sm">
+            {library.map((r) => (
+              <li
+                key={r.id}
+                className="flex flex-wrap items-center justify-between gap-2 px-3 py-2"
+              >
+                <span>
+                  <span className="font-medium">{r.title}</span>
+                  <span className="text-tl-ink-muted">
+                    {" "}
+                    · {r.periodLabel} · {r.status}
+                    {r.preferredFormat
+                      ? ` · ${REPORT_FORMAT_LABELS[r.preferredFormat]}`
+                      : ""}
+                  </span>
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-tl-trust-ink underline"
+                    onClick={() => openSaved(r)}
+                  >
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-tl-ink underline"
+                    onClick={() =>
+                      void handleDownload({
+                        format: r.preferredFormat || "charts_details",
+                        bodyMarkdown: r.bodyMarkdown,
+                        title: r.title,
+                        kind: r.kind,
+                        audience: r.audience,
+                        period: r.periodLabel,
+                      })
+                    }
+                  >
+                    Download PDF
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-tl-ink underline"
+                    onClick={() => {
+                      openSaved(r);
+                      window.setTimeout(() => window.print(), 80);
+                    }}
+                  >
+                    Print
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {project ? (
+        <ReportPresentationView
+          open={presentationOpen}
+          onClose={() => setPresentationOpen(false)}
+          title={
+            savedId
+              ? getSavedReport(savedId)?.title || reportTitle
+              : draft?.title || reportTitle
+          }
+          projectName={project.name}
+          periodLabel={periodLabel}
+          kind={kind}
+          audience={audience}
+          format={format}
+          onFormatChange={setFormat}
+          bodyMarkdown={body}
+          chartBars={kindChartBars}
+          onPrint={handlePrint}
+          onDownload={() => void handleDownload()}
+          downloading={downloadingPdf}
+          reportId={savedId}
+          projectId={project.id}
+          lens={lens}
+          riskRows={riskRows}
+          funderSnapshot={funderSnapshot}
+          chartGroups={chartGroups}
+          trustIndex={facts?.trustIndex ?? 0}
+          trustLabel={facts?.trustLabel}
+        />
       ) : null}
         </>
       ) : null}
