@@ -152,6 +152,13 @@ export function ReportsHub({
     }
   }
 
+  function openWriter() {
+    if (!pack && allowed[0]) {
+      setPack(allowed[0]);
+    }
+    setWriteMode(true);
+  }
+
   return (
     <div className="space-y-7">
       <header className="space-y-2">
@@ -383,6 +390,7 @@ export function ReportsHub({
             role={role}
             projects={projects}
             incidents={incidents}
+            onCreateReport={openWriter}
           />
         </section>
       ) : null}
