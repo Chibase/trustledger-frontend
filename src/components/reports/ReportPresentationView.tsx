@@ -42,7 +42,8 @@ type Props = {
   bodyMarkdown: string;
   chartBars: PresentationChartBar[];
   onPrint: () => void;
-  onDownload: () => void;
+  onDownload: () => void | Promise<void>;
+  downloading?: boolean;
   /** Saved report id — enables stable discussion threads when set. */
   reportId?: string | null;
   projectId?: string | null;
@@ -78,6 +79,7 @@ export function ReportPresentationView({
   chartBars,
   onPrint,
   onDownload,
+  downloading = false,
   reportId = null,
   projectId = null,
   lens,
@@ -159,7 +161,7 @@ export function ReportPresentationView({
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-tl-line bg-tl-surface px-4 py-3 print:hidden sm:px-6">
         <div className="min-w-0">
           <p className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
-            TrustLedger · presentation
+            TrustLedger · report
           </p>
           <h2
             id={titleId}
@@ -200,9 +202,10 @@ export function ReportPresentationView({
           <button
             type="button"
             onClick={onDownload}
+            disabled={downloading}
             className="rounded-md border border-tl-line bg-tl-paper px-3 py-1.5 text-sm font-medium hover:border-tl-trust/40"
           >
-            Download
+            {downloading ? "Preparing PDF…" : "Download PDF"}
           </button>
           <button
             type="button"
@@ -223,17 +226,49 @@ export function ReportPresentationView({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8 sm:py-8 print:overflow-visible print:px-0 print:py-0">
         <div className="mx-auto max-w-5xl space-y-8 print:max-w-none">
-          <header className="hidden print:block">
-            <p className="text-xs uppercase tracking-wide text-tl-ink-muted">
-              TrustLedger
+          <section className="rounded-2xl border border-tl-line bg-white p-6 shadow-sm print:rounded-none print:border-none print:px-0 print:py-0 print:shadow-none">
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-tl-trust-ink">
+              TrustLedger report
             </p>
-            <h1 className="font-display text-2xl font-semibold">{title}</h1>
-            <p className="text-sm text-tl-ink-muted">
-              {projectName} · {periodLabel} · {REPORT_KIND_LABELS[kind]} ·{" "}
-              {REPORT_AUDIENCE_LABELS[audience]} ·{" "}
-              {FORMAT_OPTIONS.find((f) => f.id === format)?.label}
+            <h1 className="mt-2 font-display text-2xl font-semibold text-tl-ink sm:text-3xl">
+              {title}
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm text-tl-ink-muted">
+              Client-ready report view with the current project context, selected
+              reporting lens, and evidence-grounded narrative for circulation or
+              print.
             </p>
-          </header>
+            <dl className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-xl border border-tl-line bg-tl-surface px-4 py-3">
+                <dt className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
+                  Project
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-tl-ink">{projectName}</dd>
+              </div>
+              <div className="rounded-xl border border-tl-line bg-tl-surface px-4 py-3">
+                <dt className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
+                  Reporting period
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-tl-ink">{periodLabel}</dd>
+              </div>
+              <div className="rounded-xl border border-tl-line bg-tl-surface px-4 py-3">
+                <dt className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
+                  Report type
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-tl-ink">
+                  {REPORT_KIND_LABELS[kind]}
+                </dd>
+              </div>
+              <div className="rounded-xl border border-tl-line bg-tl-surface px-4 py-3">
+                <dt className="text-xs font-medium uppercase tracking-wide text-tl-ink-muted">
+                  Audience
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-tl-ink">
+                  {REPORT_AUDIENCE_LABELS[audience]}
+                </dd>
+              </div>
+            </dl>
+          </section>
 
           {resolvedLens === "executive" ? (
             <ExecutiveRiskLayout
