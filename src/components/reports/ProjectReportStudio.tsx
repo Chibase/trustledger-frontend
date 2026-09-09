@@ -7,6 +7,7 @@ import {
   HorizontalBarChart,
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
+import { ReportNarrative } from "@/components/reports/ReportNarrative";
 import { ReportPresentationView } from "@/components/reports/ReportPresentationView";
 import { defaultAudienceForTier, sectionsForKind } from "@/config/reportCatalogue";
 import {
@@ -65,6 +66,7 @@ import {
 import type { AiSuggestionStatus } from "@/types/ai";
 import type { Incident } from "@/types/incident";
 import type { Project } from "@/types/project";
+import type { ClientReportPdfPayload } from "@/types/reportPresentation";
 import type { Commitment } from "@/types/commitment";
 import type { UserRole } from "@/types/rbac";
 
@@ -141,6 +143,7 @@ export function ProjectReportStudio({
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [library, setLibrary] = useState<SavedReport[]>([]);
   const [presentationOpen, setPresentationOpen] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -201,9 +204,10 @@ export function ProjectReportStudio({
   const showDetails = format === "details" || format === "charts_details";
   const reportTitle = `${REPORT_KIND_LABELS[kind]} — ${project.name}`;
 
-  const kindChartBars = useMemo(() => {
+  function kindChartBarsForKind(targetKind: ReportKind) {
+    const rows = categoriesForReportKind(categories, targetKind);
     const bars: Array<{ label: string; value: number }> = [];
-    for (const cat of mappedCategories) {
+    for (const cat of rows) {
       for (const b of cat.chartBars) {
         if (b.value > 0) {
           bars.push({
@@ -214,7 +218,9 @@ export function ProjectReportStudio({
       }
     }
     return bars.slice(0, 10);
-  }, [mappedCategories]);
+  }
+
+  const kindChartBars = useMemo(() => kindChartBarsForKind(kind), [categories, kind]);
 
   const lens = reportLensForKind(kind);
   const riskRows = useMemo(() => riskRowsFromFacts(facts), [facts]);
@@ -227,6 +233,13 @@ export function ProjectReportStudio({
     if (lens === "funder") return funderChartGroups(funderSnapshot);
     return monthlyChartGroups(incidents, kindChartBars);
   }, [lens, riskRows, funderSnapshot, incidents, kindChartBars]);
+
+  function chartGroupsForKind(targetKind: ReportKind) {
+    const targetLens = reportLensForKind(targetKind);
+    if (targetLens === "executive") return executiveChartGroups(riskRows);
+    if (targetLens === "funder") return funderChartGroups(funderSnapshot);
+    return monthlyChartGroups(incidents, kindChartBarsForKind(targetKind));
+  }
 
   function composeNarrative(opts: {
     kind: ReportKind;
@@ -431,57 +444,42 @@ export function ProjectReportStudio({
     setPresentationOpen(true);
   }
 
-  function buildDownloadMarkdown(opts?: {
+  function buildPdfPayload(opts?: {
     format?: ReportFormatId;
     bodyMarkdown?: string;
     title?: string;
     kind?: ReportKind;
     audience?: ReportAudience;
     period?: string;
-  }): string {
+  }): ClientReportPdfPayload {
     const fmt = opts?.format ?? format;
     const title = opts?.title ?? reportTitle;
     const k = opts?.kind ?? kind;
     const aud = opts?.audience ?? audience;
     const period = opts?.period ?? periodLabel;
-    const wantCharts = fmt === "charts" || fmt === "charts_details";
-    const wantDetails = fmt === "details" || fmt === "charts_details";
-    const mdBody = wantDetails
-      ? resolveNarrativeBody({
-          bodyMarkdown: opts?.bodyMarkdown,
-          kind: k,
-          audience: aud,
-          period,
-        })
-      : "";
-    const lines: string[] = [
-      `# ${title}`,
-      "",
-      `Project: ${project.name}`,
-      `Period: ${period}`,
-      `Kind: ${REPORT_KIND_LABELS[k]}`,
-      `Audience: ${REPORT_AUDIENCE_LABELS[aud]}`,
-      `Format: ${REPORT_FORMAT_LABELS[fmt]}`,
-      "",
-    ];
-    if (wantCharts) {
-      lines.push("## Charts", "");
-      if (kindChartBars.length) {
-        for (const bar of kindChartBars) {
-          lines.push(`- ${bar.label}: ${bar.value}`);
-        }
-      } else {
-        lines.push("_No chart values on file for this kind yet._");
-      }
-      lines.push("");
-    }
-    if (wantDetails) {
-      lines.push("## Details", "", mdBody, "");
-    }
-    return lines.join("\n");
+    return {
+      title,
+      projectName: project.name,
+      periodLabel: period,
+      kindLabel: REPORT_KIND_LABELS[k],
+      audienceLabel: REPORT_AUDIENCE_LABELS[aud],
+      format: fmt,
+      narrativeMarkdown: resolveNarrativeBody({
+        bodyMarkdown: opts?.bodyMarkdown,
+        kind: k,
+        audience: aud,
+        period,
+      }),
+      lens: reportLensForKind(k),
+      chartGroups: chartGroupsForKind(k),
+      riskRows,
+      funderSnapshot,
+      trustIndex: facts.trustIndex,
+      trustLabel: facts.trustLabel,
+    };
   }
 
-  function handleDownload(opts?: {
+  async function handleDownload(opts?: {
     format?: ReportFormatId;
     bodyMarkdown?: string;
     title?: string;
@@ -503,16 +501,38 @@ export function ProjectReportStudio({
         setBody(narrative);
       }
     }
-    const text = buildDownloadMarkdown(opts);
-    const blob = new Blob([text], {
-      type: "text/markdown;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${slugFilePart(project.name)}-${slugFilePart(k)}-${slugFilePart(fmt)}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+    setDownloadingPdf(true);
+    setError(null);
+    try {
+      const payload = buildPdfPayload(opts);
+      const res = await fetch("/api/app/reports/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        let message = "Could not build the PDF.";
+        try {
+          const json = (await res.json()) as { error?: string };
+          if (json.error) message = json.error;
+        } catch {
+          /* keep default */
+        }
+        throw new Error(message);
+      }
+      const pdf = await res.blob();
+      const url = URL.createObjectURL(pdf);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${slugFilePart(project.name)}-${slugFilePart(k)}-${slugFilePart(fmt)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not build the PDF.");
+    } finally {
+      setDownloadingPdf(false);
+    }
   }
 
   function handlePrint() {
@@ -531,7 +551,8 @@ export function ProjectReportStudio({
         </h2>
         <p className="mt-1 text-sm text-tl-ink-muted">
           Choose the kind, format, and level. View opens a full-screen
-          presentation in that format; download and print work for any format.
+          presentation in that format; PDF download and print work for any
+          format.
         </p>
       </div>
 
@@ -639,10 +660,11 @@ export function ProjectReportStudio({
         </button>
         <button
           type="button"
-          onClick={() => handleDownload()}
+          onClick={() => void handleDownload()}
+          disabled={downloadingPdf}
           className="rounded-md border border-tl-line bg-tl-surface px-3 py-2 text-sm font-medium"
         >
-          Download
+          {downloadingPdf ? "Preparing PDF…" : "Download PDF"}
         </button>
         <button
           type="button"
@@ -712,9 +734,9 @@ export function ProjectReportStudio({
             ) : null}
           </div>
           {body.trim() || effectiveBody ? (
-            <article className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-tl-ink line-clamp-[12]">
-              {body.trim() || effectiveBody}
-            </article>
+            <div className="max-h-72 overflow-hidden">
+              <ReportNarrative markdown={body.trim() || effectiveBody} compact />
+            </div>
           ) : (
             <p className="text-sm text-tl-ink-muted">
               Generate to fill narrative sections from the mapped categories
@@ -759,7 +781,7 @@ export function ProjectReportStudio({
                     type="button"
                     className="text-xs font-medium text-tl-ink underline"
                     onClick={() =>
-                      handleDownload({
+                      void handleDownload({
                         format: r.preferredFormat || "charts_details",
                         bodyMarkdown: r.bodyMarkdown,
                         title: r.title,
@@ -769,7 +791,7 @@ export function ProjectReportStudio({
                       })
                     }
                   >
-                    Download
+                    Download PDF
                   </button>
                   <button
                     type="button"
@@ -811,7 +833,8 @@ export function ProjectReportStudio({
         bodyMarkdown={effectiveBody}
         chartBars={kindChartBars}
         onPrint={handlePrint}
-        onDownload={() => handleDownload()}
+        onDownload={() => void handleDownload()}
+        downloading={downloadingPdf}
         reportId={savedId}
         projectId={project.id}
         lens={lens}

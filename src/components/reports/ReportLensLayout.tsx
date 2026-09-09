@@ -4,6 +4,7 @@ import {
   HorizontalBarChart,
   VerticalBarChart,
 } from "@/components/ops/charts/BarChart";
+import { ReportNarrative } from "@/components/reports/ReportNarrative";
 import { KpiCard } from "@/components/ui/KpiCard";
 import type { ExecutiveRiskRow, FunderSnapshot, LensChartGroup } from "@/lib/reportLenses";
 
@@ -177,9 +178,7 @@ export function ExecutiveRiskLayout({
           <h3 className="text-base font-semibold text-tl-ink">
             Brief (narrative)
           </h3>
-          <article className="prose prose-sm max-w-none whitespace-pre-wrap text-base leading-relaxed text-tl-ink sm:prose-base">
-            {bodyMarkdown}
-          </article>
+          <ReportNarrative markdown={bodyMarkdown} />
         </section>
       ) : null}
     </div>
@@ -269,9 +268,7 @@ export function FunderAssuranceLayout({
           <h3 className="text-base font-semibold text-tl-ink">
             Funder brief
           </h3>
-          <article className="prose prose-sm max-w-none whitespace-pre-wrap text-base leading-relaxed text-tl-ink sm:prose-base">
-            {bodyMarkdown}
-          </article>
+          <ReportNarrative markdown={bodyMarkdown} />
         </section>
       ) : null}
     </div>
@@ -305,9 +302,7 @@ export function MonthlyOpsLayout({
             Detailed monthly narrative
           </h3>
           {bodyMarkdown?.trim() ? (
-            <article className="prose prose-sm max-w-none whitespace-pre-wrap text-base leading-relaxed text-tl-ink sm:prose-base">
-              {bodyMarkdown}
-            </article>
+            <ReportNarrative markdown={bodyMarkdown} />
           ) : (
             <p className="text-sm text-tl-ink-muted">
               Details could not be composed — capture category data or cases,

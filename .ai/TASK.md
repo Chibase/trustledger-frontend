@@ -1,6 +1,6 @@
 # Current TrustLedger Task
 
-Status: ASSIGNED
+Status: IN PROGRESS
 
 Task: RPT-02 — Client-Ready Report Presentation & Export
 
