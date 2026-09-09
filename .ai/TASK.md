@@ -1,6 +1,6 @@
 # Current TrustLedger Task
 
-Status: IN PROGRESS
+Status: COMPLETE
 
 Task: RPT-01 — Fix Reports Create Report button
 

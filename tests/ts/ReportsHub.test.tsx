@@ -144,7 +144,9 @@ describe("ReportsHub TE-3 optional trust proof", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Monthly operational report")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Create a report" }),
+      ).toBeInTheDocument();
     });
     expect(
       screen.queryByText("Evidence writer for this pack"),
@@ -154,11 +156,9 @@ describe("ReportsHub TE-3 optional trust proof", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Evidence writer for this pack"),
+        screen.getByText("Select a project to unlock report type, topics, and AI draft."),
       ).toBeInTheDocument();
     });
-    expect(
-      screen.getByRole("button", { name: "AI write the report" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Hide AI writer" })).toBeInTheDocument();
   });
 });
