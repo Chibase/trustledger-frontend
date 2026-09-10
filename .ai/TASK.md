@@ -1,82 +1,164 @@
 # Current TrustLedger Task
 
-Status: COMPLETE
+Status: ASSIGNED
 
-Task: RPT-03 — Connect CreateReportWizard to client-ready report presentation
+Task: RPT-04 — TrustLedger Dashboard Redesign
 
-Objective:
-Connect the existing `/app/reports` CreateReportWizard flow to the already-implemented ReportPresentationView so a generated report can be viewed, downloaded as PDF, and printed. Reuse the existing report presentation/export architecture. Do not create another reporting or PDF system.
+Authoritative Design:
+`docs/RPT-04_DASHBOARD_DESIGN_SPECIFICATION.md`
 
-Scope:
-- Primary product file: `src/components/reports/CreateReportWizard.tsx`.
-- Add or update only the minimum focused test file needed for this flow.
-- Use `src/components/reports/ProjectReportStudio.tsx` as the implementation reference.
-- Connect the existing generated report body, project, report kind, audience, period, format, and evidence context to `ReportPresentationView`.
-- Required user flow:
-  Generate report → View report → Download PDF / Print.
-- Ensure a saved report can reach the same presentation/export path where applicable.
-- Investigate the observed behaviour where the UI says `Saved as RPT-...` but the Report Library immediately says `No saved reports yet`.
-- If that library issue is confirmed, fix only the minimum store/library integration necessary.
-- Preserve all existing evidence validation and report-generation behaviour.
+## Objective
 
-Do NOT modify:
-- `src/components/reports/ReportPresentationView.tsx`
-- `src/lib/reportPdf.ts`
-- `src/app/api/app/reports/pdf/route.ts`
-- `src/lib/reportComposer.ts`
-- report lenses/layout architecture
-- AI generation logic
-- dashboard layout
-- tenancy/security architecture
-- `srm-core`
+Redesign the TrustLedger dashboard experience in accordance with the RPT-04 specification.
 
-Do not create a second PDF/reporting engine.
-Do not weaken or bypass evidence validation.
-Do not redesign the Reports Library.
-Do not perform unrelated refactoring.
+The primary dashboard is the **TrustLedger Platform Command Centre** for the platform owner.
 
-Acceptance Criteria:
-1. A report generated from `/app/reports` can open the existing client-ready ReportPresentationView.
-2. The presentation provides the existing Download PDF and Print actions.
-3. PDF export uses the existing `/api/app/reports/pdf` endpoint.
-4. The PDF represents the currently generated/viewed report.
-5. Existing report generation and evidence validation remain unchanged.
-6. A saved report can be opened through the same presentation/export path where applicable.
-7. Investigate the `Saved as RPT-...` versus `No saved reports yet` behaviour and make only the minimum necessary integration fix if required.
-8. Focused tests pass.
-9. No `srm-core` changes.
-10. No unrelated product changes.
+It must focus on:
 
-Implementation Guidance:
-- Reuse existing functions and data structures wherever possible.
-- Follow the existing `ProjectReportStudio` → `ReportPresentationView` pattern.
-- Do not duplicate report composition, evidence gathering, PDF rendering, or report-lens logic.
-- Keep Markdown as the internal report representation; do not expose raw Markdown as the client-facing export.
-- Keep the implementation small and surgical because this is an integration task, not a new reporting feature.
+- Build progress and module progress
+- Plans and commercial position
+- Platform issues
+- Platform health
+- Items requiring owner attention
 
-Validation:
-- Run the focused test covering CreateReportWizard presentation/export behaviour.
-- Run lint if practical, but do not spend excessive agent usage repeatedly analysing known unrelated lint failures.
-- Run build only if required by the repository workflow; report any pre-existing/environmental failure.
-- Confirm `srm-core` is untouched.
+It must not become a customer/project operational dashboard.
 
-Handoff:
-- Update `.ai/HANDOFF.md` with:
-  - findings
-  - files changed
-  - implementation summary
-  - tests/validation performed
-  - runtime behaviour
-  - known limitations
-- Update `docs/CHANGELOG_INTERNAL.md`.
-- Commit and push the implementation.
-- Open a PR against `master`.
-- Report the PR number and commit SHA.
-- Do NOT mark VERIFIED or CLOSED.
+## Mandatory UX Hierarchy
 
-Owner/ChatGPT will independently verify the implementation and decide VERIFIED → CLOSED.
+Implement:
 
-Workflow Rule:
+**CHARTS → SUMMARY → DETAILS → ACTION**
+
+Charts remain prominent.
+
+Interaction model:
+
+**See → Understand → Investigate → Act**
+
+Details should be accessible through appropriate chart, window, indicator or button interactions rather than overwhelming the initial view.
+
+## Dashboard Separation
+
+Preserve four distinct dashboard concepts:
+
+1. Platform Command Centre — owner
+2. Organisation Dashboard — customer
+3. Project Dashboard — project team
+4. Testing & QA Dashboard — engineering only
+
+Testing and QA functionality must not be incorporated into the product dashboard or customer plans.
+
+## Personalisation
+
+The dashboard must use the authenticated user's actual identity.
+
+Example:
+
+`Good morning, Thozamile`
+
+Do not hard-code the user's name.
+
+## Design Direction
+
+Create a sophisticated, spacious, modern, calm and executive interface using TrustLedger's established visual language.
+
+Avoid:
+
+- dashboard clutter
+- excessive KPI cards
+- duplicated information
+- cramped tables
+- excessive borders
+- giant headings
+- generic AI/SaaS dashboard aesthetics
+
+The sidebar should provide navigation to deeper information. Do not duplicate the sidebar's information architecture in the central dashboard.
+
+## Engineering Constraints
+
+Before changing code:
+
+1. Inspect the existing dashboard architecture and components.
+2. Identify reusable components and existing functionality.
+3. Identify the smallest safe implementation.
+4. Preserve working functionality unless the specification explicitly requires change.
+
+Do not:
+
+- rebuild the dashboard architecture unnecessarily
+- introduce predictive AI
+- introduce autonomous AI
+- introduce new scoring methodology
+- introduce public sharing
+- change tenancy, authentication or authorization architecture
+- modify `srm-core`
+- refactor unrelated systems
+- create a separate dashboard framework
+
+Reuse existing TrustLedger dashboard components wherever practical.
+
+## Scope
+
+The primary implementation target is the existing Platform Command Centre/dashboard.
+
+Existing Organisation and Project dashboards should not be redesigned unless strictly necessary to maintain the dashboard separation defined in the specification.
+
+The Testing & QA dashboard remains separate.
+
+## Validation
+
+After implementation:
+
+- run focused dashboard tests
+- run changed-file lint
+- run `npm run build`
+- manually verify affected UI behaviour where appropriate
+- confirm `srm-core/` is untouched
+- confirm no unrelated files were modified
+
+Report:
+
+- files changed
+- functionality changed
+- tests/checks performed
+- build result
+- remaining risks
+- Git status
+- PR number and branch
+
+## Stop Conditions
+
+STOP and report before implementing if:
+
+- the existing architecture conflicts with the specification
+- a backend/API change appears necessary
+- authentication or authorization changes appear necessary
+- the requested implementation requires modifying `srm-core`
+- the scope cannot be achieved safely through the existing frontend architecture
+
+Do not expand scope without Product Owner approval.
+
+## Completion Rule
+
+Implementation agent must NOT mark the task VERIFIED or CLOSED.
+
+When implementation is complete:
+
+`Status: COMPLETE`
+
+Update:
+
+- `.ai/HANDOFF.md`
+- `docs/CHANGELOG_INTERNAL.md`
+
+Commit, push and open the PR.
+
+Owner/ChatGPT will independently verify the implementation and determine:
+
+`VERIFIED → CLOSED`
+
+## Workflow Rule
+
 Implementation agent executes only while Status is ASSIGNED or IN PROGRESS.
 
 EMPTY TASK = STOP.
