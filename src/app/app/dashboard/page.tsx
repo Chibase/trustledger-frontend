@@ -1,6 +1,6 @@
 import { ExecutivePortfolioDashboard } from "@/components/dashboard/ExecutivePortfolioDashboard";
+import { PlatformCommandCentre } from "@/components/dashboard/PlatformCommandCentre";
 import { SetupChecklistBanner } from "@/components/onboarding/SetupChecklistBanner";
-import { PlanOwnerMasterPanel } from "@/components/org/PlanOwnerMasterPanel";
 import { getCurrentUser } from "@/lib/auth";
 import { isCustomerWorkspaceUser } from "@/lib/workspaceMode";
 import { isVipShowcaseWorkspace } from "@/lib/planLabel";
@@ -8,7 +8,9 @@ import { incidentService } from "@/services/incidentService";
 import { projectService } from "@/services/projectService";
 
 /**
- * Workspace overview — overall graphs, then project dashboards for capture and reports.
+ * Workspace overview — routes plan owners to the Platform Command Centre (RPT-04)
+ * and all other users to the Executive Portfolio Dashboard.
+ * Dashboard separation (owner / org / project / QA) is maintained.
  */
 export default async function AppDashboardPage() {
   const user = await getCurrentUser();
@@ -25,16 +27,35 @@ export default async function AppDashboardPage() {
 
   const vipShowcase = isVipShowcaseWorkspace(user.mode, user.isVip, user.email);
 
-  return (
-    <div className="space-y-7">
-      {isPlanOwner || vipShowcase ? (
-        <SetupChecklistBanner
+  // Plan Owner — Platform Command Centre (RPT-04)
+  if (isPlanOwner) {
+    return (
+      <div className="space-y-7">
+        {vipShowcase ? (
+          <SetupChecklistBanner
+            planId={user.trialPlan}
+            vip={Boolean(user.isVip)}
+            mode={user.mode}
+            email={user.email}
+          />
+        ) : null}
+        <PlatformCommandCentre
+          role={user.role}
           planId={user.trialPlan}
-          vip={Boolean(user.isVip)}
+          isPlanOwner={isPlanOwner}
+          isVip={Boolean(user.isVip)}
           mode={user.mode}
           email={user.email}
+          userName={user.name}
+          seedIncidents={incidents}
         />
-      ) : null}
+      </div>
+    );
+  }
+
+  // Organisation / project users — existing dashboard unchanged
+  return (
+    <div className="space-y-7">
       <ExecutivePortfolioDashboard
         role={user.role}
         planId={user.trialPlan}
@@ -46,7 +67,6 @@ export default async function AppDashboardPage() {
         seedIncidents={incidents}
         seedProjects={projects}
       />
-      {isPlanOwner ? <PlanOwnerMasterPanel /> : null}
     </div>
   );
 }
