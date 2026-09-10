@@ -60,6 +60,21 @@ export function welcomeFirstName(fullName: string | null | undefined): string | 
   return first || null;
 }
 
+/**
+ * Time-aware greeting for the authenticated user.
+ * Before 12:00 → Good morning; 12:00–16:59 → Good afternoon; 17:00+ → Good evening.
+ * Never hard-codes the user's name — callers pass it from auth context.
+ */
+export function timeAwareGreeting(
+  firstName: string | null | undefined,
+  nowHour = new Date().getHours(),
+): string {
+  const salutation =
+    nowHour < 12 ? "Good morning" : nowHour < 17 ? "Good afternoon" : "Good evening";
+  return firstName ? `${salutation}, ${firstName}` : salutation;
+}
+
+
 export function userInitials(fullName: string | null | undefined): string {
   const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return "?";
