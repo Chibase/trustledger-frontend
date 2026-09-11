@@ -13,7 +13,7 @@ import {
   resolvePlanDashboardPackaging,
 } from "@/lib/planPackaging";
 import type { PlanId } from "@/config/plans";
-import { getActiveOrg, listOrgs } from "@/lib/orgStore";
+import { getActiveOrg } from "@/lib/orgStore";
 import { buildSeatSummary } from "@/lib/orgSeats";
 import {
   countOpenCases,
@@ -103,7 +103,6 @@ export function PrestigeFounderCommandCentre({
   opsOverview,
 }: Props) {
   const incidents = seedIncidents;
-  const [orgs, setOrgs] = useState<OrgRecord[]>([]);
   const [activeOrg, setActiveOrg] = useState<OrgRecord | null>(null);
   const [seats, setSeats] = useState<SeatSummary | null>(null);
 
@@ -115,8 +114,6 @@ export function PrestigeFounderCommandCentre({
 
   useEffect(() => {
     const refreshOrgData = () => {
-      const storedOrgs = listOrgs();
-      setOrgs(storedOrgs);
       const active = getActiveOrg();
       setActiveOrg(active);
       setSeats(active ? buildSeatSummary(active) : null);
@@ -170,41 +167,27 @@ export function PrestigeFounderCommandCentre({
     [openCases, p1Count, slaBreachedCount],
   );
 
-  // Clients by Plan Distribution from real stored orgs & active session
   const planDistributionBars = useMemo(() => {
-    const counts: Record<string, number> = {
-      institutional: 0,
-      project: 0,
-      practitioner: 0,
-      solo: 0,
-      vip: 0,
+    const plan = activeOrg?.complimentaryVip
+      ? "VIP Pilot"
+      : activeOrg?.planId
+        ? activeOrg.planId
+        : user.isVip
+          ? "VIP Pilot"
+          : user.trialPlan || null;
+
+    if (!plan) return [];
+
+    const labels: Record<string, string> = {
+      institutional: "Institutional",
+      project: "Project",
+      practitioner: "Practitioner",
+      solo: "Solo",
+      "VIP Pilot": "VIP Pilot",
     };
 
-    if (orgs.length > 0) {
-      for (const org of orgs) {
-        if (org.complimentaryVip) {
-          counts.vip += 1;
-        } else if (org.planId in counts) {
-          counts[org.planId] += 1;
-        }
-      }
-    } else if (activeOrg) {
-      if (activeOrg.complimentaryVip) counts.vip += 1;
-      else if (activeOrg.planId in counts) counts[activeOrg.planId] += 1;
-    } else {
-      const activePlan = user.trialPlan || "practitioner";
-      if (user.isVip) counts.vip += 1;
-      else counts[activePlan] = (counts[activePlan] || 0) + 1;
-    }
-
-    return [
-      { label: "Institutional", value: counts.institutional },
-      { label: "Project", value: counts.project },
-      { label: "Practitioner", value: counts.practitioner },
-      { label: "Solo", value: counts.solo },
-      { label: "VIP Pilot", value: counts.vip },
-    ].filter((p) => p.value > 0);
-  }, [orgs, activeOrg, user.trialPlan, user.isVip]);
+    return [{ label: labels[plan] || plan, value: 1 }];
+  }, [activeOrg, user.trialPlan, user.isVip]);
 
   // Attention Items derived strictly from real operational conditions
   const attentionItems = useMemo(() => {
@@ -422,7 +405,7 @@ export function PrestigeFounderCommandCentre({
                 Development Progress
               </p>
               <span className="rounded bg-tl-trust/10 px-2 py-0.5 text-[10px] font-semibold text-tl-trust-ink">
-                6 Modules Tracked
+                {moduleBars.length} Modules Tracked
               </span>
             </div>
             <p className="mt-3 font-display text-3xl font-semibold tabular-nums text-tl-ink">
@@ -439,23 +422,23 @@ export function PrestigeFounderCommandCentre({
             </p>
           </div>
 
-          {/* Bento Card 3: Client Footprint */}
+          {/* Bento Card 3: Current Workspace */}
           <div className="rounded-2xl border border-tl-line bg-tl-surface p-5 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-tl-ink-muted">
-                Client Accounts & Workspaces
+                Current Workspace
               </p>
               <span className="rounded bg-tl-paper px-2 py-0.5 text-[10px] font-semibold text-tl-ink-muted">
-                Active Orgs
+                Authenticated
               </span>
             </div>
             <p className="mt-3 font-display text-3xl font-semibold tabular-nums text-tl-ink">
-              {orgs.length || (activeOrg ? 1 : "—")}
+              {activeOrg ? "1" : "—"}
             </p>
             <p className="mt-1 text-xs text-tl-ink-muted">
               {seats
                 ? `${seats.membersUsed} seat${seats.membersUsed === 1 ? "" : "s"} occupied (${seats.invitesPending} pending)`
-                : "Operational accounts provisioned"}
+                : "Authenticated workspace provisioned"}
             </p>
           </div>
 
@@ -482,15 +465,15 @@ export function PrestigeFounderCommandCentre({
 
       {/* 3. CORE ANALYTICS BENTO: CHARTS → SUMMARY → DETAILS → ACTION */}
       <div className="grid gap-6 lg:grid-cols-12">
-        {/* SECTION A: COMMERCIAL ACTIVITY TREND (8 Cols) */}
+        {/* SECTION A: PLATFORM ACTIVITY SIGNALS (8 Cols) */}
         <section className="rounded-2xl border border-tl-line bg-tl-surface p-6 shadow-sm lg:col-span-8">
           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-tl-line pb-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-tl-ink-muted">
-                Commercial Activity Trend
+                Platform Activity Signals
               </p>
               <h2 className="mt-1 font-display text-xl font-semibold text-tl-ink">
-                Weekly Platform Activity Velocity
+                Weekly CRM Intake Activity
               </h2>
             </div>
             <span className="text-xs font-medium text-tl-ink-muted">
@@ -521,8 +504,8 @@ export function PrestigeFounderCommandCentre({
               Summary
             </p>
             <p className="mt-1 text-sm leading-relaxed text-tl-ink">
-              {brief.weekly.reduce((sum, w) => sum + w.total, 0)} total activity signals across the last eight weeks.
-              Engagement velocity reflects verified visitor touchpoints across demos, assessments, and client contact.
+              {brief.weekly.reduce((sum, w) => sum + w.total, 0)} CRM intake signals recorded across the last eight weeks.
+              This count reflects total lead and engagement records logged — demos, assessments, feedback submissions, and contact events — not revenue or new-client acquisition.
             </p>
           </div>
 
@@ -551,14 +534,14 @@ export function PrestigeFounderCommandCentre({
           </div>
         </section>
 
-        {/* SECTION B: CLIENTS BY PLAN DISTRIBUTION (4 Cols) */}
+        {/* SECTION B: CURRENT WORKSPACE PLAN (4 Cols) */}
         <section className="rounded-2xl border border-tl-line bg-tl-surface p-6 shadow-sm lg:col-span-4">
           <div className="border-b border-tl-line pb-4">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-tl-ink-muted">
               Commercial Packaging
             </p>
             <h2 className="mt-1 font-display text-xl font-semibold text-tl-ink">
-              Clients by Plan Tier
+              Current Workspace Plan
             </h2>
           </div>
 
@@ -568,7 +551,7 @@ export function PrestigeFounderCommandCentre({
               <HorizontalBarChart bars={planDistributionBars} maxHeight={190} />
             ) : (
               <div className="flex h-44 items-center justify-center rounded-xl bg-tl-paper text-sm text-tl-ink-muted">
-                No client workspaces configured.
+                No authenticated workspace configured.
               </div>
             )}
           </div>
@@ -763,10 +746,15 @@ export function PrestigeFounderCommandCentre({
             <p className="text-xs font-semibold uppercase tracking-wider text-tl-trust">
               Sentiment & Experience Perception
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-tl-ink">
-              {brief.voice.perceptionSummary ||
-                "Visitors report high trust in auditability and structured stakeholder workflow."}
-            </p>
+            {brief.voice.perceptionSummary ? (
+              <p className="mt-2 text-sm leading-relaxed text-tl-ink">
+                {brief.voice.perceptionSummary}
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-tl-ink-muted">
+                No perception summary recorded in the current signal window.
+              </p>
+            )}
             {brief.voice.sentiments.length > 0 && (
               <div className="mt-4">
                 <HorizontalBarChart bars={brief.voice.sentiments} maxHeight={140} />
