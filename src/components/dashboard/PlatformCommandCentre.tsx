@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -8,6 +8,7 @@ import {
 } from "@/components/ops/charts/BarChart";
 import { DonutChart } from "@/components/ops/charts/DonutChart";
 import { FunnelChart } from "@/components/ops/charts/FunnelChart";
+import { OverviewChartCard } from "@/components/dashboard/OverviewChartCard";
 import {
   buildModuleContributions,
   resolvePlanDashboardPackaging,
