@@ -1,5 +1,25 @@
 # Internal changelog
 
+## 2026-09-11 — RPT-05 Prestige Founder Executive Command Centre
+
+- Transformed `/ops/executive` into the Prestige Founder Executive Command Centre, honoring the mandatory UX hierarchy `CHARTS → SUMMARY → DETAILS → ACTION` (`See → Understand → Investigate → Act`).
+- Upgraded `OpsShell` to feature the signature TrustLedger dark sidebar (`bg-tl-ink text-white`) with glass accents, active route detection, operator profile card with online pulse indicator, and clean grouped C-suite navigation.
+- Created `PrestigeFounderCommandCentre` component delivering:
+  - Dynamic authenticated Founder identity and time-aware greeting.
+  - Conversion Metrics Bento Grid displaying real Platform Condition, Development Velocity, Client Footprint, and Inbound Signals.
+  - Section A: Commercial Activity Trend (`TrendChart` from `brief.weekly` with summary, expandable details, and activity ledger action).
+  - Section B: Clients by Plan Tier (horizontal distribution of client accounts across Institutional, Project, Practitioner, Solo, and VIP Pilot plans).
+  - Section C: Platform Build Progress (module completion breakdown from `buildModuleContributions`, aggregate progress %, and next module jump).
+  - Section D: Acquisition & Discovery Funnel (multi-stage conversion funnel via `FunnelChart`).
+  - Section E: Inbound Activity Mix & Experience Perception (demand breakdown and sentiment summary from real visitor signals).
+  - Section F: Requires Founder Attention (urgency panel surfacing P1 cases, SLA breaches, low ratings, and pending invites with direct action links).
+  - Section G: Live Recent Activity Stream (real recent payments, CRM lead intake, and verbatim visitor quotes).
+  - Section H: Quick Executive Controls (direct links to Engagement Plan desk, Issues control, Finance, Client accounts, Readiness diagnostic, and Settings).
+  - Preserved `#engagement-plans` anchor via `OpsEngagementPlanPanel` and integrated full TEDS blueprint maturity via `TedsMaturityPanel`.
+- Wired server-side data fetching in `/ops/executive` from `buildExecutiveBrief()`, `listRecentPayments()`, `incidentService.list()`, and `buildOpsOverview()`.
+- Added unit test suite `tests/ts/PrestigeFounderCommandCentre.test.tsx` and registered it in `jest.ui.config.cjs`.
+- All 55 test suites (378 tests) pass; TypeScript clean; Turbopack production build clean (110 pages generated); `srm-core/` untouched.
+
 ## 2026-09-09 — RPT-03 Build fix: guard funderSnapshot in CreateReportWizard
 
 - Fixed Vercel TypeScript build error (`CreateReportWizard.tsx:351`): `funderSnapshot` typed `FunderSnapshot | undefined` was passed directly to `funderChartGroups(snapshot: FunderSnapshot)`.

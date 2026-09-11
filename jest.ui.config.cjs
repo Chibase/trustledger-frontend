@@ -19,6 +19,7 @@ module.exports = {
     "<rootDir>/tests/ts/ReportsHub.test.tsx",
     "<rootDir>/tests/ts/ProjectReportStudio.test.tsx",
     "<rootDir>/tests/ts/CreateReportWizard.test.tsx",
+    "<rootDir>/tests/ts/PrestigeFounderCommandCentre.test.tsx",
     "<rootDir>/tests/ts/reportNarrative.test.tsx",
     "<rootDir>/tests/ts/trustIntelligence.test.ts",
     "<rootDir>/tests/ts/intelligenceFoundation.test.ts",
