@@ -195,13 +195,13 @@ describe("PrestigeFounderCommandCentre", () => {
     );
 
     // Section A: Commercial Activity Trend
-    expect(screen.getByText(/Weekly Platform Activity Velocity/i)).toBeInTheDocument();
-    expect(screen.getByText(/42 total activity signals across the last eight weeks/i)).toBeInTheDocument();
+    expect(screen.getByText(/Weekly CRM Intake Activity/i)).toBeInTheDocument();
+expect(screen.getByText(/42 CRM intake signals recorded across the last eight weeks/i)).toBeInTheDocument();
     expect(screen.getByText(/Investigate weekly breakdown/i)).toBeInTheDocument();
     expect(screen.getByText(/Inspect client activity ledger →/i)).toBeInTheDocument();
 
     // Section B: Clients by Plan Tier
-    expect(screen.getByText(/Clients by Plan Tier/i)).toBeInTheDocument();
+ expect(screen.getByText(/Current Workspace Plan/i)).toBeInTheDocument();
 
     // Section C: Platform Build Progress
     expect(screen.getByText(/Module Completion Velocity/i)).toBeInTheDocument();
