@@ -108,8 +108,8 @@ export function mergeIncidentCache(cloud: Incident, local: Incident): Incident {
   return {
     ...local,
     ...cloud,
-    processStages: cloud.processStages || local.processStages,
-    status: cloud.status || local.status,
+    processStages: cloud.processStages,
+    status: cloud.status,
     timeline: local.timeline?.length ? local.timeline : cloud.timeline,
     geo: local.geo || cloud.geo,
     slaDueBy: local.slaDueBy || cloud.slaDueBy,
@@ -203,14 +203,14 @@ export const incidentService = {
     const clean = omitCloudTrustOverlay(incident);
     if (isLiveMode()) {
       const pushed = await saveToCloudProduct(clean);
+      if (!pushed) {
+        throw new Error("Could not save on TrustLedger Cloud");
+      }
       const { readTrialModeFromDocument } = await import("@/lib/trial");
       const { isCustomerWorkspaceClient } = await import("@/lib/workspaceMode");
       if (readTrialModeFromDocument() || isCustomerWorkspaceClient()) {
         const { saveOrgIncident } = await import("@/lib/orgDataSpace");
         saveOrgIncident(clean);
-      }
-      if (!pushed) {
-        throw new Error("Could not save on TrustLedger Cloud");
       }
       return delay(clean);
     }

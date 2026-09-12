@@ -192,6 +192,13 @@
 - Live list/detail prefer the projects BFF. Empty Cloud stays empty (no local-only append). Dossier extras overlay onto Cloud ids only. Local org cache is written after a successful Cloud upsert.
 - Honest limit: programme dossier / geo pack stays a local overlay, not a Cloud DocType.
 
+## 2026-09-04 — 24e-cloud Copilot follow-up
+
+- Cloud `processStages` and `status` win even when blank — local stamps are not revived on overlay.
+- Local org cache is written only after a successful Cloud upsert (a failed Cloud write no longer leaves a stale cache).
+- Live list still overlays local extras onto Cloud ids only (`overlayLocalIncidentsOntoCloud`); demo merge may still append local-only rows.
+- Live **Cloud customer** case list and detail use Cloud get/list only — local-only org rows are not shown, so blank Cloud stamps stay blank. Trial/demo still merge local cases so a VIP showcase row is not a 404 on the desk.
+
 ## 2026-09-04 — 24e-cloud grievance lifecycle stamps
 
 - Live cases persist reported → deployed → investigated → resolved → verified → closed timestamps on **`TL Incident`**. Advance / Verify & close / intake upsert through `GET|POST /api/frappe/product?kind=incident`.
